@@ -69,12 +69,10 @@ final class DashboardPage
 
             <p class="lrob-etk-footer">
                 <?php
+                /* translators: %s: HTML link to LRob's website */
+                $message = __('Built with care by %s.', 'lrob-email-toolkit');
                 printf(
-                    /* translators: %s: link to lrob.fr */
-                    wp_kses(
-                        __('Built with care by %s.', 'lrob-email-toolkit'),
-                        ['a' => ['href' => [], 'target' => [], 'rel' => []]]
-                    ),
+                    wp_kses($message, ['a' => ['href' => [], 'target' => [], 'rel' => []]]),
                     '<a href="https://www.lrob.fr" target="_blank" rel="noopener">LRob</a>'
                 );
                 ?>

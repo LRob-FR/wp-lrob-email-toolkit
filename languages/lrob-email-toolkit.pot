@@ -1,0 +1,727 @@
+# Copyright (C) 2026 LRob
+# This file is distributed under the same license as the LRob - Email Toolkit plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: LRob - Email Toolkit 0.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-toolkit\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-05-17T11:01:53+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: lrob-email-toolkit\n"
+
+#. Plugin Name of the plugin
+msgid "LRob - Email Toolkit"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://www.lrob.fr/wordpress/plugins/lrob-email-toolkit/"
+msgstr ""
+
+#. Description of the plugin
+msgid "All-in-one modular email plugin: SMTP routing, email logging with IMAP \"Save to Sent\" archiving, contact forms, newsletters, and webhook integrations. Each module is independently activatable."
+msgstr ""
+
+#. Author of the plugin
+msgid "LRob"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://www.lrob.fr"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:21
+msgid "LRob — Email Toolkit"
+msgstr ""
+
+#. translators: %s: plugin version
+#: src/Admin/DashboardPage.php:26
+msgid "Modular email plugin — version %s."
+msgstr ""
+
+#: src/Admin/DashboardPage.php:32
+#: src/Admin/Menu.php:62
+#: src/Admin/Menu.php:63
+msgid "Modules"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:36
+msgid "Module"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:37
+msgid "Description"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:38
+#: src/Modules/Logging/Admin/LogsListTable.php:34
+#: src/Modules/Logging/Admin/LogViewPage.php:69
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:238
+#: src/Modules/SMTP/Admin/SettingsPage.php:96
+msgid "Status"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:51
+msgid "Enabled"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:55
+msgid "Disabled"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:66
+msgid "Manage modules"
+msgstr ""
+
+#. translators: %s: HTML link to LRob's website
+#: src/Admin/DashboardPage.php:73
+msgid "Built with care by %s."
+msgstr ""
+
+#: src/Admin/Menu.php:42
+#: src/Admin/Menu.php:43
+msgid "Email Toolkit"
+msgstr ""
+
+#: src/Admin/Menu.php:53
+#: src/Admin/Menu.php:54
+msgid "Dashboard"
+msgstr ""
+
+#: src/Admin/ModulesPage.php:27
+#: src/Admin/ModulesPage.php:90
+msgid "You do not have permission to manage Email Toolkit modules."
+msgstr ""
+
+#: src/Admin/ModulesPage.php:35
+msgid "Email Toolkit — Modules"
+msgstr ""
+
+#: src/Admin/ModulesPage.php:39
+msgid "Module settings updated."
+msgstr ""
+
+#: src/Admin/ModulesPage.php:44
+msgid "Enable only the modules you need. Each module is independent — your data is preserved if you disable and re-enable later."
+msgstr ""
+
+#: src/Admin/ModulesPage.php:72
+msgid "Enable this module"
+msgstr ""
+
+#: src/Admin/ModulesPage.php:81
+msgid "Save changes"
+msgstr ""
+
+#: src/Admin/ModulesPage.php:95
+#: src/Modules/Logging/Admin/PageController.php:129
+#: src/Modules/SMTP/Admin/PageController.php:276
+msgid "Security check failed. Please retry."
+msgstr ""
+
+#: src/Modules/ContactForm/Module.php:26
+msgid "Contact Form"
+msgstr ""
+
+#: src/Modules/ContactForm/Module.php:31
+msgid "Build customizable contact forms with stacked anti-spam and optional captcha providers."
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:33
+#: src/Modules/Logging/Admin/LogViewPage.php:59
+msgid "Date"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:35
+#: src/Modules/Logging/Admin/LogViewPage.php:83
+#: src/Modules/SMTP/Admin/SettingsPage.php:93
+msgid "From"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:36
+#: src/Modules/Logging/Admin/LogViewPage.php:95
+msgid "To"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:37
+#: src/Modules/Logging/Admin/LogViewPage.php:117
+msgid "Subject"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:38
+#: src/Modules/Logging/Admin/LogViewPage.php:73
+msgid "Source"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:39
+#: src/Modules/SMTP/Admin/SettingsPage.php:97
+msgid "Actions"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:83
+msgid "All"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:90
+#: src/Modules/Logging/Admin/LogsListTable.php:155
+msgid "Sent"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:97
+#: src/Modules/Logging/Admin/LogsListTable.php:156
+msgid "Failed"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:104
+#: src/Modules/Logging/Admin/LogsListTable.php:157
+msgid "Sending"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:123
+msgid "All sources"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:130
+msgid "Filter"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:158
+msgid "Retried"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:180
+msgid "(no subject)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsListTable.php:193
+msgid "View"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:31
+msgid "Email Toolkit — Logs"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:41
+msgid "Search emails"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:45
+msgid "Retention"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:53
+msgid "Keep logs for"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:58
+msgid "days"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:60
+msgid "0 = keep forever. Older entries are deleted daily by a cron event."
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:66
+msgid "Save"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:27
+msgid "Log entry not found"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:30
+#: src/Modules/Logging/Admin/LogViewPage.php:52
+msgid "Back to logs"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:44
+msgid "Email log entry"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:64
+msgid "Sent at"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:78
+msgid "Identity ID"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:100
+msgid "Cc"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:106
+msgid "Bcc"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:112
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:130
+msgid "Reply-to"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:122
+msgid "Attachments"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:134
+msgid "Error"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:142
+msgid "Custom headers"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:146
+msgid "Name"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:147
+msgid "Value"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:165
+msgid "Body"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:182
+msgid "(no body)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:188
+msgid "HTML body (sandboxed preview):"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:200
+msgid "Plain-text alternative:"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:201
+msgid "Plain-text body:"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:214
+msgid "Resend"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:223
+msgid "Delete this log entry?"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:227
+#: src/Modules/SMTP/Admin/SettingsPage.php:147
+msgid "Delete"
+msgstr ""
+
+#: src/Modules/Logging/Admin/PageController.php:46
+#: src/Modules/Logging/Admin/PageController.php:47
+msgid "Email Logs"
+msgstr ""
+
+#: src/Modules/Logging/Admin/PageController.php:57
+#: src/Modules/Logging/Admin/PageController.php:125
+#: src/Modules/SMTP/Admin/PageController.php:74
+#: src/Modules/SMTP/Admin/PageController.php:272
+msgid "Insufficient permissions."
+msgstr ""
+
+#: src/Modules/Logging/Admin/PageController.php:82
+msgid "Email re-sent successfully."
+msgstr ""
+
+#: src/Modules/Logging/Admin/PageController.php:84
+msgid "Attachments were not re-sent (the original files are no longer available)."
+msgstr ""
+
+#: src/Modules/Logging/Admin/PageController.php:88
+#: src/Modules/SMTP/Admin/PageController.php:259
+msgid "Unknown error."
+msgstr ""
+
+#. translators: %s: error message
+#: src/Modules/Logging/Admin/PageController.php:91
+msgid "Resend failed: %s"
+msgstr ""
+
+#: src/Modules/Logging/Admin/PageController.php:106
+msgid "Log entry deleted."
+msgstr ""
+
+#: src/Modules/Logging/Admin/PageController.php:118
+msgid "Logging settings saved."
+msgstr ""
+
+#: src/Modules/Logging/Module.php:27
+msgid "Email Logging"
+msgstr ""
+
+#: src/Modules/Logging/Module.php:32
+msgid "Log every outgoing email and optionally archive a copy to your IMAP Sent folder."
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:25
+msgid "Newsletter"
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:30
+msgid "Send campaigns to your WordPress users with advanced segmentation and tracking."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:56
+msgid "Add SMTP identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:57
+msgid "Edit SMTP identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:65
+msgid "Some fields are overridden by wp-config.php constants."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:66
+msgid "You can still edit them here, but the saved value is ignored at runtime — the constant value is used instead."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:76
+msgid "Identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:81
+#: src/Modules/SMTP/Admin/SettingsPage.php:91
+msgid "Label"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:86
+msgid "Internal name shown in the admin (e.g. \"Main site\", \"Newsletter sender\")."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:91
+#: src/Modules/SMTP/Admin/SettingsPage.php:92
+msgid "Slug"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:96
+msgid "Lowercase letters, digits, underscores. Used in routing rules. Cannot be reused across identities."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:102
+msgid "From address"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:107
+msgid "From email"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:114
+msgid "Most SMTP servers require this to match the SMTP username below — many will reject or rewrite mismatched messages."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:120
+msgid "From name"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:135
+msgid "Optional. Where replies should be sent if different from \"From\"."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:139
+msgid "Force \"From\""
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:143
+msgid "Override the From address on every outgoing email with the values above."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:150
+msgid "SMTP server"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:155
+msgid "Host"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:165
+msgid "Port"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:171
+msgid "Common: 587 (STARTTLS), 465 (SSL/SMTPS), 25 (plain)."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:175
+msgid "Encryption"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:180
+msgid "STARTTLS (recommended, port 587)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:184
+msgid "SSL/TLS implicit (port 465)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:188
+msgid "None — not recommended"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:195
+msgid "Authentication"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:199
+msgid "SMTP server requires authentication"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:205
+msgid "Username"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:215
+msgid "Password"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:219
+msgid "(unchanged — type to replace)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:226
+msgid "Clear stored password"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:231
+msgid "Stored encrypted at rest. To override via wp-config.php, define LROB_ETK_SMTP_PASS."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:242
+#: src/Modules/SMTP/Admin/SettingsPage.php:134
+msgid "Active"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:246
+msgid "This identity can be used for sending"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:251
+#: src/Modules/SMTP/Admin/SettingsPage.php:95
+msgid "Default"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:255
+msgid "Use this identity for any source without a specific routing rule"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:259
+msgid "The first identity is automatically the default."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:267
+msgid "Save identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:268
+msgid "Cancel"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:312
+msgid "Send a test email"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:314
+msgid "Verify your configuration by sending a test email through this identity. The test bypasses routing rules and uses this identity directly."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:325
+msgid "Recipient"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:336
+msgid "Send test email"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/IdentityEditPage.php:351
+msgid "Overridden by wp-config.php — the value above is ignored at runtime."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:63
+#: src/Modules/SMTP/Admin/PageController.php:64
+#: src/Modules/SMTP/Module.php:28
+msgid "SMTP"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:98
+msgid "Slug is required."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:100
+msgid "That slug is already used by another identity."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:105
+msgid "Label is required."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:110
+msgid "From email must be a valid email address."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:115
+msgid "From name is required."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:120
+msgid "SMTP host is required."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:125
+msgid "SMTP port must be between 1 and 65535."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:136
+msgid "Username is required when authentication is enabled."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:147
+msgid "Reply-to must be a valid email address."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:188
+msgid "SMTP identity saved."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:199
+msgid "SMTP identity deleted."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:211
+msgid "Default identity updated."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:235
+msgid "Routing rules saved."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/PageController.php:247
+msgid "Recipient and identity are required for a test send."
+msgstr ""
+
+#. translators: %s: recipient email
+#: src/Modules/SMTP/Admin/PageController.php:255
+msgid "Test email sent to %s."
+msgstr ""
+
+#. translators: %s: error message
+#: src/Modules/SMTP/Admin/PageController.php:262
+msgid "Test email failed: %s"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:41
+msgid "Email Toolkit — SMTP"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:44
+msgid "Add identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:51
+msgid "SMTP identities"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:56
+msgid "No SMTP identities configured yet."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:60
+msgid "Create your first identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:69
+msgid "Routing rules"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:71
+msgid "Choose which identity to use for each kind of outgoing email. Unset sources fall back to the default identity."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:94
+msgid "Server"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:122
+msgid "Default identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:128
+msgid "Set as default"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:136
+msgid "Inactive"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:141
+msgid "Edit"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:143
+msgid "Delete this identity?"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:183
+msgid "— Use default identity —"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:197
+msgid "Save routing rules"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:206
+msgid "Default — any email not matching another source"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:209
+msgid "WooCommerce emails"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:238
+msgid "AUTH_KEY is missing or unset in wp-config.php."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:239
+msgid "SMTP passwords cannot be encrypted at rest until you configure AUTH_KEY. Please generate one at https://api.wordpress.org/secret-key/1.1/salt/ and add it to wp-config.php."
+msgstr ""
+
+#: src/Modules/SMTP/Module.php:33
+msgid "Route outgoing emails through one or more SMTP servers, with per-source identity routing."
+msgstr ""
+
+#. translators: %s: site name
+#: src/Modules/SMTP/TestSender.php:52
+msgid "[Email Toolkit] Test email from %s"
+msgstr ""
+
+#: src/Modules/SMTP/TestSender.php:77
+msgid "This is a test email sent by LRob — Email Toolkit."
+msgstr ""
+
+#. translators: %s: identity label
+#: src/Modules/SMTP/TestSender.php:81
+msgid "Identity: %s"
+msgstr ""
+
+#. translators: 1: SMTP host, 2: port, 3: encryption
+#: src/Modules/SMTP/TestSender.php:86
+msgid "Server: %1$s:%2$d (%3$s)"
+msgstr ""
+
+#. translators: %s: from address
+#: src/Modules/SMTP/TestSender.php:93
+msgid "From: %s"
+msgstr ""
+
+#: src/Modules/SMTP/TestSender.php:97
+msgid "If you received this, your SMTP configuration is working."
+msgstr ""
