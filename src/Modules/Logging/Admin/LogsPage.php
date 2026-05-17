@@ -17,8 +17,6 @@ use LRob\EmailToolkit\Modules\ModuleInterface;
  */
 final class LogsPage
 {
-    private const PER_PAGE = 20;
-
     public function __construct(
         private ModuleInterface $module,
         private LogRepository $repository,
@@ -38,10 +36,16 @@ final class LogsPage
                 <h1 class="lrob-etk-page-title"><?php esc_html_e('Email Logs', 'lrob-email-toolkit'); ?></h1>
                 <?php ModuleToggle::render_inline($this->module); ?>
                 <?php if ($enabled || $log_count > 0) : ?>
-                    <button type="button" id="lrob-etk-logs-cleanup-btn" class="button lrob-etk-page-cleanup">
-                        <span class="dashicons dashicons-trash"></span>
-                        <?php esc_html_e('Cleanup', 'lrob-email-toolkit'); ?>
-                    </button>
+                    <div class="lrob-etk-page-header-actions">
+                        <button type="button" id="lrob-etk-logs-settings-btn" class="button">
+                            <span class="dashicons dashicons-admin-generic"></span>
+                            <?php esc_html_e('Settings', 'lrob-email-toolkit'); ?>
+                        </button>
+                        <button type="button" id="lrob-etk-logs-cleanup-btn" class="button">
+                            <span class="dashicons dashicons-trash"></span>
+                            <?php esc_html_e('Cleanup', 'lrob-email-toolkit'); ?>
+                        </button>
+                    </div>
                 <?php endif; ?>
             </header>
 
@@ -55,10 +59,10 @@ final class LogsPage
                 </p>
             <?php else : ?>
                 <?php $this->render_logs_view(); ?>
-                <?php $this->render_settings_section(); ?>
             <?php endif; ?>
 
             <?php $this->render_cleanup_popover(); ?>
+            <?php $this->render_settings_popover(); ?>
         </div>
 
         <script>
@@ -70,13 +74,15 @@ final class LogsPage
     private function render_logs_view(): void
     {
         $filters = $this->parse_filters();
+        $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
+        $per_page = max(5, min(500, $per_page));
         $page = max(1, isset($_GET['paged']) ? (int) $_GET['paged'] : 1);
         $total = $this->repository->count($filters);
-        $total_pages = max(1, (int) ceil($total / self::PER_PAGE));
+        $total_pages = max(1, (int) ceil($total / $per_page));
         if ($page > $total_pages) {
             $page = $total_pages;
         }
-        $entries = $this->repository->paginate($filters, $page, self::PER_PAGE);
+        $entries = $this->repository->paginate($filters, $page, $per_page);
 
         $this->render_filter_bar($filters);
 
@@ -85,13 +91,13 @@ final class LogsPage
             return;
         }
 
-        $this->render_bulk_toolbar($page, $total, $total_pages);
+        $this->render_bulk_toolbar($page, $total, $per_page);
         $this->render_table($entries);
         $this->render_pagination($page, $total_pages, $total);
     }
 
     /**
-     * @return array{status?: string, source?: string, search?: string}
+     * @return array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string}
      */
     private function parse_filters(): array
     {
@@ -105,6 +111,18 @@ final class LogsPage
         if (!empty($_GET['s']) && is_string($_GET['s'])) {
             $f['search'] = sanitize_text_field(wp_unslash($_GET['s']));
         }
+        if (!empty($_GET['date_from']) && is_string($_GET['date_from'])) {
+            $d = sanitize_text_field(wp_unslash($_GET['date_from']));
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
+                $f['date_from'] = $d . ' 00:00:00';
+            }
+        }
+        if (!empty($_GET['date_to']) && is_string($_GET['date_to'])) {
+            $d = sanitize_text_field(wp_unslash($_GET['date_to']));
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
+                $f['date_to'] = $d . ' 23:59:59';
+            }
+        }
         return $f;
     }
 
@@ -115,6 +133,10 @@ final class LogsPage
         $current_status = $filters['status'] ?? '';
         $current_source = $filters['source'] ?? '';
         $current_search = $filters['search'] ?? '';
+        // The filter array keeps full timestamps; the UI just shows the date.
+        $current_from = isset($filters['date_from']) ? substr((string) $filters['date_from'], 0, 10) : '';
+        $current_to = isset($filters['date_to']) ? substr((string) $filters['date_to'], 0, 10) : '';
+        $has_filter = $current_status !== '' || $current_source !== '' || $current_search !== '' || $current_from !== '' || $current_to !== '';
         ?>
         <form method="get" class="lrob-etk-logs-filter">
             <input type="hidden" name="page" value="<?php echo esc_attr(PageController::SLUG); ?>">
@@ -150,6 +172,16 @@ final class LogsPage
                 </select>
             </div>
 
+            <div class="lrob-etk-logs-filter-field">
+                <label for="lrob-etk-filter-date-from"><?php esc_html_e('From', 'lrob-email-toolkit'); ?></label>
+                <input type="date" id="lrob-etk-filter-date-from" name="date_from" value="<?php echo esc_attr($current_from); ?>">
+            </div>
+
+            <div class="lrob-etk-logs-filter-field">
+                <label for="lrob-etk-filter-date-to"><?php esc_html_e('To', 'lrob-email-toolkit'); ?></label>
+                <input type="date" id="lrob-etk-filter-date-to" name="date_to" value="<?php echo esc_attr($current_to); ?>">
+            </div>
+
             <div class="lrob-etk-logs-filter-field lrob-etk-logs-filter-search">
                 <label for="lrob-etk-filter-search"><?php esc_html_e('Search', 'lrob-email-toolkit'); ?></label>
                 <input type="search" id="lrob-etk-filter-search" name="s" value="<?php echo esc_attr($current_search); ?>"
@@ -158,7 +190,7 @@ final class LogsPage
 
             <div class="lrob-etk-logs-filter-actions">
                 <button type="submit" class="button button-primary"><?php esc_html_e('Filter', 'lrob-email-toolkit'); ?></button>
-                <?php if ($current_status !== '' || $current_source !== '' || $current_search !== '') : ?>
+                <?php if ($has_filter) : ?>
                     <a href="<?php echo esc_url(admin_url('admin.php?page=' . PageController::SLUG)); ?>" class="button button-link">
                         <?php esc_html_e('Reset', 'lrob-email-toolkit'); ?>
                     </a>
@@ -168,10 +200,10 @@ final class LogsPage
         <?php
     }
 
-    private function render_bulk_toolbar(int $page, int $total, int $total_pages): void
+    private function render_bulk_toolbar(int $page, int $total, int $per_page): void
     {
-        $first = ($page - 1) * self::PER_PAGE + 1;
-        $last = min($total, $page * self::PER_PAGE);
+        $first = ($page - 1) * $per_page + 1;
+        $last = min($total, $page * $per_page);
         ?>
         <div class="lrob-etk-bulk-toolbar">
             <div class="lrob-etk-bulk-selection">
@@ -214,7 +246,7 @@ final class LogsPage
                         <th class="col-to"><?php esc_html_e('To', 'lrob-email-toolkit'); ?></th>
                         <th class="col-subject"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></th>
                         <th class="col-source"><?php esc_html_e('Source', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-actions"></th>
+                        <th class="col-actions"><?php esc_html_e('Actions', 'lrob-email-toolkit'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -263,6 +295,9 @@ final class LogsPage
                 <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View log entry', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-visibility"></span>
                 </a>
+                <button type="button" class="lrob-etk-row-action lrob-etk-row-resend" data-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Resend', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Resend email', 'lrob-email-toolkit'); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
                 <button type="button" class="lrob-etk-row-action lrob-etk-row-delete" data-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Delete', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Delete log entry', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-trash"></span>
                 </button>
@@ -316,33 +351,6 @@ final class LogsPage
         <?php
     }
 
-    private function render_settings_section(): void
-    {
-        $action_url = admin_url('admin-post.php');
-        $retention = (int) get_option(RetentionCron::OPTION_RETENTION_DAYS, RetentionCron::DEFAULT_RETENTION_DAYS);
-        ?>
-        <h2 class="lrob-etk-section-title"><?php esc_html_e('Retention', 'lrob-email-toolkit'); ?></h2>
-        <form method="post" action="<?php echo esc_url($action_url); ?>" class="lrob-etk-settings-form">
-            <input type="hidden" name="action" value="<?php echo esc_attr(PageController::ACTION_SAVE_SETTINGS); ?>">
-            <?php wp_nonce_field(PageController::ACTION_SAVE_SETTINGS, '_lrob_etk_nonce'); ?>
-
-            <p>
-                <label>
-                    <?php esc_html_e('Keep logs for', 'lrob-email-toolkit'); ?>
-                    <input type="number" name="retention_days" class="small-text" min="0" max="3650"
-                           value="<?php echo (int) $retention; ?>">
-                    <?php esc_html_e('days', 'lrob-email-toolkit'); ?>
-                </label>
-                <span class="description">
-                    <?php esc_html_e('0 = keep forever. Older entries are deleted daily by a cron event.', 'lrob-email-toolkit'); ?>
-                </span>
-            </p>
-
-            <?php submit_button(__('Save', 'lrob-email-toolkit'), 'secondary', 'submit', false); ?>
-        </form>
-        <?php
-    }
-
     private function render_cleanup_popover(): void
     {
         ?>
@@ -354,25 +362,66 @@ final class LogsPage
                 </button>
             </header>
             <div class="lrob-etk-popover-body">
+                <p class="lrob-etk-popover-help"><?php esc_html_e('One-shot manual cleanup. Automatic retention is configured in Settings.', 'lrob-email-toolkit'); ?></p>
                 <div class="lrob-etk-cleanup-option">
                     <label>
                         <?php esc_html_e('Delete logs older than', 'lrob-email-toolkit'); ?>
                         <input type="number" id="lrob-etk-cleanup-days" class="small-text" min="1" max="3650" value="30">
                         <?php esc_html_e('days', 'lrob-email-toolkit'); ?>
                     </label>
-                    <button type="button" class="button" data-cleanup-action="older_than">
-                        <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
-                    </button>
+                </div>
+                <div class="lrob-etk-cleanup-result lrob-etk-test-result" hidden></div>
+            </div>
+            <footer class="lrob-etk-popover-footer">
+                <button type="button" class="button" data-cleanup-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
+                <button type="button" class="button button-primary" data-cleanup-action="older_than">
+                    <?php esc_html_e('Delete matching logs', 'lrob-email-toolkit'); ?>
+                </button>
+            </footer>
+        </div>
+        <?php
+    }
+
+    private function render_settings_popover(): void
+    {
+        $retention = (int) get_option(RetentionCron::OPTION_RETENTION_DAYS, RetentionCron::DEFAULT_RETENTION_DAYS);
+        $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
+        ?>
+        <div class="lrob-etk-popover lrob-etk-logs-settings-popover" id="lrob-etk-logs-settings-popover" role="dialog" aria-label="<?php esc_attr_e('Log settings', 'lrob-email-toolkit'); ?>" hidden>
+            <header class="lrob-etk-popover-header">
+                <h3><?php esc_html_e('Log settings', 'lrob-email-toolkit'); ?></h3>
+                <button type="button" class="lrob-etk-popover-close" aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>" data-settings-close>
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
+            </header>
+            <div class="lrob-etk-popover-body">
+                <div class="lrob-etk-field">
+                    <label for="lrob-etk-settings-retention"><?php esc_html_e('Retention', 'lrob-email-toolkit'); ?></label>
+                    <p class="lrob-etk-popover-help"><?php esc_html_e('Older entries are deleted daily by a cron event. 0 = keep forever.', 'lrob-email-toolkit'); ?></p>
+                    <p>
+                        <input type="number" id="lrob-etk-settings-retention" class="small-text" min="0" max="3650" value="<?php echo (int) $retention; ?>">
+                        <?php esc_html_e('days', 'lrob-email-toolkit'); ?>
+                    </p>
                 </div>
                 <hr style="margin: 12px 0; border: 0; border-top: 1px solid var(--etk-soft);">
-                <div class="lrob-etk-cleanup-option">
-                    <span><?php esc_html_e('Delete everything', 'lrob-email-toolkit'); ?></span>
-                    <button type="button" class="button button-link-delete" data-cleanup-action="all">
-                        <?php esc_html_e('Delete all', 'lrob-email-toolkit'); ?>
-                    </button>
+                <div class="lrob-etk-field">
+                    <label for="lrob-etk-settings-perpage"><?php esc_html_e('Entries per page', 'lrob-email-toolkit'); ?></label>
+                    <p>
+                        <select id="lrob-etk-settings-perpage" class="lrob-etk-select">
+                            <?php foreach ([10, 20, 50, 100, 200] as $opt) : ?>
+                                <option value="<?php echo (int) $opt; ?>" <?php selected($per_page, $opt); ?>><?php echo (int) $opt; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </p>
                 </div>
-                <div class="lrob-etk-test-result lrob-etk-cleanup-result" hidden></div>
+                <div class="lrob-etk-test-result lrob-etk-settings-result" hidden></div>
             </div>
+            <footer class="lrob-etk-popover-footer">
+                <button type="button" class="button" data-settings-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
+                <button type="button" class="button button-primary" id="lrob-etk-settings-save">
+                    <?php esc_html_e('Save', 'lrob-email-toolkit'); ?>
+                </button>
+            </footer>
         </div>
         <?php
     }
@@ -384,16 +433,21 @@ final class LogsPage
             ajaxUrl: <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>,
             nonce: <?php echo wp_json_encode(wp_create_nonce(AjaxController::NONCE_ACTION)); ?>,
             actions: {
-                delete:      <?php echo wp_json_encode(AjaxController::ACTION_DELETE); ?>,
-                bulkDelete:  <?php echo wp_json_encode(AjaxController::ACTION_BULK_DELETE); ?>,
-                purge:       <?php echo wp_json_encode(AjaxController::ACTION_PURGE); ?>
+                delete:       <?php echo wp_json_encode(AjaxController::ACTION_DELETE); ?>,
+                bulkDelete:   <?php echo wp_json_encode(AjaxController::ACTION_BULK_DELETE); ?>,
+                purge:        <?php echo wp_json_encode(AjaxController::ACTION_PURGE); ?>,
+                resend:       <?php echo wp_json_encode(AjaxController::ACTION_RESEND); ?>,
+                saveSettings: <?php echo wp_json_encode(AjaxController::ACTION_SAVE_SETTINGS); ?>
             },
             i18n: {
                 confirmDelete:     <?php echo wp_json_encode(__('Delete this log entry?', 'lrob-email-toolkit')); ?>,
                 confirmBulkDelete: <?php echo wp_json_encode(__('Delete %d selected log entries?', 'lrob-email-toolkit')); ?>,
-                confirmDeleteAll:  <?php echo wp_json_encode(__('Permanently delete ALL log entries? This cannot be undone.', 'lrob-email-toolkit')); ?>,
+                confirmResend:     <?php echo wp_json_encode(__('Resend this email now?', 'lrob-email-toolkit')); ?>,
                 noSelection:       <?php echo wp_json_encode(__('Select at least one entry.', 'lrob-email-toolkit')); ?>,
                 pickAction:        <?php echo wp_json_encode(__('Pick an action first.', 'lrob-email-toolkit')); ?>,
+                resending:         <?php echo wp_json_encode(__('Resending…', 'lrob-email-toolkit')); ?>,
+                working:           <?php echo wp_json_encode(__('Working…', 'lrob-email-toolkit')); ?>,
+                saving:            <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
                 unknownError:      <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>
             }
         };
@@ -477,6 +531,31 @@ final class LogsPage
         });
     });
 
+    // ---- Per-row resend ----
+    $$('.lrob-etk-row-resend').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (!confirm(L.i18n.confirmResend)) return;
+            var id = btn.getAttribute('data-id');
+            var icon = btn.querySelector('.dashicons');
+            btn.disabled = true;
+            if (icon) icon.classList.add('lrob-etk-spin');
+            ajax(L.actions.resend, { id: id }).then(function (resp) {
+                btn.disabled = false;
+                if (icon) icon.classList.remove('lrob-etk-spin');
+                if (resp.success) {
+                    flash(resp.data.message, 'success');
+                    setTimeout(function () { window.location.reload(); }, 800);
+                } else {
+                    flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
+                }
+            }).catch(function () {
+                btn.disabled = false;
+                if (icon) icon.classList.remove('lrob-etk-spin');
+                flash(L.i18n.unknownError, 'error');
+            });
+        });
+    });
+
     // ---- Cleanup popover ----
     var cleanupBtn = document.getElementById('lrob-etk-logs-cleanup-btn');
     var cleanupPop = document.getElementById('lrob-etk-logs-cleanup-popover');
@@ -520,9 +599,6 @@ final class LogsPage
             b.addEventListener('click', function () {
                 var mode = b.getAttribute('data-cleanup-action');
                 var result = cleanupPop.querySelector('.lrob-etk-cleanup-result');
-                if (mode === 'all') {
-                    if (!confirm(L.i18n.confirmDeleteAll)) return;
-                }
                 var params = { mode: mode };
                 if (mode === 'older_than') {
                     var daysEl = document.getElementById('lrob-etk-cleanup-days');
@@ -531,7 +607,7 @@ final class LogsPage
                 b.disabled = true;
                 result.hidden = false;
                 result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
-                result.textContent = 'Working…';
+                result.textContent = L.i18n.working;
                 ajax(L.actions.purge, params).then(function (resp) {
                     b.disabled = false;
                     if (resp.success) {
@@ -545,6 +621,52 @@ final class LogsPage
                 });
             });
         });
+    }
+
+    // ---- Settings popover ----
+    var settingsBtn = document.getElementById('lrob-etk-logs-settings-btn');
+    var settingsPop = document.getElementById('lrob-etk-logs-settings-popover');
+    if (settingsBtn && settingsPop) {
+        settingsBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (settingsPop.hidden) positionPopover(settingsPop, settingsBtn);
+            else settingsPop.hidden = true;
+        });
+        document.addEventListener('click', function (e) {
+            if (!settingsPop.hidden && !settingsPop.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) {
+                settingsPop.hidden = true;
+            }
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') settingsPop.hidden = true; });
+        settingsPop.querySelectorAll('[data-settings-close]').forEach(function (b) {
+            b.addEventListener('click', function () { settingsPop.hidden = true; });
+        });
+        var saveBtn = document.getElementById('lrob-etk-settings-save');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function () {
+                var ret = document.getElementById('lrob-etk-settings-retention');
+                var per = document.getElementById('lrob-etk-settings-perpage');
+                var result = settingsPop.querySelector('.lrob-etk-settings-result');
+                saveBtn.disabled = true;
+                result.hidden = false;
+                result.className = 'lrob-etk-test-result lrob-etk-settings-result is-pending';
+                result.textContent = L.i18n.saving;
+                ajax(L.actions.saveSettings, {
+                    retention_days: ret ? ret.value : 365,
+                    per_page: per ? per.value : 20
+                }).then(function (resp) {
+                    saveBtn.disabled = false;
+                    if (resp.success) {
+                        result.className = 'lrob-etk-test-result lrob-etk-settings-result is-success';
+                        result.textContent = '✓ ' + resp.data.message;
+                        setTimeout(function () { window.location.reload(); }, 600);
+                    } else {
+                        result.className = 'lrob-etk-test-result lrob-etk-settings-result is-failure';
+                        result.textContent = '✗ ' + ((resp.data && resp.data.message) || L.i18n.unknownError);
+                    }
+                });
+            });
+        }
     }
 })();
         <?php

@@ -23,11 +23,11 @@ final class LogEntry
     public const STATUS_RETRIED = 'retried';
 
     /**
-     * @param array<int, string>                 $to_emails
-     * @param array<int, string>                 $cc_emails
-     * @param array<int, string>                 $bcc_emails
-     * @param array<int, array{name: string, value: string}> $headers
-     * @param array<int, string>                 $attachments
+     * @param array<int, string>                                $to_emails
+     * @param array<int, string>                                $cc_emails
+     * @param array<int, string>                                $bcc_emails
+     * @param array<int, array{name: string, value: string}>    $headers
+     * @param array<int, array{name: string, path: ?string}>    $attachments
      */
     public function __construct(
         public readonly ?int $id,
@@ -87,11 +87,16 @@ final class LogEntry
 
         $attachments = [];
         foreach ($mailer->getAttachments() as $a) {
-            // PHPMailer attachment row layout: [content/path, name, encoded_name, encoding, type, isString, disposition, cid]
+            // PHPMailer attachment row layout:
+            //   [0] content/path, [1] name, [2] encoded_name, [3] encoding,
+            //   [4] type, [5] isString, [6] disposition, [7] cid
             $name = (string) ($a[2] ?? $a[1] ?? '');
-            if ($name !== '') {
-                $attachments[] = $name;
+            if ($name === '') {
+                continue;
             }
+            $is_string = !empty($a[5]);
+            $path = !$is_string && isset($a[0]) ? (string) $a[0] : null;
+            $attachments[] = ['name' => $name, 'path' => $path];
         }
 
         $is_html  = stripos((string) $mailer->ContentType, 'html') !== false;
@@ -152,7 +157,7 @@ final class LogEntry
             body_html: isset($row['body_html']) && $row['body_html'] !== null ? (string) $row['body_html'] : null,
             body_text: isset($row['body_text']) && $row['body_text'] !== null ? (string) $row['body_text'] : null,
             headers: self::decode_array($row['headers'] ?? null),
-            attachments: self::decode_array($row['attachments'] ?? null),
+            attachments: self::normalize_attachments(self::decode_array($row['attachments'] ?? null)),
             message_id: isset($row['message_id']) && $row['message_id'] !== '' ? (string) $row['message_id'] : null,
             error_message: isset($row['error_message']) && $row['error_message'] !== '' ? (string) $row['error_message'] : null,
             retry_count: isset($row['retry_count']) ? (int) $row['retry_count'] : 0,
@@ -251,6 +256,34 @@ final class LogEntry
         }
         $decoded = json_decode((string) $value, true);
         return is_array($decoded) ? array_values($decoded) : [];
+    }
+
+    /**
+     * Normalize stored attachments to the canonical shape. Old rows stored
+     * plain filename strings; new rows store {name, path} objects. Both
+     * variants are accepted on read.
+     *
+     * @param  array<int, mixed> $raw
+     * @return array<int, array{name: string, path: ?string}>
+     */
+    private static function normalize_attachments(array $raw): array
+    {
+        $out = [];
+        foreach ($raw as $a) {
+            if (is_string($a) && $a !== '') {
+                $out[] = ['name' => $a, 'path' => null];
+                continue;
+            }
+            if (is_array($a)) {
+                $name = isset($a['name']) ? (string) $a['name'] : '';
+                if ($name === '') {
+                    continue;
+                }
+                $path = isset($a['path']) && $a['path'] !== null && $a['path'] !== '' ? (string) $a['path'] : null;
+                $out[] = ['name' => $name, 'path' => $path];
+            }
+        }
+        return $out;
     }
 
     private static function parse_datetime(mixed $value): ?\DateTimeImmutable

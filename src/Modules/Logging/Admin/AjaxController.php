@@ -24,6 +24,12 @@ final class AjaxController
 
     public const ACTION_RESEND      = 'lrob_etk_logging_ajax_resend';
 
+    public const ACTION_SAVE_SETTINGS = 'lrob_etk_logging_ajax_save_settings';
+
+    public const OPTION_PER_PAGE = 'lrob_etk_logging_per_page';
+
+    public const DEFAULT_PER_PAGE = 20;
+
     public function __construct(
         private LogRepository $repository,
         private Resender $resender,
@@ -36,6 +42,23 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_BULK_DELETE, [$this, 'ajax_bulk_delete']);
         add_action('wp_ajax_' . self::ACTION_PURGE,       [$this, 'ajax_purge']);
         add_action('wp_ajax_' . self::ACTION_RESEND,      [$this, 'ajax_resend']);
+        add_action('wp_ajax_' . self::ACTION_SAVE_SETTINGS, [$this, 'ajax_save_settings']);
+    }
+
+    public function ajax_save_settings(): void
+    {
+        $this->guard();
+        $days = isset($_POST['retention_days']) ? max(0, (int) $_POST['retention_days']) : null;
+        $per_page = isset($_POST['per_page']) ? (int) $_POST['per_page'] : null;
+
+        if ($days !== null) {
+            update_option(\LRob\EmailToolkit\Modules\Logging\RetentionCron::OPTION_RETENTION_DAYS, $days);
+        }
+        if ($per_page !== null) {
+            $per_page = max(5, min(500, $per_page));
+            update_option(self::OPTION_PER_PAGE, $per_page);
+        }
+        wp_send_json_success(['message' => __('Settings saved.', 'lrob-email-toolkit')]);
     }
 
     public function ajax_delete(): void
@@ -117,8 +140,15 @@ final class AjaxController
         $result = $this->resender->resend($id);
         if ($result['success']) {
             $msg = __('Email re-sent successfully.', 'lrob-email-toolkit');
-            if ($result['attachments_dropped']) {
-                $msg .= ' ' . __('Attachments were not re-sent (the original files are no longer available).', 'lrob-email-toolkit');
+            $sent = (int) ($result['attachments_sent'] ?? 0);
+            $total = (int) ($result['attachments_total'] ?? 0);
+            if ($total > 0) {
+                $msg .= ' ' . sprintf(
+                    /* translators: 1: number re-attached, 2: total at send time */
+                    __('Attachments: %1$d of %2$d re-attached (others no longer on disk).', 'lrob-email-toolkit'),
+                    $sent,
+                    $total
+                );
             }
             wp_send_json_success(['message' => $msg]);
         }

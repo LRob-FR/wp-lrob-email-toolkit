@@ -9,10 +9,11 @@ namespace LRob\EmailToolkit\Modules\Logging;
  * from the stored entry. The retry produces a new log row (status=sent or
  * failed); the original entry is marked as 'retried' for traceability.
  *
- * Limitation: attachments aren't re-sent. We store the filename only — the
- * original file may have been a temporary upload that's since been deleted,
- * and even if it's still on disk, the full path isn't preserved. The retry
- * goes out without attachments and notes that in the response.
+ * Attachments: we store both filename and full path for each. At resend time,
+ * each attachment is re-attached if its file still exists on disk. Files that
+ * are gone are skipped silently; the response reports how many were dropped.
+ * Inline-string attachments (rare in wp_mail flows) have no path and are
+ * never re-attachable.
  */
 final class Resender
 {
@@ -21,7 +22,7 @@ final class Resender
     }
 
     /**
-     * @return array{success: bool, error: ?string, attachments_dropped: bool}
+     * @return array{success: bool, error: ?string, attachments_dropped: bool, attachments_total?: int, attachments_sent?: int}
      */
     public function resend(int $log_id): array
     {
@@ -41,6 +42,18 @@ final class Resender
 
         $headers = $this->build_headers($entry, $is_html);
 
+        // Resolve attachment paths that still exist on disk.
+        $available = [];
+        $dropped = 0;
+        foreach ($entry->attachments as $a) {
+            $path = $a['path'] ?? null;
+            if ($path !== null && $path !== '' && is_file($path) && is_readable($path)) {
+                $available[] = $path;
+            } else {
+                $dropped++;
+            }
+        }
+
         // Mark original as retried before re-sending so the new entry's row
         // appears distinct from the old one in the list.
         $this->repository->update_status($log_id, LogEntry::STATUS_RETRIED);
@@ -52,7 +65,7 @@ final class Resender
         add_action('wp_mail_failed', $capture, 1);
 
         try {
-            $success = wp_mail($to, $subject, $message, $headers);
+            $success = wp_mail($to, $subject, $message, $headers, $available);
         } finally {
             remove_action('wp_mail_failed', $capture, 1);
         }
@@ -60,7 +73,9 @@ final class Resender
         return [
             'success'             => (bool) $success,
             'error'               => $captured_error instanceof \WP_Error ? $captured_error->get_error_message() : null,
-            'attachments_dropped' => $entry->attachments !== [],
+            'attachments_dropped' => $dropped > 0,
+            'attachments_total'   => count($entry->attachments),
+            'attachments_sent'    => count($available),
         ];
     }
 

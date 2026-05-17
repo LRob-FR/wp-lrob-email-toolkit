@@ -82,7 +82,7 @@ final class LogViewPage
                 <?php if ($entry->attachments !== []) : ?>
                     <?php $this->meta_row(
                         __('Attachments', 'lrob-email-toolkit'),
-                        implode(', ', array_map('esc_html', $entry->attachments)),
+                        $this->render_attachments_html($entry->attachments),
                         allow_html: true,
                         wide: true
                     ); ?>
@@ -123,6 +123,29 @@ final class LogViewPage
             </div>
         </div>
         <?php
+    }
+
+    /** @param array<int, array{name: string, path: ?string}> $attachments */
+    private function render_attachments_html(array $attachments): string
+    {
+        $items = [];
+        foreach ($attachments as $a) {
+            $name = (string) ($a['name'] ?? '');
+            if ($name === '') {
+                continue;
+            }
+            $path = $a['path'] ?? null;
+            $status = '';
+            if ($path === null) {
+                $status = ' <span class="lrob-etk-attachment-status">' . esc_html__('(no path — inline content)', 'lrob-email-toolkit') . '</span>';
+            } elseif (!is_file($path)) {
+                $status = ' <span class="lrob-etk-attachment-status is-missing">' . esc_html__('(file missing — won\'t re-send)', 'lrob-email-toolkit') . '</span>';
+            } else {
+                $status = ' <span class="lrob-etk-attachment-status is-ok">' . esc_html__('(still on disk)', 'lrob-email-toolkit') . '</span>';
+            }
+            $items[] = esc_html($name) . $status;
+        }
+        return implode('<br>', $items);
     }
 
     private function meta_row(string $label, string $value, bool $allow_html = false, bool $wide = false): void

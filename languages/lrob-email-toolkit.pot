@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-17T23:45:06+00:00\n"
+"POT-Creation-Date: 2026-05-17T23:56:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -37,7 +37,7 @@ msgstr ""
 #: src/Admin/DashboardPage.php:45
 #: src/Admin/DashboardPage.php:523
 #: src/Modules/AbstractModule.php:77
-#: src/Modules/Logging/Admin/AjaxController.php:133
+#: src/Modules/Logging/Admin/AjaxController.php:163
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
 #: src/Modules/SMTP/Admin/AjaxController.php:365
@@ -161,26 +161,27 @@ msgid "Recent activity"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:383
-#: src/Modules/Logging/Admin/LogsPage.php:211
+#: src/Modules/Logging/Admin/LogsPage.php:243
 #: src/Modules/Logging/Admin/LogViewPage.php:57
 msgid "Date"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:384
-#: src/Modules/Logging/Admin/LogsPage.php:123
-#: src/Modules/Logging/Admin/LogsPage.php:212
+#: src/Modules/Logging/Admin/LogsPage.php:145
+#: src/Modules/Logging/Admin/LogsPage.php:244
 #: src/Modules/Logging/Admin/LogViewPage.php:61
 msgid "Status"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:385
-#: src/Modules/Logging/Admin/LogsPage.php:214
+#: src/Modules/Logging/Admin/LogsPage.php:181
+#: src/Modules/Logging/Admin/LogsPage.php:246
 #: src/Modules/Logging/Admin/LogViewPage.php:72
 msgid "To"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:386
-#: src/Modules/Logging/Admin/LogsPage.php:215
+#: src/Modules/Logging/Admin/LogsPage.php:247
 msgid "Subject"
 msgstr ""
 
@@ -194,7 +195,8 @@ msgid "Send a test email"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:433
-#: src/Modules/Logging/Admin/LogsPage.php:352
+#: src/Modules/Logging/Admin/LogsPage.php:360
+#: src/Modules/Logging/Admin/LogsPage.php:393
 #: src/Modules/SMTP/Admin/SettingsPage.php:447
 #: src/Modules/SMTP/Admin/SettingsPage.php:502
 msgid "Close"
@@ -232,6 +234,8 @@ msgid "Custom recipient"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:473
+#: src/Modules/Logging/Admin/LogsPage.php:376
+#: src/Modules/Logging/Admin/LogsPage.php:420
 #: src/Modules/SMTP/Admin/SettingsPage.php:486
 msgid "Cancel"
 msgstr ""
@@ -308,31 +312,35 @@ msgstr ""
 msgid "Build customizable contact forms with stacked anti-spam and optional captcha providers."
 msgstr ""
 
-#: src/Modules/Logging/Admin/AjaxController.php:46
-#: src/Modules/Logging/Admin/AjaxController.php:115
+#: src/Modules/Logging/Admin/AjaxController.php:61
+msgid "Settings saved."
+msgstr ""
+
+#: src/Modules/Logging/Admin/AjaxController.php:69
+#: src/Modules/Logging/Admin/AjaxController.php:138
 msgid "Invalid log entry."
 msgstr ""
 
-#: src/Modules/Logging/Admin/AjaxController.php:49
+#: src/Modules/Logging/Admin/AjaxController.php:72
 #: src/Modules/Logging/Admin/PageController.php:111
 msgid "Log entry deleted."
 msgstr ""
 
 #. translators: %d: number of entries deleted
-#: src/Modules/Logging/Admin/AjaxController.php:63
+#: src/Modules/Logging/Admin/AjaxController.php:86
 msgid "Deleted %d entry."
 msgid_plural "Deleted %d entries."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Logging/Admin/AjaxController.php:76
+#: src/Modules/Logging/Admin/AjaxController.php:99
 #: src/Modules/Logging/Admin/PageController.php:140
 msgid "Enter a positive number of days."
 msgstr ""
 
 #. translators: 1: deleted count, 2: days
 #. translators: 1: number of entries deleted, 2: number of days
-#: src/Modules/Logging/Admin/AjaxController.php:84
+#: src/Modules/Logging/Admin/AjaxController.php:107
 #: src/Modules/Logging/Admin/PageController.php:147
 msgid "Deleted %1$d entry older than %2$d days."
 msgid_plural "Deleted %1$d entries older than %2$d days."
@@ -341,230 +349,265 @@ msgstr[1] ""
 
 #. translators: %d: deleted count
 #. translators: %d: number of entries deleted
-#: src/Modules/Logging/Admin/AjaxController.php:102
+#: src/Modules/Logging/Admin/AjaxController.php:125
 #: src/Modules/Logging/Admin/PageController.php:161
 msgid "Deleted all %d log entry."
 msgid_plural "Deleted all %d log entries."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Logging/Admin/AjaxController.php:107
+#: src/Modules/Logging/Admin/AjaxController.php:130
 #: src/Modules/Logging/Admin/PageController.php:165
 msgid "Unknown purge mode."
 msgstr ""
 
-#: src/Modules/Logging/Admin/AjaxController.php:119
+#: src/Modules/Logging/Admin/AjaxController.php:142
 #: src/Modules/Logging/Admin/PageController.php:87
 msgid "Email re-sent successfully."
 msgstr ""
 
-#: src/Modules/Logging/Admin/AjaxController.php:121
-#: src/Modules/Logging/Admin/PageController.php:89
-msgid "Attachments were not re-sent (the original files are no longer available)."
+#. translators: 1: number re-attached, 2: total at send time
+#: src/Modules/Logging/Admin/AjaxController.php:148
+msgid "Attachments: %1$d of %2$d re-attached (others no longer on disk)."
 msgstr ""
 
-#: src/Modules/Logging/Admin/AjaxController.php:126
+#: src/Modules/Logging/Admin/AjaxController.php:156
 msgid "Resend failed."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:38
+#: src/Modules/Logging/Admin/LogsPage.php:36
 #: src/Modules/Logging/Admin/PageController.php:51
 #: src/Modules/Logging/Admin/PageController.php:52
 msgid "Email Logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:43
+#: src/Modules/Logging/Admin/LogsPage.php:42
+msgid "Settings"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:46
 msgid "Cleanup"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:54
+#: src/Modules/Logging/Admin/LogsPage.php:58
 msgid "Enable email logging to capture every outgoing email and let you audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:125
-#: src/Modules/Logging/Admin/LogsPage.php:144
+#: src/Modules/Logging/Admin/LogsPage.php:147
+#: src/Modules/Logging/Admin/LogsPage.php:166
 msgid "All"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:127
-#: src/Modules/Logging/Admin/LogsPage.php:567
+#: src/Modules/Logging/Admin/LogsPage.php:149
+#: src/Modules/Logging/Admin/LogsPage.php:689
 msgid "Sent"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:130
-#: src/Modules/Logging/Admin/LogsPage.php:568
+#: src/Modules/Logging/Admin/LogsPage.php:152
+#: src/Modules/Logging/Admin/LogsPage.php:690
 msgid "Failed"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:133
-#: src/Modules/Logging/Admin/LogsPage.php:569
+#: src/Modules/Logging/Admin/LogsPage.php:155
+#: src/Modules/Logging/Admin/LogsPage.php:691
 msgid "Sending"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:136
-#: src/Modules/Logging/Admin/LogsPage.php:570
+#: src/Modules/Logging/Admin/LogsPage.php:158
+#: src/Modules/Logging/Admin/LogsPage.php:692
 msgid "Retried"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:142
-#: src/Modules/Logging/Admin/LogsPage.php:216
+#: src/Modules/Logging/Admin/LogsPage.php:164
+#: src/Modules/Logging/Admin/LogsPage.php:248
 #: src/Modules/Logging/Admin/LogViewPage.php:62
 msgid "Source"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:154
-msgid "Search"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:156
-msgid "Subject, from, to…"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:160
-msgid "Filter"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:163
-msgid "Reset"
-msgstr ""
-
-#. translators: 1: first index, 2: last index, 3: total count
-#: src/Modules/Logging/Admin/LogsPage.php:183
-msgid "Showing %1$d–%2$d of %3$d"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:193
-msgid "Bulk action…"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:194
-#: src/Modules/Logging/Admin/LogsPage.php:266
-#: src/Modules/Logging/Admin/LogsPage.php:364
-#: src/Modules/Logging/Admin/LogViewPage.php:207
-#: src/Modules/SMTP/Admin/SettingsPage.php:199
-msgid "Delete"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:196
-msgid "Apply"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:213
+#: src/Modules/Logging/Admin/LogsPage.php:176
+#: src/Modules/Logging/Admin/LogsPage.php:245
 #: src/Modules/Logging/Admin/LogViewPage.php:66
 #: src/Modules/SMTP/Admin/SettingsPage.php:331
 msgid "From"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:240
+#: src/Modules/Logging/Admin/LogsPage.php:186
+msgid "Search"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:188
+msgid "Subject, from, to…"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:192
+msgid "Filter"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:195
+msgid "Reset"
+msgstr ""
+
+#. translators: 1: first index, 2: last index, 3: total count
+#: src/Modules/Logging/Admin/LogsPage.php:215
+msgid "Showing %1$d–%2$d of %3$d"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:225
+msgid "Bulk action…"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:226
+#: src/Modules/Logging/Admin/LogsPage.php:301
+#: src/Modules/Logging/Admin/LogViewPage.php:230
+#: src/Modules/SMTP/Admin/SettingsPage.php:199
+msgid "Delete"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:228
+msgid "Apply"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:249
+msgid "Actions"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:272
 #: src/Modules/Logging/Admin/LogViewPage.php:38
 msgid "(no subject)"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:263
+#: src/Modules/Logging/Admin/LogsPage.php:295
 msgid "View"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:263
+#: src/Modules/Logging/Admin/LogsPage.php:295
 msgid "View log entry"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:266
+#: src/Modules/Logging/Admin/LogsPage.php:298
+#: src/Modules/Logging/Admin/LogViewPage.php:217
+msgid "Resend"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:298
+msgid "Resend email"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:301
 msgid "Delete log entry"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:285
+#: src/Modules/Logging/Admin/LogsPage.php:320
 msgid "Previous"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:286
+#: src/Modules/Logging/Admin/LogsPage.php:321
 msgid "Next"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:293
+#: src/Modules/Logging/Admin/LogsPage.php:328
 msgid "Logs pagination"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:306
+#: src/Modules/Logging/Admin/LogsPage.php:341
 msgid "No log entries match your filters."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:309
+#: src/Modules/Logging/Admin/LogsPage.php:344
 msgid "Clear filters"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:313
+#: src/Modules/Logging/Admin/LogsPage.php:348
 msgid "No emails logged yet."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:324
-msgid "Retention"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:331
-msgid "Keep logs for"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:334
-#: src/Modules/Logging/Admin/LogsPage.php:361
-msgid "days"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:337
-msgid "0 = keep forever. Older entries are deleted daily by a cron event."
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:341
-msgid "Save"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:349
-#: src/Modules/Logging/Admin/LogsPage.php:351
+#: src/Modules/Logging/Admin/LogsPage.php:357
+#: src/Modules/Logging/Admin/LogsPage.php:359
 msgid "Cleanup logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:359
+#: src/Modules/Logging/Admin/LogsPage.php:365
+msgid "One-shot manual cleanup. Automatic retention is configured in Settings."
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:368
 msgid "Delete logs older than"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:369
-msgid "Delete everything"
+#: src/Modules/Logging/Admin/LogsPage.php:370
+#: src/Modules/Logging/Admin/LogsPage.php:403
+msgid "days"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:371
-msgid "Delete all"
+#: src/Modules/Logging/Admin/LogsPage.php:378
+msgid "Delete matching logs"
 msgstr ""
 
+#: src/Modules/Logging/Admin/LogsPage.php:390
 #: src/Modules/Logging/Admin/LogsPage.php:392
-#: src/Modules/Logging/Admin/LogViewPage.php:203
+msgid "Log settings"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:399
+msgid "Retention"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:400
+msgid "Older entries are deleted daily by a cron event. 0 = keep forever."
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:408
+msgid "Entries per page"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:422
+msgid "Save"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:443
+#: src/Modules/Logging/Admin/LogViewPage.php:226
 msgid "Delete this log entry?"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:393
+#: src/Modules/Logging/Admin/LogsPage.php:444
 msgid "Delete %d selected log entries?"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:394
-msgid "Permanently delete ALL log entries? This cannot be undone."
+#: src/Modules/Logging/Admin/LogsPage.php:445
+msgid "Resend this email now?"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:395
+#: src/Modules/Logging/Admin/LogsPage.php:446
 msgid "Select at least one entry."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:396
+#: src/Modules/Logging/Admin/LogsPage.php:447
 msgid "Pick an action first."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:397
+#: src/Modules/Logging/Admin/LogsPage.php:448
+msgid "Resending…"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:449
+msgid "Working…"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:450
+#: src/Modules/SMTP/Admin/SettingsPage.php:561
+msgid "Saving…"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:451
 #: src/Modules/SMTP/Admin/SettingsPage.php:570
 msgid "Something went wrong."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:598
+#: src/Modules/Logging/Admin/LogsPage.php:720
 msgid "Email logging is now active."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:599
+#: src/Modules/Logging/Admin/LogsPage.php:721
 msgid "Email logging is now off. Existing logs are preserved."
 msgstr ""
 
@@ -614,20 +657,32 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogViewPage.php:164
+#: src/Modules/Logging/Admin/LogViewPage.php:140
+msgid "(no path — inline content)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:142
+msgid "(file missing — won't re-send)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:144
+msgid "(still on disk)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:187
 msgid "HTML body"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogViewPage.php:178
+#: src/Modules/Logging/Admin/LogViewPage.php:201
 msgid "Plain-text alternative"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogViewPage.php:179
+#: src/Modules/Logging/Admin/LogViewPage.php:202
 msgid "Plain-text body"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogViewPage.php:194
-msgid "Resend"
+#: src/Modules/Logging/Admin/PageController.php:89
+msgid "Attachments were not re-sent (the original files are no longer available)."
 msgstr ""
 
 #. translators: %s: error message
@@ -923,10 +978,6 @@ msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:560
 msgid "Delete the identity \"%s\"?"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:561
-msgid "Saving…"
 msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:562
