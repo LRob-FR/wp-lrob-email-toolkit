@@ -32,21 +32,19 @@ final class LogsPage
 
         ?>
         <div class="wrap lrob-etk">
-            <h1 class="lrob-etk-page-title"><?php esc_html_e('Email Logs', 'lrob-email-toolkit'); ?></h1>
+            <header class="lrob-etk-page-header">
+                <h1 class="lrob-etk-page-title"><?php esc_html_e('Email Logs', 'lrob-email-toolkit'); ?></h1>
+                <?php ModuleToggle::render_inline($this->module); ?>
+            </header>
 
             <?php $this->render_flash($notice, $errors); ?>
             <?php $this->render_toggle_notice(); ?>
 
             <?php if (!$enabled && $log_count === 0) : ?>
-                <?php
-                ModuleToggle::render_cta(
-                    $this->module,
-                    __('Enable email logging', 'lrob-email-toolkit'),
-                    __('Capture every outgoing email — sender, recipient, subject, body, status — so you can audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder.', 'lrob-email-toolkit')
-                );
-                ?>
+                <p class="lrob-etk-disabled-message">
+                    <?php esc_html_e('Enable email logging to capture every outgoing email and let you audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder.', 'lrob-email-toolkit'); ?>
+                </p>
             <?php else : ?>
-                <?php ModuleToggle::render_bar($this->module); ?>
                 <?php $this->render_table(); ?>
                 <?php $this->render_settings_section(); ?>
                 <?php $this->render_cleanup_section(); ?>

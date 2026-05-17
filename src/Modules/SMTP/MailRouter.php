@@ -56,7 +56,24 @@ final class MailRouter
         if (!$identity instanceof Identity) {
             return;
         }
-        if (!$identity->is_active || $identity->smtp_host === '') {
+        if (!$identity->is_active) {
+            return;
+        }
+
+        // Mail() transport: skip SMTP wiring entirely; PHPMailer stays on its
+        // default mail() transport. The wp_mail_from / wp_mail_from_name
+        // filters still apply, so the user gets From/Reply-to overrides + logging.
+        if ($identity->uses_mail_transport()) {
+            Events::dispatch('email.sending', [
+                'identity_id'   => $identity->id,
+                'identity_slug' => $identity->slug,
+                'source'        => $this->source_resolver->resolve(),
+                'transport'     => 'mail',
+            ]);
+            return;
+        }
+
+        if ($identity->smtp_host === '') {
             return;
         }
 
@@ -70,7 +87,7 @@ final class MailRouter
                 $mailer->Password = $identity->decrypted_password();
             }
             $mailer->SMTPSecure = $identity->smtp_encryption;
-            $mailer->setFrom($identity->from_email, $identity->effective_from_name(), false);
+            $mailer->setFrom($identity->effective_from_email(), $identity->effective_from_name(), false);
 
             if ($identity->reply_to_email !== null && $identity->reply_to_email !== '') {
                 $mailer->addReplyTo($identity->reply_to_email);
@@ -80,6 +97,7 @@ final class MailRouter
                 'identity_id'   => $identity->id,
                 'identity_slug' => $identity->slug,
                 'source'        => $this->source_resolver->resolve(),
+                'transport'     => 'smtp',
             ]);
         } catch (\Throwable $e) {
             // Don't break wp_mail — let WordPress fall back to mail() transport.
@@ -90,8 +108,11 @@ final class MailRouter
     public function override_from_email(string $email): string
     {
         $identity = $this->resolve_identity();
-        if ($identity instanceof Identity && $identity->force_from && $identity->from_email !== '') {
-            return $identity->from_email;
+        if ($identity instanceof Identity && $identity->force_from) {
+            $resolved = $identity->effective_from_email();
+            if ($resolved !== '') {
+                return $resolved;
+            }
         }
         return $email;
     }

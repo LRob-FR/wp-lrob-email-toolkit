@@ -15,7 +15,7 @@ final class Schema
     public const TABLE = 'lrob_etk_identities';
 
     /** Schema version. Bump on any column change so install() can migrate. */
-    private const SCHEMA_VERSION = '1';
+    private const SCHEMA_VERSION = '2';
 
     private const VERSION_OPTION = 'lrob_etk_smtp_db_version';
 
@@ -42,6 +42,7 @@ final class Schema
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             slug varchar(50) NOT NULL,
             label varchar(190) NOT NULL,
+            transport varchar(10) NOT NULL DEFAULT 'smtp',
             from_email varchar(190) NOT NULL,
             from_name varchar(190) NOT NULL,
             smtp_host varchar(190) NOT NULL DEFAULT '',

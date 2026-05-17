@@ -7,19 +7,46 @@ namespace LRob\EmailToolkit\Admin;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
 /**
- * Renders the module enable/disable UI. Two shapes:
+ * Renders the module enable/disable UI. Three shapes:
  *
- *   - render_bar()  — compact toggle pill at the top of the module's page,
- *                     used when the module is already configured / enabled
- *   - render_cta()  — full-card call-to-action with a big enable button, used
- *                     when the module is disabled and the page would otherwise
- *                     be empty
+ *   - render_inline()  — compact switch placed inline with the page H1 title.
+ *                        Submits on change via JS.
+ *   - render_bar()     — wider toggle pill (legacy; used by Logging until it
+ *                        gets the inline treatment).
+ *   - render_cta()     — full-card call-to-action with a big enable button.
  *
- * Both POST to admin-post.php with action = $module->toggle_action() and a
+ * All POST to admin-post.php with action = $module->toggle_action() and a
  * matching nonce; AbstractModule::handle_toggle() owns the response.
  */
 final class ModuleToggle
 {
+    /**
+     * Inline switch + status word. Sits next to the page title. Form
+     * auto-submits on toggle change — module on/off triggers a reload anyway
+     * (hooks load/unload), so AJAX would gain little.
+     */
+    public static function render_inline(ModuleInterface $module): void
+    {
+        $enabled = $module->is_enabled();
+        $action_url = admin_url('admin-post.php');
+        ?>
+        <form method="post" action="<?php echo esc_url($action_url); ?>" class="lrob-etk-page-toggle-form">
+            <input type="hidden" name="action" value="<?php echo esc_attr($module->toggle_action()); ?>">
+            <?php wp_nonce_field($module->toggle_action(), '_lrob_etk_nonce'); ?>
+            <label class="lrob-etk-page-toggle">
+                <input type="checkbox" name="enable" value="1" <?php checked($enabled); ?>
+                       onchange="this.form.submit()">
+                <span class="lrob-etk-switch-track"></span>
+                <span class="lrob-etk-page-toggle-state">
+                    <?php echo $enabled
+                        ? esc_html__('Enabled', 'lrob-email-toolkit')
+                        : esc_html__('Disabled', 'lrob-email-toolkit'); ?>
+                </span>
+            </label>
+        </form>
+        <?php
+    }
+
     public static function render_bar(ModuleInterface $module): void
     {
         $enabled = $module->is_enabled();

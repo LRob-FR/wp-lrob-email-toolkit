@@ -102,6 +102,7 @@ final class IdentityRepository
         $data = [
             'slug'                    => $identity->slug,
             'label'                   => $identity->label,
+            'transport'               => $identity->transport,
             'from_email'              => $identity->from_email,
             'from_name'               => $identity->from_name,
             'smtp_host'               => $identity->smtp_host,
@@ -116,7 +117,7 @@ final class IdentityRepository
             'is_active'               => $identity->is_active ? 1 : 0,
             'updated_at'              => $now,
         ];
-        $formats = ['%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%s'];
+        $formats = ['%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%s'];
 
         if ($identity->id === null) {
             $data['created_at'] = $now;

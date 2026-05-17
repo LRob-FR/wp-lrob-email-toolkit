@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules\SMTP\Admin;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\SMTP\AuthTester;
 use LRob\EmailToolkit\Modules\SMTP\ConstantOverrides;
+use LRob\EmailToolkit\Modules\SMTP\DnsLookup;
 use LRob\EmailToolkit\Modules\SMTP\Identity;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 use LRob\EmailToolkit\Modules\SMTP\RoutingRules;
@@ -36,12 +37,17 @@ final class AjaxController
 
     public const ACTION_SAVE_ROUTING  = 'lrob_etk_smtp_save_routing';
 
+    public const ACTION_CHECK_HOST    = 'lrob_etk_smtp_check_host';
+
+    public const ACTION_LOOKUP_MX     = 'lrob_etk_smtp_lookup_mx';
+
     public function __construct(
         private IdentityRepository $identities,
         private RoutingRules $routing,
         private ConstantOverrides $overrides,
         private AuthTester $auth_tester,
         private TestSender $test_sender,
+        private DnsLookup $dns,
     ) {
     }
 
@@ -53,6 +59,34 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_TEST_AUTH,    [$this, 'ajax_test_auth']);
         add_action('wp_ajax_' . self::ACTION_TEST_SEND,    [$this, 'ajax_test_send']);
         add_action('wp_ajax_' . self::ACTION_SAVE_ROUTING, [$this, 'ajax_save_routing']);
+        add_action('wp_ajax_' . self::ACTION_CHECK_HOST,   [$this, 'ajax_check_host']);
+        add_action('wp_ajax_' . self::ACTION_LOOKUP_MX,    [$this, 'ajax_lookup_mx']);
+    }
+
+    public function ajax_check_host(): void
+    {
+        $this->guard();
+        $host = $this->post_str('host');
+        if ($host === '') {
+            wp_send_json_error(['message' => __('No host provided.', 'lrob-email-toolkit')]);
+        }
+        wp_send_json_success([
+            'host'     => $host,
+            'resolves' => $this->dns->resolves($host),
+        ]);
+    }
+
+    public function ajax_lookup_mx(): void
+    {
+        $this->guard();
+        $domain = $this->post_str('domain');
+        if ($domain === '') {
+            wp_send_json_error(['message' => __('No domain provided.', 'lrob-email-toolkit')]);
+        }
+        wp_send_json_success([
+            'domain' => $domain,
+            'hosts'  => $this->dns->mx_hosts($domain),
+        ]);
     }
 
     public function ajax_save(): void
@@ -67,6 +101,12 @@ final class AjaxController
             $errors['label'] = __('Label is required.', 'lrob-email-toolkit');
         }
 
+        $transport = $this->post_str('transport', Identity::TRANSPORT_SMTP);
+        if (!in_array($transport, [Identity::TRANSPORT_SMTP, Identity::TRANSPORT_MAIL], true)) {
+            $transport = Identity::TRANSPORT_SMTP;
+        }
+        $is_smtp = $transport === Identity::TRANSPORT_SMTP;
+
         $slug = $this->post_str('slug');
         if ($slug === '') {
             $slug = $this->slugify($label);
@@ -79,7 +119,7 @@ final class AjaxController
 
         $smtp_auth = !empty($_POST['smtp_auth']);
         $smtp_username = $this->post_str('smtp_username');
-        if ($smtp_auth && $smtp_username === '') {
+        if ($is_smtp && $smtp_auth && $smtp_username === '') {
             $errors['smtp_username'] = __('Username is required when authentication is on.', 'lrob-email-toolkit');
         }
 
@@ -88,13 +128,16 @@ final class AjaxController
         $plain_password = $clear_password ? '' : ($password_input !== '' ? $password_input : null);
 
         $smtp_host = $this->post_str('smtp_host');
-        if ($smtp_host === '') {
+        if ($is_smtp && $smtp_host === '') {
             $errors['smtp_host'] = __('SMTP host is required.', 'lrob-email-toolkit');
         }
 
         $smtp_port = isset($_POST['smtp_port']) ? (int) $_POST['smtp_port'] : 0;
-        if ($smtp_port < 1 || $smtp_port > 65535) {
+        if ($is_smtp && ($smtp_port < 1 || $smtp_port > 65535)) {
             $errors['smtp_port'] = __('Port must be between 1 and 65535.', 'lrob-email-toolkit');
+        }
+        if (!$is_smtp && $smtp_port < 1) {
+            $smtp_port = 587;  // harmless default for mail() transport
         }
 
         $smtp_encryption = $this->post_str('smtp_encryption', 'tls');
@@ -102,27 +145,16 @@ final class AjaxController
             $smtp_encryption = Identity::ENCRYPTION_STARTTLS;
         }
 
-        // From email: "auto" mode → sync to SMTP username
-        $from_mode = $this->post_str('from_email_mode', 'custom');
-        if ($from_mode === 'auto') {
-            $from_email = $smtp_username;
-        } else {
-            $from_email = isset($_POST['from_email']) ? sanitize_email((string) wp_unslash($_POST['from_email'])) : '';
-        }
-        if ($from_email === '' || !is_email($from_email)) {
-            $errors['from_email'] = __('A valid From email is required.', 'lrob-email-toolkit');
+        // From email + From name: empty = "automatic" mode (use SMTP username /
+        // site title at runtime). Smart placeholders in the UI show what auto
+        // resolves to. Validation only fires on non-empty values.
+        $from_email_raw = isset($_POST['from_email']) ? (string) wp_unslash($_POST['from_email']) : '';
+        $from_email = $from_email_raw === '' ? '' : sanitize_email($from_email_raw);
+        if ($from_email_raw !== '' && !is_email($from_email)) {
+            $errors['from_email'] = __('From email is not a valid address.', 'lrob-email-toolkit');
         }
 
-        // From name: "auto" mode → store empty, resolved to site title at runtime
-        $from_name_mode = $this->post_str('from_name_mode', 'custom');
-        if ($from_name_mode === 'auto') {
-            $from_name = '';
-        } else {
-            $from_name = $this->post_str('from_name');
-            if ($from_name === '') {
-                $errors['from_name'] = __('From name is required when not set to Automatic.', 'lrob-email-toolkit');
-            }
-        }
+        $from_name = $this->post_str('from_name');
 
         $reply_to_raw = isset($_POST['reply_to_email']) ? sanitize_email((string) wp_unslash($_POST['reply_to_email'])) : '';
         $reply_to_email = $reply_to_raw !== '' && is_email($reply_to_raw) ? $reply_to_raw : null;
@@ -145,6 +177,7 @@ final class AjaxController
             id: $id > 0 ? $id : null,
             slug: $slug,
             label: $label,
+            transport: $transport,
             from_email: $from_email,
             from_name: $from_name,
             smtp_host: $smtp_host,
@@ -199,6 +232,11 @@ final class AjaxController
     {
         $this->guard();
 
+        $transport = $this->post_str('transport', Identity::TRANSPORT_SMTP);
+        if ($transport === Identity::TRANSPORT_MAIL) {
+            wp_send_json_error(['message' => __('PHP mail() transport has nothing to authenticate against.', 'lrob-email-toolkit')]);
+        }
+
         $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
 
         // Build a transient Identity from the form's current values so the
@@ -229,6 +267,7 @@ final class AjaxController
             id: null,
             slug: 'test',
             label: 'test',
+            transport: Identity::TRANSPORT_SMTP,
             from_email: 'test@test',
             from_name: 'test',
             smtp_host: $smtp_host,

@@ -85,7 +85,8 @@ final class Module extends AbstractModule
 
             $auth_tester = new AuthTester();
             $test_sender = new TestSender($identities, $overrides);
-            (new AjaxController($identities, $routing, $overrides, $auth_tester, $test_sender))->register();
+            $dns = new DnsLookup();
+            (new AjaxController($identities, $routing, $overrides, $auth_tester, $test_sender, $dns))->register();
 
             (new PageController($this, $identities, $routing, $overrides))->register();
         }

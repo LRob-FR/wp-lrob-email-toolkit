@@ -14,10 +14,11 @@ use LRob\EmailToolkit\Modules\SMTP\RoutingRules;
 use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
 
 /**
- * Single SMTP page. Identities list + routing rules visible at all times.
- * Add / Edit / Delete / Test operations happen via in-page modals driven by
- * AJAX (see AjaxController). No separate edit URL — keeps the workflow on
- * one screen.
+ * SMTP page. Module toggle sits inline with the page H1. When the module is
+ * off, a one-line CTA replaces the cards. When on, identities render as a
+ * grid of always-editable cards with auto-save. From email/name use smart
+ * placeholders (empty = auto-derived at runtime; placeholder shows what
+ * auto resolves to) — no more visible Auto/Custom mode toggle.
  */
 final class SettingsPage
 {
@@ -36,43 +37,45 @@ final class SettingsPage
 
         ?>
         <div class="wrap lrob-etk lrob-etk-smtp-page">
-            <h1 class="lrob-etk-page-title"><?php esc_html_e('SMTP', 'lrob-email-toolkit'); ?></h1>
+            <header class="lrob-etk-page-header">
+                <h1 class="lrob-etk-page-title"><?php esc_html_e('SMTP', 'lrob-email-toolkit'); ?></h1>
+                <?php ModuleToggle::render_inline($this->module); ?>
+                <?php if ($enabled) : ?>
+                    <button type="button" id="lrob-etk-add-identity" class="button button-primary lrob-etk-page-add">
+                        <span class="dashicons dashicons-plus-alt2"></span>
+                        <?php esc_html_e('Add identity', 'lrob-email-toolkit'); ?>
+                    </button>
+                <?php endif; ?>
+            </header>
 
             <div id="lrob-etk-flash" class="lrob-etk-flash" aria-live="polite"></div>
 
             <?php $this->render_toggle_notice(); ?>
             <?php $this->render_auth_key_warning(); ?>
 
-            <?php if (!$enabled && $identities === []) : ?>
-                <?php
-                ModuleToggle::render_cta(
-                    $this->module,
-                    __('Set up SMTP', 'lrob-email-toolkit'),
-                    __('Route every outgoing email through your SMTP server. Configure one or more identities (a "From" address paired with its SMTP login), then choose which sources use which.', 'lrob-email-toolkit')
-                );
-                ?>
+            <?php if (!$enabled) : ?>
+                <p class="lrob-etk-disabled-message">
+                    <?php esc_html_e('Enable the SMTP module to start managing your outgoing emails with LRob — Email Toolkit.', 'lrob-email-toolkit'); ?>
+                </p>
             <?php else : ?>
-                <?php ModuleToggle::render_bar($this->module); ?>
-
-                <div class="lrob-etk-toolbar">
-                    <button type="button" class="button button-primary" data-lrob-etk-open="lrob-etk-identity-modal" data-lrob-etk-edit-id="0">
-                        <span class="dashicons dashicons-plus-alt2"></span>
-                        <?php esc_html_e('Add identity', 'lrob-email-toolkit'); ?>
-                    </button>
-                </div>
-
                 <?php if ($identities === []) : ?>
                     <div class="lrob-etk-empty">
-                        <p><?php esc_html_e('No SMTP identities yet — add one to start routing email.', 'lrob-email-toolkit'); ?></p>
+                        <p><?php esc_html_e('No SMTP identities yet — click "Add identity" to start.', 'lrob-email-toolkit'); ?></p>
                     </div>
                 <?php else : ?>
-                    <?php $this->render_identities_table($identities); ?>
-                    <?php $this->render_routing_section($identities); ?>
+                    <div class="lrob-etk-identities">
+                        <?php foreach ($identities as $identity) : ?>
+                            <?php $this->render_identity_card($identity); ?>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
+
+                <?php $this->render_routing_section($identities); ?>
             <?php endif; ?>
 
-            <?php $this->render_identity_modal(); ?>
+            <?php $this->render_card_template(); ?>
             <?php $this->render_test_send_modal($identities); ?>
+            <?php $this->render_conn_popover(); ?>
         </div>
 
         <script>
@@ -81,73 +84,311 @@ final class SettingsPage
         <?php
     }
 
-    /** @param array<int, Identity> $identities */
-    private function render_identities_table(array $identities): void
+    private function render_identity_card(Identity $identity): void
     {
         ?>
-        <table class="widefat striped lrob-etk-table lrob-etk-identities-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e('Identity', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('From', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('Server', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('Default', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('Actions', 'lrob-email-toolkit'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($identities as $identity) : ?>
-                    <tr data-identity-id="<?php echo (int) $identity->id; ?>">
-                        <td>
-                            <strong>
-                                <a href="#" data-lrob-etk-open="lrob-etk-identity-modal" data-lrob-etk-edit-id="<?php echo (int) $identity->id; ?>">
-                                    <?php echo esc_html($identity->label); ?>
-                                </a>
-                            </strong>
-                            <div class="row-actions"><code><?php echo esc_html($identity->slug); ?></code></div>
-                        </td>
-                        <td>
-                            <?php echo esc_html($identity->effective_from_name()); ?>
-                            <div class="row-actions"><?php echo esc_html($identity->from_email); ?></div>
-                        </td>
-                        <td>
-                            <?php echo esc_html(sprintf('%s:%d', $identity->smtp_host, $identity->smtp_port)); ?>
-                            <?php if ($identity->smtp_encryption !== '') : ?>
-                                <div class="row-actions"><?php echo esc_html(strtoupper($identity->smtp_encryption)); ?></div>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($identity->is_default) : ?>
-                                <span class="dashicons dashicons-star-filled" aria-label="<?php esc_attr_e('Default identity', 'lrob-email-toolkit'); ?>"></span>
-                            <?php else : ?>
-                                <button type="button" class="button-link lrob-etk-set-default" data-id="<?php echo (int) $identity->id; ?>">
-                                    <?php esc_html_e('Set default', 'lrob-email-toolkit'); ?>
-                                </button>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($identity->is_active) : ?>
-                                <span class="lrob-etk-status lrob-etk-status--on"><?php esc_html_e('Active', 'lrob-email-toolkit'); ?></span>
-                            <?php else : ?>
-                                <span class="lrob-etk-status lrob-etk-status--off"><?php esc_html_e('Inactive', 'lrob-email-toolkit'); ?></span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="lrob-etk-row-actions">
-                            <button type="button" class="button button-small" data-lrob-etk-open="lrob-etk-identity-modal" data-lrob-etk-edit-id="<?php echo (int) $identity->id; ?>">
-                                <?php esc_html_e('Edit', 'lrob-email-toolkit'); ?>
-                            </button>
-                            <button type="button" class="button button-small" data-lrob-etk-open="lrob-etk-test-modal" data-lrob-etk-test-id="<?php echo (int) $identity->id; ?>">
-                                <?php esc_html_e('Test', 'lrob-email-toolkit'); ?>
-                            </button>
-                            <button type="button" class="button button-small button-link-delete lrob-etk-delete" data-id="<?php echo (int) $identity->id; ?>" data-label="<?php echo esc_attr($identity->label); ?>">
-                                <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
-                            </button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <article class="lrob-etk-identity-card" data-identity-id="<?php echo (int) $identity->id; ?>" data-state="existing">
+            <?php $this->render_card_form($identity); ?>
+        </article>
+        <?php
+    }
+
+    private function render_card_template(): void
+    {
+        ?>
+        <template id="lrob-etk-card-template">
+            <article class="lrob-etk-identity-card is-new" data-identity-id="0" data-state="new">
+                <?php $this->render_card_form(null); ?>
+            </article>
+        </template>
+        <?php
+    }
+
+    private function render_card_form(?Identity $identity): void
+    {
+        $is_new = !$identity instanceof Identity;
+        $overridden = $this->overrides->overridden_fields();
+        $site_title = (string) get_bloginfo('name');
+
+        $f = [
+            'id'              => $identity?->id ?? 0,
+            'slug'            => $identity?->slug ?? '',
+            'label'           => $identity?->label ?? '',
+            'transport'       => $identity?->transport ?? Identity::TRANSPORT_SMTP,
+            'from_email'      => $identity?->from_email ?? '',
+            'from_name'       => $identity?->from_name ?? '',
+            'smtp_host'       => $identity?->smtp_host ?? '',
+            'smtp_port'       => $identity?->smtp_port ?? 587,
+            'smtp_encryption' => $identity?->smtp_encryption ?? Identity::ENCRYPTION_STARTTLS,
+            'smtp_username'   => $identity?->smtp_username ?? '',
+            'smtp_auth'       => $identity ? $identity->smtp_auth : true,
+            'force_from'      => $identity ? $identity->force_from : true,
+            'reply_to_email'  => $identity?->reply_to_email ?? '',
+            'is_default'      => $identity?->is_default ?? false,
+            'is_active'       => $identity ? $identity->is_active : true,
+        ];
+        ?>
+        <form class="lrob-etk-card-form" novalidate>
+            <input type="hidden" name="id" class="lrob-etk-field-id" value="<?php echo (int) $f['id']; ?>">
+            <input type="hidden" name="slug" class="lrob-etk-field-slug" value="<?php echo esc_attr($f['slug']); ?>" data-initial="<?php echo esc_attr($f['slug']); ?>">
+
+            <header class="lrob-etk-card-form-head">
+                <input
+                    type="text"
+                    name="label"
+                    class="lrob-etk-title-input lrob-etk-field-label"
+                    value="<?php echo esc_attr($f['label']); ?>"
+                    placeholder="<?php esc_attr_e('Identity name', 'lrob-email-toolkit'); ?>"
+                    autocomplete="off">
+                <div class="lrob-etk-segmented lrob-etk-transport-segmented" title="<?php esc_attr_e('Send via', 'lrob-email-toolkit'); ?>">
+                    <button type="button" data-mode="<?php echo esc_attr(Identity::TRANSPORT_SMTP); ?>" class="<?php echo $f['transport'] === Identity::TRANSPORT_SMTP ? 'is-active' : ''; ?>">
+                        <?php esc_html_e('SMTP', 'lrob-email-toolkit'); ?>
+                    </button>
+                    <button type="button" data-mode="<?php echo esc_attr(Identity::TRANSPORT_MAIL); ?>" class="<?php echo $f['transport'] === Identity::TRANSPORT_MAIL ? 'is-active' : ''; ?>">
+                        mail()
+                    </button>
+                    <input type="hidden" name="transport" class="lrob-etk-field-transport" value="<?php echo esc_attr($f['transport']); ?>">
+                </div>
+                <label class="lrob-etk-inline-switch">
+                    <input type="checkbox" name="is_active" class="lrob-etk-field-is-active" value="1" <?php checked($f['is_active']); ?>>
+                    <span class="lrob-etk-switch-track"></span>
+                    <span class="lrob-etk-inline-switch-label" data-on="<?php esc_attr_e('Active', 'lrob-email-toolkit'); ?>" data-off="<?php esc_attr_e('Inactive', 'lrob-email-toolkit'); ?>">
+                        <?php echo $f['is_active']
+                            ? esc_html__('Active', 'lrob-email-toolkit')
+                            : esc_html__('Inactive', 'lrob-email-toolkit'); ?>
+                    </span>
+                </label>
+                <span class="lrob-etk-card-status" aria-live="polite"></span>
+            </header>
+
+            <div class="lrob-etk-modal-columns lrob-etk-smtp-only">
+                <?php $this->render_mailbox_column($overridden, $f); ?>
+                <?php $this->render_server_column($overridden, $f); ?>
+            </div>
+
+            <?php $this->render_from_section($overridden, $f, $site_title); ?>
+
+            <div class="lrob-etk-field-errors lrob-etk-card-error" hidden></div>
+
+            <footer class="lrob-etk-card-footer">
+                <div class="lrob-etk-card-footer-default">
+                    <?php if ($f['is_default']) : ?>
+                        <span class="lrob-etk-default-badge">
+                            <span class="dashicons dashicons-star-filled"></span>
+                            <?php esc_html_e('Default identity', 'lrob-email-toolkit'); ?>
+                        </span>
+                    <?php else : ?>
+                        <button type="button" class="button-link lrob-etk-set-default" data-id="<?php echo (int) $f['id']; ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
+                            <span class="dashicons dashicons-star-empty"></span>
+                            <?php esc_html_e('Set as default', 'lrob-email-toolkit'); ?>
+                        </button>
+                    <?php endif; ?>
+                    <input type="hidden" name="is_default" class="lrob-etk-field-is-default" value="<?php echo $f['is_default'] ? '1' : ''; ?>">
+                </div>
+                <div class="lrob-etk-card-footer-actions">
+                    <button type="button" class="button button-primary lrob-etk-card-create" data-action="create" <?php echo $is_new ? '' : 'hidden'; ?>>
+                        <?php esc_html_e('Create', 'lrob-email-toolkit'); ?>
+                    </button>
+                    <button type="button" class="button lrob-etk-card-discard" data-action="discard" <?php echo $is_new ? '' : 'hidden'; ?>>
+                        <?php esc_html_e('Discard', 'lrob-email-toolkit'); ?>
+                    </button>
+                    <button type="button" class="button lrob-etk-card-test-email" data-action="test" data-id="<?php echo (int) $f['id']; ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
+                        <?php esc_html_e('Test email', 'lrob-email-toolkit'); ?>
+                    </button>
+                    <button type="button" class="lrob-etk-card-delete-link" data-action="delete" data-id="<?php echo (int) $f['id']; ?>" data-label="<?php echo esc_attr($f['label']); ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
+                        <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
+                    </button>
+                </div>
+            </footer>
+        </form>
+        <?php
+    }
+
+    /**
+     * @param array<int, string>   $overridden
+     * @param array<string, mixed> $f
+     */
+    private function render_mailbox_column(array $overridden, array $f): void
+    {
+        ?>
+        <section class="lrob-etk-form-column">
+            <h3>
+                <?php esc_html_e('Mailbox login', 'lrob-email-toolkit'); ?>
+                <?php Tooltip::render(__('Credentials your mail server uses to authenticate this site — usually the same as logging into webmail.', 'lrob-email-toolkit')); ?>
+            </h3>
+
+            <div class="lrob-etk-toggle-row">
+                <label class="lrob-etk-switch">
+                    <input type="checkbox" name="smtp_auth" class="lrob-etk-field-smtp-auth" value="1" <?php checked($f['smtp_auth']); ?>>
+                    <span class="lrob-etk-switch-track"></span>
+                </label>
+                <span class="lrob-etk-switch-label"><?php esc_html_e('Authentication', 'lrob-email-toolkit'); ?></span>
+                <?php Tooltip::render(__('Most SMTP servers require a login. Disable only for relay-style internal servers that allow anonymous submission.', 'lrob-email-toolkit')); ?>
+            </div>
+
+            <div class="lrob-etk-auth-fields">
+                <div class="lrob-etk-field">
+                    <label>
+                        <?php esc_html_e('Username / email', 'lrob-email-toolkit'); ?>
+                        <?php $this->render_override_dot($overridden, 'smtp_username'); ?>
+                    </label>
+                    <input type="text" name="smtp_username" class="lrob-etk-field-username" value="<?php echo esc_attr($f['smtp_username']); ?>" autocomplete="off" placeholder="contact@example.com">
+                </div>
+
+                <div class="lrob-etk-field">
+                    <label>
+                        <?php esc_html_e('Password', 'lrob-email-toolkit'); ?>
+                        <?php $this->render_override_dot($overridden, 'smtp_password_encrypted'); ?>
+                        <?php Tooltip::render(__('Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS.', 'lrob-email-toolkit'), 'lock'); ?>
+                    </label>
+                    <input type="password" name="smtp_password" class="lrob-etk-field-password" autocomplete="new-password" placeholder="<?php esc_attr_e('(unchanged when editing)', 'lrob-email-toolkit'); ?>">
+                </div>
+            </div>
+        </section>
+        <?php
+    }
+
+    /**
+     * @param array<int, string>   $overridden
+     * @param array<string, mixed> $f
+     */
+    private function render_server_column(array $overridden, array $f): void
+    {
+        ?>
+        <section class="lrob-etk-form-column">
+            <h3>
+                <?php esc_html_e('SMTP server', 'lrob-email-toolkit'); ?>
+                <?php Tooltip::render(__('Pick your domain\'s mail server. "Custom" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate.', 'lrob-email-toolkit')); ?>
+            </h3>
+
+            <div class="lrob-etk-field">
+                <label>
+                    <?php esc_html_e('Host', 'lrob-email-toolkit'); ?>
+                    <?php $this->render_override_dot($overridden, 'smtp_host'); ?>
+                </label>
+                <div class="lrob-etk-combo-row">
+                    <div class="lrob-etk-combo" data-name="host">
+                        <input
+                            type="text"
+                            name="smtp_host"
+                            class="lrob-etk-combo-input lrob-etk-field-host"
+                            value="<?php echo esc_attr($f['smtp_host']); ?>"
+                            placeholder="smtp.example.com"
+                            autocomplete="off">
+                        <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
+                                aria-label="<?php esc_attr_e('Show host presets', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                        </button>
+                        <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
+                    </div>
+                    <button
+                        type="button"
+                        class="lrob-etk-conn-test"
+                        data-action="test-auth"
+                        title="<?php esc_attr_e('Test connection', 'lrob-email-toolkit'); ?>"
+                        aria-label="<?php esc_attr_e('Test SMTP connection', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-controls-play" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="lrob-etk-host-status" hidden></div>
+            </div>
+
+            <div class="lrob-etk-field">
+                <label>
+                    <?php esc_html_e('Encryption & port', 'lrob-email-toolkit'); ?>
+                    <?php Tooltip::render(__('STARTTLS upgrades a plain connection to encrypted (port 587 — most common). TLS connects encrypted from the start (port 465). None sends plaintext on port 25 — almost always blocked by hosting providers.', 'lrob-email-toolkit')); ?>
+                </label>
+                <div class="lrob-etk-encryption-row">
+                    <select name="smtp_encryption" class="lrob-etk-select lrob-etk-field-encryption">
+                        <option value="<?php echo esc_attr(Identity::ENCRYPTION_STARTTLS); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_STARTTLS); ?>>STARTTLS</option>
+                        <option value="<?php echo esc_attr(Identity::ENCRYPTION_SSL); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_SSL); ?>>TLS</option>
+                        <option value="<?php echo esc_attr(Identity::ENCRYPTION_NONE); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_NONE); ?>><?php esc_html_e('None', 'lrob-email-toolkit'); ?></option>
+                    </select>
+                    <div class="lrob-etk-port-input">
+                        <label for="lrob-etk-port-<?php echo (int) $f['id']; ?>"><?php esc_html_e('Port', 'lrob-email-toolkit'); ?></label>
+                        <input type="number" id="lrob-etk-port-<?php echo (int) $f['id']; ?>" name="smtp_port" class="lrob-etk-field-port" min="1" max="65535" value="<?php echo (int) $f['smtp_port']; ?>">
+                    </div>
+                </div>
+                <div class="lrob-etk-none-warning" <?php echo $f['smtp_encryption'] === Identity::ENCRYPTION_NONE ? '' : 'hidden'; ?>>
+                    <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+                    <?php esc_html_e('Plaintext SMTP on port 25 is almost always blocked by web hosts. Use STARTTLS or TLS.', 'lrob-email-toolkit'); ?>
+                </div>
+            </div>
+
+        </section>
+        <?php
+    }
+
+    /**
+     * @param array<int, string>   $overridden
+     * @param array<string, mixed> $f
+     */
+    private function render_from_section(array $overridden, array $f, string $site_title): void
+    {
+        ?>
+        <section class="lrob-etk-form-row-full lrob-etk-from-section">
+            <h3>
+                <?php esc_html_e('From', 'lrob-email-toolkit'); ?>
+                <?php Tooltip::render(__('The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used.', 'lrob-email-toolkit')); ?>
+            </h3>
+
+            <div class="lrob-etk-toggle-row lrob-etk-force-row">
+                <label class="lrob-etk-switch">
+                    <input type="checkbox" name="force_from" class="lrob-etk-field-force-from" value="1" <?php checked($f['force_from']); ?>>
+                    <span class="lrob-etk-switch-track"></span>
+                </label>
+                <span class="lrob-etk-switch-label"><?php esc_html_e('Force "From" on every outgoing email', 'lrob-email-toolkit'); ?></span>
+                <?php Tooltip::render(__('When on, overrides the From address even when other plugins try to set their own.', 'lrob-email-toolkit')); ?>
+            </div>
+
+            <div class="lrob-etk-from-grid">
+                <div class="lrob-etk-field">
+                    <label>
+                        <?php esc_html_e('From email', 'lrob-email-toolkit'); ?>
+                        <?php $this->render_override_dot($overridden, 'from_email'); ?>
+                    </label>
+                    <div class="lrob-etk-combo" data-name="from-email">
+                        <input
+                            type="email"
+                            name="from_email"
+                            class="lrob-etk-combo-input lrob-etk-field-from-email"
+                            value="<?php echo esc_attr($f['from_email']); ?>"
+                            placeholder="<?php echo esc_attr($f['smtp_username'] !== '' ? sprintf(__('Default — %s', 'lrob-email-toolkit'), $f['smtp_username']) : __('Default — uses mailbox login', 'lrob-email-toolkit')); ?>"
+                            autocomplete="off">
+                        <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
+                                aria-label="<?php esc_attr_e('Show presets', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                        </button>
+                        <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
+                    </div>
+                    <div class="lrob-etk-from-warning lrob-etk-from-warning-el" hidden></div>
+                </div>
+                <div class="lrob-etk-field">
+                    <label>
+                        <?php esc_html_e('From name', 'lrob-email-toolkit'); ?>
+                        <?php $this->render_override_dot($overridden, 'from_name'); ?>
+                    </label>
+                    <div class="lrob-etk-combo" data-name="from-name">
+                        <input
+                            type="text"
+                            name="from_name"
+                            class="lrob-etk-combo-input lrob-etk-field-from-name"
+                            value="<?php echo esc_attr($f['from_name']); ?>"
+                            placeholder="<?php echo esc_attr(sprintf(__('Default — %s', 'lrob-email-toolkit'), $site_title)); ?>"
+                            autocomplete="off">
+                        <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
+                                aria-label="<?php esc_attr_e('Show presets', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                        </button>
+                        <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
+                    </div>
+                </div>
+                <div class="lrob-etk-field">
+                    <label><?php esc_html_e('Reply-to', 'lrob-email-toolkit'); ?> <span class="lrob-etk-label-hint"><?php esc_html_e('(optional)', 'lrob-email-toolkit'); ?></span></label>
+                    <input type="email" name="reply_to_email" class="lrob-etk-field-reply-to" value="<?php echo esc_attr($f['reply_to_email']); ?>">
+                </div>
+            </div>
+        </section>
         <?php
     }
 
@@ -170,11 +411,11 @@ final class SettingsPage
                     $current = $rules[$source] ?? '';
                     ?>
                     <div class="lrob-etk-routing-row">
-                        <label for="lrob-etk-route-<?php echo esc_attr($source); ?>">
+                        <label>
                             <strong><?php echo esc_html($label); ?></strong>
                             <code><?php echo esc_html($source); ?></code>
                         </label>
-                        <select id="lrob-etk-route-<?php echo esc_attr($source); ?>" name="routing[<?php echo esc_attr($source); ?>]">
+                        <select name="routing[<?php echo esc_attr($source); ?>]">
                             <option value=""><?php esc_html_e('— Use default —', 'lrob-email-toolkit'); ?></option>
                             <?php foreach ($identities as $identity) : ?>
                                 <option value="<?php echo esc_attr($identity->slug); ?>" <?php selected($current, $identity->slug); ?>>
@@ -189,261 +430,6 @@ final class SettingsPage
                 <button type="submit" class="button button-secondary"><?php esc_html_e('Save routing rules', 'lrob-email-toolkit'); ?></button>
             </p>
         </form>
-        <?php
-    }
-
-    private function render_identity_modal(): void
-    {
-        $overridden = $this->overrides->overridden_fields();
-        ?>
-        <div class="lrob-etk-modal" id="lrob-etk-identity-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-modal-title" hidden>
-            <div class="lrob-etk-modal-backdrop" data-lrob-etk-close></div>
-            <div class="lrob-etk-modal-dialog" role="document">
-                <header class="lrob-etk-modal-header">
-                    <h2 id="lrob-etk-modal-title" class="lrob-etk-modal-title-text">
-                        <?php esc_html_e('SMTP identity', 'lrob-email-toolkit'); ?>
-                    </h2>
-                    <button type="button" class="lrob-etk-modal-close" data-lrob-etk-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-no-alt"></span>
-                    </button>
-                </header>
-
-                <form id="lrob-etk-identity-form" class="lrob-etk-identity-form" novalidate>
-                    <input type="hidden" name="id" value="0">
-
-                    <input
-                        type="text"
-                        name="label"
-                        id="lrob-etk-label"
-                        class="lrob-etk-title-input"
-                        placeholder="<?php esc_attr_e('Identity name (e.g. Site default, Newsletter sender)', 'lrob-email-toolkit'); ?>"
-                        required
-                        autocomplete="off">
-                    <input type="hidden" name="slug" id="lrob-etk-slug">
-                    <p class="lrob-etk-slug-hint">
-                        <?php esc_html_e('Slug:', 'lrob-email-toolkit'); ?>
-                        <code id="lrob-etk-slug-display">—</code>
-                        <?php Tooltip::render(__('A stable identifier used internally (e.g. in routing rules). Auto-generated from the name; you only need to think about this if you rename the identity later.', 'lrob-email-toolkit')); ?>
-                    </p>
-
-                    <div class="lrob-etk-modal-columns">
-                        <?php $this->render_mailbox_column($overridden); ?>
-                        <?php $this->render_server_column($overridden); ?>
-                    </div>
-
-                    <?php $this->render_from_section($overridden); ?>
-                    <?php $this->render_status_section(); ?>
-
-                    <div class="lrob-etk-field-errors" id="lrob-etk-form-error" hidden></div>
-                </form>
-
-                <footer class="lrob-etk-modal-footer">
-                    <button type="button" class="button" data-lrob-etk-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
-                    <button type="button" class="button button-primary" id="lrob-etk-save-identity">
-                        <?php esc_html_e('Save identity', 'lrob-email-toolkit'); ?>
-                    </button>
-                </footer>
-            </div>
-        </div>
-        <?php
-    }
-
-    /** @param array<int, string> $overridden */
-    private function render_mailbox_column(array $overridden): void
-    {
-        ?>
-        <section class="lrob-etk-form-column">
-            <h3>
-                <?php esc_html_e('Mailbox login', 'lrob-email-toolkit'); ?>
-                <?php Tooltip::render(__('The credentials your mail server uses to authenticate this site. Usually the same as logging into webmail.', 'lrob-email-toolkit')); ?>
-            </h3>
-
-            <div class="lrob-etk-toggle-row">
-                <label class="lrob-etk-switch">
-                    <input type="checkbox" name="smtp_auth" id="lrob-etk-smtp-auth" value="1" checked>
-                    <span class="lrob-etk-switch-track"></span>
-                </label>
-                <span class="lrob-etk-switch-label"><?php esc_html_e('Authentication', 'lrob-email-toolkit'); ?></span>
-                <?php Tooltip::render(__('Most SMTP servers require a login. Disable only for relay-style internal servers that allow anonymous submission.', 'lrob-email-toolkit')); ?>
-            </div>
-
-            <div class="lrob-etk-auth-fields">
-                <div class="lrob-etk-field">
-                    <label for="lrob-etk-username">
-                        <?php esc_html_e('Username / email', 'lrob-email-toolkit'); ?>
-                        <?php $this->render_override_dot($overridden, 'smtp_username'); ?>
-                    </label>
-                    <input type="text" id="lrob-etk-username" name="smtp_username" autocomplete="off" placeholder="contact@example.com">
-                </div>
-
-                <div class="lrob-etk-field">
-                    <label for="lrob-etk-password">
-                        <?php esc_html_e('Password', 'lrob-email-toolkit'); ?>
-                        <?php $this->render_override_dot($overridden, 'smtp_password_encrypted'); ?>
-                        <?php Tooltip::render(__('Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS.', 'lrob-email-toolkit'), 'lock'); ?>
-                    </label>
-                    <div class="lrob-etk-password-row">
-                        <input type="password" id="lrob-etk-password" name="smtp_password" autocomplete="new-password" placeholder="<?php esc_attr_e('(unchanged when editing)', 'lrob-email-toolkit'); ?>">
-                        <button type="button" class="button" id="lrob-etk-test-auth">
-                            <?php esc_html_e('Test connection', 'lrob-email-toolkit'); ?>
-                        </button>
-                    </div>
-                    <div id="lrob-etk-test-auth-result" class="lrob-etk-test-result" hidden></div>
-                </div>
-            </div>
-        </section>
-        <?php
-    }
-
-    /** @param array<int, string> $overridden */
-    private function render_server_column(array $overridden): void
-    {
-        ?>
-        <section class="lrob-etk-form-column">
-            <h3>
-                <?php esc_html_e('SMTP server', 'lrob-email-toolkit'); ?>
-                <?php Tooltip::render(__('Pick your domain\'s mail server. "Custom" lets you use an external relay (Mailgun, SendGrid, etc.) — only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate.', 'lrob-email-toolkit')); ?>
-            </h3>
-
-            <div class="lrob-etk-field">
-                <label><?php esc_html_e('Host', 'lrob-email-toolkit'); ?></label>
-                <div class="lrob-etk-server-picker">
-                    <label class="lrob-etk-server-option">
-                        <input type="radio" name="host_picker" value="mail" checked>
-                        <span>mail.<span class="lrob-etk-server-domain">example.com</span></span>
-                    </label>
-                    <label class="lrob-etk-server-option">
-                        <input type="radio" name="host_picker" value="bare">
-                        <span class="lrob-etk-server-domain">example.com</span>
-                    </label>
-                    <label class="lrob-etk-server-option">
-                        <input type="radio" name="host_picker" value="custom">
-                        <span><?php esc_html_e('Custom', 'lrob-email-toolkit'); ?></span>
-                    </label>
-                </div>
-                <input type="text" id="lrob-etk-host" name="smtp_host" placeholder="smtp.example.com" hidden>
-                <?php $this->render_override_dot($overridden, 'smtp_host'); ?>
-            </div>
-
-            <div class="lrob-etk-field">
-                <label><?php esc_html_e('Encryption & port', 'lrob-email-toolkit'); ?></label>
-                <div class="lrob-etk-encryption-row">
-                    <div class="lrob-etk-radio-group">
-                        <label>
-                            <input type="radio" name="smtp_encryption" value="<?php echo esc_attr(Identity::ENCRYPTION_STARTTLS); ?>" checked>
-                            STARTTLS
-                        </label>
-                        <label>
-                            <input type="radio" name="smtp_encryption" value="<?php echo esc_attr(Identity::ENCRYPTION_SSL); ?>">
-                            SSL/TLS
-                        </label>
-                        <label>
-                            <input type="radio" name="smtp_encryption" value="<?php echo esc_attr(Identity::ENCRYPTION_NONE); ?>">
-                            <?php esc_html_e('None', 'lrob-email-toolkit'); ?>
-                        </label>
-                    </div>
-                    <div class="lrob-etk-port-input">
-                        <label for="lrob-etk-port"><?php esc_html_e('Port', 'lrob-email-toolkit'); ?></label>
-                        <input type="number" id="lrob-etk-port" name="smtp_port" min="1" max="65535" value="587">
-                    </div>
-                </div>
-            </div>
-        </section>
-        <?php
-    }
-
-    /** @param array<int, string> $overridden */
-    private function render_from_section(array $overridden): void
-    {
-        $site_title = get_bloginfo('name');
-        ?>
-        <section class="lrob-etk-form-row-full">
-            <h3>
-                <?php esc_html_e('From address', 'lrob-email-toolkit'); ?>
-                <?php Tooltip::render(__('The address shown to recipients. Most SMTP servers require the From address to match the mailbox login; the warning below will tell you when something looks off.', 'lrob-email-toolkit')); ?>
-            </h3>
-
-            <div class="lrob-etk-from-row">
-                <div class="lrob-etk-from-field">
-                    <label><?php esc_html_e('From email', 'lrob-email-toolkit'); ?></label>
-                    <div class="lrob-etk-segmented" data-segmented-target="from_email_mode">
-                        <input type="hidden" name="from_email_mode" value="auto">
-                        <button type="button" class="is-active" data-mode="auto"><?php esc_html_e('Automatic', 'lrob-email-toolkit'); ?></button>
-                        <button type="button" data-mode="custom"><?php esc_html_e('Custom', 'lrob-email-toolkit'); ?></button>
-                    </div>
-                    <div class="lrob-etk-from-auto" id="lrob-etk-from-email-auto">
-                        <span class="lrob-etk-readonly-value" id="lrob-etk-from-email-auto-value">—</span>
-                        <span class="description"><?php esc_html_e('(same as mailbox login)', 'lrob-email-toolkit'); ?></span>
-                    </div>
-                    <input type="email" id="lrob-etk-from-email" name="from_email" hidden>
-                    <div id="lrob-etk-from-warning" class="lrob-etk-from-warning" hidden></div>
-                    <?php $this->render_override_dot($overridden, 'from_email'); ?>
-                </div>
-
-                <div class="lrob-etk-force-toggle">
-                    <label>
-                        <input type="checkbox" name="force_from" id="lrob-etk-force-from" value="1" checked>
-                        <?php esc_html_e('Force', 'lrob-email-toolkit'); ?>
-                    </label>
-                    <?php Tooltip::render(__('Override the From address on every outgoing email — even when other plugins try to set their own.', 'lrob-email-toolkit')); ?>
-                </div>
-            </div>
-
-            <div class="lrob-etk-from-row">
-                <div class="lrob-etk-from-field">
-                    <label><?php esc_html_e('From name', 'lrob-email-toolkit'); ?></label>
-                    <div class="lrob-etk-segmented" data-segmented-target="from_name_mode">
-                        <input type="hidden" name="from_name_mode" value="auto">
-                        <button type="button" class="is-active" data-mode="auto"><?php esc_html_e('Automatic', 'lrob-email-toolkit'); ?></button>
-                        <button type="button" data-mode="custom"><?php esc_html_e('Custom', 'lrob-email-toolkit'); ?></button>
-                    </div>
-                    <div class="lrob-etk-from-auto" id="lrob-etk-from-name-auto">
-                        <span class="lrob-etk-readonly-value"><?php echo esc_html($site_title); ?></span>
-                        <span class="description"><?php esc_html_e('(site title)', 'lrob-email-toolkit'); ?></span>
-                    </div>
-                    <input type="text" id="lrob-etk-from-name" name="from_name" hidden>
-                    <?php $this->render_override_dot($overridden, 'from_name'); ?>
-                </div>
-            </div>
-
-            <div class="lrob-etk-from-row">
-                <div class="lrob-etk-from-field">
-                    <label for="lrob-etk-reply-to">
-                        <?php esc_html_e('Reply-to', 'lrob-email-toolkit'); ?>
-                        <?php Tooltip::render(__('Optional. Where replies go if different from the From address.', 'lrob-email-toolkit')); ?>
-                    </label>
-                    <input type="email" id="lrob-etk-reply-to" name="reply_to_email" class="regular-text">
-                </div>
-            </div>
-        </section>
-        <?php
-    }
-
-    private function render_status_section(): void
-    {
-        ?>
-        <section class="lrob-etk-form-row-full">
-            <h3><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></h3>
-
-            <div class="lrob-etk-status-row">
-                <div class="lrob-etk-toggle-row">
-                    <label class="lrob-etk-switch">
-                        <input type="checkbox" name="is_active" id="lrob-etk-is-active" value="1" checked>
-                        <span class="lrob-etk-switch-track"></span>
-                    </label>
-                    <span class="lrob-etk-switch-label"><?php esc_html_e('Active', 'lrob-email-toolkit'); ?></span>
-                    <?php Tooltip::render(__('Inactive identities are kept in storage but never used for sending.', 'lrob-email-toolkit')); ?>
-                </div>
-                <div class="lrob-etk-toggle-row">
-                    <label class="lrob-etk-switch">
-                        <input type="checkbox" name="is_default" id="lrob-etk-is-default" value="1">
-                        <span class="lrob-etk-switch-track"></span>
-                    </label>
-                    <span class="lrob-etk-switch-label"><?php esc_html_e('Default identity', 'lrob-email-toolkit'); ?></span>
-                    <?php Tooltip::render(__('Used for any source that doesn\'t have its own routing rule.', 'lrob-email-toolkit')); ?>
-                </div>
-            </div>
-        </section>
         <?php
     }
 
@@ -464,7 +450,7 @@ final class SettingsPage
                 </header>
 
                 <form id="lrob-etk-test-form" class="lrob-etk-modal-body">
-                    <input type="hidden" name="id" id="lrob-etk-test-id" value="0">
+                    <input type="hidden" id="lrob-etk-test-id" value="0">
 
                     <?php if (count($identities) > 1) : ?>
                         <div class="lrob-etk-field">
@@ -481,7 +467,7 @@ final class SettingsPage
 
                     <div class="lrob-etk-field">
                         <label for="lrob-etk-test-recipient-choice"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
-                        <select id="lrob-etk-test-recipient-choice" name="recipient_choice">
+                        <select id="lrob-etk-test-recipient-choice">
                             <option value="current"><?php echo esc_html(sprintf(__('Me (%s)', 'lrob-email-toolkit'), $current_user->user_email)); ?></option>
                             <option value="admin"><?php echo esc_html(sprintf(__('Site admin (%s)', 'lrob-email-toolkit'), $admin_email)); ?></option>
                             <option value="custom"><?php esc_html_e('Custom address…', 'lrob-email-toolkit'); ?></option>
@@ -490,7 +476,7 @@ final class SettingsPage
 
                     <div class="lrob-etk-field" id="lrob-etk-test-custom-wrap" hidden>
                         <label for="lrob-etk-test-recipient-custom"><?php esc_html_e('Custom recipient', 'lrob-email-toolkit'); ?></label>
-                        <input type="email" id="lrob-etk-test-recipient-custom" name="recipient_custom" placeholder="you@example.com">
+                        <input type="email" id="lrob-etk-test-recipient-custom" placeholder="you@example.com">
                     </div>
 
                     <div id="lrob-etk-test-result" class="lrob-etk-test-result" hidden></div>
@@ -507,6 +493,30 @@ final class SettingsPage
         <?php
     }
 
+    private function render_conn_popover(): void
+    {
+        ?>
+        <div class="lrob-etk-popover" id="lrob-etk-conn-popover" role="dialog" aria-label="<?php esc_attr_e('Connection test result', 'lrob-email-toolkit'); ?>" hidden>
+            <header class="lrob-etk-popover-header">
+                <h3><?php esc_html_e('Connection test', 'lrob-email-toolkit'); ?></h3>
+                <button type="button" class="lrob-etk-popover-close" aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>"
+                        onclick="this.closest('.lrob-etk-popover').hidden = true">
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
+            </header>
+            <div class="lrob-etk-popover-body">
+                <p class="lrob-etk-popover-message"></p>
+                <pre class="lrob-etk-popover-debug" hidden></pre>
+            </div>
+            <footer class="lrob-etk-popover-footer">
+                <button type="button" class="button button-primary lrob-etk-popover-rerun">
+                    <?php esc_html_e('Run again', 'lrob-email-toolkit'); ?>
+                </button>
+            </footer>
+        </div>
+        <?php
+    }
+
     /** @param array<int, Identity> $identities */
     private function print_inline_js(array $identities): void
     {
@@ -516,10 +526,9 @@ final class SettingsPage
                 'id'              => (int) $identity->id,
                 'label'           => $identity->label,
                 'slug'            => $identity->slug,
+                'transport'       => $identity->transport,
                 'from_email'      => $identity->from_email,
                 'from_name'       => $identity->from_name,
-                'from_email_auto' => $identity->is_from_email_automatic(),
-                'from_name_auto'  => $identity->is_from_name_automatic(),
                 'smtp_host'       => $identity->smtp_host,
                 'smtp_port'       => $identity->smtp_port,
                 'smtp_encryption' => $identity->smtp_encryption,
@@ -541,21 +550,29 @@ final class SettingsPage
                 setDefault:  <?php echo wp_json_encode(AjaxController::ACTION_SET_DEFAULT); ?>,
                 testAuth:    <?php echo wp_json_encode(AjaxController::ACTION_TEST_AUTH); ?>,
                 testSend:    <?php echo wp_json_encode(AjaxController::ACTION_TEST_SEND); ?>,
-                saveRouting: <?php echo wp_json_encode(AjaxController::ACTION_SAVE_ROUTING); ?>
+                saveRouting: <?php echo wp_json_encode(AjaxController::ACTION_SAVE_ROUTING); ?>,
+                checkHost:   <?php echo wp_json_encode(AjaxController::ACTION_CHECK_HOST); ?>,
+                lookupMx:    <?php echo wp_json_encode(AjaxController::ACTION_LOOKUP_MX); ?>
             },
             identities: <?php echo wp_json_encode($data); ?>,
             siteTitle: <?php echo wp_json_encode(get_bloginfo('name')); ?>,
             i18n: {
-                deleting:        <?php echo wp_json_encode(__('Deleting…', 'lrob-email-toolkit')); ?>,
-                deleteConfirm:   <?php echo wp_json_encode(__('Delete the identity "%s"?', 'lrob-email-toolkit')); ?>,
-                saving:          <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
-                testing:         <?php echo wp_json_encode(__('Testing…', 'lrob-email-toolkit')); ?>,
-                sending:         <?php echo wp_json_encode(__('Sending…', 'lrob-email-toolkit')); ?>,
-                addTitle:        <?php echo wp_json_encode(__('Add SMTP identity', 'lrob-email-toolkit')); ?>,
-                editTitle:       <?php echo wp_json_encode(__('Edit SMTP identity', 'lrob-email-toolkit')); ?>,
-                domainMismatch:  <?php echo wp_json_encode(__('Domain differs from the mailbox login. Most servers will reject or rewrite this — only use this with relays that support arbitrary senders.', 'lrob-email-toolkit')); ?>,
-                userMismatch:    <?php echo wp_json_encode(__('Local part differs from the mailbox login. Some servers may rewrite the From address.', 'lrob-email-toolkit')); ?>,
-                unknownError:    <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>
+                deleteConfirm:    <?php echo wp_json_encode(__('Delete the identity "%s"?', 'lrob-email-toolkit')); ?>,
+                saving:           <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
+                saved:            <?php echo wp_json_encode(__('Saved', 'lrob-email-toolkit')); ?>,
+                saveFailed:       <?php echo wp_json_encode(__('Save failed', 'lrob-email-toolkit')); ?>,
+                testing:          <?php echo wp_json_encode(__('Testing…', 'lrob-email-toolkit')); ?>,
+                sending:          <?php echo wp_json_encode(__('Sending…', 'lrob-email-toolkit')); ?>,
+                resolves:         <?php echo wp_json_encode(__('✓ resolves', 'lrob-email-toolkit')); ?>,
+                noResolve:        <?php echo wp_json_encode(__('✗ cannot resolve', 'lrob-email-toolkit')); ?>,
+                domainMismatch:   <?php echo wp_json_encode(__('Domain differs from the mailbox login. Most servers will reject or rewrite this — only use with relays that support arbitrary senders.', 'lrob-email-toolkit')); ?>,
+                userMismatch:     <?php echo wp_json_encode(__('Local part differs from the mailbox login. Some servers may rewrite the From address.', 'lrob-email-toolkit')); ?>,
+                unknownError:     <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>,
+                active:           <?php echo wp_json_encode(__('Active', 'lrob-email-toolkit')); ?>,
+                inactive:         <?php echo wp_json_encode(__('Inactive', 'lrob-email-toolkit')); ?>,
+                createBtn:        <?php echo wp_json_encode(__('Create', 'lrob-email-toolkit')); ?>,
+                testAuthBtn:      <?php echo wp_json_encode(__('Test connection', 'lrob-email-toolkit')); ?>,
+                sendBtn:          <?php echo wp_json_encode(__('Send test', 'lrob-email-toolkit')); ?>
             }
         };
         <?php
@@ -569,9 +586,8 @@ final class SettingsPage
     var S = window.lrobEtkSmtp;
     if (!S) return;
 
-    function $(id) { return document.getElementById(id); }
     function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-
+    function field(card, cls) { return card.querySelector('.lrob-etk-field-' + cls); }
     function slugify(s) {
         return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').substring(0, 50);
     }
@@ -596,368 +612,570 @@ final class SettingsPage
     }
 
     function flash(msg, type) {
-        var holder = $('lrob-etk-flash');
+        var holder = document.getElementById('lrob-etk-flash');
         if (!holder) return;
         var div = document.createElement('div');
         div.className = 'notice notice-' + (type === 'error' ? 'error' : 'success') + ' is-dismissible';
-        div.innerHTML = '<p></p>';
-        div.firstChild.textContent = msg;
+        var p = document.createElement('p'); p.textContent = msg; div.appendChild(p);
         holder.appendChild(div);
         setTimeout(function () { if (div.parentNode) div.parentNode.removeChild(div); }, 5000);
     }
 
-    // ---------------- Modal handling ----------------
-    function openModal(id, ctx) {
-        var modal = $(id);
-        if (!modal) return;
-        modal.hidden = false;
-        document.body.classList.add('lrob-etk-modal-open');
-        if (id === 'lrob-etk-identity-modal') {
-            populateIdentityForm(ctx);
-        } else if (id === 'lrob-etk-test-modal') {
-            $('lrob-etk-test-id').value = ctx || 0;
-            var pick = $('lrob-etk-test-identity-pick');
-            if (pick && ctx) pick.value = ctx;
-            $('lrob-etk-test-result').hidden = true;
+    function setStatus(card, state, message) {
+        var el = card.querySelector('.lrob-etk-card-status');
+        if (!el) return;
+        el.className = 'lrob-etk-card-status is-' + state;
+        el.textContent = message || '';
+        if (state === 'saved') {
+            clearTimeout(card._statusTimer);
+            card._statusTimer = setTimeout(function () {
+                el.className = 'lrob-etk-card-status';
+                el.textContent = '';
+            }, 1500);
         }
-        var focusable = modal.querySelector('input, button, select, textarea');
-        if (focusable) focusable.focus();
     }
 
-    function closeModal() {
-        $$('.lrob-etk-modal').forEach(function (m) { m.hidden = true; });
-        document.body.classList.remove('lrob-etk-modal-open');
+    function applyCardState(card) {
+        var transport = field(card, 'transport').value;
+        var smtpOnly = card.querySelector('.lrob-etk-smtp-only');
+        if (smtpOnly) smtpOnly.style.display = transport === 'mail' ? 'none' : '';
+
+        // Auth visibility
+        var authOn = field(card, 'smtp-auth').checked;
+        $$('.lrob-etk-auth-fields > .lrob-etk-field', card).forEach(function (div) {
+            div.style.display = authOn ? '' : 'none';
+        });
+
+        // Active label
+        var activeEl = card.querySelector('.lrob-etk-inline-switch-label');
+        var activeChk = field(card, 'is-active');
+        if (activeEl && activeChk) {
+            activeEl.textContent = activeChk.checked ? S.i18n.active : S.i18n.inactive;
+        }
+
+        // None warning
+        var encChecked = card.querySelector('input[name="smtp_encryption"]:checked');
+        var noneWarn = card.querySelector('.lrob-etk-none-warning');
+        if (noneWarn) noneWarn.hidden = !(encChecked && encChecked.value === '');
+
+        rebuildHostPresets(card);
+        updateFromEmailDefaultLabel(card);
+        syncFromWarning(card);
     }
 
+    function updateFromEmailPlaceholder(card) {
+        var input = card.querySelector('.lrob-etk-field-from-email');
+        if (!input) return;
+        var user = field(card, 'username').value.trim();
+        input.placeholder = user
+            ? ('<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + user)
+            : '<?php echo esc_js(__('Default — uses mailbox login', 'lrob-email-toolkit')); ?>';
+    }
+    function rebuildHostPresets() { /* presets are built on demand by combobox */ }
+    function updateFromEmailDefaultLabel(card) { updateFromEmailPlaceholder(card); }
+
+    /**
+     * Custom combobox: an input + dropdown arrow that share the same visual
+     * field. Click the arrow to open a menu of preset options; pick one to
+     * fill the input. Or type freely for a custom value. The input itself
+     * is the form field — no hidden mirror needed.
+     */
+    function setupCombobox(card, name) {
+        var combo = card.querySelector('.lrob-etk-combo[data-name="' + name + '"]');
+        if (!combo) return;
+        var input = combo.querySelector('.lrob-etk-combo-input');
+        var toggle = combo.querySelector('.lrob-etk-combo-toggle');
+        var menu = combo.querySelector('.lrob-etk-combo-menu');
+        if (!input || !toggle || !menu) return;
+
+        toggle.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (menu.hidden) {
+                populateComboMenu(card, name, menu, input.value);
+                if (menu.children.length === 0) {
+                    // Nothing to show; ignore click.
+                    return;
+                }
+                menu.hidden = false;
+                combo.classList.add('is-open');
+            } else {
+                menu.hidden = true;
+                combo.classList.remove('is-open');
+            }
+        });
+
+        menu.addEventListener('click', function (e) {
+            var item = e.target.closest('[role="option"]');
+            if (!item) return;
+            var value = item.getAttribute('data-value') || '';
+            input.value = value;
+            menu.hidden = true;
+            combo.classList.remove('is-open');
+            if (name === 'host') runHostCheck(card);
+            if (name === 'from-email') syncFromWarning(card);
+            queueSave(card, 0);
+            input.focus();
+        });
+
+        // Close menu on outside click (delegated globally below).
+    }
+
+    function populateComboMenu(card, name, menu, currentValue) {
+        var items = [];
+        var user = field(card, 'username').value.trim();
+        if (name === 'host') {
+            var at = user.lastIndexOf('@');
+            var domain = at !== -1 ? user.substring(at + 1).toLowerCase() : '';
+            if (domain) {
+                items.push({ value: 'mail.' + domain, label: 'mail.' + domain });
+                items.push({ value: 'smtp.' + domain, label: 'smtp.' + domain });
+                items.push({ value: domain, label: domain });
+            }
+            if (card._mxHost) {
+                items.push({ value: card._mxHost, label: 'MX: ' + card._mxHost });
+            }
+        } else if (name === 'from-email') {
+            if (user) {
+                items.push({ value: user, label: '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + user });
+            }
+            items.push({ value: '', label: '<?php echo esc_js(__('Use automatic (uses mailbox login)', 'lrob-email-toolkit')); ?>' });
+        } else if (name === 'from-name') {
+            items.push({ value: S.siteTitle, label: '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + S.siteTitle });
+            items.push({ value: '', label: '<?php echo esc_js(__('Use automatic (uses site title)', 'lrob-email-toolkit')); ?>' });
+        }
+
+        menu.innerHTML = items.map(function (it) {
+            var cls = (it.value === currentValue) ? ' class="is-selected"' : '';
+            return '<li role="option" data-value="' + it.value.replace(/"/g, '&quot;') + '"' + cls + '>' + it.label + '</li>';
+        }).join('');
+    }
+
+    // Close any open combo when clicking outside.
     document.addEventListener('click', function (e) {
-        var opener = e.target.closest && e.target.closest('[data-lrob-etk-open]');
-        if (opener) {
-            e.preventDefault();
-            var target = opener.getAttribute('data-lrob-etk-open');
-            var ctx = opener.getAttribute('data-lrob-etk-edit-id') || opener.getAttribute('data-lrob-etk-test-id') || null;
-            openModal(target, ctx ? parseInt(ctx, 10) : null);
-            return;
-        }
-        if (e.target.closest && e.target.closest('[data-lrob-etk-close]')) {
-            e.preventDefault();
-            closeModal();
-        }
-    });
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeModal();
+        $$('.lrob-etk-combo.is-open').forEach(function (combo) {
+            if (!combo.contains(e.target)) {
+                combo.classList.remove('is-open');
+                var m = combo.querySelector('.lrob-etk-combo-menu');
+                if (m) m.hidden = true;
+            }
+        });
     });
 
-    // ---------------- Identity form ----------------
-    function populateIdentityForm(id) {
-        var form = $('lrob-etk-identity-form');
-        if (!form) return;
-        form.reset();
-        $('lrob-etk-form-error').hidden = true;
-        $('lrob-etk-test-auth-result').hidden = true;
-
-        var data = id && S.identities[id] ? S.identities[id] : null;
-        $('lrob-etk-modal-title').textContent = data ? S.i18n.editTitle : S.i18n.addTitle;
-        form.elements['id'].value = data ? data.id : 0;
-        $('lrob-etk-label').value = data ? data.label : '';
-        $('lrob-etk-slug').value = data ? data.slug : '';
-        $('lrob-etk-slug').setAttribute('data-initial', data ? data.slug : '');
-        $('lrob-etk-slug-display').textContent = data ? data.slug : '—';
-
-        $('lrob-etk-username').value = data ? data.smtp_username : '';
-        $('lrob-etk-password').value = '';
-        $('lrob-etk-password').placeholder = data ? '<?php echo esc_js(__('(unchanged when editing)', 'lrob-email-toolkit')); ?>' : '';
-        $('lrob-etk-smtp-auth').checked = data ? !!data.smtp_auth : true;
-        $('lrob-etk-host').value = data ? data.smtp_host : '';
-        $('lrob-etk-port').value = data ? data.smtp_port : 587;
-        $$('input[name="smtp_encryption"]').forEach(function (r) { r.checked = r.value === (data ? data.smtp_encryption : 'tls'); });
-        $('lrob-etk-reply-to').value = data ? (data.reply_to_email || '') : '';
-        $('lrob-etk-force-from').checked = data ? !!data.force_from : true;
-        $('lrob-etk-is-active').checked = data ? !!data.is_active : true;
-        $('lrob-etk-is-default').checked = data ? !!data.is_default : false;
-
-        // From email mode
-        var fromEmailMode = data && !data.from_email_auto ? 'custom' : 'auto';
-        setSegmentedMode('from_email_mode', fromEmailMode);
-        $('lrob-etk-from-email').value = data ? data.from_email : '';
-
-        // From name mode
-        var fromNameMode = data && !data.from_name_auto ? 'custom' : 'auto';
-        setSegmentedMode('from_name_mode', fromNameMode);
-        $('lrob-etk-from-name').value = data ? data.from_name : '';
-
-        // Server picker
-        syncServerPicker(true);
-        syncAuthVisibility();
-        syncFromAutoDisplay();
-        syncFromWarning();
-    }
-
-    // ---------------- Real-time form behaviors ----------------
-    $('lrob-etk-label').addEventListener('input', function () {
-        var initial = $('lrob-etk-slug').getAttribute('data-initial');
-        if (initial && initial !== '' && $('lrob-etk-slug').value !== '') {
-            return; // editing — don't overwrite slug from label changes
-        }
-        var s = slugify(this.value);
-        $('lrob-etk-slug').value = s;
-        $('lrob-etk-slug-display').textContent = s || '—';
-    });
-
-    $('lrob-etk-username').addEventListener('input', function () {
-        syncServerPicker(false);
-        syncFromAutoDisplay();
-        syncFromWarning();
-    });
-
-    $('lrob-etk-from-email').addEventListener('input', syncFromWarning);
-
-    function syncFromAutoDisplay() {
-        var user = $('lrob-etk-username').value.trim();
-        $('lrob-etk-from-email-auto-value').textContent = user || '—';
-    }
-
-    function syncFromWarning() {
-        var warn = $('lrob-etk-from-warning');
+    function syncFromWarning(card) {
+        var warn = card.querySelector('.lrob-etk-from-warning-el');
         if (!warn) return;
-        var mode = document.querySelector('[data-segmented-target="from_email_mode"] input[name="from_email_mode"]').value;
-        if (mode === 'auto') { warn.hidden = true; return; }
-        var u = $('lrob-etk-username').value.trim();
-        var f = $('lrob-etk-from-email').value.trim();
-        if (u === '' || f === '' || u === f) { warn.hidden = true; return; }
+        var u = field(card, 'username').value.trim();
+        var f = field(card, 'from-email').value.trim();
+        // No warning when From email is empty (auto mode).
+        if (!u || !f || u === f) { warn.hidden = true; return; }
         var uAt = u.lastIndexOf('@'); var fAt = f.lastIndexOf('@');
         if (uAt === -1 || fAt === -1) { warn.hidden = true; return; }
         var uDom = u.substring(uAt + 1); var fDom = f.substring(fAt + 1);
         if (uDom !== fDom) {
-            warn.className = 'lrob-etk-from-warning is-danger';
+            warn.className = 'lrob-etk-from-warning lrob-etk-from-warning-el is-danger';
             warn.textContent = S.i18n.domainMismatch;
         } else {
-            warn.className = 'lrob-etk-from-warning is-warning';
+            warn.className = 'lrob-etk-from-warning lrob-etk-from-warning-el is-warning';
             warn.textContent = S.i18n.userMismatch;
         }
         warn.hidden = false;
     }
 
-    // Segmented control
-    $$('[data-segmented-target]').forEach(function (group) {
-        group.addEventListener('click', function (e) {
-            var btn = e.target.closest('button[data-mode]');
-            if (!btn) return;
-            setSegmentedMode(group.getAttribute('data-segmented-target'), btn.getAttribute('data-mode'));
-        });
-    });
-
-    function setSegmentedMode(name, mode) {
-        var group = document.querySelector('[data-segmented-target="' + name + '"]');
-        if (!group) return;
-        group.querySelector('input[type="hidden"]').value = mode;
-        $$('button', group).forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-mode') === mode); });
-
-        // Toggle visibility of corresponding input vs readonly display
-        if (name === 'from_email_mode') {
-            $('lrob-etk-from-email-auto').hidden = mode !== 'auto';
-            $('lrob-etk-from-email').hidden = mode === 'auto';
-            if (mode === 'custom' && $('lrob-etk-from-email').value === '') {
-                $('lrob-etk-from-email').value = $('lrob-etk-username').value;
-            }
-            syncFromWarning();
-        } else if (name === 'from_name_mode') {
-            $('lrob-etk-from-name-auto').hidden = mode !== 'auto';
-            $('lrob-etk-from-name').hidden = mode === 'auto';
-            if (mode === 'custom' && $('lrob-etk-from-name').value === '') {
-                $('lrob-etk-from-name').value = S.siteTitle;
-            }
+    function runHostCheck(card) {
+        var host = field(card, 'host').value.trim();
+        var status = card.querySelector('.lrob-etk-host-status');
+        if (!status) return;
+        if (!host || host.indexOf('.') === -1) {
+            status.hidden = true;
+            return;
         }
-    }
-
-    // Auth toggle hides login fields
-    $('lrob-etk-smtp-auth').addEventListener('change', syncAuthVisibility);
-    function syncAuthVisibility() {
-        var on = $('lrob-etk-smtp-auth').checked;
-        $$('.lrob-etk-auth-fields > div').forEach(function (div) { div.style.display = on ? '' : 'none'; });
-    }
-
-    // Server picker
-    $$('input[name="host_picker"]').forEach(function (r) {
-        r.addEventListener('change', function () { syncServerPicker(false); });
-    });
-    function syncServerPicker(populateFromHost) {
-        var user = $('lrob-etk-username').value.trim();
-        var domain = '';
-        var at = user.lastIndexOf('@');
-        if (at !== -1) domain = user.substring(at + 1).toLowerCase();
-        $$('.lrob-etk-server-domain').forEach(function (el) { el.textContent = domain || 'example.com'; });
-
-        if (populateFromHost) {
-            // Existing identity — derive radio from current host vs derived options
-            var host = $('lrob-etk-host').value;
-            var picked = 'custom';
-            if (domain) {
-                if (host === 'mail.' + domain) picked = 'mail';
-                else if (host === domain) picked = 'bare';
-            }
-            var radio = document.querySelector('input[name="host_picker"][value="' + picked + '"]');
-            if (radio) radio.checked = true;
-        }
-
-        var picker = document.querySelector('input[name="host_picker"]:checked');
-        if (!picker) return;
-        var v = picker.value;
-        if (v === 'mail' && domain) {
-            $('lrob-etk-host').value = 'mail.' + domain;
-            $('lrob-etk-host').hidden = true;
-        } else if (v === 'bare' && domain) {
-            $('lrob-etk-host').value = domain;
-            $('lrob-etk-host').hidden = true;
-        } else {
-            // custom
-            $('lrob-etk-host').hidden = false;
-            if (populateFromHost && v !== 'custom') {
-                // No domain → start blank
-            }
-        }
-    }
-
-    // Encryption → port autofill
-    var portDefaults = { 'tls': 587, 'ssl': 465, '': 25 };
-    var portLast = portDefaults[document.querySelector('input[name="smtp_encryption"]:checked').value];
-    $$('input[name="smtp_encryption"]').forEach(function (r) {
-        r.addEventListener('change', function () {
-            var def = portDefaults[r.value];
-            if (def === undefined) return;
-            var current = parseInt($('lrob-etk-port').value, 10);
-            if (!$('lrob-etk-port').value || current === portLast) {
-                $('lrob-etk-port').value = def;
-            }
-            portLast = def;
-        });
-    });
-
-    // ---------------- Test connection ----------------
-    $('lrob-etk-test-auth').addEventListener('click', function () {
-        var btn = this;
-        var result = $('lrob-etk-test-auth-result');
-        btn.disabled = true; btn.textContent = S.i18n.testing;
-        result.hidden = false;
-        result.className = 'lrob-etk-test-result is-pending';
-        result.textContent = S.i18n.testing;
-
-        var form = $('lrob-etk-identity-form');
-        var fd = new FormData(form);
-        fd.append('action', S.actions.testAuth);
-        fd.append('_nonce', S.nonce);
-
-        fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
-            .then(function (r) { return r.json(); })
-            .then(function (resp) {
-                if (resp.success) {
-                    result.className = 'lrob-etk-test-result is-success';
-                    result.textContent = '✓ ' + resp.data.message;
-                } else {
-                    result.className = 'lrob-etk-test-result is-failure';
-                    var msg = (resp.data && resp.data.message) || S.i18n.unknownError;
-                    result.textContent = '✗ ' + msg;
-                    if (resp.data && resp.data.debug) {
-                        var pre = document.createElement('pre');
-                        pre.textContent = resp.data.debug;
-                        result.appendChild(pre);
-                    }
+        clearTimeout(card._hostCheckTimer);
+        card._hostCheckTimer = setTimeout(function () {
+            ajax(S.actions.checkHost, { host: host }).then(function (resp) {
+                if (resp.success && resp.data.host === host) {
+                    status.hidden = false;
+                    status.className = 'lrob-etk-host-status ' + (resp.data.resolves ? 'is-ok' : 'is-bad');
+                    status.textContent = resp.data.resolves ? S.i18n.resolves : S.i18n.noResolve;
                 }
-            })
-            .catch(function (err) {
-                result.className = 'lrob-etk-test-result is-failure';
-                result.textContent = '✗ ' + (err && err.message ? err.message : S.i18n.unknownError);
-            })
-            .finally(function () {
-                btn.disabled = false;
-                btn.textContent = '<?php echo esc_js(__('Test connection', 'lrob-email-toolkit')); ?>';
             });
-    });
+        }, 600);
+    }
 
-    // ---------------- Save identity ----------------
-    $('lrob-etk-save-identity').addEventListener('click', function () {
-        var btn = this;
-        btn.disabled = true; btn.textContent = S.i18n.saving;
-        var errBox = $('lrob-etk-form-error'); errBox.hidden = true;
+    function runMxLookup(card) {
+        var user = field(card, 'username').value.trim();
+        var at = user.lastIndexOf('@');
+        if (at === -1) return;
+        var domain = user.substring(at + 1).toLowerCase();
+        if (!domain || domain.indexOf('.') === -1) return;
+        if (card._lastMxDomain === domain) return;
+        card._lastMxDomain = domain;
+        ajax(S.actions.lookupMx, { domain: domain }).then(function (resp) {
+            if (resp.success && resp.data.hosts && resp.data.hosts.length > 0) {
+                card._mxHost = resp.data.hosts[0];
+                updateHostSuggestions(card);
+            }
+        });
+    }
 
-        var form = $('lrob-etk-identity-form');
-        var fd = new FormData(form);
+    function wireCardListeners(card) {
+        if (card.getAttribute('data-wired') === '1') return;
+        card.setAttribute('data-wired', '1');
+
+        var labelInput = field(card, 'label');
+        if (labelInput) {
+            labelInput.addEventListener('input', function () {
+                var initial = field(card, 'slug').getAttribute('data-initial') || '';
+                if (initial && field(card, 'slug').value !== '') return;
+                var s = slugify(labelInput.value);
+                field(card, 'slug').value = s;
+            });
+        }
+
+        field(card, 'username').addEventListener('input', function () {
+            applyCardState(card);
+        });
+        field(card, 'username').addEventListener('blur', function () { runMxLookup(card); });
+        field(card, 'smtp-auth').addEventListener('change', function () { applyCardState(card); });
+        field(card, 'is-active').addEventListener('change', function () { applyCardState(card); });
+
+        // Combobox: input + dropdown menu for each of these three fields.
+        setupCombobox(card, 'host');
+        setupCombobox(card, 'from-email');
+        setupCombobox(card, 'from-name');
+
+        // Host input also triggers DNS resolves check
+        field(card, 'host').addEventListener('input', function () { runHostCheck(card); });
+        field(card, 'from-email').addEventListener('input', function () { syncFromWarning(card); });
+
+        // Encryption → port autofill
+        var portDefaults = { 'tls': 587, 'ssl': 465, '': 25 };
+        var checkedEnc = card.querySelector('input[name="smtp_encryption"]:checked');
+        var portLast = checkedEnc ? portDefaults[checkedEnc.value] : 587;
+        $$('input[name="smtp_encryption"]', card).forEach(function (r) {
+            r.addEventListener('change', function () {
+                applyCardState(card);
+                var def = portDefaults[r.value];
+                if (def === undefined) return;
+                var portEl = field(card, 'port');
+                var current = parseInt(portEl.value, 10);
+                if (!portEl.value || current === portLast) portEl.value = def;
+                portLast = def;
+            });
+        });
+
+        // Transport segmented
+        $$('.lrob-etk-transport-segmented', card).forEach(function (group) {
+            group.addEventListener('click', function (e) {
+                var btn = e.target.closest('button[data-mode]');
+                if (!btn) return;
+                var hidden = group.querySelector('input[type="hidden"]');
+                var mode = btn.getAttribute('data-mode');
+                hidden.value = mode;
+                $$('button[data-mode]', group).forEach(function (b) {
+                    b.classList.toggle('is-active', b === btn);
+                });
+                applyCardState(card);
+                queueSave(card);
+            });
+        });
+
+        // Auto-save bindings
+        $$('input[type="text"], input[type="email"], input[type="password"], input[type="number"]', card).forEach(function (input) {
+            input.addEventListener('input', function () { queueSave(card, 1000); });
+            input.addEventListener('blur', function () { flushSave(card); });
+        });
+        $$('input[type="radio"], input[type="checkbox"]', card).forEach(function (input) {
+            input.addEventListener('change', function () { queueSave(card, 0); });
+        });
+    }
+
+    function queueSave(card, delay) {
+        if (card.getAttribute('data-state') === 'new') return;
+        if (card._saveTimer) clearTimeout(card._saveTimer);
+        card._saveTimer = setTimeout(function () { saveCard(card); }, delay || 0);
+    }
+
+    function flushSave(card) {
+        if (card._saveTimer) {
+            clearTimeout(card._saveTimer);
+            card._saveTimer = null;
+            saveCard(card);
+        }
+    }
+
+    function saveCard(card) {
+        var fd = new FormData(card.querySelector('.lrob-etk-card-form'));
         fd.append('action', S.actions.save);
         fd.append('_nonce', S.nonce);
 
-        fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+        var data = S.identities[parseInt(card.getAttribute('data-identity-id'), 10)];
+        var wasDefault = data ? !!data.is_default : false;
+        var isDefaultNow = field(card, 'is-default').value === '1';
+        var defaultToggled = isDefaultNow !== wasDefault;
+
+        setStatus(card, 'saving', S.i18n.saving);
+        var errBox = card.querySelector('.lrob-etk-card-error'); errBox.hidden = true;
+
+        return fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
             .then(function (r) { return r.json(); })
             .then(function (resp) {
                 if (resp.success) {
-                    flash(resp.data.message, 'success');
-                    setTimeout(function () { window.location.reload(); }, 400);
+                    if (data) data.is_default = isDefaultNow;
+                    if (defaultToggled) {
+                        setStatus(card, 'saved', S.i18n.saved);
+                        setTimeout(function () { window.location.reload(); }, 400);
+                        return;
+                    }
+                    setStatus(card, 'saved', S.i18n.saved);
+                    if (card.getAttribute('data-state') === 'new' && resp.data && resp.data.id) {
+                        card.setAttribute('data-identity-id', resp.data.id);
+                        card.setAttribute('data-state', 'existing');
+                        card.classList.remove('is-new');
+                        field(card, 'id').value = resp.data.id;
+                        setTimeout(function () { window.location.reload(); }, 600);
+                    }
                 } else {
-                    var msg = (resp.data && resp.data.message) || S.i18n.unknownError;
+                    setStatus(card, 'failed', S.i18n.saveFailed);
                     errBox.hidden = false;
-                    errBox.textContent = msg;
-                    btn.disabled = false; btn.textContent = '<?php echo esc_js(__('Save identity', 'lrob-email-toolkit')); ?>';
+                    errBox.textContent = (resp.data && resp.data.message) || S.i18n.unknownError;
                 }
             })
             .catch(function () {
-                errBox.hidden = false; errBox.textContent = S.i18n.unknownError;
-                btn.disabled = false; btn.textContent = '<?php echo esc_js(__('Save identity', 'lrob-email-toolkit')); ?>';
+                setStatus(card, 'failed', S.i18n.saveFailed);
+                errBox.hidden = false;
+                errBox.textContent = S.i18n.unknownError;
             });
-    });
+    }
 
-    // ---------------- Delete identity ----------------
-    $$('.lrob-etk-delete').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var id = btn.getAttribute('data-id');
+    // ---------------- Card actions ----------------
+    document.addEventListener('click', function (e) {
+        var card = e.target.closest && e.target.closest('.lrob-etk-identity-card');
+        if (!card) return;
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+
+        if (action === 'create') {
+            card.setAttribute('data-state', 'existing-pending');
+            saveCard(card);
+        } else if (action === 'discard') {
+            card.parentNode.removeChild(card);
+        } else if (action === 'delete') {
             var label = btn.getAttribute('data-label') || '';
             if (!confirm(S.i18n.deleteConfirm.replace('%s', label))) return;
-            ajax(S.actions.delete, { id: id }).then(function (resp) {
-                if (resp.success) {
-                    flash(resp.data.message, 'success');
-                    setTimeout(function () { window.location.reload(); }, 300);
-                } else {
-                    flash((resp.data && resp.data.message) || S.i18n.unknownError, 'error');
-                }
+            ajax(S.actions.delete, { id: btn.getAttribute('data-id') }).then(function (resp) {
+                if (resp.success) { flash(resp.data.message, 'success'); setTimeout(function () { window.location.reload(); }, 300); }
+                else flash((resp.data && resp.data.message) || S.i18n.unknownError, 'error');
             });
+        } else if (action === 'test') {
+            openTestModal(parseInt(btn.getAttribute('data-id'), 10), btn);
+        } else if (action === 'test-auth') {
+            handleConnTestClick(card, btn);
+        }
+    });
+
+    // Set-default uses a separate button outside the form-actions cluster.
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('.lrob-etk-set-default');
+        if (!btn) return;
+        ajax(S.actions.setDefault, { id: btn.getAttribute('data-id') }).then(function (resp) {
+            if (resp.success) { flash(resp.data.message, 'success'); setTimeout(function () { window.location.reload(); }, 300); }
+            else flash((resp.data && resp.data.message) || S.i18n.unknownError, 'error');
         });
     });
 
-    // ---------------- Set default ----------------
-    $$('.lrob-etk-set-default').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var id = btn.getAttribute('data-id');
-            ajax(S.actions.setDefault, { id: id }).then(function (resp) {
+    // Inline connection-test icon button — click cycles between "run now"
+    // (no result yet) and "show details popover" (after a result).
+    function handleConnTestClick(card, btn) {
+        if (btn._lastResult) {
+            showConnPopover(card, btn);
+        } else {
+            runTestAuth(card, btn);
+        }
+    }
+
+    function runTestAuth(card, btn) {
+        btn.classList.remove('is-ok', 'is-fail');
+        btn.classList.add('is-testing');
+        var icon = btn.querySelector('.dashicons');
+        if (icon) icon.className = 'dashicons dashicons-update';
+        btn.disabled = true;
+        btn.setAttribute('title', S.i18n.testing);
+
+        var fd = new FormData(card.querySelector('.lrob-etk-card-form'));
+        fd.append('action', S.actions.testAuth);
+        fd.append('_nonce', S.nonce);
+
+        return fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (resp) {
+                btn.classList.remove('is-testing');
+                btn.disabled = false;
                 if (resp.success) {
-                    flash(resp.data.message, 'success');
-                    setTimeout(function () { window.location.reload(); }, 300);
+                    btn.classList.add('is-ok');
+                    if (icon) icon.className = 'dashicons dashicons-yes-alt';
+                    btn._lastResult = { ok: true, message: resp.data.message, debug: resp.data.debug || null };
+                    btn.setAttribute('title', resp.data.message);
                 } else {
-                    flash((resp.data && resp.data.message) || S.i18n.unknownError, 'error');
+                    btn.classList.add('is-fail');
+                    if (icon) icon.className = 'dashicons dashicons-warning';
+                    btn._lastResult = {
+                        ok: false,
+                        message: (resp.data && resp.data.message) || S.i18n.unknownError,
+                        debug: (resp.data && resp.data.debug) || null
+                    };
+                    btn.setAttribute('title', btn._lastResult.message);
+                    showConnPopover(card, btn);  // auto-open details on failure
                 }
+            })
+            .catch(function () {
+                btn.classList.remove('is-testing');
+                btn.classList.add('is-fail');
+                btn.disabled = false;
+                if (icon) icon.className = 'dashicons dashicons-warning';
+                btn._lastResult = { ok: false, message: S.i18n.unknownError, debug: null };
+                showConnPopover(card, btn);
             });
-        });
+    }
+
+    function showConnPopover(card, anchorBtn) {
+        var popover = document.getElementById('lrob-etk-conn-popover');
+        if (!popover) return;
+        var result = anchorBtn._lastResult || { ok: false, message: '' };
+        popover.classList.toggle('is-success', !!result.ok);
+        popover.classList.toggle('is-failure', !result.ok);
+        var msg = popover.querySelector('.lrob-etk-popover-message');
+        if (msg) msg.textContent = (result.ok ? '✓ ' : '✗ ') + result.message;
+        var debug = popover.querySelector('.lrob-etk-popover-debug');
+        if (debug) {
+            if (result.debug) { debug.textContent = result.debug; debug.hidden = false; }
+            else debug.hidden = true;
+        }
+        var rerun = popover.querySelector('.lrob-etk-popover-rerun');
+        if (rerun) {
+            rerun.onclick = function () {
+                popover.hidden = true;
+                runTestAuth(card, anchorBtn);
+            };
+        }
+        anchorPopover(popover, anchorBtn);
+    }
+
+    function anchorPopover(popover, anchorEl) {
+        popover.hidden = false;
+        // Measure after show
+        var pRect = popover.getBoundingClientRect();
+        var aRect = anchorEl.getBoundingClientRect();
+        var width = pRect.width || 320;
+        var height = pRect.height || 100;
+        var margin = 8;
+
+        var top = aRect.bottom + margin;
+        if (top + height > window.innerHeight - margin) {
+            top = aRect.top - height - margin;
+            if (top < margin) top = margin;
+        }
+        var left = aRect.left;
+        if (left + width > window.innerWidth - margin) {
+            left = window.innerWidth - width - margin;
+        }
+        if (left < margin) left = margin;
+
+        popover.style.position = 'fixed';
+        popover.style.top = top + 'px';
+        popover.style.left = left + 'px';
+    }
+
+    function closeAllPopovers() {
+        $$('.lrob-etk-popover').forEach(function (p) { p.hidden = true; });
+    }
+
+    document.addEventListener('click', function (e) {
+        if (e.target.closest && (e.target.closest('.lrob-etk-popover') || e.target.closest('[data-action="test-auth"]') || e.target.closest('[data-action="test"]'))) {
+            return;  // clicks inside or that opened a popover don't close
+        }
+        closeAllPopovers();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeAllPopovers();
     });
 
-    // ---------------- Test send ----------------
-    var recipientChoice = $('lrob-etk-test-recipient-choice');
-    if (recipientChoice) {
-        recipientChoice.addEventListener('change', function () {
-            $('lrob-etk-test-custom-wrap').hidden = recipientChoice.value !== 'custom';
+    // Add identity
+    var addBtn = document.getElementById('lrob-etk-add-identity');
+    if (addBtn) {
+        addBtn.addEventListener('click', function () {
+            var template = document.getElementById('lrob-etk-card-template');
+            if (!template) return;
+            var fragment = template.content.cloneNode(true);
+            var newCard = fragment.querySelector('.lrob-etk-identity-card');
+            var container = document.querySelector('.lrob-etk-identities');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'lrob-etk-identities';
+                var emptyEl = document.querySelector('.lrob-etk-empty');
+                if (emptyEl) emptyEl.parentNode.replaceChild(container, emptyEl);
+                else document.querySelector('.lrob-etk-add-row').insertAdjacentElement('beforebegin', container);
+            }
+            container.appendChild(newCard);
+            wireCardListeners(newCard);
+            applyCardState(newCard);
+            field(newCard, 'label').focus();
+            newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
     }
-    $('lrob-etk-send-test').addEventListener('click', function () {
-        var btn = this;
-        btn.disabled = true; btn.textContent = S.i18n.sending;
-        var result = $('lrob-etk-test-result');
-        result.hidden = false; result.className = 'lrob-etk-test-result is-pending';
-        result.textContent = S.i18n.sending;
 
-        var pick = $('lrob-etk-test-identity-pick');
-        var id = pick ? pick.value : $('lrob-etk-test-id').value;
-        var params = {
-            id: id,
-            recipient_choice: $('lrob-etk-test-recipient-choice').value,
-            recipient_custom: $('lrob-etk-test-recipient-custom').value
-        };
-        ajax(S.actions.testSend, params)
-            .then(function (resp) {
+    // ---------------- Test email anchored popover ----------------
+    function openTestModal(id, anchorBtn) {
+        var modal = document.getElementById('lrob-etk-test-modal');
+        if (!modal) return;
+        document.getElementById('lrob-etk-test-id').value = id || 0;
+        var pick = document.getElementById('lrob-etk-test-identity-pick');
+        if (pick && id) pick.value = id;
+        document.getElementById('lrob-etk-test-result').hidden = true;
+        var dialog = modal.querySelector('.lrob-etk-modal-dialog');
+        if (anchorBtn && dialog) {
+            modal.setAttribute('data-anchored', '1');
+            modal.hidden = false;
+            anchorPopover(dialog, anchorBtn);
+        } else {
+            modal.removeAttribute('data-anchored');
+            modal.hidden = false;
+        }
+        document.body.classList.add('lrob-etk-modal-open');
+    }
+    function closeTestModal() {
+        var modal = document.getElementById('lrob-etk-test-modal');
+        if (modal) modal.hidden = true;
+        document.body.classList.remove('lrob-etk-modal-open');
+    }
+    document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('[data-lrob-etk-close]')) {
+            e.preventDefault(); closeTestModal();
+        }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTestModal(); });
+
+    var recipientChoice = document.getElementById('lrob-etk-test-recipient-choice');
+    if (recipientChoice) {
+        recipientChoice.addEventListener('change', function () {
+            document.getElementById('lrob-etk-test-custom-wrap').hidden = recipientChoice.value !== 'custom';
+        });
+    }
+    var sendBtn = document.getElementById('lrob-etk-send-test');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', function () {
+            sendBtn.disabled = true; sendBtn.textContent = S.i18n.sending;
+            var result = document.getElementById('lrob-etk-test-result');
+            result.hidden = false; result.className = 'lrob-etk-test-result is-pending';
+            result.textContent = S.i18n.sending;
+            var pickEl = document.getElementById('lrob-etk-test-identity-pick');
+            var id = pickEl ? pickEl.value : document.getElementById('lrob-etk-test-id').value;
+            ajax(S.actions.testSend, {
+                id: id,
+                recipient_choice: document.getElementById('lrob-etk-test-recipient-choice').value,
+                recipient_custom: document.getElementById('lrob-etk-test-recipient-custom').value
+            }).then(function (resp) {
                 if (resp.success) {
                     result.className = 'lrob-etk-test-result is-success';
                     result.textContent = '✓ ' + resp.data.message;
@@ -965,21 +1183,20 @@ final class SettingsPage
                     result.className = 'lrob-etk-test-result is-failure';
                     result.textContent = '✗ ' + ((resp.data && resp.data.message) || S.i18n.unknownError);
                 }
-            })
-            .finally(function () {
-                btn.disabled = false; btn.textContent = '<?php echo esc_js(__('Send test', 'lrob-email-toolkit')); ?>';
+            }).finally(function () {
+                sendBtn.disabled = false; sendBtn.textContent = S.i18n.sendBtn;
             });
-    });
+        });
+    }
 
-    // ---------------- Routing form ----------------
-    var routingForm = $('lrob-etk-routing-form');
+    // Routing form
+    var routingForm = document.getElementById('lrob-etk-routing-form');
     if (routingForm) {
         routingForm.addEventListener('submit', function (e) {
             e.preventDefault();
             var routing = {};
             $$('select', routingForm).forEach(function (sel) {
-                var name = sel.getAttribute('name');
-                var m = name.match(/^routing\[(.+)\]$/);
+                var m = sel.getAttribute('name').match(/^routing\[(.+)\]$/);
                 if (m) routing[m[1]] = sel.value;
             });
             ajax(S.actions.saveRouting, { routing: routing }).then(function (resp) {
@@ -988,6 +1205,13 @@ final class SettingsPage
             });
         });
     }
+
+    // Initial wiring
+    $$('.lrob-etk-identity-card').forEach(function (card) {
+        wireCardListeners(card);
+        applyCardState(card);
+        runMxLookup(card);
+    });
 })();
         <?php
     }
@@ -1038,8 +1262,8 @@ final class SettingsPage
         }
         $toggled = sanitize_key((string) $_GET['toggled']);
         $message = $toggled === 'on'
-            ? __('SMTP routing is now active.', 'lrob-email-toolkit')
-            : __('SMTP routing is now off. Your configuration is preserved.', 'lrob-email-toolkit');
+            ? __('Email routing is now active.', 'lrob-email-toolkit')
+            : __('Email routing is now off. Your configuration is preserved.', 'lrob-email-toolkit');
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
     }
 }

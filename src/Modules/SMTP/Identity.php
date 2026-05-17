@@ -23,10 +23,15 @@ final class Identity
 
     public const ENCRYPTION_STARTTLS = 'tls';
 
+    public const TRANSPORT_SMTP = 'smtp';
+
+    public const TRANSPORT_MAIL = 'mail';
+
     public function __construct(
         public readonly ?int $id,
         public readonly string $slug,
         public readonly string $label,
+        public readonly string $transport,
         public readonly string $from_email,
         public readonly string $from_name,
         public readonly string $smtp_host,
@@ -44,6 +49,12 @@ final class Identity
     ) {
     }
 
+    /** True when this identity uses PHP's native mail() transport (no SMTP server). */
+    public function uses_mail_transport(): bool
+    {
+        return $this->transport === self::TRANSPORT_MAIL;
+    }
+
     /**
      * Build from a raw database row (array of strings as wpdb returns).
      *
@@ -51,10 +62,15 @@ final class Identity
      */
     public static function from_row(array $row): self
     {
+        $transport = (string) ($row['transport'] ?? self::TRANSPORT_SMTP);
+        if (!in_array($transport, [self::TRANSPORT_SMTP, self::TRANSPORT_MAIL], true)) {
+            $transport = self::TRANSPORT_SMTP;
+        }
         return new self(
             id: isset($row['id']) ? (int) $row['id'] : null,
             slug: (string) ($row['slug'] ?? ''),
             label: (string) ($row['label'] ?? ''),
+            transport: $transport,
             from_email: (string) ($row['from_email'] ?? ''),
             from_name: (string) ($row['from_name'] ?? ''),
             smtp_host: (string) ($row['smtp_host'] ?? ''),
@@ -88,9 +104,9 @@ final class Identity
     }
 
     /**
-     * Resolves the From name to send. When the stored value is empty, that
-     * encodes "Automatic mode" — fall back to the site title at runtime so
-     * subsequent site renames flow through without re-saving the identity.
+     * Resolves the From name to send. When the stored value is empty, fall
+     * back to the site title at runtime so subsequent site renames flow
+     * through without re-saving the identity.
      */
     public function effective_from_name(): string
     {
@@ -103,19 +119,32 @@ final class Identity
                 return $title;
             }
         }
-        return $this->from_email;
+        return $this->effective_from_email();
     }
 
-    /** True when the From name follows site title (Automatic mode in the UI). */
+    /**
+     * Resolves the From email. When the stored value is empty, fall back to
+     * the SMTP username — letting users skip filling in two identical fields
+     * for the common case where From email == mailbox login.
+     */
+    public function effective_from_email(): string
+    {
+        if ($this->from_email !== '') {
+            return $this->from_email;
+        }
+        return $this->smtp_username;
+    }
+
+    /** True when from_name is empty (resolved to site title at runtime). */
     public function is_from_name_automatic(): bool
     {
         return $this->from_name === '';
     }
 
-    /** True when the From email matches the SMTP username (Automatic mode in the UI). */
+    /** True when from_email is empty (resolved to SMTP username at runtime). */
     public function is_from_email_automatic(): bool
     {
-        return $this->smtp_username !== '' && $this->from_email === $this->smtp_username;
+        return $this->from_email === '';
     }
 
     /**
@@ -131,6 +160,7 @@ final class Identity
             id: $merged['id'],
             slug: $merged['slug'],
             label: $merged['label'],
+            transport: $merged['transport'],
             from_email: $merged['from_email'],
             from_name: $merged['from_name'],
             smtp_host: $merged['smtp_host'],
@@ -155,6 +185,7 @@ final class Identity
             'id'                      => $this->id,
             'slug'                    => $this->slug,
             'label'                   => $this->label,
+            'transport'               => $this->transport,
             'from_email'              => $this->from_email,
             'from_name'               => $this->from_name,
             'smtp_host'               => $this->smtp_host,

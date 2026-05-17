@@ -128,6 +128,53 @@ final class LogRepository
         return is_int($deleted) ? $deleted : 0;
     }
 
+    /**
+     * Aggregated counts grouped by day + status, for the dashboard's bar chart.
+     * Days with no emails are still included with zero counts so the chart's
+     * x-axis has consistent spacing.
+     *
+     * @return array<string, array{sent:int, failed:int, sending:int, retried:int}>
+     *         Keyed by 'Y-m-d' in the site timezone.
+     */
+    public function counts_by_day(\DateTimeImmutable $from, \DateTimeImmutable $to): array
+    {
+        global $wpdb;
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT DATE(created_at) AS day, status, COUNT(*) AS count
+                 FROM `' . Schema::table_name() . '`
+                 WHERE created_at BETWEEN %s AND %s
+                 GROUP BY day, status',
+                $from->format('Y-m-d H:i:s'),
+                $to->format('Y-m-d H:i:s')
+            ),
+            ARRAY_A
+        );
+
+        $out = [];
+        $cursor = $from->setTime(0, 0);
+        $stop = $to->setTime(0, 0);
+        while ($cursor <= $stop) {
+            $key = $cursor->format('Y-m-d');
+            $out[$key] = ['sent' => 0, 'failed' => 0, 'sending' => 0, 'retried' => 0];
+            $cursor = $cursor->modify('+1 day');
+        }
+
+        if (is_array($rows)) {
+            foreach ($rows as $r) {
+                $day = (string) ($r['day'] ?? '');
+                $status = (string) ($r['status'] ?? '');
+                $count = (int) ($r['count'] ?? 0);
+                if (!isset($out[$day]) || !isset($out[$day][$status])) {
+                    continue;
+                }
+                $out[$day][$status] = $count;
+            }
+        }
+
+        return $out;
+    }
+
     /** @return array<int, string> distinct sources present in the table */
     public function distinct_sources(): array
     {

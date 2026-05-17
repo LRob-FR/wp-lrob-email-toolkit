@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 /**
- * Enqueues shared admin assets (CSS used across every plugin admin page) and
- * a tiny tooltip click-to-stay-open script. Per-module pages add their own
- * inline JS for page-specific behavior.
+ * Enqueues shared admin assets (CSS) and a tooltip driver that escapes
+ * scroll/modal clipping by using position: fixed with JS-computed coordinates.
  */
 final class Assets
 {
@@ -23,7 +22,7 @@ final class Assets
             self::HANDLE_CSS,
             LROB_ETK_URL . 'admin/css/admin.css',
             [],
-            LROB_ETK_VERSION
+            self::asset_version('admin/css/admin.css')
         );
 
         add_action('admin_footer', [self::class, 'print_tooltip_script']);
@@ -34,20 +33,104 @@ final class Assets
         ?>
         <script>
         (function () {
+            // Tooltip handling: hover, focus, and click-to-stick.
+            // Tooltips use position:fixed with JS-computed coordinates so they
+            // escape clipping from any scrollable ancestor (modals, sidebars).
+
+            function showTip(tipEl) {
+                var text = tipEl.querySelector('.lrob-etk-tip-text');
+                if (!text) return;
+                // Make visible first so we can measure
+                text.classList.add('is-shown');
+                positionTip(tipEl, text);
+            }
+
+            function hideTip(tipEl) {
+                var text = tipEl.querySelector('.lrob-etk-tip-text');
+                if (text) text.classList.remove('is-shown');
+            }
+
+            function hideAll() {
+                Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip.is-open'), function (t) {
+                    t.classList.remove('is-open');
+                });
+                Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip-text.is-shown'), function (t) {
+                    t.classList.remove('is-shown');
+                });
+            }
+
+            function positionTip(tipEl, textEl) {
+                var iconRect = tipEl.getBoundingClientRect();
+                var textRect = textEl.getBoundingClientRect();
+                var vw = window.innerWidth;
+                var vh = window.innerHeight;
+                var margin = 8;
+
+                // Vertical: prefer above; flip below if not enough room above.
+                var top = iconRect.top - textRect.height - margin;
+                if (top < margin) {
+                    top = iconRect.bottom + margin;
+                    // If still overflows bottom, clamp to viewport.
+                    if (top + textRect.height > vh - margin) {
+                        top = Math.max(margin, vh - textRect.height - margin);
+                    }
+                }
+
+                // Horizontal: center on icon, clamp to viewport.
+                var left = iconRect.left + iconRect.width / 2 - textRect.width / 2;
+                if (left < margin) left = margin;
+                if (left + textRect.width > vw - margin) {
+                    left = vw - textRect.width - margin;
+                }
+
+                textEl.style.top = top + 'px';
+                textEl.style.left = left + 'px';
+            }
+
+            document.addEventListener('mouseover', function (e) {
+                var tip = e.target.closest && e.target.closest('.lrob-etk-tip');
+                if (tip && !tip.classList.contains('is-open')) showTip(tip);
+            });
+            document.addEventListener('mouseout', function (e) {
+                var tip = e.target.closest && e.target.closest('.lrob-etk-tip');
+                if (!tip || tip.classList.contains('is-open')) return;
+                var to = e.relatedTarget;
+                if (!to || !tip.contains(to)) hideTip(tip);
+            });
+            document.addEventListener('focusin', function (e) {
+                if (e.target.classList && e.target.classList.contains('lrob-etk-tip')) showTip(e.target);
+            });
+            document.addEventListener('focusout', function (e) {
+                if (e.target.classList && e.target.classList.contains('lrob-etk-tip') && !e.target.classList.contains('is-open')) {
+                    hideTip(e.target);
+                }
+            });
             document.addEventListener('click', function (e) {
                 var tip = e.target.closest && e.target.closest('.lrob-etk-tip');
                 if (tip) {
                     e.stopPropagation();
                     var wasOpen = tip.classList.contains('is-open');
-                    Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip.is-open'), function (t) {
-                        t.classList.remove('is-open');
-                    });
-                    if (!wasOpen) tip.classList.add('is-open');
+                    hideAll();
+                    if (!wasOpen) {
+                        tip.classList.add('is-open');
+                        showTip(tip);
+                    }
                 } else {
-                    Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip.is-open'), function (t) {
-                        t.classList.remove('is-open');
-                    });
+                    hideAll();
                 }
+            });
+            // Re-position open sticky tooltips on scroll/resize so they don't drift.
+            window.addEventListener('scroll', function () {
+                Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip.is-open'), function (tip) {
+                    var text = tip.querySelector('.lrob-etk-tip-text');
+                    if (text && text.classList.contains('is-shown')) positionTip(tip, text);
+                });
+            }, true);
+            window.addEventListener('resize', function () {
+                Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip-text.is-shown'), function (text) {
+                    var tip = text.closest('.lrob-etk-tip');
+                    if (tip) positionTip(tip, text);
+                });
             });
         })();
         </script>
@@ -57,5 +140,23 @@ final class Assets
     private static function is_plugin_page(string $hook_suffix): bool
     {
         return str_contains($hook_suffix, 'lrob-etk');
+    }
+
+    /**
+     * Cache-busting version string: plugin version in production, plus the
+     * file mtime when WP_DEBUG is on so iterative dev edits don't get cached
+     * across Ctrl+F5. Browsers (and proxies) treat a different query string
+     * as a new asset.
+     */
+    private static function asset_version(string $relative_path): string
+    {
+        $version = LROB_ETK_VERSION;
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $full = LROB_ETK_PATH . ltrim($relative_path, '/');
+            if (is_file($full)) {
+                $version .= '.' . filemtime($full);
+            }
+        }
+        return $version;
     }
 }

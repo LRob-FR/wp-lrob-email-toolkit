@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-17T13:38:33+00:00\n"
+"POT-Creation-Date: 2026-05-17T16:52:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -34,194 +34,235 @@ msgstr ""
 msgid "https://www.lrob.fr"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:36
-#: src/Admin/DashboardPage.php:323
+#: src/Admin/DashboardPage.php:45
+#: src/Admin/DashboardPage.php:523
 #: src/Modules/AbstractModule.php:77
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
-#: src/Modules/SMTP/Admin/AjaxController.php:326
+#: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:43
+#: src/Admin/DashboardPage.php:60
 #: src/Admin/Menu.php:37
 #: src/Admin/Menu.php:38
 msgid "Email Toolkit"
 msgstr ""
 
+#: src/Admin/DashboardPage.php:69
+#: src/Admin/DashboardPage.php:75
+msgid "Email activity"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:77
+msgid "Enable Email Logging to track sent/failed emails and see activity charts here."
+msgstr ""
+
 #. translators: %s: HTML link to LRob's website
-#: src/Admin/DashboardPage.php:55
+#: src/Admin/DashboardPage.php:89
 msgid "Built with care by %s."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:97
-msgid "Sent (last 30 days)"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:102
-msgid "Failed (last 30 days)"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:107
-msgid "Total logged"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:111
-msgid "Active modules"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:126
-msgid "Enable Logging to track this."
-msgstr ""
-
-#: src/Admin/DashboardPage.php:143
-msgid "Quick test"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:145
-msgid "Configure at least one SMTP identity to send test emails from here."
-msgstr ""
-
-#: src/Admin/DashboardPage.php:149
-msgid "Configure SMTP"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:162
-#: src/Modules/SMTP/Admin/SettingsPage.php:460
-msgid "Send a test email"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:165
-msgid "SMTP routing is currently off. Tests will still run against the chosen identity, but normal emails are not being routed."
-msgstr ""
-
-#: src/Admin/DashboardPage.php:175
-#: src/Modules/Logging/Admin/LogViewPage.php:64
-#: src/Modules/SMTP/Admin/SettingsPage.php:91
-#: src/Modules/SMTP/Admin/SettingsPage.php:471
-msgid "Identity"
-msgstr ""
-
+#. translators: 1: failed count, 2: total count, 3: percentage
 #: src/Admin/DashboardPage.php:187
-#: src/Modules/SMTP/Admin/SettingsPage.php:483
-msgid "Recipient"
+msgid "%1$d of %2$d emails failed in the last 24 hours (%3$d%% failure rate)."
 msgstr ""
 
-#. translators: %s: current user email
-#: src/Admin/DashboardPage.php:191
-#: src/Modules/SMTP/Admin/SettingsPage.php:485
-msgid "Me (%s)"
+#: src/Admin/DashboardPage.php:193
+msgid "Check your SMTP configuration."
 msgstr ""
 
-#. translators: %s: site admin email
 #: src/Admin/DashboardPage.php:196
-#: src/Modules/SMTP/Admin/SettingsPage.php:486
-msgid "Site admin (%s)"
+msgid "View failed logs →"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:199
-#: src/Modules/SMTP/Admin/SettingsPage.php:487
-msgid "Custom address…"
+#: src/Admin/DashboardPage.php:206
+msgid "Last 24 hours"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:203
-#: src/Modules/SMTP/Admin/SettingsPage.php:492
-msgid "Custom recipient"
+#: src/Admin/DashboardPage.php:207
+msgid "Last 7 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:210
-#: src/Modules/SMTP/Admin/SettingsPage.php:502
-#: src/Modules/SMTP/Admin/SettingsPage.php:970
-msgid "Send test"
+#: src/Admin/DashboardPage.php:208
+msgid "Last 30 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:233
+#: src/Admin/DashboardPage.php:209
+msgid "Last year"
+msgstr ""
+
+#. translators: %s: number of sent emails
+#: src/Admin/DashboardPage.php:223
+msgid "%s sent"
+msgstr ""
+
+#. translators: %s: number of failed emails
+#: src/Admin/DashboardPage.php:232
+msgid "%s failed"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:237
+msgid "ok"
+msgstr ""
+
+#. translators: 1: start date, 2: end date
+#: src/Admin/DashboardPage.php:260
+msgid "Activity, %1$s — %2$s"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:266
+msgid "Daily email activity over the last 30 days"
+msgstr ""
+
+#. translators: 1: date, 2: sent count, 3: failed count
+#: src/Admin/DashboardPage.php:274
+msgid "%1$s — %2$d sent, %3$d failed"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:307
+msgid "Send test email"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:311
+msgid "View all logs"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:314
+msgid "Configure an SMTP identity first."
+msgstr ""
+
+#: src/Admin/DashboardPage.php:325
 msgid "Modules"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:245
+#: src/Admin/DashboardPage.php:337
 msgid "Coming soon"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:247
-#: src/Admin/ModuleToggle.php:28
-#: src/Modules/SMTP/Admin/SettingsPage.php:131
-#: src/Modules/SMTP/Admin/SettingsPage.php:434
-msgid "Active"
+#: src/Admin/DashboardPage.php:352
+#: src/Admin/ModuleToggle.php:42
+msgid "Enabled"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:249
-#: src/Admin/ModuleToggle.php:29
-#: src/Modules/SMTP/Admin/SettingsPage.php:133
-msgid "Inactive"
+#: src/Admin/DashboardPage.php:353
+#: src/Admin/ModuleToggle.php:43
+msgid "Disabled"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:257
-msgid "Manage →"
+#: src/Admin/DashboardPage.php:358
+msgid "Manage"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:258
-msgid "Set up →"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:281
+#: src/Admin/DashboardPage.php:379
 msgid "Recent activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:285
+#: src/Admin/DashboardPage.php:383
 #: src/Modules/Logging/Admin/LogsListTable.php:33
 #: src/Modules/Logging/Admin/LogViewPage.php:57
 msgid "Date"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:286
+#: src/Admin/DashboardPage.php:384
 #: src/Modules/Logging/Admin/LogsListTable.php:34
 #: src/Modules/Logging/Admin/LogViewPage.php:61
-#: src/Modules/SMTP/Admin/SettingsPage.php:95
-#: src/Modules/SMTP/Admin/SettingsPage.php:426
 msgid "Status"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:287
+#: src/Admin/DashboardPage.php:385
 #: src/Modules/Logging/Admin/LogsListTable.php:36
 #: src/Modules/Logging/Admin/LogViewPage.php:72
 msgid "To"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:288
+#: src/Admin/DashboardPage.php:386
 #: src/Modules/Logging/Admin/LogsListTable.php:37
 msgid "Subject"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:304
+#: src/Admin/DashboardPage.php:402
 msgid "View all logs →"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:327
+#: src/Admin/DashboardPage.php:432
+#: src/Modules/SMTP/Admin/SettingsPage.php:446
+msgid "Send a test email"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:433
+#: src/Modules/SMTP/Admin/SettingsPage.php:447
+#: src/Modules/SMTP/Admin/SettingsPage.php:502
+msgid "Close"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:444
+#: src/Modules/Logging/Admin/LogViewPage.php:64
+#: src/Modules/SMTP/Admin/SettingsPage.php:457
+msgid "Identity"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:459
+#: src/Modules/SMTP/Admin/SettingsPage.php:469
+msgid "Recipient"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:461
+#: src/Modules/SMTP/Admin/SettingsPage.php:471
+msgid "Me (%s)"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:462
+#: src/Modules/SMTP/Admin/SettingsPage.php:472
+msgid "Site admin (%s)"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:463
+#: src/Modules/SMTP/Admin/SettingsPage.php:473
+msgid "Custom address…"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:468
+#: src/Modules/SMTP/Admin/SettingsPage.php:478
+msgid "Custom recipient"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:473
+#: src/Modules/SMTP/Admin/SettingsPage.php:486
+msgid "Cancel"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:475
+#: src/Modules/SMTP/Admin/SettingsPage.php:488
+#: src/Modules/SMTP/Admin/SettingsPage.php:575
+msgid "Send test"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:527
 #: src/Modules/AbstractModule.php:81
 #: src/Modules/Logging/Admin/PageController.php:178
 msgid "Security check failed. Please retry."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:340
+#: src/Admin/DashboardPage.php:540
 msgid "Pick an identity and a recipient."
 msgstr ""
 
 #. translators: %s: recipient email
-#: src/Admin/DashboardPage.php:352
-#: src/Modules/SMTP/Admin/AjaxController.php:290
+#: src/Admin/DashboardPage.php:552
+#: src/Modules/SMTP/Admin/AjaxController.php:329
 msgid "Test email sent to %s."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:356
+#: src/Admin/DashboardPage.php:556
 #: src/Modules/Logging/Admin/PageController.php:93
-#: src/Modules/SMTP/Admin/AjaxController.php:296
+#: src/Modules/SMTP/Admin/AjaxController.php:335
 msgid "Unknown error."
 msgstr ""
 
 #. translators: %s: error message
-#: src/Admin/DashboardPage.php:359
+#: src/Admin/DashboardPage.php:559
 msgid "Test email failed: %s"
 msgstr ""
 
@@ -230,11 +271,25 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
-#: src/Admin/ModuleToggle.php:40
+#: src/Admin/ModuleToggle.php:55
+#: src/Modules/SMTP/Admin/SettingsPage.php:155
+#: src/Modules/SMTP/Admin/SettingsPage.php:157
+#: src/Modules/SMTP/Admin/SettingsPage.php:571
+msgid "Active"
+msgstr ""
+
+#: src/Admin/ModuleToggle.php:56
+#: src/Modules/SMTP/Admin/SettingsPage.php:155
+#: src/Modules/SMTP/Admin/SettingsPage.php:158
+#: src/Modules/SMTP/Admin/SettingsPage.php:572
+msgid "Inactive"
+msgstr ""
+
+#: src/Admin/ModuleToggle.php:67
 msgid "Disable"
 msgstr ""
 
-#: src/Admin/ModuleToggle.php:45
+#: src/Admin/ModuleToggle.php:72
 msgid "Enable"
 msgstr ""
 
@@ -252,7 +307,7 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogsListTable.php:35
 #: src/Modules/Logging/Admin/LogViewPage.php:66
-#: src/Modules/SMTP/Admin/SettingsPage.php:92
+#: src/Modules/SMTP/Admin/SettingsPage.php:331
 msgid "From"
 msgstr ""
 
@@ -262,7 +317,6 @@ msgid "Source"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsListTable.php:39
-#: src/Modules/SMTP/Admin/SettingsPage.php:96
 msgid "Actions"
 msgstr ""
 
@@ -306,76 +360,72 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:35
+#: src/Modules/Logging/Admin/LogsPage.php:36
 #: src/Modules/Logging/Admin/PageController.php:51
 #: src/Modules/Logging/Admin/PageController.php:52
 msgid "Email Logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:44
-msgid "Enable email logging"
-msgstr ""
-
 #: src/Modules/Logging/Admin/LogsPage.php:45
-msgid "Capture every outgoing email — sender, recipient, subject, body, status — so you can audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder."
+msgid "Enable email logging to capture every outgoing email and let you audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:69
+#: src/Modules/Logging/Admin/LogsPage.php:67
 msgid "Search emails"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:80
+#: src/Modules/Logging/Admin/LogsPage.php:78
 msgid "Retention"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:87
+#: src/Modules/Logging/Admin/LogsPage.php:85
 msgid "Keep logs for"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:90
-#: src/Modules/Logging/Admin/LogsPage.php:116
+#: src/Modules/Logging/Admin/LogsPage.php:88
+#: src/Modules/Logging/Admin/LogsPage.php:114
 msgid "days"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:93
+#: src/Modules/Logging/Admin/LogsPage.php:91
 msgid "0 = keep forever. Older entries are deleted daily by a cron event."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:97
+#: src/Modules/Logging/Admin/LogsPage.php:95
 msgid "Save"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:106
+#: src/Modules/Logging/Admin/LogsPage.php:104
 msgid "Manual cleanup"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:114
+#: src/Modules/Logging/Admin/LogsPage.php:112
 msgid "Delete logs older than"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:119
+#: src/Modules/Logging/Admin/LogsPage.php:117
 msgid "Delete log entries older than the specified number of days?"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:120
+#: src/Modules/Logging/Admin/LogsPage.php:118
 #: src/Modules/Logging/Admin/LogViewPage.php:207
-#: src/Modules/SMTP/Admin/SettingsPage.php:144
+#: src/Modules/SMTP/Admin/SettingsPage.php:199
 msgid "Delete"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:129
+#: src/Modules/Logging/Admin/LogsPage.php:127
 msgid "Permanently delete ALL log entries? This cannot be undone."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:130
+#: src/Modules/Logging/Admin/LogsPage.php:128
 msgid "Delete everything"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:160
+#: src/Modules/Logging/Admin/LogsPage.php:158
 msgid "Email logging is now active."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:161
+#: src/Modules/Logging/Admin/LogsPage.php:159
 msgid "Email logging is now off. Existing logs are preserved."
 msgstr ""
 
@@ -405,7 +455,7 @@ msgid "Bcc"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogViewPage.php:80
-#: src/Modules/SMTP/Admin/SettingsPage.php:412
+#: src/Modules/SMTP/Admin/SettingsPage.php:387
 msgid "Reply-to"
 msgstr ""
 
@@ -504,350 +554,356 @@ msgstr ""
 msgid "Send campaigns to your WordPress users with advanced segmentation and tracking."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:67
+#: src/Modules/SMTP/Admin/AjaxController.php:71
+msgid "No host provided."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:84
+msgid "No domain provided."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:101
 msgid "Label is required."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:75
+#: src/Modules/SMTP/Admin/AjaxController.php:115
 msgid "Slug could not be generated from the label."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:77
+#: src/Modules/SMTP/Admin/AjaxController.php:117
 msgid "Another identity already uses this slug."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:83
+#: src/Modules/SMTP/Admin/AjaxController.php:123
 msgid "Username is required when authentication is on."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:92
+#: src/Modules/SMTP/Admin/AjaxController.php:132
 msgid "SMTP host is required."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:97
+#: src/Modules/SMTP/Admin/AjaxController.php:137
 msgid "Port must be between 1 and 65535."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:113
-msgid "A valid From email is required."
+#: src/Modules/SMTP/Admin/AjaxController.php:154
+msgid "From email is not a valid address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:123
-msgid "From name is required when not set to Automatic."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/AjaxController.php:130
+#: src/Modules/SMTP/Admin/AjaxController.php:162
 msgid "Reply-to is not a valid email address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:138
+#: src/Modules/SMTP/Admin/AjaxController.php:170
 msgid "Please fix the highlighted fields."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:169
+#: src/Modules/SMTP/Admin/AjaxController.php:202
 msgid "Identity saved."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:181
-#: src/Modules/SMTP/Admin/AjaxController.php:192
+#: src/Modules/SMTP/Admin/AjaxController.php:214
+#: src/Modules/SMTP/Admin/AjaxController.php:225
 msgid "Invalid identity."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:184
+#: src/Modules/SMTP/Admin/AjaxController.php:217
 msgid "Identity deleted."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:195
+#: src/Modules/SMTP/Admin/AjaxController.php:228
 msgid "Default identity updated."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:282
+#: src/Modules/SMTP/Admin/AjaxController.php:237
+msgid "PHP mail() transport has nothing to authenticate against."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:321
 msgid "Pick an identity and a valid recipient."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:320
+#: src/Modules/SMTP/Admin/AjaxController.php:359
 msgid "Routing rules saved."
 msgstr ""
 
 #: src/Modules/SMTP/Admin/PageController.php:39
 #: src/Modules/SMTP/Admin/PageController.php:40
-#: src/Modules/SMTP/Admin/SettingsPage.php:39
+#: src/Modules/SMTP/Admin/SettingsPage.php:41
+#: src/Modules/SMTP/Admin/SettingsPage.php:145
 #: src/Modules/SMTP/Module.php:34
 msgid "SMTP"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:50
-msgid "Set up SMTP"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:51
-msgid "Route every outgoing email through your SMTP server. Configure one or more identities (a \"From\" address paired with its SMTP login), then choose which sources use which."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:60
+#: src/Modules/SMTP/Admin/SettingsPage.php:46
 msgid "Add identity"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:66
-msgid "No SMTP identities yet — add one to start routing email."
+#: src/Modules/SMTP/Admin/SettingsPage.php:58
+msgid "Enable the SMTP module to start managing your outgoing emails with LRob — Email Toolkit."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:93
-msgid "Server"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:94
-msgid "Default"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:122
-#: src/Modules/SMTP/Admin/SettingsPage.php:442
-msgid "Default identity"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:125
-msgid "Set default"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:138
-msgid "Edit"
+#: src/Modules/SMTP/Admin/SettingsPage.php:63
+msgid "No SMTP identities yet — click \"Add identity\" to start."
 msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:141
-msgid "Test"
+msgid "Identity name"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:164
-msgid "Routing rules"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:165
-msgid "Each source can use a specific identity. Sources without a rule fall back to the default."
+#: src/Modules/SMTP/Admin/SettingsPage.php:143
+msgid "Send via"
 msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:178
-msgid "— Use default —"
+msgid "Default identity"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:189
-msgid "Save routing rules"
+#: src/Modules/SMTP/Admin/SettingsPage.php:183
+msgid "Set as default"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:204
-msgid "SMTP identity"
+#: src/Modules/SMTP/Admin/SettingsPage.php:190
+#: src/Modules/SMTP/Admin/SettingsPage.php:573
+msgid "Create"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:206
-#: src/Modules/SMTP/Admin/SettingsPage.php:461
-msgid "Close"
+#: src/Modules/SMTP/Admin/SettingsPage.php:193
+msgid "Discard"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:219
-msgid "Identity name (e.g. Site default, Newsletter sender)"
+#: src/Modules/SMTP/Admin/SettingsPage.php:196
+msgid "Test email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:224
-msgid "Slug:"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:226
-msgid "A stable identifier used internally (e.g. in routing rules). Auto-generated from the name; you only need to think about this if you rename the identity later."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:241
-#: src/Modules/SMTP/Admin/SettingsPage.php:500
-msgid "Cancel"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:243
-#: src/Modules/SMTP/Admin/SettingsPage.php:897
-#: src/Modules/SMTP/Admin/SettingsPage.php:902
-msgid "Save identity"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:257
+#: src/Modules/SMTP/Admin/SettingsPage.php:216
 msgid "Mailbox login"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:258
-msgid "The credentials your mail server uses to authenticate this site. Usually the same as logging into webmail."
+#: src/Modules/SMTP/Admin/SettingsPage.php:217
+msgid "Credentials your mail server uses to authenticate this site — usually the same as logging into webmail."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:266
+#: src/Modules/SMTP/Admin/SettingsPage.php:225
 msgid "Authentication"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:267
+#: src/Modules/SMTP/Admin/SettingsPage.php:226
 msgid "Most SMTP servers require a login. Disable only for relay-style internal servers that allow anonymous submission."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:273
+#: src/Modules/SMTP/Admin/SettingsPage.php:232
 msgid "Username / email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:281
+#: src/Modules/SMTP/Admin/SettingsPage.php:240
 msgid "Password"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:283
+#: src/Modules/SMTP/Admin/SettingsPage.php:242
 msgid "Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:286
-#: src/Modules/SMTP/Admin/SettingsPage.php:668
+#: src/Modules/SMTP/Admin/SettingsPage.php:244
 msgid "(unchanged when editing)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:288
-#: src/Modules/SMTP/Admin/SettingsPage.php:872
-msgid "Test connection"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:304
+#: src/Modules/SMTP/Admin/SettingsPage.php:260
 msgid "SMTP server"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:305
-msgid "Pick your domain's mail server. \"Custom\" lets you use an external relay (Mailgun, SendGrid, etc.) — only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate."
+#: src/Modules/SMTP/Admin/SettingsPage.php:261
+msgid "Pick your domain's mail server. \"Custom\" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:309
+#: src/Modules/SMTP/Admin/SettingsPage.php:266
 msgid "Host"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:321
-#: src/Modules/SMTP/Admin/SettingsPage.php:372
-#: src/Modules/SMTP/Admin/SettingsPage.php:398
-msgid "Custom"
+#: src/Modules/SMTP/Admin/SettingsPage.php:279
+msgid "Show host presets"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:329
+#: src/Modules/SMTP/Admin/SettingsPage.php:288
+#: src/Modules/SMTP/Admin/SettingsPage.php:574
+msgid "Test connection"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:289
+msgid "Test SMTP connection"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:298
 msgid "Encryption & port"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:342
+#: src/Modules/SMTP/Admin/SettingsPage.php:299
+msgid "STARTTLS upgrades a plain connection to encrypted (port 587 — most common). TLS connects encrypted from the start (port 465). None sends plaintext on port 25 — almost always blocked by hosting providers."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:305
 msgid "None"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:346
+#: src/Modules/SMTP/Admin/SettingsPage.php:308
 msgid "Port"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:362
-msgid "From address"
+#: src/Modules/SMTP/Admin/SettingsPage.php:314
+msgid "Plaintext SMTP on port 25 is almost always blocked by web hosts. Use STARTTLS or TLS."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:363
-msgid "The address shown to recipients. Most SMTP servers require the From address to match the mailbox login; the warning below will tell you when something looks off."
+#: src/Modules/SMTP/Admin/SettingsPage.php:332
+msgid "The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:368
+#: src/Modules/SMTP/Admin/SettingsPage.php:340
+msgid "Force \"From\" on every outgoing email"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:341
+msgid "When on, overrides the From address even when other plugins try to set their own."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:347
 msgid "From email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:371
-#: src/Modules/SMTP/Admin/SettingsPage.php:397
-msgid "Automatic"
+#: src/Modules/SMTP/Admin/SettingsPage.php:356
+#: src/Modules/SMTP/Admin/SettingsPage.php:377
+msgid "Default — %s"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:376
-msgid "(same as mailbox login)"
+#: src/Modules/SMTP/Admin/SettingsPage.php:356
+#: src/Modules/SMTP/Admin/SettingsPage.php:672
+msgid "Default — uses mailbox login"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:386
-msgid "Force"
+#: src/Modules/SMTP/Admin/SettingsPage.php:359
+#: src/Modules/SMTP/Admin/SettingsPage.php:380
+msgid "Show presets"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:388
-msgid "Override the From address on every outgoing email — even when other plugins try to set their own."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:394
+#: src/Modules/SMTP/Admin/SettingsPage.php:368
 msgid "From name"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:402
-msgid "(site title)"
+#: src/Modules/SMTP/Admin/SettingsPage.php:387
+msgid "(optional)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:413
-msgid "Optional. Where replies go if different from the From address."
+#: src/Modules/SMTP/Admin/SettingsPage.php:405
+msgid "Routing rules"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:435
-msgid "Inactive identities are kept in storage but never used for sending."
+#: src/Modules/SMTP/Admin/SettingsPage.php:406
+msgid "Each source can use a specific identity. Sources without a rule fall back to the default."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:443
-msgid "Used for any source that doesn't have its own routing rule."
+#: src/Modules/SMTP/Admin/SettingsPage.php:419
+msgid "— Use default —"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:549
-msgid "Deleting…"
+#: src/Modules/SMTP/Admin/SettingsPage.php:430
+msgid "Save routing rules"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:550
+#: src/Modules/SMTP/Admin/SettingsPage.php:499
+msgid "Connection test result"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:501
+msgid "Connection test"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:513
+msgid "Run again"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:560
 msgid "Delete the identity \"%s\"?"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:551
+#: src/Modules/SMTP/Admin/SettingsPage.php:561
 msgid "Saving…"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:552
+#: src/Modules/SMTP/Admin/SettingsPage.php:562
+msgid "Saved"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:563
+msgid "Save failed"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:564
 msgid "Testing…"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:553
+#: src/Modules/SMTP/Admin/SettingsPage.php:565
 msgid "Sending…"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:554
-msgid "Add SMTP identity"
+#: src/Modules/SMTP/Admin/SettingsPage.php:566
+msgid "✓ resolves"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:555
-msgid "Edit SMTP identity"
+#: src/Modules/SMTP/Admin/SettingsPage.php:567
+msgid "✗ cannot resolve"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:556
-msgid "Domain differs from the mailbox login. Most servers will reject or rewrite this — only use this with relays that support arbitrary senders."
+#: src/Modules/SMTP/Admin/SettingsPage.php:568
+msgid "Domain differs from the mailbox login. Most servers will reject or rewrite this — only use with relays that support arbitrary senders."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:557
+#: src/Modules/SMTP/Admin/SettingsPage.php:569
 msgid "Local part differs from the mailbox login. Some servers may rewrite the From address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:558
+#: src/Modules/SMTP/Admin/SettingsPage.php:570
 msgid "Something went wrong."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1002
+#: src/Modules/SMTP/Admin/SettingsPage.php:671
+#: src/Modules/SMTP/Admin/SettingsPage.php:740
+#: src/Modules/SMTP/Admin/SettingsPage.php:744
+msgid "Default — "
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:742
+msgid "Use automatic (uses mailbox login)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:745
+msgid "Use automatic (uses site title)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:1226
 msgid "Overridden by a wp-config.php constant — value here is ignored at runtime."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1011
+#: src/Modules/SMTP/Admin/SettingsPage.php:1235
 msgid "Default emails"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1014
+#: src/Modules/SMTP/Admin/SettingsPage.php:1238
 msgid "WooCommerce emails"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1027
+#: src/Modules/SMTP/Admin/SettingsPage.php:1251
 msgid "AUTH_KEY is missing or unset in wp-config.php."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1028
+#: src/Modules/SMTP/Admin/SettingsPage.php:1252
 msgid "SMTP passwords cannot be encrypted at rest until you configure AUTH_KEY. Generate one at https://api.wordpress.org/secret-key/1.1/salt/ and add it to wp-config.php."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1041
-msgid "SMTP routing is now active."
+#: src/Modules/SMTP/Admin/SettingsPage.php:1265
+msgid "Email routing is now active."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1042
-msgid "SMTP routing is now off. Your configuration is preserved."
+#: src/Modules/SMTP/Admin/SettingsPage.php:1266
+msgid "Email routing is now off. Your configuration is preserved."
 msgstr ""
 
 #: src/Modules/SMTP/AuthTester.php:29
@@ -879,29 +935,29 @@ msgid "Route outgoing emails through one or more SMTP servers, with per-source i
 msgstr ""
 
 #. translators: %s: site name
-#: src/Modules/SMTP/TestSender.php:84
+#: src/Modules/SMTP/TestSender.php:90
 msgid "[Email Toolkit] Test email from %s"
 msgstr ""
 
-#: src/Modules/SMTP/TestSender.php:108
+#: src/Modules/SMTP/TestSender.php:114
 msgid "This is a test email sent by LRob — Email Toolkit."
 msgstr ""
 
 #. translators: %s: identity label
-#: src/Modules/SMTP/TestSender.php:112
+#: src/Modules/SMTP/TestSender.php:118
 msgid "Identity: %s"
 msgstr ""
 
 #. translators: 1: SMTP host, 2: port, 3: encryption
-#: src/Modules/SMTP/TestSender.php:117
+#: src/Modules/SMTP/TestSender.php:123
 msgid "Server: %1$s:%2$d (%3$s)"
 msgstr ""
 
 #. translators: %s: from address
-#: src/Modules/SMTP/TestSender.php:124
+#: src/Modules/SMTP/TestSender.php:130
 msgid "From: %s"
 msgstr ""
 
-#: src/Modules/SMTP/TestSender.php:128
+#: src/Modules/SMTP/TestSender.php:134
 msgid "If you received this, your SMTP configuration is working."
 msgstr ""

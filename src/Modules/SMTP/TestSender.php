@@ -48,6 +48,12 @@ final class TestSender
         $identity = $this->overrides->apply($identity);
 
         $configure = static function (PHPMailer $mailer) use ($identity): void {
+            // mail() transport: don't touch the mailer — PHP mail() handles it.
+            // The wp_mail_from filters below will still apply, so the
+            // test message gets the right From/From-name.
+            if ($identity->uses_mail_transport()) {
+                return;
+            }
             if ($identity->smtp_host === '') {
                 return;
             }
@@ -60,13 +66,13 @@ final class TestSender
                 $mailer->Username = $identity->smtp_username;
                 $mailer->Password = $identity->decrypted_password();
             }
-            $mailer->setFrom($identity->from_email, $identity->effective_from_name(), false);
+            $mailer->setFrom($identity->effective_from_email(), $identity->effective_from_name(), false);
             if ($identity->reply_to_email !== null && $identity->reply_to_email !== '') {
                 $mailer->addReplyTo($identity->reply_to_email);
             }
         };
 
-        $force_from_email = static fn (): string => $identity->from_email;
+        $force_from_email = static fn (): string => $identity->effective_from_email();
         $force_from_name = static fn (): string => $identity->effective_from_name();
 
         $captured_error = null;
