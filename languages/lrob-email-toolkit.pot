@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-17T16:52:30+00:00\n"
+"POT-Creation-Date: 2026-05-17T23:32:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -676,43 +676,43 @@ msgstr ""
 msgid "Test email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:216
+#: src/Modules/SMTP/Admin/SettingsPage.php:217
 msgid "Mailbox login"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:217
+#: src/Modules/SMTP/Admin/SettingsPage.php:218
 msgid "Credentials your mail server uses to authenticate this site — usually the same as logging into webmail."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:225
+#: src/Modules/SMTP/Admin/SettingsPage.php:220
 msgid "Authentication"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:226
-msgid "Most SMTP servers require a login. Disable only for relay-style internal servers that allow anonymous submission."
+#: src/Modules/SMTP/Admin/SettingsPage.php:223
+msgid "Auth"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:232
+#: src/Modules/SMTP/Admin/SettingsPage.php:230
 msgid "Username / email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:240
+#: src/Modules/SMTP/Admin/SettingsPage.php:238
 msgid "Password"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:242
+#: src/Modules/SMTP/Admin/SettingsPage.php:240
 msgid "Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:244
+#: src/Modules/SMTP/Admin/SettingsPage.php:242
 msgid "(unchanged when editing)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:260
+#: src/Modules/SMTP/Admin/SettingsPage.php:259
 msgid "SMTP server"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:261
+#: src/Modules/SMTP/Admin/SettingsPage.php:260
 msgid "Pick your domain's mail server. \"Custom\" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate."
 msgstr ""
 

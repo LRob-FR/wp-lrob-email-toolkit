@@ -212,19 +212,17 @@ final class SettingsPage
     {
         ?>
         <section class="lrob-etk-form-column">
-            <h3>
-                <?php esc_html_e('Mailbox login', 'lrob-email-toolkit'); ?>
-                <?php Tooltip::render(__('Credentials your mail server uses to authenticate this site — usually the same as logging into webmail.', 'lrob-email-toolkit')); ?>
-            </h3>
-
-            <div class="lrob-etk-toggle-row">
-                <label class="lrob-etk-switch">
+            <h3 class="lrob-etk-form-column-head">
+                <span class="lrob-etk-form-column-title">
+                    <?php esc_html_e('Mailbox login', 'lrob-email-toolkit'); ?>
+                    <?php Tooltip::render(__('Credentials your mail server uses to authenticate this site — usually the same as logging into webmail.', 'lrob-email-toolkit')); ?>
+                </span>
+                <label class="lrob-etk-section-switch" title="<?php esc_attr_e('Authentication', 'lrob-email-toolkit'); ?>">
                     <input type="checkbox" name="smtp_auth" class="lrob-etk-field-smtp-auth" value="1" <?php checked($f['smtp_auth']); ?>>
                     <span class="lrob-etk-switch-track"></span>
+                    <span class="lrob-etk-section-switch-label"><?php esc_html_e('Auth', 'lrob-email-toolkit'); ?></span>
                 </label>
-                <span class="lrob-etk-switch-label"><?php esc_html_e('Authentication', 'lrob-email-toolkit'); ?></span>
-                <?php Tooltip::render(__('Most SMTP servers require a login. Disable only for relay-style internal servers that allow anonymous submission.', 'lrob-email-toolkit')); ?>
-            </div>
+            </h3>
 
             <div class="lrob-etk-auth-fields">
                 <div class="lrob-etk-field">
@@ -256,9 +254,11 @@ final class SettingsPage
     {
         ?>
         <section class="lrob-etk-form-column">
-            <h3>
-                <?php esc_html_e('SMTP server', 'lrob-email-toolkit'); ?>
-                <?php Tooltip::render(__('Pick your domain\'s mail server. "Custom" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate.', 'lrob-email-toolkit')); ?>
+            <h3 class="lrob-etk-form-column-head">
+                <span class="lrob-etk-form-column-title">
+                    <?php esc_html_e('SMTP server', 'lrob-email-toolkit'); ?>
+                    <?php Tooltip::render(__('Pick your domain\'s mail server. "Custom" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate.', 'lrob-email-toolkit')); ?>
+                </span>
             </h3>
 
             <div class="lrob-etk-field">

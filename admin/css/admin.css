@@ -46,6 +46,67 @@
     padding: 0;
     border: none;
 }
+.lrob-etk-form-column-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 24px;
+}
+.lrob-etk-form-column-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Tight inline switch used in section headers (smaller than the page-level one) */
+.lrob-etk-section-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--etk-muted);
+}
+.lrob-etk-section-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.lrob-etk-section-switch .lrob-etk-switch-track {
+    position: relative;
+    display: inline-block;
+    width: 26px;
+    height: 14px;
+    background: var(--etk-line-strong);
+    border-radius: 999px;
+    transition: background 0.15s ease;
+}
+.lrob-etk-section-switch .lrob-etk-switch-track::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.lrob-etk-section-switch input:checked + .lrob-etk-switch-track {
+    background: var(--etk-success);
+}
+.lrob-etk-section-switch input:checked + .lrob-etk-switch-track::before {
+    transform: translateX(12px);
+}
+.lrob-etk-section-switch-label {
+    font-size: 11px;
+}
 .lrob-etk-card-form .lrob-etk-field > label {
     font-size: 12px;
     font-weight: 500;
@@ -234,8 +295,8 @@
     font-size: 15px;
     font-weight: 600;
     color: var(--etk-fg);
-    padding: 2px 2px 6px;
-    margin: 0 0 2px;
+    padding: 4px 2px 6px;
+    margin: 0;
     box-shadow: none;
     outline: none;
     line-height: 1.4;
@@ -1406,7 +1467,7 @@ body.lrob-etk-modal-open {
 
 .lrob-etk-identities {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
     gap: 14px;
     margin: 16px 0;
 }
@@ -1752,8 +1813,8 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-bottom: 0;
-    margin-bottom: 10px;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
     flex-wrap: wrap;
 }
 .lrob-etk-card-form-head .lrob-etk-title-input {
