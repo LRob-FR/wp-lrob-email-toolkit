@@ -47,4 +47,16 @@ interface ModuleInterface
      * so users can re-enable without losing logs/campaigns/etc.
      */
     public function uninstall(): void;
+
+    public function is_enabled(): bool;
+
+    public function enable(): void;
+
+    public function disable(): void;
+
+    /** Action name used by the in-page enable/disable toggle form. */
+    public function toggle_action(): string;
+
+    /** URL of the module's primary admin page (used for redirects). */
+    public function admin_page_url(): ?string;
 }

@@ -17,7 +17,7 @@ final class RetentionCron
 
     public const OPTION_RETENTION_DAYS = 'lrob_etk_logging_retention_days';
 
-    public const DEFAULT_RETENTION_DAYS = 30;
+    public const DEFAULT_RETENTION_DAYS = 365;
 
     public function __construct(private LogRepository $repository)
     {

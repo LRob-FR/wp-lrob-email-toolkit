@@ -7,13 +7,7 @@ namespace LRob\EmailToolkit\Modules\Logging\Admin;
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
 
 /**
- * Per-entry detail view. Shows everything we know about the email, plus
- * resend / delete actions.
- *
- * HTML preview safety: the stored body comes from `wp_mail()` callers who
- * may have rendered template variables. We render it inside a sandboxed
- * iframe with srcdoc to prevent any embedded scripts or styles from leaking
- * into the admin UI.
+ * Per-entry detail view. Compact metadata grid + sandboxed body preview.
  */
 final class LogViewPage
 {
@@ -24,7 +18,7 @@ final class LogViewPage
         if (!$entry instanceof LogEntry) {
             ?>
             <div class="wrap lrob-etk">
-                <h1><?php esc_html_e('Log entry not found', 'lrob-email-toolkit'); ?></h1>
+                <h1 class="lrob-etk-page-title"><?php esc_html_e('Log entry not found', 'lrob-email-toolkit'); ?></h1>
                 <p>
                     <a href="<?php echo esc_url($list_url); ?>" class="button">
                         <?php esc_html_e('Back to logs', 'lrob-email-toolkit'); ?>
@@ -40,137 +34,119 @@ final class LogViewPage
         $action_url = admin_url('admin-post.php');
         ?>
         <div class="wrap lrob-etk">
-            <h1>
-                <?php esc_html_e('Email log entry', 'lrob-email-toolkit'); ?>
-                <span class="title-count theme-count">#<?php echo (int) $entry->id; ?></span>
+            <h1 class="lrob-etk-page-title">
+                <?php echo esc_html($entry->subject !== '' ? $entry->subject : __('(no subject)', 'lrob-email-toolkit')); ?>
             </h1>
 
             <?php $this->render_flash($notice, $errors); ?>
 
             <p>
-                <a href="<?php echo esc_url($list_url); ?>" class="button">
+                <a href="<?php echo esc_url($list_url); ?>" class="button button-link">
                     ← <?php esc_html_e('Back to logs', 'lrob-email-toolkit'); ?>
                 </a>
             </p>
 
-            <table class="form-table">
-                <tbody>
-                    <tr>
-                        <th><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
-                        <td><?php echo esc_html($entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s T')); ?></td>
-                    </tr>
-                    <?php if ($entry->sent_at instanceof \DateTimeImmutable) : ?>
-                        <tr>
-                            <th><?php esc_html_e('Sent at', 'lrob-email-toolkit'); ?></th>
-                            <td><?php echo esc_html($entry->sent_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s T')); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                    <tr>
-                        <th><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
-                        <td><code><?php echo esc_html($entry->status); ?></code></td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e('Source', 'lrob-email-toolkit'); ?></th>
-                        <td><code><?php echo esc_html($entry->source); ?></code></td>
-                    </tr>
-                    <?php if ($entry->identity_id !== null) : ?>
-                        <tr>
-                            <th><?php esc_html_e('Identity ID', 'lrob-email-toolkit'); ?></th>
-                            <td><?php echo (int) $entry->identity_id; ?></td>
-                        </tr>
-                    <?php endif; ?>
-                    <tr>
-                        <th><?php esc_html_e('From', 'lrob-email-toolkit'); ?></th>
-                        <td>
-                            <?php
-                            if ($entry->from_name !== null && $entry->from_name !== '') {
-                                echo esc_html($entry->from_name) . ' &lt;' . esc_html($entry->from_email) . '&gt;';
-                            } else {
-                                echo esc_html($entry->from_email);
-                            }
-                            ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?php esc_html_e('To', 'lrob-email-toolkit'); ?></th>
-                        <td><?php echo esc_html(implode(', ', $entry->to_emails)); ?></td>
-                    </tr>
-                    <?php if ($entry->cc_emails !== []) : ?>
-                        <tr>
-                            <th><?php esc_html_e('Cc', 'lrob-email-toolkit'); ?></th>
-                            <td><?php echo esc_html(implode(', ', $entry->cc_emails)); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                    <?php if ($entry->bcc_emails !== []) : ?>
-                        <tr>
-                            <th><?php esc_html_e('Bcc', 'lrob-email-toolkit'); ?></th>
-                            <td><?php echo esc_html(implode(', ', $entry->bcc_emails)); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                    <?php if ($entry->reply_to !== null) : ?>
-                        <tr>
-                            <th><?php esc_html_e('Reply-to', 'lrob-email-toolkit'); ?></th>
-                            <td><?php echo esc_html($entry->reply_to); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                    <tr>
-                        <th><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></th>
-                        <td><strong><?php echo esc_html($entry->subject); ?></strong></td>
-                    </tr>
-                    <?php if ($entry->attachments !== []) : ?>
-                        <tr>
-                            <th><?php esc_html_e('Attachments', 'lrob-email-toolkit'); ?></th>
-                            <td>
-                                <ul style="margin:0">
-                                    <?php foreach ($entry->attachments as $name) : ?>
-                                        <li><span class="dashicons dashicons-paperclip"></span> <?php echo esc_html((string) $name); ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                    <?php if ($entry->error_message !== null) : ?>
-                        <tr>
-                            <th><?php esc_html_e('Error', 'lrob-email-toolkit'); ?></th>
-                            <td><pre style="white-space:pre-wrap;color:#a00"><?php echo esc_html($entry->error_message); ?></pre></td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <?php if ($entry->headers !== []) : ?>
-                <h2 class="title"><?php esc_html_e('Custom headers', 'lrob-email-toolkit'); ?></h2>
-                <table class="widefat striped">
-                    <thead>
-                        <tr>
-                            <th><?php esc_html_e('Name', 'lrob-email-toolkit'); ?></th>
-                            <th><?php esc_html_e('Value', 'lrob-email-toolkit'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($entry->headers as $h) :
-                            if (!is_array($h)) {
-                                continue;
-                            }
-                            ?>
-                            <tr>
-                                <td><code><?php echo esc_html((string) ($h['name'] ?? '')); ?></code></td>
-                                <td><code><?php echo esc_html((string) ($h['value'] ?? '')); ?></code></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <?php if ($entry->error_message !== null) : ?>
+                <div class="lrob-etk-log-error">
+                    <strong><?php esc_html_e('Send failed:', 'lrob-email-toolkit'); ?></strong>
+                    <?php echo esc_html($entry->error_message); ?>
+                </div>
             <?php endif; ?>
 
-            <h2 class="title"><?php esc_html_e('Body', 'lrob-email-toolkit'); ?></h2>
+            <div class="lrob-etk-log-meta">
+                <?php $this->meta_row(__('Date', 'lrob-email-toolkit'), $entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
+                <?php if ($entry->sent_at instanceof \DateTimeImmutable) : ?>
+                    <?php $this->meta_row(__('Sent at', 'lrob-email-toolkit'), $entry->sent_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
+                <?php endif; ?>
+                <?php $this->meta_row(__('Status', 'lrob-email-toolkit'), $this->status_html($entry->status), allow_html: true); ?>
+                <?php $this->meta_row(__('Source', 'lrob-email-toolkit'), '<code>' . esc_html($entry->source) . '</code>', allow_html: true); ?>
+                <?php if ($entry->identity_id !== null) : ?>
+                    <?php $this->meta_row(__('Identity', 'lrob-email-toolkit'), '#' . (int) $entry->identity_id); ?>
+                <?php endif; ?>
+                <?php $this->meta_row(__('From', 'lrob-email-toolkit'),
+                    $entry->from_name !== null && $entry->from_name !== ''
+                        ? $entry->from_name . ' <' . $entry->from_email . '>'
+                        : $entry->from_email,
+                    wide: true
+                ); ?>
+                <?php $this->meta_row(__('To', 'lrob-email-toolkit'), implode(', ', $entry->to_emails), wide: true); ?>
+                <?php if ($entry->cc_emails !== []) : ?>
+                    <?php $this->meta_row(__('Cc', 'lrob-email-toolkit'), implode(', ', $entry->cc_emails), wide: true); ?>
+                <?php endif; ?>
+                <?php if ($entry->bcc_emails !== []) : ?>
+                    <?php $this->meta_row(__('Bcc', 'lrob-email-toolkit'), implode(', ', $entry->bcc_emails), wide: true); ?>
+                <?php endif; ?>
+                <?php if ($entry->reply_to !== null) : ?>
+                    <?php $this->meta_row(__('Reply-to', 'lrob-email-toolkit'), $entry->reply_to, wide: true); ?>
+                <?php endif; ?>
+                <?php if ($entry->attachments !== []) : ?>
+                    <?php $this->meta_row(
+                        __('Attachments', 'lrob-email-toolkit'),
+                        implode(', ', array_map('esc_html', $entry->attachments)),
+                        allow_html: true,
+                        wide: true
+                    ); ?>
+                <?php endif; ?>
+            </div>
+
+            <?php if ($entry->headers !== []) : ?>
+                <details class="lrob-etk-log-body">
+                    <summary><h3 style="display:inline-block;margin:0"><?php esc_html_e('Custom headers', 'lrob-email-toolkit'); ?></h3></summary>
+                    <table class="widefat striped" style="margin-top:8px">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Name', 'lrob-email-toolkit'); ?></th>
+                                <th><?php esc_html_e('Value', 'lrob-email-toolkit'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($entry->headers as $h) :
+                                if (!is_array($h)) {
+                                    continue;
+                                }
+                                ?>
+                                <tr>
+                                    <td><code><?php echo esc_html((string) ($h['name'] ?? '')); ?></code></td>
+                                    <td><code><?php echo esc_html((string) ($h['value'] ?? '')); ?></code></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </details>
+            <?php endif; ?>
+
             <?php $this->render_body($entry); ?>
 
-            <p class="submit">
+            <div class="lrob-etk-form-actions">
                 <?php $this->render_resend_form($entry, $action_url); ?>
                 <?php $this->render_delete_form($entry, $action_url); ?>
-            </p>
+            </div>
         </div>
         <?php
+    }
+
+    private function meta_row(string $label, string $value, bool $allow_html = false, bool $wide = false): void
+    {
+        $class = $wide ? 'lrob-etk-log-meta-row is-wide' : 'lrob-etk-log-meta-row';
+        ?>
+        <div class="<?php echo esc_attr($class); ?>">
+            <span class="label"><?php echo esc_html($label); ?></span>
+            <span class="value">
+                <?php echo $allow_html ? $value : esc_html($value); ?>
+            </span>
+        </div>
+        <?php
+    }
+
+    private function status_html(string $status): string
+    {
+        $class = match ($status) {
+            LogEntry::STATUS_SENT    => 'lrob-etk-status--on',
+            LogEntry::STATUS_FAILED  => 'lrob-etk-status--fail',
+            LogEntry::STATUS_SENDING => 'lrob-etk-status--pending',
+            default                  => 'lrob-etk-status--off',
+        };
+        return sprintf('<span class="lrob-etk-status %s">%s</span>', esc_attr($class), esc_html($status));
     }
 
     private function render_body(LogEntry $entry): void
@@ -179,27 +155,31 @@ final class LogViewPage
         $has_text = $entry->body_text !== null && $entry->body_text !== '';
 
         if (!$has_html && !$has_text) {
-            echo '<p><em>' . esc_html__('(no body)', 'lrob-email-toolkit') . '</em></p>';
             return;
         }
 
         if ($has_html) {
             ?>
-            <p><strong><?php esc_html_e('HTML body (sandboxed preview):', 'lrob-email-toolkit'); ?></strong></p>
-            <iframe
-                sandbox=""
-                srcdoc="<?php echo esc_attr((string) $entry->body_html); ?>"
-                style="width:100%;min-height:400px;border:1px solid #c3c4c7;background:#fff"
-            ></iframe>
+            <div class="lrob-etk-log-body">
+                <h3><?php esc_html_e('HTML body', 'lrob-email-toolkit'); ?></h3>
+                <iframe
+                    sandbox=""
+                    srcdoc="<?php echo esc_attr((string) $entry->body_html); ?>"
+                ></iframe>
+            </div>
             <?php
         }
 
         if ($has_text) {
             ?>
-            <p><strong><?php echo $has_html
-                ? esc_html__('Plain-text alternative:', 'lrob-email-toolkit')
-                : esc_html__('Plain-text body:', 'lrob-email-toolkit'); ?></strong></p>
-            <pre style="white-space:pre-wrap;background:#f6f7f7;padding:12px;border:1px solid #c3c4c7;max-height:400px;overflow:auto"><?php echo esc_html((string) $entry->body_text); ?></pre>
+            <div class="lrob-etk-log-body">
+                <h3>
+                    <?php echo $has_html
+                        ? esc_html__('Plain-text alternative', 'lrob-email-toolkit')
+                        : esc_html__('Plain-text body', 'lrob-email-toolkit'); ?>
+                </h3>
+                <pre><?php echo esc_html((string) $entry->body_text); ?></pre>
+            </div>
             <?php
         }
     }

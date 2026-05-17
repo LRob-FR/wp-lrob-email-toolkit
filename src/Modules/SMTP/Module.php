@@ -11,10 +11,15 @@ use LRob\EmailToolkit\Modules\SMTP\Admin\PageController;
  * SMTP module — reconfigures the WordPress-bundled PHPMailer to route
  * wp_mail() through configured SMTP identities, with per-source routing.
  *
- * Public services exposed via the Container (so Logging can read identities):
- *   - IdentityRepository::class    → IdentityRepository
- *   - SourceResolver::class        → SourceResolver
- *   - RoutingRules::class          → RoutingRules
+ * Admin page is always registered so users can find and configure SMTP from
+ * the start; the actual phpmailer_init wiring only activates when the module
+ * is enabled via the in-page toggle.
+ *
+ * Public services exposed via the Container (when enabled, for cross-module access):
+ *   - IdentityRepository::class
+ *   - SourceResolver::class
+ *   - RoutingRules::class
+ *   - MailRouter::class
  */
 final class Module extends AbstractModule
 {
@@ -51,6 +56,11 @@ final class Module extends AbstractModule
         Schema::drop();
     }
 
+    public function admin_page_url(): ?string
+    {
+        return admin_url('admin.php?page=' . PageController::SLUG);
+    }
+
     public function register(): void
     {
         $identities = new IdentityRepository();
@@ -58,18 +68,24 @@ final class Module extends AbstractModule
         $routing = new RoutingRules($identities);
         $overrides = new ConstantOverrides();
 
-        $router = new MailRouter($identities, $routing, $source_resolver, $overrides);
-        $router->register();
-
         $this->container->set(IdentityRepository::class, $identities);
         $this->container->set(SourceResolver::class, $source_resolver);
         $this->container->set(RoutingRules::class, $routing);
         $this->container->set(ConstantOverrides::class, $overrides);
-        $this->container->set(MailRouter::class, $router);
 
+        // Runtime: only hook PHPMailer when the module is enabled.
+        if ($this->is_enabled()) {
+            $router = new MailRouter($identities, $routing, $source_resolver, $overrides);
+            $router->register();
+            $this->container->set(MailRouter::class, $router);
+        }
+
+        // Admin: always available so users can configure and toggle.
         if (is_admin()) {
-            $tester = new TestSender($identities, $router);
-            (new PageController($identities, $routing, $overrides, $tester))->register();
+            add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
+
+            $tester = new TestSender($identities, $overrides);
+            (new PageController($this, $identities, $routing, $overrides, $tester))->register();
         }
     }
 }

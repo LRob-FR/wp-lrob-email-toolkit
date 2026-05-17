@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules;
 
-use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Container;
 
 /**
- * Discovers, enables/disables, and boots feature modules. The list of
- * available modules is hard-coded in self::register_module_classes() — module
- * discovery is intentionally not dynamic (no scanning the filesystem) so the
- * runtime stays predictable and adding a module is an explicit code change.
+ * Discovers all modules and boots them unconditionally. Each module decides,
+ * inside its register() method, what to register for admin vs runtime — the
+ * manager doesn't gate on enabled state any more.
+ *
+ * The list of available modules is hard-coded in module_classes() so adding
+ * a module is an explicit code change.
  */
 final class ModuleManager
 {
@@ -24,12 +25,7 @@ final class ModuleManager
     {
     }
 
-    /**
-     * Module classes shipped with the plugin. Order is irrelevant; the
-     * `requires()` array on each module declares dependencies.
-     *
-     * @return array<int, class-string<ModuleInterface>>
-     */
+    /** @return array<int, class-string<ModuleInterface>> */
     private function module_classes(): array
     {
         return [
@@ -64,18 +60,14 @@ final class ModuleManager
         return $this->modules[$slug] ?? null;
     }
 
-    public function is_enabled(string $slug): bool
+    /**
+     * Boot every module. Each module's register() is responsible for
+     * deciding what to wire up based on `$this->is_enabled()` and
+     * `is_admin()`.
+     */
+    public function boot_all(): void
     {
-        $state = (array) get_option(Activator::OPTION_MODULES, []);
-        return !empty($state[$slug]);
-    }
-
-    public function boot_enabled(): void
-    {
-        foreach ($this->modules as $slug => $module) {
-            if (!$this->is_enabled($slug)) {
-                continue;
-            }
+        foreach ($this->modules as $module) {
             if (!$this->dependencies_satisfied($module)) {
                 continue;
             }
@@ -83,40 +75,11 @@ final class ModuleManager
         }
     }
 
-    public function enable(string $slug): bool
-    {
-        $module = $this->get($slug);
-        if (!$module instanceof ModuleInterface) {
-            return false;
-        }
-
-        $state = (array) get_option(Activator::OPTION_MODULES, []);
-        $state[$slug] = true;
-        update_option(Activator::OPTION_MODULES, $state);
-
-        // install() must be idempotent — call on every enable, not just the first.
-        $module->install();
-
-        return true;
-    }
-
-    public function disable(string $slug): bool
-    {
-        if (!isset($this->modules[$slug])) {
-            return false;
-        }
-
-        $state = (array) get_option(Activator::OPTION_MODULES, []);
-        $state[$slug] = false;
-        update_option(Activator::OPTION_MODULES, $state);
-
-        return true;
-    }
-
     private function dependencies_satisfied(ModuleInterface $module): bool
     {
         foreach ($module->requires() as $required_slug) {
-            if (!$this->is_enabled($required_slug)) {
+            $required = $this->get($required_slug);
+            if (!$required instanceof ModuleInterface || !$required->is_enabled()) {
                 return false;
             }
         }

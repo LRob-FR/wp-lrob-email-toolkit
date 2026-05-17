@@ -6,6 +6,7 @@ namespace LRob\EmailToolkit\Modules\SMTP\Admin;
 
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\Menu as MainMenu;
+use LRob\EmailToolkit\Modules\ModuleInterface;
 use LRob\EmailToolkit\Modules\SMTP\ConstantOverrides;
 use LRob\EmailToolkit\Modules\SMTP\Identity;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
@@ -38,6 +39,7 @@ final class PageController
     public const ACTION_TEST_SEND = 'lrob_etk_smtp_test_send';
 
     public function __construct(
+        private ModuleInterface $module,
         private IdentityRepository $identities,
         private RoutingRules $routing,
         private ConstantOverrides $overrides,
@@ -83,7 +85,7 @@ final class PageController
             return;
         }
 
-        (new SettingsPage($this->identities, $this->routing, $this->overrides))->render();
+        (new SettingsPage($this->module, $this->identities, $this->routing, $this->overrides))->render();
     }
 
     public function handle_save(): void

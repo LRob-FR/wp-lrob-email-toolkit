@@ -46,7 +46,7 @@ final class Plugin
         $this->container->set(ModuleManager::class, $manager);
 
         $manager->discover();
-        $manager->boot_enabled();
+        $manager->boot_all();
 
         if (is_admin()) {
             (new Menu($manager))->register();

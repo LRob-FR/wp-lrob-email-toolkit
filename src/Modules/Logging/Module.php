@@ -9,11 +9,10 @@ use LRob\EmailToolkit\Modules\Logging\Admin\PageController;
 
 /**
  * Logging module — captures every outgoing email and exposes browse / search
- * / resend in the admin. Independent of the SMTP module; if SMTP is off,
- * emails are still logged (just with less context).
+ * / resend in the admin.
  *
- * Public services exposed via the Container:
- *   - LogRepository::class → LogRepository (used by future IMAP save-to-sent worker)
+ * Admin page is always registered. The wp_mail/phpmailer_init/wp_mail_failed
+ * hooks only fire when the module is enabled.
  */
 final class Module extends AbstractModule
 {
@@ -48,8 +47,6 @@ final class Module extends AbstractModule
             add_option(RetentionCron::OPTION_RETENTION_DAYS, RetentionCron::DEFAULT_RETENTION_DAYS);
         }
 
-        // Schedule the daily purge if not already scheduled. The new RetentionCron
-        // instance is short-lived; it just sets the wp_schedule_event.
         (new RetentionCron(new LogRepository()))->schedule();
     }
 
@@ -60,21 +57,30 @@ final class Module extends AbstractModule
         delete_option(RetentionCron::OPTION_RETENTION_DAYS);
     }
 
+    public function admin_page_url(): ?string
+    {
+        return admin_url('admin.php?page=' . PageController::SLUG);
+    }
+
     public function register(): void
     {
         $repository = new LogRepository();
-        $logger = new Logger($repository);
-        $logger->register();
-
-        $cron = new RetentionCron($repository);
-        $cron->register();
-
         $this->container->set(LogRepository::class, $repository);
-        $this->container->set(Logger::class, $logger);
+
+        if ($this->is_enabled()) {
+            $logger = new Logger($repository);
+            $logger->register();
+            $this->container->set(Logger::class, $logger);
+
+            $cron = new RetentionCron($repository);
+            $cron->register();
+        }
 
         if (is_admin()) {
+            add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
+
             $resender = new Resender($repository);
-            (new PageController($repository, $resender))->register();
+            (new PageController($this, $repository, $resender))->register();
         }
     }
 }

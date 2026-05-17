@@ -1,55 +1,280 @@
-/* LRob - Email Toolkit — shared admin styles */
+/* LRob - Email Toolkit — admin styles
+ *
+ * Goal: a tighter, more deliberate look than WordPress's default form-table
+ * sprawl. Custom CSS scoped under .lrob-etk so we don't leak into other admin
+ * pages. Uses the dashboard color palette (#1d2327, #2271b1, #00a32a, #d63638).
+ */
 
-.lrob-etk h1 {
+/* ---------- Page chrome ---------- */
+
+.lrob-etk {
+    --etk-fg: #1d2327;
+    --etk-muted: #50575e;
+    --etk-soft: #f0f0f1;
+    --etk-line: #dcdcde;
+    --etk-line-strong: #c3c4c7;
+    --etk-accent: #2271b1;
+    --etk-accent-hover: #135e96;
+    --etk-success: #00a32a;
+    --etk-success-bg: #edfaef;
+    --etk-warning: #dba617;
+    --etk-warning-bg: #fcf9e8;
+    --etk-danger: #d63638;
+    --etk-danger-bg: #fbeaea;
+    --etk-radius: 6px;
+    --etk-shadow: 0 1px 0 rgba(0,0,0,.04);
+}
+
+.lrob-etk .lrob-etk-page-title {
+    font-size: 23px;
+    font-weight: 400;
+    margin: 8px 0 16px;
+    padding: 0;
+}
+
+.lrob-etk .lrob-etk-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    margin: 32px 0 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--etk-line);
+}
+
+/* Reduce form-table breathing room inside our wrap */
+.lrob-etk .form-table th {
+    padding: 12px 10px 12px 0;
+    width: 200px;
+}
+.lrob-etk .form-table td {
+    padding: 12px 0;
+}
+.lrob-etk .form-table .description {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--etk-muted);
+}
+
+/* ---------- Toggle bar (top of module pages) ---------- */
+
+.lrob-etk-toggle-bar {
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: var(--etk-radius);
+    margin: 0 0 20px;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    box-shadow: var(--etk-shadow);
 }
+
+.lrob-etk-toggle-bar.is-on { border-left: 4px solid var(--etk-success); }
+.lrob-etk-toggle-bar.is-off { border-left: 4px solid var(--etk-line-strong); }
+
+.lrob-etk-toggle-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--etk-line-strong);
+}
+.lrob-etk-toggle-bar.is-on .lrob-etk-toggle-dot { background: var(--etk-success); }
+
+.lrob-etk-toggle-state {
+    font-weight: 600;
+    color: var(--etk-fg);
+}
+.lrob-etk-toggle-bar.is-off .lrob-etk-toggle-state { color: var(--etk-muted); }
+
+.lrob-etk-toggle-name {
+    color: var(--etk-muted);
+    font-size: 13px;
+}
+
+.lrob-etk-toggle-form {
+    margin-left: auto;
+    display: inline-flex;
+}
+
+/* ---------- CTA card (disabled-and-empty state) ---------- */
+
+.lrob-etk-cta {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 48px 32px;
+    text-align: center;
+    max-width: 640px;
+    margin: 32px auto;
+    box-shadow: var(--etk-shadow);
+}
+
+.lrob-etk-cta-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--etk-accent);
+    margin: 0 auto 16px;
+}
+
+.lrob-etk-cta-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--etk-fg);
+}
+
+.lrob-etk-cta-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--etk-muted);
+    margin: 0 0 24px;
+}
+
+/* ---------- Toolbar (above tables) ---------- */
+
+.lrob-etk-toolbar {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 16px;
+}
+
+.lrob-etk-toolbar .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    margin-right: 2px;
+    margin-top: 3px;
+}
+
+/* ---------- Tables ---------- */
+
+.lrob-etk-table {
+    border-radius: var(--etk-radius);
+    overflow: hidden;
+}
+
+.lrob-etk-table .row-actions {
+    color: var(--etk-muted);
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+/* ---------- Status badges ---------- */
 
 .lrob-etk-status {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 3px;
+    border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
 }
 
-.lrob-etk-status--on {
-    background: #e6f4ea;
-    color: #1e6b3a;
+.lrob-etk-status--on      { background: var(--etk-success-bg); color: #1e6b3a; }
+.lrob-etk-status--off     { background: var(--etk-soft);       color: var(--etk-muted); }
+.lrob-etk-status--fail    { background: var(--etk-danger-bg);  color: #a00; }
+.lrob-etk-status--pending { background: var(--etk-warning-bg); color: #996800; }
+
+/* ---------- Identity edit form ---------- */
+
+.lrob-etk-title-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--etk-fg);
+    padding: 8px 4px;
+    margin: 0 0 4px;
+    box-shadow: none;
+    outline: none;
+    line-height: 1.3;
+}
+.lrob-etk-title-input:focus {
+    box-shadow: 0 2px 0 var(--etk-accent);
+    background: #fff;
+}
+.lrob-etk-title-input::placeholder {
+    color: var(--etk-line-strong);
+    font-weight: 400;
 }
 
-.lrob-etk-status--off {
-    background: #f1f1f1;
-    color: #666;
+.lrob-etk-slug-hint {
+    font-size: 12px;
+    color: var(--etk-muted);
+    margin: 0 0 24px 4px;
+}
+.lrob-etk-slug-hint code {
+    background: var(--etk-soft);
+    padding: 1px 6px;
+    border-radius: 3px;
 }
 
-.lrob-etk-status--fail {
-    background: #fbeaea;
-    color: #a00;
+.lrob-etk-form-section {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 16px 20px;
+    margin: 0 0 16px;
 }
 
-.lrob-etk-status--pending {
-    background: #fcf9e8;
-    color: #996800;
+.lrob-etk-form-section > h2 {
+    margin: 0 0 12px;
+    padding: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--etk-muted);
+    font-weight: 600;
+    border: none;
 }
 
-.lrob-etk-modules-table th {
-    width: 200px;
+.lrob-etk-field-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 8px 16px;
+    align-items: start;
+    padding: 8px 0;
 }
-
-.lrob-etk-footer {
-    margin-top: 2em;
-    color: #666;
+.lrob-etk-field-row + .lrob-etk-field-row {
+    border-top: 1px solid var(--etk-soft);
+}
+.lrob-etk-field-row > label:first-child {
+    padding-top: 6px;
+    color: var(--etk-fg);
+    font-weight: 500;
+}
+.lrob-etk-field-row .description {
+    grid-column: 2;
+    margin: 4px 0 0;
+    color: var(--etk-muted);
     font-size: 12px;
 }
+.lrob-etk-field-row input[type="text"],
+.lrob-etk-field-row input[type="email"],
+.lrob-etk-field-row input[type="password"],
+.lrob-etk-field-row input[type="number"],
+.lrob-etk-field-row select {
+    max-width: 360px;
+}
 
-.lrob-etk-empty {
-    background: #fff;
-    border: 1px dashed #c3c4c7;
-    padding: 2em;
-    text-align: center;
-    margin: 1.5em 0;
+.lrob-etk-encryption-port {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.lrob-etk-encryption-port fieldset {
+    margin: 0;
+}
+.lrob-etk-encryption-port label {
+    display: block;
+    padding: 2px 0;
+}
+.lrob-etk-encryption-port .port-block {
+    padding-left: 16px;
+    border-left: 1px solid var(--etk-soft);
 }
 
 .lrob-etk-override-note {
@@ -57,20 +282,275 @@
     align-items: center;
     gap: 4px;
     color: #996800;
-    background: #fcf9e8;
-    padding: 4px 8px;
+    background: var(--etk-warning-bg);
+    padding: 3px 8px;
     border-radius: 3px;
-    margin-top: 6px !important;
+    margin-top: 6px;
+    font-size: 12px;
 }
-
 .lrob-etk-override-note .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
 }
 
-.lrob-etk h2.title {
-    margin-top: 2em;
-    padding-top: 1em;
-    border-top: 1px solid #e0e0e0;
+.lrob-etk-form-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 16px 0;
+    flex-wrap: wrap;
+}
+
+/* ---------- Empty state ---------- */
+
+.lrob-etk-empty {
+    background: #fff;
+    border: 1px dashed var(--etk-line-strong);
+    padding: 32px;
+    text-align: center;
+    border-radius: var(--etk-radius);
+    margin: 16px 0;
+}
+
+/* ---------- Settings & cleanup rows ---------- */
+
+.lrob-etk-settings-form, .lrob-etk-cleanup-form {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    display: inline-block;
+}
+.lrob-etk-cleanup-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Routing grid ---------- */
+
+.lrob-etk-routing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.lrob-etk-routing-row {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.lrob-etk-routing-row label code {
+    color: var(--etk-muted);
+    font-size: 11px;
+    background: var(--etk-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    font-weight: normal;
+}
+
+/* ---------- Dashboard ---------- */
+
+.lrob-etk-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.lrob-etk-stat-card {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 16px 20px;
+    box-shadow: var(--etk-shadow);
+}
+
+.lrob-etk-stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--etk-muted);
+    margin: 0 0 8px;
+    font-weight: 600;
+}
+
+.lrob-etk-stat-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    line-height: 1;
+}
+.lrob-etk-stat-value.is-success { color: var(--etk-success); }
+.lrob-etk-stat-value.is-danger  { color: var(--etk-danger); }
+
+.lrob-etk-stat-trend {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--etk-muted);
+}
+
+.lrob-etk-modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.lrob-etk-module-card {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: var(--etk-shadow);
+    border-left: 4px solid var(--etk-line-strong);
+}
+.lrob-etk-module-card.is-on { border-left-color: var(--etk-success); }
+.lrob-etk-module-card.is-coming { border-left-color: var(--etk-warning); opacity: 0.7; }
+
+.lrob-etk-module-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.lrob-etk-module-card-head h3 {
+    margin: 0;
+    font-size: 16px;
+    flex: 1;
+}
+.lrob-etk-module-card-description {
+    font-size: 13px;
+    color: var(--etk-muted);
+    margin: 0;
+    flex: 1;
+}
+.lrob-etk-module-card-actions {
+    margin-top: 8px;
+}
+
+/* ---------- Quick test panel ---------- */
+
+.lrob-etk-quick-test {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 20px;
+    margin: 20px 0;
+}
+.lrob-etk-quick-test h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    border: none;
+    padding: 0;
+}
+.lrob-etk-quick-test-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+    align-items: end;
+}
+.lrob-etk-quick-test label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.lrob-etk-quick-test input[type="text"],
+.lrob-etk-quick-test input[type="email"],
+.lrob-etk-quick-test select {
+    width: 100%;
+}
+
+/* ---------- Log view (compact metadata) ---------- */
+
+.lrob-etk-log-meta {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 12px 16px;
+    margin: 0 0 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px 24px;
+}
+
+.lrob-etk-log-meta-row {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.lrob-etk-log-meta-row .label {
+    font-weight: 600;
+    color: var(--etk-muted);
+    min-width: 80px;
+    flex-shrink: 0;
+}
+.lrob-etk-log-meta-row .value {
+    color: var(--etk-fg);
+    word-break: break-word;
+}
+.lrob-etk-log-meta-row.is-wide {
+    grid-column: 1 / -1;
+}
+
+.lrob-etk-log-body {
+    margin-top: 16px;
+}
+.lrob-etk-log-body h3 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--etk-muted);
+}
+.lrob-etk-log-body iframe {
+    width: 100%;
+    min-height: 400px;
+    border: 1px solid var(--etk-line);
+    background: #fff;
+    border-radius: var(--etk-radius);
+}
+.lrob-etk-log-body pre {
+    white-space: pre-wrap;
+    background: var(--etk-soft);
+    padding: 12px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    max-height: 400px;
+    overflow: auto;
+}
+
+.lrob-etk-log-error {
+    background: var(--etk-danger-bg);
+    border: 1px solid var(--etk-danger);
+    color: #a00;
+    padding: 12px 16px;
+    border-radius: var(--etk-radius);
+    margin: 0 0 16px;
+}
+
+/* ---------- Footer ---------- */
+
+.lrob-etk-footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--etk-line);
+    color: var(--etk-muted);
+    font-size: 12px;
+    text-align: center;
 }
