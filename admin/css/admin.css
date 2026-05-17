@@ -1,0 +1,35 @@
+/* LRob - Email Toolkit — shared admin styles */
+
+.lrob-etk h1 {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.lrob-etk-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lrob-etk-status--on {
+    background: #e6f4ea;
+    color: #1e6b3a;
+}
+
+.lrob-etk-status--off {
+    background: #f1f1f1;
+    color: #666;
+}
+
+.lrob-etk-modules-table th {
+    width: 200px;
+}
+
+.lrob-etk-footer {
+    margin-top: 2em;
+    color: #666;
+    font-size: 12px;
+}

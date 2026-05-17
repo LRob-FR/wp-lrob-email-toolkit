@@ -1,0 +1,39 @@
+# Build output: release.sh writes the zip to ../releases/ (outside this dir)
+# so nothing to ignore locally. Keep this comment so future contributors don't
+# wonder why no `releases/` rule.
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+.fleet/
+
+# Claude Code workspace files
+.claude/
+
+# Logs / env / backups
+*.log
+*.bak
+.env
+.env.local
+
+# JS tooling (pre-emptive — not used yet)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP tooling (pre-emptive)
+/vendor/
+composer.lock
+.phpunit.result.cache
+
+# Generated translation files — release.sh produces them from .po/.pot.
+# Source files (.po, .pot) ARE tracked. End users install via the zip from
+# `release.sh`, which bakes in the compiled .mo + JSON.
+languages/*.mo
+languages/lrob-email-toolkit-*.json
