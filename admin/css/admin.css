@@ -33,3 +33,34 @@
     color: #666;
     font-size: 12px;
 }
+
+.lrob-etk-empty {
+    background: #fff;
+    border: 1px dashed #c3c4c7;
+    padding: 2em;
+    text-align: center;
+    margin: 1.5em 0;
+}
+
+.lrob-etk-override-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #996800;
+    background: #fcf9e8;
+    padding: 4px 8px;
+    border-radius: 3px;
+    margin-top: 6px !important;
+}
+
+.lrob-etk-override-note .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.lrob-etk h2.title {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid #e0e0e0;
+}
