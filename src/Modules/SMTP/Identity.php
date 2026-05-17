@@ -88,6 +88,37 @@ final class Identity
     }
 
     /**
+     * Resolves the From name to send. When the stored value is empty, that
+     * encodes "Automatic mode" — fall back to the site title at runtime so
+     * subsequent site renames flow through without re-saving the identity.
+     */
+    public function effective_from_name(): string
+    {
+        if ($this->from_name !== '') {
+            return $this->from_name;
+        }
+        if (function_exists('get_bloginfo')) {
+            $title = (string) get_bloginfo('name');
+            if ($title !== '') {
+                return $title;
+            }
+        }
+        return $this->from_email;
+    }
+
+    /** True when the From name follows site title (Automatic mode in the UI). */
+    public function is_from_name_automatic(): bool
+    {
+        return $this->from_name === '';
+    }
+
+    /** True when the From email matches the SMTP username (Automatic mode in the UI). */
+    public function is_from_email_automatic(): bool
+    {
+        return $this->smtp_username !== '' && $this->from_email === $this->smtp_username;
+    }
+
+    /**
      * Return a new Identity with one or more fields replaced. Used in place
      * of mutation since the object is readonly.
      *

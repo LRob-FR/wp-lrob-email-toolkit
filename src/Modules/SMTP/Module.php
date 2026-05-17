@@ -5,21 +5,22 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\SMTP;
 
 use LRob\EmailToolkit\Modules\AbstractModule;
+use LRob\EmailToolkit\Modules\SMTP\Admin\AjaxController;
 use LRob\EmailToolkit\Modules\SMTP\Admin\PageController;
 
 /**
  * SMTP module — reconfigures the WordPress-bundled PHPMailer to route
  * wp_mail() through configured SMTP identities, with per-source routing.
  *
- * Admin page is always registered so users can find and configure SMTP from
- * the start; the actual phpmailer_init wiring only activates when the module
- * is enabled via the in-page toggle.
+ * Admin pages always register so the toggle/CTA UX works; the actual
+ * phpmailer_init wiring only activates when the module is enabled.
  *
- * Public services exposed via the Container (when enabled, for cross-module access):
+ * Public services exposed via Container:
  *   - IdentityRepository::class
  *   - SourceResolver::class
  *   - RoutingRules::class
- *   - MailRouter::class
+ *   - ConstantOverrides::class
+ *   - MailRouter::class (only when enabled)
  */
 final class Module extends AbstractModule
 {
@@ -73,19 +74,20 @@ final class Module extends AbstractModule
         $this->container->set(RoutingRules::class, $routing);
         $this->container->set(ConstantOverrides::class, $overrides);
 
-        // Runtime: only hook PHPMailer when the module is enabled.
         if ($this->is_enabled()) {
             $router = new MailRouter($identities, $routing, $source_resolver, $overrides);
             $router->register();
             $this->container->set(MailRouter::class, $router);
         }
 
-        // Admin: always available so users can configure and toggle.
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
 
-            $tester = new TestSender($identities, $overrides);
-            (new PageController($this, $identities, $routing, $overrides, $tester))->register();
+            $auth_tester = new AuthTester();
+            $test_sender = new TestSender($identities, $overrides);
+            (new AjaxController($identities, $routing, $overrides, $auth_tester, $test_sender))->register();
+
+            (new PageController($this, $identities, $routing, $overrides))->register();
         }
     }
 }

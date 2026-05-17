@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-17T11:50:51+00:00\n"
+"POT-Creation-Date: 2026-05-17T13:38:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -39,8 +39,8 @@ msgstr ""
 #: src/Modules/AbstractModule.php:77
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
-#: src/Modules/SMTP/Admin/PageController.php:76
-#: src/Modules/SMTP/Admin/PageController.php:274
+#: src/Modules/SMTP/Admin/AjaxController.php:326
+#: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
 msgstr ""
 
@@ -88,7 +88,7 @@ msgid "Configure SMTP"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:162
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:439
+#: src/Modules/SMTP/Admin/SettingsPage.php:460
 msgid "Send a test email"
 msgstr ""
 
@@ -98,34 +98,41 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:175
 #: src/Modules/Logging/Admin/LogViewPage.php:64
-#: src/Modules/SMTP/Admin/SettingsPage.php:102
+#: src/Modules/SMTP/Admin/SettingsPage.php:91
+#: src/Modules/SMTP/Admin/SettingsPage.php:471
 msgid "Identity"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:187
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:449
+#: src/Modules/SMTP/Admin/SettingsPage.php:483
 msgid "Recipient"
 msgstr ""
 
 #. translators: %s: current user email
 #: src/Admin/DashboardPage.php:191
+#: src/Modules/SMTP/Admin/SettingsPage.php:485
 msgid "Me (%s)"
 msgstr ""
 
 #. translators: %s: site admin email
 #: src/Admin/DashboardPage.php:196
+#: src/Modules/SMTP/Admin/SettingsPage.php:486
 msgid "Site admin (%s)"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:199
+#: src/Modules/SMTP/Admin/SettingsPage.php:487
 msgid "Custom address…"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:203
+#: src/Modules/SMTP/Admin/SettingsPage.php:492
 msgid "Custom recipient"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:210
+#: src/Modules/SMTP/Admin/SettingsPage.php:502
+#: src/Modules/SMTP/Admin/SettingsPage.php:970
 msgid "Send test"
 msgstr ""
 
@@ -139,14 +146,14 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:247
 #: src/Admin/ModuleToggle.php:28
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:394
-#: src/Modules/SMTP/Admin/SettingsPage.php:145
+#: src/Modules/SMTP/Admin/SettingsPage.php:131
+#: src/Modules/SMTP/Admin/SettingsPage.php:434
 msgid "Active"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:249
 #: src/Admin/ModuleToggle.php:29
-#: src/Modules/SMTP/Admin/SettingsPage.php:147
+#: src/Modules/SMTP/Admin/SettingsPage.php:133
 msgid "Inactive"
 msgstr ""
 
@@ -171,8 +178,8 @@ msgstr ""
 #: src/Admin/DashboardPage.php:286
 #: src/Modules/Logging/Admin/LogsListTable.php:34
 #: src/Modules/Logging/Admin/LogViewPage.php:61
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:391
-#: src/Modules/SMTP/Admin/SettingsPage.php:106
+#: src/Modules/SMTP/Admin/SettingsPage.php:95
+#: src/Modules/SMTP/Admin/SettingsPage.php:426
 msgid "Status"
 msgstr ""
 
@@ -194,7 +201,6 @@ msgstr ""
 #: src/Admin/DashboardPage.php:327
 #: src/Modules/AbstractModule.php:81
 #: src/Modules/Logging/Admin/PageController.php:178
-#: src/Modules/SMTP/Admin/PageController.php:278
 msgid "Security check failed. Please retry."
 msgstr ""
 
@@ -204,19 +210,18 @@ msgstr ""
 
 #. translators: %s: recipient email
 #: src/Admin/DashboardPage.php:352
-#: src/Modules/SMTP/Admin/PageController.php:257
+#: src/Modules/SMTP/Admin/AjaxController.php:290
 msgid "Test email sent to %s."
 msgstr ""
 
 #: src/Admin/DashboardPage.php:356
 #: src/Modules/Logging/Admin/PageController.php:93
-#: src/Modules/SMTP/Admin/PageController.php:261
+#: src/Modules/SMTP/Admin/AjaxController.php:296
 msgid "Unknown error."
 msgstr ""
 
 #. translators: %s: error message
 #: src/Admin/DashboardPage.php:359
-#: src/Modules/SMTP/Admin/PageController.php:264
 msgid "Test email failed: %s"
 msgstr ""
 
@@ -233,6 +238,10 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
+#: src/Admin/Tooltip.php:28
+msgid "More info"
+msgstr ""
+
 #: src/Modules/ContactForm/Module.php:26
 msgid "Contact Form"
 msgstr ""
@@ -243,7 +252,7 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogsListTable.php:35
 #: src/Modules/Logging/Admin/LogViewPage.php:66
-#: src/Modules/SMTP/Admin/SettingsPage.php:103
+#: src/Modules/SMTP/Admin/SettingsPage.php:92
 msgid "From"
 msgstr ""
 
@@ -253,7 +262,7 @@ msgid "Source"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsListTable.php:39
-#: src/Modules/SMTP/Admin/SettingsPage.php:107
+#: src/Modules/SMTP/Admin/SettingsPage.php:96
 msgid "Actions"
 msgstr ""
 
@@ -350,7 +359,7 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:120
 #: src/Modules/Logging/Admin/LogViewPage.php:207
-#: src/Modules/SMTP/Admin/SettingsPage.php:159
+#: src/Modules/SMTP/Admin/SettingsPage.php:144
 msgid "Delete"
 msgstr ""
 
@@ -396,7 +405,7 @@ msgid "Bcc"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogViewPage.php:80
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:365
+#: src/Modules/SMTP/Admin/SettingsPage.php:412
 msgid "Reply-to"
 msgstr ""
 
@@ -495,299 +504,377 @@ msgstr ""
 msgid "Send campaigns to your WordPress users with advanced segmentation and tracking."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:65
-msgid "Back to SMTP"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:80
-msgid "Untitled identity"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:85
-msgid "Slug:"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:92
-msgid "Some fields are overridden by wp-config.php constants."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:93
-msgid "Edits below are saved but ignored at runtime — the constant value is used instead."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:104
-msgid "Save identity"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:105
-msgid "Cancel"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:227
-msgid "Mailbox login"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:230
-msgid "Email / username"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:238
-msgid "Most SMTP servers use your email address as the login. The \"From\" address and server suggestions will be derived from this."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:244
-msgid "Password"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:248
-msgid "(unchanged — type to replace)"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:254
-msgid "Clear stored password"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:259
-msgid "Encrypted at rest with AES-256-GCM (key derived from AUTH_KEY). Override via LROB_ETK_SMTP_PASS in wp-config.php."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:265
-msgid "Authentication"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:269
-msgid "Server requires authentication"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:285
-msgid "SMTP server"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:288
-msgid "Host"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:296
-msgid "Once you enter your email above, common server addresses will be suggested."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:302
-msgid "Encryption & port"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:315
-msgid "None"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:320
-msgid "Port"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:341
-msgid "\"From\" address"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:344
-msgid "From email"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:350
-msgid "Most SMTP servers require this to match the mailbox login. If you set it differently, the server may reject or rewrite the message."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:356
-msgid "From name"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:369
-msgid "Optional. Where replies should go if different from \"From\"."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:374
-msgid "Force \"From\""
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:378
-msgid "Override the From address on every outgoing email"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:398
-msgid "This identity can be used for sending"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:404
-#: src/Modules/SMTP/Admin/SettingsPage.php:105
-msgid "Default"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:408
-msgid "Use this identity for any source without a specific routing rule"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:412
-msgid "The first identity is automatically the default."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:429
-msgid "Set as default"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:441
-msgid "Verify your configuration. The test bypasses routing and uses this identity directly."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:456
-msgid "Send test email"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/IdentityEditPage.php:471
-msgid "Overridden by wp-config.php — value here is ignored at runtime."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/PageController.php:65
-#: src/Modules/SMTP/Admin/PageController.php:66
-#: src/Modules/SMTP/Admin/SettingsPage.php:41
-#: src/Modules/SMTP/Module.php:33
-msgid "SMTP"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/PageController.php:100
-msgid "Slug is required."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/PageController.php:102
-msgid "That slug is already used by another identity."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/PageController.php:107
+#: src/Modules/SMTP/Admin/AjaxController.php:67
 msgid "Label is required."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:112
-msgid "From email must be a valid email address."
+#: src/Modules/SMTP/Admin/AjaxController.php:75
+msgid "Slug could not be generated from the label."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:117
-msgid "From name is required."
+#: src/Modules/SMTP/Admin/AjaxController.php:77
+msgid "Another identity already uses this slug."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:122
+#: src/Modules/SMTP/Admin/AjaxController.php:83
+msgid "Username is required when authentication is on."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:92
 msgid "SMTP host is required."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:127
-msgid "SMTP port must be between 1 and 65535."
+#: src/Modules/SMTP/Admin/AjaxController.php:97
+msgid "Port must be between 1 and 65535."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:138
-msgid "Username is required when authentication is enabled."
+#: src/Modules/SMTP/Admin/AjaxController.php:113
+msgid "A valid From email is required."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:149
-msgid "Reply-to must be a valid email address."
+#: src/Modules/SMTP/Admin/AjaxController.php:123
+msgid "From name is required when not set to Automatic."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:190
-msgid "SMTP identity saved."
+#: src/Modules/SMTP/Admin/AjaxController.php:130
+msgid "Reply-to is not a valid email address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:201
-msgid "SMTP identity deleted."
+#: src/Modules/SMTP/Admin/AjaxController.php:138
+msgid "Please fix the highlighted fields."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:213
+#: src/Modules/SMTP/Admin/AjaxController.php:169
+msgid "Identity saved."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:181
+#: src/Modules/SMTP/Admin/AjaxController.php:192
+msgid "Invalid identity."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:184
+msgid "Identity deleted."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:195
 msgid "Default identity updated."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:237
+#: src/Modules/SMTP/Admin/AjaxController.php:282
+msgid "Pick an identity and a valid recipient."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:320
 msgid "Routing rules saved."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/PageController.php:249
-msgid "Recipient and identity are required for a test send."
+#: src/Modules/SMTP/Admin/PageController.php:39
+#: src/Modules/SMTP/Admin/PageController.php:40
+#: src/Modules/SMTP/Admin/SettingsPage.php:39
+#: src/Modules/SMTP/Module.php:34
+msgid "SMTP"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:51
+#: src/Modules/SMTP/Admin/SettingsPage.php:50
 msgid "Set up SMTP"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:52
-msgid "Route every outgoing email through your SMTP server. Configure one or more identities (a \"From\" address plus its SMTP login), then choose which sources use which."
+#: src/Modules/SMTP/Admin/SettingsPage.php:51
+msgid "Route every outgoing email through your SMTP server. Configure one or more identities (a \"From\" address paired with its SMTP login), then choose which sources use which."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:62
-msgid "No SMTP identities configured yet."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:65
-msgid "Add your first identity"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:88
+#: src/Modules/SMTP/Admin/SettingsPage.php:60
 msgid "Add identity"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:104
+#: src/Modules/SMTP/Admin/SettingsPage.php:66
+msgid "No SMTP identities yet — add one to start routing email."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:93
 msgid "Server"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:133
+#: src/Modules/SMTP/Admin/SettingsPage.php:94
+msgid "Default"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:122
+#: src/Modules/SMTP/Admin/SettingsPage.php:442
 msgid "Default identity"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:139
+#: src/Modules/SMTP/Admin/SettingsPage.php:125
 msgid "Set default"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:152
+#: src/Modules/SMTP/Admin/SettingsPage.php:138
 msgid "Edit"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:155
-msgid "Delete this identity?"
+#: src/Modules/SMTP/Admin/SettingsPage.php:141
+msgid "Test"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:179
+#: src/Modules/SMTP/Admin/SettingsPage.php:164
 msgid "Routing rules"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:181
-msgid "Choose which identity to use for each kind of outgoing email. Unset sources fall back to the default identity."
+#: src/Modules/SMTP/Admin/SettingsPage.php:165
+msgid "Each source can use a specific identity. Sources without a rule fall back to the default."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:197
+#: src/Modules/SMTP/Admin/SettingsPage.php:178
 msgid "— Use default —"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:209
+#: src/Modules/SMTP/Admin/SettingsPage.php:189
 msgid "Save routing rules"
 msgstr ""
 
+#: src/Modules/SMTP/Admin/SettingsPage.php:204
+msgid "SMTP identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:206
+#: src/Modules/SMTP/Admin/SettingsPage.php:461
+msgid "Close"
+msgstr ""
+
 #: src/Modules/SMTP/Admin/SettingsPage.php:219
-msgid "Default emails"
+msgid "Identity name (e.g. Site default, Newsletter sender)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:222
-msgid "WooCommerce emails"
+#: src/Modules/SMTP/Admin/SettingsPage.php:224
+msgid "Slug:"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:259
-msgid "AUTH_KEY is missing or unset in wp-config.php."
+#: src/Modules/SMTP/Admin/SettingsPage.php:226
+msgid "A stable identifier used internally (e.g. in routing rules). Auto-generated from the name; you only need to think about this if you rename the identity later."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:260
-msgid "SMTP passwords cannot be encrypted at rest until you configure AUTH_KEY. Generate one at https://api.wordpress.org/secret-key/1.1/salt/ and add it to wp-config.php."
+#: src/Modules/SMTP/Admin/SettingsPage.php:241
+#: src/Modules/SMTP/Admin/SettingsPage.php:500
+msgid "Cancel"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:243
+#: src/Modules/SMTP/Admin/SettingsPage.php:897
+#: src/Modules/SMTP/Admin/SettingsPage.php:902
+msgid "Save identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:257
+msgid "Mailbox login"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:258
+msgid "The credentials your mail server uses to authenticate this site. Usually the same as logging into webmail."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:266
+msgid "Authentication"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:267
+msgid "Most SMTP servers require a login. Disable only for relay-style internal servers that allow anonymous submission."
 msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:273
+msgid "Username / email"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:281
+msgid "Password"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:283
+msgid "Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:286
+#: src/Modules/SMTP/Admin/SettingsPage.php:668
+msgid "(unchanged when editing)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:288
+#: src/Modules/SMTP/Admin/SettingsPage.php:872
+msgid "Test connection"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:304
+msgid "SMTP server"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:305
+msgid "Pick your domain's mail server. \"Custom\" lets you use an external relay (Mailgun, SendGrid, etc.) — only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:309
+msgid "Host"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:321
+#: src/Modules/SMTP/Admin/SettingsPage.php:372
+#: src/Modules/SMTP/Admin/SettingsPage.php:398
+msgid "Custom"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:329
+msgid "Encryption & port"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:342
+msgid "None"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:346
+msgid "Port"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:362
+msgid "From address"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:363
+msgid "The address shown to recipients. Most SMTP servers require the From address to match the mailbox login; the warning below will tell you when something looks off."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:368
+msgid "From email"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:371
+#: src/Modules/SMTP/Admin/SettingsPage.php:397
+msgid "Automatic"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:376
+msgid "(same as mailbox login)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:386
+msgid "Force"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:388
+msgid "Override the From address on every outgoing email — even when other plugins try to set their own."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:394
+msgid "From name"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:402
+msgid "(site title)"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:413
+msgid "Optional. Where replies go if different from the From address."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:435
+msgid "Inactive identities are kept in storage but never used for sending."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:443
+msgid "Used for any source that doesn't have its own routing rule."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:549
+msgid "Deleting…"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:550
+msgid "Delete the identity \"%s\"?"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:551
+msgid "Saving…"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:552
+msgid "Testing…"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:553
+msgid "Sending…"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:554
+msgid "Add SMTP identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:555
+msgid "Edit SMTP identity"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:556
+msgid "Domain differs from the mailbox login. Most servers will reject or rewrite this — only use this with relays that support arbitrary senders."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:557
+msgid "Local part differs from the mailbox login. Some servers may rewrite the From address."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:558
+msgid "Something went wrong."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:1002
+msgid "Overridden by a wp-config.php constant — value here is ignored at runtime."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:1011
+msgid "Default emails"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:1014
+msgid "WooCommerce emails"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:1027
+msgid "AUTH_KEY is missing or unset in wp-config.php."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:1028
+msgid "SMTP passwords cannot be encrypted at rest until you configure AUTH_KEY. Generate one at https://api.wordpress.org/secret-key/1.1/salt/ and add it to wp-config.php."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:1041
 msgid "SMTP routing is now active."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:274
+#: src/Modules/SMTP/Admin/SettingsPage.php:1042
 msgid "SMTP routing is now off. Your configuration is preserved."
 msgstr ""
 
-#: src/Modules/SMTP/Module.php:38
+#: src/Modules/SMTP/AuthTester.php:29
+msgid "Enter an SMTP host first."
+msgstr ""
+
+#: src/Modules/SMTP/AuthTester.php:32
+msgid "Invalid SMTP port."
+msgstr ""
+
+#: src/Modules/SMTP/AuthTester.php:54
+msgid "Could not decrypt stored password. Re-enter it and retry."
+msgstr ""
+
+#: src/Modules/SMTP/AuthTester.php:70
+msgid "Connection failed."
+msgstr ""
+
+#: src/Modules/SMTP/AuthTester.php:86
+msgid "Connection and authentication successful."
+msgstr ""
+
+#: src/Modules/SMTP/AuthTester.php:87
+msgid "Connection successful (no authentication tested)."
+msgstr ""
+
+#: src/Modules/SMTP/Module.php:39
 msgid "Route outgoing emails through one or more SMTP servers, with per-source identity routing."
 msgstr ""
 

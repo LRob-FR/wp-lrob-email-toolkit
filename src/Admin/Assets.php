@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 /**
- * Enqueues shared admin assets (CSS/JS used across every plugin admin page).
- * Module-specific assets are enqueued by each module's own admin code on the
- * pages where they're needed.
+ * Enqueues shared admin assets (CSS used across every plugin admin page) and
+ * a tiny tooltip click-to-stay-open script. Per-module pages add their own
+ * inline JS for page-specific behavior.
  */
 final class Assets
 {
@@ -25,6 +25,33 @@ final class Assets
             [],
             LROB_ETK_VERSION
         );
+
+        add_action('admin_footer', [self::class, 'print_tooltip_script']);
+    }
+
+    public static function print_tooltip_script(): void
+    {
+        ?>
+        <script>
+        (function () {
+            document.addEventListener('click', function (e) {
+                var tip = e.target.closest && e.target.closest('.lrob-etk-tip');
+                if (tip) {
+                    e.stopPropagation();
+                    var wasOpen = tip.classList.contains('is-open');
+                    Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip.is-open'), function (t) {
+                        t.classList.remove('is-open');
+                    });
+                    if (!wasOpen) tip.classList.add('is-open');
+                } else {
+                    Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip.is-open'), function (t) {
+                        t.classList.remove('is-open');
+                    });
+                }
+            });
+        })();
+        </script>
+        <?php
     }
 
     private static function is_plugin_page(string $hook_suffix): bool

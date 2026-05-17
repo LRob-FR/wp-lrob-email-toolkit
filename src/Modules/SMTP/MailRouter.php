@@ -70,7 +70,7 @@ final class MailRouter
                 $mailer->Password = $identity->decrypted_password();
             }
             $mailer->SMTPSecure = $identity->smtp_encryption;
-            $mailer->setFrom($identity->from_email, $identity->from_name, false);
+            $mailer->setFrom($identity->from_email, $identity->effective_from_name(), false);
 
             if ($identity->reply_to_email !== null && $identity->reply_to_email !== '') {
                 $mailer->addReplyTo($identity->reply_to_email);
@@ -99,8 +99,11 @@ final class MailRouter
     public function override_from_name(string $name): string
     {
         $identity = $this->resolve_identity();
-        if ($identity instanceof Identity && $identity->force_from && $identity->from_name !== '') {
-            return $identity->from_name;
+        if ($identity instanceof Identity && $identity->force_from) {
+            $resolved = $identity->effective_from_name();
+            if ($resolved !== '') {
+                return $resolved;
+            }
         }
         return $name;
     }

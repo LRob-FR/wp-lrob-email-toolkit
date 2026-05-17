@@ -182,11 +182,11 @@
     width: 100%;
     border: none;
     background: transparent;
-    font-size: 30px;
+    font-size: 22px;
     font-weight: 500;
     color: var(--etk-fg);
-    padding: 8px 4px;
-    margin: 0 0 4px;
+    padding: 6px 4px;
+    margin: 0 0 2px;
     box-shadow: none;
     outline: none;
     line-height: 1.3;
@@ -542,6 +542,472 @@
     padding: 12px 16px;
     border-radius: var(--etk-radius);
     margin: 0 0 16px;
+}
+
+/* ---------- Tooltips ---------- */
+
+.lrob-etk-tip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--etk-muted);
+    cursor: help;
+    position: relative;
+    vertical-align: middle;
+    margin: 0 2px;
+    transition: background 0.15s ease;
+}
+.lrob-etk-tip:hover, .lrob-etk-tip:focus, .lrob-etk-tip.is-open {
+    background: var(--etk-soft);
+    outline: none;
+}
+.lrob-etk-tip .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+.lrob-etk-tip-text {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    padding: 8px 12px;
+    background: #1d2327;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.4;
+    border-radius: 4px;
+    z-index: 100;
+    cursor: text;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    font-weight: 400;
+    text-align: left;
+    white-space: normal;
+}
+.lrob-etk-tip-text::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border: 5px solid transparent;
+    border-top-color: #1d2327;
+}
+.lrob-etk-tip:hover .lrob-etk-tip-text,
+.lrob-etk-tip:focus .lrob-etk-tip-text,
+.lrob-etk-tip.is-open .lrob-etk-tip-text {
+    display: block;
+}
+
+/* ---------- Toggle switch ---------- */
+
+.lrob-etk-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.lrob-etk-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.lrob-etk-switch-track {
+    position: absolute;
+    inset: 0;
+    background: var(--etk-line-strong);
+    border-radius: 999px;
+    transition: background 0.15s ease;
+    cursor: pointer;
+}
+.lrob-etk-switch-track::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.lrob-etk-switch input:checked + .lrob-etk-switch-track {
+    background: var(--etk-success);
+}
+.lrob-etk-switch input:checked + .lrob-etk-switch-track::before {
+    transform: translateX(16px);
+}
+.lrob-etk-switch input:focus + .lrob-etk-switch-track {
+    box-shadow: 0 0 0 2px var(--etk-accent);
+}
+
+.lrob-etk-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+}
+.lrob-etk-switch-label {
+    font-weight: 500;
+    color: var(--etk-fg);
+}
+
+/* ---------- Modal ---------- */
+
+body.lrob-etk-modal-open {
+    overflow: hidden;
+}
+
+.lrob-etk-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+}
+.lrob-etk-modal[hidden] {
+    display: none;
+}
+.lrob-etk-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(29, 35, 39, 0.55);
+}
+.lrob-etk-modal-dialog {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    width: 100%;
+    max-width: 820px;
+    z-index: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.lrob-etk-modal-dialog--small {
+    max-width: 500px;
+}
+
+.lrob-etk-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--etk-line);
+    background: var(--etk-soft);
+}
+.lrob-etk-modal-title-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+.lrob-etk-modal-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--etk-muted);
+    padding: 4px;
+    border-radius: 4px;
+    line-height: 1;
+}
+.lrob-etk-modal-close:hover {
+    background: rgba(0,0,0,.05);
+    color: var(--etk-fg);
+}
+
+.lrob-etk-identity-form,
+.lrob-etk-modal-body {
+    padding: 16px 24px;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+}
+
+.lrob-etk-modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--etk-line);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    background: #fafafa;
+}
+
+/* ---------- Modal two-column form layout ---------- */
+
+.lrob-etk-modal-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 16px 0;
+}
+@media (max-width: 720px) {
+    .lrob-etk-modal-columns { grid-template-columns: 1fr; }
+}
+
+.lrob-etk-form-column h3,
+.lrob-etk-form-row-full h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--etk-muted);
+    border: none;
+    padding: 0;
+}
+
+.lrob-etk-form-row-full {
+    margin: 16px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--etk-soft);
+}
+
+.lrob-etk-field {
+    margin-bottom: 12px;
+}
+.lrob-etk-field > label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lrob-etk-field input[type="text"],
+.lrob-etk-field input[type="email"],
+.lrob-etk-field input[type="password"],
+.lrob-etk-field input[type="number"],
+.lrob-etk-field select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.lrob-etk-password-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+.lrob-etk-password-row input[type="password"] {
+    flex: 1;
+}
+
+/* ---------- Segmented control ---------- */
+
+.lrob-etk-segmented {
+    display: inline-flex;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+}
+.lrob-etk-segmented button {
+    background: #fff;
+    border: none;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--etk-muted);
+    border-right: 1px solid var(--etk-line);
+}
+.lrob-etk-segmented button:last-child { border-right: none; }
+.lrob-etk-segmented button.is-active {
+    background: var(--etk-accent);
+    color: #fff;
+}
+
+/* ---------- Server picker radios ---------- */
+
+.lrob-etk-server-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-server-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color 0.15s ease;
+}
+.lrob-etk-server-option:hover {
+    border-color: var(--etk-accent);
+}
+.lrob-etk-server-option:has(input:checked) {
+    border-color: var(--etk-accent);
+    background: #f0f6fc;
+}
+
+/* Encryption + port row */
+.lrob-etk-encryption-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.lrob-etk-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 160px;
+}
+.lrob-etk-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+    font-size: 13px;
+}
+.lrob-etk-port-input label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+.lrob-etk-port-input input {
+    width: 80px;
+}
+
+/* ---------- From section ---------- */
+
+.lrob-etk-from-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.lrob-etk-from-field {
+    flex: 1;
+    min-width: 280px;
+}
+.lrob-etk-from-auto {
+    background: var(--etk-soft);
+    padding: 4px 10px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.lrob-etk-readonly-value {
+    font-family: monospace;
+    color: var(--etk-fg);
+}
+.lrob-etk-from-auto .description {
+    color: var(--etk-muted);
+    font-size: 11px;
+}
+
+.lrob-etk-force-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-top: 22px;  /* aligns visually with the input */
+}
+
+.lrob-etk-from-warning {
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+.lrob-etk-from-warning.is-warning {
+    background: var(--etk-warning-bg);
+    color: #735900;
+    border-left: 3px solid var(--etk-warning);
+}
+.lrob-etk-from-warning.is-danger {
+    background: var(--etk-danger-bg);
+    color: #8a0000;
+    border-left: 3px solid var(--etk-danger);
+}
+
+.lrob-etk-status-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Test result indicators ---------- */
+
+.lrob-etk-test-result {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.lrob-etk-test-result.is-pending {
+    background: var(--etk-soft);
+    color: var(--etk-muted);
+}
+.lrob-etk-test-result.is-success {
+    background: var(--etk-success-bg);
+    color: #1e6b3a;
+    border-left: 3px solid var(--etk-success);
+}
+.lrob-etk-test-result.is-failure {
+    background: var(--etk-danger-bg);
+    color: #8a0000;
+    border-left: 3px solid var(--etk-danger);
+}
+.lrob-etk-test-result pre {
+    margin: 6px 0 0;
+    background: rgba(0,0,0,.05);
+    padding: 6px;
+    font-size: 11px;
+    border-radius: 3px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
+
+/* ---------- Form errors ---------- */
+
+.lrob-etk-field-errors {
+    margin: 12px 0;
+    padding: 8px 12px;
+    background: var(--etk-danger-bg);
+    border-left: 3px solid var(--etk-danger);
+    color: #8a0000;
+    border-radius: 4px;
+}
+
+/* ---------- Flash messages container ---------- */
+
+.lrob-etk-flash:empty { display: none; }
+.lrob-etk-flash { margin: 12px 0; }
+
+/* ---------- Row actions cell ---------- */
+
+.lrob-etk-row-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
 }
 
 /* ---------- Footer ---------- */

@@ -60,14 +60,14 @@ final class TestSender
                 $mailer->Username = $identity->smtp_username;
                 $mailer->Password = $identity->decrypted_password();
             }
-            $mailer->setFrom($identity->from_email, $identity->from_name, false);
+            $mailer->setFrom($identity->from_email, $identity->effective_from_name(), false);
             if ($identity->reply_to_email !== null && $identity->reply_to_email !== '') {
                 $mailer->addReplyTo($identity->reply_to_email);
             }
         };
 
         $force_from_email = static fn (): string => $identity->from_email;
-        $force_from_name = static fn (): string => $identity->from_name;
+        $force_from_name = static fn (): string => $identity->effective_from_name();
 
         $captured_error = null;
         $capture = static function (\WP_Error $err) use (&$captured_error): void {
