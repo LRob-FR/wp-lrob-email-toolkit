@@ -24,6 +24,16 @@
     color: #666;
 }
 
+.lrob-etk-status--fail {
+    background: #fbeaea;
+    color: #a00;
+}
+
+.lrob-etk-status--pending {
+    background: #fcf9e8;
+    color: #996800;
+}
+
 .lrob-etk-modules-table th {
     width: 200px;
 }
