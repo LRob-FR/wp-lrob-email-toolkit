@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Logging;
 
 use LRob\EmailToolkit\Modules\AbstractModule;
+use LRob\EmailToolkit\Modules\Logging\Admin\AjaxController;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController;
 
 /**
@@ -81,6 +82,7 @@ final class Module extends AbstractModule
 
             $resender = new Resender($repository);
             (new PageController($this, $repository, $resender))->register();
+            (new AjaxController($repository, $resender))->register();
         }
     }
 }

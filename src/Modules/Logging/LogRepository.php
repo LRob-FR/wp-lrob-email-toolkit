@@ -115,6 +115,29 @@ final class LogRepository
         $wpdb->delete(Schema::table_name(), ['id' => $id], ['%d']);
     }
 
+    /**
+     * Bulk delete by IDs. Filters non-positive ints, returns rows actually
+     * deleted. Used by the bulk-action toolbar.
+     *
+     * @param array<int, int> $ids
+     */
+    public function bulk_delete(array $ids): int
+    {
+        global $wpdb;
+        $clean = array_values(array_filter(array_map('intval', $ids), static fn (int $i): bool => $i > 0));
+        if ($clean === []) {
+            return 0;
+        }
+        $placeholders = implode(',', array_fill(0, count($clean), '%d'));
+        $deleted = $wpdb->query(
+            $wpdb->prepare(
+                'DELETE FROM `' . Schema::table_name() . "` WHERE id IN ($placeholders)",
+                ...$clean
+            )
+        );
+        return is_int($deleted) ? $deleted : 0;
+    }
+
     /** Returns rows deleted. */
     public function delete_older_than(\DateTimeImmutable $cutoff): int
     {
