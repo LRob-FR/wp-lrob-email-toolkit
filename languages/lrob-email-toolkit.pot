@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-18T00:18:56+00:00\n"
+"POT-Creation-Date: 2026-05-18T00:41:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -34,7 +34,7 @@ msgstr ""
 msgid "https://www.lrob.fr"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:40
+#: src/Admin/DashboardPage.php:47
 #: src/Modules/AbstractModule.php:77
 #: src/Modules/Logging/Admin/AjaxController.php:163
 #: src/Modules/Logging/Admin/PageController.php:62
@@ -44,160 +44,139 @@ msgstr ""
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:52
+#: src/Admin/DashboardPage.php:59
 #: src/Admin/Menu.php:37
 #: src/Admin/Menu.php:38
 msgid "Email Toolkit"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:61
 #: src/Admin/DashboardPage.php:67
 msgid "Email activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:69
+#: src/Admin/DashboardPage.php:73
 msgid "Enable Email Logging to track sent/failed emails and see activity charts here."
 msgstr ""
 
 #. translators: %s: HTML link to LRob's website
-#: src/Admin/DashboardPage.php:80
+#: src/Admin/DashboardPage.php:89
 msgid "Built with care by %s."
 msgstr ""
 
 #. translators: 1: failed count, 2: total count, 3: percentage
-#: src/Admin/DashboardPage.php:170
+#: src/Admin/DashboardPage.php:243
 msgid "%1$d of %2$d emails failed in the last 24 hours (%3$d%% failure rate)."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:176
+#: src/Admin/DashboardPage.php:249
 msgid "This may indicate an SMTP misconfiguration, spam being sent from the site (compromised account or vulnerable form), or a poor recipient list (e.g. an outdated newsletter list with bounces)."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:179
+#: src/Admin/DashboardPage.php:252
 msgid "View failed logs →"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:189
+#: src/Admin/DashboardPage.php:262
+#: src/Admin/DashboardPage.php:307
 msgid "Last 24 hours"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:190
+#: src/Admin/DashboardPage.php:263
+#: src/Admin/DashboardPage.php:308
 msgid "Last 7 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:191
+#: src/Admin/DashboardPage.php:264
+#: src/Admin/DashboardPage.php:309
 msgid "Last 30 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:192
+#: src/Admin/DashboardPage.php:265
+#: src/Admin/DashboardPage.php:310
 msgid "Last year"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:205
+#: src/Admin/DashboardPage.php:278
 msgid "mail sent"
 msgid_plural "mails sent"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:211
+#: src/Admin/DashboardPage.php:284
 msgid "failed"
 msgid_plural "failed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:214
+#: src/Admin/DashboardPage.php:287
 msgid "all delivered"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:216
+#: src/Admin/DashboardPage.php:289
 msgid "no activity"
 msgstr ""
 
-#. translators: 1: start date, 2: end date
-#: src/Admin/DashboardPage.php:241
-msgid "Activity, %1$s — %2$s"
+#: src/Admin/DashboardPage.php:304
+msgid "Range:"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:247
-msgid "Daily email activity over the last 30 days"
+#: src/Admin/DashboardPage.php:306
+msgid "Last hour"
 msgstr ""
 
-#. translators: 1: date, 2: sent count, 3: failed count
-#: src/Admin/DashboardPage.php:255
-msgid "%1$s — %2$d sent, %3$d failed"
+#: src/Admin/DashboardPage.php:311
+msgid "Since beginning"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:283
-msgid "Send test email"
+#: src/Admin/DashboardPage.php:315
+msgid "Bars"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:287
-msgid "Configure at least one SMTP identity to send test emails."
+#: src/Admin/DashboardPage.php:315
+msgid "Bar chart"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:290
-msgid "Configure SMTP"
+#: src/Admin/DashboardPage.php:318
+msgid "Line"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:297
-msgid "SMTP routing is currently off. Tests will still run against the chosen identity, but normal emails are not being routed."
-msgstr ""
-
-#: src/Admin/DashboardPage.php:303
-#: src/Modules/Logging/Admin/LogViewPage.php:64
-#: src/Modules/SMTP/Admin/SettingsPage.php:457
-msgid "Identity"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:309
-msgid " (default)"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:317
-#: src/Modules/SMTP/Admin/SettingsPage.php:469
-msgid "Recipient"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:319
-#: src/Modules/SMTP/Admin/SettingsPage.php:471
-msgid "Me (%s)"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:320
-#: src/Modules/SMTP/Admin/SettingsPage.php:472
-msgid "Site admin (%s)"
+#: src/Admin/DashboardPage.php:318
+msgid "Line chart"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:321
-msgid "Custom…"
+msgid "Smoothed line"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:328
-#: src/Admin/DashboardPage.php:483
-msgid "Send"
+#: src/Admin/DashboardPage.php:321
+msgid "Smoothed line chart"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:334
-#: src/Modules/SMTP/Admin/SettingsPage.php:478
-msgid "Custom recipient"
+#: src/Admin/DashboardPage.php:329
+msgid "No emails yet — once your site starts sending, activity will appear here."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:350
+#: src/Admin/DashboardPage.php:341
 msgid "Modules"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:362
+#: src/Admin/DashboardPage.php:355
 msgid "Coming soon"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:377
+#: src/Admin/DashboardPage.php:370
 #: src/Admin/ModuleToggle.php:42
 msgid "Enabled"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:378
+#: src/Admin/DashboardPage.php:371
 #: src/Admin/ModuleToggle.php:43
 msgid "Disabled"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:379
+#: src/Modules/SMTP/Admin/SettingsPage.php:196
+msgid "Test email"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:383
@@ -205,75 +184,144 @@ msgid "Manage"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:404
+#: src/Admin/DashboardPage.php:406
+msgid "Send test email"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:407
+#: src/Modules/Logging/Admin/LogsPage.php:360
+#: src/Modules/Logging/Admin/LogsPage.php:393
+#: src/Modules/SMTP/Admin/SettingsPage.php:447
+#: src/Modules/SMTP/Admin/SettingsPage.php:502
+msgid "Close"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:413
+msgid "Identity (source)"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:419
+msgid " (default)"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:426
+#: src/Modules/SMTP/Admin/SettingsPage.php:469
+msgid "Recipient"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:428
+#: src/Modules/SMTP/Admin/SettingsPage.php:471
+msgid "Me (%s)"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:429
+#: src/Modules/SMTP/Admin/SettingsPage.php:472
+msgid "Site admin (%s)"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:430
+msgid "Custom…"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:434
+#: src/Modules/SMTP/Admin/SettingsPage.php:478
+msgid "Custom recipient"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:440
+#: src/Modules/Logging/Admin/LogsPage.php:376
+#: src/Modules/Logging/Admin/LogsPage.php:420
+#: src/Modules/SMTP/Admin/SettingsPage.php:486
+msgid "Cancel"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:442
+#: src/Admin/DashboardPage.php:540
+msgid "Send"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:459
 msgid "Recent activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:409
+#: src/Admin/DashboardPage.php:464
 #: src/Modules/Logging/Admin/LogsPage.php:243
 #: src/Modules/Logging/Admin/LogViewPage.php:57
 msgid "Date"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:410
+#: src/Admin/DashboardPage.php:465
 #: src/Modules/Logging/Admin/LogsPage.php:145
 #: src/Modules/Logging/Admin/LogsPage.php:244
 #: src/Modules/Logging/Admin/LogViewPage.php:61
 msgid "Status"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:411
+#: src/Admin/DashboardPage.php:466
 #: src/Modules/Logging/Admin/LogsPage.php:181
 #: src/Modules/Logging/Admin/LogsPage.php:246
 #: src/Modules/Logging/Admin/LogViewPage.php:72
 msgid "To"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:412
+#: src/Admin/DashboardPage.php:467
 #: src/Modules/Logging/Admin/LogsPage.php:247
 msgid "Subject"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:413
+#: src/Admin/DashboardPage.php:468
 #: src/Modules/Logging/Admin/LogsPage.php:164
 #: src/Modules/Logging/Admin/LogsPage.php:248
 #: src/Modules/Logging/Admin/LogViewPage.php:62
 msgid "Source"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:414
+#: src/Admin/DashboardPage.php:469
 #: src/Modules/Logging/Admin/LogsPage.php:249
 msgid "Actions"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:427
+#: src/Admin/DashboardPage.php:482
 #: src/Modules/Logging/Admin/LogsPage.php:272
 #: src/Modules/Logging/Admin/LogViewPage.php:38
 msgid "(no subject)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:446
+#: src/Admin/DashboardPage.php:501
 #: src/Modules/Logging/Admin/LogsPage.php:295
 msgid "View"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:446
+#: src/Admin/DashboardPage.php:501
 #: src/Modules/Logging/Admin/LogsPage.php:295
 msgid "View log entry"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:457
+#: src/Admin/DashboardPage.php:512
 msgid "View all logs"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:482
+#: src/Admin/DashboardPage.php:539
 #: src/Modules/SMTP/Admin/SettingsPage.php:565
 msgid "Sending…"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:484
+#: src/Admin/DashboardPage.php:541
 #: src/Modules/Logging/Admin/LogsPage.php:451
 #: src/Modules/SMTP/Admin/SettingsPage.php:570
 msgid "Something went wrong."
+msgstr ""
+
+#: src/Admin/DashboardPage.php:542
+#: src/Modules/Logging/Admin/LogsPage.php:149
+#: src/Modules/Logging/Admin/LogsPage.php:689
+msgid "Sent"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:543
+#: src/Modules/Logging/Admin/LogsPage.php:152
+#: src/Modules/Logging/Admin/LogsPage.php:690
+msgid "Failed"
 msgstr ""
 
 #: src/Admin/Menu.php:48
@@ -406,16 +454,6 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:149
-#: src/Modules/Logging/Admin/LogsPage.php:689
-msgid "Sent"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:152
-#: src/Modules/Logging/Admin/LogsPage.php:690
-msgid "Failed"
-msgstr ""
-
 #: src/Modules/Logging/Admin/LogsPage.php:155
 #: src/Modules/Logging/Admin/LogsPage.php:691
 msgid "Sending"
@@ -511,13 +549,6 @@ msgstr ""
 msgid "Cleanup logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:360
-#: src/Modules/Logging/Admin/LogsPage.php:393
-#: src/Modules/SMTP/Admin/SettingsPage.php:447
-#: src/Modules/SMTP/Admin/SettingsPage.php:502
-msgid "Close"
-msgstr ""
-
 #: src/Modules/Logging/Admin/LogsPage.php:365
 msgid "One-shot manual cleanup. Automatic retention is configured in Settings."
 msgstr ""
@@ -529,12 +560,6 @@ msgstr ""
 #: src/Modules/Logging/Admin/LogsPage.php:370
 #: src/Modules/Logging/Admin/LogsPage.php:403
 msgid "days"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogsPage.php:376
-#: src/Modules/Logging/Admin/LogsPage.php:420
-#: src/Modules/SMTP/Admin/SettingsPage.php:486
-msgid "Cancel"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:378
@@ -619,6 +644,11 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogViewPage.php:59
 msgid "Sent at"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogViewPage.php:64
+#: src/Modules/SMTP/Admin/SettingsPage.php:457
+msgid "Identity"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogViewPage.php:74
@@ -829,10 +859,6 @@ msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:193
 msgid "Discard"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:196
-msgid "Test email"
 msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:217

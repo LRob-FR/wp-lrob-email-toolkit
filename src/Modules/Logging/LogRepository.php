@@ -198,6 +198,82 @@ final class LogRepository
         return $out;
     }
 
+    /**
+     * Group counts into time buckets of fixed size for the activity chart.
+     * Gap-fills empty buckets with zeros so the chart's x-axis has even spacing.
+     *
+     * @param  int $bucket_seconds e.g. 300 (5min), 3600 (1h), 86400 (1d)
+     * @return array<int, array{ts:int, sent:int, failed:int}> chronological list
+     */
+    public function counts_by_bucket(\DateTimeImmutable $from, \DateTimeImmutable $to, int $bucket_seconds): array
+    {
+        global $wpdb;
+
+        $bucket_seconds = max(60, $bucket_seconds);
+        $from_sql = $from->format('Y-m-d H:i:s');
+        $to_sql = $to->format('Y-m-d H:i:s');
+
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT
+                    FLOOR(UNIX_TIMESTAMP(created_at) / %d) * %d AS bucket_ts,
+                    status,
+                    COUNT(*) AS cnt
+                 FROM `" . Schema::table_name() . "`
+                 WHERE created_at BETWEEN %s AND %s
+                 GROUP BY bucket_ts, status",
+                $bucket_seconds,
+                $bucket_seconds,
+                $from_sql,
+                $to_sql
+            ),
+            ARRAY_A
+        );
+
+        // Build a zero-filled bucket map indexed by start timestamp.
+        $out = [];
+        $cursor = (int) (floor($from->getTimestamp() / $bucket_seconds) * $bucket_seconds);
+        $stop = $to->getTimestamp();
+        while ($cursor <= $stop) {
+            $out[$cursor] = ['ts' => $cursor, 'sent' => 0, 'failed' => 0];
+            $cursor += $bucket_seconds;
+        }
+
+        if (is_array($rows)) {
+            foreach ($rows as $r) {
+                $ts = (int) ($r['bucket_ts'] ?? 0);
+                $status = (string) ($r['status'] ?? '');
+                $cnt = (int) ($r['cnt'] ?? 0);
+                if (!isset($out[$ts])) {
+                    continue;
+                }
+                if ($status === LogEntry::STATUS_SENT) {
+                    $out[$ts]['sent'] = $cnt;
+                } elseif ($status === LogEntry::STATUS_FAILED) {
+                    $out[$ts]['failed'] = $cnt;
+                }
+            }
+        }
+
+        return array_values($out);
+    }
+
+    /** Earliest log timestamp in UTC, or null if the table is empty. */
+    public function oldest_log_time(): ?\DateTimeImmutable
+    {
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $row = $wpdb->get_var("SELECT MIN(created_at) FROM `" . Schema::table_name() . "`");
+        if (!is_string($row) || $row === '' || $row === '0000-00-00 00:00:00') {
+            return null;
+        }
+        try {
+            return new \DateTimeImmutable($row, new \DateTimeZone('UTC'));
+        } catch (\Exception) {
+            return null;
+        }
+    }
+
     /** @return array<int, string> distinct sources present in the table */
     public function distinct_sources(): array
     {

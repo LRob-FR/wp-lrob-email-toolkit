@@ -482,7 +482,7 @@
     background: #fff;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
-    padding: 14px 16px;
+    padding: 10px 14px;
     box-shadow: var(--etk-shadow);
 }
 .lrob-etk-stat-card.is-warning {
@@ -490,33 +490,33 @@
 }
 
 .lrob-etk-stat-label {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--etk-muted);
-    margin: 0 0 8px;
+    margin: 0 0 4px;
     font-weight: 500;
 }
 
 .lrob-etk-stat-main {
     display: flex;
     align-items: baseline;
-    gap: 8px;
-    margin-bottom: 6px;
+    gap: 6px;
+    margin-bottom: 2px;
 }
 .lrob-etk-stat-value {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 600;
     color: var(--etk-fg);
     line-height: 1;
     margin: 0;
 }
 .lrob-etk-stat-unit {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--etk-muted);
 }
 
 .lrob-etk-stat-sub {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--etk-muted);
 }
 .lrob-etk-stat-sub strong {
@@ -541,50 +541,172 @@
     color: var(--etk-line-strong);
 }
 
-/* ---------- Dashboard: 30-day bar chart ---------- */
+/* ---------- Dashboard: SVG activity chart ---------- */
 
 .lrob-etk-chart-wrap {
+    position: relative;
     background: #fff;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
-    padding: 14px 18px 12px;
+    padding: 12px 14px 14px;
     margin: 0 0 20px;
     box-shadow: var(--etk-shadow);
 }
-.lrob-etk-chart-title {
-    margin: 0 0 8px;
+.lrob-etk-chart-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.lrob-etk-chart-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.lrob-etk-chart-range label {
     font-size: 12px;
     color: var(--etk-muted);
     font-weight: 500;
 }
-.lrob-etk-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 90px;
+.lrob-etk-chart-range .lrob-etk-select {
+    height: 28px;
+    font-size: 12px;
+    padding-right: 22px;
+}
+.lrob-etk-chart-type {
+    display: inline-flex;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.lrob-etk-chart-type button {
+    background: #fff;
+    border: none;
+    border-right: 1px solid var(--etk-line);
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--etk-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.lrob-etk-chart-type button:last-child { border-right: none; }
+.lrob-etk-chart-type button:hover { background: var(--etk-soft); color: var(--etk-fg); }
+.lrob-etk-chart-type button.is-active {
+    background: var(--etk-accent);
+    color: #fff;
+}
+.lrob-etk-chart-type .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+
+.lrob-etk-chart-canvas {
+    position: relative;
     width: 100%;
 }
-.lrob-etk-chart-bar {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    min-height: 1px;
-    background: transparent;
-    border-radius: 2px 2px 0 0;
-    overflow: hidden;
-    cursor: default;
-}
-.lrob-etk-chart-bar:hover {
-    opacity: 0.85;
-}
-.lrob-etk-chart-bar-failed,
-.lrob-etk-chart-bar-sent {
+.lrob-etk-chart-svg {
     display: block;
     width: 100%;
+    height: 200px;
+    overflow: visible;
 }
-.lrob-etk-chart-bar-failed { background: var(--etk-danger); }
-.lrob-etk-chart-bar-sent   { background: var(--etk-accent); }
+
+/* SVG element styles */
+.lrob-etk-chart-grid {
+    stroke: var(--etk-soft);
+    stroke-width: 1;
+}
+.lrob-etk-chart-axis {
+    fill: var(--etk-muted);
+    font-size: 10px;
+    font-family: inherit;
+}
+.lrob-etk-chart-bar-failed-svg { fill: var(--etk-danger); }
+.lrob-etk-chart-bar-sent-svg   { fill: var(--etk-accent); }
+.lrob-etk-chart-line-sent {
+    fill: none;
+    stroke: var(--etk-accent);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.lrob-etk-chart-line-failed {
+    fill: none;
+    stroke: var(--etk-danger);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.lrob-etk-chart-dot-sent   { fill: var(--etk-accent); }
+.lrob-etk-chart-dot-failed { fill: var(--etk-danger); }
+
+.lrob-etk-chart-hover {
+    fill: transparent;
+    cursor: crosshair;
+}
+.lrob-etk-chart-hover:hover {
+    fill: rgba(34, 113, 177, 0.06);
+}
+
+.lrob-etk-chart-tooltip {
+    position: absolute;
+    z-index: 10;
+    background: #1d2327;
+    color: #fff;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.5;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    min-width: 140px;
+}
+.lrob-etk-tooltip-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: #fff;
+}
+.lrob-etk-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.lrob-etk-tooltip-row .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.lrob-etk-tooltip-row .dot.dot-sent   { background: var(--etk-accent); }
+.lrob-etk-tooltip-row .dot.dot-failed { background: var(--etk-danger); }
+
+.lrob-etk-chart-empty,
+.lrob-etk-chart-empty-inline {
+    margin: 24px 0;
+    text-align: center;
+    color: var(--etk-muted);
+    font-size: 13px;
+}
+
+/* ---------- Module card test button ---------- */
+.lrob-etk-module-card-buttons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.lrob-etk-module-test-btn .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 1;
+    margin-right: 3px;
+    margin-top: 2px;
+}
 
 /* ---------- Dashboard: failure banner ---------- */
 

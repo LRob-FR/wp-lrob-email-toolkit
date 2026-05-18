@@ -15,20 +15,27 @@ use LRob\EmailToolkit\Modules\SMTP\Admin\AjaxController as SmtpAjaxController;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 
 /**
- * Plugin landing page. Stats with prominent total + failed counts, 30-day
- * activity chart, failure-rate banner with cause hints, dedicated inline
- * Test email section, module status grid with toggles, recent activity in
- * the same custom-styled table as the logs page.
+ * Plugin landing page. Stat cards, an SVG activity chart with adaptive
+ * range + bucket size + chart type toggle, modules grid (with a Test email
+ * button on the SMTP card), failure-rate banner, and recent activity.
+ *
+ * All chart data for every range is pre-computed server-side and embedded
+ * as JSON in the page; range/type changes are handled entirely client-side
+ * so they're snappy and don't roundtrip to the server.
  */
 final class DashboardPage
 {
-    /** @var array<string, string> range key → DateInterval spec */
+    /** @var array<string, array{interval:string, bucket_seconds:int}> */
     private const RANGES = [
-        '24h' => 'PT24H',
-        '7d'  => 'P7D',
-        '30d' => 'P30D',
-        '1y'  => 'P1Y',
+        '1h'  => ['interval' => 'PT1H',  'bucket_seconds' => 300],     // 12 buckets of 5 min
+        '24h' => ['interval' => 'P1D',   'bucket_seconds' => 3600],    // 24 buckets of 1 hour
+        '7d'  => ['interval' => 'P7D',   'bucket_seconds' => 21600],   // 28 buckets of 6 hours
+        '30d' => ['interval' => 'P30D',  'bucket_seconds' => 86400],   // 30 buckets of 1 day
+        '1y'  => ['interval' => 'P1Y',   'bucket_seconds' => 604800],  // 52 buckets of 1 week
     ];
+
+    /** Stats range keys (subset of RANGES, no "all"). */
+    private const STAT_RANGES = ['24h', '7d', '30d', '1y'];
 
     public function __construct(private ModuleManager $manager)
     {
@@ -45,7 +52,7 @@ final class DashboardPage
         $repository = $logging_on ? new LogRepository() : null;
 
         $stats = $repository ? $this->compute_stats($repository) : null;
-        $chart = $repository ? $this->compute_chart_data($repository) : null;
+        $chart_payload = $repository ? $this->compute_chart_payload($repository) : null;
         $failure_warning = $stats ? $this->compute_failure_warning($stats) : null;
         ?>
         <div class="wrap lrob-etk">
@@ -57,22 +64,24 @@ final class DashboardPage
                 <?php $this->render_failure_warning($failure_warning); ?>
             <?php endif; ?>
 
+            <h2 class="lrob-etk-section-title"><?php esc_html_e('Email activity', 'lrob-email-toolkit'); ?></h2>
+
             <?php if ($stats !== null) : ?>
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Email activity', 'lrob-email-toolkit'); ?></h2>
                 <?php $this->render_stats_grid($stats); ?>
-                <?php if ($chart !== null) : ?>
-                    <?php $this->render_chart($chart); ?>
-                <?php endif; ?>
             <?php else : ?>
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Email activity', 'lrob-email-toolkit'); ?></h2>
                 <p class="lrob-etk-disabled-message">
                     <?php esc_html_e('Enable Email Logging to track sent/failed emails and see activity charts here.', 'lrob-email-toolkit'); ?>
                 </p>
             <?php endif; ?>
 
-            <?php $this->render_test_send_section(); ?>
+            <?php if ($chart_payload !== null) : ?>
+                <?php $this->render_chart_container(); ?>
+            <?php endif; ?>
+
             <?php $this->render_modules_grid(); ?>
             <?php $this->render_recent_activity($repository); ?>
+
+            <?php $this->render_test_email_popover(); ?>
 
             <p class="lrob-etk-footer">
                 <?php
@@ -87,7 +96,7 @@ final class DashboardPage
         </div>
 
         <script>
-        <?php $this->print_inline_js(); ?>
+        <?php $this->print_inline_js($chart_payload); ?>
         </script>
         <?php
     }
@@ -99,9 +108,10 @@ final class DashboardPage
     {
         $now_utc = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $stats = [];
-        foreach (self::RANGES as $key => $offset) {
+        foreach (self::STAT_RANGES as $key) {
+            $r = self::RANGES[$key];
             try {
-                $from = $now_utc->sub(new \DateInterval($offset));
+                $from = $now_utc->sub(new \DateInterval($r['interval']));
             } catch (\Exception) {
                 continue;
             }
@@ -116,28 +126,91 @@ final class DashboardPage
     }
 
     /**
-     * @return array{days: array<string, array{sent:int, failed:int}>, max: int}
+     * Pre-compute every range's chart data once. JS picks the active range
+     * and re-renders the SVG locally without another server roundtrip.
+     *
+     * @return array{ranges: array<string, array>, default: string, empty: bool}
      */
-    private function compute_chart_data(LogRepository $repository): array
+    private function compute_chart_payload(LogRepository $repository): array
     {
-        $tz = wp_timezone();
-        $now = new \DateTimeImmutable('now', $tz);
-        $from = $now->modify('-29 days')->setTime(0, 0);
-        $to = $now->setTime(23, 59, 59);
-
-        $days = $repository->counts_by_day($from, $to);
-
-        $max = 0;
-        $simplified = [];
-        foreach ($days as $key => $counts) {
-            $sent = (int) ($counts['sent'] ?? 0);
-            $failed = (int) ($counts['failed'] ?? 0);
-            $total = $sent + $failed;
-            $max = max($max, $total);
-            $simplified[$key] = ['sent' => $sent, 'failed' => $failed];
+        $oldest = $repository->oldest_log_time();
+        if ($oldest === null) {
+            return ['ranges' => [], 'default' => '30d', 'empty' => true];
         }
 
-        return ['days' => $simplified, 'max' => $max];
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $ranges = [];
+
+        // Fixed ranges
+        foreach (self::RANGES as $key => $r) {
+            try {
+                $from = $now->sub(new \DateInterval($r['interval']));
+            } catch (\Exception) {
+                continue;
+            }
+            $ranges[$key] = $this->build_range_data($repository, $from, $now, $r['bucket_seconds']);
+        }
+
+        // "All" — adaptive bucket size based on actual data span
+        $span = max(60, $now->getTimestamp() - $oldest->getTimestamp());
+        $all_bucket = $this->pick_bucket_for_span($span);
+        $ranges['all'] = $this->build_range_data($repository, $oldest, $now, $all_bucket);
+
+        // Pick a sensible default: pick the smallest range that actually has data,
+        // or fall back to 30d.
+        $default = '30d';
+        foreach (['24h', '7d', '30d', '1y'] as $candidate) {
+            if (($ranges[$candidate]['total'] ?? 0) > 0) {
+                $default = $candidate;
+                break;
+            }
+        }
+        // If even 1y is empty, the data exists older — use 'all'.
+        if (($ranges[$default]['total'] ?? 0) === 0 && ($ranges['all']['total'] ?? 0) > 0) {
+            $default = 'all';
+        }
+
+        return ['ranges' => $ranges, 'default' => $default, 'empty' => false];
+    }
+
+    /**
+     * @return array{buckets: array<int, array{ts:int, sent:int, failed:int}>, bucket_seconds:int, from:int, to:int, total:int, max:int}
+     */
+    private function build_range_data(LogRepository $repository, \DateTimeImmutable $from, \DateTimeImmutable $to, int $bucket_seconds): array
+    {
+        $buckets = $repository->counts_by_bucket($from, $to, $bucket_seconds);
+        $total = 0;
+        $max = 0;
+        foreach ($buckets as $b) {
+            $bucket_total = (int) $b['sent'] + (int) $b['failed'];
+            $total += $bucket_total;
+            if ($bucket_total > $max) {
+                $max = $bucket_total;
+            }
+        }
+        return [
+            'buckets'        => $buckets,
+            'bucket_seconds' => $bucket_seconds,
+            'from'           => $from->getTimestamp(),
+            'to'             => $to->getTimestamp(),
+            'total'          => $total,
+            'max'            => $max,
+        ];
+    }
+
+    /** Pick a bucket size that yields roughly 20–60 buckets across the span. */
+    private function pick_bucket_for_span(int $span_seconds): int
+    {
+        // target ~30 buckets
+        $target = max(1, (int) round($span_seconds / 30));
+        // round to a sensible granularity
+        $choices = [60, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 172800, 604800, 1209600, 2592000];
+        foreach ($choices as $c) {
+            if ($target <= $c) {
+                return $c;
+            }
+        }
+        return end($choices);
     }
 
     /**
@@ -193,7 +266,7 @@ final class DashboardPage
         ];
         ?>
         <div class="lrob-etk-stat-grid">
-            <?php foreach (self::RANGES as $key => $_offset) :
+            <?php foreach (self::STAT_RANGES as $key) :
                 $s = $stats[$key] ?? ['sent' => 0, 'failed' => 0, 'total' => 0, 'fail_rate' => 0];
                 $is_danger = $s['fail_rate'] > 25 && $s['total'] >= 4;
                 ?>
@@ -222,122 +295,39 @@ final class DashboardPage
         <?php
     }
 
-    /** @param array{days: array<string, array{sent:int, failed:int}>, max: int} $chart */
-    private function render_chart(array $chart): void
+    private function render_chart_container(): void
     {
-        $max = max(1, $chart['max']);
-        $days = $chart['days'];
-        if ($days === []) {
-            return;
-        }
-        $first_day = (string) array_key_first($days);
-        $last_day = (string) array_key_last($days);
         ?>
-        <div class="lrob-etk-chart-wrap">
-            <p class="lrob-etk-chart-title">
-                <?php
-                printf(
-                    /* translators: 1: start date, 2: end date */
-                    esc_html__('Activity, %1$s — %2$s', 'lrob-email-toolkit'),
-                    esc_html(mysql2date(get_option('date_format'), $first_day)),
-                    esc_html(mysql2date(get_option('date_format'), $last_day))
-                );
-                ?>
-            </p>
-            <div class="lrob-etk-chart" role="img" aria-label="<?php esc_attr_e('Daily email activity over the last 30 days', 'lrob-email-toolkit'); ?>">
-                <?php foreach ($days as $date => $counts) :
-                    $total = $counts['sent'] + $counts['failed'];
-                    $total_pct = $total > 0 ? round(($total / $max) * 100, 2) : 0;
-                    $sent_pct = $total > 0 ? round(($counts['sent'] / $total) * 100, 2) : 0;
-                    $failed_pct = $total > 0 ? round(($counts['failed'] / $total) * 100, 2) : 0;
-                    $title = sprintf(
-                        /* translators: 1: date, 2: sent count, 3: failed count */
-                        __('%1$s — %2$d sent, %3$d failed', 'lrob-email-toolkit'),
-                        mysql2date(get_option('date_format'), $date),
-                        (int) $counts['sent'],
-                        (int) $counts['failed']
-                    );
-                    ?>
-                    <div class="lrob-etk-chart-bar" style="height: <?php echo esc_attr((string) $total_pct); ?>%" title="<?php echo esc_attr($title); ?>">
-                        <?php if ($counts['failed'] > 0) : ?>
-                            <span class="lrob-etk-chart-bar-failed" style="height: <?php echo esc_attr((string) $failed_pct); ?>%"></span>
-                        <?php endif; ?>
-                        <?php if ($counts['sent'] > 0) : ?>
-                            <span class="lrob-etk-chart-bar-sent" style="height: <?php echo esc_attr((string) $sent_pct); ?>%"></span>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
+        <div class="lrob-etk-chart-wrap" id="lrob-etk-chart">
+            <div class="lrob-etk-chart-controls">
+                <div class="lrob-etk-chart-range">
+                    <label for="lrob-etk-chart-range"><?php esc_html_e('Range:', 'lrob-email-toolkit'); ?></label>
+                    <select id="lrob-etk-chart-range" class="lrob-etk-select">
+                        <option value="1h"><?php esc_html_e('Last hour', 'lrob-email-toolkit'); ?></option>
+                        <option value="24h"><?php esc_html_e('Last 24 hours', 'lrob-email-toolkit'); ?></option>
+                        <option value="7d"><?php esc_html_e('Last 7 days', 'lrob-email-toolkit'); ?></option>
+                        <option value="30d"><?php esc_html_e('Last 30 days', 'lrob-email-toolkit'); ?></option>
+                        <option value="1y"><?php esc_html_e('Last year', 'lrob-email-toolkit'); ?></option>
+                        <option value="all"><?php esc_html_e('Since beginning', 'lrob-email-toolkit'); ?></option>
+                    </select>
+                </div>
+                <div class="lrob-etk-chart-type">
+                    <button type="button" data-chart-type="bars" class="is-active" title="<?php esc_attr_e('Bars', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Bar chart', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-chart-bar"></span>
+                    </button>
+                    <button type="button" data-chart-type="line" title="<?php esc_attr_e('Line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Line chart', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-chart-line"></span>
+                    </button>
+                    <button type="button" data-chart-type="smooth" title="<?php esc_attr_e('Smoothed line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Smoothed line chart', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-chart-area"></span>
+                    </button>
+                </div>
             </div>
-        </div>
-        <?php
-    }
-
-    private function render_test_send_section(): void
-    {
-        $identities = (new IdentityRepository())->all();
-        $smtp = $this->manager->get('smtp');
-        $smtp_on = $smtp instanceof ModuleInterface && $smtp->is_enabled();
-        $current_user = wp_get_current_user();
-        $admin_email = (string) get_option('admin_email');
-        ?>
-        <h2 class="lrob-etk-section-title"><?php esc_html_e('Send test email', 'lrob-email-toolkit'); ?></h2>
-        <div class="lrob-etk-test-section">
-            <?php if ($identities === []) : ?>
-                <p class="lrob-etk-test-section-empty">
-                    <?php esc_html_e('Configure at least one SMTP identity to send test emails.', 'lrob-email-toolkit'); ?>
-                    <?php if ($smtp instanceof ModuleInterface) : ?>
-                        <a href="<?php echo esc_url($smtp->admin_page_url() ?: '#'); ?>" class="button button-primary">
-                            <?php esc_html_e('Configure SMTP', 'lrob-email-toolkit'); ?>
-                        </a>
-                    <?php endif; ?>
-                </p>
-            <?php else : ?>
-                <?php if (!$smtp_on) : ?>
-                    <p class="lrob-etk-test-section-note description">
-                        <?php esc_html_e('SMTP routing is currently off. Tests will still run against the chosen identity, but normal emails are not being routed.', 'lrob-email-toolkit'); ?>
-                    </p>
-                <?php endif; ?>
-                <form id="lrob-etk-dashboard-test-form" class="lrob-etk-test-form">
-                    <div class="lrob-etk-test-form-row">
-                        <div class="lrob-etk-field">
-                            <label for="lrob-etk-test-identity"><?php esc_html_e('Identity', 'lrob-email-toolkit'); ?></label>
-                            <select id="lrob-etk-test-identity" name="identity_id" class="lrob-etk-select">
-                                <?php foreach ($identities as $identity) : ?>
-                                    <option value="<?php echo (int) $identity->id; ?>" <?php selected($identity->is_default); ?>>
-                                        <?php echo esc_html($identity->label); ?>
-                                        <?php if ($identity->is_default) : ?>
-                                            <?php esc_html_e(' (default)', 'lrob-email-toolkit'); ?>
-                                        <?php endif; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="lrob-etk-field">
-                            <label for="lrob-etk-test-recipient-choice"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
-                            <select id="lrob-etk-test-recipient-choice" name="recipient_choice" class="lrob-etk-select">
-                                <option value="current"><?php echo esc_html(sprintf(__('Me (%s)', 'lrob-email-toolkit'), $current_user->user_email)); ?></option>
-                                <option value="admin"><?php echo esc_html(sprintf(__('Site admin (%s)', 'lrob-email-toolkit'), $admin_email)); ?></option>
-                                <option value="custom"><?php esc_html_e('Custom…', 'lrob-email-toolkit'); ?></option>
-                            </select>
-                        </div>
-
-                        <div class="lrob-etk-test-form-submit">
-                            <button type="button" id="lrob-etk-dashboard-test-send" class="button button-primary">
-                                <span class="dashicons dashicons-email"></span>
-                                <?php esc_html_e('Send', 'lrob-email-toolkit'); ?>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="lrob-etk-field" id="lrob-etk-test-custom-wrap" hidden>
-                        <label for="lrob-etk-test-recipient-custom"><?php esc_html_e('Custom recipient', 'lrob-email-toolkit'); ?></label>
-                        <input type="email" id="lrob-etk-test-recipient-custom" name="recipient_custom" placeholder="you@example.com">
-                    </div>
-
-                    <div id="lrob-etk-test-result" class="lrob-etk-test-result" hidden></div>
-                </form>
-            <?php endif; ?>
+            <div class="lrob-etk-chart-canvas" id="lrob-etk-chart-canvas"></div>
+            <div class="lrob-etk-chart-tooltip" id="lrob-etk-chart-tooltip" hidden></div>
+            <p class="lrob-etk-chart-empty" id="lrob-etk-chart-empty" hidden>
+                <?php esc_html_e('No emails yet — once your site starts sending, activity will appear here.', 'lrob-email-toolkit'); ?>
+            </p>
         </div>
         <?php
     }
@@ -346,6 +336,7 @@ final class DashboardPage
     {
         $modules = $this->manager->all();
         $action_url = admin_url('admin-post.php');
+        $identities = (new IdentityRepository())->all();
         ?>
         <h2 class="lrob-etk-section-title"><?php esc_html_e('Modules', 'lrob-email-toolkit'); ?></h2>
         <div class="lrob-etk-modules-grid">
@@ -354,6 +345,8 @@ final class DashboardPage
                 $url = $module->admin_page_url();
                 $is_coming = $url === null;
                 $card_class = $is_coming ? 'is-coming' : ($enabled ? 'is-on' : '');
+                $is_smtp = $module->slug() === 'smtp';
+                $can_test = $is_smtp && $identities !== [];
                 ?>
                 <div class="lrob-etk-module-card <?php echo esc_attr($card_class); ?>">
                     <div class="lrob-etk-module-card-head">
@@ -379,14 +372,76 @@ final class DashboardPage
                                     </span>
                                 </label>
                             </form>
-                            <a href="<?php echo esc_url($url); ?>" class="button">
-                                <?php esc_html_e('Manage', 'lrob-email-toolkit'); ?>
-                                <span aria-hidden="true">→</span>
-                            </a>
+                            <div class="lrob-etk-module-card-buttons">
+                                <?php if ($can_test) : ?>
+                                    <button type="button" class="button lrob-etk-module-test-btn" data-test-email>
+                                        <span class="dashicons dashicons-email"></span>
+                                        <?php esc_html_e('Test email', 'lrob-email-toolkit'); ?>
+                                    </button>
+                                <?php endif; ?>
+                                <a href="<?php echo esc_url($url); ?>" class="button">
+                                    <?php esc_html_e('Manage', 'lrob-email-toolkit'); ?>
+                                    <span aria-hidden="true">→</span>
+                                </a>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
+        </div>
+        <?php
+    }
+
+    private function render_test_email_popover(): void
+    {
+        $identities = (new IdentityRepository())->all();
+        if ($identities === []) {
+            return;
+        }
+        $current_user = wp_get_current_user();
+        $admin_email = (string) get_option('admin_email');
+        ?>
+        <div class="lrob-etk-popover" id="lrob-etk-dashboard-test-popover" role="dialog" aria-label="<?php esc_attr_e('Send test email', 'lrob-email-toolkit'); ?>" hidden>
+            <header class="lrob-etk-popover-header">
+                <h3><?php esc_html_e('Send test email', 'lrob-email-toolkit'); ?></h3>
+                <button type="button" class="lrob-etk-popover-close" data-popover-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
+            </header>
+            <div class="lrob-etk-popover-body">
+                <div class="lrob-etk-field">
+                    <label for="lrob-etk-dashboard-test-identity"><?php esc_html_e('Identity (source)', 'lrob-email-toolkit'); ?></label>
+                    <select id="lrob-etk-dashboard-test-identity" class="lrob-etk-select">
+                        <?php foreach ($identities as $identity) : ?>
+                            <option value="<?php echo (int) $identity->id; ?>" <?php selected($identity->is_default); ?>>
+                                <?php echo esc_html($identity->label); ?>
+                                <?php if ($identity->is_default) : ?>
+                                    <?php esc_html_e(' (default)', 'lrob-email-toolkit'); ?>
+                                <?php endif; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="lrob-etk-field">
+                    <label for="lrob-etk-dashboard-test-choice"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
+                    <select id="lrob-etk-dashboard-test-choice" class="lrob-etk-select">
+                        <option value="current"><?php echo esc_html(sprintf(__('Me (%s)', 'lrob-email-toolkit'), $current_user->user_email)); ?></option>
+                        <option value="admin"><?php echo esc_html(sprintf(__('Site admin (%s)', 'lrob-email-toolkit'), $admin_email)); ?></option>
+                        <option value="custom"><?php esc_html_e('Custom…', 'lrob-email-toolkit'); ?></option>
+                    </select>
+                </div>
+                <div class="lrob-etk-field" id="lrob-etk-dashboard-test-custom-wrap" hidden>
+                    <label for="lrob-etk-dashboard-test-custom"><?php esc_html_e('Custom recipient', 'lrob-email-toolkit'); ?></label>
+                    <input type="email" id="lrob-etk-dashboard-test-custom" placeholder="you@example.com">
+                </div>
+                <div class="lrob-etk-test-result" id="lrob-etk-dashboard-test-result" hidden></div>
+            </div>
+            <footer class="lrob-etk-popover-footer">
+                <button type="button" class="button" data-popover-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
+                <button type="button" class="button button-primary" id="lrob-etk-dashboard-test-send">
+                    <?php esc_html_e('Send', 'lrob-email-toolkit'); ?>
+                </button>
+            </footer>
         </div>
         <?php
     }
@@ -471,17 +526,21 @@ final class DashboardPage
         };
     }
 
-    private function print_inline_js(): void
+    /** @param array{ranges: array, default: string, empty: bool}|null $chart_payload */
+    private function print_inline_js(?array $chart_payload): void
     {
         ?>
         window.lrobEtkDashboard = {
             ajaxUrl: <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>,
             nonce: <?php echo wp_json_encode(wp_create_nonce(SmtpAjaxController::NONCE_ACTION)); ?>,
-            action: <?php echo wp_json_encode(SmtpAjaxController::ACTION_TEST_SEND); ?>,
+            testAction: <?php echo wp_json_encode(SmtpAjaxController::ACTION_TEST_SEND); ?>,
+            chart: <?php echo wp_json_encode($chart_payload); ?>,
             i18n: {
                 sending:      <?php echo wp_json_encode(__('Sending…', 'lrob-email-toolkit')); ?>,
                 sendBtn:      <?php echo wp_json_encode(__('Send', 'lrob-email-toolkit')); ?>,
-                unknownError: <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>
+                unknownError: <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>,
+                sentLabel:    <?php echo wp_json_encode(__('Sent', 'lrob-email-toolkit')); ?>,
+                failedLabel:  <?php echo wp_json_encode(__('Failed', 'lrob-email-toolkit')); ?>
             }
         };
 
@@ -489,61 +548,360 @@ final class DashboardPage
     var D = window.lrobEtkDashboard;
     if (!D) return;
 
-    var recipientSel = document.getElementById('lrob-etk-test-recipient-choice');
-    var customWrap = document.getElementById('lrob-etk-test-custom-wrap');
-    if (recipientSel && customWrap) {
-        recipientSel.addEventListener('change', function () {
-            customWrap.hidden = recipientSel.value !== 'custom';
+    function $(id) { return document.getElementById(id); }
+    function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+    // ---- Chart ----
+    var chartWrap = $('lrob-etk-chart');
+    if (chartWrap && D.chart && !D.chart.empty) {
+        initChart();
+    } else if (chartWrap && D.chart && D.chart.empty) {
+        var empty = $('lrob-etk-chart-empty');
+        var canvas = $('lrob-etk-chart-canvas');
+        if (empty) empty.hidden = false;
+        if (canvas) canvas.style.display = 'none';
+    }
+
+    function initChart() {
+        var rangeSel = $('lrob-etk-chart-range');
+        var typeButtons = $$('.lrob-etk-chart-type button');
+        var currentType = 'bars';
+
+        if (rangeSel) rangeSel.value = D.chart.default || '30d';
+
+        function getActiveRange() {
+            return rangeSel ? rangeSel.value : (D.chart.default || '30d');
+        }
+
+        function rerender() {
+            var range = getActiveRange();
+            var data = D.chart.ranges[range];
+            if (!data) return;
+            renderSvg(data, currentType);
+        }
+
+        if (rangeSel) {
+            rangeSel.addEventListener('change', rerender);
+        }
+        typeButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                typeButtons.forEach(function (b) { b.classList.remove('is-active'); });
+                btn.classList.add('is-active');
+                currentType = btn.getAttribute('data-chart-type') || 'bars';
+                rerender();
+            });
+        });
+
+        rerender();
+    }
+
+    function formatBucketLabel(ts, bucketSeconds) {
+        var date = new Date(ts * 1000);
+        if (bucketSeconds < 3600) {
+            // sub-hour: show HH:MM
+            return pad(date.getHours()) + ':' + pad(date.getMinutes());
+        }
+        if (bucketSeconds < 86400) {
+            // sub-day: show date HH:MM
+            return (date.getMonth() + 1) + '/' + date.getDate() + ' ' + pad(date.getHours()) + ':00';
+        }
+        if (bucketSeconds < 2592000) {
+            // sub-month: show date
+            return (date.getMonth() + 1) + '/' + date.getDate();
+        }
+        // month-ish: show short month + year
+        return date.toLocaleString(undefined, { month: 'short', year: '2-digit' });
+    }
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function niceMax(rawMax) {
+        if (rawMax <= 0) return 4;
+        // Round up to a nice integer
+        var pow = Math.pow(10, Math.max(0, Math.floor(Math.log10(rawMax))));
+        var rough = rawMax / pow;
+        var nice;
+        if (rough <= 1) nice = 1;
+        else if (rough <= 2) nice = 2;
+        else if (rough <= 5) nice = 5;
+        else nice = 10;
+        return nice * pow;
+    }
+
+    function renderSvg(data, type) {
+        var canvas = $('lrob-etk-chart-canvas');
+        if (!canvas) return;
+
+        var buckets = data.buckets || [];
+        if (buckets.length === 0) {
+            canvas.innerHTML = '<p class="lrob-etk-chart-empty-inline">' + 'No data for this range' + '</p>';
+            return;
+        }
+
+        var width = canvas.clientWidth || 720;
+        var height = 200;
+        var pad = { top: 12, right: 14, bottom: 28, left: 40 };
+        var innerW = width - pad.left - pad.right;
+        var innerH = height - pad.top - pad.bottom;
+
+        var n = buckets.length;
+        var max = niceMax(data.max || 1);
+        var slotW = innerW / n;
+
+        function x(i) { return pad.left + i * slotW + slotW / 2; }
+        function y(v) { return pad.top + innerH - (v / max) * innerH; }
+
+        var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none" class="lrob-etk-chart-svg">';
+
+        // Y-axis grid + labels (4 ticks: 0, 33%, 66%, 100%)
+        var ticks = [0, max / 4, max / 2, (max * 3) / 4, max];
+        ticks.forEach(function (t, i) {
+            var yy = y(t);
+            svg += '<line class="lrob-etk-chart-grid" x1="' + pad.left + '" x2="' + (width - pad.right) + '" y1="' + yy + '" y2="' + yy + '" />';
+            svg += '<text class="lrob-etk-chart-axis" x="' + (pad.left - 4) + '" y="' + (yy + 3) + '" text-anchor="end">' + Math.round(t) + '</text>';
+        });
+
+        // X-axis labels: pick ~5 ticks
+        var xLabelCount = Math.min(5, n);
+        for (var i = 0; i < xLabelCount; i++) {
+            var idx = Math.round((i * (n - 1)) / Math.max(1, xLabelCount - 1));
+            var b = buckets[idx];
+            if (!b) continue;
+            var xx = x(idx);
+            svg += '<text class="lrob-etk-chart-axis" x="' + xx + '" y="' + (height - pad.bottom + 14) + '" text-anchor="middle">' + escapeXml(formatBucketLabel(b.ts, data.bucket_seconds)) + '</text>';
+        }
+
+        // Data
+        if (type === 'bars') {
+            buckets.forEach(function (b, i) {
+                var sent = b.sent || 0;
+                var failed = b.failed || 0;
+                var total = sent + failed;
+                if (total === 0) return;
+                var xStart = pad.left + i * slotW + 1;
+                var w = Math.max(1, slotW - 2);
+                var failedH = (failed / max) * innerH;
+                var sentH = (sent / max) * innerH;
+                var totalH = failedH + sentH;
+                var top = pad.top + innerH - totalH;
+                if (failed > 0) {
+                    svg += '<rect class="lrob-etk-chart-bar-failed-svg" x="' + xStart + '" y="' + top + '" width="' + w + '" height="' + failedH + '" />';
+                }
+                if (sent > 0) {
+                    svg += '<rect class="lrob-etk-chart-bar-sent-svg" x="' + xStart + '" y="' + (top + failedH) + '" width="' + w + '" height="' + sentH + '" />';
+                }
+            });
+        } else {
+            // Line / smooth
+            var sentPts = buckets.map(function (b, i) { return [x(i), y(b.sent || 0)]; });
+            var failedPts = buckets.map(function (b, i) { return [x(i), y(b.failed || 0)]; });
+            var sentD = type === 'smooth' ? smoothPath(sentPts) : linePath(sentPts);
+            var failedD = type === 'smooth' ? smoothPath(failedPts) : linePath(failedPts);
+            svg += '<path class="lrob-etk-chart-line-sent" d="' + sentD + '" />';
+            svg += '<path class="lrob-etk-chart-line-failed" d="' + failedD + '" />';
+            // Dots at data points
+            buckets.forEach(function (b, i) {
+                if ((b.sent || 0) > 0) {
+                    svg += '<circle class="lrob-etk-chart-dot-sent" cx="' + x(i) + '" cy="' + y(b.sent) + '" r="2" />';
+                }
+                if ((b.failed || 0) > 0) {
+                    svg += '<circle class="lrob-etk-chart-dot-failed" cx="' + x(i) + '" cy="' + y(b.failed) + '" r="2" />';
+                }
+            });
+        }
+
+        // Hover zones (full height per bucket) — instant tooltip via mouseenter
+        buckets.forEach(function (b, i) {
+            svg += '<rect class="lrob-etk-chart-hover" x="' + (pad.left + i * slotW) + '" y="' + pad.top + '" width="' + slotW + '" height="' + innerH + '" data-i="' + i + '" />';
+        });
+
+        svg += '</svg>';
+        canvas.innerHTML = svg;
+
+        // Tooltip wiring
+        var tip = $('lrob-etk-chart-tooltip');
+        $$('.lrob-etk-chart-hover', canvas).forEach(function (rect) {
+            rect.addEventListener('mouseenter', function () {
+                var idx = parseInt(rect.getAttribute('data-i'), 10);
+                showTooltip(canvas, rect, buckets[idx], data.bucket_seconds);
+            });
+            rect.addEventListener('mouseleave', function () {
+                if (tip) tip.hidden = true;
+            });
         });
     }
 
-    var sendBtn = document.getElementById('lrob-etk-dashboard-test-send');
-    if (!sendBtn) return;
+    function linePath(pts) {
+        if (pts.length === 0) return '';
+        var d = 'M' + pts[0][0] + ',' + pts[0][1];
+        for (var i = 1; i < pts.length; i++) d += 'L' + pts[i][0] + ',' + pts[i][1];
+        return d;
+    }
+    function smoothPath(pts) {
+        if (pts.length < 2) return linePath(pts);
+        var d = 'M' + pts[0][0] + ',' + pts[0][1];
+        for (var i = 1; i < pts.length; i++) {
+            var p0 = pts[i - 1];
+            var p1 = pts[i];
+            var dx = (p1[0] - p0[0]) / 3;
+            d += ' C' + (p0[0] + dx) + ',' + p0[1] + ' ' + (p1[0] - dx) + ',' + p1[1] + ' ' + p1[0] + ',' + p1[1];
+        }
+        return d;
+    }
+    function escapeXml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c];
+        });
+    }
 
-    sendBtn.addEventListener('click', function () {
-        var identityEl = document.getElementById('lrob-etk-test-identity');
-        var choiceEl = document.getElementById('lrob-etk-test-recipient-choice');
-        var customEl = document.getElementById('lrob-etk-test-recipient-custom');
-        var result = document.getElementById('lrob-etk-test-result');
+    function showTooltip(canvas, anchor, bucket, bucketSeconds) {
+        var tip = $('lrob-etk-chart-tooltip');
+        if (!tip) return;
+        var sent = bucket.sent || 0;
+        var failed = bucket.failed || 0;
+        var label = formatBucketFullLabel(bucket.ts, bucketSeconds);
+        tip.innerHTML = '<div class="lrob-etk-tooltip-title">' + escapeXml(label) + '</div>' +
+            '<div class="lrob-etk-tooltip-row"><span class="dot dot-sent"></span>' + D.i18n.sentLabel + ': <strong>' + sent + '</strong></div>' +
+            '<div class="lrob-etk-tooltip-row"><span class="dot dot-failed"></span>' + D.i18n.failedLabel + ': <strong>' + failed + '</strong></div>';
 
-        if (!identityEl || !choiceEl) return;
+        var canvasRect = canvas.getBoundingClientRect();
+        var anchorRect = anchor.getBoundingClientRect();
+        // Position relative to canvas (which is positioned in CSS)
+        tip.hidden = false;
+        var tipRect = tip.getBoundingClientRect();
+        var left = anchorRect.left + anchorRect.width / 2 - canvasRect.left - tipRect.width / 2;
+        var top = anchorRect.top - canvasRect.top - tipRect.height - 6;
+        if (left < 4) left = 4;
+        if (left + tipRect.width > canvasRect.width - 4) left = canvasRect.width - tipRect.width - 4;
+        if (top < 4) top = anchorRect.bottom - canvasRect.top + 6;
+        tip.style.left = left + 'px';
+        tip.style.top = top + 'px';
+    }
 
-        sendBtn.disabled = true;
-        var icon = sendBtn.querySelector('.dashicons');
-        var originalLabel = sendBtn.lastChild;
-        sendBtn.textContent = D.i18n.sending;
-        result.hidden = false;
-        result.className = 'lrob-etk-test-result is-pending';
-        result.textContent = D.i18n.sending;
+    function formatBucketFullLabel(ts, bucketSeconds) {
+        var date = new Date(ts * 1000);
+        var endDate = new Date((ts + bucketSeconds) * 1000);
+        if (bucketSeconds < 3600) {
+            return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) +
+                ' – ' + endDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        }
+        if (bucketSeconds < 86400) {
+            return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+        if (bucketSeconds <= 86400) {
+            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        // multi-day buckets
+        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+            ' – ' + new Date((ts + bucketSeconds - 86400) * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
 
-        var fd = new FormData();
-        fd.append('action', D.action);
-        fd.append('_nonce', D.nonce);
-        fd.append('id', identityEl.value);
-        fd.append('recipient_choice', choiceEl.value);
-        fd.append('recipient_custom', customEl ? customEl.value : '');
-
-        fetch(D.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
-            .then(function (r) { return r.json(); })
-            .then(function (resp) {
-                if (resp.success) {
-                    result.className = 'lrob-etk-test-result is-success';
-                    result.textContent = '✓ ' + resp.data.message;
-                } else {
-                    result.className = 'lrob-etk-test-result is-failure';
-                    result.textContent = '✗ ' + ((resp.data && resp.data.message) || D.i18n.unknownError);
-                }
-            })
-            .catch(function () {
-                result.className = 'lrob-etk-test-result is-failure';
-                result.textContent = D.i18n.unknownError;
-            })
-            .finally(function () {
-                sendBtn.disabled = false;
-                // Rebuild button content (icon + label)
-                sendBtn.innerHTML = '<span class="dashicons dashicons-email"></span> ' + D.i18n.sendBtn;
-            });
+    // Re-render on resize
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            var rangeSel = $('lrob-etk-chart-range');
+            if (!rangeSel || !D.chart || D.chart.empty) return;
+            var active = $$('.lrob-etk-chart-type button.is-active')[0];
+            var type = active ? active.getAttribute('data-chart-type') : 'bars';
+            var data = D.chart.ranges[rangeSel.value];
+            if (data) renderSvg(data, type);
+        }, 150);
     });
+
+    // ---- Test email popover ----
+    var popover = $('lrob-etk-dashboard-test-popover');
+    var anchorBtn = null;
+
+    function anchorPopover(pop, anchor) {
+        pop.hidden = false;
+        var pRect = pop.getBoundingClientRect();
+        var aRect = anchor.getBoundingClientRect();
+        var margin = 8;
+        var top = aRect.bottom + margin;
+        if (top + pRect.height > window.innerHeight - margin) {
+            top = aRect.top - pRect.height - margin;
+            if (top < margin) top = margin;
+        }
+        var left = aRect.left;
+        if (left + pRect.width > window.innerWidth - margin) left = window.innerWidth - pRect.width - margin;
+        if (left < margin) left = margin;
+        pop.style.position = 'fixed';
+        pop.style.top = top + 'px';
+        pop.style.left = left + 'px';
+    }
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('[data-test-email]');
+        if (btn && popover) {
+            e.preventDefault();
+            anchorBtn = btn;
+            var result = $('lrob-etk-dashboard-test-result');
+            if (result) result.hidden = true;
+            anchorPopover(popover, btn);
+            return;
+        }
+        if (e.target.closest && e.target.closest('[data-popover-close]')) {
+            if (popover) popover.hidden = true;
+            return;
+        }
+        if (popover && !popover.hidden && !popover.contains(e.target) && (!anchorBtn || !anchorBtn.contains(e.target))) {
+            popover.hidden = true;
+        }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && popover) popover.hidden = true; });
+
+    var choiceSel = $('lrob-etk-dashboard-test-choice');
+    var customWrap = $('lrob-etk-dashboard-test-custom-wrap');
+    if (choiceSel && customWrap) {
+        choiceSel.addEventListener('change', function () {
+            customWrap.hidden = choiceSel.value !== 'custom';
+        });
+    }
+
+    var sendBtn = $('lrob-etk-dashboard-test-send');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', function () {
+            var idEl = $('lrob-etk-dashboard-test-identity');
+            var ch = $('lrob-etk-dashboard-test-choice');
+            var cu = $('lrob-etk-dashboard-test-custom');
+            var result = $('lrob-etk-dashboard-test-result');
+            if (!idEl || !ch) return;
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = D.i18n.sending;
+            result.hidden = false;
+            result.className = 'lrob-etk-test-result is-pending';
+            result.textContent = D.i18n.sending;
+
+            var fd = new FormData();
+            fd.append('action', D.testAction);
+            fd.append('_nonce', D.nonce);
+            fd.append('id', idEl.value);
+            fd.append('recipient_choice', ch.value);
+            fd.append('recipient_custom', cu ? cu.value : '');
+
+            fetch(D.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                .then(function (r) { return r.json(); })
+                .then(function (resp) {
+                    if (resp.success) {
+                        result.className = 'lrob-etk-test-result is-success';
+                        result.textContent = '✓ ' + resp.data.message;
+                    } else {
+                        result.className = 'lrob-etk-test-result is-failure';
+                        result.textContent = '✗ ' + ((resp.data && resp.data.message) || D.i18n.unknownError);
+                    }
+                })
+                .catch(function () {
+                    result.className = 'lrob-etk-test-result is-failure';
+                    result.textContent = D.i18n.unknownError;
+                })
+                .finally(function () {
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = D.i18n.sendBtn;
+                });
+        });
+    }
 })();
         <?php
     }
