@@ -485,37 +485,60 @@
     padding: 14px 16px;
     box-shadow: var(--etk-shadow);
 }
+.lrob-etk-stat-card.is-warning {
+    border-left: 3px solid var(--etk-danger);
+}
 
 .lrob-etk-stat-label {
     font-size: 12px;
     color: var(--etk-muted);
-    margin: 0 0 6px;
+    margin: 0 0 8px;
     font-weight: 500;
 }
 
+.lrob-etk-stat-main {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
 .lrob-etk-stat-value {
     font-size: 28px;
     font-weight: 600;
     color: var(--etk-fg);
     line-height: 1;
-    margin: 0 0 8px;
+    margin: 0;
 }
-
-.lrob-etk-stat-detail {
-    margin: 2px 0;
+.lrob-etk-stat-unit {
     font-size: 13px;
     color: var(--etk-muted);
 }
-.lrob-etk-stat-detail.is-danger { color: var(--etk-danger); }
-.lrob-etk-stat-detail strong { color: var(--etk-fg); font-weight: 600; }
-.lrob-etk-stat-detail.is-danger strong { color: var(--etk-danger); }
 
-.lrob-etk-stat-rate {
-    margin-top: 8px;
-    margin-bottom: 0;
-    font-size: 11px;
+.lrob-etk-stat-sub {
+    margin: 0;
+    font-size: 13px;
     color: var(--etk-muted);
-    text-align: right;
+}
+.lrob-etk-stat-sub strong {
+    color: var(--etk-fg);
+    font-weight: 600;
+}
+.lrob-etk-stat-sub.is-danger {
+    color: var(--etk-danger);
+}
+.lrob-etk-stat-sub.is-danger strong {
+    color: var(--etk-danger);
+}
+.lrob-etk-stat-rate {
+    font-size: 12px;
+    color: var(--etk-muted);
+    margin-left: 4px;
+}
+.lrob-etk-stat-sub.is-danger .lrob-etk-stat-rate {
+    color: var(--etk-danger);
+}
+.lrob-etk-stat-empty {
+    color: var(--etk-line-strong);
 }
 
 /* ---------- Dashboard: 30-day bar chart ---------- */
@@ -595,25 +618,58 @@
     font-weight: 600;
 }
 
-/* ---------- Dashboard: compact action row ---------- */
+/* ---------- Dashboard: dedicated Test email section ---------- */
 
-.lrob-etk-action-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin: 16px 0;
+.lrob-etk-test-section {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 14px 16px;
+    box-shadow: var(--etk-shadow);
+    margin: 0 0 20px;
 }
-.lrob-etk-action-row .button .dashicons {
+.lrob-etk-test-section-empty {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+.lrob-etk-test-section-note {
+    margin: 0 0 12px;
+    padding: 8px 10px;
+    background: var(--etk-warning-bg);
+    border-left: 3px solid var(--etk-warning);
+    border-radius: 3px;
+    font-size: 12px;
+    color: #735900;
+}
+
+.lrob-etk-test-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+@media (max-width: 720px) {
+    .lrob-etk-test-form-row { grid-template-columns: 1fr; }
+}
+.lrob-etk-test-form-submit {
+    display: flex;
+    align-items: flex-end;
+}
+.lrob-etk-test-form-submit .button .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
     line-height: 1;
     margin-right: 4px;
-    vertical-align: middle;
+    margin-top: 3px;
 }
-.lrob-etk-action-row .description {
-    color: var(--etk-muted);
-    font-size: 12px;
+
+.lrob-etk-recent-activity-footer {
+    margin: 12px 0 24px;
+    text-align: right;
 }
 
 .lrob-etk-modules-grid {

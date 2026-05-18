@@ -5,27 +5,23 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Modules\Logging\Admin\PageController as LogsPageController;
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
 use LRob\EmailToolkit\Modules\Logging\LogRepository;
+use LRob\EmailToolkit\Modules\Logging\Module as LoggingModule;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 use LRob\EmailToolkit\Modules\ModuleManager;
-use LRob\EmailToolkit\Modules\SMTP\ConstantOverrides;
+use LRob\EmailToolkit\Modules\SMTP\Admin\AjaxController as SmtpAjaxController;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
-use LRob\EmailToolkit\Modules\SMTP\TestSender;
 
 /**
- * Plugin landing page. Time-range stat cards, 30-day activity chart with
- * failure-rate banner, compact action row, module cards with inline
- * Enable/Disable, and a recent-activity table.
- *
- * The chart is pure CSS divs (no library). Stats come from LogRepository's
- * count() and counts_by_day() queries — both indexed on (status, created_at)
- * so the four range counts + the 30-day grouping are cheap.
+ * Plugin landing page. Stats with prominent total + failed counts, 30-day
+ * activity chart, failure-rate banner with cause hints, dedicated inline
+ * Test email section, module status grid with toggles, recent activity in
+ * the same custom-styled table as the logs page.
  */
 final class DashboardPage
 {
-    public const ACTION_QUICK_TEST = 'lrob_etk_dashboard_quick_test';
-
     /** @var array<string, string> range key → DateInterval spec */
     private const RANGES = [
         '24h' => 'PT24H',
@@ -36,7 +32,6 @@ final class DashboardPage
 
     public function __construct(private ModuleManager $manager)
     {
-        add_action('admin_post_' . self::ACTION_QUICK_TEST, [$this, 'handle_quick_test']);
     }
 
     public function render(): void
@@ -44,9 +39,6 @@ final class DashboardPage
         if (!current_user_can(Activator::CAPABILITY)) {
             wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
         }
-
-        $notice = self::pop_flash('notice');
-        $errors = self::pop_flash('errors');
 
         $logging = $this->manager->get('logging');
         $logging_on = $logging instanceof ModuleInterface && $logging->is_enabled();
@@ -59,7 +51,7 @@ final class DashboardPage
         <div class="wrap lrob-etk">
             <h1 class="lrob-etk-page-title"><?php esc_html_e('Email Toolkit', 'lrob-email-toolkit'); ?></h1>
 
-            <?php $this->render_flash($notice, $errors); ?>
+            <div id="lrob-etk-flash" class="lrob-etk-flash" aria-live="polite"></div>
 
             <?php if ($failure_warning !== null) : ?>
                 <?php $this->render_failure_warning($failure_warning); ?>
@@ -78,10 +70,9 @@ final class DashboardPage
                 </p>
             <?php endif; ?>
 
-            <?php $this->render_action_row(); ?>
+            <?php $this->render_test_send_section(); ?>
             <?php $this->render_modules_grid(); ?>
             <?php $this->render_recent_activity($repository); ?>
-            <?php $this->render_quick_test_modal(); ?>
 
             <p class="lrob-etk-footer">
                 <?php
@@ -102,8 +93,7 @@ final class DashboardPage
     }
 
     /**
-     * @return array<string, array{sent:int, failed:int, total:int, rate:int}>
-     *         e.g. ['24h' => ['sent' => 12, 'failed' => 0, 'total' => 12, 'rate' => 100], ...]
+     * @return array<string, array{sent:int, failed:int, total:int, fail_rate:int}>
      */
     private function compute_stats(LogRepository $repository): array
     {
@@ -119,8 +109,8 @@ final class DashboardPage
             $sent   = $repository->count(['status' => LogEntry::STATUS_SENT,   'date_from' => $from_sql]);
             $failed = $repository->count(['status' => LogEntry::STATUS_FAILED, 'date_from' => $from_sql]);
             $total = $sent + $failed;
-            $rate = $total > 0 ? (int) round(($sent / $total) * 100) : 100;
-            $stats[$key] = compact('sent', 'failed', 'total', 'rate');
+            $fail_rate = $total > 0 ? (int) round(($failed / $total) * 100) : 0;
+            $stats[$key] = compact('sent', 'failed', 'total', 'fail_rate');
         }
         return $stats;
     }
@@ -135,9 +125,6 @@ final class DashboardPage
         $from = $now->modify('-29 days')->setTime(0, 0);
         $to = $now->setTime(23, 59, 59);
 
-        // counts_by_day runs in UTC server-side but key by date; close enough
-        // for a 30-day overview (off-by-one-day at the edges for timezones far
-        // from UTC isn't load-bearing here).
         $days = $repository->counts_by_day($from, $to);
 
         $max = 0;
@@ -154,8 +141,8 @@ final class DashboardPage
     }
 
     /**
-     * @param array<string, array{sent:int, failed:int, total:int, rate:int}> $stats
-     * @return array{failed:int, total:int, rate:int}|null Returns null when no warning.
+     * @param array<string, array{sent:int, failed:int, total:int, fail_rate:int}> $stats
+     * @return array{failed:int, total:int, rate:int}|null
      */
     private function compute_failure_warning(array $stats): ?array
     {
@@ -163,14 +150,10 @@ final class DashboardPage
             return null;
         }
         $s = $stats['24h'];
-        if ($s['total'] < 4) {
-            return null;  // not enough samples to warn
-        }
-        $failure_pct = (int) round(($s['failed'] / $s['total']) * 100);
-        if ($failure_pct <= 25) {
+        if ($s['total'] < 4 || $s['fail_rate'] <= 25) {
             return null;
         }
-        return ['failed' => $s['failed'], 'total' => $s['total'], 'rate' => $failure_pct];
+        return ['failed' => $s['failed'], 'total' => $s['total'], 'rate' => $s['fail_rate']];
     }
 
     /** @param array{failed:int, total:int, rate:int} $w */
@@ -190,7 +173,7 @@ final class DashboardPage
                         (int) $w['rate']
                     );
                 ?></strong>
-                <span><?php esc_html_e('Check your SMTP configuration.', 'lrob-email-toolkit'); ?></span>
+                <span><?php esc_html_e('This may indicate an SMTP misconfiguration, spam being sent from the site (compromised account or vulnerable form), or a poor recipient list (e.g. an outdated newsletter list with bounces).', 'lrob-email-toolkit'); ?></span>
             </div>
             <a href="<?php echo esc_url($logs_url); ?>" class="button">
                 <?php esc_html_e('View failed logs →', 'lrob-email-toolkit'); ?>
@@ -199,7 +182,7 @@ final class DashboardPage
         <?php
     }
 
-    /** @param array<string, array{sent:int, failed:int, total:int, rate:int}> $stats */
+    /** @param array<string, array{sent:int, failed:int, total:int, fail_rate:int}> $stats */
     private function render_stats_grid(array $stats): void
     {
         $labels = [
@@ -211,30 +194,28 @@ final class DashboardPage
         ?>
         <div class="lrob-etk-stat-grid">
             <?php foreach (self::RANGES as $key => $_offset) :
-                $s = $stats[$key] ?? ['sent' => 0, 'failed' => 0, 'total' => 0, 'rate' => 100];
+                $s = $stats[$key] ?? ['sent' => 0, 'failed' => 0, 'total' => 0, 'fail_rate' => 0];
+                $is_danger = $s['fail_rate'] > 25 && $s['total'] >= 4;
                 ?>
-                <div class="lrob-etk-stat-card">
+                <div class="lrob-etk-stat-card <?php echo $is_danger ? 'is-warning' : ''; ?>">
                     <p class="lrob-etk-stat-label"><?php echo esc_html($labels[$key] ?? $key); ?></p>
-                    <p class="lrob-etk-stat-value"><?php echo number_format_i18n((int) $s['sent']); ?></p>
-                    <p class="lrob-etk-stat-detail">
-                        <?php
-                        printf(
-                            /* translators: %s: number of sent emails */
-                            esc_html__('%s sent', 'lrob-email-toolkit'),
-                            '<strong>' . esc_html((string) number_format_i18n((int) $s['sent'])) . '</strong>'
-                        );
-                        ?>
+                    <div class="lrob-etk-stat-main">
+                        <span class="lrob-etk-stat-value"><?php echo number_format_i18n((int) $s['total']); ?></span>
+                        <span class="lrob-etk-stat-unit"><?php
+                            echo esc_html(_n('mail sent', 'mails sent', (int) $s['total'], 'lrob-email-toolkit'));
+                        ?></span>
+                    </div>
+                    <p class="lrob-etk-stat-sub <?php echo $s['failed'] > 0 ? 'is-danger' : ''; ?>">
+                        <?php if ($s['failed'] > 0) : ?>
+                            <strong><?php echo number_format_i18n((int) $s['failed']); ?></strong>
+                            <?php echo esc_html(_n('failed', 'failed', (int) $s['failed'], 'lrob-email-toolkit')); ?>
+                            <span class="lrob-etk-stat-rate"><?php echo (int) $s['fail_rate']; ?>%</span>
+                        <?php elseif ($s['total'] > 0) : ?>
+                            <?php esc_html_e('all delivered', 'lrob-email-toolkit'); ?>
+                        <?php else : ?>
+                            <span class="lrob-etk-stat-empty"><?php esc_html_e('no activity', 'lrob-email-toolkit'); ?></span>
+                        <?php endif; ?>
                     </p>
-                    <p class="lrob-etk-stat-detail <?php echo $s['failed'] > 0 ? 'is-danger' : ''; ?>">
-                        <?php
-                        printf(
-                            /* translators: %s: number of failed emails */
-                            esc_html__('%s failed', 'lrob-email-toolkit'),
-                            '<strong>' . esc_html((string) number_format_i18n((int) $s['failed'])) . '</strong>'
-                        );
-                        ?>
-                    </p>
-                    <p class="lrob-etk-stat-rate"><?php echo (int) $s['rate']; ?>% <?php esc_html_e('ok', 'lrob-email-toolkit'); ?></p>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -291,27 +272,71 @@ final class DashboardPage
         <?php
     }
 
-    private function render_action_row(): void
+    private function render_test_send_section(): void
     {
-        $logs_url = admin_url('admin.php?page=lrob-etk-logs');
         $identities = (new IdentityRepository())->all();
-        $can_test = $identities !== [];
+        $smtp = $this->manager->get('smtp');
+        $smtp_on = $smtp instanceof ModuleInterface && $smtp->is_enabled();
+        $current_user = wp_get_current_user();
+        $admin_email = (string) get_option('admin_email');
         ?>
-        <div class="lrob-etk-action-row">
-            <button
-                type="button"
-                class="button button-primary"
-                id="lrob-etk-dashboard-test"
-                <?php disabled(!$can_test); ?>>
-                <span class="dashicons dashicons-email"></span>
-                <?php esc_html_e('Send test email', 'lrob-email-toolkit'); ?>
-            </button>
-            <a href="<?php echo esc_url($logs_url); ?>" class="button">
-                <span class="dashicons dashicons-list-view"></span>
-                <?php esc_html_e('View all logs', 'lrob-email-toolkit'); ?>
-            </a>
-            <?php if (!$can_test) : ?>
-                <span class="description"><?php esc_html_e('Configure an SMTP identity first.', 'lrob-email-toolkit'); ?></span>
+        <h2 class="lrob-etk-section-title"><?php esc_html_e('Send test email', 'lrob-email-toolkit'); ?></h2>
+        <div class="lrob-etk-test-section">
+            <?php if ($identities === []) : ?>
+                <p class="lrob-etk-test-section-empty">
+                    <?php esc_html_e('Configure at least one SMTP identity to send test emails.', 'lrob-email-toolkit'); ?>
+                    <?php if ($smtp instanceof ModuleInterface) : ?>
+                        <a href="<?php echo esc_url($smtp->admin_page_url() ?: '#'); ?>" class="button button-primary">
+                            <?php esc_html_e('Configure SMTP', 'lrob-email-toolkit'); ?>
+                        </a>
+                    <?php endif; ?>
+                </p>
+            <?php else : ?>
+                <?php if (!$smtp_on) : ?>
+                    <p class="lrob-etk-test-section-note description">
+                        <?php esc_html_e('SMTP routing is currently off. Tests will still run against the chosen identity, but normal emails are not being routed.', 'lrob-email-toolkit'); ?>
+                    </p>
+                <?php endif; ?>
+                <form id="lrob-etk-dashboard-test-form" class="lrob-etk-test-form">
+                    <div class="lrob-etk-test-form-row">
+                        <div class="lrob-etk-field">
+                            <label for="lrob-etk-test-identity"><?php esc_html_e('Identity', 'lrob-email-toolkit'); ?></label>
+                            <select id="lrob-etk-test-identity" name="identity_id" class="lrob-etk-select">
+                                <?php foreach ($identities as $identity) : ?>
+                                    <option value="<?php echo (int) $identity->id; ?>" <?php selected($identity->is_default); ?>>
+                                        <?php echo esc_html($identity->label); ?>
+                                        <?php if ($identity->is_default) : ?>
+                                            <?php esc_html_e(' (default)', 'lrob-email-toolkit'); ?>
+                                        <?php endif; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="lrob-etk-field">
+                            <label for="lrob-etk-test-recipient-choice"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
+                            <select id="lrob-etk-test-recipient-choice" name="recipient_choice" class="lrob-etk-select">
+                                <option value="current"><?php echo esc_html(sprintf(__('Me (%s)', 'lrob-email-toolkit'), $current_user->user_email)); ?></option>
+                                <option value="admin"><?php echo esc_html(sprintf(__('Site admin (%s)', 'lrob-email-toolkit'), $admin_email)); ?></option>
+                                <option value="custom"><?php esc_html_e('Custom…', 'lrob-email-toolkit'); ?></option>
+                            </select>
+                        </div>
+
+                        <div class="lrob-etk-test-form-submit">
+                            <button type="button" id="lrob-etk-dashboard-test-send" class="button button-primary">
+                                <span class="dashicons dashicons-email"></span>
+                                <?php esc_html_e('Send', 'lrob-email-toolkit'); ?>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lrob-etk-field" id="lrob-etk-test-custom-wrap" hidden>
+                        <label for="lrob-etk-test-recipient-custom"><?php esc_html_e('Custom recipient', 'lrob-email-toolkit'); ?></label>
+                        <input type="email" id="lrob-etk-test-recipient-custom" name="recipient_custom" placeholder="you@example.com">
+                    </div>
+
+                    <div id="lrob-etk-test-result" class="lrob-etk-test-result" hidden></div>
+                </form>
             <?php endif; ?>
         </div>
         <?php
@@ -377,29 +402,60 @@ final class DashboardPage
         }
         ?>
         <h2 class="lrob-etk-section-title"><?php esc_html_e('Recent activity', 'lrob-email-toolkit'); ?></h2>
-        <table class="widefat striped lrob-etk-table">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('To', 'lrob-email-toolkit'); ?></th>
-                    <th><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($recent as $entry) : ?>
+        <div class="lrob-etk-logs-table-wrap">
+            <table class="lrob-etk-logs-table">
+                <thead>
                     <tr>
-                        <td><?php echo esc_html($entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i')); ?></td>
-                        <td><span class="lrob-etk-status <?php echo esc_attr($this->status_class($entry->status)); ?>"><?php echo esc_html($entry->status); ?></span></td>
-                        <td><?php echo esc_html(implode(', ', array_slice($entry->to_emails, 0, 2))); ?></td>
-                        <td><?php echo esc_html($entry->subject !== '' ? $entry->subject : '(no subject)'); ?></td>
+                        <th class="col-date"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-to"><?php esc_html_e('To', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-subject"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-source"><?php esc_html_e('Source', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-actions"><?php esc_html_e('Actions', 'lrob-email-toolkit'); ?></th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <p style="margin-top:8px">
-            <a href="<?php echo esc_url(admin_url('admin.php?page=lrob-etk-logs')); ?>" class="button button-link">
-                <?php esc_html_e('View all logs →', 'lrob-email-toolkit'); ?>
+                </thead>
+                <tbody>
+                    <?php foreach ($recent as $entry) :
+                        $view_url = add_query_arg(
+                            ['page' => LogsPageController::SLUG, 'action' => 'view', 'id' => $entry->id],
+                            admin_url('admin.php')
+                        );
+                        $to_summary = implode(', ', array_slice($entry->to_emails, 0, 2));
+                        if (count($entry->to_emails) > 2) {
+                            $to_summary .= ' …';
+                        }
+                        $subject = $entry->subject !== '' ? $entry->subject : __('(no subject)', 'lrob-email-toolkit');
+                        ?>
+                        <tr>
+                            <td class="col-date">
+                                <?php echo esc_html($entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i')); ?>
+                            </td>
+                            <td class="col-status">
+                                <span class="lrob-etk-status <?php echo esc_attr($this->status_class($entry->status)); ?>">
+                                    <?php echo esc_html($entry->status); ?>
+                                </span>
+                            </td>
+                            <td class="col-to"><?php echo esc_html($to_summary); ?></td>
+                            <td class="col-subject">
+                                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-subject-link">
+                                    <?php echo esc_html($subject); ?>
+                                </a>
+                            </td>
+                            <td class="col-source"><code><?php echo esc_html($entry->source); ?></code></td>
+                            <td class="col-actions">
+                                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View log entry', 'lrob-email-toolkit'); ?>">
+                                    <span class="dashicons dashicons-visibility"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <p class="lrob-etk-recent-activity-footer">
+            <a href="<?php echo esc_url(admin_url('admin.php?page=' . LogsPageController::SLUG)); ?>" class="button">
+                <?php esc_html_e('View all logs', 'lrob-email-toolkit'); ?>
+                <span aria-hidden="true">→</span>
             </a>
         </p>
         <?php
@@ -415,194 +471,80 @@ final class DashboardPage
         };
     }
 
-    private function render_quick_test_modal(): void
-    {
-        $identities = (new IdentityRepository())->all();
-        if ($identities === []) {
-            return;
-        }
-        $current_user = wp_get_current_user();
-        $admin_email = (string) get_option('admin_email');
-        $action_url = admin_url('admin-post.php');
-        ?>
-        <div class="lrob-etk-modal" id="lrob-etk-dashboard-test-modal" role="dialog" aria-modal="true" hidden>
-            <div class="lrob-etk-modal-backdrop" data-lrob-etk-close></div>
-            <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--small" role="document">
-                <header class="lrob-etk-modal-header">
-                    <h2 class="lrob-etk-modal-title-text"><?php esc_html_e('Send a test email', 'lrob-email-toolkit'); ?></h2>
-                    <button type="button" class="lrob-etk-modal-close" data-lrob-etk-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-no-alt"></span>
-                    </button>
-                </header>
-
-                <form method="post" action="<?php echo esc_url($action_url); ?>" class="lrob-etk-modal-body">
-                    <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_QUICK_TEST); ?>">
-                    <?php wp_nonce_field(self::ACTION_QUICK_TEST, '_lrob_etk_nonce'); ?>
-
-                    <?php if (count($identities) > 1) : ?>
-                        <div class="lrob-etk-field">
-                            <label for="lrob-etk-qtest-identity"><?php esc_html_e('Identity', 'lrob-email-toolkit'); ?></label>
-                            <select id="lrob-etk-qtest-identity" name="identity_id">
-                                <?php foreach ($identities as $identity) : ?>
-                                    <option value="<?php echo (int) $identity->id; ?>" <?php selected($identity->is_default); ?>>
-                                        <?php echo esc_html($identity->label); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    <?php else :
-                        $only = reset($identities); ?>
-                        <input type="hidden" name="identity_id" value="<?php echo (int) $only->id; ?>">
-                    <?php endif; ?>
-
-                    <div class="lrob-etk-field">
-                        <label for="lrob-etk-qtest-recipient"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
-                        <select id="lrob-etk-qtest-recipient" name="recipient_choice">
-                            <option value="current"><?php echo esc_html(sprintf(__('Me (%s)', 'lrob-email-toolkit'), $current_user->user_email)); ?></option>
-                            <option value="admin"><?php echo esc_html(sprintf(__('Site admin (%s)', 'lrob-email-toolkit'), $admin_email)); ?></option>
-                            <option value="custom"><?php esc_html_e('Custom address…', 'lrob-email-toolkit'); ?></option>
-                        </select>
-                    </div>
-
-                    <div class="lrob-etk-field" id="lrob-etk-qtest-custom-wrap" hidden>
-                        <label for="lrob-etk-qtest-custom"><?php esc_html_e('Custom recipient', 'lrob-email-toolkit'); ?></label>
-                        <input type="email" id="lrob-etk-qtest-custom" name="recipient_custom" placeholder="you@example.com">
-                    </div>
-
-                    <footer class="lrob-etk-modal-footer">
-                        <button type="button" class="button" data-lrob-etk-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
-                        <button type="submit" class="button button-primary">
-                            <?php esc_html_e('Send test', 'lrob-email-toolkit'); ?>
-                        </button>
-                    </footer>
-                </form>
-            </div>
-        </div>
-        <?php
-    }
-
     private function print_inline_js(): void
     {
         ?>
-        (function () {
-            var btn = document.getElementById('lrob-etk-dashboard-test');
-            var modal = document.getElementById('lrob-etk-dashboard-test-modal');
-            if (btn && modal) {
-                btn.addEventListener('click', function () {
-                    modal.hidden = false;
-                    document.body.classList.add('lrob-etk-modal-open');
-                });
+        window.lrobEtkDashboard = {
+            ajaxUrl: <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>,
+            nonce: <?php echo wp_json_encode(wp_create_nonce(SmtpAjaxController::NONCE_ACTION)); ?>,
+            action: <?php echo wp_json_encode(SmtpAjaxController::ACTION_TEST_SEND); ?>,
+            i18n: {
+                sending:      <?php echo wp_json_encode(__('Sending…', 'lrob-email-toolkit')); ?>,
+                sendBtn:      <?php echo wp_json_encode(__('Send', 'lrob-email-toolkit')); ?>,
+                unknownError: <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>
             }
-            document.addEventListener('click', function (e) {
-                if (e.target.closest && e.target.closest('[data-lrob-etk-close]')) {
-                    e.preventDefault();
-                    if (modal) modal.hidden = true;
-                    document.body.classList.remove('lrob-etk-modal-open');
-                }
-            });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && modal) {
-                    modal.hidden = true;
-                    document.body.classList.remove('lrob-etk-modal-open');
-                }
-            });
-            var recipientSel = document.getElementById('lrob-etk-qtest-recipient');
-            var customWrap = document.getElementById('lrob-etk-qtest-custom-wrap');
-            if (recipientSel && customWrap) {
-                recipientSel.addEventListener('change', function () {
-                    customWrap.hidden = recipientSel.value !== 'custom';
-                });
-            }
-        })();
-        <?php
-    }
-
-    public function handle_quick_test(): void
-    {
-        if (!current_user_can(Activator::CAPABILITY)) {
-            wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
-        }
-        $nonce = isset($_POST['_lrob_etk_nonce']) ? (string) $_POST['_lrob_etk_nonce'] : '';
-        if (!wp_verify_nonce($nonce, self::ACTION_QUICK_TEST)) {
-            wp_die(esc_html__('Security check failed. Please retry.', 'lrob-email-toolkit'));
-        }
-
-        $identity_id = isset($_POST['identity_id']) ? max(0, (int) $_POST['identity_id']) : 0;
-        $choice = isset($_POST['recipient_choice']) ? sanitize_key((string) $_POST['recipient_choice']) : 'current';
-
-        $recipient = match ($choice) {
-            'admin'  => (string) get_option('admin_email'),
-            'custom' => isset($_POST['recipient_custom']) ? sanitize_email((string) wp_unslash($_POST['recipient_custom'])) : '',
-            default  => (string) wp_get_current_user()->user_email,
         };
 
-        if ($identity_id === 0 || $recipient === '') {
-            self::store_flash('errors', [__('Pick an identity and a recipient.', 'lrob-email-toolkit')]);
-            $this->redirect_to_dashboard();
-        }
+(function () {
+    var D = window.lrobEtkDashboard;
+    if (!D) return;
 
-        $identities = new IdentityRepository();
-        $overrides = new ConstantOverrides();
-        $tester = new TestSender($identities, $overrides);
-
-        $result = $tester->send($identity_id, $recipient);
-        if ($result['success']) {
-            self::store_flash('notice', sprintf(
-                /* translators: %s: recipient email */
-                __('Test email sent to %s.', 'lrob-email-toolkit'),
-                $recipient
-            ));
-        } else {
-            $error = $result['error'] ?? __('Unknown error.', 'lrob-email-toolkit');
-            self::store_flash('errors', [sprintf(
-                /* translators: %s: error message */
-                __('Test email failed: %s', 'lrob-email-toolkit'),
-                $error
-            )]);
-        }
-
-        $this->redirect_to_dashboard();
+    var recipientSel = document.getElementById('lrob-etk-test-recipient-choice');
+    var customWrap = document.getElementById('lrob-etk-test-custom-wrap');
+    if (recipientSel && customWrap) {
+        recipientSel.addEventListener('change', function () {
+            customWrap.hidden = recipientSel.value !== 'custom';
+        });
     }
 
-    private function redirect_to_dashboard(): void
-    {
-        wp_safe_redirect(admin_url('admin.php?page=lrob-etk'));
-        exit;
-    }
+    var sendBtn = document.getElementById('lrob-etk-dashboard-test-send');
+    if (!sendBtn) return;
 
-    /** @param string|array<int, string> $value */
-    public static function store_flash(string $key, $value): void
-    {
-        $user_id = get_current_user_id();
-        set_transient('lrob_etk_dashboard_flash_' . $key . '_' . $user_id, $value, 60);
-    }
+    sendBtn.addEventListener('click', function () {
+        var identityEl = document.getElementById('lrob-etk-test-identity');
+        var choiceEl = document.getElementById('lrob-etk-test-recipient-choice');
+        var customEl = document.getElementById('lrob-etk-test-recipient-custom');
+        var result = document.getElementById('lrob-etk-test-result');
 
-    /** @return string|array<int, string>|null */
-    public static function pop_flash(string $key)
-    {
-        $user_id = get_current_user_id();
-        $transient_key = 'lrob_etk_dashboard_flash_' . $key . '_' . $user_id;
-        $value = get_transient($transient_key);
-        if ($value !== false) {
-            delete_transient($transient_key);
-            return $value;
-        }
-        return null;
-    }
+        if (!identityEl || !choiceEl) return;
 
-    /**
-     * @param string|array<int, string>|null $notice
-     * @param string|array<int, string>|null $errors
-     */
-    private function render_flash($notice, $errors): void
-    {
-        if (is_string($notice) && $notice !== '') {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($notice) . '</p></div>';
-        }
-        if (is_array($errors)) {
-            foreach ($errors as $error) {
-                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html((string) $error) . '</p></div>';
-            }
-        }
+        sendBtn.disabled = true;
+        var icon = sendBtn.querySelector('.dashicons');
+        var originalLabel = sendBtn.lastChild;
+        sendBtn.textContent = D.i18n.sending;
+        result.hidden = false;
+        result.className = 'lrob-etk-test-result is-pending';
+        result.textContent = D.i18n.sending;
+
+        var fd = new FormData();
+        fd.append('action', D.action);
+        fd.append('_nonce', D.nonce);
+        fd.append('id', identityEl.value);
+        fd.append('recipient_choice', choiceEl.value);
+        fd.append('recipient_custom', customEl ? customEl.value : '');
+
+        fetch(D.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (resp) {
+                if (resp.success) {
+                    result.className = 'lrob-etk-test-result is-success';
+                    result.textContent = '✓ ' + resp.data.message;
+                } else {
+                    result.className = 'lrob-etk-test-result is-failure';
+                    result.textContent = '✗ ' + ((resp.data && resp.data.message) || D.i18n.unknownError);
+                }
+            })
+            .catch(function () {
+                result.className = 'lrob-etk-test-result is-failure';
+                result.textContent = D.i18n.unknownError;
+            })
+            .finally(function () {
+                sendBtn.disabled = false;
+                // Rebuild button content (icon + label)
+                sendBtn.innerHTML = '<span class="dashicons dashicons-email"></span> ' + D.i18n.sendBtn;
+            });
+    });
+})();
+        <?php
     }
 }
