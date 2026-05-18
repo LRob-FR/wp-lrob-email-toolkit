@@ -27,9 +27,9 @@ final class DashboardPage
 {
     /** @var array<string, array{interval:string, bucket_seconds:int}> */
     private const RANGES = [
-        '1h'  => ['interval' => 'PT1H',  'bucket_seconds' => 300],     // 12 buckets of 5 min
-        '24h' => ['interval' => 'P1D',   'bucket_seconds' => 3600],    // 24 buckets of 1 hour
-        '7d'  => ['interval' => 'P7D',   'bucket_seconds' => 21600],   // 28 buckets of 6 hours
+        '1h'  => ['interval' => 'PT1H',  'bucket_seconds' => 60],      // 60 buckets of 1 min
+        '24h' => ['interval' => 'P1D',   'bucket_seconds' => 900],     // 96 buckets of 15 min
+        '7d'  => ['interval' => 'P7D',   'bucket_seconds' => 7200],    // 84 buckets of 2 hours
         '30d' => ['interval' => 'P30D',  'bucket_seconds' => 86400],   // 30 buckets of 1 day
         '1y'  => ['interval' => 'P1Y',   'bucket_seconds' => 604800],  // 52 buckets of 1 week
     ];
@@ -198,11 +198,11 @@ final class DashboardPage
         ];
     }
 
-    /** Pick a bucket size that yields roughly 20–60 buckets across the span. */
+    /** Pick a bucket size that yields roughly 60 buckets across the span. */
     private function pick_bucket_for_span(int $span_seconds): int
     {
-        // target ~30 buckets
-        $target = max(1, (int) round($span_seconds / 30));
+        // target ~60 buckets so "All" looks as detailed as the fixed ranges
+        $target = max(1, (int) round($span_seconds / 60));
         // round to a sensible granularity
         $choices = [60, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 172800, 604800, 1209600, 2592000];
         foreach ($choices as $c) {

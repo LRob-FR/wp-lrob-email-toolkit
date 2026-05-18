@@ -202,7 +202,15 @@ final class LogRepository
      * Group counts into time buckets of fixed size for the activity chart.
      * Gap-fills empty buckets with zeros so the chart's x-axis has even spacing.
      *
-     * @param  int $bucket_seconds e.g. 300 (5min), 3600 (1h), 86400 (1d)
+     * Timezone note: created_at is stored as a UTC datetime string, but
+     * MySQL's UNIX_TIMESTAMP() interprets DATETIME values in the session
+     * timezone, which gives wrong unix seconds when the session is local
+     * time (very common). DST makes a single offset insufficient. We use
+     * TIMESTAMPDIFF(SECOND, ANCHOR, created_at) instead — it does pure
+     * calendar arithmetic on the string values, ignoring session tz — then
+     * add the anchor's known UTC unix ts to land on true UTC seconds.
+     *
+     * @param  int $bucket_seconds e.g. 60 (1min), 3600 (1h), 86400 (1d)
      * @return array<int, array{ts:int, sent:int, failed:int}> chronological list
      */
     public function counts_by_bucket(\DateTimeImmutable $from, \DateTimeImmutable $to, int $bucket_seconds): array
@@ -213,10 +221,12 @@ final class LogRepository
         $from_sql = $from->format('Y-m-d H:i:s');
         $to_sql = $to->format('Y-m-d H:i:s');
 
+        // 2000-01-01 00:00:00 UTC = 946684800 unix seconds. Pick any fixed
+        // anchor; this one is comfortably before any conceivable log row.
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT
-                    FLOOR(UNIX_TIMESTAMP(created_at) / %d) * %d AS bucket_ts,
+                    FLOOR(TIMESTAMPDIFF(SECOND, '2000-01-01 00:00:00', created_at) / %d) * %d + 946684800 AS bucket_ts,
                     status,
                     COUNT(*) AS cnt
                  FROM `" . Schema::table_name() . "`
