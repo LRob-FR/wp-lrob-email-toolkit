@@ -2118,9 +2118,10 @@ body.lrob-etk-modal-open {
     padding-right: 4px;
 }
 .lrob-etk-logs-table .col-date {
-    width: 140px;
+    width: 160px;
     white-space: nowrap;
     color: var(--etk-muted);
+    font-variant-numeric: tabular-nums;
 }
 .lrob-etk-logs-table .col-status {
     width: 90px;

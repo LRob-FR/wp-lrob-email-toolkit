@@ -276,7 +276,7 @@ final class LogsPage
                 <input type="checkbox" class="lrob-etk-row-check" value="<?php echo (int) $entry->id; ?>">
             </td>
             <td class="col-date">
-                <?php echo esc_html($entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i')); ?>
+                <?php echo esc_html($entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
             </td>
             <td class="col-status">
                 <span class="lrob-etk-status <?php echo esc_attr($this->status_class($entry->status)); ?>">
