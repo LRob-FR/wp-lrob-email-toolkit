@@ -557,7 +557,10 @@ final class SettingsPage
             identities: <?php echo wp_json_encode($data); ?>,
             siteTitle: <?php echo wp_json_encode(get_bloginfo('name')); ?>,
             i18n: {
-                deleteConfirm:    <?php echo wp_json_encode(__('Delete the identity "%s"?', 'lrob-email-toolkit')); ?>,
+                deleteConfirm:    <?php
+                    /* translators: %s: the SMTP identity's display name */
+                    echo wp_json_encode(__('Delete the identity "%s"?', 'lrob-email-toolkit'));
+                ?>,
                 saving:           <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
                 saved:            <?php echo wp_json_encode(__('Saved', 'lrob-email-toolkit')); ?>,
                 saveFailed:       <?php echo wp_json_encode(__('Save failed', 'lrob-email-toolkit')); ?>,
@@ -675,53 +678,27 @@ final class SettingsPage
     function updateFromEmailDefaultLabel(card) { updateFromEmailPlaceholder(card); }
 
     /**
-     * Custom combobox: an input + dropdown arrow that share the same visual
-     * field. Click the arrow to open a menu of preset options; pick one to
-     * fill the input. Or type freely for a custom value. The input itself
-     * is the form field — no hidden mirror needed.
+     * Combobox setup — delegates open/close/click handling to the shared
+     * lrobEtkControls.attachCombobox component (admin/js/etk-controls.js).
+     * SMTP only supplies the preset-building logic and the post-select side
+     * effects (host check / from-email warning / save).
      */
     function setupCombobox(card, name) {
         var combo = card.querySelector('.lrob-etk-combo[data-name="' + name + '"]');
         if (!combo) return;
-        var input = combo.querySelector('.lrob-etk-combo-input');
-        var toggle = combo.querySelector('.lrob-etk-combo-toggle');
-        var menu = combo.querySelector('.lrob-etk-combo-menu');
-        if (!input || !toggle || !menu) return;
-
-        toggle.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (menu.hidden) {
-                populateComboMenu(card, name, menu, input.value);
-                if (menu.children.length === 0) {
-                    // Nothing to show; ignore click.
-                    return;
-                }
-                menu.hidden = false;
-                combo.classList.add('is-open');
-            } else {
-                menu.hidden = true;
-                combo.classList.remove('is-open');
+        if (!window.lrobEtkControls || !window.lrobEtkControls.attachCombobox) return;
+        window.lrobEtkControls.attachCombobox(combo, {
+            mode: 'free',
+            populate: function () { return buildComboOptions(card, name); },
+            onSelect: function () {
+                if (name === 'host') runHostCheck(card);
+                if (name === 'from-email') syncFromWarning(card);
+                queueSave(card, 0);
             }
         });
-
-        menu.addEventListener('click', function (e) {
-            var item = e.target.closest('[role="option"]');
-            if (!item) return;
-            var value = item.getAttribute('data-value') || '';
-            input.value = value;
-            menu.hidden = true;
-            combo.classList.remove('is-open');
-            if (name === 'host') runHostCheck(card);
-            if (name === 'from-email') syncFromWarning(card);
-            queueSave(card, 0);
-            input.focus();
-        });
-
-        // Close menu on outside click (delegated globally below).
     }
 
-    function populateComboMenu(card, name, menu, currentValue) {
+    function buildComboOptions(card, name) {
         var items = [];
         var user = field(card, 'username').value.trim();
         if (name === 'host') {
@@ -744,23 +721,10 @@ final class SettingsPage
             items.push({ value: S.siteTitle, label: '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + S.siteTitle });
             items.push({ value: '', label: '<?php echo esc_js(__('Use automatic (uses site title)', 'lrob-email-toolkit')); ?>' });
         }
-
-        menu.innerHTML = items.map(function (it) {
-            var cls = (it.value === currentValue) ? ' class="is-selected"' : '';
-            return '<li role="option" data-value="' + it.value.replace(/"/g, '&quot;') + '"' + cls + '>' + it.label + '</li>';
-        }).join('');
+        return items;
     }
 
-    // Close any open combo when clicking outside.
-    document.addEventListener('click', function (e) {
-        $$('.lrob-etk-combo.is-open').forEach(function (combo) {
-            if (!combo.contains(e.target)) {
-                combo.classList.remove('is-open');
-                var m = combo.querySelector('.lrob-etk-combo-menu');
-                if (m) m.hidden = true;
-            }
-        });
-    });
+    // Outside-click closure is owned by lrobEtkControls — no local handler needed.
 
     function syncFromWarning(card) {
         var warn = card.querySelector('.lrob-etk-from-warning-el');

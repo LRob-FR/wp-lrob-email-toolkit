@@ -441,7 +441,10 @@ final class LogsPage
             },
             i18n: {
                 confirmDelete:     <?php echo wp_json_encode(__('Delete this log entry?', 'lrob-email-toolkit')); ?>,
-                confirmBulkDelete: <?php echo wp_json_encode(__('Delete %d selected log entries?', 'lrob-email-toolkit')); ?>,
+                confirmBulkDelete: <?php
+                    /* translators: %d: number of selected log entries */
+                    echo wp_json_encode(__('Delete %d selected log entries?', 'lrob-email-toolkit'));
+                ?>,
                 confirmResend:     <?php echo wp_json_encode(__('Resend this email now?', 'lrob-email-toolkit')); ?>,
                 noSelection:       <?php echo wp_json_encode(__('Select at least one entry.', 'lrob-email-toolkit')); ?>,
                 pickAction:        <?php echo wp_json_encode(__('Pick an action first.', 'lrob-email-toolkit')); ?>,

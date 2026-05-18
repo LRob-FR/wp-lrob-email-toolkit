@@ -19,6 +19,18 @@ WordPress plugin **LRob - Email Toolkit** (slug `lrob-email-toolkit`). Modular a
 
 No PHPUnit, PHPCS, or PHPStan config yet — don't invent commands.
 
+## Versioning
+
+Single source of truth: `lrob-email-toolkit.php` has both the `Version:` header and `LROB_ETK_VERSION` constant — bump them together.
+
+The plugin is in **iterative pre-1.0 development**. Every shipped iteration is a patch bump; minor bumps are reserved for completed module milestones:
+
+- **Patch (0.0.X → 0.0.X+1)** — every dev iteration during a module's build: new features, refactors, fixes, schema changes. This is the normal cadence.
+- **Minor (0.X.0 → 0.X+1.0)** — only when a module reaches a feature-complete milestone (one of the phases in [Build order](#build-order)). E.g. 0.1.0 = SMTP + Logging stable, 0.2.0 = Contact Form fully shipped (incl. captcha + submissions inbox), etc.
+- **Major (0.x → 1.0)** — first public release. From there: standard SemVer.
+
+Bump at the end of each piece of work, before running `./release.sh`. Don't ship two releases with the same version — the zip filename uses it. Don't bump aggressively just because something "feels big" — the milestone rule is conservative on purpose so the version conveys real maturity.
+
 ## Naming convention — **MANDATORY**
 
 User has a strong rule: prefixes must be plugin-specific, not vendor-wide. Several LRob plugins coexist; "lrob_" alone collides. This plugin uses `etk` (= "email toolkit") everywhere a runtime identifier appears.
@@ -111,10 +123,71 @@ Server-rendered PHP, `WP_List_Table` where lists are needed, vanilla JS for AJAX
 
 ## Build order
 
-1. **SMTP + Logging** (current target — v0.0.1).
-2. **Contact Form**.
+1. ~~**SMTP + Logging**~~ — done in v0.0.1.
+2. **Contact Form** ← next.
 3. **IMAP save-to-sent** (extends Logging).
 4. **Newsletter** (with importer from the Newsletter plugin).
 5. **Integrations** (webhooks: Slack/Discord/Matrix/n8n presets + generic).
 
 Don't start a later module until the previous is functionally stable. The skeletons for all four foundation modules already exist so the framework boots cleanly with everything disabled.
+
+## Deployment workflow — read this before claiming a fix is live
+
+The user runs the plugin from the release zip, not from the working tree. **Every PHP change must be followed by `./release.sh`**, otherwise the user is still running stale code. Treat "edit done" as "not deployed" until the rebuild step has run.
+
+PHP opcache caches plugin files. After uploading a new zip the user typically restarts php-fpm; do not assume an edit took effect without that. If you ask "did you see the change?" and the answer is "no", suspect opcache before suspecting the fix.
+
+CSS/JS pick up a `filemtime`-based cache-bust query string when `WP_DEBUG` is on (`Assets::asset_version()`). In production they use plugin version, so a CSS-only fix in a release still needs a version bump or a hard refresh.
+
+## UI patterns established in v0.0.1 — match these in new modules
+
+The admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table`, `notice notice-success`, `<select>`, `<datalist>`, etc.). All shared components live in `admin/css/admin.css` under `.lrob-etk-*` and `src/Admin/`. Reuse — don't reinvent — these when building Contact Form admin screens:
+
+- **Card grid** for entity lists: `display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 540px))` so a single card doesn't stretch full width.
+- **Auto-save edit cards**: existing rows save on `blur`/`change` with a small status indicator; new rows have an explicit "Create" button. Reference: `Modules/SMTP/Admin/SettingsPage.php` + its `AjaxController`.
+- **Inline module toggle** next to the page `<h1>` via `Admin\ModuleToggle::render_inline()`. `render_bar()` is deprecated, don't use it.
+- **Anchored popovers** (`.lrob-etk-popover`) — JS positions them via `getBoundingClientRect` relative to the trigger button. Used for SMTP test-send, connection-test details, log cleanup, log settings, dashboard test email. Use this instead of a centered modal whenever the action belongs to a specific button.
+- **Custom combobox** (`.lrob-etk-combo`, input + dropdown menu) — used for SMTP host / From email / From name. `<datalist>` is banned (inconsistent cross-browser).
+- **Custom data table** (`.lrob-etk-logs-table`) — replaces `widefat striped`. Used in the logs page and the dashboard recent-activity widget.
+- **Tooltips** (`Admin\Tooltip::render()`) — `position: fixed` with JS-set coordinates so they don't get clipped by scroll containers or popovers. Tip text has explicit `text-transform: none` because parent labels use uppercase.
+- **CSS gotcha**: WP's `.button { display: inline-block }` overrides the HTML `[hidden]` attribute. `.lrob-etk [hidden] { display: none !important }` is the fix — keep it.
+
+## Per-module AJAX
+
+Each module's admin lives under `Modules/<Name>/Admin/AjaxController.php`. One shared nonce per module (e.g. `lrob_etk_smtp_ajax`, `lrob_etk_logging_ajax`), one `action` value per endpoint dispatched via a `type` field, JSON in/out. `manage_lrob_etk` gates every handler. Follow this shape for Contact Form — don't introduce REST routes unless an external integration actually needs them.
+
+## SQL + timezone
+
+WordPress stores `DATETIME` columns in the **server session timezone**, which is unstable across hosts and DST. Avoid `UNIX_TIMESTAMP()`. For bucket/grouping queries:
+
+```sql
+FLOOR(TIMESTAMPDIFF(SECOND, '2000-01-01 00:00:00', created_at) / %d) * %d + 946684800 AS bucket_ts
+```
+
+`946684800` is the UTC epoch of `2000-01-01 00:00:00`. Used by `Modules/Logging/LogRepository::counts_by_bucket()`; copy this pattern for any new time-bucketed aggregation. Display-side: render in browser-local via JS `Date` methods, not server-formatted strings.
+
+## Resender — do not regress
+
+`Modules/Logging/Resender::resend()` creates a new log row for the retry and leaves the original untouched. Earlier code marked the original as `retried`, which made stats undercount sends. Don't reintroduce a status flip on the original.
+
+## From / transport resolution
+
+SMTP identity rows store `from_email` and `from_name` that may be empty — meaning "fall back at send time". `Identity::effective_from_email()` returns `smtp_username` if `from_email` is empty; `effective_from_name()` returns the site title. Per-identity `transport` (`smtp` | `mail`) is honored by `MailRouter` and `TestSender` — `mail` skips PHPMailer SMTP wiring entirely. New per-identity behavior should follow the same `effective_*` accessor pattern rather than baking fallbacks into call sites.
+
+## Attachments in logs
+
+`logs.attachments` is JSON: `[{"name": "...", "path": "..."}]`. `LogEntry::normalize_attachments()` upgrades legacy string-only entries to that shape — keep it as long as old rows can exist. Resend re-attaches files whose `path` still resolves on disk and reports `attachments_dropped` for the rest. Archiving the actual file bytes is explicitly out of scope for now (deferred low-priority).
+
+## Backlog — keep these in mind when designing related code
+
+Not in scope now, but architectural decisions in the current module may make these easier or harder later. Don't build them yet, but don't paint into a corner either.
+
+- **Email reading in a modal with prev/next navigation.** Today the logs detail view is a row expansion. Future: open a full-screen-ish modal with `←` / `→` keys cycling through the current filtered/paginated list. When refactoring `LogsPage` rendering, keep the row→detail mapping addressable by index, not just by row click handler.
+- **Shared captcha settings module.** Captcha (hCaptcha, Cloudflare Turnstile, Google reCAPTCHA) must be configured once and reused by Contact Form **and** Newsletter subscribe. When building Contact Form, put captcha provider config under a shared location (likely `src/Support/Captcha/` with its own settings sub-page under the toolkit menu) — not inside `Modules/ContactForm/`. The Contact Form just *consumes* a captcha service.
+- **Email export.** Bulk export of log entries (CSV at minimum, possibly mbox/EML for full message reconstruction). `LogRepository` already has filtered query helpers; export should reuse them, not re-implement filtering. Stream the response — don't buffer thousands of rows in memory.
+- **Injection safety from stored email content** — *this is the touchy one.* `logs.body_html`, `subject`, `from_name`, header values, and attachment filenames are attacker-controllable when the site receives mail (future IMAP-save, future reply-to-log flows, contact form reflection, etc.). Everywhere this data is rendered or re-emitted:
+  - **Admin UI rendering:** escape on output. `body_html` viewing must use an isolated iframe (sandbox attribute, no JS, no same-origin) — never inject into the admin DOM. Subject/headers must go through `esc_html`. Filenames through `esc_attr` / `esc_html`. There's no "trusted" log row.
+  - **Resend / forward / reply paths:** never reuse stored HTML as a draft body for outbound mail without re-sanitizing. PHPMailer doesn't sanitize for you. Header values must be CRLF-stripped before being passed back to `wp_mail` to prevent header injection.
+  - **CSV / export:** prefix any cell starting with `=`, `+`, `-`, `@`, tab, or CR with a single quote to neuter spreadsheet formula injection.
+  - **Search / filter inputs:** already parameterized via `$wpdb->prepare`, keep it that way; never concatenate user input into SQL.
+  - When unsure, treat any stored field as if it came directly from a hostile sender — because eventually it will.

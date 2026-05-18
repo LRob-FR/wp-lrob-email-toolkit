@@ -103,7 +103,7 @@ final class AjaxController
             wp_send_json_success([
                 'deleted' => $deleted,
                 'message' => sprintf(
-                    /* translators: 1: deleted count, 2: days */
+                    /* translators: 1: number of entries deleted, 2: number of days */
                     _n(
                         'Deleted %1$d entry older than %2$d days.',
                         'Deleted %1$d entries older than %2$d days.',
@@ -121,7 +121,7 @@ final class AjaxController
             wp_send_json_success([
                 'deleted' => $deleted,
                 'message' => sprintf(
-                    /* translators: %d: deleted count */
+                    /* translators: %d: number of entries deleted */
                     _n('Deleted all %d log entry.', 'Deleted all %d log entries.', $deleted, 'lrob-email-toolkit'),
                     $deleted
                 ),

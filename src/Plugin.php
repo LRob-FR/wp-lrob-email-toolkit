@@ -44,13 +44,14 @@ final class Plugin
 
         $manager = new ModuleManager($this->container);
         $this->container->set(ModuleManager::class, $manager);
-
         $manager->discover();
-        $manager->boot_all();
 
         if (is_admin()) {
+            add_action('admin_init', [Activator::class, 'ensure_capability']);
             (new Menu($manager))->register();
         }
+
+        $manager->boot_all();
     }
 
     public function load_textdomain(): void

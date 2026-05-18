@@ -12,6 +12,8 @@ final class Assets
 {
     public const HANDLE_CSS = 'lrob-etk-admin';
 
+    public const HANDLE_CONTROLS_JS = 'lrob-etk-controls';
+
     public static function enqueue_admin(string $hook_suffix): void
     {
         if (!self::is_plugin_page($hook_suffix)) {
@@ -23,6 +25,16 @@ final class Assets
             LROB_ETK_URL . 'admin/css/admin.css',
             [],
             self::asset_version('admin/css/admin.css')
+        );
+
+        // Shared admin UI components (combobox). Every toolkit page may use
+        // them, so we load once here instead of per-module.
+        wp_enqueue_script(
+            self::HANDLE_CONTROLS_JS,
+            LROB_ETK_URL . 'admin/js/etk-controls.js',
+            [],
+            self::asset_version('admin/js/etk-controls.js'),
+            true
         );
 
         add_action('admin_footer', [self::class, 'print_tooltip_script']);

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\FormsPage as ContactFormsPage;
+use LRob\EmailToolkit\Modules\ContactForm\CPT as ContactFormCPT;
+use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository as ContactFormSubmissions;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController as LogsPageController;
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
 use LRob\EmailToolkit\Modules\Logging\LogRepository;
@@ -79,6 +82,7 @@ final class DashboardPage
             <?php endif; ?>
 
             <?php $this->render_modules_grid(); ?>
+            <?php $this->render_contact_form_section(); ?>
             <?php $this->render_recent_activity($repository); ?>
 
             <?php $this->render_test_email_popover(); ?>
@@ -392,6 +396,61 @@ final class DashboardPage
         <?php
     }
 
+    /**
+     * Contact Form section. When enabled and no forms exist, shows a big
+     * "create your first form" CTA. When forms exist, shows a small summary
+     * with submission count. When disabled, renders nothing (module card
+     * handles that).
+     */
+    private function render_contact_form_section(): void
+    {
+        $module = $this->manager->get('contact_form');
+        if (!$module instanceof ModuleInterface || !$module->is_enabled()) {
+            return;
+        }
+
+        $forms_count = (int) wp_count_posts(ContactFormCPT::POST_TYPE)->publish;
+        $forms_count += (int) wp_count_posts(ContactFormCPT::POST_TYPE)->draft;
+        $new_form_url = admin_url('post-new.php?post_type=' . ContactFormCPT::POST_TYPE);
+        $list_url = admin_url('admin.php?page=' . ContactFormsPage::SLUG);
+
+        if ($forms_count === 0) {
+            ?>
+            <h2 class="lrob-etk-section-title"><?php esc_html_e('Contact forms', 'lrob-email-toolkit'); ?></h2>
+            <div class="lrob-etk-cf-onboard">
+                <div class="lrob-etk-cf-onboard-icon dashicons dashicons-feedback" aria-hidden="true"></div>
+                <h3 class="lrob-etk-cf-onboard-title"><?php esc_html_e('Create my first contact form', 'lrob-email-toolkit'); ?></h3>
+                <p class="lrob-etk-cf-onboard-text">
+                    <?php esc_html_e('Build a form in minutes with Gutenberg — drag fields, pick a style preset, and embed it on any page. Stacked anti-spam is on by default.', 'lrob-email-toolkit'); ?>
+                </p>
+                <a href="<?php echo esc_url($new_form_url); ?>" class="button button-primary button-hero">
+                    <?php esc_html_e('Create a contact form', 'lrob-email-toolkit'); ?>
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+            <?php
+            return;
+        }
+
+        $submissions = (new ContactFormSubmissions())->count_total();
+        ?>
+        <h2 class="lrob-etk-section-title"><?php esc_html_e('Contact forms', 'lrob-email-toolkit'); ?></h2>
+        <div class="lrob-etk-cf-summary">
+            <div class="lrob-etk-cf-summary-numbers">
+                <span class="lrob-etk-cf-summary-num"><?php echo number_format_i18n($forms_count); ?></span>
+                <span class="lrob-etk-cf-summary-label"><?php echo esc_html(_n('form', 'forms', $forms_count, 'lrob-email-toolkit')); ?></span>
+                <span class="lrob-etk-cf-summary-sep">·</span>
+                <span class="lrob-etk-cf-summary-num"><?php echo number_format_i18n($submissions); ?></span>
+                <span class="lrob-etk-cf-summary-label"><?php echo esc_html(_n('submission', 'submissions', $submissions, 'lrob-email-toolkit')); ?></span>
+            </div>
+            <div class="lrob-etk-cf-summary-buttons">
+                <a href="<?php echo esc_url($list_url); ?>" class="button"><?php esc_html_e('Manage forms', 'lrob-email-toolkit'); ?></a>
+                <a href="<?php echo esc_url($new_form_url); ?>" class="button button-primary"><?php esc_html_e('Add new', 'lrob-email-toolkit'); ?></a>
+            </div>
+        </div>
+        <?php
+    }
+
     private function render_test_email_popover(): void
     {
         $identities = (new IdentityRepository())->all();
@@ -425,8 +484,16 @@ final class DashboardPage
                 <div class="lrob-etk-field">
                     <label for="lrob-etk-dashboard-test-choice"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
                     <select id="lrob-etk-dashboard-test-choice" class="lrob-etk-select">
-                        <option value="current"><?php echo esc_html(sprintf(__('Me (%s)', 'lrob-email-toolkit'), $current_user->user_email)); ?></option>
-                        <option value="admin"><?php echo esc_html(sprintf(__('Site admin (%s)', 'lrob-email-toolkit'), $admin_email)); ?></option>
+                        <option value="current"><?php echo esc_html(sprintf(
+                            /* translators: %s: the current logged-in user's email address */
+                            __('Me (%s)', 'lrob-email-toolkit'),
+                            $current_user->user_email
+                        )); ?></option>
+                        <option value="admin"><?php echo esc_html(sprintf(
+                            /* translators: %s: the site's admin email address */
+                            __('Site admin (%s)', 'lrob-email-toolkit'),
+                            $admin_email
+                        )); ?></option>
                         <option value="custom"><?php esc_html_e('Custom…', 'lrob-email-toolkit'); ?></option>
                     </select>
                 </div>

@@ -24,6 +24,16 @@ final class Activator
         update_option(self::OPTION_DB_VERSION, LROB_ETK_VERSION);
     }
 
+    /**
+     * Idempotent capability self-heal. Recovers from delete+file-copy
+     * reinstalls where uninstall.php stripped the cap but the activation
+     * hook never re-fired. Hooked on admin_init.
+     */
+    public static function ensure_capability(): void
+    {
+        self::grant_capability();
+    }
+
     private static function grant_capability(): void
     {
         $role = get_role('administrator');
