@@ -6,8 +6,13 @@ namespace LRob\EmailToolkit\Modules\Logging;
 
 /**
  * Re-sends a previously logged email by reconstructing wp_mail() arguments
- * from the stored entry. The retry produces a new log row (status=sent or
- * failed); the original entry is marked as 'retried' for traceability.
+ * from the stored entry. The retry produces a new log row with current
+ * timestamp and its own status (sent / failed). The original entry is left
+ * untouched — it represents a separate, earlier send event.
+ *
+ * Note: earlier versions of this class flipped the original entry's status
+ * to `retried`. That made the stats undercount real activity (one resend
+ * net zero in the "sent" count). The original stays as it was now.
  *
  * Attachments: we store both filename and full path for each. At resend time,
  * each attachment is re-attached if its file still exists on disk. Files that
@@ -54,9 +59,9 @@ final class Resender
             }
         }
 
-        // Mark original as retried before re-sending so the new entry's row
-        // appears distinct from the old one in the list.
-        $this->repository->update_status($log_id, LogEntry::STATUS_RETRIED);
+        // Do NOT touch the original entry. The new log row that wp_mail
+        // creates via the Logger represents the resend with the current
+        // timestamp and its own success/failure status.
 
         $captured_error = null;
         $capture = static function (\WP_Error $err) use (&$captured_error): void {
