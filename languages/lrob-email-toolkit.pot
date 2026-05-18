@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-18T00:41:09+00:00\n"
+"POT-Creation-Date: 2026-05-18T01:01:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -129,11 +129,11 @@ msgid "Since beginning"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:315
-msgid "Bars"
+msgid "Smoothed line"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:315
-msgid "Bar chart"
+msgid "Smoothed line chart"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:318
@@ -145,11 +145,11 @@ msgid "Line chart"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:321
-msgid "Smoothed line"
+msgid "Bars"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:321
-msgid "Smoothed line chart"
+msgid "Bar chart"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:329

@@ -312,14 +312,14 @@ final class DashboardPage
                     </select>
                 </div>
                 <div class="lrob-etk-chart-type">
-                    <button type="button" data-chart-type="bars" class="is-active" title="<?php esc_attr_e('Bars', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Bar chart', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-chart-bar"></span>
+                    <button type="button" data-chart-type="smooth" class="is-active" title="<?php esc_attr_e('Smoothed line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Smoothed line chart', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-chart-area"></span>
                     </button>
                     <button type="button" data-chart-type="line" title="<?php esc_attr_e('Line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Line chart', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-chart-line"></span>
                     </button>
-                    <button type="button" data-chart-type="smooth" title="<?php esc_attr_e('Smoothed line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Smoothed line chart', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-chart-area"></span>
+                    <button type="button" data-chart-type="bars" title="<?php esc_attr_e('Bars', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Bar chart', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-chart-bar"></span>
                     </button>
                 </div>
             </div>
@@ -565,7 +565,7 @@ final class DashboardPage
     function initChart() {
         var rangeSel = $('lrob-etk-chart-range');
         var typeButtons = $$('.lrob-etk-chart-type button');
-        var currentType = 'bars';
+        var currentType = 'smooth';
 
         if (rangeSel) rangeSel.value = D.chart.default || '30d';
 
@@ -803,7 +803,7 @@ final class DashboardPage
             var rangeSel = $('lrob-etk-chart-range');
             if (!rangeSel || !D.chart || D.chart.empty) return;
             var active = $$('.lrob-etk-chart-type button.is-active')[0];
-            var type = active ? active.getAttribute('data-chart-type') : 'bars';
+            var type = active ? active.getAttribute('data-chart-type') : 'smooth';
             var data = D.chart.ranges[rangeSel.value];
             if (data) renderSvg(data, type);
         }, 150);
