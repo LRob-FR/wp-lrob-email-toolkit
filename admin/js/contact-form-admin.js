@@ -42,7 +42,7 @@
             return field.value;
         }
 
-        function save(field, immediate) {
+        function save(field) {
             var key = field.dataset.key;
             if (!key) return;
             var value = readValue(field);
@@ -77,9 +77,6 @@
                     setStatus('error');
                     lastSent.delete(field);
                 });
-            // Silence the immediate-arg lint — kept for future use (currently
-            // every call path is effectively immediate-or-debounced upstream).
-            void immediate;
         }
 
         function setStatus(state, detail) {
@@ -114,15 +111,15 @@
             if (isText) {
                 field.addEventListener('input', function () {
                     clearTimeout(typingTimers.get(field));
-                    typingTimers.set(field, setTimeout(function () { save(field, false); }, TYPING_DEBOUNCE_MS));
+                    typingTimers.set(field, setTimeout(function () { save(field); }, TYPING_DEBOUNCE_MS));
                 });
                 field.addEventListener('blur', function () {
                     clearTimeout(typingTimers.get(field));
-                    save(field, true);
+                    save(field);
                 });
             } else {
                 // selects, checkboxes, etc. — save immediately.
-                field.addEventListener('change', function () { save(field, true); });
+                field.addEventListener('change', function () { save(field); });
             }
         });
     }

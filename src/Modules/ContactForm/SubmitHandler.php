@@ -10,26 +10,14 @@ use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
 use LRob\EmailToolkit\Support\Events;
 
 /**
- * The single AJAX endpoint that processes every contact-form submission. Hangs
- * off both `wp_ajax_nopriv_lrob_etk_cf_submit` (anon submitters — the common
- * case) and `wp_ajax_lrob_etk_cf_submit` (logged-in users).
+ * AJAX endpoint that processes every contact-form submission. Hangs off both
+ * `wp_ajax_nopriv_lrob_etk_cf_submit` and `wp_ajax_lrob_etk_cf_submit`.
  *
- * Pipeline order matters — cheap checks before expensive ones:
- *
- *   1. Nonce — fail-fast on tampered or stale forms.
- *   2. Form exists + is published — silent fail if the form was deleted.
- *   3. Honeypot — if tripped, return a *successful-looking* response so bots
- *      don't get feedback that lets them adapt; record the submission as
- *      spam_blocked.
- *   4. Time-trap — humans take at least ~1.5s to fill any form.
- *   5. Rate limit — per (ip_hash, form_id) sliding window.
- *   6. Challenge — math (phase 1), pluggable later.
- *   7. (TODO phase 2) — Captcha provider.
- *   8. (TODO phase 2 backlog) — IP reputation (AbuseIPDB) with caching.
- *   9. Field validation — required, type, options-in-set, etc.
- *
- * On success: insert submission row → send email via SMTP module → update
- * submission with log_id and final status. Dispatch contact_form.* events.
+ * Pipeline order matters — cheap checks before expensive ones: nonce → form
+ * exists + published → honeypot (silent success so bots can't adapt) →
+ * time-trap → rate limit → challenge → field validation. On success: insert
+ * submission row → send via SMTP → update with log_id. Dispatches
+ * contact_form.* events at every interesting transition.
  */
 final class SubmitHandler
 {
@@ -56,7 +44,6 @@ final class SubmitHandler
     {
         $post = wp_unslash($_POST);
 
-        // 1. Nonce
         $nonce = isset($post['_wpnonce']) ? (string) $post['_wpnonce'] : '';
         if ($nonce === '') {
             $nonce = isset($post['_lrob_etk_cf_nonce']) ? (string) $post['_lrob_etk_cf_nonce'] : '';
@@ -65,7 +52,6 @@ final class SubmitHandler
             wp_send_json_error(['message' => __('This form has expired. Please reload the page and try again.', 'lrob-email-toolkit')], 400);
         }
 
-        // 2. Form + status
         $form_id = isset($post['_lrob_etk_cf_form_id']) ? (int) $post['_lrob_etk_cf_form_id'] : 0;
         $form = $form_id > 0 ? get_post($form_id) : null;
         if (!$form || $form->post_type !== CPT::POST_TYPE || $form->post_status !== 'publish') {
@@ -83,14 +69,13 @@ final class SubmitHandler
             'referer'    => isset($_SERVER['HTTP_REFERER']) ? (string) $_SERVER['HTTP_REFERER'] : '',
         ];
 
-        // 3. Honeypot — silent success on trip
+        // Honeypot returns a successful-looking response so bots can't adapt.
         if (Settings::effective_honeypot($form_id) && Honeypot::tripped($post)) {
             $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'honeypot_tripped'], SubmissionRepository::STATUS_SPAM_BLOCKED);
             Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'honeypot']);
             wp_send_json_success(['message' => Settings::effective_success_message($form_id)]);
         }
 
-        // 4. Time-trap
         $started = isset($post['_lrob_etk_cf_started']) ? (int) $post['_lrob_etk_cf_started'] : 0;
         if ($started > 0 && (time() - $started) < self::MIN_FORM_TIME_SECONDS) {
             $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'time_trap'], SubmissionRepository::STATUS_SPAM_BLOCKED);
@@ -98,13 +83,11 @@ final class SubmitHandler
             wp_send_json_success(['message' => Settings::effective_success_message($form_id)]);
         }
 
-        // 5. Rate limit
         if ($this->rate_limiter->over_limit($ip_hash, $form_id, Settings::effective_rate_max($form_id), Settings::effective_rate_window_seconds($form_id))) {
             Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'rate_limit']);
             wp_send_json_error(['message' => __('You are submitting too quickly. Please wait a few minutes and try again.', 'lrob-email-toolkit')], 429);
         }
 
-        // 6. Challenge
         if (Settings::effective_challenge($form_id) === CPT::CHALLENGE_MATH) {
             [$ok, $message] = MathChallenge::verify($post);
             if (!$ok) {
@@ -113,9 +96,6 @@ final class SubmitHandler
             }
         }
 
-        // 7+8. (phase 2 / backlog hooks live here)
-
-        // 9. Field validation
         $structure = FormStructure::load($form_id);
         $field_blocks = self::collect_fields_from_structure($structure);
         $errors = self::validate_fields($field_blocks, $field_values);
@@ -152,24 +132,10 @@ final class SubmitHandler
         wp_send_json_success(['message' => Settings::effective_success_message($form_id)]);
     }
 
-    /**
-     * Fallback for forms whose nonce arrived as a data-attribute on the form
-     * element (we use that pattern so the nonce input isn't disabled by some
-     * page builders that strip "non-standard" inputs). The JS doesn't actually
-     * forward it as _wpnonce in fd; we copy it server-side from the form's
-     * action input or skip and rely on the per-render nonce in data-nonce
-     * pulled via header.
-     *
-     * Phase 1: the embed renderer emits a `data-nonce` attribute and the JS
-     * doesn't currently auto-fill _wpnonce — this method accepts a nonce
-     * provided in the X-WP-Nonce header, which fetch can set if requested.
-     * For now we always set it as a hidden input below, so this is a safety
-     * net for future tweaks.
-     *
-     * @param array<string, mixed> $post
-     */
+    /** Optional X-WP-Nonce header fallback (some page builders strip "non-standard" hidden inputs). */
     private function verify_data_attr_nonce(array $post): bool
     {
+        unset($post);
         $nonce = isset($_SERVER['HTTP_X_WP_NONCE']) ? (string) $_SERVER['HTTP_X_WP_NONCE'] : '';
         if ($nonce === '') {
             return false;

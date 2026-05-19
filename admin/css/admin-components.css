@@ -1,0 +1,882 @@
+/* LRob - Email Toolkit — admin styles: COMPONENTS
+ *
+ * Shared UI primitives reused across module pages. Owns: CTA card, status
+ * badges, empty state, tooltips, toggle switch, modal, segmented control,
+ * select, custom combobox + menu, anchored popover + modal variant, form
+ * errors, flash messages, page header with inline toggle, disabled-message
+ * line, inline switch, and "Card primitives" (title input, card-form,
+ * card-form-head, card-status, card-footer, card-delete-link, tighter
+ * form-section headings inside cards).
+ *
+ * Anything used by more than one module belongs here. SMTP-only behaviour
+ * (identity-card grid, default-identity badge) lives in admin-smtp.css.
+ * Don't put module-specific class names here — when in doubt, grep for it:
+ * if used in only one Modules/<X>/ directory, it's not a component.
+ */
+
+/* ---------- CTA card (disabled-and-empty state) ---------- */
+
+.lrob-etk-cta {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 48px 32px;
+    text-align: center;
+    max-width: 640px;
+    margin: 32px auto;
+    box-shadow: var(--etk-shadow);
+}
+
+.lrob-etk-cta-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--etk-accent);
+    margin: 0 auto 16px;
+}
+
+.lrob-etk-cta-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--etk-fg);
+}
+
+.lrob-etk-cta-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--etk-muted);
+    margin: 0 0 24px;
+}
+
+/* ---------- Status badges ---------- */
+
+.lrob-etk-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lrob-etk-status--on      { background: var(--etk-success-bg); color: #1e6b3a; }
+.lrob-etk-status--off     { background: var(--etk-soft);       color: var(--etk-muted); }
+.lrob-etk-status--fail    { background: var(--etk-danger-bg);  color: #a00; }
+.lrob-etk-status--pending { background: var(--etk-warning-bg); color: #996800; }
+
+/* ---------- Empty state ---------- */
+
+.lrob-etk-empty {
+    background: #fff;
+    border: 1px dashed var(--etk-line-strong);
+    padding: 32px;
+    text-align: center;
+    border-radius: var(--etk-radius);
+    margin: 16px 0;
+}
+
+/* ---------- Tooltips ---------- */
+
+.lrob-etk-tip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--etk-muted);
+    cursor: help;
+    position: relative;
+    vertical-align: middle;
+    margin: 0 2px;
+    transition: background 0.15s ease;
+}
+.lrob-etk-tip:hover, .lrob-etk-tip:focus, .lrob-etk-tip.is-open {
+    background: var(--etk-soft);
+    outline: none;
+}
+.lrob-etk-tip .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+.lrob-etk-tip-text {
+    display: none;
+    position: fixed;
+    width: 280px;
+    max-width: calc(100vw - 24px);
+    padding: 8px 12px;
+    background: #1d2327;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 4px;
+    z-index: 200000;  /* above modals (which sit at 100000) */
+    cursor: text;
+    box-shadow: 0 6px 16px rgba(0,0,0,.25);
+    font-weight: 400;
+    text-align: left;
+    white-space: normal;
+    text-transform: none;  /* reset inherited uppercase from parent labels/headings */
+    letter-spacing: normal;
+    pointer-events: none;  /* allow clicks to pass through tooltip body */
+}
+.lrob-etk-tip-text.is-shown {
+    display: block;
+}
+
+/* ---------- Toggle switch ---------- */
+
+.lrob-etk-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.lrob-etk-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.lrob-etk-switch-track {
+    position: absolute;
+    inset: 0;
+    background: var(--etk-line-strong);
+    border-radius: 999px;
+    transition: background 0.15s ease;
+    cursor: pointer;
+}
+.lrob-etk-switch-track::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.lrob-etk-switch input:checked + .lrob-etk-switch-track {
+    background: var(--etk-success);
+}
+.lrob-etk-switch input:checked + .lrob-etk-switch-track::before {
+    transform: translateX(16px);
+}
+.lrob-etk-switch input:focus + .lrob-etk-switch-track {
+    box-shadow: 0 0 0 2px var(--etk-accent);
+}
+
+.lrob-etk-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+}
+.lrob-etk-switch-label {
+    font-weight: 500;
+    color: var(--etk-fg);
+}
+
+/* ---------- Modal ---------- */
+
+body.lrob-etk-modal-open {
+    overflow: hidden;
+}
+
+.lrob-etk-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+}
+.lrob-etk-modal[hidden] {
+    display: none;
+}
+.lrob-etk-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(29, 35, 39, 0.55);
+}
+.lrob-etk-modal-dialog {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    width: 100%;
+    max-width: 820px;
+    z-index: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.lrob-etk-modal-dialog--small {
+    max-width: 500px;
+}
+
+.lrob-etk-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--etk-line);
+    background: var(--etk-soft);
+}
+.lrob-etk-modal-title-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+.lrob-etk-modal-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--etk-muted);
+    padding: 4px;
+    border-radius: 4px;
+    line-height: 1;
+}
+.lrob-etk-modal-close:hover {
+    background: rgba(0,0,0,.05);
+    color: var(--etk-fg);
+}
+
+.lrob-etk-modal-body {
+    padding: 16px 24px;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+}
+
+.lrob-etk-modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--etk-line);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    background: #fafafa;
+}
+
+/* ---------- Modal two-column form layout ---------- */
+
+.lrob-etk-modal-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 16px 0;
+}
+@media (max-width: 720px) {
+    .lrob-etk-modal-columns { grid-template-columns: 1fr; }
+}
+
+.lrob-etk-form-column h3,
+.lrob-etk-form-row-full h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--etk-muted);
+    border: none;
+    padding: 0;
+}
+
+.lrob-etk-form-row-full {
+    margin: 16px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--etk-soft);
+}
+
+.lrob-etk-field {
+    margin-bottom: 12px;
+}
+.lrob-etk-field > label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lrob-etk-field input[type="text"],
+.lrob-etk-field input[type="email"],
+.lrob-etk-field input[type="password"],
+.lrob-etk-field input[type="number"],
+.lrob-etk-field select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ---------- Segmented control ---------- */
+
+.lrob-etk-segmented {
+    display: inline-flex;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+}
+.lrob-etk-segmented button {
+    background: #fff;
+    border: none;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--etk-muted);
+    border-right: 1px solid var(--etk-line);
+}
+.lrob-etk-segmented button:last-child { border-right: none; }
+.lrob-etk-segmented button.is-active {
+    background: var(--etk-accent);
+    color: #fff;
+}
+
+/* ---------- Select with subtle arrow (combobox trigger) ---------- */
+
+.lrob-etk-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2380868b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 10px 7px;
+    padding-right: 26px;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    height: 32px;
+    line-height: 1.4;
+    font-size: 13px;
+    color: var(--etk-fg);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+.lrob-etk-select:hover {
+    border-color: var(--etk-line-strong);
+}
+.lrob-etk-select:focus {
+    border-color: var(--etk-accent);
+    outline: 1px solid var(--etk-accent);
+    outline-offset: -1px;
+}
+
+/* ---------- Custom combobox (input + dropdown arrow as one field) ---------- */
+
+.lrob-etk-combo-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+}
+.lrob-etk-combo-row .lrob-etk-combo {
+    flex: 1;
+    min-width: 0;
+}
+.lrob-etk-combo {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    background: #fff;
+    transition: border-color 0.15s ease;
+}
+.lrob-etk-combo:hover {
+    border-color: var(--etk-line-strong);
+}
+.lrob-etk-combo:focus-within {
+    border-color: var(--etk-accent);
+    box-shadow: 0 0 0 1px var(--etk-accent);
+}
+.lrob-etk-combo-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    padding: 4px 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--etk-fg);
+    box-shadow: none;
+    outline: none;
+}
+.lrob-etk-combo-input::placeholder {
+    color: var(--etk-line-strong);
+}
+.lrob-etk-combo-toggle {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--etk-soft);
+    cursor: pointer;
+    padding: 0 8px;
+    color: #80868b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.lrob-etk-combo-toggle:hover {
+    background: var(--etk-soft);
+    color: var(--etk-fg);
+}
+.lrob-etk-combo-toggle .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+.lrob-etk-combo.is-open .lrob-etk-combo-toggle .dashicons {
+    transform: rotate(180deg);
+}
+
+/* Select mode: readonly input is the visible label, the hidden input is the
+ * real value. WordPress admin sets `input[readonly] { background: #f6f7f7 }`
+ * by default — we override to transparent so the combobox keeps the white
+ * card look users expect (no grey "disabled" tone). */
+.lrob-etk-combo-input[readonly] {
+    cursor: pointer;
+    caret-color: transparent;
+    user-select: none;
+    background: transparent;
+    color: var(--etk-fg);
+}
+.lrob-etk-combo--select { cursor: pointer; }
+
+/* Dropdown menu */
+.lrob-etk-combo-menu {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    z-index: 100;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.lrob-etk-combo-menu li {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--etk-fg);
+    margin: 0;
+}
+.lrob-etk-combo-menu li:hover {
+    background: var(--etk-soft);
+}
+.lrob-etk-combo-menu li.is-selected {
+    background: #f0f6fc;
+    color: var(--etk-accent);
+    font-weight: 500;
+}
+
+/* ---------- Anchored popover (used for conn-test details + test email) ---------- */
+
+.lrob-etk-popover {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: 8px;
+    box-shadow: 0 8px 28px rgba(0,0,0,.18);
+    width: 360px;
+    max-width: calc(100vw - 24px);
+    z-index: 200000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.lrob-etk-popover[hidden] { display: none; }
+.lrob-etk-popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--etk-line);
+    background: var(--etk-soft);
+}
+.lrob-etk-popover-header h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--etk-muted);
+}
+.lrob-etk-popover-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--etk-muted);
+    padding: 2px 4px;
+}
+.lrob-etk-popover-close:hover { color: var(--etk-fg); }
+.lrob-etk-popover-body {
+    padding: 12px;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+.lrob-etk-popover-message {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.lrob-etk-popover.is-success .lrob-etk-popover-message { color: #1e6b3a; }
+.lrob-etk-popover.is-failure .lrob-etk-popover-message { color: #8a0000; }
+.lrob-etk-popover-debug {
+    margin: 8px 0 0;
+    padding: 8px;
+    background: var(--etk-soft);
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.4;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.lrob-etk-popover-footer {
+    padding: 8px 12px;
+    border-top: 1px solid var(--etk-line);
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    background: #fafafa;
+}
+
+/* ---------- Anchored modal variant (used for test email near button) ---------- */
+
+.lrob-etk-modal[data-anchored="1"] {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0;
+    overflow: visible;
+}
+.lrob-etk-modal[data-anchored="1"] .lrob-etk-modal-backdrop {
+    background: transparent;
+}
+.lrob-etk-modal[data-anchored="1"] .lrob-etk-modal-dialog {
+    /* top/left set by JS */
+    width: 360px;
+    max-width: calc(100vw - 24px);
+    box-shadow: 0 8px 28px rgba(0,0,0,.2);
+}
+
+/* ---------- Form errors ---------- */
+
+.lrob-etk-field-errors {
+    margin: 12px 0;
+    padding: 8px 12px;
+    background: var(--etk-danger-bg);
+    border-left: 3px solid var(--etk-danger);
+    color: #8a0000;
+    border-radius: 4px;
+}
+
+/* ---------- Flash messages container ---------- */
+
+.lrob-etk-flash:empty { display: none; }
+.lrob-etk-flash { margin: 12px 0; }
+
+/* ---------- Page header with inline toggle + add button ---------- */
+
+.lrob-etk-page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0 16px;
+    flex-wrap: wrap;
+}
+.lrob-etk-page-header .lrob-etk-page-title {
+    margin: 0;
+}
+.lrob-etk-page-add {
+    margin-left: auto;
+}
+.lrob-etk-page-add .dashicons,
+.lrob-etk-page-header-actions .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    margin-right: 4px;
+    margin-top: 3px;
+}
+.lrob-etk-page-header-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.lrob-etk-page-toggle-form {
+    margin: 0;
+    display: inline-block;
+}
+.lrob-etk-page-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+.lrob-etk-page-toggle input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.lrob-etk-page-toggle .lrob-etk-switch-track {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+    background: var(--etk-line-strong);
+    border-radius: 999px;
+    transition: background 0.15s ease;
+}
+.lrob-etk-page-toggle .lrob-etk-switch-track::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.lrob-etk-page-toggle input:checked + .lrob-etk-switch-track {
+    background: var(--etk-success);
+}
+.lrob-etk-page-toggle input:checked + .lrob-etk-switch-track::before {
+    transform: translateX(14px);
+}
+.lrob-etk-page-toggle-state {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--etk-muted);
+}
+.lrob-etk-page-toggle input:checked ~ .lrob-etk-page-toggle-state {
+    color: var(--etk-success);
+}
+
+/* ---------- Disabled-message line ---------- */
+
+.lrob-etk-disabled-message {
+    margin: 24px 0;
+    padding: 16px 20px;
+    background: var(--etk-soft);
+    border-left: 3px solid var(--etk-line-strong);
+    border-radius: var(--etk-radius);
+    color: var(--etk-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ---------- Inline switch (used in card headers, force-row, etc.) ---------- */
+
+.lrob-etk-inline-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+.lrob-etk-inline-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.lrob-etk-inline-switch .lrob-etk-switch-track {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+    background: var(--etk-line-strong);
+    border-radius: 999px;
+    transition: background 0.15s ease;
+}
+.lrob-etk-inline-switch .lrob-etk-switch-track::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.lrob-etk-inline-switch input:checked + .lrob-etk-switch-track {
+    background: var(--etk-success);
+}
+.lrob-etk-inline-switch input:checked + .lrob-etk-switch-track::before {
+    transform: translateX(14px);
+}
+.lrob-etk-inline-switch-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--etk-muted);
+}
+.lrob-etk-inline-switch input:checked ~ .lrob-etk-inline-switch-label {
+    color: var(--etk-success);
+}
+
+/* ---------- Card primitives ----------
+ *
+ * Reused by SMTP identity cards and Contact Form cards. Module-specific
+ * extensions (.lrob-etk-card-footer-default, .lrob-etk-set-default,
+ * .lrob-etk-default-badge) live with their owner.
+ */
+
+.lrob-etk-title-input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--etk-line);
+    background: transparent;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    padding: 4px 2px 6px;
+    margin: 0;
+    box-shadow: none;
+    outline: none;
+    line-height: 1.4;
+    transition: border-color 0.15s ease;
+}
+.lrob-etk-title-input:hover {
+    border-bottom-color: var(--etk-line-strong);
+}
+.lrob-etk-title-input:focus {
+    border-bottom-color: var(--etk-accent);
+}
+.lrob-etk-title-input::placeholder {
+    color: var(--etk-line-strong);
+    font-weight: 400;
+}
+
+.lrob-etk-card-form {
+    padding: 10px 18px 14px;
+}
+
+.lrob-etk-card-form-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.lrob-etk-card-form-head .lrob-etk-title-input {
+    flex: 1 1 200px;
+    min-width: 0;
+    border-bottom: 1px solid var(--etk-line);
+    margin: 0;
+    transition: border-color 0.15s ease;
+}
+.lrob-etk-card-form-head .lrob-etk-title-input:hover {
+    border-bottom-color: var(--etk-line-strong);
+}
+.lrob-etk-card-form-head .lrob-etk-title-input:focus {
+    border-bottom-color: var(--etk-accent);
+}
+.lrob-etk-card-form-head .lrob-etk-segmented {
+    flex-shrink: 0;
+}
+
+.lrob-etk-card-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--etk-muted);
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+    min-width: 60px;
+    text-align: right;
+}
+.lrob-etk-card-status.is-saving {
+    background: var(--etk-soft);
+    color: var(--etk-muted);
+}
+.lrob-etk-card-status.is-saved {
+    background: var(--etk-success-bg);
+    color: #1e6b3a;
+}
+.lrob-etk-card-status.is-failed {
+    background: var(--etk-danger-bg);
+    color: #8a0000;
+}
+
+/* Canonical card footer. SMTP overrides justify-content via the more-specific
+ * .lrob-etk-card-footer-default selector; Contact Form overrides via
+ * .lrob-etk-cf-form-card .lrob-etk-card-footer. */
+.lrob-etk-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--etk-soft);
+}
+.lrob-etk-card-footer-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.lrob-etk-card-delete-link {
+    background: transparent;
+    border: none;
+    color: var(--etk-muted);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px 6px;
+}
+.lrob-etk-card-delete-link:hover {
+    color: var(--etk-danger);
+}
+
+/* Tighter form-section headings inside cards */
+.lrob-etk-card-form .lrob-etk-form-column h3,
+.lrob-etk-card-form .lrob-etk-form-row-full h3 {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+}
+.lrob-etk-card-form .lrob-etk-form-row-full {
+    margin: 12px 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--etk-soft);
+}
+.lrob-etk-card-form .lrob-etk-modal-columns {
+    margin: 12px 0;
+    gap: 20px;
+}

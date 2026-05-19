@@ -90,6 +90,21 @@ final class FormsPage
             self::asset_version('admin/js/contact-form-fields-editor.js'),
             true
         );
+        // "Start a new form" picker modal.
+        wp_enqueue_script(
+            'lrob-etk-cf-new-picker',
+            LROB_ETK_URL . 'admin/js/contact-form-new-picker.js',
+            [],
+            self::asset_version('admin/js/contact-form-new-picker.js'),
+            true
+        );
+        wp_localize_script('lrob-etk-cf-new-picker', 'lrobEtkCfNewPicker', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'action'  => AjaxController::ACTION_CREATE_FORM,
+            'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),
+            'pageUrl' => admin_url('admin.php?page=' . self::SLUG),
+        ]);
+
         wp_localize_script('lrob-etk-cf-fields-editor', 'lrobEtkCfEditor', [
             'fieldTypes' => self::field_types(),
             'i18n'       => [
@@ -525,9 +540,6 @@ final class FormsPage
     {
         $templates = TemplateRegistry::list_for_picker();
         $existing = self::fetch_forms();
-        $ajax_url = admin_url('admin-ajax.php');
-        $nonce = wp_create_nonce(AjaxController::NONCE_ACTION);
-        $page_url = admin_url('admin.php?page=' . self::SLUG);
         ?>
         <div class="lrob-etk-cf-new-picker" id="lrob-etk-cf-new-picker" hidden>
             <div class="lrob-etk-cf-new-picker-inner">
@@ -576,66 +588,6 @@ final class FormsPage
             </div>
         </div>
 
-        <script>
-        (function () {
-            var nonce = <?php echo wp_json_encode($nonce); ?>;
-            var ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
-            var pageUrl = <?php echo wp_json_encode($page_url); ?>;
-
-            function ready(fn) {
-                if (document.readyState !== 'loading') fn();
-                else document.addEventListener('DOMContentLoaded', fn);
-            }
-
-            ready(function () {
-                var picker = document.getElementById('lrob-etk-cf-new-picker');
-                if (!picker) return;
-                // The onboarding-state button only exists when there are no
-                // forms yet — but render order puts the picker script BEFORE
-                // the empty state in the DOM, so binding must wait for parse.
-                var openBtns = [
-                    document.getElementById('lrob-etk-cf-new-form-btn'),
-                    document.getElementById('lrob-etk-cf-new-form-btn-empty')
-                ];
-
-                function open() { picker.hidden = false; document.body.style.overflow = 'hidden'; }
-                function close() { picker.hidden = true; document.body.style.overflow = ''; }
-
-                openBtns.forEach(function (b) { if (b) b.addEventListener('click', open); });
-            picker.addEventListener('click', function (e) {
-                if (e.target === picker || e.target.closest('[data-close]')) {
-                    close();
-                    return;
-                }
-                var card = e.target.closest('.lrob-etk-cf-picker-card');
-                if (!card) return;
-                Array.prototype.forEach.call(picker.querySelectorAll('.lrob-etk-cf-picker-card'), function (c) { c.disabled = true; });
-                var fd = new FormData();
-                fd.append('action', 'lrob_etk_cf_create_form');
-                fd.append('_nonce', nonce);
-                fd.append('source', card.getAttribute('data-source') || 'blank');
-                if (card.getAttribute('data-slug')) fd.append('slug', card.getAttribute('data-slug'));
-                if (card.getAttribute('data-form-id')) fd.append('form_id', card.getAttribute('data-form-id'));
-                fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
-                    .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
-                    .then(function (resp) {
-                        if (resp && resp.success && resp.data && resp.data.form_id) {
-                            window.location.href = pageUrl + '#form-' + resp.data.form_id;
-                            // Force reload so the new card renders.
-                            window.location.reload();
-                        } else {
-                            Array.prototype.forEach.call(picker.querySelectorAll('.lrob-etk-cf-picker-card'), function (c) { c.disabled = false; });
-                            alert((resp && resp.data && resp.data.message) || 'Could not create form.');
-                        }
-                    })
-                    .catch(function () {
-                        Array.prototype.forEach.call(picker.querySelectorAll('.lrob-etk-cf-picker-card'), function (c) { c.disabled = false; });
-                    });
-                });
-                document.addEventListener('keydown', function (e) { if (!picker.hidden && e.key === 'Escape') close(); });
-            });
-        })();
-        </script>
         <?php
     }
 

@@ -10,7 +10,21 @@ namespace LRob\EmailToolkit\Admin;
  */
 final class Assets
 {
-    public const HANDLE_CSS = 'lrob-etk-admin';
+    public const HANDLE_BASE       = 'lrob-etk-admin-base';
+    public const HANDLE_COMPONENTS = 'lrob-etk-admin-components';
+    public const HANDLE_DASHBOARD  = 'lrob-etk-admin-dashboard';
+    public const HANDLE_SMTP       = 'lrob-etk-admin-smtp';
+    public const HANDLE_LOGGING    = 'lrob-etk-admin-logging';
+    public const HANDLE_CF         = 'lrob-etk-admin-contact-form';
+
+    private const STYLE_FILES = [
+        self::HANDLE_BASE       => 'admin/css/admin-base.css',
+        self::HANDLE_COMPONENTS => 'admin/css/admin-components.css',
+        self::HANDLE_DASHBOARD  => 'admin/css/admin-dashboard.css',
+        self::HANDLE_SMTP       => 'admin/css/admin-smtp.css',
+        self::HANDLE_LOGGING    => 'admin/css/admin-logging.css',
+        self::HANDLE_CF         => 'admin/css/admin-contact-form.css',
+    ];
 
     public const HANDLE_CONTROLS_JS = 'lrob-etk-controls';
 
@@ -20,12 +34,18 @@ final class Assets
             return;
         }
 
-        wp_enqueue_style(
-            self::HANDLE_CSS,
-            LROB_ETK_URL . 'admin/css/admin.css',
-            [],
-            self::asset_version('admin/css/admin.css')
-        );
+        // Chained dependencies preserve cascade order: each file lists the
+        // previous handle as a dep so WordPress enqueues them in this order.
+        $deps = [];
+        foreach (self::STYLE_FILES as $handle => $relative_path) {
+            wp_enqueue_style(
+                $handle,
+                LROB_ETK_URL . $relative_path,
+                $deps,
+                self::asset_version($relative_path)
+            );
+            $deps = [$handle];
+        }
 
         // Shared admin UI components (combobox). Every toolkit page may use
         // them, so we load once here instead of per-module.

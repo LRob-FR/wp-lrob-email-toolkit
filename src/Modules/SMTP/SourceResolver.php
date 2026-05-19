@@ -74,13 +74,10 @@ final class SourceResolver
         return is_string($filtered) && $filtered !== '' ? $filtered : self::SOURCE_DEFAULT;
     }
 
+    // Fallback when the WC-callback wrapper hasn't pushed 'woocommerce' onto
+    // the stack (e.g. mail sent from a different action lifecycle).
     private function auto_detect(): string
     {
-        // WooCommerce wraps its mail dispatch through woocommerce_mail_callback;
-        // the SMTP Module installs a filter that wraps WC's callback to push
-        // 'woocommerce' onto the stack, so by the time wp_mail is filtered we
-        // would normally see it via the stack. This auto-detection is the
-        // safety net for code paths that bypass that wrapping.
         if (function_exists('did_action') && (
             doing_action('woocommerce_mail_callback')
             || doing_filter('woocommerce_mail_callback')

@@ -1,0 +1,185 @@
+/* LRob - Email Toolkit — admin styles: BASE
+ *
+ * Foundation layer. Owns: CSS variables (--etk-*), case/hierarchy
+ * normalization, page chrome (h1/h2 titles), WP form-table tweaks, and the
+ * generic site footer. Scoped under .lrob-etk so it never leaks into other
+ * admin pages. Uses the dashboard palette (#1d2327, #2271b1, #00a32a, #d63638).
+ *
+ * Sibling files (loaded in this order):
+ *   admin-base.css        — this file
+ *   admin-components.css  — shared primitives (modals, popovers, combobox, etc.)
+ *   admin-dashboard.css   — dashboard-only widgets
+ *   admin-smtp.css        — SMTP page (identity cards, from section, etc.)
+ *   admin-logging.css     — logs page + log view
+ *   admin-contact-form.css — contact form admin + WYSIWYG editor
+ *
+ * Cascade order matters. If you add a rule that depends on a primitive,
+ * make sure the primitive's file is enqueued before this one in Assets.php.
+ */
+
+/* WordPress's `.button { display: inline-block }` has equal specificity to the
+ * browser's UA `[hidden] { display: none }` and is loaded later, so plain
+ * `hidden` on .button elements doesn't actually hide them. Force the issue. */
+.lrob-etk [hidden] {
+    display: none !important;
+}
+
+/* ---------- Case + hierarchy normalization ---------- */
+/* Avoid uppercase on anything the user is meant to read. h3 (section header)
+ * should be larger than field labels — easy to invert by accident in CSS. */
+.lrob-etk h2,
+.lrob-etk h3,
+.lrob-etk-card-form h3,
+.lrob-etk-card-form label,
+.lrob-etk-card-form .lrob-etk-field > label,
+.lrob-etk-form-column h3,
+.lrob-etk-form-row-full h3,
+.lrob-etk-card-status,
+.lrob-etk-inline-switch-label,
+.lrob-etk-page-toggle-state,
+.lrob-etk-stat-label,
+.lrob-etk-log-meta-row .label,
+.lrob-etk-log-body h3,
+.lrob-etk-port-input label,
+.lrob-etk-modal-title-text {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.lrob-etk-card-form h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding: 0;
+    border: none;
+}
+.lrob-etk-form-column-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 24px;
+}
+.lrob-etk-form-column-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Tight inline switch used in section headers (smaller than the page-level one) */
+.lrob-etk-section-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--etk-muted);
+}
+.lrob-etk-section-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.lrob-etk-section-switch .lrob-etk-switch-track {
+    position: relative;
+    display: inline-block;
+    width: 26px;
+    height: 14px;
+    background: var(--etk-line-strong);
+    border-radius: 999px;
+    transition: background 0.15s ease;
+}
+.lrob-etk-section-switch .lrob-etk-switch-track::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.lrob-etk-section-switch input:checked + .lrob-etk-switch-track {
+    background: var(--etk-success);
+}
+.lrob-etk-section-switch input:checked + .lrob-etk-switch-track::before {
+    transform: translateX(12px);
+}
+.lrob-etk-section-switch-label {
+    font-size: 11px;
+}
+.lrob-etk-card-form .lrob-etk-field > label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--etk-muted);
+    margin-bottom: 4px;
+}
+
+/* ---------- Page chrome ---------- */
+
+.lrob-etk {
+    --etk-fg: #1d2327;
+    --etk-muted: #50575e;
+    --etk-soft: #f0f0f1;
+    --etk-line: #dcdcde;
+    --etk-line-strong: #c3c4c7;
+    --etk-accent: #2271b1;
+    --etk-accent-hover: #135e96;
+    --etk-success: #00a32a;
+    --etk-success-bg: #edfaef;
+    --etk-warning: #dba617;
+    --etk-warning-bg: #fcf9e8;
+    --etk-danger: #d63638;
+    --etk-danger-bg: #fbeaea;
+    --etk-radius: 6px;
+    --etk-shadow: 0 1px 0 rgba(0,0,0,.04);
+}
+
+.lrob-etk .lrob-etk-page-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 4px 0;
+    padding: 0;
+}
+
+.lrob-etk .lrob-etk-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    margin: 32px 0 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--etk-line);
+}
+
+/* Reduce form-table breathing room inside our wrap */
+.lrob-etk .form-table th {
+    padding: 12px 10px 12px 0;
+    width: 200px;
+}
+.lrob-etk .form-table td {
+    padding: 12px 0;
+}
+.lrob-etk .form-table .description {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--etk-muted);
+}
+
+/* ---------- Footer ---------- */
+
+.lrob-etk-footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--etk-line);
+    color: var(--etk-muted);
+    font-size: 12px;
+    text-align: center;
+}

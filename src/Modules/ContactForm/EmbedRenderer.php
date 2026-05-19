@@ -35,9 +35,8 @@ final class EmbedRenderer
             return self::placeholder(__('Contact form not found or not published.', 'lrob-email-toolkit'));
         }
 
-        // Mark this render so the frontend asset enqueuer (or do-it-once filter)
-        // knows it needs the assets. We enqueue directly here as a safety net
-        // because block-rendering happens late.
+        // Block-rendering can fire after wp_enqueue_scripts has already run;
+        // call directly so the form gets its CSS/JS. wp_enqueue_* are idempotent.
         Frontend::enqueue_assets();
 
         $instance = substr(bin2hex(random_bytes(5)), 0, 10);

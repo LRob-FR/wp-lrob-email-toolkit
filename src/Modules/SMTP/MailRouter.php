@@ -22,7 +22,7 @@ use PHPMailer\PHPMailer\PHPMailer;
  */
 final class MailRouter
 {
-    /** Identity in use for the wp_mail() call currently in flight. */
+    /** Identity for the in-flight wp_mail() call. */
     private ?Identity $current_identity = null;
 
     private bool $current_resolved = false;

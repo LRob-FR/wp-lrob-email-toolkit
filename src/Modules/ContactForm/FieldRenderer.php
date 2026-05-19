@@ -19,19 +19,16 @@ namespace LRob\EmailToolkit\Modules\ContactForm;
  */
 final class FieldRenderer
 {
-    /** @param array<string, mixed> $attrs */
     public static function text(array $attrs): string
     {
         return self::render_input('text', $attrs);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function email(array $attrs): string
     {
         return self::render_input('email', $attrs);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function number(array $attrs): string
     {
         return self::render_input('number', $attrs, [
@@ -41,7 +38,6 @@ final class FieldRenderer
         ]);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function phone(array $attrs): string
     {
         return self::render_input('tel', $attrs, [
@@ -50,7 +46,6 @@ final class FieldRenderer
         ]);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function date(array $attrs): string
     {
         return self::render_input('date', $attrs, [
@@ -59,7 +54,6 @@ final class FieldRenderer
         ]);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function textarea(array $attrs): string
     {
         if (!FormContext::is_active()) {
@@ -100,7 +94,6 @@ final class FieldRenderer
         );
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function select(array $attrs): string
     {
         if (!FormContext::is_active()) {
@@ -142,13 +135,11 @@ final class FieldRenderer
         return self::wrap_field('select', $slug, $label, $helper, $required, $control, $id);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function radio(array $attrs): string
     {
         return self::render_option_group('radio', $attrs);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function checkbox(array $attrs): string
     {
         $multiple = !isset($attrs['multiple']) || !empty($attrs['multiple']);
@@ -190,7 +181,6 @@ final class FieldRenderer
         return self::render_option_group('checkbox', $attrs);
     }
 
-    /** @param array<string, mixed> $attrs */
     public static function submit(array $attrs): string
     {
         if (!FormContext::is_active()) {
@@ -221,18 +211,16 @@ final class FieldRenderer
     }
 
     /**
-     * Captcha placeholder. On the frontend, defers to the configured
-     * challenge (currently only Math). In the editor it renders a small
-     * non-interactive stub so the user can see where the captcha will sit.
-     *
-     * @param array<string, mixed> $attrs Unused — challenge type comes from Settings.
+     * Captcha slot. Frontend renders the configured challenge; editor
+     * renders a non-interactive stub so the user sees where it'll sit.
+     * $attrs is unused — challenge type comes from Settings.
      */
     public static function captcha(array $attrs): string
     {
+        unset($attrs);
         if (!FormContext::is_active()) {
             return '';
         }
-        unset($attrs); // reserved for future per-field overrides
 
         if (FormContext::is_editor()) {
             $challenge = Settings::effective_challenge(FormContext::form_id());
@@ -455,14 +443,10 @@ final class FieldRenderer
         return $helper !== '' ? '<p class="lrob-etk-cf-helper">' . esc_html($helper) . '</p>' : '';
     }
 
-    /**
-     * @param array<string, mixed> $attrs
-     */
     private static function normalize_slug(array $attrs): string
     {
         $raw = isset($attrs['slug']) && is_string($attrs['slug']) ? (string) $attrs['slug'] : '';
-        $slug = sanitize_key($raw);
-        return $slug;
+        return sanitize_key($raw);
     }
 
     /**
