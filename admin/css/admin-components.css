@@ -615,8 +615,20 @@ body.lrob-etk-modal-open {
     width: 16px;
     height: 16px;
     line-height: 1;
-    margin-right: 4px;
-    margin-top: 3px;
+}
+
+/* Universal icon-button centering. WP's `.button` is inline-block with the
+ * dashicons span sitting on the baseline, which puts the glyph visibly
+ * above the text. Flip any of our buttons that actually contain a dashicon
+ * to inline-flex so the icon and text share a baseline. Scoped by `:has()`
+ * so plain (no-icon) buttons keep their inline-block behaviour. */
+.lrob-etk .button:has(> .dashicons) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.lrob-etk .button > .dashicons {
+    margin: 0;
 }
 .lrob-etk-page-header-actions {
     margin-left: auto;

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 use LRob\EmailToolkit\Modules\SMTP\MailRouter;
 use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
+use LRob\EmailToolkit\Plugin;
 use LRob\EmailToolkit\Support\Events;
 
 /**
@@ -88,11 +90,15 @@ final class SubmitHandler
             wp_send_json_error(['message' => __('You are submitting too quickly. Please wait a few minutes and try again.', 'lrob-email-toolkit')], 429);
         }
 
-        if (Settings::effective_challenge($form_id) === CPT::CHALLENGE_MATH) {
-            [$ok, $message] = MathChallenge::verify($post);
-            if (!$ok) {
-                $this->rate_limiter->record($ip_hash, $form_id);
-                wp_send_json_error(['message' => $message], 400);
+        if (Settings::effective_challenge($form_id) !== CPT::CHALLENGE_NONE) {
+            $container = Plugin::instance()->container();
+            if ($container->has(CaptchaService::class)) {
+                $service = $container->get(CaptchaService::class);
+                [$ok, $message] = $service->verify($post, ['context' => 'contact_form', 'form_id' => $form_id]);
+                if (!$ok) {
+                    $this->rate_limiter->record($ip_hash, $form_id);
+                    wp_send_json_error(['message' => $message], 400);
+                }
             }
         }
 

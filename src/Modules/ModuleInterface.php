@@ -19,6 +19,21 @@ interface ModuleInterface
     public function version(): string;
 
     /**
+     * Service modules (always-on, no user toggle, depended on by others —
+     * e.g. Captcha) return true. Feature modules return false. Drives the
+     * dashboard module card UI: "Always on" badge instead of toggle.
+     */
+    public function is_service_module(): bool;
+
+    /**
+     * Translated, human-readable summary of what's stored for this module
+     * (e.g. "3 identities", "412 log entries", "5 forms, 28 submissions").
+     * Empty string when the module stores no user data. Used by the Data
+     * admin page to preview what a "Wipe" action will remove.
+     */
+    public function data_summary(): string;
+
+    /**
      * Slugs of other modules this module needs to function. Returned modules
      * must be enabled for this one to boot. ModuleManager surfaces missing
      * dependencies in the admin UI rather than refusing to load.

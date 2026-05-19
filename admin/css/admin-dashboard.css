@@ -18,35 +18,65 @@
     margin: 12px 0 20px;
 }
 
+/* Stat cards are clickable anchors that deep-link into the Logs page with
+ * the matching date range pre-filled. Reset WP's default anchor look so
+ * the card surface keeps the same hand-built chrome. */
 .lrob-etk-stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
     background: #fff;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
-    padding: 10px 14px;
+    padding: 16px 14px;
     box-shadow: var(--etk-shadow);
+    color: var(--etk-fg);
+    text-decoration: none;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+    min-height: 100px;
+    cursor: pointer;
+}
+.lrob-etk-stat-card:hover,
+.lrob-etk-stat-card:focus-visible {
+    border-color: var(--etk-accent);
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.12);
+    color: var(--etk-fg);
+    outline: none;
+    transform: translateY(-1px);
 }
 .lrob-etk-stat-card.is-warning {
     border-left: 3px solid var(--etk-danger);
+}
+.lrob-etk-stat-card.is-warning:hover,
+.lrob-etk-stat-card.is-warning:focus-visible {
+    border-color: var(--etk-danger);
+    box-shadow: 0 4px 12px rgba(214, 54, 56, 0.18);
 }
 
 .lrob-etk-stat-label {
     font-size: 11px;
     color: var(--etk-muted);
-    margin: 0 0 4px;
+    margin: 0;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .lrob-etk-stat-main {
-    display: flex;
+    display: inline-flex;
     align-items: baseline;
+    justify-content: center;
     gap: 6px;
-    margin-bottom: 2px;
+    margin: 0;
 }
 .lrob-etk-stat-value {
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 26px;
+    font-weight: 700;
     color: var(--etk-fg);
-    line-height: 1;
+    line-height: 1.1;
     margin: 0;
 }
 .lrob-etk-stat-unit {
@@ -335,4 +365,98 @@
 }
 .lrob-etk-module-card-actions .lrob-etk-page-toggle-form {
     margin: 0;
+}
+
+/* ---------- Email activity layout (stats + chart, side-by-side) ----------
+ *
+ * Stats on the left as a 2x2 grid, chart on the right. Both under the
+ * single "Email activity" h2. On narrow viewports the two columns stack —
+ * stats first, then chart — so the chart never gets dangerously squished. */
+.lrob-etk-activity-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 16px;
+    align-items: stretch;
+    margin: 12px 0 20px;
+}
+@media (max-width: 980px) {
+    .lrob-etk-activity-layout { grid-template-columns: 1fr; }
+}
+.lrob-etk-activity-layout .lrob-etk-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+.lrob-etk-activity-layout .lrob-etk-chart-wrap {
+    margin: 0;
+}
+/* Chart canvas can shrink with its column without the SVG breaking. */
+.lrob-etk-activity-layout .lrob-etk-chart-svg {
+    height: 100%;
+    min-height: 200px;
+}
+
+/* ---------- Module card: inline summary line (Contact Form) ---------- */
+.lrob-etk-module-card-summary {
+    font-size: 12px;
+    color: var(--etk-muted);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.lrob-etk-module-card-summary strong {
+    color: var(--etk-fg);
+    font-weight: 600;
+}
+.lrob-etk-module-card-summary-sep {
+    color: var(--etk-line-strong);
+    margin: 0 2px;
+}
+
+/* ---------- Plugin data dashboard card ----------
+ *
+ * Compact card listing what each module stores ("412 log entries",
+ * "3 identities", etc.) with a CTA to the (menu-hidden) Data page. */
+.lrob-etk-data-summary-card {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 14px 18px;
+    margin: 0 0 20px;
+    box-shadow: var(--etk-shadow);
+    max-width: 540px;
+}
+.lrob-etk-data-summary-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.lrob-etk-data-summary-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--etk-soft);
+    font-size: 13px;
+}
+.lrob-etk-data-summary-list li:last-child {
+    border-bottom: none;
+}
+.lrob-etk-data-summary-name {
+    font-weight: 600;
+    color: var(--etk-fg);
+}
+.lrob-etk-data-summary-value {
+    color: var(--etk-muted);
+}
+.lrob-etk-data-summary-empty {
+    margin: 0;
+    color: var(--etk-muted);
+    font-size: 13px;
+}
+.lrob-etk-data-summary-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
 }

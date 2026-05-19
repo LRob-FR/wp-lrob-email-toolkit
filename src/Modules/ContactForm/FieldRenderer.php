@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
+use LRob\EmailToolkit\Plugin;
+
 /**
  * Renders each field block on the frontend. Called from the registered
  * block render_callbacks via Blocks::dispatch_field_render(). Outputs
@@ -211,9 +214,10 @@ final class FieldRenderer
     }
 
     /**
-     * Captcha slot. Frontend renders the configured challenge; editor
-     * renders a non-interactive stub so the user sees where it'll sit.
-     * $attrs is unused — challenge type comes from Settings.
+     * Captcha slot. Frontend delegates to the Captcha module's service
+     * (which picks the active challenge); editor renders a non-interactive
+     * stub so the user sees where it'll sit. The per-form "challenge"
+     * setting only flips this slot on/off — choice of challenge is global.
      */
     public static function captcha(array $attrs): string
     {
@@ -221,25 +225,41 @@ final class FieldRenderer
         if (!FormContext::is_active()) {
             return '';
         }
+        $form_id = FormContext::form_id();
+        $enabled = Settings::effective_challenge($form_id) !== CPT::CHALLENGE_NONE;
 
         if (FormContext::is_editor()) {
-            $challenge = Settings::effective_challenge(FormContext::form_id());
-            $note = $challenge === CPT::CHALLENGE_MATH
-                ? __('Anti-spam challenge (math) — visitors will see a tiny question here.', 'lrob-email-toolkit')
-                : __('Anti-spam challenge disabled — enable a challenge in the Anti-spam settings to use this slot.', 'lrob-email-toolkit');
+            $service = self::captcha_service();
+            $active_label = $service?->active()?->label() ?? '';
+            $note = !$enabled
+                ? __('Anti-spam challenge disabled for this form. Enable it in Anti-spam settings to use this slot.', 'lrob-email-toolkit')
+                : ($active_label !== ''
+                    ? sprintf(
+                        /* translators: %s: challenge name (e.g. "Math question") */
+                        __('Anti-spam challenge active (%s) — visitors will see the prompt here.', 'lrob-email-toolkit'),
+                        $active_label
+                    )
+                    : __('No challenge registered. Add one in the Captcha settings page.', 'lrob-email-toolkit')
+                );
             return sprintf(
                 '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub"><span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span><span class="lrob-etk-cf-captcha-stub-text">%s</span></div>',
                 esc_html($note)
             );
         }
 
-        // Frontend: render the configured challenge inline. Empty when no
-        // challenge is active — the form simply has no anti-bot prompt.
-        $challenge = Settings::effective_challenge(FormContext::form_id());
-        if ($challenge === CPT::CHALLENGE_MATH) {
-            return MathChallenge::render();
+        if (!$enabled) {
+            return '';
         }
-        return '';
+        $service = self::captcha_service();
+        return $service !== null
+            ? $service->render(['context' => 'contact_form', 'form_id' => $form_id])
+            : '';
+    }
+
+    private static function captcha_service(): ?CaptchaService
+    {
+        $container = Plugin::instance()->container();
+        return $container->has(CaptchaService::class) ? $container->get(CaptchaService::class) : null;
     }
 
     /**

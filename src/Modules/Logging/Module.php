@@ -63,6 +63,19 @@ final class Module extends AbstractModule
         return admin_url('admin.php?page=' . PageController::SLUG);
     }
 
+    public function data_summary(): string
+    {
+        $count = (new LogRepository())->count();
+        if ($count === 0) {
+            return '';
+        }
+        return sprintf(
+            /* translators: %s: number of log entries (already formatted with i18n thousands separator). */
+            _n('%s log entry', '%s log entries', $count, 'lrob-email-toolkit'),
+            number_format_i18n($count)
+        );
+    }
+
     public function register(): void
     {
         $repository = new LogRepository();

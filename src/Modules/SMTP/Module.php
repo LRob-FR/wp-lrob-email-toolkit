@@ -62,6 +62,19 @@ final class Module extends AbstractModule
         return admin_url('admin.php?page=' . PageController::SLUG);
     }
 
+    public function data_summary(): string
+    {
+        $count = count((new IdentityRepository())->all());
+        if ($count === 0) {
+            return '';
+        }
+        return sprintf(
+            /* translators: %d: number of SMTP identities. */
+            _n('%d identity', '%d identities', $count, 'lrob-email-toolkit'),
+            $count
+        );
+    }
+
     public function register(): void
     {
         $identities = new IdentityRepository();

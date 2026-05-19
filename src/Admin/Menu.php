@@ -18,15 +18,19 @@ final class Menu
 
     private DashboardPage $dashboard;
 
+    private DataPage $data;
+
     public function __construct(private ModuleManager $manager)
     {
         $this->dashboard = new DashboardPage($manager);
+        $this->data = new DataPage($manager);
     }
 
     public function register(): void
     {
         add_action('admin_menu', [$this, 'add_pages']);
         add_action('admin_enqueue_scripts', [Assets::class, 'enqueue_admin']);
+        $this->data->register();
     }
 
     public function add_pages(): void

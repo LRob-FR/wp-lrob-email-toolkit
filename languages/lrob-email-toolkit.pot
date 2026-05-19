@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LRob - Email Toolkit 0.0.3\n"
+"Project-Id-Version: LRob - Email Toolkit 0.0.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-19T12:06:49+00:00\n"
+"POT-Creation-Date: 2026-05-19T13:27:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -34,8 +34,12 @@ msgstr ""
 msgid "https://www.lrob.fr"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:50
-#: src/Modules/AbstractModule.php:77
+#: src/Admin/DashboardPage.php:49
+#: src/Admin/DataPage.php:85
+#: src/Admin/DataPage.php:323
+#: src/Modules/AbstractModule.php:140
+#: src/Modules/Captcha/Admin/PageController.php:45
+#: src/Modules/Captcha/Admin/PageController.php:53
 #: src/Modules/ContactForm/Admin/AjaxController.php:57
 #: src/Modules/ContactForm/Admin/AjaxController.php:127
 #: src/Modules/ContactForm/Admin/AjaxController.php:189
@@ -50,191 +54,192 @@ msgstr ""
 msgid "Insufficient permissions."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:62
-#: src/Admin/Menu.php:37
-#: src/Admin/Menu.php:38
+#: src/Admin/DashboardPage.php:61
+#: src/Admin/Menu.php:41
+#: src/Admin/Menu.php:42
 msgid "Email Toolkit"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:70
+#: src/Admin/DashboardPage.php:69
 msgid "Email activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:76
+#: src/Admin/DashboardPage.php:80
 msgid "Enable Email Logging to track sent/failed emails and see activity charts here."
 msgstr ""
 
 #. translators: %s: HTML link to LRob's website
-#: src/Admin/DashboardPage.php:93
+#: src/Admin/DashboardPage.php:94
 msgid "Built with care by %s."
 msgstr ""
 
 #. translators: 1: failed count, 2: total count, 3: percentage
-#: src/Admin/DashboardPage.php:247
+#: src/Admin/DashboardPage.php:248
 msgid "%1$d of %2$d emails failed in the last 24 hours (%3$d%% failure rate)."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:253
+#: src/Admin/DashboardPage.php:254
 msgid "This may indicate an SMTP misconfiguration, spam being sent from the site (compromised account or vulnerable form), or a poor recipient list (e.g. an outdated newsletter list with bounces)."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:256
+#: src/Admin/DashboardPage.php:257
 msgid "View failed logs →"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:266
-#: src/Admin/DashboardPage.php:311
+#: src/Admin/DashboardPage.php:267
+#: src/Admin/DashboardPage.php:337
 msgid "Last 24 hours"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:267
-#: src/Admin/DashboardPage.php:312
+#: src/Admin/DashboardPage.php:268
+#: src/Admin/DashboardPage.php:338
 msgid "Last 7 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:268
-#: src/Admin/DashboardPage.php:313
+#: src/Admin/DashboardPage.php:269
+#: src/Admin/DashboardPage.php:339
 msgid "Last 30 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:269
-#: src/Admin/DashboardPage.php:314
+#: src/Admin/DashboardPage.php:270
+#: src/Admin/DashboardPage.php:340
 msgid "Last year"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:282
+#. translators: 1: number of emails, 2: time-range label (e.g. "Last 7 days")
+#: src/Admin/DashboardPage.php:299
+msgid "%1$s emails — %2$s. Open logs filtered to this range."
+msgstr ""
+
+#: src/Admin/DashboardPage.php:308
 msgid "mail sent"
 msgid_plural "mails sent"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:288
+#: src/Admin/DashboardPage.php:314
 msgid "failed"
 msgid_plural "failed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:291
+#: src/Admin/DashboardPage.php:317
 msgid "all delivered"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:293
+#: src/Admin/DashboardPage.php:319
 msgid "no activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:308
+#: src/Admin/DashboardPage.php:334
 msgid "Range:"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:310
+#: src/Admin/DashboardPage.php:336
 msgid "Last hour"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:315
+#: src/Admin/DashboardPage.php:341
 msgid "Since beginning"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:319
+#: src/Admin/DashboardPage.php:345
 msgid "Smoothed line"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:319
+#: src/Admin/DashboardPage.php:345
 msgid "Smoothed line chart"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:322
+#: src/Admin/DashboardPage.php:348
 msgid "Line"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:322
+#: src/Admin/DashboardPage.php:348
 msgid "Line chart"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:325
+#: src/Admin/DashboardPage.php:351
 msgid "Bars"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:325
+#: src/Admin/DashboardPage.php:351
 msgid "Bar chart"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:333
+#: src/Admin/DashboardPage.php:359
 msgid "No emails yet — once your site starts sending, activity will appear here."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:345
+#: src/Admin/DashboardPage.php:371
 msgid "Modules"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:359
+#: src/Admin/DashboardPage.php:399
 msgid "Coming soon"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:374
-#: src/Admin/ModuleToggle.php:42
-msgid "Enabled"
+#: src/Admin/DashboardPage.php:401
+msgid "Always on"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:375
-#: src/Admin/ModuleToggle.php:43
-msgid "Disabled"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:383
-#: src/Modules/SMTP/Admin/SettingsPage.php:196
-msgid "Test email"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:387
-msgid "Manage"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:419
-#: src/Admin/DashboardPage.php:437
-msgid "Contact forms"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:422
-#: src/Modules/ContactForm/Admin/FormsPage.php:262
-msgid "Create my first contact form"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:424
-msgid "Build a form in minutes with Gutenberg — drag fields, pick a style preset, and embed it on any page. Stacked anti-spam is on by default."
-msgstr ""
-
-#: src/Admin/DashboardPage.php:427
-#: src/Modules/ContactForm/Admin/FormsPage.php:267
-msgid "Create a contact form"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:441
+#: src/Admin/DashboardPage.php:409
 msgid "form"
 msgid_plural "forms"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:444
+#: src/Admin/DashboardPage.php:412
 #: src/Modules/ContactForm/Admin/FormsPage.php:504
 msgid "submission"
 msgid_plural "submissions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:447
-msgid "Manage forms"
+#: src/Admin/DashboardPage.php:428
+#: src/Admin/ModuleToggle.php:42
+msgid "Enabled"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:448
+#: src/Admin/DashboardPage.php:429
+#: src/Admin/ModuleToggle.php:43
+msgid "Disabled"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:440
+#: src/Modules/SMTP/Admin/SettingsPage.php:196
+msgid "Test email"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:445
 msgid "Add new"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:463
-#: src/Admin/DashboardPage.php:465
+#: src/Admin/DashboardPage.php:449
+msgid "Manage"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:477
+#: src/Admin/DataPage.php:65
+#: src/Admin/DataPage.php:66
+#: src/Admin/DataPage.php:95
+msgid "Plugin data"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:481
+msgid "No data stored yet. Enable a module to start logging activity."
+msgstr ""
+
+#: src/Admin/DashboardPage.php:496
+msgid "Manage plugin data"
+msgstr ""
+
+#: src/Admin/DashboardPage.php:512
+#: src/Admin/DashboardPage.php:514
 msgid "Send test email"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:466
+#: src/Admin/DashboardPage.php:515
 #: src/Modules/ContactForm/Admin/FormsPage.php:548
 #: src/Modules/ContactForm/Admin/FormsPage.php:651
 #: src/Modules/Logging/Admin/LogsPage.php:360
@@ -244,144 +249,271 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:472
+#: src/Admin/DashboardPage.php:521
 msgid "Identity (source)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:478
+#: src/Admin/DashboardPage.php:527
 msgid " (default)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:485
+#: src/Admin/DashboardPage.php:534
 #: src/Modules/SMTP/Admin/SettingsPage.php:469
 msgid "Recipient"
 msgstr ""
 
 #. translators: %s: the current logged-in user's email address
-#: src/Admin/DashboardPage.php:489
+#: src/Admin/DashboardPage.php:538
 #: src/Modules/SMTP/Admin/SettingsPage.php:471
 msgid "Me (%s)"
 msgstr ""
 
 #. translators: %s: the site's admin email address
-#: src/Admin/DashboardPage.php:494
+#: src/Admin/DashboardPage.php:543
 #: src/Modules/SMTP/Admin/SettingsPage.php:472
 msgid "Site admin (%s)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:497
+#: src/Admin/DashboardPage.php:546
 msgid "Custom…"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:501
+#: src/Admin/DashboardPage.php:550
 #: src/Modules/SMTP/Admin/SettingsPage.php:478
 msgid "Custom recipient"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:507
+#: src/Admin/DashboardPage.php:556
 #: src/Modules/Logging/Admin/LogsPage.php:376
 #: src/Modules/Logging/Admin/LogsPage.php:420
 #: src/Modules/SMTP/Admin/SettingsPage.php:486
 msgid "Cancel"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:509
-#: src/Admin/DashboardPage.php:607
+#: src/Admin/DashboardPage.php:558
+#: src/Admin/DashboardPage.php:656
 #: src/Modules/ContactForm/EmbedRenderer.php:66
-#: src/Modules/ContactForm/FieldRenderer.php:191
+#: src/Modules/ContactForm/FieldRenderer.php:194
 #: src/Modules/ContactForm/FormStructure.php:74
 #: src/Modules/ContactForm/FormStructure.php:271
 msgid "Send"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:526
+#: src/Admin/DashboardPage.php:575
 msgid "Recent activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:531
+#: src/Admin/DashboardPage.php:580
 #: src/Modules/ContactForm/Admin/FormsPage.php:697
 #: src/Modules/Logging/Admin/LogsPage.php:243
 #: src/Modules/Logging/Admin/LogViewPage.php:57
 msgid "Date"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:532
+#: src/Admin/DashboardPage.php:581
 #: src/Modules/Logging/Admin/LogsPage.php:145
 #: src/Modules/Logging/Admin/LogsPage.php:244
 #: src/Modules/Logging/Admin/LogViewPage.php:61
 msgid "Status"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:533
+#: src/Admin/DashboardPage.php:582
 #: src/Modules/Logging/Admin/LogsPage.php:181
 #: src/Modules/Logging/Admin/LogsPage.php:246
 #: src/Modules/Logging/Admin/LogViewPage.php:72
 msgid "To"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:534
+#: src/Admin/DashboardPage.php:583
 #: src/Modules/Logging/Admin/LogsPage.php:247
 msgid "Subject"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:535
+#: src/Admin/DashboardPage.php:584
 #: src/Modules/Logging/Admin/LogsPage.php:164
 #: src/Modules/Logging/Admin/LogsPage.php:248
 #: src/Modules/Logging/Admin/LogViewPage.php:62
 msgid "Source"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:536
+#: src/Admin/DashboardPage.php:585
 #: src/Modules/Logging/Admin/LogsPage.php:249
 msgid "Actions"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:549
+#: src/Admin/DashboardPage.php:598
 #: src/Modules/Logging/Admin/LogsPage.php:272
 #: src/Modules/Logging/Admin/LogViewPage.php:38
 msgid "(no subject)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:568
+#: src/Admin/DashboardPage.php:617
 #: src/Modules/Logging/Admin/LogsPage.php:295
 msgid "View"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:568
+#: src/Admin/DashboardPage.php:617
 #: src/Modules/Logging/Admin/LogsPage.php:295
 msgid "View log entry"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:579
+#: src/Admin/DashboardPage.php:628
 msgid "View all logs"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:606
+#: src/Admin/DashboardPage.php:655
 #: src/Modules/ContactForm/Frontend.php:44
 #: src/Modules/SMTP/Admin/SettingsPage.php:568
 msgid "Sending…"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:608
+#: src/Admin/DashboardPage.php:657
 #: src/Modules/Logging/Admin/LogsPage.php:454
 #: src/Modules/SMTP/Admin/SettingsPage.php:573
 msgid "Something went wrong."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:609
+#: src/Admin/DashboardPage.php:658
 #: src/Modules/Logging/Admin/LogsPage.php:149
 #: src/Modules/Logging/Admin/LogsPage.php:692
 msgid "Sent"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:610
+#: src/Admin/DashboardPage.php:659
 #: src/Modules/Logging/Admin/LogsPage.php:152
 #: src/Modules/Logging/Admin/LogsPage.php:693
 msgid "Failed"
 msgstr ""
 
-#: src/Admin/Menu.php:48
-#: src/Admin/Menu.php:49
+#: src/Admin/DataPage.php:103
+msgid "Manage what the toolkit stores in your database. Wipes are immediate, destructive, and not undoable — there is no trash bin."
+msgstr ""
+
+#. translators: %s: last destructive action description and timestamp
+#: src/Admin/DataPage.php:111
+msgid "Last destructive action: %s"
+msgstr ""
+
+#: src/Admin/DataPage.php:118
+msgid "Per-module data"
+msgstr ""
+
+#: src/Admin/DataPage.php:127
+msgid "No stored data."
+msgstr ""
+
+#: src/Admin/DataPage.php:131
+msgid "Wipe…"
+msgstr ""
+
+#. translators: %s: module slug the user must type to confirm
+#: src/Admin/DataPage.php:140
+msgid "This drops all data for this module and disables it. To confirm, type the module slug: %s"
+msgstr ""
+
+#: src/Admin/DataPage.php:146
+msgid "Wipe data"
+msgstr ""
+
+#: src/Admin/DataPage.php:150
+msgid "Nothing to wipe"
+msgstr ""
+
+#: src/Admin/DataPage.php:156
+msgid "Reset entire plugin"
+msgstr ""
+
+#: src/Admin/DataPage.php:159
+msgid "Dangerous!"
+msgstr ""
+
+#: src/Admin/DataPage.php:160
+msgid "Drops every plugin table, deletes every setting, removes the capability, and clears all scheduled events. Same effect as deleting the plugin in \"wipe\" mode but you stay activated."
+msgstr ""
+
+#: src/Admin/DataPage.php:163
+msgid "Reset entire plugin…"
+msgstr ""
+
+#. translators: %s: literal text "lrob-email-toolkit" the user must type
+#: src/Admin/DataPage.php:171
+msgid "Type %s to confirm. After this completes, the page will redirect to the dashboard with the plugin in a freshly-installed state."
+msgstr ""
+
+#: src/Admin/DataPage.php:177
+msgid "Reset everything"
+msgstr ""
+
+#: src/Admin/DataPage.php:182
+msgid "Uninstall behaviour"
+msgstr ""
+
+#: src/Admin/DataPage.php:185
+msgid "What should happen if someone deletes this plugin from the WordPress \"Plugins\" page?"
+msgstr ""
+
+#: src/Admin/DataPage.php:193
+msgid "Keep everything (default, safest)"
+msgstr ""
+
+#: src/Admin/DataPage.php:194
+msgid "Data, settings, and capability all stay. Reinstalling picks up exactly where you left off."
+msgstr ""
+
+#: src/Admin/DataPage.php:197
+msgid "Archive: drop settings + capability + cron, keep data tables"
+msgstr ""
+
+#: src/Admin/DataPage.php:198
+msgid "Reinstalling gives you a clean slate for configuration but your logs, identities, contact forms, and submissions are still there."
+msgstr ""
+
+#: src/Admin/DataPage.php:201
+msgid "Wipe everything"
+msgstr ""
+
+#: src/Admin/DataPage.php:202
+msgid "Drops every table, deletes every option, removes the capability. No way back from a deletion."
+msgstr ""
+
+#: src/Admin/DataPage.php:215
+msgid "Save uninstall behaviour"
+msgstr ""
+
+#. translators: 1: module name, 2: ISO date+time
+#: src/Admin/DataPage.php:246
+msgid "Wiped %1$s data on %2$s"
+msgstr ""
+
+#. translators: %s: module name
+#: src/Admin/DataPage.php:255
+msgid "%s data wiped."
+msgstr ""
+
+#. translators: %s: ISO date+time
+#: src/Admin/DataPage.php:291
+msgid "Reset entire plugin on %s"
+msgstr ""
+
+#: src/Admin/DataPage.php:297
+msgid "Plugin reset to a fresh state."
+msgstr ""
+
+#: src/Admin/DataPage.php:314
+msgid "Uninstall behaviour saved."
+msgstr ""
+
+#: src/Admin/DataPage.php:327
+#: src/Modules/AbstractModule.php:144
+#: src/Modules/Captcha/Admin/PageController.php:57
+#: src/Modules/ContactForm/Admin/FormsPage.php:912
+#: src/Modules/ContactForm/Admin/FormsPage.php:935
+#: src/Modules/Logging/Admin/PageController.php:178
+msgid "Security check failed. Please retry."
+msgstr ""
+
+#: src/Admin/Menu.php:52
+#: src/Admin/Menu.php:53
 msgid "Dashboard"
 msgstr ""
 
@@ -411,11 +543,70 @@ msgstr ""
 msgid "More info"
 msgstr ""
 
-#: src/Modules/AbstractModule.php:81
-#: src/Modules/ContactForm/Admin/FormsPage.php:912
-#: src/Modules/ContactForm/Admin/FormsPage.php:935
-#: src/Modules/Logging/Admin/PageController.php:178
-msgid "Security check failed. Please retry."
+#: src/Modules/Captcha/Admin/PageController.php:34
+#: src/Modules/Captcha/Admin/PageController.php:35
+#: src/Modules/Captcha/Admin/SettingsPage.php:31
+#: src/Modules/Captcha/Module.php:26
+msgid "Captcha"
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:35
+msgid "Captcha settings saved."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:39
+msgid "Pick which anti-bot challenge is presented across the toolkit. Contact forms, newsletter sign-ups, and other modules use this single setting so visitors see one consistent prompt."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:48
+msgid "Active challenge"
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:63
+msgid "No challenge (not recommended)"
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:65
+msgid "Public-facing forms become more vulnerable to spam bots. Other anti-spam layers (honeypot, time-trap, rate-limit) stay active."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:71
+#: src/Modules/Logging/Admin/LogsPage.php:422
+msgid "Save"
+msgstr ""
+
+#: src/Modules/Captcha/Challenges/MathChallenge.php:31
+msgid "Math question"
+msgstr ""
+
+#: src/Modules/Captcha/Challenges/MathChallenge.php:36
+msgid "Tiny arithmetic prompt (e.g. \"How much is 4 + 3?\"). Zero third-party calls, stateless, screen-reader friendly."
+msgstr ""
+
+#: src/Modules/Captcha/Challenges/MathChallenge.php:65
+msgid "Quick anti-spam check."
+msgstr ""
+
+#: src/Modules/Captcha/Challenges/MathChallenge.php:74
+#: src/Modules/Captcha/Challenges/MathChallenge.php:83
+msgid "Anti-spam check failed."
+msgstr ""
+
+#: src/Modules/Captcha/Challenges/MathChallenge.php:78
+msgid "Please answer the anti-spam question."
+msgstr ""
+
+#: src/Modules/Captcha/Challenges/MathChallenge.php:88
+msgid "Wrong answer to the anti-spam question."
+msgstr ""
+
+#. translators: %1$d and %2$d are small integers, %3$s is the math operator (+, -, ×).
+#: src/Modules/Captcha/Challenges/MathChallenge.php:124
+msgid "How much is %1$d %3$s %2$d?"
+msgstr ""
+
+#: src/Modules/Captcha/Module.php:31
+msgid "Anti-bot challenges shared across modules. Default math challenge ships; future providers (hCaptcha, Turnstile, reCAPTCHA) plug in here."
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:63
@@ -426,7 +617,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:69
 #: src/Modules/ContactForm/Admin/AjaxController.php:199
-#: src/Modules/ContactForm/SubmitHandler.php:58
+#: src/Modules/ContactForm/SubmitHandler.php:60
 msgid "Form not found."
 msgstr ""
 
@@ -562,18 +753,18 @@ msgid "Full width"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:131
-#: src/Modules/ContactForm/FieldRenderer.php:427
+#: src/Modules/ContactForm/FieldRenderer.php:447
 msgid "Toggle required"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:132
-#: src/Modules/ContactForm/FieldRenderer.php:435
+#: src/Modules/ContactForm/FieldRenderer.php:455
 msgid "(optional helper text)"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:133
-#: src/Modules/ContactForm/FieldRenderer.php:343
-#: src/Modules/ContactForm/FieldRenderer.php:404
+#: src/Modules/ContactForm/FieldRenderer.php:363
+#: src/Modules/ContactForm/FieldRenderer.php:424
 msgid "(field label)"
 msgstr ""
 
@@ -625,8 +816,16 @@ msgstr ""
 msgid "Your contact forms"
 msgstr ""
 
+#: src/Modules/ContactForm/Admin/FormsPage.php:262
+msgid "Create my first contact form"
+msgstr ""
+
 #: src/Modules/ContactForm/Admin/FormsPage.php:264
 msgid "Pick a starter template or build from scratch. Stacked anti-spam is on by default."
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:267
+msgid "Create a contact form"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:333
@@ -980,12 +1179,17 @@ msgstr ""
 msgid "Contact form not found or not published."
 msgstr ""
 
-#: src/Modules/ContactForm/FieldRenderer.php:228
-msgid "Anti-spam challenge (math) — visitors will see a tiny question here."
+#: src/Modules/ContactForm/FieldRenderer.php:235
+msgid "Anti-spam challenge disabled for this form. Enable it in Anti-spam settings to use this slot."
 msgstr ""
 
-#: src/Modules/ContactForm/FieldRenderer.php:229
-msgid "Anti-spam challenge disabled — enable a challenge in the Anti-spam settings to use this slot."
+#. translators: %s: challenge name (e.g. "Math question")
+#: src/Modules/ContactForm/FieldRenderer.php:239
+msgid "Anti-spam challenge active (%s) — visitors will see the prompt here."
+msgstr ""
+
+#: src/Modules/ContactForm/FieldRenderer.php:242
+msgid "No challenge registered. Add one in the Captcha settings page."
 msgstr ""
 
 #: src/Modules/ContactForm/FormEditorRenderer.php:44
@@ -1035,12 +1239,12 @@ msgid "Something went wrong. Please try again."
 msgstr ""
 
 #: src/Modules/ContactForm/Frontend.php:47
-#: src/Modules/ContactForm/SubmitHandler.php:239
+#: src/Modules/ContactForm/SubmitHandler.php:245
 msgid "Please enter a valid email address."
 msgstr ""
 
 #: src/Modules/ContactForm/Frontend.php:48
-#: src/Modules/ContactForm/SubmitHandler.php:229
+#: src/Modules/ContactForm/SubmitHandler.php:235
 msgid "This field is required."
 msgstr ""
 
@@ -1048,106 +1252,98 @@ msgstr ""
 msgid "Website (leave blank)"
 msgstr ""
 
-#: src/Modules/ContactForm/MathChallenge.php:47
-msgid "Quick anti-spam check."
-msgstr ""
-
-#: src/Modules/ContactForm/MathChallenge.php:57
-#: src/Modules/ContactForm/MathChallenge.php:66
-msgid "Anti-spam check failed."
-msgstr ""
-
-#: src/Modules/ContactForm/MathChallenge.php:61
-msgid "Please answer the anti-spam question."
-msgstr ""
-
-#: src/Modules/ContactForm/MathChallenge.php:71
-msgid "Wrong answer to the anti-spam question."
-msgstr ""
-
-#. translators: %1$d and %2$d are small integers, %3$s is the math operator (+, -, ×).
-#: src/Modules/ContactForm/MathChallenge.php:107
-msgid "How much is %1$d %3$s %2$d?"
-msgstr ""
-
 #: src/Modules/ContactForm/Module.php:42
 msgid "Build customizable contact forms with stacked anti-spam and the existing SMTP identity routing."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:52
+#. translators: %d: number of contact forms.
+#: src/Modules/ContactForm/Module.php:94
+msgid "%d form"
+msgid_plural "%d forms"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of submissions (already formatted with i18n thousands separator).
+#: src/Modules/ContactForm/Module.php:99
+msgid "%s submission"
+msgid_plural "%s submissions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/ContactForm/SubmitHandler.php:54
 msgid "This form has expired. Please reload the page and try again."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:88
+#: src/Modules/ContactForm/SubmitHandler.php:90
 msgid "You are submitting too quickly. Please wait a few minutes and try again."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:105
+#: src/Modules/ContactForm/SubmitHandler.php:111
 msgid "Please correct the highlighted fields."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:244
+#: src/Modules/ContactForm/SubmitHandler.php:250
 msgid "Please enter a number."
 msgstr ""
 
 #. translators: %s: minimum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:251
+#: src/Modules/ContactForm/SubmitHandler.php:257
 msgid "Value must be at least %s."
 msgstr ""
 
 #. translators: %s: maximum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:257
+#: src/Modules/ContactForm/SubmitHandler.php:263
 msgid "Value must be at most %s."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:264
-#: src/Modules/ContactForm/SubmitHandler.php:269
-#: src/Modules/ContactForm/SubmitHandler.php:271
+#: src/Modules/ContactForm/SubmitHandler.php:270
+#: src/Modules/ContactForm/SubmitHandler.php:275
+#: src/Modules/ContactForm/SubmitHandler.php:277
 msgid "Please enter a valid phone number."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:276
+#: src/Modules/ContactForm/SubmitHandler.php:282
 msgid "Please enter a valid date."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:280
+#: src/Modules/ContactForm/SubmitHandler.php:286
 msgid "Date is before the allowed range."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:282
+#: src/Modules/ContactForm/SubmitHandler.php:288
 msgid "Date is after the allowed range."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:289
-#: src/Modules/ContactForm/SubmitHandler.php:301
+#: src/Modules/ContactForm/SubmitHandler.php:295
+#: src/Modules/ContactForm/SubmitHandler.php:307
 msgid "Invalid choice."
 msgstr ""
 
 #. translators: %d: maximum character length the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:313
+#: src/Modules/ContactForm/SubmitHandler.php:319
 msgid "This field is too long (max %d characters)."
 msgstr ""
 
 #. translators: %s: form name
-#: src/Modules/ContactForm/SubmitHandler.php:447
+#: src/Modules/ContactForm/SubmitHandler.php:453
 msgid "[%s] New contact form submission"
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:448
+#: src/Modules/ContactForm/SubmitHandler.php:454
 #: admin/js/contact-form-editor.js:93
 msgid "Contact form"
 msgstr ""
 
 #. translators: %s: form title
-#: src/Modules/ContactForm/SubmitHandler.php:480
+#: src/Modules/ContactForm/SubmitHandler.php:486
 msgid "Sent from contact form \"%s\""
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:481
+#: src/Modules/ContactForm/SubmitHandler.php:487
 msgid "Untitled"
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:486
+#: src/Modules/ContactForm/SubmitHandler.php:492
 msgid "New submission"
 msgstr ""
 
@@ -1513,10 +1709,6 @@ msgstr ""
 msgid "Entries per page"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:422
-msgid "Save"
-msgstr ""
-
 #: src/Modules/Logging/Admin/LogsPage.php:443
 #: src/Modules/Logging/Admin/LogViewPage.php:226
 msgid "Delete this log entry?"
@@ -1655,6 +1847,13 @@ msgstr ""
 #: src/Modules/Logging/Module.php:32
 msgid "Log every outgoing email and optionally archive a copy to your IMAP Sent folder."
 msgstr ""
+
+#. translators: %s: number of log entries (already formatted with i18n thousands separator).
+#: src/Modules/Logging/Module.php:74
+msgid "%s log entry"
+msgid_plural "%s log entries"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Modules/Newsletter/Module.php:25
 msgid "Newsletter"
@@ -2029,6 +2228,13 @@ msgstr ""
 #: src/Modules/SMTP/Module.php:39
 msgid "Route outgoing emails through one or more SMTP servers, with per-source identity routing."
 msgstr ""
+
+#. translators: %d: number of SMTP identities.
+#: src/Modules/SMTP/Module.php:73
+msgid "%d identity"
+msgid_plural "%d identities"
+msgstr[0] ""
+msgstr[1] ""
 
 #. translators: %s: site name
 #: src/Modules/SMTP/TestSender.php:90

@@ -29,6 +29,7 @@ final class ModuleManager
     private function module_classes(): array
     {
         return [
+            \LRob\EmailToolkit\Modules\Captcha\Module::class,
             \LRob\EmailToolkit\Modules\SMTP\Module::class,
             \LRob\EmailToolkit\Modules\Logging\Module::class,
             \LRob\EmailToolkit\Modules\ContactForm\Module::class,
@@ -70,6 +71,11 @@ final class ModuleManager
         foreach ($this->modules as $module) {
             if (!$this->dependencies_satisfied($module)) {
                 continue;
+            }
+            // Schema migrations run only for enabled modules — disabled ones
+            // don't touch their tables (and may not even have any yet).
+            if ($module->is_enabled() && method_exists($module, 'maybe_migrate')) {
+                $module->maybe_migrate();
             }
             $module->register();
         }

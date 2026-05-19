@@ -2,34 +2,52 @@
 
 declare(strict_types=1);
 
-namespace LRob\EmailToolkit\Modules\ContactForm;
+namespace LRob\EmailToolkit\Modules\Captcha\Challenges;
+
+use LRob\EmailToolkit\Modules\ContactForm\FormContext;
 
 /**
  * Trivial arithmetic challenge: "How much is a + b?" with a stateless,
  * HMAC-signed token. The expected answer is NOT sent to the client; the
  * server recomputes it from the token's a/b values and compares.
  *
- * Picks variety in the operation (addition / subtraction / multiplication
- * with small operands) so the prompt isn't always the same. Operands chosen
- * so the answer is always a single non-negative integer ≤ 20.
- *
- * Token format: base64url( "$a:$b:$op" ) || '.' || base64url(HMAC-SHA256)
- * Signing key: AUTH_KEY (already required by Support\Encryption). If AUTH_KEY
- * is unset we silently fall back to NONCE_SALT, then to a constant — the
- * challenge becomes weak but doesn't crash the form. (Same posture as
- * wp_create_nonce.)
+ * Token format: base64url("$a:$b:$op") || '.' || hex(HMAC-SHA256). Signing
+ * key derives from AUTH_KEY (then NONCE_SALT, then a stable fallback) so the
+ * form doesn't crash on a misconfigured wp-config.
  */
-final class MathChallenge
+final class MathChallenge implements ChallengeInterface
 {
     public const TOKEN_FIELD = '_lrob_etk_cf_math_token';
 
     public const ANSWER_FIELD = '_lrob_etk_cf_math_answer';
 
-    public static function render(): string
+    public function slug(): string
+    {
+        return 'math';
+    }
+
+    public function label(): string
+    {
+        return __('Math question', 'lrob-email-toolkit');
+    }
+
+    public function description(): string
+    {
+        return __('Tiny arithmetic prompt (e.g. "How much is 4 + 3?"). Zero third-party calls, stateless, screen-reader friendly.', 'lrob-email-toolkit');
+    }
+
+    public function render(array $context = []): string
     {
         [$a, $b, $op] = self::pick();
         $token = self::sign($a, $b, $op);
         $prompt = self::prompt_text($a, $b, $op);
+
+        // Field id includes the form instance so multiple forms on a page
+        // don't share an id. Falls back to a random suffix outside of the
+        // contact-form context.
+        $instance = class_exists(FormContext::class) && FormContext::is_active()
+            ? FormContext::instance()
+            : substr(bin2hex(random_bytes(4)), 0, 8);
 
         return sprintf(
             '<div class="lrob-etk-cf-field lrob-etk-cf-field--challenge lrob-etk-cf-challenge" data-field="_challenge">' .
@@ -39,7 +57,7 @@ final class MathChallenge
             '<p class="lrob-etk-cf-helper">%6$s</p>' .
             '<p class="lrob-etk-cf-error" data-field-error hidden></p>' .
             '</div>',
-            esc_attr('lrob-etk-cf-challenge-' . FormContext::instance()),
+            esc_attr('lrob-etk-cf-challenge-' . $instance),
             esc_html($prompt),
             esc_attr(self::ANSWER_FIELD),
             esc_attr(self::TOKEN_FIELD),
@@ -48,8 +66,7 @@ final class MathChallenge
         );
     }
 
-    /** @return array{0:bool, 1:?string} success flag + error message */
-    public static function verify(array $post): array
+    public function verify(array $post, array $context = []): array
     {
         $answer_raw = $post[self::ANSWER_FIELD] ?? '';
         $token = $post[self::TOKEN_FIELD] ?? '';
@@ -148,12 +165,12 @@ final class MathChallenge
     private static function key(): string
     {
         if (defined('AUTH_KEY') && is_string(AUTH_KEY) && AUTH_KEY !== '') {
-            return 'lrob_etk_cf|' . AUTH_KEY;
+            return 'lrob_etk_captcha|' . AUTH_KEY;
         }
         if (defined('NONCE_SALT') && is_string(NONCE_SALT) && NONCE_SALT !== '') {
-            return 'lrob_etk_cf|' . NONCE_SALT;
+            return 'lrob_etk_captcha|' . NONCE_SALT;
         }
-        return 'lrob_etk_cf|fallback|' . (string) get_option('siteurl');
+        return 'lrob_etk_captcha|fallback|' . (string) get_option('siteurl');
     }
 
     private static function b64url(string $s): string

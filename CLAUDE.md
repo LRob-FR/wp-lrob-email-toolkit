@@ -177,6 +177,60 @@ SMTP identity rows store `from_email` and `from_name` that may be empty — mean
 
 `logs.attachments` is JSON: `[{"name": "...", "path": "..."}]`. `LogEntry::normalize_attachments()` upgrades legacy string-only entries to that shape — keep it as long as old rows can exist. Resend re-attaches files whose `path` still resolves on disk and reports `attachments_dropped` for the rest. Archiving the actual file bytes is explicitly out of scope for now (deferred low-priority).
 
+## Contact Form WYSIWYG editor (`admin/js/contact-form-fields-editor.js`)
+
+Single-IIFE, ~1300 lines. Drives every Contact Form card's field editor (preview + overlays + drag-drop + gear popup + serializer). Section map for navigation — line numbers drift, search by the `// --- Name ---` marker:
+
+| Section | What lives here |
+|---|---|
+| Undo / redo history | Snapshot stack of `form.innerHTML`. One snapshot per discrete action (insert/delete/drag/blur). `HISTORY_MAX = 50`. Typing in contenteditables only snapshots on blur, so undo skips whole words. |
+| Save plumbing | `serialize(form)` → `FormData` → ajax `lrob_etk_cf_save_structure`. Debounced via `saveTimer`. Status indicator states: `is-saving` / `is-saved` / `is-error`. |
+| Click dispatcher | Single delegate listener on `form`. Routes by `[data-insert]`, `[data-action]`, `[data-edit]`. |
+| Inline editables | Labels / helpers / submit text are `contenteditable="plaintext-only"` with `data-edit="label\|helper\|submit-text"`. Placeholder swap on focus/blur. |
+| Drag-and-drop | `draggedItem`, `dragType` (`field`\|`row`\|`col`). Hover targets picked via `pickDropHover()`. "Snap-to-col" rule: dropping in a row's middle vertical band picks the col whose `midX` > cursor. Source-row collapse: drops landing inside the dragged item's own row resolve to extract above/below. See [[project-drag-image-gotcha]]. |
+| Normalize insert zones | After every mutation, rebuild the `+ Field` / `+ Row` / `+ Column` insert pattern from scratch in each container — keeps the canonical "one insert between every pair plus one trailing" invariant. |
+| Insert zone state | `.is-orphan` class for the sole insert in an empty container (renders as a dashed drop-zone instead of a thin pill). `.is-drop-on-insert` during active drag. |
+| Mutators | `addField`, `deleteField`, `addRow`, `addColumn`, `moveField`, etc. Each commits exactly one history snapshot. |
+| Gear popup | Per-field settings (slug, required, options for select/radio/checkbox, type-specific maxLength/rows/min/max/step/pattern). Reads/writes `data-attr-*` on the shell. Popup HTML built inline in JS — no PHP template. |
+| DOM builders | `buildField(type, attrs)` / `buildRow(field)` / `buildColumn()`. Adding a new field type means extending this section + the gear popup + the serializer. |
+| Serializer | `serialize(form)` produces `{ version: 1, rows: [{ id, columns: [{ id, fields: [...] }] }] }`. Field shape: see "Serialized field shape" below. |
+| Initial sync | On first load, copies attrs from the PHP-rendered DOM into `data-attr-*` so the gear/serializer can read them. Guards via `dataset.etkInit`. |
+
+### Serialized field shape
+
+```json
+{ "id": "f7a3", "type": "text|email|number|phone|date|textarea|select|radio|checkbox|submit|captcha",
+  "slug": "your_name", "label": "Your name", "helper": "", "placeholder": "",
+  "required": true, "maxLength": 200,
+  "rows": 5, "min": "0", "max": "99", "step": "1", "pattern": "...",
+  "options": [{"label": "...", "value": "..."}], "multiple": true,
+  "text": "Send", "align": "right" }
+```
+
+Type-specific keys appear only on relevant types. `submit` carries `text` + `align`. `captcha` carries only `id` + `type` (challenge comes from Captcha module, not per-field).
+
+### DOM contract the editor JS depends on
+
+| Element | Required attributes |
+|---|---|
+| `.lrob-etk-cf-form.is-editor` | `data-form-id` on the wrapping `.lrob-etk-cf-fields` |
+| `.lrob-etk-cf-row` | `data-row-id`, `data-cols` (1–4) |
+| `.lrob-etk-cf-col` | `data-col-id` |
+| `.lrob-etk-cf-edit-shell` | `data-field-id`, `data-field-type`, `data-attr-slug`, `data-attr-required`, optional `data-attr-*` for type-specific keys |
+| `.lrob-etk-cf-overlay--{row\|col\|field}` | Drag handle + delete + (field only) gear button |
+| `.lrob-etk-cf-insert--{row\|field\|column}` | `data-insert` action; `.is-orphan` when sole in empty container |
+| `[contenteditable="plaintext-only"]` | `data-edit` value: `label\|helper\|submit-text` |
+
+`FormEditorRenderer.php` is the PHP that emits this DOM. **If you change the DOM contract on one side, change both.**
+
+### Where to make common changes
+
+- **Add a new field type:** `buildField()` switch + `serialize()`'s gear-attribute list + gear popup builder + `FieldRenderer.php` (frontend) + `FormEditorRenderer.php` (editor preview).
+- **Add a new per-field setting:** add a `data-attr-X` write in the gear popup save + a `data-attr-X` read in `serialize()` + PHP side in `FieldRenderer` + the form structure schema in `FormStructure.php`.
+- **Tweak a drag-drop behaviour:** start at `pickDropHover()` / `computeDropDirection()` / `sameScope()`. Add `console.log` in those three to trace.
+- **Fix a save-status edge case:** `Save plumbing` section, `setStatus()` function.
+- **Add an undo-able action:** wrap it with `commit()` at the end. Single commit per user action.
+
 ## Backlog — keep these in mind when designing related code
 
 Not in scope now, but architectural decisions in the current module may make these easier or harder later. Don't build them yet, but don't paint into a corner either.

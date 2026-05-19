@@ -17,10 +17,16 @@ final class Activator
 
     public const OPTION_DB_VERSION = 'lrob_etk_db_version';
 
+    public const OPTION_UNINSTALL_MODE = 'lrob_etk_uninstall_mode';
+
+    /** Default uninstall mode: keep all data. See uninstall.php for the others. */
+    public const UNINSTALL_MODE_DEFAULT = 'keep';
+
     public static function activate(): void
     {
         self::grant_capability();
         self::seed_module_state();
+        self::seed_uninstall_mode();
         update_option(self::OPTION_DB_VERSION, LROB_ETK_VERSION);
     }
 
@@ -46,11 +52,25 @@ final class Activator
     {
         if (false === get_option(self::OPTION_MODULES)) {
             add_option(self::OPTION_MODULES, [
+                'captcha'      => true,   // service module, always on (Captcha\Module::is_enabled() also enforces this)
                 'smtp'         => false,
                 'logging'      => false,
                 'contact_form' => false,
                 'newsletter'   => false,
             ]);
+        }
+    }
+
+    /**
+     * Seed the uninstall mode with the safest default. Existing installs
+     * (upgrading from <0.0.4) won't have this option yet; uninstall.php
+     * also defaults to 'keep' on get_option default-arg, so a delete-before-
+     * activate-after-upgrade can never lose data.
+     */
+    private static function seed_uninstall_mode(): void
+    {
+        if (false === get_option(self::OPTION_UNINSTALL_MODE)) {
+            add_option(self::OPTION_UNINSTALL_MODE, self::UNINSTALL_MODE_DEFAULT);
         }
     }
 }

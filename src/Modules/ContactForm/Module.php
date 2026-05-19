@@ -81,6 +81,27 @@ final class Module extends AbstractModule
         return admin_url('admin.php?page=' . FormsPage::SLUG);
     }
 
+    public function data_summary(): string
+    {
+        $forms = (int) wp_count_posts(CPT::POST_TYPE)->publish
+               + (int) wp_count_posts(CPT::POST_TYPE)->draft;
+        $submissions = (new SubmissionRepository())->count_total();
+        if ($forms === 0 && $submissions === 0) {
+            return '';
+        }
+        $forms_label = sprintf(
+            /* translators: %d: number of contact forms. */
+            _n('%d form', '%d forms', $forms, 'lrob-email-toolkit'),
+            $forms
+        );
+        $submissions_label = sprintf(
+            /* translators: %s: number of submissions (already formatted with i18n thousands separator). */
+            _n('%s submission', '%s submissions', $submissions, 'lrob-email-toolkit'),
+            number_format_i18n($submissions)
+        );
+        return $forms_label . ', ' . $submissions_label;
+    }
+
     public function register(): void
     {
         $rate_limiter = new RateLimiter();

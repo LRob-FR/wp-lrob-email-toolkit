@@ -18,6 +18,22 @@ abstract class AbstractModule implements ModuleInterface
         return [];
     }
 
+    /**
+     * Service modules (Captcha, future Encryption helpers, etc.) are always
+     * on and have no user-facing enable/disable toggle. The dashboard hides
+     * the toggle and shows "Always on" instead.
+     */
+    public function is_service_module(): bool
+    {
+        return false;
+    }
+
+    /** Default: no stored data. Modules with tables/options override. */
+    public function data_summary(): string
+    {
+        return '';
+    }
+
     public function install(): void
     {
     }
@@ -57,6 +73,53 @@ abstract class AbstractModule implements ModuleInterface
         $state[$this->slug()] = true;
         update_option(Activator::OPTION_MODULES, $state);
         $this->install();
+        update_option($this->db_version_option_key(), $this->db_version_int());
+    }
+
+    /**
+     * Current schema version for this module, as an integer. Bump when
+     * adding a new ALTER TABLE / dbDelta change, and handle the upgrade in
+     * migrate(). Starts at 1 — anything below means "never installed or
+     * pre-migration-scaffolding".
+     */
+    public function db_version_int(): int
+    {
+        return 1;
+    }
+
+    /**
+     * Run schema upgrade steps from $from_version (the last version the
+     * site recorded) up to $to_version (db_version_int()). Override per
+     * module with an idempotent switch on $from_version. Default no-op.
+     */
+    public function migrate(int $from_version, int $to_version): void
+    {
+        unset($from_version, $to_version);
+    }
+
+    /**
+     * Compare the recorded schema version to db_version_int() and run the
+     * appropriate path: fresh install if never recorded, migrate() if
+     * upgrading. Called by ModuleManager on every request for enabled
+     * modules — must short-circuit cheaply when versions match.
+     */
+    final public function maybe_migrate(): void
+    {
+        $stored = (int) get_option($this->db_version_option_key(), 0);
+        $target = $this->db_version_int();
+        if ($stored === $target) {
+            return;
+        }
+        if ($stored === 0) {
+            // No version recorded — either a brand-new install whose
+            // enable() didn't set it yet, or a pre-migration-scaffolding
+            // install we're upgrading. install() is idempotent so re-running
+            // is safe either way.
+            $this->install();
+        } else {
+            $this->migrate($stored, $target);
+        }
+        update_option($this->db_version_option_key(), $target);
     }
 
     /** Mark the module as disabled. Data is preserved. */

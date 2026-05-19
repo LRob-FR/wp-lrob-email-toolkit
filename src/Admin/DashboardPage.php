@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 use LRob\EmailToolkit\Activator;
-use LRob\EmailToolkit\Modules\ContactForm\Admin\FormsPage as ContactFormsPage;
 use LRob\EmailToolkit\Modules\ContactForm\CPT as ContactFormCPT;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository as ContactFormSubmissions;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController as LogsPageController;
@@ -70,22 +69,24 @@ final class DashboardPage
             <h2 class="lrob-etk-section-title"><?php esc_html_e('Email activity', 'lrob-email-toolkit'); ?></h2>
 
             <?php if ($stats !== null) : ?>
-                <?php $this->render_stats_grid($stats); ?>
+                <div class="lrob-etk-activity-layout">
+                    <?php $this->render_stats_grid($stats); ?>
+                    <?php if ($chart_payload !== null) : ?>
+                        <?php $this->render_chart_container(); ?>
+                    <?php endif; ?>
+                </div>
             <?php else : ?>
                 <p class="lrob-etk-disabled-message">
                     <?php esc_html_e('Enable Email Logging to track sent/failed emails and see activity charts here.', 'lrob-email-toolkit'); ?>
                 </p>
             <?php endif; ?>
 
-            <?php if ($chart_payload !== null) : ?>
-                <?php $this->render_chart_container(); ?>
-            <?php endif; ?>
-
             <?php $this->render_modules_grid(); ?>
-            <?php $this->render_contact_form_section(); ?>
             <?php $this->render_recent_activity($repository); ?>
 
             <?php $this->render_test_email_popover(); ?>
+
+            <?php $this->render_plugin_data_card(); ?>
 
             <p class="lrob-etk-footer">
                 <?php
@@ -268,13 +269,38 @@ final class DashboardPage
             '30d' => __('Last 30 days', 'lrob-email-toolkit'),
             '1y'  => __('Last year', 'lrob-email-toolkit'),
         ];
+        $logs_base = admin_url('admin.php?page=' . LogsPageController::SLUG);
+        // Browser-local "today" reference. The stat windows themselves are
+        // computed server-side in UTC (compute_stats), so a click rounds
+        // back to the user's calendar day — close enough for a quick drill-in.
+        $today = current_time('Y-m-d');
+        $now_ts = (int) current_time('timestamp');
+        $date_from_for_range = [
+            '24h' => gmdate('Y-m-d', $now_ts - DAY_IN_SECONDS),
+            '7d'  => gmdate('Y-m-d', $now_ts - 7 * DAY_IN_SECONDS),
+            '30d' => gmdate('Y-m-d', $now_ts - 30 * DAY_IN_SECONDS),
+            '1y'  => gmdate('Y-m-d', $now_ts - 365 * DAY_IN_SECONDS),
+        ];
         ?>
         <div class="lrob-etk-stat-grid">
             <?php foreach (self::STAT_RANGES as $key) :
                 $s = $stats[$key] ?? ['sent' => 0, 'failed' => 0, 'total' => 0, 'fail_rate' => 0];
                 $is_danger = $s['fail_rate'] > 25 && $s['total'] >= 4;
+                $link = add_query_arg([
+                    'date_from' => $date_from_for_range[$key] ?? '',
+                    'date_to'   => $today,
+                ], $logs_base);
                 ?>
-                <div class="lrob-etk-stat-card <?php echo $is_danger ? 'is-warning' : ''; ?>">
+                <a class="lrob-etk-stat-card <?php echo $is_danger ? 'is-warning' : ''; ?>"
+                   href="<?php echo esc_url($link); ?>"
+                   aria-label="<?php
+                        echo esc_attr(sprintf(
+                            /* translators: 1: number of emails, 2: time-range label (e.g. "Last 7 days") */
+                            __('%1$s emails — %2$s. Open logs filtered to this range.', 'lrob-email-toolkit'),
+                            number_format_i18n((int) $s['total']),
+                            $labels[$key] ?? $key
+                        ));
+                   ?>">
                     <p class="lrob-etk-stat-label"><?php echo esc_html($labels[$key] ?? $key); ?></p>
                     <div class="lrob-etk-stat-main">
                         <span class="lrob-etk-stat-value"><?php echo number_format_i18n((int) $s['total']); ?></span>
@@ -293,7 +319,7 @@ final class DashboardPage
                             <span class="lrob-etk-stat-empty"><?php esc_html_e('no activity', 'lrob-email-toolkit'); ?></span>
                         <?php endif; ?>
                     </p>
-                </div>
+                </a>
             <?php endforeach; ?>
         </div>
         <?php
@@ -348,40 +374,76 @@ final class DashboardPage
                 $enabled = $module->is_enabled();
                 $url = $module->admin_page_url();
                 $is_coming = $url === null;
+                $is_service = $module->is_service_module();
                 $card_class = $is_coming ? 'is-coming' : ($enabled ? 'is-on' : '');
-                $is_smtp = $module->slug() === 'smtp';
+                $slug = $module->slug();
+                $is_smtp = $slug === 'smtp';
+                $is_cf = $slug === 'contact_form';
                 $can_test = $is_smtp && $identities !== [];
+
+                // Per-module enrichments rendered inside the card body.
+                $cf_forms_count = 0;
+                $cf_submissions = 0;
+                $cf_new_form_url = '';
+                if ($is_cf && $enabled) {
+                    $cf_forms_count = (int) wp_count_posts(ContactFormCPT::POST_TYPE)->publish
+                                    + (int) wp_count_posts(ContactFormCPT::POST_TYPE)->draft;
+                    $cf_submissions = (new ContactFormSubmissions())->count_total();
+                    $cf_new_form_url = admin_url('post-new.php?post_type=' . ContactFormCPT::POST_TYPE);
+                }
                 ?>
                 <div class="lrob-etk-module-card <?php echo esc_attr($card_class); ?>">
                     <div class="lrob-etk-module-card-head">
                         <h3><?php echo esc_html($module->name()); ?></h3>
                         <?php if ($is_coming) : ?>
                             <span class="lrob-etk-status lrob-etk-status--pending"><?php esc_html_e('Coming soon', 'lrob-email-toolkit'); ?></span>
+                        <?php elseif ($is_service) : ?>
+                            <span class="lrob-etk-status lrob-etk-status--on"><?php esc_html_e('Always on', 'lrob-email-toolkit'); ?></span>
                         <?php endif; ?>
                     </div>
                     <p class="lrob-etk-module-card-description"><?php echo esc_html($module->description()); ?></p>
+
+                    <?php if ($is_cf && $enabled) : ?>
+                        <div class="lrob-etk-module-card-summary">
+                            <span><strong><?php echo number_format_i18n($cf_forms_count); ?></strong>
+                                <?php echo esc_html(_n('form', 'forms', $cf_forms_count, 'lrob-email-toolkit')); ?></span>
+                            <span class="lrob-etk-module-card-summary-sep">·</span>
+                            <span><strong><?php echo number_format_i18n($cf_submissions); ?></strong>
+                                <?php echo esc_html(_n('submission', 'submissions', $cf_submissions, 'lrob-email-toolkit')); ?></span>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if (!$is_coming) : ?>
                         <div class="lrob-etk-module-card-actions">
-                            <form method="post" action="<?php echo esc_url($action_url); ?>" class="lrob-etk-page-toggle-form">
-                                <input type="hidden" name="action" value="<?php echo esc_attr($module->toggle_action()); ?>">
-                                <?php wp_nonce_field($module->toggle_action(), '_lrob_etk_nonce'); ?>
-                                <label class="lrob-etk-page-toggle">
-                                    <input type="checkbox" name="enable" value="1" <?php checked($enabled); ?>
-                                           onchange="this.form.submit()">
-                                    <span class="lrob-etk-switch-track"></span>
-                                    <span class="lrob-etk-page-toggle-state">
-                                        <?php echo $enabled
-                                            ? esc_html__('Enabled', 'lrob-email-toolkit')
-                                            : esc_html__('Disabled', 'lrob-email-toolkit'); ?>
-                                    </span>
-                                </label>
-                            </form>
+                            <?php if (!$is_service) : ?>
+                                <form method="post" action="<?php echo esc_url($action_url); ?>" class="lrob-etk-page-toggle-form">
+                                    <input type="hidden" name="action" value="<?php echo esc_attr($module->toggle_action()); ?>">
+                                    <?php wp_nonce_field($module->toggle_action(), '_lrob_etk_nonce'); ?>
+                                    <label class="lrob-etk-page-toggle">
+                                        <input type="checkbox" name="enable" value="1" <?php checked($enabled); ?>
+                                               onchange="this.form.submit()">
+                                        <span class="lrob-etk-switch-track"></span>
+                                        <span class="lrob-etk-page-toggle-state">
+                                            <?php echo $enabled
+                                                ? esc_html__('Enabled', 'lrob-email-toolkit')
+                                                : esc_html__('Disabled', 'lrob-email-toolkit'); ?>
+                                        </span>
+                                    </label>
+                                </form>
+                            <?php else : ?>
+                                <span></span>
+                            <?php endif; ?>
                             <div class="lrob-etk-module-card-buttons">
                                 <?php if ($can_test) : ?>
                                     <button type="button" class="button lrob-etk-module-test-btn" data-test-email>
                                         <span class="dashicons dashicons-email"></span>
                                         <?php esc_html_e('Test email', 'lrob-email-toolkit'); ?>
                                     </button>
+                                <?php endif; ?>
+                                <?php if ($is_cf && $enabled) : ?>
+                                    <a href="<?php echo esc_url($cf_new_form_url); ?>" class="button button-primary">
+                                        <?php esc_html_e('Add new', 'lrob-email-toolkit'); ?>
+                                    </a>
                                 <?php endif; ?>
                                 <a href="<?php echo esc_url($url); ?>" class="button">
                                     <?php esc_html_e('Manage', 'lrob-email-toolkit'); ?>
@@ -397,55 +459,42 @@ final class DashboardPage
     }
 
     /**
-     * Contact Form section. When enabled and no forms exist, shows a big
-     * "create your first form" CTA. When forms exist, shows a small summary
-     * with submission count. When disabled, renders nothing (module card
-     * handles that).
+     * Per-module data summary card with a CTA to the (hidden-in-menu) Data
+     * page. Only modules that report a non-empty data_summary() show up;
+     * keeps the card compact and useful.
      */
-    private function render_contact_form_section(): void
+    private function render_plugin_data_card(): void
     {
-        $module = $this->manager->get('contact_form');
-        if (!$module instanceof ModuleInterface || !$module->is_enabled()) {
-            return;
+        $rows = [];
+        foreach ($this->manager->all() as $module) {
+            $summary = $module->data_summary();
+            if ($summary === '') {
+                continue;
+            }
+            $rows[] = ['name' => $module->name(), 'summary' => $summary];
         }
-
-        $forms_count = (int) wp_count_posts(ContactFormCPT::POST_TYPE)->publish;
-        $forms_count += (int) wp_count_posts(ContactFormCPT::POST_TYPE)->draft;
-        $new_form_url = admin_url('post-new.php?post_type=' . ContactFormCPT::POST_TYPE);
-        $list_url = admin_url('admin.php?page=' . ContactFormsPage::SLUG);
-
-        if ($forms_count === 0) {
-            ?>
-            <h2 class="lrob-etk-section-title"><?php esc_html_e('Contact forms', 'lrob-email-toolkit'); ?></h2>
-            <div class="lrob-etk-cf-onboard">
-                <div class="lrob-etk-cf-onboard-icon dashicons dashicons-feedback" aria-hidden="true"></div>
-                <h3 class="lrob-etk-cf-onboard-title"><?php esc_html_e('Create my first contact form', 'lrob-email-toolkit'); ?></h3>
-                <p class="lrob-etk-cf-onboard-text">
-                    <?php esc_html_e('Build a form in minutes with Gutenberg — drag fields, pick a style preset, and embed it on any page. Stacked anti-spam is on by default.', 'lrob-email-toolkit'); ?>
-                </p>
-                <a href="<?php echo esc_url($new_form_url); ?>" class="button button-primary button-hero">
-                    <?php esc_html_e('Create a contact form', 'lrob-email-toolkit'); ?>
-                    <span aria-hidden="true">→</span>
-                </a>
-            </div>
-            <?php
-            return;
-        }
-
-        $submissions = (new ContactFormSubmissions())->count_total();
         ?>
-        <h2 class="lrob-etk-section-title"><?php esc_html_e('Contact forms', 'lrob-email-toolkit'); ?></h2>
-        <div class="lrob-etk-cf-summary">
-            <div class="lrob-etk-cf-summary-numbers">
-                <span class="lrob-etk-cf-summary-num"><?php echo number_format_i18n($forms_count); ?></span>
-                <span class="lrob-etk-cf-summary-label"><?php echo esc_html(_n('form', 'forms', $forms_count, 'lrob-email-toolkit')); ?></span>
-                <span class="lrob-etk-cf-summary-sep">·</span>
-                <span class="lrob-etk-cf-summary-num"><?php echo number_format_i18n($submissions); ?></span>
-                <span class="lrob-etk-cf-summary-label"><?php echo esc_html(_n('submission', 'submissions', $submissions, 'lrob-email-toolkit')); ?></span>
-            </div>
-            <div class="lrob-etk-cf-summary-buttons">
-                <a href="<?php echo esc_url($list_url); ?>" class="button"><?php esc_html_e('Manage forms', 'lrob-email-toolkit'); ?></a>
-                <a href="<?php echo esc_url($new_form_url); ?>" class="button button-primary"><?php esc_html_e('Add new', 'lrob-email-toolkit'); ?></a>
+        <h2 class="lrob-etk-section-title"><?php esc_html_e('Plugin data', 'lrob-email-toolkit'); ?></h2>
+        <div class="lrob-etk-data-summary-card">
+            <?php if ($rows === []) : ?>
+                <p class="lrob-etk-data-summary-empty">
+                    <?php esc_html_e('No data stored yet. Enable a module to start logging activity.', 'lrob-email-toolkit'); ?>
+                </p>
+            <?php else : ?>
+                <ul class="lrob-etk-data-summary-list">
+                    <?php foreach ($rows as $row) : ?>
+                        <li>
+                            <span class="lrob-etk-data-summary-name"><?php echo esc_html($row['name']); ?></span>
+                            <span class="lrob-etk-data-summary-value"><?php echo esc_html($row['summary']); ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+            <div class="lrob-etk-data-summary-actions">
+                <a href="<?php echo esc_url(admin_url('admin.php?page=' . DataPage::SLUG)); ?>" class="button">
+                    <span class="dashicons dashicons-database-view"></span>
+                    <?php esc_html_e('Manage plugin data', 'lrob-email-toolkit'); ?>
+                </a>
             </div>
         </div>
         <?php
