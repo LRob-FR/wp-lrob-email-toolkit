@@ -46,6 +46,12 @@ final class EmbedRenderer
         try {
             $structure = FormStructure::load($form_id);
 
+            // Honeypot lives outside the visible structure — added once at
+            // the end no matter where the user placed (or didn't place) the
+            // captcha field. Captcha is rendered inline by the captcha field
+            // type; honeypot stays invisible and always present.
+            $honeypot_html = Settings::effective_honeypot($form_id) ? Honeypot::render() : '';
+
             $form_attrs = self::compute_form_root_attrs($form_id, $instance, $preset, $overrides);
             $html = '<form ' . $form_attrs . '>';
             $html .= '<div class="lrob-etk-cf-status" data-form-status hidden></div>';
@@ -55,10 +61,13 @@ final class EmbedRenderer
                 $html .= self::render_row($row);
             }
 
-            // Anti-bot challenge sits just before the submit button.
-            $html .= self::render_anti_bot($form_id);
-            $html .= FieldRenderer::submit($structure['submit']);
+            // Safety net: if the user removed the submit field, the form
+            // would have no way to submit. Append a generic one.
+            if (!FormStructure::has_field_of_type($structure, 'submit')) {
+                $html .= FieldRenderer::submit(['text' => __('Send', 'lrob-email-toolkit'), 'align' => 'right']);
+            }
 
+            $html .= $honeypot_html;
             $html .= self::render_hidden_fields($form_id, $instance);
             $html .= '</div>';
             $html .= '</form>';
@@ -101,6 +110,8 @@ final class EmbedRenderer
             'select'   => FieldRenderer::select($field),
             'radio'    => FieldRenderer::radio($field),
             'checkbox' => FieldRenderer::checkbox($field),
+            'submit'   => FieldRenderer::submit($field),
+            'captcha'  => FieldRenderer::captcha($field),
             default    => '',
         };
     }
@@ -148,15 +159,6 @@ final class EmbedRenderer
             }
         }
         return implode(';', $out);
-    }
-
-    private static function render_anti_bot(int $form_id): string
-    {
-        $challenge = Settings::effective_challenge($form_id) === CPT::CHALLENGE_MATH
-            ? MathChallenge::render()
-            : '';
-        $honeypot = Settings::effective_honeypot($form_id) ? Honeypot::render() : '';
-        return $challenge . $honeypot;
     }
 
     private static function render_hidden_fields(int $form_id, string $instance): string

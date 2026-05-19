@@ -22,21 +22,31 @@ final class FormContext
 
     private static ?string $instance = null;
 
-    public static function start(int $form_id, string $instance): void
+    private static bool $editor = false;
+
+    public static function start(int $form_id, string $instance, bool $editor = false): void
     {
         self::$form_id = $form_id;
         self::$instance = $instance;
+        self::$editor = $editor;
     }
 
     public static function end(): void
     {
         self::$form_id = null;
         self::$instance = null;
+        self::$editor = false;
     }
 
     public static function is_active(): bool
     {
         return self::$form_id !== null && self::$instance !== null;
+    }
+
+    /** True when fields are being rendered for the admin WYSIWYG editor. */
+    public static function is_editor(): bool
+    {
+        return self::$editor;
     }
 
     public static function form_id(): int

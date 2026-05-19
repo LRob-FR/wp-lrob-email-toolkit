@@ -215,13 +215,19 @@ final class SubmitHandler
      */
     private static function collect_fields_from_structure(array $structure): array
     {
+        // Submit + captcha aren't user-submittable values — skip them so they
+        // don't show up as orphan validation entries.
+        $skip = ['submit', 'captcha'];
         $out = [];
         foreach ($structure['rows'] as $row) {
             foreach ($row['columns'] as $col) {
                 foreach ($col['fields'] as $field) {
-                    $slug = sanitize_key((string) ($field['slug'] ?? ''));
                     $type = (string) ($field['type'] ?? '');
-                    if ($slug === '' || $type === '') {
+                    if ($type === '' || in_array($type, $skip, true)) {
+                        continue;
+                    }
+                    $slug = sanitize_key((string) ($field['slug'] ?? ''));
+                    if ($slug === '') {
                         continue;
                     }
                     $out[$slug] = [

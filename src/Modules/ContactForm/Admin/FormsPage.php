@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\ModuleToggle;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
+use LRob\EmailToolkit\Modules\ContactForm\FormEditorRenderer;
 use LRob\EmailToolkit\Modules\ContactForm\FormStructure;
 use LRob\EmailToolkit\Modules\ContactForm\Module as ContactFormModule;
 use LRob\EmailToolkit\Modules\ContactForm\Settings;
@@ -50,6 +51,16 @@ final class FormsPage
         if (!str_contains($hook_suffix, self::SLUG)) {
             return;
         }
+
+        // Reuse the FRONTEND form CSS in the admin so the editor preview
+        // looks identical to what visitors see. No parallel preview stylesheet.
+        wp_enqueue_style(
+            'lrob-etk-cf-frontend',
+            LROB_ETK_URL . 'assets/css/contact-form.css',
+            [],
+            self::asset_version('assets/css/contact-form.css')
+        );
+
         // The shared combobox (lrob-etk-controls) is enqueued plugin-wide
         // via Admin\Assets, so we only need our auto-save script here.
         wp_enqueue_script(
@@ -70,8 +81,8 @@ final class FormsPage
             ],
         ]);
 
-        // Fields editor (inline rows / columns / fields) — owns its own
-        // serialization but shares the admin JS's nonce + status indicator.
+        // WYSIWYG fields editor — hover overlays, contenteditable handlers,
+        // gear popup, "+" insertion zones, drag-drop, serializer.
         wp_enqueue_script(
             'lrob-etk-cf-fields-editor',
             LROB_ETK_URL . 'admin/js/contact-form-fields-editor.js',
@@ -79,6 +90,37 @@ final class FormsPage
             self::asset_version('admin/js/contact-form-fields-editor.js'),
             true
         );
+        wp_localize_script('lrob-etk-cf-fields-editor', 'lrobEtkCfEditor', [
+            'fieldTypes' => self::field_types(),
+            'i18n'       => [
+                'addField'     => __('Add field', 'lrob-email-toolkit'),
+                'fieldOptions' => __('Field options', 'lrob-email-toolkit'),
+                'slug'         => __('Field slug', 'lrob-email-toolkit'),
+                'helper'       => __('Helper text', 'lrob-email-toolkit'),
+                'required'     => __('Required', 'lrob-email-toolkit'),
+                'placeholder'  => __('Placeholder', 'lrob-email-toolkit'),
+                'maxLength'    => __('Max length', 'lrob-email-toolkit'),
+                'rows'         => __('Rows', 'lrob-email-toolkit'),
+                'min'          => __('Min', 'lrob-email-toolkit'),
+                'max'          => __('Max', 'lrob-email-toolkit'),
+                'step'         => __('Step', 'lrob-email-toolkit'),
+                'pattern'      => __('Regex pattern', 'lrob-email-toolkit'),
+                'options'      => __('Options', 'lrob-email-toolkit'),
+                'addOption'    => __('Add option', 'lrob-email-toolkit'),
+                'multiple'     => __('Multiple choices', 'lrob-email-toolkit'),
+                'alignment'    => __('Alignment', 'lrob-email-toolkit'),
+                'alignLeft'    => __('Left', 'lrob-email-toolkit'),
+                'alignCenter'  => __('Center', 'lrob-email-toolkit'),
+                'alignRight'   => __('Right', 'lrob-email-toolkit'),
+                'alignStretch' => __('Full width', 'lrob-email-toolkit'),
+                'toggleRequired'    => __('Toggle required', 'lrob-email-toolkit'),
+                'helperPlaceholder' => __('(optional helper text)', 'lrob-email-toolkit'),
+                'labelPlaceholder'  => __('(field label)', 'lrob-email-toolkit'),
+                'undo'              => __('Undo', 'lrob-email-toolkit'),
+                'redo'              => __('Redo', 'lrob-email-toolkit'),
+                'fieldLabel'        => __('Field', 'lrob-email-toolkit'),
+            ],
+        ]);
     }
 
     private static function asset_version(string $relative): string
@@ -598,61 +640,47 @@ final class FormsPage
     }
 
     /**
-     * Render the inline fields editor for one form. Rows of columns of
-     * fields, each with controls. The contact-form-fields-editor.js
-     * wires up the buttons and serializes the DOM back to JSON on changes.
+     * Render the WYSIWYG fields editor for one form. The preview comes from
+     * FormEditorRenderer (same FieldRenderer code as the frontend), and the
+     * editor JS overlays hover-revealed controls, contenteditable handlers,
+     * insert "+" pickers, and the gear popup.
      */
     private static function render_fields_editor(int $form_id): void
     {
-        $structure = FormStructure::load($form_id);
         ?>
         <section class="lrob-etk-cf-fields" data-form-id="<?php echo $form_id; ?>">
-            <h3 class="lrob-etk-cf-fields-head">
-                <span class="lrob-etk-form-column-title"><?php esc_html_e('Fields', 'lrob-email-toolkit'); ?></span>
-                <span class="lrob-etk-cf-fields-hint">
-                    <?php esc_html_e('Click a field to edit its label, slug, and options. Use the column buttons to arrange fields side by side.', 'lrob-email-toolkit'); ?>
-                </span>
-            </h3>
-
-            <div class="lrob-etk-cf-rows" data-rows-root>
-                <?php foreach ($structure['rows'] as $row) : ?>
-                    <?php self::render_editor_row($row); ?>
-                <?php endforeach; ?>
-            </div>
-
-            <div class="lrob-etk-cf-fields-add-row">
-                <button type="button" class="button" data-action="add-row">
-                    <span class="dashicons dashicons-plus-alt2"></span>
-                    <?php esc_html_e('Add row', 'lrob-email-toolkit'); ?>
-                </button>
-            </div>
-
-            <div class="lrob-etk-cf-submit-settings">
-                <div class="lrob-etk-field">
-                    <label><?php esc_html_e('Submit button text', 'lrob-email-toolkit'); ?></label>
-                    <input type="text" data-submit-prop="text" value="<?php echo esc_attr($structure['submit']['text']); ?>">
+            <div class="lrob-etk-cf-editor-toolbar">
+                <div class="lrob-etk-cf-editor-toolbar-actions">
+                    <button type="button"
+                            class="lrob-etk-cf-editor-toolbar-btn lrob-etk-cf-editor-toolbar-btn--primary"
+                            data-editor-action="add-field"
+                            title="<?php esc_attr_e('Add a field', 'lrob-email-toolkit'); ?>"
+                            aria-label="<?php esc_attr_e('Add a field', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                    </button>
+                    <button type="button"
+                            class="lrob-etk-cf-editor-toolbar-btn"
+                            data-editor-action="undo"
+                            disabled
+                            title="<?php esc_attr_e('Undo (Ctrl+Z)', 'lrob-email-toolkit'); ?>"
+                            aria-label="<?php esc_attr_e('Undo', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-undo" aria-hidden="true"></span>
+                    </button>
+                    <button type="button"
+                            class="lrob-etk-cf-editor-toolbar-btn"
+                            data-editor-action="redo"
+                            disabled
+                            title="<?php esc_attr_e('Redo (Ctrl+Shift+Z)', 'lrob-email-toolkit'); ?>"
+                            aria-label="<?php esc_attr_e('Redo', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-redo" aria-hidden="true"></span>
+                    </button>
                 </div>
-                <div class="lrob-etk-field">
-                    <label><?php esc_html_e('Alignment', 'lrob-email-toolkit'); ?></label>
-                    <select data-submit-prop="align" class="lrob-etk-select">
-                        <?php
-                        $aligns = [
-                            'left'    => __('Left',       'lrob-email-toolkit'),
-                            'center'  => __('Center',     'lrob-email-toolkit'),
-                            'right'   => __('Right',      'lrob-email-toolkit'),
-                            'stretch' => __('Full width', 'lrob-email-toolkit'),
-                        ];
-                        foreach ($aligns as $value => $label) :
-                            ?>
-                            <option value="<?php echo esc_attr($value); ?>" <?php selected($structure['submit']['align'], $value); ?>>
-                                <?php echo esc_html($label); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <span class="lrob-etk-cf-editor-status" aria-live="polite"></span>
             </div>
 
-            <!-- Field-type picker shown when "Add field" is clicked -->
+            <?php echo FormEditorRenderer::render($form_id); ?>
+
+            <!-- Field-type picker (cloned by the editor JS each time + is clicked) -->
             <template data-field-type-picker>
                 <div class="lrob-etk-cf-type-picker" role="menu">
                     <?php foreach (self::field_types() as $type => $label) : ?>
@@ -662,221 +690,23 @@ final class FormsPage
                     <?php endforeach; ?>
                 </div>
             </template>
+
+            <!-- Gear popup (cloned by JS and anchored to the field's gear icon) -->
+            <template data-field-gear-popup>
+                <div class="lrob-etk-cf-gear-popup" role="dialog">
+                    <header>
+                        <strong data-gear-title><?php esc_html_e('Field options', 'lrob-email-toolkit'); ?></strong>
+                        <button type="button" data-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-no-alt"></span>
+                        </button>
+                    </header>
+                    <div class="lrob-etk-cf-gear-body" data-gear-body></div>
+                </div>
+            </template>
         </section>
         <?php
     }
 
-    /** @param array{id:string, columns:array<int, array{id:string, fields:array<int, array>}>} $row */
-    private static function render_editor_row(array $row): void
-    {
-        $cols = count($row['columns']);
-        ?>
-        <div class="lrob-etk-cf-editor-row" data-row-id="<?php echo esc_attr($row['id']); ?>"
-             data-draggable-type="row" draggable="true">
-            <div class="lrob-etk-cf-editor-row-head">
-                <span class="lrob-etk-cf-drag-handle dashicons dashicons-move" aria-hidden="true"></span>
-                <span class="lrob-etk-cf-editor-row-label">
-                    <?php echo esc_html(sprintf(
-                        /* translators: %d: number of columns in this form row */
-                        _n('Row · %d column', 'Row · %d columns', $cols, 'lrob-email-toolkit'),
-                        $cols
-                    )); ?>
-                </span>
-                <button type="button" class="lrob-etk-cf-icon-btn lrob-etk-cf-icon-btn--delete" data-action="delete-row" aria-label="<?php esc_attr_e('Delete row', 'lrob-email-toolkit'); ?>">
-                    <span class="dashicons dashicons-trash"></span>
-                </button>
-            </div>
-            <div class="lrob-etk-cf-editor-cols" data-cols="<?php echo $cols; ?>">
-                <?php foreach ($row['columns'] as $col) : ?>
-                    <?php self::render_editor_column($col); ?>
-                <?php endforeach; ?>
-                <?php if ($cols < 4) : ?>
-                    <button type="button" class="lrob-etk-cf-add-col" data-action="add-column" aria-label="<?php esc_attr_e('Add column', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-plus-alt2"></span>
-                    </button>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php
-    }
-
-    /** @param array{id:string, fields:array<int, array>} $col */
-    private static function render_editor_column(array $col): void
-    {
-        ?>
-        <div class="lrob-etk-cf-editor-col" data-col-id="<?php echo esc_attr($col['id']); ?>"
-             data-draggable-type="col" draggable="true">
-            <div class="lrob-etk-cf-editor-col-head">
-                <span class="lrob-etk-cf-drag-handle dashicons dashicons-move" aria-hidden="true"></span>
-                <button type="button" class="lrob-etk-cf-icon-btn lrob-etk-cf-icon-btn--delete" data-action="delete-col" aria-label="<?php esc_attr_e('Delete column', 'lrob-email-toolkit'); ?>">
-                    <span class="dashicons dashicons-trash"></span>
-                </button>
-            </div>
-            <?php foreach ($col['fields'] as $field) : ?>
-                <?php self::render_editor_field($field); ?>
-            <?php endforeach; ?>
-            <button type="button" class="lrob-etk-cf-add-field" data-action="add-field">
-                <span class="dashicons dashicons-plus-alt2"></span>
-                <?php esc_html_e('Add field', 'lrob-email-toolkit'); ?>
-            </button>
-        </div>
-        <?php
-    }
-
-    /** @param array<string, mixed> $field */
-    private static function render_editor_field(array $field): void
-    {
-        $type = (string) ($field['type'] ?? 'text');
-        $label = (string) ($field['label'] ?? '');
-        ?>
-        <div class="lrob-etk-cf-editor-field" data-field-id="<?php echo esc_attr((string) ($field['id'] ?? '')); ?>" data-field-type="<?php echo esc_attr($type); ?>"
-             data-draggable-type="field" draggable="true">
-            <div class="lrob-etk-cf-editor-field-summary" data-action="toggle-edit">
-                <span class="lrob-etk-cf-drag-handle dashicons dashicons-move" aria-hidden="true"></span>
-                <span class="lrob-etk-cf-editor-field-type"><?php echo esc_html(self::field_type_label($type)); ?></span>
-                <span class="lrob-etk-cf-editor-field-label"><?php echo esc_html($label !== '' ? $label : __('(no label)', 'lrob-email-toolkit')); ?></span>
-                <span class="lrob-etk-cf-editor-field-actions">
-                    <?php if (!empty($field['required'])) : ?>
-                        <span class="lrob-etk-cf-required-pill"><?php esc_html_e('required', 'lrob-email-toolkit'); ?></span>
-                    <?php endif; ?>
-                    <button type="button" class="lrob-etk-cf-icon-btn lrob-etk-cf-icon-btn--delete" data-action="delete-field" aria-label="<?php esc_attr_e('Delete field', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-trash"></span>
-                    </button>
-                </span>
-            </div>
-            <div class="lrob-etk-cf-editor-field-body" hidden>
-                <?php self::render_field_body($field); ?>
-            </div>
-        </div>
-        <?php
-    }
-
-    /** @param array<string, mixed> $field */
-    private static function render_field_body(array $field): void
-    {
-        $type = (string) ($field['type'] ?? 'text');
-        ?>
-        <div class="lrob-etk-cf-editor-field-grid">
-            <div class="lrob-etk-field">
-                <label><?php esc_html_e('Label', 'lrob-email-toolkit'); ?></label>
-                <input type="text" data-prop="label" value="<?php echo esc_attr((string) ($field['label'] ?? '')); ?>">
-            </div>
-            <div class="lrob-etk-field">
-                <label><?php esc_html_e('Field slug', 'lrob-email-toolkit'); ?></label>
-                <input type="text" data-prop="slug" value="<?php echo esc_attr((string) ($field['slug'] ?? '')); ?>">
-            </div>
-            <div class="lrob-etk-field lrob-etk-cf-editor-field-grid-full">
-                <label><?php esc_html_e('Helper text', 'lrob-email-toolkit'); ?></label>
-                <input type="text" data-prop="helper" value="<?php echo esc_attr((string) ($field['helper'] ?? '')); ?>">
-            </div>
-            <?php if (in_array($type, ['text', 'email', 'textarea', 'number', 'phone', 'date'], true)) : ?>
-                <div class="lrob-etk-field lrob-etk-cf-editor-field-grid-full">
-                    <label><?php esc_html_e('Placeholder', 'lrob-email-toolkit'); ?></label>
-                    <input type="text" data-prop="placeholder" value="<?php echo esc_attr((string) ($field['placeholder'] ?? '')); ?>">
-                </div>
-            <?php endif; ?>
-            <div class="lrob-etk-field lrob-etk-cf-editor-field-grid-full">
-                <label class="lrob-etk-cf-inline-check">
-                    <input type="checkbox" data-prop="required" <?php checked(!empty($field['required'])); ?>>
-                    <?php esc_html_e('Required', 'lrob-email-toolkit'); ?>
-                </label>
-            </div>
-            <?php self::render_field_type_specific($field); ?>
-        </div>
-        <?php
-    }
-
-    /** @param array<string, mixed> $field */
-    private static function render_field_type_specific(array $field): void
-    {
-        $type = (string) ($field['type'] ?? '');
-        switch ($type) {
-            case 'textarea':
-                ?>
-                <div class="lrob-etk-field">
-                    <label><?php esc_html_e('Rows', 'lrob-email-toolkit'); ?></label>
-                    <input type="number" min="2" max="20" data-prop="rows" value="<?php echo esc_attr((string) ($field['rows'] ?? 5)); ?>">
-                </div>
-                <div class="lrob-etk-field">
-                    <label><?php esc_html_e('Max length', 'lrob-email-toolkit'); ?></label>
-                    <input type="number" min="0" data-prop="maxLength" value="<?php echo esc_attr((string) ($field['maxLength'] ?? 0)); ?>">
-                </div>
-                <?php
-                break;
-            case 'text':
-            case 'email':
-                ?>
-                <div class="lrob-etk-field">
-                    <label><?php esc_html_e('Max length', 'lrob-email-toolkit'); ?></label>
-                    <input type="number" min="0" data-prop="maxLength" value="<?php echo esc_attr((string) ($field['maxLength'] ?? 0)); ?>">
-                </div>
-                <?php
-                break;
-            case 'number':
-                ?>
-                <div class="lrob-etk-field"><label><?php esc_html_e('Min', 'lrob-email-toolkit'); ?></label><input type="text" data-prop="min" value="<?php echo esc_attr((string) ($field['min'] ?? '')); ?>"></div>
-                <div class="lrob-etk-field"><label><?php esc_html_e('Max', 'lrob-email-toolkit'); ?></label><input type="text" data-prop="max" value="<?php echo esc_attr((string) ($field['max'] ?? '')); ?>"></div>
-                <div class="lrob-etk-field"><label><?php esc_html_e('Step', 'lrob-email-toolkit'); ?></label><input type="text" data-prop="step" value="<?php echo esc_attr((string) ($field['step'] ?? '')); ?>"></div>
-                <?php
-                break;
-            case 'phone':
-                ?>
-                <div class="lrob-etk-field lrob-etk-cf-editor-field-grid-full">
-                    <label><?php esc_html_e('Regex pattern (optional)', 'lrob-email-toolkit'); ?></label>
-                    <input type="text" data-prop="pattern" value="<?php echo esc_attr((string) ($field['pattern'] ?? '')); ?>">
-                </div>
-                <?php
-                break;
-            case 'date':
-                ?>
-                <div class="lrob-etk-field"><label><?php esc_html_e('Earliest (YYYY-MM-DD)', 'lrob-email-toolkit'); ?></label><input type="text" data-prop="min" value="<?php echo esc_attr((string) ($field['min'] ?? '')); ?>"></div>
-                <div class="lrob-etk-field"><label><?php esc_html_e('Latest (YYYY-MM-DD)', 'lrob-email-toolkit'); ?></label><input type="text" data-prop="max" value="<?php echo esc_attr((string) ($field['max'] ?? '')); ?>"></div>
-                <?php
-                break;
-            case 'select':
-            case 'radio':
-                self::render_options_editor($field['options'] ?? []);
-                break;
-            case 'checkbox':
-                ?>
-                <div class="lrob-etk-field lrob-etk-cf-editor-field-grid-full">
-                    <label class="lrob-etk-cf-inline-check">
-                        <input type="checkbox" data-prop="multiple" <?php checked(!isset($field['multiple']) || !empty($field['multiple'])); ?>>
-                        <?php esc_html_e('Multiple choices (off = single consent checkbox)', 'lrob-email-toolkit'); ?>
-                    </label>
-                </div>
-                <?php
-                self::render_options_editor($field['options'] ?? []);
-                break;
-        }
-    }
-
-    /** @param array<int, array{value:string, label:string}>|mixed $options */
-    private static function render_options_editor(mixed $options): void
-    {
-        $options = is_array($options) ? $options : [];
-        ?>
-        <div class="lrob-etk-field lrob-etk-cf-editor-field-grid-full lrob-etk-cf-editor-options" data-options-root>
-            <label><?php esc_html_e('Options', 'lrob-email-toolkit'); ?></label>
-            <div class="lrob-etk-cf-editor-options-list" data-options-list>
-                <?php foreach ($options as $opt) : ?>
-                    <div class="lrob-etk-cf-editor-option" data-option>
-                        <input type="text" data-option-prop="label" value="<?php echo esc_attr((string) ($opt['label'] ?? '')); ?>" placeholder="<?php esc_attr_e('Label', 'lrob-email-toolkit'); ?>">
-                        <input type="text" data-option-prop="value" value="<?php echo esc_attr((string) ($opt['value'] ?? '')); ?>" placeholder="<?php esc_attr_e('value', 'lrob-email-toolkit'); ?>">
-                        <button type="button" class="lrob-etk-cf-icon-btn lrob-etk-cf-icon-btn--delete" data-action="delete-option" aria-label="<?php esc_attr_e('Remove option', 'lrob-email-toolkit'); ?>">
-                            <span class="dashicons dashicons-no-alt"></span>
-                        </button>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <button type="button" class="button-link" data-action="add-option">
-                + <?php esc_html_e('Add option', 'lrob-email-toolkit'); ?>
-            </button>
-        </div>
-        <?php
-    }
-
-    /** @return array<string, string> */
     /**
      * "Default — X" placeholder used on every free-text field where empty
      * means "inherit". Single translator comment so make-pot doesn't warn

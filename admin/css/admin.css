@@ -2570,221 +2570,620 @@ body.lrob-etk-modal-open {
     justify-content: flex-end;
 }
 
-/* ---------- Contact Form inline fields editor ---------- */
+/* ---------- Contact Form WYSIWYG editor ---------- */
 
-/* The whole "Fields" section sits below the Delivery / Anti-spam columns
- * inside a form card. Each row contains columns; each column contains
- * fields. The user adds / reorders / edits everything inline; the editor
- * JS serializes back to JSON on every change. */
+/* The editor preview reuses the FRONTEND `.lrob-etk-cf-form` styles (loaded
+ * from assets/css/contact-form.css). The rules below add the editor layer
+ * on top: hover-revealed overlays, "+" insertion zones, contenteditable
+ * cues, captcha stub, gear popup, drop indicators. Everything here is
+ * scoped under `.lrob-etk-cf-form.is-editor` so it never affects published
+ * forms. */
+
 .lrob-etk-cf-fields {
     margin-top: 18px;
     padding-top: 14px;
     border-top: 1px solid var(--etk-line);
 }
-.lrob-etk-cf-fields-head {
+
+/* Toolbar sitting directly above the form preview: undo/redo + save status.
+ * Putting the save feedback next to where edits happen avoids the user
+ * missing a "Save failed" indicator at the very top of the card. */
+.lrob-etk-cf-editor-toolbar {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin: 0 0 12px 0;
+    padding: 6px 4px 10px;
+    min-height: 28px;
 }
-.lrob-etk-cf-fields-head .lrob-etk-form-column-title {
-    margin: 0;
-}
-.lrob-etk-cf-fields-hint {
-    font-size: 11px;
-    color: var(--etk-muted);
-    font-weight: 400;
-}
-
-.lrob-etk-cf-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.lrob-etk-cf-editor-row {
-    border: 1px solid var(--etk-line);
-    border-radius: 6px;
-    background: #fafbfd;
-    padding: 6px 10px 10px;
-    transition: opacity 0.15s ease, box-shadow 0.15s ease;
-}
-.lrob-etk-cf-editor-row.is-dragging {
-    opacity: 0.4;
-}
-.lrob-etk-cf-editor-row-head {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-}
-.lrob-etk-cf-editor-row-head .lrob-etk-cf-editor-row-label {
-    flex: 1;
-}
-.lrob-etk-cf-editor-row-label {
-    font-size: 11px;
-    color: var(--etk-muted);
-    text-transform: none;
-    font-weight: 500;
-    letter-spacing: 0;
-}
-.lrob-etk-cf-editor-row-actions {
+.lrob-etk-cf-editor-toolbar-actions {
     display: inline-flex;
-    gap: 2px;
-}
-
-/* Columns inside a row arrange horizontally; add-column button sits at the
- * end of the row's column list. */
-.lrob-etk-cf-editor-cols {
-    display: grid;
-    gap: 8px;
-    grid-template-columns: 1fr;
-    align-items: start;
-}
-.lrob-etk-cf-editor-cols[data-cols="2"] { grid-template-columns: repeat(2, 1fr) auto; }
-.lrob-etk-cf-editor-cols[data-cols="3"] { grid-template-columns: repeat(3, 1fr) auto; }
-.lrob-etk-cf-editor-cols[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
-.lrob-etk-cf-editor-cols[data-cols="1"] { grid-template-columns: 1fr auto; }
-@media (max-width: 720px) {
-    .lrob-etk-cf-editor-cols[data-cols] {
-        grid-template-columns: 1fr;
-    }
-}
-
-.lrob-etk-cf-editor-col {
-    border: 1px solid var(--etk-line);
-    border-radius: 4px;
-    background: #fff;
-    padding: 6px 8px 8px;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    transition: opacity 0.15s ease;
-}
-.lrob-etk-cf-editor-col.is-dragging {
-    opacity: 0.4;
-}
-.lrob-etk-cf-editor-col-head {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 2px;
 }
-/* (no fields wrapper — fields are direct flex children of the column,
- *  which already sets `gap: 6px` for spacing between col-head, fields,
- *  and the trailing Add-field button.) */
-
-.lrob-etk-cf-add-col,
-.lrob-etk-cf-add-field {
+.lrob-etk-cf-editor-toolbar-btn {
     appearance: none;
     background: transparent;
-    border: 1px dashed var(--etk-line);
-    color: var(--etk-muted);
+    border: 1px solid transparent;
     border-radius: 4px;
-    padding: 8px 10px;
+    padding: 4px 6px;
     cursor: pointer;
-    font-size: 12px;
-    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    color: var(--etk-muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
-.lrob-etk-cf-add-col {
-    align-self: stretch;
-    padding: 0 10px;
-    min-width: 32px;
+.lrob-etk-cf-editor-toolbar-btn:hover:not(:disabled),
+.lrob-etk-cf-editor-toolbar-btn:focus-visible:not(:disabled) {
+    color: var(--etk-fg);
+    background: var(--etk-soft);
+    border-color: var(--etk-line);
+    outline: none;
 }
-.lrob-etk-cf-add-col:hover,
-.lrob-etk-cf-add-field:hover {
+.lrob-etk-cf-editor-toolbar-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+/* Primary add-field button — slightly more prominent than undo/redo so the
+ * Gutenberg-style "drop a new field" action reads as the first move. */
+.lrob-etk-cf-editor-toolbar-btn--primary {
+    color: var(--etk-accent);
+    border-color: rgba(37, 99, 235, 0.35);
+    margin-right: 4px;
+}
+.lrob-etk-cf-editor-toolbar-btn--primary:hover:not(:disabled),
+.lrob-etk-cf-editor-toolbar-btn--primary:focus-visible:not(:disabled) {
+    background: rgba(37, 99, 235, 0.10);
     border-color: var(--etk-accent);
     color: var(--etk-accent);
-    background: #f0f6fc;
 }
-.lrob-etk-cf-add-col .dashicons,
-.lrob-etk-cf-add-field .dashicons {
+.lrob-etk-cf-editor-toolbar-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+.lrob-etk-cf-editor-status {
+    font-size: 12px;
+    color: var(--etk-muted);
+    min-width: 0;
+    text-align: right;
+    transition: color 0.12s ease;
+}
+.lrob-etk-cf-editor-status.is-saving { color: var(--etk-muted); }
+.lrob-etk-cf-editor-status.is-saved  { color: var(--etk-success); }
+.lrob-etk-cf-editor-status.is-error  { color: var(--etk-danger); }
+
+.lrob-etk-cf-form.is-editor {
+    position: relative;
+    background: #fdfdfe;
+    border: 1px solid var(--etk-line);
+    border-radius: 8px;
+    padding: 14px 18px 18px;
+}
+
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-col,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell {
+    position: relative;
+    transition: outline-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* The frontend uses flex `gap` between body→rows and col→fields. The editor
+ * interleaves zero-height "+" insert zones between every pair, and flex
+ * `gap` applies on BOTH sides of each insert — doubling the apparent
+ * spacing. Switch the editor to a margin-based vertical rhythm so inserts
+ * cost nothing in layout when collapsed. */
+.lrob-etk-cf-form.is-editor > .lrob-etk-cf-body,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-col {
+    gap: 0;
+}
+.lrob-etk-cf-form.is-editor > .lrob-etk-cf-body > .lrob-etk-cf-row ~ .lrob-etk-cf-row {
+    margin-top: var(--lrob-etk-cf-spacing, 1rem);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-col > .lrob-etk-cf-edit-shell ~ .lrob-etk-cf-edit-shell {
+    margin-top: var(--lrob-etk-cf-spacing, 1rem);
+}
+
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell {
+    outline: 1px dashed transparent;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover {
+    outline-color: rgba(37, 99, 235, 0.35);
+}
+
+/* Single-column rows are conceptually just "a field at body level" — the
+ * row and column wrappers are storage-only. Strip their chrome so the user
+ * sees a flat stack of fields, and the row-overlay drag handle moves with
+ * the FIELD inside (the row is what's actually being reordered).
+ *
+ * Multi-column rows (data-cols >= 2) keep their full chrome: row overlay
+ * for delete/drag, optional column overlay for per-column ops, and the
+ * trailing "+" track for adding more columns. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="1"] > .lrob-etk-cf-overlay--row {
+    display: none;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="1"] > .lrob-etk-cf-col > .lrob-etk-cf-overlay--col {
+    display: none;
+}
+/* Single-col rows keep the trailing column "+" so the user can still promote
+ * them to multi-column. (When per-field side "+" lands, this can disappear
+ * for the single-col case.) */
+.lrob-etk-cf-form.is-editor .is-dragging {
+    opacity: 0.4;
+}
+
+/* --- Hover overlay (drag handle + buttons) --- */
+.lrob-etk-cf-overlay {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    padding: 2px 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    z-index: 5;
+    font-size: 11px;
+}
+.lrob-etk-cf-overlay--row   { top: -12px; left: 8px; }
+/* Col overlay was at the same top-right corner as the field overlay below
+ * it — even with the field-hover hide rule, the col overlay's bounding box
+ * intercepted dragstarts on the TOP portion of the field's drag handle
+ * (because pointer-events flicker during fast hover transitions). Move
+ * it to the col's top-LEFT so it never overlaps the field overlay area. */
+.lrob-etk-cf-overlay--col   { top: -10px; left: 4px; right: auto; }
+.lrob-etk-cf-overlay--field { top: 4px; right: 4px; z-index: 10; }
+
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row:hover > .lrob-etk-cf-overlay--row,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-col:hover > .lrob-etk-cf-overlay--col,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover > .lrob-etk-cf-overlay--field {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* Hierarchical hover: when a deeper element is hovered, the wrapping
+ * container's overlay hides so menus never stack. Hover a field → only the
+ * field overlay shows; hover the column's gap area → only the column
+ * overlay shows. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row:has(.lrob-etk-cf-col:hover) > .lrob-etk-cf-overlay--row,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row:has(.lrob-etk-cf-edit-shell:hover) > .lrob-etk-cf-overlay--row,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-col:has(.lrob-etk-cf-edit-shell:hover) > .lrob-etk-cf-overlay--col {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* The handle is an inline <span> by default, so its declared width/height
+ * have no effect — the actual click target is just the icon glyph (~14px
+ * wide). Switch to inline-flex with box-sizing so the whole 26×22 area
+ * receives the dragstart, not just the rendered character. */
+.lrob-etk-cf-overlay-handle {
+    cursor: grab;
+    color: var(--etk-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 22px;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 16px;
+    line-height: 1;
+    /* The dashicons glyph is a Unicode character — without this, the browser
+     * treats it as text and prefers a text-selection start over a drag when
+     * the mousedown lands on the "ascender" portion of the glyph (top half).
+     * Forcing user-select:none routes all mousedowns straight into dragstart. */
+    user-select: none;
+    -webkit-user-select: none;
+}
+.lrob-etk-cf-overlay-handle:active { cursor: grabbing; }
+
+.lrob-etk-cf-overlay-btn {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--etk-muted);
+    padding: 2px 4px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-overlay-btn:hover {
+    color: var(--etk-fg);
+    background: var(--etk-soft);
+}
+.lrob-etk-cf-overlay-btn--delete:hover { color: var(--etk-danger); }
+.lrob-etk-cf-overlay-btn .dashicons {
     font-size: 14px;
     width: 14px;
     height: 14px;
     line-height: 1;
 }
 
-/* Field summary row inside a column. Click anywhere on the summary to
- * expand the edit body (except on the inline action buttons). */
-.lrob-etk-cf-editor-field {
-    border: 1px solid var(--etk-line);
-    border-radius: 4px;
+/* --- "+" insertion zones ---
+ *
+ * Always visible, never animated. Row + field inserts are pill-shaped and
+ * sized via negative vertical margins so they overlap the seam between
+ * neighbors without contributing any layout height (form preview stays
+ * compact). Column inserts sit in a trailing grid track on the row. No
+ * cursor-distance fade, no `.is-near` expansion — the buttons don't move.
+ * `.is-orphan` is the only state class; JS applies it to the sole insert
+ * inside an empty container so it renders as a clear dashed drop-zone
+ * instead of a thin pill.
+ */
+.lrob-etk-cf-insert {
+    appearance: none;
+    border: 1px solid rgba(37, 99, 235, 0.35);
     background: #fff;
-    transition: border-color 0.15s ease, opacity 0.15s ease;
-}
-.lrob-etk-cf-editor-field.is-editing {
-    border-color: var(--etk-accent);
-    box-shadow: 0 0 0 1px var(--etk-accent) inset;
-}
-.lrob-etk-cf-editor-field.is-dragging {
-    opacity: 0.4;
-}
-.lrob-etk-cf-editor-field-summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
+    padding: 0;
     cursor: pointer;
-    user-select: none;
-}
-.lrob-etk-cf-editor-field-type {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: #eef2f7;
-    color: #5a6470;
-    padding: 2px 6px;
-    border-radius: 3px;
-    flex: 0 0 auto;
-}
-.lrob-etk-cf-editor-field-label {
-    flex: 1;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--etk-fg);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-}
-.lrob-etk-cf-editor-field-actions {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    flex: 0 0 auto;
+    justify-content: center;
+    gap: 4px;
+    color: var(--etk-accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    line-height: 1;
+    position: relative;
+    z-index: 5;
+    opacity: 0;
+    pointer-events: none; /* invisible inserts shouldn't intercept stray clicks */
+    transition: opacity 0.14s ease, background 0.12s ease, border-color 0.12s ease;
 }
-.lrob-etk-cf-required-pill {
-    font-size: 10px;
-    color: #b91c1c;
-    background: #fef2f2;
-    padding: 1px 6px;
-    border-radius: 10px;
-    margin-right: 4px;
+/* Visibility rules: an insert reveals itself when the user is over a
+ * neighbouring block OR over the insert itself. With opacity-only fades,
+ * the form layout never shifts — when the cursor leaves the editor, the
+ * preview reads exactly like the rendered output. */
+.lrob-etk-cf-insert:hover,
+.lrob-etk-cf-insert:focus-visible,
+/* Field insert: after a hovered shell */
+.lrob-etk-cf-edit-shell:hover + .lrob-etk-cf-insert--field,
+/* Field insert: before a hovered shell (next-sibling check via :has) */
+.lrob-etk-cf-insert--field:has(+ .lrob-etk-cf-edit-shell:hover),
+/* Body row insert: between a hovered row and its neighbour, either side */
+.lrob-etk-cf-row:hover + .lrob-etk-cf-insert--row,
+.lrob-etk-cf-insert--row:has(+ .lrob-etk-cf-row:hover),
+/* Column "+": appears whenever the row it belongs to is hovered */
+.lrob-etk-cf-row:hover > .lrob-etk-cf-insert--column {
+    opacity: 1;
+    pointer-events: auto;
+}
+/* Orphan inserts (empty container's sole click target) stay visible at
+ * rest so the user knows the empty slot is editable — overrides the
+ * default opacity:0 above. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-insert.is-orphan {
+    opacity: 1;
+    pointer-events: auto;
 }
 
-.lrob-etk-cf-editor-field-body {
-    padding: 4px 10px 10px;
-    border-top: 1px solid var(--etk-line);
+/* During an active drag, inserts stay INVISIBLE (no "+ Field" pills
+ * cluttering the canvas) but their hit area grows to a comfortable size
+ * so cursor proximity reliably targets the right seam. Layout stays
+ * neutral via matching negative margins. */
+.lrob-etk-cf-form.is-editor.is-drag-active .lrob-etk-cf-insert--row,
+.lrob-etk-cf-form.is-editor.is-drag-active .lrob-etk-cf-insert--field {
+    opacity: 0;
+    pointer-events: auto;
+    height: 36px;
+    margin-top: -18px;
+    margin-bottom: -18px;
+    width: 100%;
+    max-width: none;
+    padding: 0;
 }
-.lrob-etk-cf-editor-field-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 12px;
+/* Drop-on-insert: the targeted seam renders as a chunky translucent
+ * rectangle with an accent border — same visual weight as the side-drop
+ * highlight, NOT the "+ Field" pill (whose content we hide). */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-insert.is-drop-on-insert {
+    opacity: 1;
+    background: rgba(37, 99, 235, 0.18);
+    border: 2px solid var(--etk-accent);
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.28);
+    border-radius: 4px;
+    color: transparent;
 }
-.lrob-etk-cf-editor-field-grid-full {
-    grid-column: 1 / -1;
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-insert.is-drop-on-insert > * {
+    visibility: hidden;
 }
-.lrob-etk-cf-editor-field-body .lrob-etk-field label {
-    font-size: 11px;
-    text-transform: none;
+/* When the insert being targeted is the lone orphan inside an EMPTY column,
+ * highlight the column itself too — makes it obvious that the dragged
+ * payload will land inside this column rather than between cols. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-col:has(> .lrob-etk-cf-insert.is-drop-on-insert) {
+    background: rgba(37, 99, 235, 0.08);
+    box-shadow: inset 0 0 0 2px var(--etk-accent);
+    border-radius: 4px;
+}
+
+/* Brief flash on a newly-inserted column so the user gets visible feedback
+ * that the click did something — without this, a new empty column tucked
+ * next to existing content can read as "nothing happened". */
+@keyframes lrob-etk-cf-col-flash {
+    0%   { background: rgba(37, 99, 235, 0.20); box-shadow: inset 0 0 0 1px var(--etk-accent); }
+    100% { background: transparent;             box-shadow: inset 0 0 0 1px transparent; }
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-col.is-just-inserted,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row.is-just-inserted {
+    animation: lrob-etk-cf-col-flash 0.7s ease;
+    border-radius: 4px;
+}
+.lrob-etk-cf-insert-plus {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+}
+.lrob-etk-cf-insert-label {
+    line-height: 1;
+}
+.lrob-etk-cf-insert:hover,
+.lrob-etk-cf-insert:focus-visible {
+    background: rgba(37, 99, 235, 0.12);
+    border-color: var(--etk-accent);
+    outline: none;
+}
+
+/* Row + field pills: full pill height (so they're a real click target),
+ * but pulled half-height into the seam above and below so they cost zero
+ * vertical layout. With shells using `margin-top: 1rem` between siblings,
+ * the pill sits centered in that 16px gap. */
+.lrob-etk-cf-insert--row,
+.lrob-etk-cf-insert--field {
+    width: max-content;
+    max-width: 100%;
+    height: 18px;
+    margin: -9px auto;
+    padding: 0 10px;
+}
+/* Column "+" sits in a trailing grid track on the row so it has a stable
+ * position to the right of the last column without ever overlapping a
+ * field. When cols=4 the row has no trailing track and no "+" in DOM.
+ * Smaller than the row/field pills since the position alone signals "add
+ * column" — no text label needed. */
+.lrob-etk-cf-insert--column {
+    align-self: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin: 0;
+}
+
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="1"] { grid-template-columns: 1fr auto; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="2"] { grid-template-columns: repeat(2, 1fr) auto; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="3"] { grid-template-columns: repeat(3, 1fr) auto; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+
+/* Orphan: empty container's sole insert renders as a clear dashed drop
+ * zone (so the user understands "click here to add something") instead of
+ * the always-visible thin pill. Takes a small amount of vertical space so
+ * the empty row/column doesn't visually collapse to nothing. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-insert.is-orphan {
+    background: transparent;
+    border: 1px dashed var(--etk-line-strong);
     color: var(--etk-muted);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-insert--row.is-orphan,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-insert--field.is-orphan {
+    height: 32px;
+    margin: 6px auto;
+    padding: 0 14px;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-insert.is-orphan:hover {
+    background: rgba(37, 99, 235, 0.10);
+    border-color: var(--etk-accent);
+    color: var(--etk-accent);
+}
+
+/* In single-col rows, the col's leading/trailing field-inserts would
+ * triplicate the "+" between two body items (col-trailing of the row
+ * above + body-level insert + col-leading of the row below). Hide them
+ * there — the body-level "+" between rows handles those slots.
+ *
+ * In multi-col rows, the leading/trailing inserts stay visible (on hover)
+ * because they're the only way to add a field at the very top or bottom
+ * of a specific column. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="1"] > .lrob-etk-cf-col > .lrob-etk-cf-insert--field:first-of-type:not(.is-orphan),
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-row[data-cols="1"] > .lrob-etk-cf-col > .lrob-etk-cf-insert--field:last-of-type:not(.is-orphan) {
+    display: none;
+}
+
+/* --- Contenteditable cues --- */
+.lrob-etk-cf-form.is-editor [contenteditable="plaintext-only"] {
+    outline: none;
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin: -1px -4px;
+    border-bottom: 1px dotted transparent;
+    cursor: text;
+    transition: border-color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-form.is-editor [contenteditable="plaintext-only"]:hover {
+    border-bottom-color: var(--etk-muted);
+}
+.lrob-etk-cf-form.is-editor [contenteditable="plaintext-only"]:focus {
+    border-bottom-color: var(--etk-accent);
+    background: rgba(37, 99, 235, 0.04);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-label-empty,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-helper-empty {
+    color: var(--etk-muted);
+    font-style: italic;
+}
+
+/* Empty helper placeholder: at rest, collapsed to zero height with a
+ * negative top margin that absorbs the field's flex gap, so the form
+ * preview matches the rendered output exactly. On field hover, it slides
+ * open via max-height + margin-top transitions — neighbours below get
+ * pushed down smoothly rather than jumping. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-helper.lrob-etk-cf-helper-empty {
+    max-height: 0;
+    opacity: 0;
+    margin-top: -0.35em; /* cancels the field's flex gap when collapsed */
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.22s ease, margin-top 0.22s ease, opacity 0.18s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover > .lrob-etk-cf-field > .lrob-etk-cf-helper.lrob-etk-cf-helper-empty,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-helper.lrob-etk-cf-helper-empty:focus {
+    max-height: 2.4em;
+    margin-top: 0;
+    opacity: 0.75;
+    pointer-events: auto;
+}
+
+/* While the user is typing into an input/textarea in editor mode, the text
+ * they're entering is actually the field's PLACEHOLDER (the editor swaps
+ * placeholder ↔ value on focus). Render it as muted/italic to make that
+ * intent obvious — it's helper text, not a real default value. */
+.lrob-etk-cf-form.is-editor input[data-etk-swapped-placeholder="1"],
+.lrob-etk-cf-form.is-editor textarea[data-etk-swapped-placeholder="1"] {
+    color: var(--etk-muted);
+    font-style: italic;
+}
+
+/* --- Required toggle (star) next to the label in editor mode ---
+ *
+ * Resting: faint and only revealed when the field is hovered. Active
+ * (`.is-on`): always full strength so the required state is unambiguous
+ * regardless of cursor position. font-size: inherit prevents it from
+ * pushing the label's line-height up. */
+.lrob-etk-cf-required-toggle {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0 2px;
+    margin-left: 4px;
+    cursor: pointer;
+    color: var(--etk-muted);
+    font-size: inherit;
+    line-height: 1;
+    font-weight: 700;
+    vertical-align: baseline;
+    opacity: 0;
+    transition: opacity 0.12s ease, color 0.12s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-required-toggle:not(.is-on) {
+    opacity: 0.45;
+}
+.lrob-etk-cf-required-toggle:hover,
+.lrob-etk-cf-required-toggle:focus-visible {
+    opacity: 1 !important;
+    color: var(--etk-danger);
+    outline: none;
+}
+.lrob-etk-cf-required-toggle.is-on {
+    opacity: 1;
+    color: var(--etk-danger);
+}
+
+/* --- Captcha editor stub --- */
+.lrob-etk-cf-field--captcha.is-editor-stub {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #fafbfd;
+    border: 1px dashed var(--etk-line-strong);
+    border-radius: 4px;
+    color: var(--etk-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+.lrob-etk-cf-captcha-stub-icon {
+    color: var(--etk-accent);
+    flex: 0 0 auto;
+}
+
+/* --- "No submit button" warning --- */
+.lrob-etk-cf-editor-warn {
+    margin: 12px 0 0;
+    padding: 8px 12px;
+    background: var(--etk-warning-bg);
+    color: #996800;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* --- Gear popup --- */
+.lrob-etk-cf-gear-popup {
+    position: absolute;
+    z-index: 10000;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    padding: 0;
+}
+.lrob-etk-cf-gear-popup header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--etk-line);
+}
+.lrob-etk-cf-gear-popup header strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--etk-fg);
+}
+.lrob-etk-cf-gear-popup header [data-close] {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--etk-muted);
+    padding: 2px;
+    display: inline-flex;
+    align-items: center;
+}
+.lrob-etk-cf-gear-popup header [data-close]:hover { color: var(--etk-fg); }
+.lrob-etk-cf-gear-body {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+.lrob-etk-cf-gear-body .lrob-etk-field { margin: 0; }
+.lrob-etk-cf-gear-body .lrob-etk-field label {
+    display: block;
+    font-size: 11px;
+    color: var(--etk-muted);
+    margin-bottom: 3px;
+}
+.lrob-etk-cf-gear-body input[type="text"],
+.lrob-etk-cf-gear-body input[type="number"],
+.lrob-etk-cf-gear-body .lrob-etk-select {
+    width: 100%;
+}
+.lrob-etk-cf-gear-note {
+    margin: 0;
+    color: var(--etk-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+.lrob-etk-cf-gear-popup .lrob-etk-cf-editor-option {
+    display: grid;
+    grid-template-columns: 1fr 100px auto;
+    gap: 6px;
+    align-items: center;
 }
 .lrob-etk-cf-inline-check {
     display: inline-flex;
@@ -2794,108 +3193,43 @@ body.lrob-etk-modal-open {
     font-size: 12px;
     color: var(--etk-fg);
 }
-.lrob-etk-cf-inline-check input[type="checkbox"] {
-    margin: 0;
-}
+.lrob-etk-cf-inline-check input { margin: 0; }
 
-/* Drag handle — pure visual cue. The whole row/col/field is the actual
- * draggable element; clicking inputs / buttons inside doesn't trigger drag
- * because browsers exclude form controls from element drag sources. The
- * `move` cursor only applies on the handle so the rest feels normal. */
-.lrob-etk-cf-drag-handle {
-    color: var(--etk-muted);
-    cursor: grab;
-    flex: 0 0 auto;
-    font-size: 14px;
-    width: 16px;
-    height: 16px;
-    line-height: 1;
-}
-.lrob-etk-cf-drag-handle:active {
-    cursor: grabbing;
-}
-
-/* Drop indicators — a 2px accent line above/below the hovered target
- * (vertical for rows/fields, horizontal for columns). */
-.lrob-etk-cf-editor-row,
-.lrob-etk-cf-editor-col,
-.lrob-etk-cf-editor-field {
-    position: relative;
-}
-.is-drop-before::before,
-.is-drop-after::after,
-.is-drop-before-h::before,
-.is-drop-after-h::after {
+/* --- Drop indicators (drag-and-drop visual feedback) ---
+ * Chunky accent bars at the seam where the dragged item will land. They
+ * sit OUTSIDE the block's box (negative offsets) so the indicator doesn't
+ * overlap the block's content. Box-shadow gives a faint glow that makes
+ * the indicator easy to spot mid-drag. */
+.lrob-etk-cf-form.is-editor .is-drop-before::before,
+.lrob-etk-cf-form.is-editor .is-drop-after::after,
+.lrob-etk-cf-form.is-editor .is-drop-before-h::before,
+.lrob-etk-cf-form.is-editor .is-drop-after-h::after {
     content: '';
     position: absolute;
     background: var(--etk-accent);
-    border-radius: 2px;
-    pointer-events: none;
-}
-.is-drop-before::before {
-    left: 0; right: 0; top: -3px; height: 2px;
-}
-.is-drop-after::after {
-    left: 0; right: 0; bottom: -3px; height: 2px;
-}
-.is-drop-before-h::before {
-    top: 0; bottom: 0; left: -3px; width: 2px;
-}
-.is-drop-after-h::after {
-    top: 0; bottom: 0; right: -3px; width: 2px;
-}
-
-/* Compact icon button used for delete on rows / cols / fields. */
-.lrob-etk-cf-icon-btn {
-    appearance: none;
-    background: transparent;
-    border: 0;
-    padding: 4px;
-    cursor: pointer;
-    color: var(--etk-muted);
     border-radius: 3px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    transition: background 0.15s ease, color 0.15s ease;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
+    z-index: 7;
 }
-.lrob-etk-cf-icon-btn:hover {
-    background: var(--etk-soft);
-    color: var(--etk-fg);
-}
-.lrob-etk-cf-icon-btn--delete:hover {
-    color: var(--etk-danger);
-}
-.lrob-etk-cf-icon-btn .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-    line-height: 1;
-}
+.lrob-etk-cf-form.is-editor .is-drop-before::before { left: 0; right: 0; top: -6px; height: 5px; }
+.lrob-etk-cf-form.is-editor .is-drop-after::after   { left: 0; right: 0; bottom: -6px; height: 5px; }
+.lrob-etk-cf-form.is-editor .is-drop-before-h::before { top: 0; bottom: 0; left: -6px; width: 5px; }
+.lrob-etk-cf-form.is-editor .is-drop-after-h::after   { top: 0; bottom: 0; right: -6px; width: 5px; }
 
-/* Option list editor for select / radio / checkbox fields. */
-.lrob-etk-cf-editor-options-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.lrob-etk-cf-editor-option {
-    display: grid;
-    grid-template-columns: 1fr 120px auto;
-    gap: 6px;
-    align-items: center;
-}
+/* (The legacy rectangular side-drop indicators are gone — snap-to-col now
+ * handles before-first / after-last column drops by targeting the
+ * adjacent column directly, which gets the same accent bar as every other
+ * between-blocks drop. Consistent visual language.) */
 
-/* Field-type picker that appears below the +Field button. */
+/* --- Type picker (clone of <template> inserted by editor JS) --- */
 .lrob-etk-cf-type-picker {
     position: relative;
-    margin-top: 4px;
+    margin: 4px 0;
     background: #fff;
     border: 1px solid var(--etk-line);
     border-radius: 4px;
-    box-shadow: 0 4px 14px rgba(0,0,0,.08);
+    box-shadow: 0 4px 14px rgba(0,0,0,.1);
     padding: 4px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -2913,22 +3247,8 @@ body.lrob-etk-modal-open {
     border-radius: 3px;
     color: var(--etk-fg);
 }
-.lrob-etk-cf-type-picker button:hover {
-    background: var(--etk-soft);
-}
+.lrob-etk-cf-type-picker button:hover { background: var(--etk-soft); }
 
-/* Submit button settings row at the bottom of the fields editor. */
-.lrob-etk-cf-submit-settings {
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid var(--etk-line);
-    display: grid;
-    grid-template-columns: 1fr 180px;
-    gap: 12px;
-}
-.lrob-etk-cf-fields-add-row {
-    margin: 10px 0 0;
-}
 
 /* ---------- New form picker (modal) ---------- */
 .lrob-etk-cf-new-picker {

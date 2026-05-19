@@ -88,8 +88,7 @@ final class TemplateRegistry
     {
         return [
             'version' => FormStructure::VERSION,
-            'submit'  => ['text' => __('Send message', 'lrob-email-toolkit'), 'align' => 'right'],
-            'rows'    => [
+            'rows'    => array_merge([
                 self::row([self::col([
                     self::field('text',  'name',  __('Your name', 'lrob-email-toolkit'),  true),
                 ])]),
@@ -100,7 +99,7 @@ final class TemplateRegistry
                 self::row([self::col([
                     self::field('textarea', 'message', __('Your message', 'lrob-email-toolkit'), true, ['rows' => 5]),
                 ])]),
-            ],
+            ], self::tail_rows(__('Send message', 'lrob-email-toolkit'))),
         ];
     }
 
@@ -108,8 +107,7 @@ final class TemplateRegistry
     {
         return [
             'version' => FormStructure::VERSION,
-            'submit'  => ['text' => __('Request quote', 'lrob-email-toolkit'), 'align' => 'right'],
-            'rows'    => [
+            'rows'    => array_merge([
                 self::row([
                     self::col([self::field('text', 'firstname', __('First name', 'lrob-email-toolkit'), true)]),
                     self::col([self::field('text', 'lastname',  __('Last name',  'lrob-email-toolkit'), true)]),
@@ -122,7 +120,7 @@ final class TemplateRegistry
                 self::row([self::col([
                     self::field('textarea', 'project', __('Project details', 'lrob-email-toolkit'), true, ['rows' => 6]),
                 ])]),
-            ],
+            ], self::tail_rows(__('Request quote', 'lrob-email-toolkit'))),
         ];
     }
 
@@ -130,8 +128,7 @@ final class TemplateRegistry
     {
         return [
             'version' => FormStructure::VERSION,
-            'submit'  => ['text' => __('Open ticket', 'lrob-email-toolkit'), 'align' => 'right'],
-            'rows'    => [
+            'rows'    => array_merge([
                 self::row([
                     self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true)]),
                     self::col([self::field('select', 'urgency', __('Urgency', 'lrob-email-toolkit'), true, [
@@ -150,7 +147,7 @@ final class TemplateRegistry
                         'helper' => __('Include steps to reproduce if relevant.', 'lrob-email-toolkit'),
                     ]),
                 ])]),
-            ],
+            ], self::tail_rows(__('Open ticket', 'lrob-email-toolkit'))),
         ];
     }
 
@@ -158,15 +155,14 @@ final class TemplateRegistry
     {
         return [
             'version' => FormStructure::VERSION,
-            'submit'  => ['text' => __('Subscribe', 'lrob-email-toolkit'), 'align' => 'stretch'],
-            'rows'    => [
+            'rows'    => array_merge([
                 self::row([self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true)])]),
                 self::row([self::col([
                     self::field('checkbox', 'consent', __('I agree to receive your newsletter', 'lrob-email-toolkit'), true, [
                         'multiple' => false,
                     ]),
                 ])]),
-            ],
+            ], self::tail_rows(__('Subscribe', 'lrob-email-toolkit'))),
         ];
     }
 
@@ -174,8 +170,7 @@ final class TemplateRegistry
     {
         return [
             'version' => FormStructure::VERSION,
-            'submit'  => ['text' => __('Send RSVP', 'lrob-email-toolkit'), 'align' => 'right'],
-            'rows'    => [
+            'rows'    => array_merge([
                 self::row([
                     self::col([self::field('text',  'name',  __('Your name',  'lrob-email-toolkit'), true)]),
                     self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true)]),
@@ -196,7 +191,7 @@ final class TemplateRegistry
                 self::row([self::col([
                     self::field('textarea', 'notes', __('Dietary requirements / notes', 'lrob-email-toolkit'), false, ['rows' => 3]),
                 ])]),
-            ],
+            ], self::tail_rows(__('Send RSVP', 'lrob-email-toolkit'))),
         ];
     }
 
@@ -223,5 +218,14 @@ final class TemplateRegistry
             'required' => $required,
         ];
         return array_merge($base, $extra);
+    }
+
+    /** Trailing rows shared by templates: captcha row + submit row. */
+    private static function tail_rows(string $submit_text): array
+    {
+        return [
+            self::row([self::col([['id' => 'f_' . substr(md5((string) random_int(0, PHP_INT_MAX)), 0, 8), 'type' => 'captcha']])]),
+            self::row([self::col([['id' => 'f_' . substr(md5((string) random_int(0, PHP_INT_MAX)), 0, 8), 'type' => 'submit', 'text' => $submit_text, 'align' => 'right']])]),
+        ];
     }
 }

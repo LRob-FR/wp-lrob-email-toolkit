@@ -203,11 +203,55 @@ final class FieldRenderer
             ? (string) $attrs['align']
             : 'right';
 
+        // Editor mode: don't actually submit anything (the admin "form" is a
+        // <div>, not a <form>) and make the button label inline-editable.
+        if (FormContext::is_editor()) {
+            return sprintf(
+                '<div class="lrob-etk-cf-field lrob-etk-cf-field--submit is-align-%s"><button type="button" class="lrob-etk-cf-submit"><span class="lrob-etk-cf-submit-label" contenteditable="plaintext-only" data-edit="submit-text">%s</span></button></div>',
+                esc_attr($align),
+                esc_html($text)
+            );
+        }
+
         return sprintf(
             '<div class="lrob-etk-cf-field lrob-etk-cf-field--submit is-align-%s"><button type="submit" class="lrob-etk-cf-submit"><span class="lrob-etk-cf-submit-label">%s</span><span class="lrob-etk-cf-submit-spinner" aria-hidden="true"></span></button></div>',
             esc_attr($align),
             esc_html($text)
         );
+    }
+
+    /**
+     * Captcha placeholder. On the frontend, defers to the configured
+     * challenge (currently only Math). In the editor it renders a small
+     * non-interactive stub so the user can see where the captcha will sit.
+     *
+     * @param array<string, mixed> $attrs Unused — challenge type comes from Settings.
+     */
+    public static function captcha(array $attrs): string
+    {
+        if (!FormContext::is_active()) {
+            return '';
+        }
+        unset($attrs); // reserved for future per-field overrides
+
+        if (FormContext::is_editor()) {
+            $challenge = Settings::effective_challenge(FormContext::form_id());
+            $note = $challenge === CPT::CHALLENGE_MATH
+                ? __('Anti-spam challenge (math) — visitors will see a tiny question here.', 'lrob-email-toolkit')
+                : __('Anti-spam challenge disabled — enable a challenge in the Anti-spam settings to use this slot.', 'lrob-email-toolkit');
+            return sprintf(
+                '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub"><span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span><span class="lrob-etk-cf-captcha-stub-text">%s</span></div>',
+                esc_html($note)
+            );
+        }
+
+        // Frontend: render the configured challenge inline. Empty when no
+        // challenge is active — the form simply has no anti-bot prompt.
+        $challenge = Settings::effective_challenge(FormContext::form_id());
+        if ($challenge === CPT::CHALLENGE_MATH) {
+            return MathChallenge::render();
+        }
+        return '';
     }
 
     /**
@@ -300,17 +344,31 @@ final class FieldRenderer
             );
         }
 
-        $helper_html = $helper !== '' ? '<p class="lrob-etk-cf-helper">' . esc_html($helper) . '</p>' : '';
+        $helper_html = self::helper_html($helper);
         $error_html = '<p class="lrob-etk-cf-error" data-field-error hidden></p>';
-        $required_marker = $required ? ' <span class="lrob-etk-cf-required" aria-hidden="true">*</span>' : '';
+
+        // Same editor treatment as wrap_field: the legend's text is wrapped
+        // in a contenteditable span so the user can rename the group inline,
+        // while the required toggle (editor) or asterisk (frontend) stays
+        // outside the editable region.
+        if (FormContext::is_editor()) {
+            $shown = $label !== '' ? esc_html($label) : '<span class="lrob-etk-cf-label-empty">' . esc_html__('(field label)', 'lrob-email-toolkit') . '</span>';
+            $legend_inner = sprintf(
+                '<span class="lrob-etk-cf-label-text" contenteditable="plaintext-only" data-edit="label" spellcheck="false">%s</span>%s',
+                $shown,
+                self::required_toggle_html($required)
+            );
+        } else {
+            $required_marker = $required ? ' <span class="lrob-etk-cf-required" aria-hidden="true">*</span>' : '';
+            $legend_inner = esc_html($label) . $required_marker;
+        }
 
         return sprintf(
-            '<fieldset class="lrob-etk-cf-field lrob-etk-cf-field--%s" data-field="%s" id="%s"><legend class="lrob-etk-cf-label">%s%s</legend><div class="lrob-etk-cf-options">%s</div>%s%s</fieldset>',
+            '<fieldset class="lrob-etk-cf-field lrob-etk-cf-field--%s" data-field="%s" id="%s"><legend class="lrob-etk-cf-label">%s</legend><div class="lrob-etk-cf-options">%s</div>%s%s</fieldset>',
             $kind,
             esc_attr($slug),
             esc_attr($group_id),
-            esc_html($label),
-            $required_marker,
+            $legend_inner,
             $items,
             $helper_html,
             $error_html
@@ -327,15 +385,10 @@ final class FieldRenderer
         string $control_html,
         string $control_id
     ): string {
-        $label_html = $label !== ''
-            ? sprintf(
-                '<label class="lrob-etk-cf-label" for="%s">%s%s</label>',
-                esc_attr($control_id),
-                esc_html($label),
-                $required ? ' <span class="lrob-etk-cf-required" aria-hidden="true">*</span>' : ''
-            )
+        $label_html = $label !== '' || FormContext::is_editor()
+            ? self::label_html($label, $required, $control_id)
             : '';
-        $helper_html = $helper !== '' ? '<p class="lrob-etk-cf-helper">' . esc_html($helper) . '</p>' : '';
+        $helper_html = self::helper_html($helper);
         $error_html = '<p class="lrob-etk-cf-error" data-field-error hidden></p>';
 
         return sprintf(
@@ -347,6 +400,59 @@ final class FieldRenderer
             $helper_html,
             $error_html
         );
+    }
+
+    /**
+     * Render a field label. In editor mode the text portion is wrapped in
+     * an inline-editable span and the wrapper is a <div> (no `for` attr) —
+     * otherwise the browser's label-for-input behavior steals clicks from
+     * the contenteditable span and redirects focus to the input below.
+     * The required asterisk in editor mode is a toggle button so the user
+     * can flip required on/off without opening the gear popup.
+     */
+    private static function label_html(string $label, bool $required, string $for_id): string
+    {
+        if (FormContext::is_editor()) {
+            $shown = $label !== '' ? esc_html($label) : '<span class="lrob-etk-cf-label-empty">' . esc_html__('(field label)', 'lrob-email-toolkit') . '</span>';
+            return sprintf(
+                '<div class="lrob-etk-cf-label"><span class="lrob-etk-cf-label-text" contenteditable="plaintext-only" data-edit="label" spellcheck="false">%s</span>%s</div>',
+                $shown,
+                self::required_toggle_html($required)
+            );
+        }
+        $required_marker = $required ? ' <span class="lrob-etk-cf-required" aria-hidden="true">*</span>' : '';
+        return sprintf(
+            '<label class="lrob-etk-cf-label" for="%s">%s%s</label>',
+            esc_attr($for_id),
+            esc_html($label),
+            $required_marker
+        );
+    }
+
+    /** Editor-only: clickable star that toggles the field's `required` state. */
+    private static function required_toggle_html(bool $required): string
+    {
+        return sprintf(
+            '<button type="button" class="lrob-etk-cf-required-toggle%s" data-action="toggle-required" aria-pressed="%s" title="%s">*</button>',
+            $required ? ' is-on' : '',
+            $required ? 'true' : 'false',
+            esc_attr__('Toggle required', 'lrob-email-toolkit')
+        );
+    }
+
+    /** Helper text below a field; in editor mode it's inline-editable. */
+    private static function helper_html(string $helper): string
+    {
+        if (FormContext::is_editor()) {
+            $shown = $helper !== '' ? esc_html($helper) : esc_html__('(optional helper text)', 'lrob-email-toolkit');
+            $cls = $helper !== '' ? 'lrob-etk-cf-helper' : 'lrob-etk-cf-helper lrob-etk-cf-helper-empty';
+            return sprintf(
+                '<p class="%s" contenteditable="plaintext-only" data-edit="helper" spellcheck="false">%s</p>',
+                esc_attr($cls),
+                $shown
+            );
+        }
+        return $helper !== '' ? '<p class="lrob-etk-cf-helper">' . esc_html($helper) . '</p>' : '';
     }
 
     /**

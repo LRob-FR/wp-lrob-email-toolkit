@@ -39,9 +39,12 @@ final class FormStructure
     private const FIELD_TYPES = [
         'text', 'email', 'textarea', 'number', 'phone', 'date',
         'select', 'radio', 'checkbox',
+        // Special field types — the submit button and the anti-spam captcha
+        // live INSIDE the rows now so the user can place them anywhere.
+        'submit', 'captcha',
     ];
 
-    /** @return array{version:int, submit:array{text:string, align:string}, rows:array<int, array>} */
+    /** @return array{version:int, rows:array<int, array>} */
     public static function load(int $form_id): array
     {
         $content = (string) get_post_field('post_content', $form_id);
@@ -54,7 +57,29 @@ final class FormStructure
             // explicitly opted into "clear, no migration".
             return self::empty_structure();
         }
-        return self::normalize($decoded);
+
+        $normalized = self::normalize($decoded);
+
+        // One-time migration: if the structure still has the pre-WYSIWYG
+        // top-level `submit` key and no submit field exists in the rows yet,
+        // append one carrying its text/align so the user doesn't lose them.
+        if (isset($decoded['submit']) && is_array($decoded['submit']) && !self::has_field_of_type($normalized, 'submit')) {
+            $normalized['rows'][] = [
+                'id'      => self::gen_id('row'),
+                'columns' => [[
+                    'id'     => self::gen_id('col'),
+                    'fields' => [self::normalize_field([
+                        'id'    => self::gen_id('f'),
+                        'type'  => 'submit',
+                        'text'  => (string) ($decoded['submit']['text'] ?? __('Send', 'lrob-email-toolkit')),
+                        'align' => (string) ($decoded['submit']['align'] ?? 'right'),
+                    ])],
+                ]],
+            ];
+            self::save($form_id, $normalized);
+        }
+
+        return $normalized;
     }
 
     /** @param array $structure */
@@ -67,14 +92,37 @@ final class FormStructure
         ]);
     }
 
-    /** @return array{version:int, submit:array{text:string, align:string}, rows:array<int, array>} */
+    /** @return array{version:int, rows:array<int, array>} */
     public static function empty_structure(): array
     {
         return [
             'version' => self::VERSION,
-            'submit'  => ['text' => __('Send', 'lrob-email-toolkit'), 'align' => 'right'],
             'rows'    => [],
         ];
+    }
+
+    /** True if the structure contains at least one field of the given type. */
+    public static function has_field_of_type(array $structure, string $type): bool
+    {
+        if (!isset($structure['rows']) || !is_array($structure['rows'])) {
+            return false;
+        }
+        foreach ($structure['rows'] as $row) {
+            if (!is_array($row['columns'] ?? null)) {
+                continue;
+            }
+            foreach ($row['columns'] as $col) {
+                if (!is_array($col['fields'] ?? null)) {
+                    continue;
+                }
+                foreach ($col['fields'] as $f) {
+                    if (is_array($f) && (string) ($f['type'] ?? '') === $type) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -83,23 +131,11 @@ final class FormStructure
      * client update doesn't wipe the form.
      *
      * @param array<string, mixed> $structure
-     * @return array{version:int, submit:array{text:string, align:string}, rows:array<int, array>}
+     * @return array{version:int, rows:array<int, array>}
      */
     public static function normalize(array $structure): array
     {
         $out = self::empty_structure();
-
-        if (isset($structure['submit']) && is_array($structure['submit'])) {
-            $text = isset($structure['submit']['text']) ? sanitize_text_field((string) $structure['submit']['text']) : '';
-            if ($text === '') {
-                $text = __('Send', 'lrob-email-toolkit');
-            }
-            $align = isset($structure['submit']['align']) ? (string) $structure['submit']['align'] : 'right';
-            if (!in_array($align, ['left', 'center', 'right', 'stretch'], true)) {
-                $align = 'right';
-            }
-            $out['submit'] = ['text' => $text, 'align' => $align];
-        }
 
         if (!isset($structure['rows']) || !is_array($structure['rows'])) {
             return $out;
@@ -229,8 +265,32 @@ final class FormStructure
                 $clean['multiple'] = !isset($field['multiple']) || !empty($field['multiple']);
                 $clean['options']  = self::normalize_options($field['options'] ?? []);
                 break;
+            case 'submit':
+                $text = isset($field['text']) ? sanitize_text_field((string) $field['text']) : '';
+                if ($text === '') {
+                    $text = __('Send', 'lrob-email-toolkit');
+                }
+                $align = isset($field['align']) ? (string) $field['align'] : 'right';
+                if (!in_array($align, ['left', 'center', 'right', 'stretch'], true)) {
+                    $align = 'right';
+                }
+                $clean['text']  = $text;
+                $clean['align'] = $align;
+                // Submit has no slug/label/helper/placeholder/required.
+                unset($clean['slug'], $clean['label'], $clean['helper'], $clean['placeholder'], $clean['required']);
+                break;
+            case 'captcha':
+                // No per-field attrs — the actual challenge method is decided
+                // by Settings::effective_challenge() at render time.
+                unset($clean['slug'], $clean['label'], $clean['helper'], $clean['placeholder'], $clean['required']);
+                break;
         }
         return $clean;
+    }
+
+    private static function gen_id(string $prefix): string
+    {
+        return $prefix . '_' . substr(bin2hex(random_bytes(4)), 0, 8);
     }
 
     /** @return array<int, array{value:string, label:string}> */
@@ -258,10 +318,5 @@ final class FormStructure
             }
         }
         return $out;
-    }
-
-    private static function gen_id(string $prefix): string
-    {
-        return $prefix . '_' . substr(bin2hex(random_bytes(4)), 0, 8);
     }
 }
