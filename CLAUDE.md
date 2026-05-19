@@ -136,8 +136,6 @@ Don't start a later module until the previous is functionally stable. The skelet
 
 The user runs the plugin from the release zip, not from the working tree. **Every PHP change must be followed by `./release.sh`**, otherwise the user is still running stale code. Treat "edit done" as "not deployed" until the rebuild step has run.
 
-PHP opcache caches plugin files. After uploading a new zip the user typically restarts php-fpm; do not assume an edit took effect without that. If you ask "did you see the change?" and the answer is "no", suspect opcache before suspecting the fix.
-
 CSS/JS pick up a `filemtime`-based cache-bust query string when `WP_DEBUG` is on (`Assets::asset_version()`). In production they use plugin version, so a CSS-only fix in a release still needs a version bump or a hard refresh.
 
 ## UI patterns established in v0.0.1 — match these in new modules
