@@ -229,37 +229,106 @@ final class FieldRenderer
         $enabled = Settings::effective_challenge($form_id) !== CPT::CHALLENGE_NONE;
 
         if (FormContext::is_editor()) {
-            $service = self::captcha_service();
-            $active_label = $service?->active()?->label() ?? '';
-            $note = !$enabled
-                ? __('Anti-spam challenge disabled for this form. Enable it in Anti-spam settings to use this slot.', 'lrob-email-toolkit')
-                : ($active_label !== ''
-                    ? sprintf(
-                        /* translators: %s: challenge name (e.g. "Math question") */
-                        __('Anti-spam challenge active (%s) — visitors will see the prompt here.', 'lrob-email-toolkit'),
-                        $active_label
-                    )
-                    : __('No challenge registered. Add one in the Captcha settings page.', 'lrob-email-toolkit')
-                );
-            return sprintf(
-                '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub"><span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span><span class="lrob-etk-cf-captcha-stub-text">%s</span></div>',
-                esc_html($note)
-            );
+            return self::captcha_editor_stub($form_id);
         }
 
         if (!$enabled) {
             return '';
         }
         $service = self::captcha_service();
-        return $service !== null
-            ? $service->render(['context' => 'contact_form', 'form_id' => $form_id])
-            : '';
+        if ($service === null) {
+            return '';
+        }
+        // If the per-form setting is a specific challenge slug (not "none"
+        // and not empty/inherit), force the captcha service to use that
+        // exact challenge instead of its global active one.
+        $stored = Settings::effective_challenge($form_id);
+        $force = ($stored !== '' && $stored !== CPT::CHALLENGE_NONE) ? $stored : '';
+        return $service->render([
+            'context'    => 'contact_form',
+            'form_id'    => $form_id,
+            'force_slug' => $force,
+        ]);
     }
 
     private static function captcha_service(): ?CaptchaService
     {
         $container = Plugin::instance()->container();
         return $container->has(CaptchaService::class) ? $container->get(CaptchaService::class) : null;
+    }
+
+    /**
+     * In-block captcha picker for the WYSIWYG editor: lets the user pick
+     * the challenge (or none) right where the captcha will appear, with
+     * a live description below. The `data-key` matches the per-form
+     * `_lrob_etk_cf_challenge` meta so the existing card auto-save catches
+     * it — same wire the Advanced > Challenge dropdown uses.
+     */
+    private static function captcha_editor_stub(int $form_id): string
+    {
+        $service = self::captcha_service();
+        $available = $service !== null ? $service->available() : [];
+        $stored = (string) get_post_meta($form_id, CPT::META_CHALLENGE_KIND, true);
+
+        // Resolve the preview HTML for whatever the current setting is.
+        // The select swaps this client-side on change.
+        $preview_html = self::captcha_preview_html($stored, $service, $available, $form_id);
+
+        $options_html = '<option value="">' . esc_html__('Form default', 'lrob-email-toolkit') . '</option>'
+                      . '<option value="' . esc_attr(CPT::CHALLENGE_NONE) . '"' . selected($stored, CPT::CHALLENGE_NONE, false) . '>'
+                      . esc_html__('None', 'lrob-email-toolkit')
+                      . '</option>';
+        foreach ($available as $slug => $challenge) {
+            $options_html .= '<option value="' . esc_attr($slug) . '"' . selected($stored, $slug, false) . '>'
+                           . esc_html($challenge->label())
+                           . '</option>';
+        }
+
+        return sprintf(
+            '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub" data-captcha-block>' .
+            '<div class="lrob-etk-cf-captcha-stub-head">' .
+                '<span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span>' .
+                '<label class="lrob-etk-cf-captcha-stub-label">%1$s</label>' .
+                '<select class="lrob-etk-cf-field lrob-etk-cf-captcha-pick" name="%2$s" data-key="%2$s" data-captcha-pick>%3$s</select>' .
+            '</div>' .
+            '<div class="lrob-etk-cf-captcha-stub-preview" data-captcha-preview>%4$s</div>' .
+            '</div>',
+            esc_html__('Anti-spam:', 'lrob-email-toolkit'),
+            esc_attr(CPT::META_CHALLENGE_KIND),
+            $options_html,
+            // The preview HTML is already the challenge's own escaped
+            // output; safe to embed directly.
+            $preview_html
+        );
+    }
+
+    /**
+     * Build the HTML shown in the captcha preview area for a given
+     * stored value. Used on initial render — the editor JS has its own
+     * preview swap once the user changes the select.
+     *
+     * @param array<string, \LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface> $available
+     */
+    private static function captcha_preview_html(string $stored, ?CaptchaService $service, array $available, int $form_id): string
+    {
+        if ($stored === CPT::CHALLENGE_NONE) {
+            return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('No anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
+        }
+        if ($stored !== '' && isset($available[$stored])) {
+            return $available[$stored]->render(['context' => 'preview']);
+        }
+        // Empty or legacy: render the form's effective default.
+        $effective = Settings::effective_challenge($form_id);
+        if ($effective === CPT::CHALLENGE_NONE) {
+            return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('Form default: no anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
+        }
+        if ($service !== null && isset($available[$effective])) {
+            return $available[$effective]->render(['context' => 'preview']);
+        }
+        if ($service !== null && $service->active() !== null) {
+            return $service->active()->render(['context' => 'preview']);
+        }
+        return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('No challenge registered.', 'lrob-email-toolkit') . '</p>';
     }
 
     /**

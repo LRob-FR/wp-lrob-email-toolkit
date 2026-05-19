@@ -63,20 +63,23 @@ final class CaptchaService
 
     /**
      * Render the active challenge for a calling context. Returns empty
-     * string when no challenge is active or registered.
+     * string when no challenge is active or registered. Callers may pin a
+     * specific challenge via `$context['force_slug']` — used by the
+     * Contact Form per-form challenge override so a form can pick
+     * "image" while the captcha module's global default is "math".
      *
      * @param array<string, mixed> $context
      */
     public function render(array $context = []): string
     {
-        $challenge = $this->active();
+        $challenge = $this->resolve_challenge($context);
         return $challenge !== null ? $challenge->render($context) : '';
     }
 
     /**
      * Verify the active challenge against submitted POST data. Returns
      * [true, null] when no challenge is active (so callers don't have to
-     * special-case the "none" path).
+     * special-case the "none" path). Same `force_slug` override as render().
      *
      * @param array<string, mixed> $post
      * @param array<string, mixed> $context
@@ -84,11 +87,21 @@ final class CaptchaService
      */
     public function verify(array $post, array $context = []): array
     {
-        $challenge = $this->active();
+        $challenge = $this->resolve_challenge($context);
         if ($challenge === null) {
             return [true, null];
         }
         return $challenge->verify($post, $context);
+    }
+
+    /** @param array<string, mixed> $context */
+    private function resolve_challenge(array $context): ?ChallengeInterface
+    {
+        $forced = isset($context['force_slug']) && is_string($context['force_slug']) ? $context['force_slug'] : '';
+        if ($forced !== '' && $forced !== self::SLUG_NONE && isset($this->challenges[$forced])) {
+            return $this->challenges[$forced];
+        }
+        return $this->active();
     }
 
     public function set_active(string $slug): void

@@ -47,12 +47,30 @@ final class Module extends AbstractModule
 
     public function version(): string
     {
-        return '0.0.1';
+        return '0.0.2';
+    }
+
+    public function db_version_int(): int
+    {
+        return 2;
     }
 
     public function install(): void
     {
         Schema::install();
+    }
+
+    /**
+     * v1 → v2: submissions table grew `captcha_slug` + `captcha_outcome`
+     * columns. dbDelta handles the additive ALTER TABLE — just rerun
+     * install() and it picks up the new column definitions.
+     */
+    public function migrate(int $from_version, int $to_version): void
+    {
+        unset($to_version);
+        if ($from_version < 2) {
+            Schema::install();
+        }
     }
 
     public function uninstall(): void

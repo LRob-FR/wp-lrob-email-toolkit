@@ -64,11 +64,9 @@ final class Frontend
     private static function asset_version(string $relative): string
     {
         $version = LROB_ETK_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $full = LROB_ETK_PATH . ltrim($relative, '/');
-            if (is_file($full)) {
-                $version .= '.' . filemtime($full);
-            }
+        $full = LROB_ETK_PATH . ltrim($relative, '/');
+        if (is_file($full)) {
+            $version .= '.' . filemtime($full);
         }
         return $version;
     }

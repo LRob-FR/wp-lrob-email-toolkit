@@ -123,13 +123,23 @@
 }
 .lrob-etk-cf-defaults-inline-pair {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
 }
 .lrob-etk-cf-defaults-inline-pair > div {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
+}
+/* These inputs aren't wrapped in `.lrob-etk-field`, so the card-wide
+ * 100%/box-sizing rule doesn't reach them. Without this they take their
+ * natural size (input default ≈ 150px) and the right one overflows the
+ * card border when the Anti-spam column gets narrow. */
+.lrob-etk-cf-defaults-inline-pair input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 .lrob-etk-cf-defaults-inline-pair label {
     font-size: 12px;
@@ -1002,4 +1012,411 @@
 .lrob-etk-cf-summary-buttons {
     display: inline-flex;
     gap: 8px;
+}
+
+/* ---------- Form card: re-organised settings layout ----------
+ *
+ * Essentials (recipients + identity) sit at the top, Style next, then the
+ * WYSIWYG editor; "Advanced" is a collapsed <details> below the editor
+ * (Email + Anti-spam + Throttling sub-blocks).
+ */
+.lrob-etk-cf-essentials {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 16px;
+    margin-bottom: 14px;
+}
+@media (max-width: 720px) {
+    .lrob-etk-cf-essentials { grid-template-columns: 1fr; }
+}
+.lrob-etk-cf-style-group {
+    margin-bottom: 14px;
+    padding-top: 4px;
+    border-top: 1px solid var(--etk-soft);
+}
+.lrob-etk-cf-section-title {
+    margin: 8px 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--etk-muted);
+}
+
+.lrob-etk-cf-advanced {
+    margin-top: 14px;
+    border-top: 1px solid var(--etk-line);
+    padding-top: 8px;
+}
+.lrob-etk-cf-advanced-summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    color: var(--etk-fg);
+    user-select: none;
+}
+.lrob-etk-cf-advanced-summary::-webkit-details-marker {
+    display: none;
+}
+.lrob-etk-cf-advanced-caret {
+    display: inline-block;
+    color: var(--etk-muted);
+    transition: transform 0.15s ease;
+    font-size: 12px;
+    width: 12px;
+    text-align: center;
+}
+.lrob-etk-cf-advanced[open] .lrob-etk-cf-advanced-caret {
+    transform: rotate(90deg);
+}
+.lrob-etk-cf-advanced-label {
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-muted);
+}
+.lrob-etk-cf-advanced-meta {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--etk-muted);
+}
+.lrob-etk-cf-advanced-meta strong {
+    color: var(--etk-fg);
+    font-weight: 600;
+}
+.lrob-etk-cf-advanced-body {
+    padding-top: 6px;
+}
+
+/* ---------- Recipient list (one row per email) ---------- */
+.lrob-etk-cf-recipients {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-cf-recipients-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-cf-recipient-row {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+}
+.lrob-etk-cf-recipient-input {
+    flex: 1;
+    min-width: 0;
+    height: 30px;
+}
+.lrob-etk-cf-recipient-pick,
+.lrob-etk-cf-recipient-remove {
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--etk-line);
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--etk-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-recipient-pick:hover {
+    border-color: var(--etk-accent);
+    color: var(--etk-accent);
+}
+.lrob-etk-cf-recipient-remove:hover {
+    border-color: var(--etk-danger);
+    color: var(--etk-danger);
+    background: var(--etk-danger-bg);
+}
+.lrob-etk-cf-recipient-pick .dashicons,
+.lrob-etk-cf-recipient-remove .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 1;
+}
+.lrob-etk-cf-recipient-add {
+    align-self: flex-start;
+    margin-top: 2px;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+}
+.lrob-etk-cf-recipient-add .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 1;
+}
+
+/* Pick-known menu floats out of the card; position is set in JS. */
+.lrob-etk-cf-recipient-menu {
+    position: fixed;
+    z-index: 200000;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 4px 0;
+    min-width: 220px;
+    max-width: 360px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+.lrob-etk-cf-recipient-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--etk-fg);
+}
+.lrob-etk-cf-recipient-menu-item:hover {
+    background: var(--etk-soft);
+    color: var(--etk-accent);
+}
+
+/* ---------- Recipient warning (no recipient set anywhere) ---------- */
+.lrob-etk-cf-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    margin: 0 0 8px;
+    background: var(--etk-warning-bg);
+    border-left: 3px solid var(--etk-warning);
+    border-radius: 3px;
+    font-size: 12px;
+    color: #735900;
+    line-height: 1.4;
+}
+.lrob-etk-cf-warning .dashicons {
+    flex: 0 0 auto;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--etk-warning);
+    margin-top: 1px;
+}
+
+/* Make labels inside the advanced section align the tooltip neatly. */
+.lrob-etk-cf-advanced-body .lrob-etk-field > label,
+.lrob-etk-cf-advanced-body .lrob-etk-form-column-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Email column wider than Anti-spam in the per-form Advanced section
+ * AND in the global Defaults section.
+ *
+ * `minmax(0, …fr)` is load-bearing: a bare `1fr` is shorthand for
+ * `minmax(auto, 1fr)`, which lets the column grow past its declared
+ * fraction whenever the content's intrinsic min-width is bigger. The
+ * Anti-spam column packs an inline-pair of number inputs (Max + Window)
+ * whose min-width was overruling our 1fr cap, so Anti-spam ended up
+ * wider than Email despite the rule. Forcing minmax(0, …) lets the
+ * columns actually honour the 1.7 : 1 ratio. */
+.lrob-etk-cf-form-card .lrob-etk-cf-advanced-body .lrob-etk-modal-columns,
+.lrob-etk-cf-defaults .lrob-etk-cf-defaults-columns {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) !important;
+}
+@media (max-width: 720px) {
+    .lrob-etk-cf-form-card .lrob-etk-cf-advanced-body .lrob-etk-modal-columns,
+    .lrob-etk-cf-defaults .lrob-etk-cf-defaults-columns {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.lrob-etk-cf-form-card .lrob-etk-field textarea {
+    resize: vertical;
+    min-height: 30px;
+    line-height: 1.4;
+    font-family: inherit;
+}
+
+/* "Using default: …" hint below an inheriting field. Hidden as soon as
+ * the user types (auto-save JS flips the hidden attribute). Smaller +
+ * italic so it doesn't compete with the input itself. */
+.lrob-etk-cf-default-hint {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: var(--etk-muted);
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* ---------- Captcha in-block picker (editor stub) ----------
+ * Inline picker + live-swapped preview. The block reserves right-padding
+ * so the head row (icon + select) never slides under the field overlay
+ * (move / gear / delete) that floats at top: 4px / right: 4px. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-field--captcha.is-editor-stub {
+    padding: 12px 14px;
+    padding-right: 100px; /* clearance for the field overlay buttons */
+    background: #fafbfc;
+    border: 1px dashed var(--lrob-etk-cf-border, #cbd5e1);
+    border-radius: 6px;
+}
+.lrob-etk-cf-captcha-stub-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+.lrob-etk-cf-captcha-stub-icon {
+    color: var(--etk-accent);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+.lrob-etk-cf-captcha-stub-label {
+    font-weight: 600;
+    color: var(--etk-fg);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 0 0 auto;
+}
+.lrob-etk-cf-captcha-pick {
+    flex: 1 1 200px;
+    min-width: 160px;
+    max-width: 280px;
+    height: 30px;
+    padding: 4px 8px;
+    border: 1px solid var(--etk-line);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 13px;
+    color: var(--etk-fg);
+}
+.lrob-etk-cf-captcha-pick:focus {
+    border-color: var(--etk-accent);
+    outline: none;
+    box-shadow: 0 0 0 1px var(--etk-accent);
+}
+.lrob-etk-cf-captcha-stub-preview {
+    margin-top: 4px;
+}
+.lrob-etk-cf-captcha-stub-preview .lrob-etk-cf-field {
+    /* The rendered challenge brings its own .lrob-etk-cf-field wrapper —
+     * strip its outer margins so it doesn't add an extra row of padding
+     * inside our stub container. */
+    margin: 0;
+}
+.lrob-etk-cf-captcha-stub-empty {
+    margin: 0;
+    color: var(--etk-muted);
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* ---------- Inline option editor (preview-side) ----------
+ * Each option label is contenteditable, with a × beside it and an
+ * "+ Add option" pill at the end. No popup needed for the common case. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-options[data-options-inline] {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 4px 0;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option[data-inline-option],
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--etk-fg);
+    font-size: 13px;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option[data-inline-option] > label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    cursor: text;
+    margin: 0;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-label {
+    flex: 1;
+    min-width: 0;
+    padding: 2px 4px;
+    border-radius: 3px;
+    border-bottom: 1px dashed transparent;
+    cursor: text;
+    transition: border-color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-label:hover {
+    border-bottom-color: var(--etk-muted);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-label:focus {
+    border-bottom-color: var(--etk-accent);
+    background: rgba(37, 99, 235, 0.04);
+    outline: none;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-remove {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--etk-muted);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    padding: 0;
+    flex: 0 0 auto;
+    transition: color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-remove:hover {
+    color: var(--etk-danger);
+    background: var(--etk-danger-bg);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-add {
+    align-self: flex-start;
+    appearance: none;
+    background: transparent;
+    border: 1px dashed var(--etk-line-strong);
+    color: var(--etk-muted);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+    margin-top: 2px;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-add:hover {
+    border-color: var(--etk-accent);
+    color: var(--etk-accent);
+    background: rgba(37, 99, 235, 0.06);
+}
+
+/* Compact option rows in the gear popup (legacy — kept for the unlikely
+ * case the gear ever brings options back, harmless to leave). */
+.lrob-etk-cf-editor-option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    margin: 0 0 4px;
+}
+.lrob-etk-cf-editor-option input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
 }

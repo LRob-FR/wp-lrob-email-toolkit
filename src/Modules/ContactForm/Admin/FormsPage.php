@@ -6,6 +6,8 @@ namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\ModuleToggle;
+use LRob\EmailToolkit\Admin\Tooltip;
+use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\FormEditorRenderer;
 use LRob\EmailToolkit\Modules\ContactForm\FormStructure;
@@ -14,6 +16,7 @@ use LRob\EmailToolkit\Modules\ContactForm\Settings;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
 use LRob\EmailToolkit\Modules\ContactForm\TemplateRegistry;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
+use LRob\EmailToolkit\Plugin;
 
 /**
  * Unified Contact Form admin page: module toggle, list of forms (cards),
@@ -31,8 +34,6 @@ final class FormsPage
 {
     public const SLUG = 'lrob-etk-cform';
 
-    public const ACTION_SAVE_DEFAULTS = 'lrob_etk_cform_save_defaults';
-
     public const ACTION_DELETE_FORM = 'lrob_etk_cform_delete';
 
     public function __construct(private ContactFormModule $module)
@@ -41,7 +42,6 @@ final class FormsPage
 
     public function register(): void
     {
-        add_action('admin_post_' . self::ACTION_SAVE_DEFAULTS, [$this, 'handle_save_defaults']);
         add_action('admin_post_' . self::ACTION_DELETE_FORM, [$this, 'handle_delete_form']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
     }
@@ -71,13 +71,19 @@ final class FormsPage
             true
         );
         wp_localize_script('lrob-etk-cf-admin', 'lrobEtkCfAdmin', [
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),
-            'action'  => AjaxController::ACTION_SAVE_META,
-            'i18n'    => [
-                'saving' => __('Saving…', 'lrob-email-toolkit'),
-                'saved'  => __('Saved', 'lrob-email-toolkit'),
-                'error'  => __('Save failed', 'lrob-email-toolkit'),
+            'ajaxUrl'       => admin_url('admin-ajax.php'),
+            'nonce'         => wp_create_nonce(AjaxController::NONCE_ACTION),
+            'action'        => AjaxController::ACTION_SAVE_META,
+            'actionDefault' => AjaxController::ACTION_SAVE_DEFAULT,
+            'knownEmails'   => self::known_email_suggestions(),
+            'i18n'          => [
+                'saving'        => __('Saving…', 'lrob-email-toolkit'),
+                'saved'         => __('Saved', 'lrob-email-toolkit'),
+                'error'         => __('Save failed', 'lrob-email-toolkit'),
+                'addRecipient'  => __('Add recipient', 'lrob-email-toolkit'),
+                'removeRow'     => __('Remove this recipient', 'lrob-email-toolkit'),
+                'pickKnown'     => __('Pick a known email', 'lrob-email-toolkit'),
+                'recipientPh'   => __('email@example.com', 'lrob-email-toolkit'),
             ],
         ]);
 
@@ -105,9 +111,29 @@ final class FormsPage
             'pageUrl' => admin_url('admin.php?page=' . self::SLUG),
         ]);
 
+        // Pass available challenges to the editor JS so the in-block
+        // captcha picker can list them + swap a real rendered preview.
+        // Each challenge's render() emits the same HTML the visitor would
+        // see — a picture's worth more than the description text. Tokens
+        // are single-use but we never submit from the editor preview, so
+        // the leak is cosmetic.
+        $captcha_for_js = [];
+        $captcha_service = self::captcha_service();
+        if ($captcha_service !== null) {
+            foreach ($captcha_service->available() as $slug => $challenge) {
+                $captcha_for_js[] = [
+                    'slug'        => $slug,
+                    'label'       => $challenge->label(),
+                    'description' => $challenge->description(),
+                    'preview'     => $challenge->render(['context' => 'preview']),
+                ];
+            }
+        }
         wp_localize_script('lrob-etk-cf-fields-editor', 'lrobEtkCfEditor', [
-            'fieldTypes' => self::field_types(),
-            'i18n'       => [
+            'fieldTypes'  => self::field_types(),
+            'captchaKey'  => CPT::META_CHALLENGE_KIND,
+            'challenges'  => $captcha_for_js,
+            'i18n'        => [
                 'addField'     => __('Add field', 'lrob-email-toolkit'),
                 'fieldOptions' => __('Field options', 'lrob-email-toolkit'),
                 'slug'         => __('Field slug', 'lrob-email-toolkit'),
@@ -134,6 +160,15 @@ final class FormsPage
                 'undo'              => __('Undo', 'lrob-email-toolkit'),
                 'redo'              => __('Redo', 'lrob-email-toolkit'),
                 'fieldLabel'        => __('Field', 'lrob-email-toolkit'),
+                'captchaPick'       => __('Anti-spam challenge', 'lrob-email-toolkit'),
+                'captchaDefault'    => __('Default (inherits form anti-spam setting)', 'lrob-email-toolkit'),
+                'captchaNone'       => __('None — no anti-spam challenge', 'lrob-email-toolkit'),
+                'captchaInherit'    => __('Uses the form\'s default challenge (set in Advanced settings).', 'lrob-email-toolkit'),
+                'captchaOff'        => __('No anti-spam challenge will be shown to visitors.', 'lrob-email-toolkit'),
+                'optionLabel'       => __('Option', 'lrob-email-toolkit'),
+                'removeOption'      => __('Remove option', 'lrob-email-toolkit'),
+                'noOptionsHint'     => __('Add options in the gear popup.', 'lrob-email-toolkit'),
+                'singleCheckboxHint'=> __('Single checkbox — no options needed.', 'lrob-email-toolkit'),
             ],
         ]);
     }
@@ -141,11 +176,9 @@ final class FormsPage
     private static function asset_version(string $relative): string
     {
         $version = LROB_ETK_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $full = LROB_ETK_PATH . ltrim($relative, '/');
-            if (is_file($full)) {
-                $version .= '.' . filemtime($full);
-            }
+        $full = LROB_ETK_PATH . ltrim($relative, '/');
+        if (is_file($full)) {
+            $version .= '.' . filemtime($full);
         }
         return $version;
     }
@@ -157,25 +190,217 @@ final class FormsPage
      *
      * @param array<int, array{value:string|int, label:string}> $options
      */
-    private static function render_combobox(string $meta_key, string $current_value, array $options): void
+    /** Sentinel stored in reply_to_field when the form explicitly opts OUT of any Reply-To header. */
+    public const REPLY_TO_NONE = '__none__';
+
+    private static function captcha_service(): ?CaptchaService
     {
-        // Find the option matching the current value for the display string.
-        $current_label = '';
-        foreach ($options as $opt) {
-            if ((string) $opt['value'] === (string) $current_value) {
-                $current_label = (string) $opt['label'];
-                break;
+        $container = Plugin::instance()->container();
+        return $container->has(CaptchaService::class) ? $container->get(CaptchaService::class) : null;
+    }
+
+    /**
+     * Walk a form's structure and return the slugs of every email-type
+     * field. Used by render_form_card to populate the Reply-To picker.
+     *
+     * @param array<string, mixed> $structure
+     * @return array<int, string>
+     */
+    private static function email_field_slugs(array $structure): array
+    {
+        $slugs = [];
+        if (!isset($structure['rows']) || !is_array($structure['rows'])) {
+            return $slugs;
+        }
+        foreach ($structure['rows'] as $row) {
+            if (!isset($row['columns']) || !is_array($row['columns'])) {
+                continue;
+            }
+            foreach ($row['columns'] as $col) {
+                if (!isset($col['fields']) || !is_array($col['fields'])) {
+                    continue;
+                }
+                foreach ($col['fields'] as $field) {
+                    if (($field['type'] ?? '') === 'email' && isset($field['slug']) && is_string($field['slug']) && $field['slug'] !== '') {
+                        $slugs[] = $field['slug'];
+                    }
+                }
             }
         }
+        return array_values(array_unique($slugs));
+    }
+
+    /**
+     * Known-email suggestions shown in the recipient-row chevron menu:
+     * admin email, current user email, other administrators. De-duplicated,
+     * stable order: admin first, current user second (if different), other
+     * admins after.
+     *
+     * @return array<int, array{value:string, label:string}>
+     */
+    private static function known_email_suggestions(): array
+    {
+        $out = [];
+        $seen = [];
+        $admin = (string) get_option('admin_email');
+        if ($admin !== '' && is_email($admin)) {
+            $out[] = [
+                'value' => $admin,
+                'label' => sprintf(
+                    /* translators: %s: admin email */
+                    __('Site admin (%s)', 'lrob-email-toolkit'),
+                    $admin
+                ),
+            ];
+            $seen[$admin] = true;
+        }
+        $current_user = wp_get_current_user();
+        if ($current_user instanceof \WP_User && $current_user->user_email !== '' && empty($seen[$current_user->user_email])) {
+            $out[] = [
+                'value' => $current_user->user_email,
+                'label' => sprintf(
+                    /* translators: %s: current user email */
+                    __('Me (%s)', 'lrob-email-toolkit'),
+                    $current_user->user_email
+                ),
+            ];
+            $seen[$current_user->user_email] = true;
+        }
+        $admins = get_users([
+            'role'   => 'administrator',
+            'fields' => ['user_email', 'display_name'],
+        ]);
+        foreach ($admins as $admin_user) {
+            $email = (string) $admin_user->user_email;
+            if ($email === '' || !is_email($email) || isset($seen[$email])) {
+                continue;
+            }
+            $out[] = [
+                'value' => $email,
+                'label' => sprintf(
+                    /* translators: 1: admin display name, 2: admin email */
+                    __('%1$s (%2$s)', 'lrob-email-toolkit'),
+                    (string) $admin_user->display_name,
+                    $email
+                ),
+            ];
+            $seen[$email] = true;
+        }
+        return $out;
+    }
+
+    /**
+     * Render the recipients control: stacked rows (one email each) with a
+     * "+ Add recipient" trigger, plus a hidden mirror input that carries
+     * the canonical comma-separated value to the auto-save layer. The
+     * chevron button on each row pops a small menu of known emails (admin,
+     * current user, other admins) — populated client-side from
+     * lrobEtkCfAdmin.knownEmails so we don't render the same list 20× when
+     * 20 forms share the page.
+     */
+    private static function render_recipients(string $current_value, string $placeholder, string $key = CPT::META_RECIPIENT): void
+    {
+        $emails = array_filter(array_map('trim', explode(',', $current_value)));
+        if ($emails === []) {
+            $emails = [''];
+        }
+        ?>
+        <div class="lrob-etk-cf-recipients" data-recipient-input>
+            <input type="hidden"
+                   name="<?php echo esc_attr($key); ?>"
+                   class="lrob-etk-cf-field"
+                   data-key="<?php echo esc_attr($key); ?>"
+                   value="<?php echo esc_attr($current_value); ?>">
+            <div class="lrob-etk-cf-recipients-rows" data-recipient-rows>
+                <?php foreach ($emails as $i => $email) : ?>
+                    <div class="lrob-etk-cf-recipient-row">
+                        <input type="email"
+                               class="lrob-etk-cf-recipient-input"
+                               value="<?php echo esc_attr((string) $email); ?>"
+                               placeholder="<?php echo esc_attr($placeholder); ?>"
+                               autocomplete="off">
+                        <button type="button" class="lrob-etk-cf-recipient-pick" aria-label="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="lrob-etk-cf-recipient-remove" aria-label="<?php esc_attr_e('Remove this recipient', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Remove', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" class="button button-small lrob-etk-cf-recipient-add" data-recipient-add>
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <?php esc_html_e('Add recipient', 'lrob-email-toolkit'); ?>
+            </button>
+        </div>
+        <?php
+    }
+
+    /**
+     * Each setting picks its own "inherit" sentinel: most use '' (empty),
+     * SMTP identity uses '0', Honeypot uses 'default'. Pass that sentinel
+     * as $inherit_value so the picker knows which option's label should
+     * become the muted placeholder and when to leave the readonly input
+     * empty. This kills the "some defaults are greyed, some aren't"
+     * inconsistency the user flagged.
+     */
+    /**
+     * Free-text combobox: the input is editable AND a chevron opens a list
+     * of suggestions (typically the inheritable default value). Same shape
+     * as the SMTP host / from-email comboboxes — wired up by the auto-init
+     * in contact-form-admin.js once the card mounts.
+     *
+     * @param array<int, array{value:string, label:string}> $suggestions
+     */
+    private static function render_free_combobox(string $meta_key, string $current_value, array $suggestions, string $placeholder = ''): void
+    {
+        ?>
+        <div class="lrob-etk-combo lrob-etk-cf-free-combo"
+             data-options="<?php echo esc_attr((string) wp_json_encode($suggestions)); ?>">
+            <input type="text"
+                   name="<?php echo esc_attr($meta_key); ?>"
+                   class="lrob-etk-combo-input lrob-etk-cf-field"
+                   data-key="<?php echo esc_attr($meta_key); ?>"
+                   value="<?php echo esc_attr($current_value); ?>"
+                   placeholder="<?php echo esc_attr($placeholder); ?>"
+                   autocomplete="off">
+            <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
+                    aria-label="<?php esc_attr_e('Open suggestions', 'lrob-email-toolkit'); ?>">
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+            </button>
+            <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
+        </div>
+        <?php
+    }
+
+    private static function render_combobox(string $meta_key, string $current_value, array $options, string $inherit_value = ''): void
+    {
+        $default_label = '';
+        $current_label = '';
+        foreach ($options as $opt) {
+            if ((string) $opt['value'] === $inherit_value) {
+                $default_label = (string) $opt['label'];
+            }
+            if ((string) $opt['value'] === (string) $current_value) {
+                $current_label = (string) $opt['label'];
+            }
+        }
+        $is_inheriting = ((string) $current_value === $inherit_value);
+        $input_value = $is_inheriting ? '' : $current_label;
+        $placeholder = $default_label;
+
         $name = $meta_key;
         $combo_id = 'lrob-etk-cf-combo-' . md5($meta_key . wp_generate_uuid4());
         ?>
         <div class="lrob-etk-combo lrob-etk-combo--select"
-             data-options="<?php echo esc_attr((string) wp_json_encode($options)); ?>">
+             data-options="<?php echo esc_attr((string) wp_json_encode($options)); ?>"
+             data-inherit-value="<?php echo esc_attr($inherit_value); ?>"
+             data-default-placeholder="<?php echo esc_attr($placeholder); ?>">
             <input type="text"
                    id="<?php echo esc_attr($combo_id); ?>"
                    class="lrob-etk-combo-input"
-                   value="<?php echo esc_attr($current_label); ?>"
+                   value="<?php echo esc_attr($input_value); ?>"
+                   placeholder="<?php echo esc_attr($placeholder); ?>"
                    readonly
                    autocomplete="off">
             <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
@@ -205,10 +430,16 @@ final class FormsPage
                 <h1 class="lrob-etk-page-title"><?php esc_html_e('Contact Forms', 'lrob-email-toolkit'); ?></h1>
                 <?php ModuleToggle::render_inline($this->module); ?>
                 <?php if ($enabled) : ?>
-                    <button type="button" class="button button-primary lrob-etk-page-add" id="lrob-etk-cf-new-form-btn">
-                        <span class="dashicons dashicons-plus-alt2"></span>
-                        <?php esc_html_e('New form', 'lrob-email-toolkit'); ?>
-                    </button>
+                    <div class="lrob-etk-page-header-actions">
+                        <button type="button" class="button" id="lrob-etk-cf-defaults-btn" data-defaults-modal-open>
+                            <span class="dashicons dashicons-admin-generic"></span>
+                            <?php esc_html_e('Default settings', 'lrob-email-toolkit'); ?>
+                        </button>
+                        <button type="button" class="button button-primary" id="lrob-etk-cf-new-form-btn">
+                            <span class="dashicons dashicons-plus-alt2"></span>
+                            <?php esc_html_e('New form', 'lrob-email-toolkit'); ?>
+                        </button>
+                    </div>
                 <?php endif; ?>
             </header>
 
@@ -224,7 +455,7 @@ final class FormsPage
                 </p>
             <?php else : ?>
                 <?php $this->render_forms_section(); ?>
-                <?php $this->render_defaults_section(); ?>
+                <?php $this->render_defaults_modal(); ?>
             <?php endif; ?>
         </div>
         <?php
@@ -336,7 +567,27 @@ final class FormsPage
         $admin_email = (string) get_option('admin_email');
         $effective_recipient = $globals_recipient !== '' ? $globals_recipient : $admin_email;
         $recipient_placeholder = self::placeholder_default($effective_recipient);
-        $reply_to_placeholder  = self::placeholder_default((string) ($globals[Settings::KEY_REPLY_TO_FIELD] ?? 'email'));
+        $no_recipient_anywhere = $meta['recipient'] === '' && $globals_recipient === '' && $admin_email === '';
+
+        $form_structure = FormStructure::load($form_id);
+        $form_email_slugs = self::email_field_slugs($form_structure);
+        $global_reply_slug = (string) ($globals[Settings::KEY_REPLY_TO_FIELD] ?? '');
+        // Pretty label for the inherited default: show the actual slug, or
+        // "(none)" when the global setting opts out, or "(first email field)"
+        // when the global is empty but this form has email fields.
+        if ($global_reply_slug === self::REPLY_TO_NONE) {
+            $reply_to_default_label = __('None — no Reply-To header', 'lrob-email-toolkit');
+        } elseif ($global_reply_slug !== '' && in_array($global_reply_slug, $form_email_slugs, true)) {
+            $reply_to_default_label = $global_reply_slug;
+        } elseif ($form_email_slugs !== []) {
+            $reply_to_default_label = sprintf(
+                /* translators: %s: form field slug used as the auto-default. */
+                __('Auto (%s — first email field)', 'lrob-email-toolkit'),
+                $form_email_slugs[0]
+            );
+        } else {
+            $reply_to_default_label = __('No email field yet', 'lrob-email-toolkit');
+        }
 
         $subject_default = (string) ($globals[Settings::KEY_SUBJECT_TEMPLATE] ?? '');
         if ($subject_default === '') {
@@ -372,14 +623,35 @@ final class FormsPage
             ['value' => 'off',     'label' => __('Off', 'lrob-email-toolkit')],
         ];
 
-        $ch_default_label = ($globals[Settings::KEY_CHALLENGE] ?? '') === CPT::CHALLENGE_NONE
-            ? __('None', 'lrob-email-toolkit')
-            : __('Math (a + b)', 'lrob-email-toolkit');
+        $captcha_service = self::captcha_service();
+        $available_challenges = $captcha_service !== null ? $captcha_service->available() : [];
+        $global_challenge_slug = (string) ($globals[Settings::KEY_CHALLENGE] ?? '');
+        if ($global_challenge_slug === CPT::CHALLENGE_NONE) {
+            $ch_default_label = __('None', 'lrob-email-toolkit');
+        } elseif (isset($available_challenges[$global_challenge_slug])) {
+            $ch_default_label = $available_challenges[$global_challenge_slug]->label();
+        } elseif ($captcha_service !== null && $captcha_service->active() !== null) {
+            // Legacy 'math' / unknown slug: defer to whatever the captcha
+            // module is currently using.
+            $ch_default_label = $captcha_service->active()->label();
+        } else {
+            $ch_default_label = __('None', 'lrob-email-toolkit');
+        }
         $challenge_options = [
             ['value' => '',                  'label' => self::label_default($ch_default_label)],
             ['value' => CPT::CHALLENGE_NONE, 'label' => __('None', 'lrob-email-toolkit')],
-            ['value' => CPT::CHALLENGE_MATH, 'label' => __('Math (a + b)', 'lrob-email-toolkit')],
         ];
+        foreach ($available_challenges as $slug => $challenge) {
+            $challenge_options[] = ['value' => $slug, 'label' => $challenge->label()];
+        }
+
+        $reply_to_options = [
+            ['value' => '',                   'label' => self::label_default($reply_to_default_label)],
+            ['value' => self::REPLY_TO_NONE,  'label' => __('None — no Reply-To header', 'lrob-email-toolkit')],
+        ];
+        foreach ($form_email_slugs as $slug) {
+            $reply_to_options[] = ['value' => $slug, 'label' => $slug];
+        }
 
         $preset_labels = self::style_presets();
         $preset_default = (string) ($globals[Settings::KEY_STYLE_PRESET] ?? CPT::STYLE_DEFAULT);
@@ -408,110 +680,139 @@ final class FormsPage
                     <span class="lrob-etk-card-status" aria-live="polite"></span>
                 </header>
 
-                <div class="lrob-etk-modal-columns">
-                    <section class="lrob-etk-form-column">
-                        <h3 class="lrob-etk-form-column-head">
-                            <span class="lrob-etk-form-column-title"><?php esc_html_e('Delivery', 'lrob-email-toolkit'); ?></span>
-                        </h3>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?></label>
-                            <input type="text" name="<?php echo esc_attr(CPT::META_RECIPIENT); ?>"
-                                   class="lrob-etk-cf-field"
-                                   data-key="<?php echo esc_attr(CPT::META_RECIPIENT); ?>"
-                                   value="<?php echo esc_attr($meta['recipient']); ?>"
-                                   placeholder="<?php echo esc_attr($recipient_placeholder); ?>"
-                                   autocomplete="off">
-                            <p class="description"><?php esc_html_e('One or more emails, comma-separated.', 'lrob-email-toolkit'); ?></p>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('SMTP identity', 'lrob-email-toolkit'); ?></label>
-                            <?php self::render_combobox(CPT::META_RECIPIENT_IDENTITY, (string) $meta['identity_id'], $identity_options); ?>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Reply-To uses', 'lrob-email-toolkit'); ?></label>
-                            <input type="text" name="<?php echo esc_attr(CPT::META_REPLY_TO_FIELD); ?>"
-                                   class="lrob-etk-cf-field"
-                                   data-key="<?php echo esc_attr(CPT::META_REPLY_TO_FIELD); ?>"
-                                   value="<?php echo esc_attr($meta['reply_to']); ?>"
-                                   placeholder="<?php echo esc_attr($reply_to_placeholder); ?>"
-                                   autocomplete="off">
-                            <p class="description"><?php esc_html_e('Slug of an email field on this form (e.g. "email").', 'lrob-email-toolkit'); ?></p>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Subject template', 'lrob-email-toolkit'); ?></label>
-                            <input type="text" name="<?php echo esc_attr(CPT::META_SUBJECT_TEMPLATE); ?>"
-                                   class="lrob-etk-cf-field"
-                                   data-key="<?php echo esc_attr(CPT::META_SUBJECT_TEMPLATE); ?>"
-                                   value="<?php echo esc_attr($meta['subject']); ?>"
-                                   placeholder="<?php echo esc_attr($subject_placeholder); ?>">
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Success message', 'lrob-email-toolkit'); ?></label>
-                            <textarea name="<?php echo esc_attr(CPT::META_SUCCESS_MESSAGE); ?>"
-                                      rows="2"
-                                      class="lrob-etk-cf-field"
-                                      data-key="<?php echo esc_attr(CPT::META_SUCCESS_MESSAGE); ?>"
-                                      placeholder="<?php echo esc_attr($success_placeholder); ?>"><?php
-                                echo esc_textarea($meta['success']);
-                            ?></textarea>
-                        </div>
-                    </section>
+                <section class="lrob-etk-cf-essentials">
+                    <div class="lrob-etk-field">
+                        <label><?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?></label>
+                        <?php if ($no_recipient_anywhere) : ?>
+                            <div class="lrob-etk-cf-warning" role="status">
+                                <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+                                <span><?php esc_html_e('No recipient is set anywhere — submissions will only be saved on this site, no email will be sent. Add at least one recipient below, or set a global default.', 'lrob-email-toolkit'); ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <?php self::render_recipients($meta['recipient'], $recipient_placeholder); ?>
+                    </div>
+                    <div class="lrob-etk-field">
+                        <label><?php esc_html_e('SMTP identity', 'lrob-email-toolkit'); ?></label>
+                        <?php self::render_combobox(CPT::META_RECIPIENT_IDENTITY, (string) $meta['identity_id'], $identity_options, '0'); ?>
+                    </div>
+                </section>
 
-                    <section class="lrob-etk-form-column">
-                        <h3 class="lrob-etk-form-column-head">
-                            <span class="lrob-etk-form-column-title"><?php esc_html_e('Anti-spam', 'lrob-email-toolkit'); ?></span>
-                        </h3>
-                        <div class="lrob-etk-cf-defaults-inline-pair">
-                            <div>
-                                <label><?php esc_html_e('Max per IP', 'lrob-email-toolkit'); ?></label>
-                                <input type="number" name="<?php echo esc_attr(CPT::META_RATE_LIMIT_MAX); ?>"
-                                       class="lrob-etk-cf-field"
-                                       data-key="<?php echo esc_attr(CPT::META_RATE_LIMIT_MAX); ?>"
-                                       min="0" max="999" step="1"
-                                       value="<?php echo $meta['rate_max'] > 0 ? (int) $meta['rate_max'] : ''; ?>"
-                                       placeholder="<?php echo esc_attr((string) ($globals[Settings::KEY_RATE_MAX] ?? 5)); ?>">
-                            </div>
-                            <div>
-                                <label><?php esc_html_e('Window (min)', 'lrob-email-toolkit'); ?></label>
-                                <input type="number" name="<?php echo esc_attr(CPT::META_RATE_LIMIT_WINDOW); ?>"
-                                       class="lrob-etk-cf-field"
-                                       data-key="<?php echo esc_attr(CPT::META_RATE_LIMIT_WINDOW); ?>"
-                                       data-unit="minutes"
-                                       min="0" max="1440" step="1"
-                                       value="<?php echo $rate_window_minutes_value > 0 ? $rate_window_minutes_value : ''; ?>"
-                                       placeholder="<?php echo esc_attr((string) ($globals[Settings::KEY_RATE_WINDOW_MINUTES] ?? 10)); ?>">
-                            </div>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Honeypot', 'lrob-email-toolkit'); ?></label>
-                            <?php self::render_combobox(CPT::META_HONEYPOT_ENABLED, $hp_value, $honeypot_options); ?>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Challenge', 'lrob-email-toolkit'); ?></label>
-                            <?php self::render_combobox(CPT::META_CHALLENGE_KIND, $meta['challenge'], $challenge_options); ?>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Style preset', 'lrob-email-toolkit'); ?></label>
-                            <?php self::render_combobox(CPT::META_STYLE_PRESET, $meta['style_preset'], $preset_options); ?>
-                        </div>
-                    </section>
-                </div>
+                <section class="lrob-etk-cf-style-group">
+                    <h3 class="lrob-etk-cf-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
+                    <div class="lrob-etk-field">
+                        <label><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
+                        <?php self::render_combobox(CPT::META_STYLE_PRESET, $meta['style_preset'], $preset_options); ?>
+                    </div>
+                </section>
 
                 <?php self::render_fields_editor($form_id); ?>
 
-                <div class="lrob-etk-cf-form-card-stats">
-                    <strong><?php echo number_format_i18n((int) $form['submissions']); ?></strong>
-                    <span><?php echo esc_html(_n('submission', 'submissions', (int) $form['submissions'], 'lrob-email-toolkit')); ?></span>
-                    <?php if ($created_display !== '') : ?>
-                        <span class="lrob-etk-cf-form-card-since">
-                            <?php echo esc_html(sprintf(
-                                /* translators: %s: localized creation date */
-                                __('since %s', 'lrob-email-toolkit'),
-                                $created_display
-                            )); ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
+                <details class="lrob-etk-cf-advanced">
+                    <summary class="lrob-etk-cf-advanced-summary">
+                        <span class="lrob-etk-cf-advanced-caret" aria-hidden="true">▸</span>
+                        <span class="lrob-etk-cf-advanced-label"><?php esc_html_e('Advanced settings', 'lrob-email-toolkit'); ?></span>
+                        <?php if ($created_display !== '') : ?>
+                            <span class="lrob-etk-cf-advanced-meta">
+                                <?php
+                                printf(
+                                    /* translators: 1: number of submissions, 2: localized creation date */
+                                    esc_html__('%1$s submissions · since %2$s', 'lrob-email-toolkit'),
+                                    '<strong>' . esc_html(number_format_i18n((int) $form['submissions'])) . '</strong>',
+                                    esc_html($created_display)
+                                );
+                                ?>
+                            </span>
+                        <?php endif; ?>
+                    </summary>
+                    <div class="lrob-etk-cf-advanced-body">
+                        <div class="lrob-etk-modal-columns">
+                            <section class="lrob-etk-form-column">
+                                <h3 class="lrob-etk-form-column-head">
+                                    <span class="lrob-etk-form-column-title"><?php esc_html_e('Email', 'lrob-email-toolkit'); ?></span>
+                                </h3>
+                                <div class="lrob-etk-field">
+                                    <label>
+                                        <?php esc_html_e('Reply-To field', 'lrob-email-toolkit'); ?>
+                                        <?php Tooltip::render(__('Which form field\'s email address is set as the Reply-To header on the notification. Pick "None" if you don\'t want a Reply-To header — some mail providers flag a Reply-To different from the From address as spam.', 'lrob-email-toolkit')); ?>
+                                    </label>
+                                    <?php self::render_combobox(CPT::META_REPLY_TO_FIELD, $meta['reply_to'], $reply_to_options); ?>
+                                </div>
+                                <div class="lrob-etk-field">
+                                    <label>
+                                        <?php esc_html_e('Subject template', 'lrob-email-toolkit'); ?>
+                                        <?php Tooltip::render(__('Subject line of the notification email. Tokens like {title} are replaced with form values. Open the dropdown to insert the default.', 'lrob-email-toolkit')); ?>
+                                    </label>
+                                    <?php self::render_free_combobox(
+                                        CPT::META_SUBJECT_TEMPLATE,
+                                        $meta['subject'],
+                                        [['value' => $subject_default, 'label' => $subject_placeholder]],
+                                        $subject_placeholder
+                                    ); ?>
+                                </div>
+                                <div class="lrob-etk-field">
+                                    <label>
+                                        <?php esc_html_e('Success message', 'lrob-email-toolkit'); ?>
+                                        <?php Tooltip::render(__('Message shown to the visitor after a successful submission. Open the dropdown to insert the default.', 'lrob-email-toolkit')); ?>
+                                    </label>
+                                    <?php self::render_free_combobox(
+                                        CPT::META_SUCCESS_MESSAGE,
+                                        $meta['success'],
+                                        [['value' => $success_default, 'label' => $success_placeholder]],
+                                        $success_placeholder
+                                    ); ?>
+                                </div>
+                            </section>
+
+                            <section class="lrob-etk-form-column">
+                                <h3 class="lrob-etk-form-column-head">
+                                    <span class="lrob-etk-form-column-title"><?php esc_html_e('Anti-spam', 'lrob-email-toolkit'); ?></span>
+                                </h3>
+                                <div class="lrob-etk-field">
+                                    <label>
+                                        <?php esc_html_e('Honeypot', 'lrob-email-toolkit'); ?>
+                                        <?php Tooltip::render(__('A hidden field invisible to humans. If anything fills it, the submission is silently treated as spam. Effective against most automated bots; no impact on real visitors.', 'lrob-email-toolkit')); ?>
+                                    </label>
+                                    <?php self::render_combobox(CPT::META_HONEYPOT_ENABLED, $hp_value, $honeypot_options, 'default'); ?>
+                                </div>
+                                <div class="lrob-etk-field">
+                                    <label>
+                                        <?php esc_html_e('Challenge', 'lrob-email-toolkit'); ?>
+                                        <?php Tooltip::render(__('Anti-bot prompt visitors see (e.g. a tiny math question). Configured globally in the Captcha settings page; override here per form if needed.', 'lrob-email-toolkit')); ?>
+                                    </label>
+                                    <?php self::render_combobox(CPT::META_CHALLENGE_KIND, $meta['challenge'], $challenge_options); ?>
+                                </div>
+
+                                <h3 class="lrob-etk-form-column-head" style="margin-top: 12px;">
+                                    <span class="lrob-etk-form-column-title"><?php esc_html_e('Throttling', 'lrob-email-toolkit'); ?></span>
+                                    <?php Tooltip::render(__('Server-side rate limit per submitter (identified by IP hash). Blocks the same address from re-submitting more than Max times within Window minutes.', 'lrob-email-toolkit')); ?>
+                                </h3>
+                                <div class="lrob-etk-cf-defaults-inline-pair">
+                                    <div>
+                                        <label><?php esc_html_e('Max per IP', 'lrob-email-toolkit'); ?></label>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                               name="<?php echo esc_attr(CPT::META_RATE_LIMIT_MAX); ?>"
+                                               class="lrob-etk-cf-field"
+                                               data-key="<?php echo esc_attr(CPT::META_RATE_LIMIT_MAX); ?>"
+                                               maxlength="3"
+                                               value="<?php echo $meta['rate_max'] > 0 ? (int) $meta['rate_max'] : ''; ?>"
+                                               placeholder="<?php echo esc_attr(self::placeholder_default((string) ($globals[Settings::KEY_RATE_MAX] ?? 5))); ?>">
+                                    </div>
+                                    <div>
+                                        <label><?php esc_html_e('Window (min)', 'lrob-email-toolkit'); ?></label>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                               name="<?php echo esc_attr(CPT::META_RATE_LIMIT_WINDOW); ?>"
+                                               class="lrob-etk-cf-field"
+                                               data-key="<?php echo esc_attr(CPT::META_RATE_LIMIT_WINDOW); ?>"
+                                               data-unit="minutes"
+                                               maxlength="4"
+                                               value="<?php echo $rate_window_minutes_value > 0 ? $rate_window_minutes_value : ''; ?>"
+                                               placeholder="<?php echo esc_attr(self::placeholder_default((string) ($globals[Settings::KEY_RATE_WINDOW_MINUTES] ?? 10))); ?>">
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </details>
 
                 <footer class="lrob-etk-card-footer">
                     <div class="lrob-etk-card-footer-actions">
@@ -706,222 +1007,264 @@ final class FormsPage
         return self::field_types()[$type] ?? $type;
     }
 
-    private function render_defaults_section(): void
+    /**
+     * Global Defaults card, wrapped in a modal opened by the "Default
+     * settings" button in the page header. Same layout pattern as per-form
+     * cards (Essentials → Style → Advanced sections) and auto-saves via
+     * the same data-key plumbing — only the AJAX action differs
+     * (handle_save_default writes to the settings option). Marked with
+     * `data-defaults-card` so the JS routes there instead of save_meta.
+     * Advanced settings stay expanded here (no <details>) since the modal
+     * gives them their own attention — the dropdown belongs on per-form
+     * cards where it hides chrome that's rarely touched.
+     */
+    private function render_defaults_modal(): void
     {
-        $settings = Settings::all();
+        $s = Settings::all();
         $identities = self::active_identities();
-        $action_url = admin_url('admin-post.php');
+        $admin_email = (string) get_option('admin_email');
+        $captcha_service = self::captcha_service();
+        $available_challenges = $captcha_service !== null ? $captcha_service->available() : [];
+
+        // Pre-build option lists.
+        $identity_options = [
+            ['value' => '0', 'label' => __('SMTP routing decides', 'lrob-email-toolkit')],
+        ];
+        foreach ($identities as $identity) {
+            if ($identity['is_default']) {
+                continue;
+            }
+            $identity_options[] = ['value' => (string) $identity['id'], 'label' => $identity['label']];
+        }
+
+        $honeypot_options = [
+            ['value' => '1', 'label' => __('On', 'lrob-email-toolkit')],
+            ['value' => '0', 'label' => __('Off', 'lrob-email-toolkit')],
+        ];
+
+        $current_challenge = (string) $s[Settings::KEY_CHALLENGE];
+        $challenge_options = [];
+        if ($current_challenge !== '' && $current_challenge !== CPT::CHALLENGE_NONE && !isset($available_challenges[$current_challenge])) {
+            $challenge_options[] = [
+                'value' => $current_challenge,
+                'label' => sprintf(
+                    /* translators: %s: stored challenge slug (legacy or unknown). */
+                    __('%s (legacy)', 'lrob-email-toolkit'),
+                    $current_challenge
+                ),
+            ];
+        }
+        foreach ($available_challenges as $slug => $challenge) {
+            $challenge_options[] = ['value' => $slug, 'label' => $challenge->label()];
+        }
+        $challenge_options[] = ['value' => CPT::CHALLENGE_NONE, 'label' => __('None', 'lrob-email-toolkit')];
+
+        $preset_options = [];
+        foreach (self::style_presets() as $value => $label) {
+            $preset_options[] = ['value' => $value, 'label' => $label];
+        }
+
+        // Reply-To suggestions: dedupe across all current forms' email fields.
+        $reply_slugs = self::all_email_field_slugs();
+        $reply_to_options = [
+            ['value' => self::REPLY_TO_NONE, 'label' => __('None — no Reply-To header', 'lrob-email-toolkit')],
+        ];
+        foreach ($reply_slugs as $slug) {
+            $reply_to_options[] = ['value' => $slug, 'label' => $slug];
+        }
+
+        // System defaults shown as free-combo suggestions.
+        $subject_default = __('[Site] New submission from {title}', 'lrob-email-toolkit');
+        $success_default = __('Thanks! Your message has been sent.', 'lrob-email-toolkit');
         ?>
-        <h2 class="lrob-etk-section-title"><?php esc_html_e('Defaults', 'lrob-email-toolkit'); ?></h2>
-        <p class="lrob-etk-section-intro">
-            <?php esc_html_e('These apply to every form unless the form overrides them in its sidebar.', 'lrob-email-toolkit'); ?>
-        </p>
-
-        <form method="post" action="<?php echo esc_url($action_url); ?>" class="lrob-etk-card-form lrob-etk-cf-defaults">
-            <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION_SAVE_DEFAULTS); ?>">
-            <?php wp_nonce_field(self::ACTION_SAVE_DEFAULTS, '_lrob_etk_nonce'); ?>
-
-            <div class="lrob-etk-modal-columns lrob-etk-cf-defaults-columns">
-                <?php $this->render_delivery_column($settings, $identities); ?>
-                <?php $this->render_antispam_column($settings); ?>
-            </div>
-
-            <?php $this->render_style_section($settings); ?>
-
-            <footer class="lrob-etk-card-footer">
-                <div class="lrob-etk-card-footer-actions">
-                    <button type="submit" class="button button-primary">
-                        <?php esc_html_e('Save defaults', 'lrob-email-toolkit'); ?>
+        <div class="lrob-etk-modal" id="lrob-etk-cf-defaults-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-cf-defaults-title" hidden>
+            <div class="lrob-etk-modal-backdrop" data-modal-close></div>
+            <div class="lrob-etk-modal-dialog">
+                <header class="lrob-etk-modal-header">
+                    <h3 id="lrob-etk-cf-defaults-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Default settings for new forms', 'lrob-email-toolkit'); ?></h3>
+                    <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
                     </button>
+                </header>
+                <div class="lrob-etk-modal-body">
+                    <p class="description" style="margin-top: 0;">
+                        <?php esc_html_e('Apply to every form unless overridden in the form\'s settings. Changes save automatically.', 'lrob-email-toolkit'); ?>
+                    </p>
+
+        <article class="lrob-etk-identity-card lrob-etk-cf-form-card lrob-etk-cf-form-card--defaults" data-defaults-card="1">
+            <form class="lrob-etk-card-form" onsubmit="return false">
+                <header class="lrob-etk-card-form-head">
+                    <span class="lrob-etk-card-status" aria-live="polite"></span>
+                </header>
+
+                <section class="lrob-etk-cf-essentials">
+                    <div class="lrob-etk-field">
+                        <label><?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?></label>
+                        <?php self::render_recipients(
+                            (string) $s[Settings::KEY_RECIPIENT],
+                            $admin_email !== '' ? $admin_email : __('email@example.com', 'lrob-email-toolkit'),
+                            Settings::KEY_RECIPIENT
+                        ); ?>
+                    </div>
+                    <div class="lrob-etk-field">
+                        <label><?php esc_html_e('SMTP identity', 'lrob-email-toolkit'); ?></label>
+                        <?php self::render_combobox(Settings::KEY_IDENTITY, (string) $s[Settings::KEY_IDENTITY], $identity_options, '0'); ?>
+                    </div>
+                </section>
+
+                <section class="lrob-etk-cf-style-group">
+                    <h3 class="lrob-etk-cf-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
+                    <div class="lrob-etk-cf-style-grid">
+                        <div class="lrob-etk-field">
+                            <label><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
+                            <?php self::render_combobox(Settings::KEY_STYLE_PRESET, (string) $s[Settings::KEY_STYLE_PRESET], $preset_options); ?>
+                        </div>
+                        <div class="lrob-etk-field">
+                            <label><?php esc_html_e('Accent color', 'lrob-email-toolkit'); ?></label>
+                            <input type="text" name="<?php echo esc_attr(Settings::KEY_ACCENT); ?>"
+                                   class="lrob-etk-cf-field"
+                                   data-key="<?php echo esc_attr(Settings::KEY_ACCENT); ?>"
+                                   value="<?php echo esc_attr((string) $s[Settings::KEY_ACCENT]); ?>"
+                                   placeholder="<?php esc_attr_e('Inherit from theme', 'lrob-email-toolkit'); ?>">
+                        </div>
+                        <div class="lrob-etk-field">
+                            <label><?php esc_html_e('Corner roundness', 'lrob-email-toolkit'); ?></label>
+                            <input type="text" name="<?php echo esc_attr(Settings::KEY_RADIUS); ?>"
+                                   class="lrob-etk-cf-field"
+                                   data-key="<?php echo esc_attr(Settings::KEY_RADIUS); ?>"
+                                   value="<?php echo esc_attr((string) $s[Settings::KEY_RADIUS]); ?>"
+                                   placeholder="8px">
+                        </div>
+                        <div class="lrob-etk-field">
+                            <label><?php esc_html_e('Font size', 'lrob-email-toolkit'); ?></label>
+                            <input type="text" name="<?php echo esc_attr(Settings::KEY_FONT_SIZE); ?>"
+                                   class="lrob-etk-cf-field"
+                                   data-key="<?php echo esc_attr(Settings::KEY_FONT_SIZE); ?>"
+                                   value="<?php echo esc_attr((string) $s[Settings::KEY_FONT_SIZE]); ?>"
+                                   placeholder="1rem">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="lrob-etk-cf-advanced-body">
+                    <div class="lrob-etk-modal-columns">
+                        <section class="lrob-etk-form-column">
+                            <h3 class="lrob-etk-form-column-head">
+                                <span class="lrob-etk-form-column-title"><?php esc_html_e('Email', 'lrob-email-toolkit'); ?></span>
+                            </h3>
+                            <div class="lrob-etk-field">
+                                <label>
+                                    <?php esc_html_e('Reply-To field', 'lrob-email-toolkit'); ?>
+                                    <?php Tooltip::render(__('Slug of an email field on the form whose value becomes the Reply-To header. Forms override this individually.', 'lrob-email-toolkit')); ?>
+                                </label>
+                                <?php self::render_combobox(Settings::KEY_REPLY_TO_FIELD, (string) $s[Settings::KEY_REPLY_TO_FIELD], $reply_to_options); ?>
+                            </div>
+                            <div class="lrob-etk-field">
+                                <label>
+                                    <?php esc_html_e('Subject template', 'lrob-email-toolkit'); ?>
+                                    <?php Tooltip::render(__('Subject line of the notification email. Tokens like {title} are replaced with form values.', 'lrob-email-toolkit')); ?>
+                                </label>
+                                <?php self::render_free_combobox(
+                                    Settings::KEY_SUBJECT_TEMPLATE,
+                                    (string) $s[Settings::KEY_SUBJECT_TEMPLATE],
+                                    [['value' => $subject_default, 'label' => self::placeholder_default($subject_default)]],
+                                    $subject_default
+                                ); ?>
+                            </div>
+                            <div class="lrob-etk-field">
+                                <label>
+                                    <?php esc_html_e('Success message', 'lrob-email-toolkit'); ?>
+                                    <?php Tooltip::render(__('Message shown to the visitor after a successful submission.', 'lrob-email-toolkit')); ?>
+                                </label>
+                                <?php self::render_free_combobox(
+                                    Settings::KEY_SUCCESS_MESSAGE,
+                                    (string) $s[Settings::KEY_SUCCESS_MESSAGE],
+                                    [['value' => $success_default, 'label' => self::placeholder_default($success_default)]],
+                                    $success_default
+                                ); ?>
+                            </div>
+                        </section>
+
+                        <section class="lrob-etk-form-column">
+                            <h3 class="lrob-etk-form-column-head">
+                                <span class="lrob-etk-form-column-title"><?php esc_html_e('Anti-spam', 'lrob-email-toolkit'); ?></span>
+                            </h3>
+                            <div class="lrob-etk-field">
+                                <label>
+                                    <?php esc_html_e('Honeypot', 'lrob-email-toolkit'); ?>
+                                    <?php Tooltip::render(__('A hidden field invisible to humans. If anything fills it, the submission is silently treated as spam.', 'lrob-email-toolkit')); ?>
+                                </label>
+                                <?php self::render_combobox(Settings::KEY_HONEYPOT, !empty($s[Settings::KEY_HONEYPOT]) ? '1' : '0', $honeypot_options); ?>
+                            </div>
+                            <div class="lrob-etk-field">
+                                <label>
+                                    <?php esc_html_e('Challenge', 'lrob-email-toolkit'); ?>
+                                    <?php Tooltip::render(__('Which anti-bot challenge to present on forms by default. Each form can override.', 'lrob-email-toolkit')); ?>
+                                </label>
+                                <?php self::render_combobox(Settings::KEY_CHALLENGE, $current_challenge, $challenge_options); ?>
+                            </div>
+
+                            <h3 class="lrob-etk-form-column-head" style="margin-top: 12px;">
+                                <span class="lrob-etk-form-column-title"><?php esc_html_e('Throttling', 'lrob-email-toolkit'); ?></span>
+                                <?php Tooltip::render(__('Server-side rate limit per submitter (IP hash). Blocks more than Max submissions within Window minutes.', 'lrob-email-toolkit')); ?>
+                            </h3>
+                            <div class="lrob-etk-cf-defaults-inline-pair">
+                                <div>
+                                    <label><?php esc_html_e('Max per IP', 'lrob-email-toolkit'); ?></label>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                           name="<?php echo esc_attr(Settings::KEY_RATE_MAX); ?>"
+                                           class="lrob-etk-cf-field"
+                                           data-key="<?php echo esc_attr(Settings::KEY_RATE_MAX); ?>"
+                                           maxlength="3"
+                                           value="<?php echo (int) $s[Settings::KEY_RATE_MAX]; ?>">
+                                </div>
+                                <div>
+                                    <label><?php esc_html_e('Window (min)', 'lrob-email-toolkit'); ?></label>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                           name="<?php echo esc_attr(Settings::KEY_RATE_WINDOW_MINUTES); ?>"
+                                           class="lrob-etk-cf-field"
+                                           data-key="<?php echo esc_attr(Settings::KEY_RATE_WINDOW_MINUTES); ?>"
+                                           maxlength="4"
+                                           value="<?php echo (int) $s[Settings::KEY_RATE_WINDOW_MINUTES]; ?>">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
                 </div>
-            </footer>
-        </form>
+            </form>
+        </article>
+                </div>
+            </div>
+        </div>
         <?php
     }
 
     /**
-     * @param array<string, mixed> $s
-     * @param array<int, array{id:int, label:string, is_default:bool}> $identities
+     * Union of email-field slugs across every published+draft contact form.
+     * Powers the Reply-To picker in the Defaults card (where there's no
+     * single form to pull from). Lazy: just scans current forms; if the
+     * site has hundreds this might want caching, but a typical install has
+     * a handful.
+     *
+     * @return array<int, string>
      */
-    private function render_delivery_column(array $s, array $identities): void
+    private static function all_email_field_slugs(): array
     {
-        ?>
-        <section class="lrob-etk-form-column">
-            <h3 class="lrob-etk-form-column-head">
-                <span class="lrob-etk-form-column-title">
-                    <?php esc_html_e('Delivery', 'lrob-email-toolkit'); ?>
-                </span>
-            </h3>
-
-            <div class="lrob-etk-field">
-                <label for="cf-recipient"><?php esc_html_e('Default recipient(s)', 'lrob-email-toolkit'); ?></label>
-                <input type="text" id="cf-recipient" name="<?php echo esc_attr(Settings::KEY_RECIPIENT); ?>"
-                       value="<?php echo esc_attr((string) $s[Settings::KEY_RECIPIENT]); ?>"
-                       placeholder="<?php echo esc_attr(get_option('admin_email')); ?>"
-                       autocomplete="off">
-                <p class="description"><?php esc_html_e('One or more emails, comma-separated. Empty = site admin email.', 'lrob-email-toolkit'); ?></p>
-            </div>
-
-            <div class="lrob-etk-field">
-                <label for="cf-identity"><?php esc_html_e('SMTP identity', 'lrob-email-toolkit'); ?></label>
-                <select id="cf-identity" name="<?php echo esc_attr(Settings::KEY_IDENTITY); ?>" class="lrob-etk-select">
-                    <?php
-                    $default_label = self::default_identity_label($identities);
-                    $default_text = $default_label !== ''
-                        ? self::placeholder_default($default_label)
-                        : __('Default — SMTP routing', 'lrob-email-toolkit');
-                    ?>
-                    <option value="0"><?php echo esc_html($default_text); ?></option>
-                    <?php foreach ($identities as $identity) : ?>
-                        <?php if ($identity['is_default']) {
-                            continue;
-                        } ?>
-                        <option value="<?php echo (int) $identity['id']; ?>" <?php selected((int) $s[Settings::KEY_IDENTITY], (int) $identity['id']); ?>>
-                            <?php echo esc_html($identity['label']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="lrob-etk-field">
-                <label for="cf-reply-to"><?php esc_html_e('Reply-to field slug', 'lrob-email-toolkit'); ?></label>
-                <input type="text" id="cf-reply-to" name="<?php echo esc_attr(Settings::KEY_REPLY_TO_FIELD); ?>"
-                       value="<?php echo esc_attr((string) $s[Settings::KEY_REPLY_TO_FIELD]); ?>"
-                       placeholder="email">
-            </div>
-
-            <div class="lrob-etk-field">
-                <label for="cf-subject"><?php esc_html_e('Subject template', 'lrob-email-toolkit'); ?></label>
-                <input type="text" id="cf-subject" name="<?php echo esc_attr(Settings::KEY_SUBJECT_TEMPLATE); ?>"
-                       value="<?php echo esc_attr((string) $s[Settings::KEY_SUBJECT_TEMPLATE]); ?>"
-                       placeholder="<?php esc_attr_e('[Site] New submission from {title}', 'lrob-email-toolkit'); ?>">
-                <p class="description"><?php esc_html_e('Use {title} and {field:slug}.', 'lrob-email-toolkit'); ?></p>
-            </div>
-
-            <div class="lrob-etk-field">
-                <label for="cf-success"><?php esc_html_e('Success message', 'lrob-email-toolkit'); ?></label>
-                <textarea id="cf-success" name="<?php echo esc_attr(Settings::KEY_SUCCESS_MESSAGE); ?>" rows="2"
-                          placeholder="<?php esc_attr_e('Thanks! Your message has been sent.', 'lrob-email-toolkit'); ?>"><?php
-                    echo esc_textarea((string) $s[Settings::KEY_SUCCESS_MESSAGE]);
-                ?></textarea>
-            </div>
-        </section>
-        <?php
-    }
-
-    /** @param array<string, mixed> $s */
-    private function render_antispam_column(array $s): void
-    {
-        ?>
-        <section class="lrob-etk-form-column">
-            <h3 class="lrob-etk-form-column-head">
-                <span class="lrob-etk-form-column-title">
-                    <?php esc_html_e('Anti-spam', 'lrob-email-toolkit'); ?>
-                </span>
-            </h3>
-
-            <div class="lrob-etk-field lrob-etk-cf-defaults-inline-pair">
-                <div>
-                    <label for="cf-rate-max"><?php esc_html_e('Max per IP', 'lrob-email-toolkit'); ?></label>
-                    <input type="number" id="cf-rate-max" name="<?php echo esc_attr(Settings::KEY_RATE_MAX); ?>"
-                           min="1" max="999" step="1"
-                           value="<?php echo (int) $s[Settings::KEY_RATE_MAX]; ?>">
-                </div>
-                <div>
-                    <label for="cf-rate-window"><?php esc_html_e('Window (min)', 'lrob-email-toolkit'); ?></label>
-                    <input type="number" id="cf-rate-window" name="<?php echo esc_attr(Settings::KEY_RATE_WINDOW_MINUTES); ?>"
-                           min="1" max="1440" step="1"
-                           value="<?php echo (int) $s[Settings::KEY_RATE_WINDOW_MINUTES]; ?>">
-                </div>
-            </div>
-
-            <div class="lrob-etk-field">
-                <label for="cf-honeypot"><?php esc_html_e('Honeypot field', 'lrob-email-toolkit'); ?></label>
-                <select id="cf-honeypot" name="<?php echo esc_attr(Settings::KEY_HONEYPOT); ?>" class="lrob-etk-select">
-                    <option value="1" <?php selected(!empty($s[Settings::KEY_HONEYPOT])); ?>><?php esc_html_e('On', 'lrob-email-toolkit'); ?></option>
-                    <option value="0" <?php selected(empty($s[Settings::KEY_HONEYPOT])); ?>><?php esc_html_e('Off', 'lrob-email-toolkit'); ?></option>
-                </select>
-            </div>
-
-            <div class="lrob-etk-field">
-                <label for="cf-challenge"><?php esc_html_e('Challenge', 'lrob-email-toolkit'); ?></label>
-                <select id="cf-challenge" name="<?php echo esc_attr(Settings::KEY_CHALLENGE); ?>" class="lrob-etk-select">
-                    <option value="<?php echo esc_attr(CPT::CHALLENGE_MATH); ?>" <?php selected((string) $s[Settings::KEY_CHALLENGE], CPT::CHALLENGE_MATH); ?>><?php esc_html_e('Math (a + b)', 'lrob-email-toolkit'); ?></option>
-                    <option value="<?php echo esc_attr(CPT::CHALLENGE_NONE); ?>" <?php selected((string) $s[Settings::KEY_CHALLENGE], CPT::CHALLENGE_NONE); ?>><?php esc_html_e('None', 'lrob-email-toolkit'); ?></option>
-                </select>
-            </div>
-        </section>
-        <?php
-    }
-
-    /** @param array<string, mixed> $s */
-    private function render_style_section(array $s): void
-    {
-        ?>
-        <section class="lrob-etk-form-row-full lrob-etk-cf-style-section">
-            <h3 class="lrob-etk-form-column-head">
-                <span class="lrob-etk-form-column-title">
-                    <?php esc_html_e('Style', 'lrob-email-toolkit'); ?>
-                </span>
-                <span class="lrob-etk-label-hint">
-                    <?php esc_html_e('Empty fields inherit from your theme.', 'lrob-email-toolkit'); ?>
-                </span>
-            </h3>
-
-            <div class="lrob-etk-cf-style-grid">
-                <div class="lrob-etk-field">
-                    <label for="cf-preset"><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
-                    <select id="cf-preset" name="<?php echo esc_attr(Settings::KEY_STYLE_PRESET); ?>" class="lrob-etk-select">
-                        <?php foreach (self::style_presets() as $value => $label) : ?>
-                            <option value="<?php echo esc_attr($value); ?>" <?php selected((string) $s[Settings::KEY_STYLE_PRESET], $value); ?>>
-                                <?php echo esc_html($label); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="lrob-etk-field">
-                    <label for="cf-accent"><?php esc_html_e('Accent color', 'lrob-email-toolkit'); ?></label>
-                    <input type="text" id="cf-accent" name="<?php echo esc_attr(Settings::KEY_ACCENT); ?>"
-                           value="<?php echo esc_attr((string) $s[Settings::KEY_ACCENT]); ?>"
-                           placeholder="<?php esc_attr_e('Inherit from theme', 'lrob-email-toolkit'); ?>">
-                </div>
-                <div class="lrob-etk-field">
-                    <label for="cf-radius"><?php esc_html_e('Corner roundness', 'lrob-email-toolkit'); ?></label>
-                    <input type="text" id="cf-radius" name="<?php echo esc_attr(Settings::KEY_RADIUS); ?>"
-                           value="<?php echo esc_attr((string) $s[Settings::KEY_RADIUS]); ?>"
-                           placeholder="8px">
-                </div>
-                <div class="lrob-etk-field">
-                    <label for="cf-font-size"><?php esc_html_e('Font size', 'lrob-email-toolkit'); ?></label>
-                    <input type="text" id="cf-font-size" name="<?php echo esc_attr(Settings::KEY_FONT_SIZE); ?>"
-                           value="<?php echo esc_attr((string) $s[Settings::KEY_FONT_SIZE]); ?>"
-                           placeholder="1rem">
-                </div>
-            </div>
-        </section>
-        <?php
-    }
-
-    public function handle_save_defaults(): void
-    {
-        if (!current_user_can(Activator::CAPABILITY)) {
-            wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
-        }
-        $nonce = isset($_POST['_lrob_etk_nonce']) ? (string) wp_unslash($_POST['_lrob_etk_nonce']) : '';
-        if (!wp_verify_nonce($nonce, self::ACTION_SAVE_DEFAULTS)) {
-            wp_die(esc_html__('Security check failed. Please retry.', 'lrob-email-toolkit'));
-        }
-
-        $values = [];
-        foreach (array_keys(Settings::defaults()) as $key) {
-            if (array_key_exists($key, $_POST)) {
-                $values[$key] = wp_unslash($_POST[$key]);
+        $slugs = [];
+        $posts = get_posts([
+            'post_type'        => CPT::POST_TYPE,
+            'post_status'      => ['publish', 'draft'],
+            'numberposts'      => 100,
+            'suppress_filters' => true,
+            'fields'           => 'ids',
+        ]);
+        foreach ($posts as $form_id) {
+            $structure = FormStructure::load((int) $form_id);
+            foreach (self::email_field_slugs($structure) as $slug) {
+                $slugs[$slug] = true;
             }
         }
-        Settings::save($values);
-
-        wp_safe_redirect(add_query_arg(['saved' => '1'], admin_url('admin.php?page=' . self::SLUG)));
-        exit;
+        return array_keys($slugs);
     }
 
     public function handle_delete_form(): void
@@ -952,7 +1295,11 @@ final class FormsPage
             'post_status'    => ['publish', 'draft'],
             'numberposts'    => 100,
             'orderby'        => 'date',
-            'order'          => 'DESC',
+            // Oldest first: new forms appear at the BOTTOM of the list,
+            // matching the natural creation timeline. The new-form picker
+            // navigates to `#form-<id>` after creation so the JS can
+            // smooth-scroll to the freshly-added card.
+            'order'          => 'ASC',
             'suppress_filters' => true,
         ]);
 

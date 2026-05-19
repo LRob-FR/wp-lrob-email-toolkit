@@ -46,6 +46,14 @@
         var hidden = combo.querySelector('.lrob-etk-combo-value');
         if (!hidden) return;
 
+        // PHP labels the "inherit/default" option per setting (SMTP identity
+        // uses '0' as the sentinel, Honeypot uses 'default', most others
+        // use ''). When that sentinel is selected we leave the readonly
+        // input EMPTY so the muted placeholder ("Default — X") reads as a
+        // hint rather than a confirmed choice — uniform across settings.
+        var inheritValue = combo.getAttribute('data-inherit-value');
+        if (inheritValue === null) inheritValue = '';
+
         attachCombobox(combo, {
             mode: 'select',
             populate: function () { return options; },
@@ -53,15 +61,17 @@
             setValue: function (value, label) {
                 hidden.value = value;
                 var input = combo.querySelector('.lrob-etk-combo-input');
-                if (input) input.value = label;
+                if (input) {
+                    input.value = (String(value) === String(inheritValue)) ? '' : label;
+                }
                 hidden.dispatchEvent(new Event('change', { bubbles: true }));
             }
         });
 
-        // Initial display sync.
+        // Initial display sync — same inherit rule as setValue.
         var initial = options.find(function (o) { return String(o.value) === String(hidden.value); });
         var inputEl = combo.querySelector('.lrob-etk-combo-input');
-        if (inputEl) inputEl.value = initial ? initial.label : '';
+        if (inputEl) inputEl.value = (initial && String(initial.value) !== String(inheritValue)) ? initial.label : '';
     }
 
     // --------------------------- Public manual init (both modes) ---------------------------

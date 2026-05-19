@@ -6,6 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha;
 
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Captcha\Admin\PageController;
+use LRob\EmailToolkit\Modules\Captcha\Challenges\ImageChallenge;
 use LRob\EmailToolkit\Modules\Captcha\Challenges\MathChallenge;
 
 /**
@@ -64,6 +65,7 @@ final class Module extends AbstractModule
     {
         $service = new CaptchaService();
         $service->add_challenge(new MathChallenge());
+        $service->add_challenge(new ImageChallenge());
         $this->container->set(CaptchaService::class, $service);
 
         if (is_admin()) {

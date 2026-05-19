@@ -92,7 +92,7 @@ final class Settings
             self::KEY_HONEYPOT               => (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN),
             self::KEY_RECIPIENT              => is_string($value) ? self::sanitize_recipient_list($value) : '',
             self::KEY_REPLY_TO_FIELD         => is_string($value) ? sanitize_key($value) : '',
-            self::KEY_CHALLENGE              => in_array($value, [CPT::CHALLENGE_NONE, CPT::CHALLENGE_MATH], true) ? (string) $value : (string) $default,
+            self::KEY_CHALLENGE              => self::sanitize_challenge_slug($value, (string) $default),
             self::KEY_STYLE_PRESET           => is_string($value) && $value !== '' ? sanitize_html_class($value) : (string) $default,
             self::KEY_SUBJECT_TEMPLATE,
             self::KEY_SUCCESS_MESSAGE        => is_string($value) ? sanitize_textarea_field($value) : '',
@@ -101,6 +101,23 @@ final class Settings
             self::KEY_FONT_SIZE              => is_string($value) ? trim($value) : '',
             default                          => $value,
         };
+    }
+
+    /**
+     * Accept any slug-shaped value; `CaptchaService` is the source of truth
+     * for which slugs actually exist at runtime, and falls back to its own
+     * registered challenge when an unknown one is stored. Pinning the
+     * allow-list here would require a hard dependency on the captcha
+     * container and re-introduce the "Math (a+b)" vs "Picture recognition"
+     * desync the user just hit.
+     */
+    private static function sanitize_challenge_slug(mixed $value, string $default): string
+    {
+        if (!is_string($value)) {
+            return $default;
+        }
+        $value = sanitize_key($value);
+        return $value !== '' ? $value : $default;
     }
 
     /**

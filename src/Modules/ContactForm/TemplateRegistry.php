@@ -94,7 +94,7 @@ final class TemplateRegistry
                 ])]),
                 self::row([
                     self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true)]),
-                    self::col([self::field('phone', 'phone', __('Phone (optional)', 'lrob-email-toolkit'), false)]),
+                    self::col([self::field('phone', 'phone', __('Phone', 'lrob-email-toolkit'), false)]),
                 ]),
                 self::row([self::col([
                     self::field('textarea', 'message', __('Your message', 'lrob-email-toolkit'), true, ['rows' => 5]),
@@ -220,12 +220,18 @@ final class TemplateRegistry
         return array_merge($base, $extra);
     }
 
-    /** Trailing rows shared by templates: captcha row + submit row. */
+    /**
+     * Trailing row shared by templates: captcha + submit side-by-side. One
+     * row, two columns — the captcha sits inline on the left, the submit
+     * button on the right. Cleaner than stacking them vertically.
+     */
     private static function tail_rows(string $submit_text): array
     {
         return [
-            self::row([self::col([['id' => 'f_' . substr(md5((string) random_int(0, PHP_INT_MAX)), 0, 8), 'type' => 'captcha']])]),
-            self::row([self::col([['id' => 'f_' . substr(md5((string) random_int(0, PHP_INT_MAX)), 0, 8), 'type' => 'submit', 'text' => $submit_text, 'align' => 'right']])]),
+            self::row([
+                self::col([['id' => 'f_' . substr(md5((string) random_int(0, PHP_INT_MAX)), 0, 8), 'type' => 'captcha']]),
+                self::col([['id' => 'f_' . substr(md5((string) random_int(0, PHP_INT_MAX)), 0, 8), 'type' => 'submit', 'text' => $submit_text, 'align' => 'right']]),
+            ]),
         ];
     }
 }

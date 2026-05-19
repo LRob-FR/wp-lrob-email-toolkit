@@ -332,3 +332,69 @@
     --lrob-etk-cf-border: #0f172a;
     --lrob-etk-cf-shadow-focus: 0 0 0 3px rgba(15, 23, 42, .25);
 }
+
+/* ---------- Image-recognition challenge ----------
+ *
+ * 6 radio inputs presented as small SVG tiles. The native radio is
+ * visually hidden but keyboard-reachable; the SVG tile carries the
+ * visible state via :checked + :focus-visible. Tiles have a fixed size
+ * so the picker stays compact regardless of the surrounding form width.
+ */
+.lrob-etk-cf-challenge--image .lrob-etk-cf-image-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.lrob-etk-cf-image-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    box-sizing: border-box;
+    border: 1px solid var(--lrob-etk-cf-border, #cbd5e1);
+    border-radius: var(--lrob-etk-cf-radius, 6px);
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    margin: 0;
+    color: var(--lrob-etk-cf-fg, #1f2937);
+}
+.lrob-etk-cf-image-option:hover {
+    border-color: var(--lrob-etk-cf-accent, #2563eb);
+    background: #f8fafc;
+}
+.lrob-etk-cf-image-option input[type="radio"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.lrob-etk-cf-image-option:has(input[type="radio"]:checked) {
+    border-color: var(--lrob-etk-cf-accent, #2563eb);
+    border-width: 2px;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--lrob-etk-cf-accent, #2563eb);
+}
+.lrob-etk-cf-image-option:has(input[type="radio"]:focus-visible) {
+    box-shadow: var(--lrob-etk-cf-shadow-focus, 0 0 0 3px rgba(37, 99, 235, 0.25));
+    outline: none;
+}
+.lrob-etk-cf-image-svg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.lrob-etk-cf-image-svg svg {
+    width: 26px;
+    height: 26px;
+    display: block;
+}

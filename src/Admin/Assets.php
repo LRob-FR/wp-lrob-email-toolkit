@@ -48,13 +48,17 @@ final class Assets
         }
 
         // Shared admin UI components (combobox). Every toolkit page may use
-        // them, so we load once here instead of per-module.
+        // them, so we load once here instead of per-module. Loaded in
+        // <head> — the SMTP identity card's inline <script> runs mid-body
+        // and synchronously calls lrobEtkControls.attachCombobox, so this
+        // global has to exist before the body parses. Moving back to the
+        // footer silently breaks every dropdown on the SMTP card.
         wp_enqueue_script(
             self::HANDLE_CONTROLS_JS,
             LROB_ETK_URL . 'admin/js/etk-controls.js',
             [],
             self::asset_version('admin/js/etk-controls.js'),
-            true
+            false
         );
 
         add_action('admin_footer', [self::class, 'print_tooltip_script']);
@@ -175,19 +179,17 @@ final class Assets
     }
 
     /**
-     * Cache-busting version string: plugin version in production, plus the
-     * file mtime when WP_DEBUG is on so iterative dev edits don't get cached
-     * across Ctrl+F5. Browsers (and proxies) treat a different query string
-     * as a new asset.
+     * Cache-busting version string: plugin version + file mtime. The mtime
+     * suffix means every CSS/JS edit produces a different `?ver=…` so
+     * browsers fetch fresh — no version bump required, no stale-cache
+     * surprise when we re-zip the same release with a fix.
      */
     private static function asset_version(string $relative_path): string
     {
         $version = LROB_ETK_VERSION;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $full = LROB_ETK_PATH . ltrim($relative_path, '/');
-            if (is_file($full)) {
-                $version .= '.' . filemtime($full);
-            }
+        $full = LROB_ETK_PATH . ltrim($relative_path, '/');
+        if (is_file($full)) {
+            $version .= '.' . filemtime($full);
         }
         return $version;
     }

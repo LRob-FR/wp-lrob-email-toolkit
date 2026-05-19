@@ -71,6 +71,26 @@ final class SubmitHandler
             'referer'    => isset($_SERVER['HTTP_REFERER']) ? (string) $_SERVER['HTTP_REFERER'] : '',
         ];
 
+        // Captcha state captured up front so every insert path (honeypot,
+        // time-trap, rate-limit, challenge-fail, happy path) records the
+        // same canonical slug. Outcome starts as "skipped" and flips to
+        // passed / failed once the challenge actually runs.
+        $stored_challenge = Settings::effective_challenge($form_id);
+        $captcha_enabled = $stored_challenge !== CPT::CHALLENGE_NONE;
+        $captcha_force = ($stored_challenge !== '' && $stored_challenge !== CPT::CHALLENGE_NONE) ? $stored_challenge : '';
+        $captcha_service = $this->captcha_service();
+        if ($captcha_enabled && $captcha_service !== null) {
+            // Match render-time resolution: if forced, slug == forced; else fall back to module's active.
+            $captcha_slug = $captcha_force !== '' && isset($captcha_service->available()[$captcha_force])
+                ? $captcha_force
+                : $captcha_service->active_slug();
+        } else {
+            $captcha_slug = CaptchaService::SLUG_NONE;
+        }
+        $captcha_outcome = SubmissionRepository::CAPTCHA_OUTCOME_SKIPPED;
+        $context['captcha_slug'] = $captcha_slug;
+        $context['captcha_outcome'] = $captcha_outcome;
+
         // Honeypot returns a successful-looking response so bots can't adapt.
         if (Settings::effective_honeypot($form_id) && Honeypot::tripped($post)) {
             $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'honeypot_tripped'], SubmissionRepository::STATUS_SPAM_BLOCKED);
@@ -86,20 +106,26 @@ final class SubmitHandler
         }
 
         if ($this->rate_limiter->over_limit($ip_hash, $form_id, Settings::effective_rate_max($form_id), Settings::effective_rate_window_seconds($form_id))) {
+            // No insert — rate-limited submissions don't reach our table.
+            // We still emit the event so external listeners can react.
             Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'rate_limit']);
             wp_send_json_error(['message' => __('You are submitting too quickly. Please wait a few minutes and try again.', 'lrob-email-toolkit')], 429);
         }
 
-        if (Settings::effective_challenge($form_id) !== CPT::CHALLENGE_NONE) {
-            $container = Plugin::instance()->container();
-            if ($container->has(CaptchaService::class)) {
-                $service = $container->get(CaptchaService::class);
-                [$ok, $message] = $service->verify($post, ['context' => 'contact_form', 'form_id' => $form_id]);
-                if (!$ok) {
-                    $this->rate_limiter->record($ip_hash, $form_id);
-                    wp_send_json_error(['message' => $message], 400);
-                }
+        if ($captcha_enabled && $captcha_service !== null) {
+            [$ok, $message] = $captcha_service->verify($post, [
+                'context'    => 'contact_form',
+                'form_id'    => $form_id,
+                'force_slug' => $captcha_force,
+            ]);
+            if (!$ok) {
+                $context['captcha_outcome'] = SubmissionRepository::CAPTCHA_OUTCOME_FAILED;
+                $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'captcha_failed'], SubmissionRepository::STATUS_SPAM_BLOCKED);
+                $this->rate_limiter->record($ip_hash, $form_id);
+                Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'captcha']);
+                wp_send_json_error(['message' => $message], 400);
             }
+            $context['captcha_outcome'] = SubmissionRepository::CAPTCHA_OUTCOME_PASSED;
         }
 
         $structure = FormStructure::load($form_id);
@@ -136,6 +162,12 @@ final class SubmitHandler
         }
 
         wp_send_json_success(['message' => Settings::effective_success_message($form_id)]);
+    }
+
+    private function captcha_service(): ?CaptchaService
+    {
+        $container = Plugin::instance()->container();
+        return $container->has(CaptchaService::class) ? $container->get(CaptchaService::class) : null;
     }
 
     /** Optional X-WP-Nonce header fallback (some page builders strip "non-standard" hidden inputs). */
@@ -507,7 +539,11 @@ final class SubmitHandler
     private static function resolve_reply_to(int $form_id, array $values): string
     {
         $slug = Settings::effective_reply_to_field($form_id);
-        if ($slug === '') {
+        // Empty slug = "use global default" (already resolved by effective_*).
+        // Sentinel "__none__" = "explicitly no Reply-To header for this form".
+        // See FormsPage::REPLY_TO_NONE; the picker stores this when a form
+        // opts out (some mail providers flag mismatched Reply-To as spam).
+        if ($slug === '' || $slug === '__none__') {
             return '';
         }
         $value = $values[$slug] ?? '';

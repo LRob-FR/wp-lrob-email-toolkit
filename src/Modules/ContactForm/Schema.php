@@ -22,10 +22,6 @@ final class Schema
 
     public const TABLE_RATE = 'lrob_etk_contact_rate';
 
-    private const SCHEMA_VERSION = '1';
-
-    private const VERSION_OPTION = 'lrob_etk_contact_form_db_version';
-
     public static function submissions_table(): string
     {
         global $wpdb;
@@ -38,20 +34,20 @@ final class Schema
         return $wpdb->prefix . self::TABLE_RATE;
     }
 
+    /**
+     * Idempotent. Versioning is owned by AbstractModule::maybe_migrate via
+     * the shared `lrob_etk_contact_form_db_version` option — Schema itself
+     * just declares the current shape. dbDelta handles additive upgrades
+     * (added columns / new indexes) when this is called on an existing
+     * install.
+     */
     public static function install(): void
     {
         global $wpdb;
-
-        $installed = get_option(self::VERSION_OPTION);
-        if ($installed === self::SCHEMA_VERSION) {
-            return;
-        }
-
         $charset_collate = $wpdb->get_charset_collate();
         $submissions = self::submissions_table();
         $rate = self::rate_table();
 
-        // phpcs:ignore — dbDelta SQL is intentionally formatted, not parameterized.
         $sql_submissions = "CREATE TABLE $submissions (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             form_id bigint(20) unsigned NOT NULL,
@@ -63,14 +59,16 @@ final class Schema
             fields_json longtext NOT NULL,
             log_id bigint(20) unsigned DEFAULT NULL,
             notes text DEFAULT NULL,
+            captcha_slug varchar(40) NOT NULL DEFAULT '',
+            captcha_outcome varchar(20) NOT NULL DEFAULT '',
             PRIMARY KEY  (id),
             KEY form_id (form_id),
             KEY status (status),
             KEY submitted_at (submitted_at),
-            KEY ip_hash (ip_hash)
+            KEY ip_hash (ip_hash),
+            KEY captcha_slug (captcha_slug)
         ) $charset_collate;";
 
-        // phpcs:ignore
         $sql_rate = "CREATE TABLE $rate (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             ip_hash varchar(64) NOT NULL,
@@ -83,8 +81,6 @@ final class Schema
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql_submissions);
         dbDelta($sql_rate);
-
-        update_option(self::VERSION_OPTION, self::SCHEMA_VERSION);
     }
 
     public static function drop(): void
@@ -94,6 +90,5 @@ final class Schema
         $rate = self::rate_table();
         $wpdb->query("DROP TABLE IF EXISTS `$submissions`");
         $wpdb->query("DROP TABLE IF EXISTS `$rate`");
-        delete_option(self::VERSION_OPTION);
     }
 }

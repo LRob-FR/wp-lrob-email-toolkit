@@ -51,7 +51,21 @@
             credentials: 'same-origin',
             body: fd
         })
-            .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+            .then(function (r) {
+                // Read as text first so we can show what came back if it
+                // isn't JSON (e.g. PHP printed an error before the JSON
+                // body), instead of failing silently to the generic
+                // "Something went wrong" message.
+                return r.text().then(function (txt) {
+                    try { return JSON.parse(txt); }
+                    catch (e) {
+                        if (window.console && console.warn) {
+                            console.warn('lrob-etk-cf: non-JSON response from submit endpoint:', txt);
+                        }
+                        return { success: false, data: { message: (I18N.unknownError || 'Error') + ' (server returned a non-JSON response — check the browser console).' } };
+                    }
+                });
+            })
             .then(function (resp) { handleResponse(form, resp); })
             .catch(function () {
                 showStatus(form, 'error', I18N.unknownError || 'Error');

@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\FormStructure;
+use LRob\EmailToolkit\Modules\ContactForm\Settings;
 use LRob\EmailToolkit\Modules\ContactForm\TemplateRegistry;
 
 /**
@@ -28,7 +29,26 @@ final class AjaxController
 
     public const ACTION_CREATE_FORM = 'lrob_etk_cf_create_form';
 
+    public const ACTION_SAVE_DEFAULT = 'lrob_etk_cf_save_default';
+
     public const NONCE_ACTION = 'lrob_etk_cf_admin';
+
+    /** Settings keys writable through the auto-save endpoint. */
+    private const DEFAULT_KEYS = [
+        Settings::KEY_RECIPIENT,
+        Settings::KEY_IDENTITY,
+        Settings::KEY_REPLY_TO_FIELD,
+        Settings::KEY_SUBJECT_TEMPLATE,
+        Settings::KEY_SUCCESS_MESSAGE,
+        Settings::KEY_RATE_MAX,
+        Settings::KEY_RATE_WINDOW_MINUTES,
+        Settings::KEY_HONEYPOT,
+        Settings::KEY_CHALLENGE,
+        Settings::KEY_STYLE_PRESET,
+        Settings::KEY_ACCENT,
+        Settings::KEY_RADIUS,
+        Settings::KEY_FONT_SIZE,
+    ];
 
     /** Keys that map to post_meta (value type → coerce on save). */
     private const META_KEYS = [
@@ -49,6 +69,38 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_SAVE_META, [$this, 'handle_save_meta']);
         add_action('wp_ajax_' . self::ACTION_SAVE_STRUCTURE, [$this, 'handle_save_structure']);
         add_action('wp_ajax_' . self::ACTION_CREATE_FORM, [$this, 'handle_create_form']);
+        add_action('wp_ajax_' . self::ACTION_SAVE_DEFAULT, [$this, 'handle_save_default']);
+    }
+
+    /**
+     * Auto-save endpoint for the global Defaults section. Same key/value
+     * shape as save_meta but writes to the contact-form settings option
+     * instead of post_meta. We merge into the current settings array
+     * (rather than passing just one key to Settings::save, which would
+     * reset every other key to its default).
+     */
+    public function handle_save_default(): void
+    {
+        if (!current_user_can(Activator::CAPABILITY)) {
+            wp_send_json_error(['message' => __('Insufficient permissions.', 'lrob-email-toolkit')], 403);
+        }
+        $post = wp_unslash($_POST);
+        $nonce = isset($post['_nonce']) ? (string) $post['_nonce'] : '';
+        if (!wp_verify_nonce($nonce, self::NONCE_ACTION)) {
+            wp_send_json_error(['message' => __('Security check failed. Please reload the page.', 'lrob-email-toolkit')], 400);
+        }
+
+        $key = isset($post['key']) ? (string) $post['key'] : '';
+        if (!in_array($key, self::DEFAULT_KEYS, true)) {
+            wp_send_json_error(['message' => __('Unknown setting.', 'lrob-email-toolkit')], 400);
+        }
+
+        $value = $post['value'] ?? '';
+        $current = Settings::all();
+        $current[$key] = $value;
+        Settings::save($current);
+
+        wp_send_json_success(['key' => $key]);
     }
 
     public function handle_save_meta(): void

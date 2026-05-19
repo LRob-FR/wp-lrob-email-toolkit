@@ -179,7 +179,7 @@ SMTP identity rows store `from_email` and `from_name` that may be empty — mean
 
 ## Contact Form WYSIWYG editor (`admin/js/contact-form-fields-editor.js`)
 
-Single-IIFE, ~1300 lines. Drives every Contact Form card's field editor (preview + overlays + drag-drop + gear popup + serializer). Section map for navigation — line numbers drift, search by the `// --- Name ---` marker:
+Single-IIFE, ~1500 lines. Drives every Contact Form card's field editor (preview + overlays + drag-drop + gear popup + inline option editor + serializer). Section map for navigation — line numbers drift, search by the `// --- Name ---` marker:
 
 | Section | What lives here |
 |---|---|
@@ -191,8 +191,9 @@ Single-IIFE, ~1300 lines. Drives every Contact Form card's field editor (preview
 | Normalize insert zones | After every mutation, rebuild the `+ Field` / `+ Row` / `+ Column` insert pattern from scratch in each container — keeps the canonical "one insert between every pair plus one trailing" invariant. |
 | Insert zone state | `.is-orphan` class for the sole insert in an empty container (renders as a dashed drop-zone instead of a thin pill). `.is-drop-on-insert` during active drag. |
 | Mutators | `addField`, `deleteField`, `addRow`, `addColumn`, `moveField`, etc. Each commits exactly one history snapshot. |
-| Gear popup | Per-field settings (slug, required, options for select/radio/checkbox, type-specific maxLength/rows/min/max/step/pattern). Reads/writes `data-attr-*` on the shell. Popup HTML built inline in JS — no PHP template. |
-| DOM builders | `buildField(type, attrs)` / `buildRow(field)` / `buildColumn()`. Adding a new field type means extending this section + the gear popup + the serializer. |
+| Gear popup | Per-field settings (slug, required, type-specific maxLength/rows/min/max/step/pattern, `multiple` for checkbox). Reads/writes `data-attr-*` on the shell. Popup HTML built inline in JS — no PHP template. **Options are NOT edited here** — they live in the inline editor next to the preview. |
+| Inline option editor | `select`/`radio`/`checkbox` shells render an inline editor (`.lrob-etk-cf-options[data-options-inline]`) with one `<input> + contenteditable label + remove button` per option, plus an `+ Add option` button. `applyOptionsToPreview()` is the canonical render; `syncOptionsFromInline()` reads edits back into `data-attr-options`. `inlineOptionRowHtml` deliberately does NOT wrap the input in `<label>` — wrapping would steal click focus from the contenteditable. `buildControlHtml` must emit this same shape for new fields so they're editable immediately without a reload. |
+| DOM builders | `buildField(type, attrs)` / `buildRow(field)` / `buildColumn()`. Adding a new field type means extending this section + the gear popup + the serializer. For multi-choice types, `buildControlHtml` must seed with `inlineOptionEditorHtml` / `inlineOptionRowHtml` / `inlineAddButtonHtml`, not a static preview. |
 | Serializer | `serialize(form)` produces `{ version: 1, rows: [{ id, columns: [{ id, fields: [...] }] }] }`. Field shape: see "Serialized field shape" below. |
 | Initial sync | On first load, copies attrs from the PHP-rendered DOM into `data-attr-*` so the gear/serializer can read them. Guards via `dataset.etkInit`. |
 
@@ -225,8 +226,9 @@ Type-specific keys appear only on relevant types. `submit` carries `text` + `ali
 
 ### Where to make common changes
 
-- **Add a new field type:** `buildField()` switch + `serialize()`'s gear-attribute list + gear popup builder + `FieldRenderer.php` (frontend) + `FormEditorRenderer.php` (editor preview).
+- **Add a new field type:** `buildField()` switch + `buildControlHtml()` switch (with inline option editor seed if it's multi-choice) + `serialize()`'s gear-attribute list + gear popup builder + `FieldRenderer.php` (frontend) + `FormEditorRenderer.php` (editor preview).
 - **Add a new per-field setting:** add a `data-attr-X` write in the gear popup save + a `data-attr-X` read in `serialize()` + PHP side in `FieldRenderer` + the form structure schema in `FormStructure.php`.
+- **Tweak the inline option editor (multi-choice):** start at `applyOptionsToPreview` / `renderSelectPreview` / `renderOptionGroupPreview` / `syncOptionsFromInline`. Mirror any DOM shape change in `buildControlHtml` so newly-created fields don't need a reload to match.
 - **Tweak a drag-drop behaviour:** start at `pickDropHover()` / `computeDropDirection()` / `sameScope()`. Add `console.log` in those three to trace.
 - **Fix a save-status edge case:** `Save plumbing` section, `setStatus()` function.
 - **Add an undo-able action:** wrap it with `commit()` at the end. Single commit per user action.
