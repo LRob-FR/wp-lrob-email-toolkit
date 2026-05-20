@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LRob - Email Toolkit 0.1.1\n"
+"Project-Id-Version: LRob - Email Toolkit 0.1.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-20T14:15:28+00:00\n"
+"POT-Creation-Date: 2026-05-20T15:49:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -610,7 +610,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/PageController.php:40
 #: src/Modules/Captcha/Admin/PageController.php:41
 #: src/Modules/Captcha/Admin/SettingsPage.php:48
-#: src/Modules/Captcha/Module.php:31
+#: src/Modules/Captcha/Module.php:32
 msgid "Captcha"
 msgstr ""
 
@@ -843,6 +843,10 @@ msgstr ""
 msgid "✗ Verification failed"
 msgstr ""
 
+#: src/Modules/Captcha/CaptchaService.php:217
+msgid "Anti-spam check is unavailable right now. Please try again later or contact the site administrator."
+msgstr ""
+
 #: src/Modules/Captcha/Challenges/ImageChallenge.php:39
 msgid "Picture recognition"
 msgstr ""
@@ -983,8 +987,25 @@ msgstr ""
 msgid "How much is %1$d %3$s %2$d?"
 msgstr ""
 
-#: src/Modules/Captcha/Module.php:36
+#: src/Modules/Captcha/Module.php:37
 msgid "Anti-bot challenges shared across modules. Homemade challenges (math, image) ship by default; hosted providers (hCaptcha, Turnstile, reCAPTCHA) plug in here."
+msgstr ""
+
+#: src/Modules/Captcha/Module.php:152
+msgid "Default (site-wide)"
+msgstr ""
+
+#: src/Modules/Captcha/Module.php:160
+msgid "Captcha misconfiguration"
+msgstr ""
+
+#. translators: %s: comma-separated list of affected captcha contexts (e.g. "Default (site-wide), Contact forms")
+#: src/Modules/Captcha/Module.php:163
+msgid "The captcha route is broken for: %s. Affected forms will reject all submissions until you fix this — open the Captcha settings page to pick a working challenge or re-enter credentials."
+msgstr ""
+
+#: src/Modules/Captcha/Module.php:167
+msgid "Open Captcha settings"
 msgstr ""
 
 #: src/Modules/Captcha/Providers/HCaptcha.php:43

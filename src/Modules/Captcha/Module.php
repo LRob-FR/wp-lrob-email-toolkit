@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha;
 
+use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Captcha\Admin\PageController;
 use LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface;
@@ -107,7 +108,64 @@ final class Module extends AbstractModule
 
         if (is_admin()) {
             (new PageController($this, $service))->register();
+            // Persistent notice when any non-trivial route in the context
+            // map can't resolve — surfaces fail-closed verify() situations
+            // to the admin before they get a support ticket.
+            add_action('admin_notices', [$this, 'render_broken_routes_notice']);
         }
+    }
+
+    /**
+     * Walk the routing map and flag any entry pointing at something that
+     * doesn't exist anymore (deleted identity, inactive identity, missing
+     * provider class, undecryptable credentials). Only renders when there's
+     * something to report.
+     */
+    public function render_broken_routes_notice(): void
+    {
+        if (!current_user_can(Activator::CAPABILITY)) {
+            return;
+        }
+        $service = $this->container->has(CaptchaService::class)
+            ? $this->container->get(CaptchaService::class)
+            : null;
+        if ($service === null) {
+            return;
+        }
+
+        $broken = [];
+        foreach (Routing::context_map() as $key => $route) {
+            if ($route === Routing::ROUTE_NONE || $route === Routing::ROUTE_INHERIT || $route === '') {
+                continue;
+            }
+            [, , $state] = $service->resolve(['force_route' => $route]);
+            if ($state === CaptchaService::STATE_BROKEN) {
+                $broken[$key] = $route;
+            }
+        }
+        if ($broken === []) {
+            return;
+        }
+
+        $labels = array_map(
+            static fn (string $key): string => $key === Routing::KEY_DEFAULT
+                ? __('Default (site-wide)', 'lrob-email-toolkit')
+                : Routing::context_label($key),
+            array_keys($broken)
+        );
+        $url = admin_url('admin.php?page=' . PageController::SLUG);
+
+        printf(
+            '<div class="notice notice-warning"><p><strong>%1$s</strong></p><p>%2$s</p><p><a href="%3$s" class="button button-primary">%4$s</a></p></div>',
+            esc_html__('Captcha misconfiguration', 'lrob-email-toolkit'),
+            esc_html(sprintf(
+                /* translators: %s: comma-separated list of affected captcha contexts (e.g. "Default (site-wide), Contact forms") */
+                __('The captcha route is broken for: %s. Affected forms will reject all submissions until you fix this — open the Captcha settings page to pick a working challenge or re-enter credentials.', 'lrob-email-toolkit'),
+                implode(', ', $labels)
+            )),
+            esc_url($url),
+            esc_html__('Open Captcha settings', 'lrob-email-toolkit')
+        );
     }
 
     /**

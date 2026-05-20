@@ -29,6 +29,21 @@ final class CaptchaService
 
     public const SLUG_NONE = 'none';
 
+    /** Route resolved successfully — challenge + (maybe-empty) credentials returned. */
+    public const STATE_OK = 'ok';
+
+    /** Route is intentionally `none` (or unset) — admin opted out, no challenge to run. */
+    public const STATE_NONE = 'none';
+
+    /**
+     * Route is configured but can't resolve: identity row missing/inactive,
+     * provider class not registered, or credentials un-decryptable (e.g.
+     * AUTH_KEY rotated since save). verify() must fail closed in this state
+     * — otherwise bots silently bypass the captcha while the admin UI
+     * looks fine.
+     */
+    public const STATE_BROKEN = 'broken';
+
     /** @var array<string, ChallengeInterface> */
     private array $challenges = [];
 
@@ -98,59 +113,79 @@ final class CaptchaService
     }
 
     /**
-     * Resolve a route to a (challenge, plaintext credentials) pair. Returns
-     * [null, []] when the route is 'none', or when an identity-route points
-     * at a missing/inactive identity, or when the homemade slug is unknown.
+     * Resolve a route to a (challenge, credentials, state) triple. The
+     * state distinguishes:
+     *   - STATE_OK     : challenge non-null, ready to run.
+     *   - STATE_NONE   : admin intentionally turned this context off — no
+     *                    challenge expected, verify() should pass.
+     *   - STATE_BROKEN : route points at something missing/inactive/
+     *                    undecryptable. verify() must fail closed so bots
+     *                    can't bypass while the admin UI looks fine.
+     *
+     * Existing callers that destructure only the first two elements (like
+     * the diagnostics page) keep working — PHP list destructuring ignores
+     * extra elements.
      *
      * @param array<string, mixed> $context
-     * @return array{0:?ChallengeInterface, 1:array<string, string>}
+     * @return array{0:?ChallengeInterface, 1:array<string, string>, 2:string}
      */
     public function resolve(array $context): array
     {
         $route = $this->resolve_route($context);
-        if ($route === Routing::ROUTE_NONE || $route === '') {
-            return [null, []];
+        if ($route === Routing::ROUTE_NONE) {
+            return [null, [], self::STATE_NONE];
+        }
+        if ($route === '' || $route === Routing::ROUTE_INHERIT) {
+            // Empty or inherit at the top level — equivalent to "not
+            // configured", treat as opted-out rather than broken.
+            return [null, [], self::STATE_NONE];
         }
         $parsed = Routing::parse($route);
         if ($parsed['kind'] === Routing::KIND_HOMEMADE) {
             $challenge = $this->challenges[$parsed['value']] ?? null;
-            return [$challenge, []];
+            if ($challenge === null) {
+                // Slug stored in routing but the challenge class is gone
+                // (e.g. file deleted between releases). Broken.
+                return [null, [], self::STATE_BROKEN];
+            }
+            return [$challenge, [], self::STATE_OK];
         }
         if ($parsed['kind'] === Routing::KIND_IDENTITY) {
             $id = (int) $parsed['value'];
             if ($id <= 0) {
-                return [null, []];
+                return [null, [], self::STATE_BROKEN];
             }
             $identity = $this->identities->find($id);
             if ($identity === null || !$identity->is_active) {
-                return [null, []];
+                return [null, [], self::STATE_BROKEN];
             }
             $challenge = $this->challenges[$identity->provider_slug] ?? null;
             if ($challenge === null) {
-                return [null, []];
+                return [null, [], self::STATE_BROKEN];
             }
             try {
                 $credentials = $identity->decrypted_credentials();
             } catch (\RuntimeException) {
-                // Credentials unreadable (e.g. AUTH_KEY rotated). Fail closed —
-                // the form won't render and admin must re-enter credentials.
-                return [null, []];
+                // Credentials unreadable (e.g. AUTH_KEY rotated). Broken.
+                return [null, [], self::STATE_BROKEN];
             }
-            return [$challenge, $credentials];
+            return [$challenge, $credentials, self::STATE_OK];
         }
-        return [null, []];
+        return [null, [], self::STATE_BROKEN];
     }
 
     /**
-     * Render the resolved challenge. Returns '' when no challenge applies.
-     * Identity credentials (if any) are injected into $context['credentials']
-     * before delegating to the challenge's own render().
+     * Render the resolved challenge. Returns '' when no challenge applies
+     * (either opted-out OR broken — visitors never see the difference).
+     * Admins get a separate persistent notice for broken routes via the
+     * Module's render_broken_routes_notice hook. Identity credentials, if
+     * any, are injected into $context['credentials'] before delegating.
      *
      * @param array<string, mixed> $context
      */
     public function render(array $context = []): string
     {
-        [$challenge, $credentials] = $this->resolve($context);
+        [$challenge, $credentials, ] = $this->resolve($context);
         if ($challenge === null) {
             return '';
         }
@@ -161,8 +196,14 @@ final class CaptchaService
     }
 
     /**
-     * Verify the resolved challenge. Returns [true, null] when no challenge
-     * applies (so callers don't have to special-case 'none').
+     * Verify the resolved challenge. Three outcomes:
+     *   - Challenge resolved      → run challenge->verify()
+     *   - STATE_NONE (opted out)  → [true, null] — admin chose not to challenge
+     *   - STATE_BROKEN (misconf.) → [false, message] — fail closed so bots
+     *     can't slip past a captcha the admin thought was active. Common
+     *     trigger: AUTH_KEY rotated since credentials were saved, or an
+     *     identity row was deleted while still referenced by the routing
+     *     map.
      *
      * @param array<string, mixed> $post
      * @param array<string, mixed> $context
@@ -170,8 +211,11 @@ final class CaptchaService
      */
     public function verify(array $post, array $context = []): array
     {
-        [$challenge, $credentials] = $this->resolve($context);
+        [$challenge, $credentials, $state] = $this->resolve($context);
         if ($challenge === null) {
+            if ($state === self::STATE_BROKEN) {
+                return [false, __('Anti-spam check is unavailable right now. Please try again later or contact the site administrator.', 'lrob-email-toolkit')];
+            }
             return [true, null];
         }
         if ($credentials !== []) {

@@ -93,24 +93,35 @@ final class Resender
             $headers[] = 'Content-Type: text/html; charset=UTF-8';
         }
 
-        if ($entry->from_email !== '') {
-            $headers[] = $entry->from_name !== null && $entry->from_name !== ''
-                ? sprintf('From: %s <%s>', $entry->from_name, $entry->from_email)
-                : sprintf('From: %s', $entry->from_email);
+        $from_email = self::strip_crlf((string) $entry->from_email);
+        $from_name = self::strip_crlf((string) $entry->from_name);
+        if ($from_email !== '') {
+            $headers[] = $from_name !== ''
+                ? sprintf('From: %s <%s>', $from_name, $from_email)
+                : sprintf('From: %s', $from_email);
         }
 
         if ($entry->reply_to !== null) {
-            $headers[] = sprintf('Reply-To: %s', $entry->reply_to);
+            $reply_to = self::strip_crlf((string) $entry->reply_to);
+            if ($reply_to !== '') {
+                $headers[] = sprintf('Reply-To: %s', $reply_to);
+            }
         }
 
         foreach ($entry->cc_emails as $cc) {
             if (is_string($cc) && $cc !== '') {
-                $headers[] = 'Cc: ' . $cc;
+                $clean = self::strip_crlf($cc);
+                if ($clean !== '') {
+                    $headers[] = 'Cc: ' . $clean;
+                }
             }
         }
         foreach ($entry->bcc_emails as $bcc) {
             if (is_string($bcc) && $bcc !== '') {
-                $headers[] = 'Bcc: ' . $bcc;
+                $clean = self::strip_crlf($bcc);
+                if ($clean !== '') {
+                    $headers[] = 'Bcc: ' . $clean;
+                }
             }
         }
 
@@ -119,8 +130,8 @@ final class Resender
             if (!is_array($h)) {
                 continue;
             }
-            $name = (string) ($h['name'] ?? '');
-            $value = (string) ($h['value'] ?? '');
+            $name = self::strip_crlf((string) ($h['name'] ?? ''));
+            $value = self::strip_crlf((string) ($h['value'] ?? ''));
             if ($name === '' || in_array(strtolower($name), $already, true)) {
                 continue;
             }
@@ -128,5 +139,17 @@ final class Resender
         }
 
         return $headers;
+    }
+
+    /**
+     * Defense-in-depth: strip CR/LF from any value we're about to embed
+     * into an email header. PHPMailer normalises on the way out, but the
+     * planned IMAP-save / mail-receive features will introduce attacker-
+     * controlled data into the logs columns this method reads — stripping
+     * here closes the header-injection vector before that data ships.
+     */
+    private static function strip_crlf(string $value): string
+    {
+        return trim((string) preg_replace('/[\r\n]+/', ' ', $value));
     }
 }
