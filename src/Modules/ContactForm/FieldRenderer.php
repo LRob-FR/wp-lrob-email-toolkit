@@ -292,7 +292,24 @@ final class FieldRenderer
         // The select swaps this client-side on change.
         $preview_html = self::captcha_preview_html($stored, $service, $available, $form_id);
 
-        $options_html = '<option value="">' . esc_html__('Default', 'lrob-email-toolkit') . '</option>'
+        // "Default (X)" label — surface the inherited fallback so the
+        // admin can see what "Default" actually resolves to right now.
+        // Settings is in the same module; pulling KEY_CHALLENGE off
+        // Settings::all() mirrors what Settings::effective_challenge()
+        // would return when no per-form override is set.
+        $global_default = (string) (\LRob\EmailToolkit\Modules\ContactForm\Settings::all()[\LRob\EmailToolkit\Modules\ContactForm\Settings::KEY_CHALLENGE] ?? CPT::CHALLENGE_MATH);
+        $inherited_label = '';
+        if ($global_default !== '' && $global_default !== CPT::CHALLENGE_NONE && isset($available[$global_default])) {
+            $inherited_label = $available[$global_default]->label();
+        }
+        $default_option_label = $inherited_label !== ''
+            ? sprintf(
+                /* translators: %s: current default challenge label, shown as "Default (X)" in the captcha picker */
+                __('Default (%s)', 'lrob-email-toolkit'),
+                $inherited_label
+            )
+            : __('Default', 'lrob-email-toolkit');
+        $options_html = '<option value=""' . selected($stored, '', false) . '>' . esc_html($default_option_label) . '</option>'
                       . '<option value="' . esc_attr(CPT::CHALLENGE_NONE) . '"' . selected($stored, CPT::CHALLENGE_NONE, false) . '>'
                       . esc_html__('None', 'lrob-email-toolkit')
                       . '</option>';

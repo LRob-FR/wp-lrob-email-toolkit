@@ -1470,6 +1470,31 @@
     margin: 4px 0;
     min-width: 0;
 }
+/* For SELECT fields the inline option editor (contenteditable labels +
+ * × + + Add) is editor-only chrome — the native `<select>` next to it
+ * is what visitors see. Collapse it like the rest of the editor chrome
+ * so the resting state matches the frontend. Radio / checkbox fields
+ * use the same .lrob-etk-cf-options block as their actual rendering,
+ * so they stay visible at rest. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-field--select .lrob-etk-cf-options[data-options-inline] {
+    max-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.22s ease, margin-top 0.22s ease, margin-bottom 0.22s ease, opacity 0.18s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-field--select .lrob-etk-cf-options[data-options-inline],
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-field--select .lrob-etk-cf-options[data-options-inline],
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-field--select .lrob-etk-cf-options[data-options-inline],
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-field--select .lrob-etk-cf-options[data-options-inline] {
+    max-height: 400px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    opacity: 1;
+    pointer-events: auto;
+}
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-option[data-inline-option],
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-option {
     display: flex;

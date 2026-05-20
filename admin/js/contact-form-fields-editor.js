@@ -1666,8 +1666,14 @@
         function captchaEditorStubHtml(currentSlug) {
             var key = EDITOR_DATA.captchaKey || '_lrob_etk_cf_challenge';
             var challenges = Array.isArray(EDITOR_DATA.challenges) ? EDITOR_DATA.challenges : [];
+            // Surface the inherited value in the "Default" option label so
+            // the admin can see what "Default" actually resolves to right
+            // now — e.g. "Default (Math)" instead of just "Default".
+            var defaultLabel = esc(EDITOR_I18N.captchaDefault || 'Default');
+            var inheritedLabel = defaultChallengeLabel();
+            if (inheritedLabel) defaultLabel += ' (' + esc(inheritedLabel) + ')';
             var opts = '<option value=""' + (currentSlug === '' ? ' selected' : '') + '>'
-                + esc(EDITOR_I18N.captchaDefault || 'Default') + '</option>';
+                + defaultLabel + '</option>';
             opts += '<option value="none"' + (currentSlug === 'none' ? ' selected' : '') + '>'
                 + esc(EDITOR_I18N.captchaNone || 'None') + '</option>';
             challenges.forEach(function (c) {
@@ -1694,16 +1700,34 @@
                     + esc(EDITOR_I18N.captchaOff || 'No anti-spam challenge.')
                     + '</p>';
             }
+            // Empty slug ("Default") resolves to the form's inherited
+            // default — render that challenge's preview directly so the
+            // user sees the actual captcha, not a static placeholder.
+            // Falls back to the inherit-label only when the inherited
+            // challenge isn't usable (none / unregistered).
             if (slug === '') {
-                return '<p class="lrob-etk-cf-captcha-stub-empty">'
-                    + esc(EDITOR_I18N.captchaInherit || 'Uses the form\'s default challenge.')
-                    + '</p>';
+                var inheritedSlug = EDITOR_DATA.globalDefaultChallenge || '';
+                if (inheritedSlug === '' || inheritedSlug === 'none') {
+                    return '<p class="lrob-etk-cf-captcha-stub-empty">'
+                        + esc(EDITOR_I18N.captchaOff || 'No anti-spam challenge.')
+                        + '</p>';
+                }
+                slug = inheritedSlug;
             }
             var list = Array.isArray(EDITOR_DATA.challenges) ? EDITOR_DATA.challenges : [];
             for (var i = 0; i < list.length; i++) {
                 if (list[i].slug === slug && list[i].preview) return list[i].preview;
             }
             return '<p class="lrob-etk-cf-captcha-stub-empty">' + esc(slug) + '</p>';
+        }
+        function defaultChallengeLabel() {
+            var slug = EDITOR_DATA.globalDefaultChallenge || '';
+            if (!slug || slug === 'none') return '';
+            var list = Array.isArray(EDITOR_DATA.challenges) ? EDITOR_DATA.challenges : [];
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].slug === slug) return list[i].label || '';
+            }
+            return '';
         }
         function defaultSlug(type) {
             if (type === 'submit') return '';

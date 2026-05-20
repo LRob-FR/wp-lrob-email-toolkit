@@ -129,10 +129,16 @@ final class FormsPage
                 ];
             }
         }
+        $global_default_challenge = (string) (Settings::all()[Settings::KEY_CHALLENGE] ?? CPT::CHALLENGE_MATH);
         wp_localize_script('lrob-etk-cf-fields-editor', 'lrobEtkCfEditor', [
             'fieldTypes'  => self::field_types(),
             'captchaKey'  => CPT::META_CHALLENGE_KIND,
             'challenges'  => $captcha_for_js,
+            // The challenge slug a form falls back to when its per-form
+            // override is empty ("Default"). Lets the editor's in-block
+            // captcha picker show "Default (Math)" and render the actual
+            // challenge preview instead of a static placeholder.
+            'globalDefaultChallenge' => $global_default_challenge,
             'i18n'        => [
                 'addField'     => __('Add field', 'lrob-email-toolkit'),
                 'fieldOptions' => __('Field options', 'lrob-email-toolkit'),
