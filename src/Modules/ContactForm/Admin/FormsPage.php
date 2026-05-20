@@ -111,34 +111,18 @@ final class FormsPage
             'pageUrl' => admin_url('admin.php?page=' . self::SLUG),
         ]);
 
-        // Pass available challenges to the editor JS so the in-block
-        // captcha picker can list them + swap a real rendered preview.
-        // Each challenge's render() emits the same HTML the visitor would
-        // see — a picture's worth more than the description text. Tokens
-        // are single-use but we never submit from the editor preview, so
-        // the leak is cosmetic.
-        $captcha_for_js = [];
+        // Pass the captcha picker's option list to the editor JS so the
+        // in-block picker can build itself on field insert + swap the
+        // preview HTML on change. Shape mirrors what FieldRenderer's
+        // server-side picker emits (routing keys + optgroups + previews),
+        // so the freshly-inserted captcha block looks identical to a
+        // page-reloaded one.
         $captcha_service = self::captcha_service();
-        if ($captcha_service !== null) {
-            foreach ($captcha_service->available() as $slug => $challenge) {
-                $captcha_for_js[] = [
-                    'slug'        => $slug,
-                    'label'       => $challenge->label(),
-                    'description' => $challenge->description(),
-                    'preview'     => $challenge->render(['context' => 'preview']),
-                ];
-            }
-        }
-        $global_default_challenge = (string) (Settings::all()[Settings::KEY_CHALLENGE] ?? CPT::CHALLENGE_MATH);
+        $captcha_options = self::build_editor_captcha_options($captcha_service);
         wp_localize_script('lrob-etk-cf-fields-editor', 'lrobEtkCfEditor', [
-            'fieldTypes'  => self::field_types(),
-            'captchaKey'  => CPT::META_CHALLENGE_KIND,
-            'challenges'  => $captcha_for_js,
-            // The challenge slug a form falls back to when its per-form
-            // override is empty ("Default"). Lets the editor's in-block
-            // captcha picker show "Default (Math)" and render the actual
-            // challenge preview instead of a static placeholder.
-            'globalDefaultChallenge' => $global_default_challenge,
+            'fieldTypes'     => self::field_types(),
+            'captchaKey'     => CPT::META_CHALLENGE_KIND,
+            'captchaOptions' => $captcha_options,
             'i18n'        => [
                 'addField'     => __('Add field', 'lrob-email-toolkit'),
                 'fieldOptions' => __('Field options', 'lrob-email-toolkit'),
@@ -215,6 +199,110 @@ final class FormsPage
     {
         $container = Plugin::instance()->container();
         return $container->has(CaptchaService::class) ? $container->get(CaptchaService::class) : null;
+    }
+
+    /**
+     * Build the captcha picker's option list for the WYSIWYG editor JS.
+     * Same shape the in-block picker (`FieldRenderer::captcha_options_html`)
+     * builds on the server, but as structured data so the editor can
+     * rebuild the picker after inserting / swapping captcha blocks.
+     *
+     * @return array<string, mixed>
+     */
+    private static function build_editor_captcha_options(?CaptchaService $captcha_service): array
+    {
+        $entries = [];
+        $default_route_label = __('Default', 'lrob-email-toolkit');
+        $none_preview = '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('No anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
+        $default_preview = $none_preview;
+
+        if ($captcha_service !== null) {
+            // "Default" route resolves the contact_form context — surface
+            // its current target label + preview HTML so the picker can
+            // render "Default (Math question)" and show the live preview.
+            // Pass credentials through so identity-backed defaults (e.g.
+            // hCaptcha) render their actual widget, not the empty-key
+            // placeholder.
+            [$default_challenge, $default_credentials] = $captcha_service->resolve(['context' => 'contact_form']);
+            if ($default_challenge !== null) {
+                $default_route_label = sprintf(
+                    /* translators: %s: name of the challenge "Default" resolves to (e.g. Math question) */
+                    __('Default (%s)', 'lrob-email-toolkit'),
+                    $default_challenge->label()
+                );
+                $default_preview = $default_challenge->render([
+                    'context'     => 'preview',
+                    'credentials' => $default_credentials,
+                ]);
+            } else {
+                $default_route_label = __('Default (none)', 'lrob-email-toolkit');
+            }
+        }
+
+        $entries[] = ['route' => '', 'label' => $default_route_label, 'preview' => $default_preview];
+        $entries[] = ['route' => CPT::CHALLENGE_NONE, 'label' => __('None', 'lrob-email-toolkit'), 'preview' => $none_preview];
+
+        if ($captcha_service === null) {
+            return ['entries' => $entries];
+        }
+
+        foreach ($captcha_service->homemade_challenges() as $slug => $challenge) {
+            $entries[] = [
+                'route'    => \LRob\EmailToolkit\Modules\Captcha\Routing::homemade($slug),
+                'label'    => $challenge->label(),
+                'preview'  => $challenge->render(['context' => 'preview']),
+                'optgroup' => __('Built-in challenges', 'lrob-email-toolkit'),
+            ];
+        }
+
+        $providers = $captcha_service->hosted_providers();
+        if ($providers !== []) {
+            $by_provider = [];
+            foreach ($captcha_service->identity_repository()->all() as $identity) {
+                $by_provider[$identity->provider_slug][] = $identity;
+            }
+            foreach ($providers as $provider_slug => $provider) {
+                $rows = isset($by_provider[$provider_slug]) ? $by_provider[$provider_slug] : [];
+                if ($rows === []) {
+                    $entries[] = [
+                        'route'    => '',
+                        'label'    => sprintf(
+                            /* translators: %s: provider label */
+                            __('— Configure %s first —', 'lrob-email-toolkit'),
+                            $provider->label()
+                        ),
+                        'preview'  => $none_preview,
+                        'optgroup' => $provider->label(),
+                        'disabled' => true,
+                    ];
+                    continue;
+                }
+                foreach ($rows as $identity) {
+                    $label = $identity->label !== '' ? $identity->label : $provider->label();
+                    if (!$identity->is_active) {
+                        $label .= ' ' . __('(inactive)', 'lrob-email-toolkit');
+                    }
+                    // Hosted providers render their real widget on-page;
+                    // for the editor preview we just show a placeholder
+                    // (preview context already triggers this in HCaptcha).
+                    $preview = $provider->render([
+                        'context'     => 'preview',
+                        'credentials' => $identity->is_active && method_exists($identity, 'decrypted_credentials') ? (function () use ($identity) {
+                            try { return $identity->decrypted_credentials(); } catch (\Throwable) { return []; }
+                        })() : [],
+                    ]);
+                    $entries[] = [
+                        'route'    => \LRob\EmailToolkit\Modules\Captcha\Routing::identity((int) $identity->id),
+                        'label'    => $label,
+                        'preview'  => $preview,
+                        'optgroup' => $provider->label(),
+                        'disabled' => !$identity->is_active,
+                    ];
+                }
+            }
+        }
+
+        return ['entries' => $entries];
     }
 
     /**
@@ -641,26 +729,45 @@ final class FormsPage
             ['value' => 'off',     'label' => __('Off', 'lrob-email-toolkit')],
         ];
 
+        // Per-form captcha picker — same routing-key options the in-block
+        // editor picker uses, surfaced as combobox entries with optgroup
+        // hints baked into the label. Lets a form override the Captcha
+        // module's contact_form context for this one form.
         $captcha_service = self::captcha_service();
-        $available_challenges = $captcha_service !== null ? $captcha_service->available() : [];
-        $global_challenge_slug = (string) ($globals[Settings::KEY_CHALLENGE] ?? '');
-        if ($global_challenge_slug === CPT::CHALLENGE_NONE) {
-            $ch_default_label = __('None', 'lrob-email-toolkit');
-        } elseif (isset($available_challenges[$global_challenge_slug])) {
-            $ch_default_label = $available_challenges[$global_challenge_slug]->label();
-        } elseif ($captcha_service !== null && $captcha_service->active() !== null) {
-            // Legacy 'math' / unknown slug: defer to whatever the captcha
-            // module is currently using.
-            $ch_default_label = $captcha_service->active()->label();
-        } else {
-            $ch_default_label = __('None', 'lrob-email-toolkit');
-        }
+        [$ch_default_challenge, ] = $captcha_service !== null
+            ? $captcha_service->resolve(['context' => 'contact_form'])
+            : [null, []];
+        $ch_default_label = $ch_default_challenge !== null
+            ? $ch_default_challenge->label()
+            : __('None', 'lrob-email-toolkit');
         $challenge_options = [
             ['value' => '',                  'label' => self::label_default($ch_default_label)],
             ['value' => CPT::CHALLENGE_NONE, 'label' => __('None', 'lrob-email-toolkit')],
         ];
-        foreach ($available_challenges as $slug => $challenge) {
-            $challenge_options[] = ['value' => $slug, 'label' => $challenge->label()];
+        if ($captcha_service !== null) {
+            foreach ($captcha_service->homemade_challenges() as $slug => $challenge) {
+                $challenge_options[] = [
+                    'value' => \LRob\EmailToolkit\Modules\Captcha\Routing::homemade($slug),
+                    'label' => $challenge->label(),
+                ];
+            }
+            $by_provider = [];
+            foreach ($captcha_service->identity_repository()->all() as $identity) {
+                $by_provider[$identity->provider_slug][] = $identity;
+            }
+            foreach ($captcha_service->hosted_providers() as $provider_slug => $provider) {
+                $rows = isset($by_provider[$provider_slug]) ? $by_provider[$provider_slug] : [];
+                foreach ($rows as $identity) {
+                    if (!$identity->is_active) {
+                        continue;
+                    }
+                    $label = $identity->label !== '' ? $identity->label : $provider->label();
+                    $challenge_options[] = [
+                        'value' => \LRob\EmailToolkit\Modules\Captcha\Routing::identity((int) $identity->id),
+                        'label' => $provider->label() . ' · ' . $label,
+                    ];
+                }
+            }
         }
 
         $reply_to_options = [
@@ -1029,8 +1136,6 @@ final class FormsPage
         $s = Settings::all();
         $identities = self::active_identities();
         $admin_email = (string) get_option('admin_email');
-        $captcha_service = self::captcha_service();
-        $available_challenges = $captcha_service !== null ? $captcha_service->available() : [];
 
         // Pre-build option lists.
         $identity_options = [
@@ -1048,22 +1153,10 @@ final class FormsPage
             ['value' => '0', 'label' => __('Off', 'lrob-email-toolkit')],
         ];
 
-        $current_challenge = (string) $s[Settings::KEY_CHALLENGE];
-        $challenge_options = [];
-        if ($current_challenge !== '' && $current_challenge !== CPT::CHALLENGE_NONE && !isset($available_challenges[$current_challenge])) {
-            $challenge_options[] = [
-                'value' => $current_challenge,
-                'label' => sprintf(
-                    /* translators: %s: stored challenge slug (legacy or unknown). */
-                    __('%s (legacy)', 'lrob-email-toolkit'),
-                    $current_challenge
-                ),
-            ];
-        }
-        foreach ($available_challenges as $slug => $challenge) {
-            $challenge_options[] = ['value' => $slug, 'label' => $challenge->label()];
-        }
-        $challenge_options[] = ['value' => CPT::CHALLENGE_NONE, 'label' => __('None', 'lrob-email-toolkit')];
+        // Default challenge is now configured on the Captcha settings page
+        // (Email Toolkit → Captcha → Routing → "Contact forms"). The Defaults
+        // modal links there instead of duplicating the dropdown.
+        $captcha_settings_url = admin_url('admin.php?page=lrob-etk-captcha');
 
         $preset_options = [];
         foreach (self::style_presets() as $value => $label) {
@@ -1205,9 +1298,19 @@ final class FormsPage
                             <div class="lrob-etk-field">
                                 <label>
                                     <?php esc_html_e('Challenge', 'lrob-email-toolkit'); ?>
-                                    <?php Tooltip::render(__('Which anti-bot challenge to present on forms by default. Each form can override.', 'lrob-email-toolkit')); ?>
                                 </label>
-                                <?php self::render_combobox(Settings::KEY_CHALLENGE, $current_challenge, $challenge_options); ?>
+                                <p class="description" style="margin: 4px 0 0;">
+                                    <?php
+                                    printf(
+                                        /* translators: %s: URL to the Captcha settings page */
+                                        wp_kses(
+                                            __('Configured on the <a href="%s">Captcha settings page</a> under "Contact forms". Each form can still override this default.', 'lrob-email-toolkit'),
+                                            ['a' => ['href' => true]]
+                                        ),
+                                        esc_url($captcha_settings_url)
+                                    );
+                                    ?>
+                                </p>
                             </div>
 
                             <h3 class="lrob-etk-form-column-head" style="margin-top: 12px;">

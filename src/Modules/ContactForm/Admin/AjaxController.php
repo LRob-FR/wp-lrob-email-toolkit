@@ -43,7 +43,6 @@ final class AjaxController
         Settings::KEY_RATE_MAX,
         Settings::KEY_RATE_WINDOW_MINUTES,
         Settings::KEY_HONEYPOT,
-        Settings::KEY_CHALLENGE,
         Settings::KEY_STYLE_PRESET,
         Settings::KEY_ACCENT,
         Settings::KEY_RADIUS,
@@ -265,10 +264,31 @@ final class AjaxController
             'textarea'        => is_string($value) ? sanitize_textarea_field($value) : '',
             'recipient_list'  => is_string($value) ? self::clean_recipient_list($value) : '',
             'tristate'        => in_array($value, ['default', 'on', 'off'], true) ? (string) $value : 'default',
-            'challenge'       => in_array($value, ['', CPT::CHALLENGE_NONE, CPT::CHALLENGE_MATH], true) ? (string) $value : '',
+            'challenge'       => self::sanitize_challenge_route(is_string($value) ? $value : ''),
             'style_preset'    => is_string($value) ? sanitize_html_class($value) : '',
             default           => $value,
         };
+    }
+
+    /**
+     * Accept a captcha routing key for per-form `_lrob_etk_cf_challenge`.
+     * Allowed shapes: '' (inherit), 'none', 'homemade:<slug>',
+     * 'identity:<int>'. CaptchaService is the runtime source of truth for
+     * which slugs/identities actually exist, so we only enforce the shape
+     * here — an unknown value gets normalized to '' (inherit).
+     */
+    private static function sanitize_challenge_route(string $value): string
+    {
+        if ($value === '' || $value === CPT::CHALLENGE_NONE) {
+            return $value;
+        }
+        if (preg_match('/^homemade:[a-z0-9_]+$/i', $value)) {
+            return strtolower($value);
+        }
+        if (preg_match('/^identity:[1-9][0-9]*$/', $value)) {
+            return $value;
+        }
+        return '';
     }
 
     /** Comma-separated email list — drop invalid pieces, normalize spacing. */

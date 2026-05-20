@@ -75,18 +75,29 @@ final class SubmitHandler
         // time-trap, rate-limit, challenge-fail, happy path) records the
         // same canonical slug. Outcome starts as "skipped" and flips to
         // passed / failed once the challenge actually runs.
-        $stored_challenge = Settings::effective_challenge($form_id);
-        $captcha_enabled = $stored_challenge !== CPT::CHALLENGE_NONE;
-        $captcha_force = ($stored_challenge !== '' && $stored_challenge !== CPT::CHALLENGE_NONE) ? $stored_challenge : '';
+        //
+        // Routing-key world (v0.1.0+): per-form meta stores 'none' /
+        // 'homemade:X' / 'identity:N' / '' (inherit). CaptchaService
+        // resolves whichever applies, using the contact_form context to
+        // fall back to the Captcha page's contact_form override (or its
+        // global default if that's set to 'inherit').
+        $captcha_route = Settings::effective_routing_key($form_id);
         $captcha_service = $this->captcha_service();
-        if ($captcha_enabled && $captcha_service !== null) {
-            // Match render-time resolution: if forced, slug == forced; else fall back to module's active.
-            $captcha_slug = $captcha_force !== '' && isset($captcha_service->available()[$captcha_force])
-                ? $captcha_force
-                : $captcha_service->active_slug();
+        $captcha_context = [
+            'context'     => 'contact_form',
+            'form_id'     => $form_id,
+            'force_route' => $captcha_route,
+        ];
+        if ($captcha_service !== null) {
+            [$resolved_challenge, ] = $captcha_service->resolve($captcha_context);
+            $captcha_slug = $resolved_challenge !== null
+                ? $resolved_challenge->slug()
+                : CaptchaService::SLUG_NONE;
         } else {
+            $resolved_challenge = null;
             $captcha_slug = CaptchaService::SLUG_NONE;
         }
+        $captcha_enabled = $resolved_challenge !== null;
         $captcha_outcome = SubmissionRepository::CAPTCHA_OUTCOME_SKIPPED;
         $context['captcha_slug'] = $captcha_slug;
         $context['captcha_outcome'] = $captcha_outcome;
@@ -113,11 +124,7 @@ final class SubmitHandler
         }
 
         if ($captcha_enabled && $captcha_service !== null) {
-            [$ok, $message] = $captcha_service->verify($post, [
-                'context'    => 'contact_form',
-                'form_id'    => $form_id,
-                'force_slug' => $captcha_force,
-            ]);
+            [$ok, $message] = $captcha_service->verify($post, $captcha_context);
             if (!$ok) {
                 $context['captcha_outcome'] = SubmissionRepository::CAPTCHA_OUTCOME_FAILED;
                 $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'captcha_failed'], SubmissionRepository::STATUS_SPAM_BLOCKED);

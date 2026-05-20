@@ -362,8 +362,15 @@ final class FormStructure
                 unset($clean['slug'], $clean['label'], $clean['helper'], $clean['placeholder'], $clean['required']);
                 break;
             case 'captcha':
-                // No per-field attrs — the actual challenge method is decided
-                // by Settings::effective_challenge() at render time.
+                // The challenge method itself is resolved from per-form
+                // META_CHALLENGE_KIND (a routing key) → CaptchaService at
+                // render time; the only per-field attr is the visual
+                // alignment (left / center / right — no stretch since
+                // hCaptcha's iframe is fixed-width).
+                $captcha_align = isset($clean['align']) ? (string) $clean['align'] : 'center';
+                $clean['align'] = in_array($captcha_align, ['left', 'center', 'right'], true)
+                    ? $captcha_align
+                    : 'center';
                 unset($clean['slug'], $clean['label'], $clean['helper'], $clean['placeholder'], $clean['required']);
                 break;
         }

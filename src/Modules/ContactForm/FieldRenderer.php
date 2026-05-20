@@ -239,34 +239,43 @@ final class FieldRenderer
      */
     public static function captcha(array $attrs): string
     {
+        $align = isset($attrs['align']) && in_array($attrs['align'], ['left', 'center', 'right'], true)
+            ? (string) $attrs['align']
+            : 'center';
         unset($attrs);
+
         if (!FormContext::is_active()) {
             return '';
         }
         $form_id = FormContext::form_id();
-        $enabled = Settings::effective_challenge($form_id) !== CPT::CHALLENGE_NONE;
 
         if (FormContext::is_editor()) {
-            return self::captcha_editor_stub($form_id);
+            return self::captcha_editor_stub($form_id, $align);
         }
 
-        if (!$enabled) {
-            return '';
-        }
         $service = self::captcha_service();
         if ($service === null) {
             return '';
         }
-        // If the per-form setting is a specific challenge slug (not "none"
-        // and not empty/inherit), force the captcha service to use that
-        // exact challenge instead of its global active one.
-        $stored = Settings::effective_challenge($form_id);
-        $force = ($stored !== '' && $stored !== CPT::CHALLENGE_NONE) ? $stored : '';
-        return $service->render([
-            'context'    => 'contact_form',
-            'form_id'    => $form_id,
-            'force_slug' => $force,
+        // Routing-key world: per-form meta is either '' (inherit Captcha →
+        // contact_form context), 'none', 'homemade:<slug>', or
+        // 'identity:<id>'. CaptchaService resolves whichever applies.
+        $inner = $service->render([
+            'context'     => 'contact_form',
+            'form_id'     => $form_id,
+            'force_route' => Settings::effective_routing_key($form_id),
         ]);
+        if ($inner === '') {
+            return '';
+        }
+        // Outer wrapper carries the alignment class so any challenge
+        // (homemade or hosted) gets positioned consistently. No "stretch"
+        // for captcha — hCaptcha's iframe is fixed-width.
+        return sprintf(
+            '<div class="lrob-etk-cf-captcha-align is-align-%s">%s</div>',
+            esc_attr($align),
+            $inner
+        );
     }
 
     private static function captcha_service(): ?CaptchaService
@@ -281,46 +290,30 @@ final class FieldRenderer
      * a live description below. The `data-key` matches the per-form
      * `_lrob_etk_cf_challenge` meta so the existing card auto-save catches
      * it — same wire the Advanced > Challenge dropdown uses.
+     *
+     * Routing keys (v0.1.0+): the picker stores '', 'none', 'homemade:<slug>'
+     * or 'identity:<id>'. The "Default" option (empty value) labels itself
+     * with what the Captcha → contact_form context currently resolves to.
      */
-    private static function captcha_editor_stub(int $form_id): string
+    private static function captcha_editor_stub(int $form_id, string $align = 'center'): string
     {
         $service = self::captcha_service();
-        $available = $service !== null ? $service->available() : [];
         $stored = (string) get_post_meta($form_id, CPT::META_CHALLENGE_KIND, true);
+        $preview_html = self::captcha_preview_html($stored, $service, $form_id);
 
-        // Resolve the preview HTML for whatever the current setting is.
-        // The select swaps this client-side on change.
-        $preview_html = self::captcha_preview_html($stored, $service, $available, $form_id);
-
-        // "Default (X)" label — surface the inherited fallback so the
-        // admin can see what "Default" actually resolves to right now.
-        // Settings is in the same module; pulling KEY_CHALLENGE off
-        // Settings::all() mirrors what Settings::effective_challenge()
-        // would return when no per-form override is set.
-        $global_default = (string) (\LRob\EmailToolkit\Modules\ContactForm\Settings::all()[\LRob\EmailToolkit\Modules\ContactForm\Settings::KEY_CHALLENGE] ?? CPT::CHALLENGE_MATH);
-        $inherited_label = '';
-        if ($global_default !== '' && $global_default !== CPT::CHALLENGE_NONE && isset($available[$global_default])) {
-            $inherited_label = $available[$global_default]->label();
-        }
-        $default_option_label = $inherited_label !== ''
+        $default_label = self::captcha_default_label($service);
+        $default_option_label = $default_label !== ''
             ? sprintf(
                 /* translators: %s: current default challenge label, shown as "Default (X)" in the captcha picker */
                 __('Default (%s)', 'lrob-email-toolkit'),
-                $inherited_label
+                $default_label
             )
             : __('Default', 'lrob-email-toolkit');
-        $options_html = '<option value=""' . selected($stored, '', false) . '>' . esc_html($default_option_label) . '</option>'
-                      . '<option value="' . esc_attr(CPT::CHALLENGE_NONE) . '"' . selected($stored, CPT::CHALLENGE_NONE, false) . '>'
-                      . esc_html__('None', 'lrob-email-toolkit')
-                      . '</option>';
-        foreach ($available as $slug => $challenge) {
-            $options_html .= '<option value="' . esc_attr($slug) . '"' . selected($stored, $slug, false) . '>'
-                           . esc_html($challenge->label())
-                           . '</option>';
-        }
+
+        $options_html = self::captcha_options_html($stored, $service, $default_option_label);
 
         return sprintf(
-            '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub" data-captcha-block>' .
+            '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub is-align-%5$s" data-captcha-block>' .
             '<div class="lrob-etk-cf-captcha-stub-head">' .
                 '<span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span>' .
                 '<label class="lrob-etk-cf-captcha-stub-label">%1$s</label>' .
@@ -331,39 +324,127 @@ final class FieldRenderer
             esc_html__('Anti-spam:', 'lrob-email-toolkit'),
             esc_attr(CPT::META_CHALLENGE_KIND),
             $options_html,
-            // The preview HTML is already the challenge's own escaped
-            // output; safe to embed directly.
-            $preview_html
+            $preview_html,
+            esc_attr($align)
         );
     }
 
     /**
-     * Build the HTML shown in the captcha preview area for a given
-     * stored value. Used on initial render — the editor JS has its own
-     * preview swap once the user changes the select.
-     *
-     * @param array<string, \LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface> $available
+     * Build the `<option>` HTML for the captcha picker. Three groups, in
+     * order: special routes ("Default", "None"), homemade challenges,
+     * and one optgroup per hosted provider listing its identities.
      */
-    private static function captcha_preview_html(string $stored, ?CaptchaService $service, array $available, int $form_id): string
+    private static function captcha_options_html(string $stored, ?CaptchaService $service, string $default_option_label): string
+    {
+        $html = '<option value=""' . selected($stored, '', false) . '>' . esc_html($default_option_label) . '</option>'
+              . '<option value="' . esc_attr(CPT::CHALLENGE_NONE) . '"' . selected($stored, CPT::CHALLENGE_NONE, false) . '>'
+              . esc_html__('None', 'lrob-email-toolkit')
+              . '</option>';
+
+        if ($service === null) {
+            return $html;
+        }
+
+        $homemade = $service->homemade_challenges();
+        if ($homemade !== []) {
+            $html .= '<optgroup label="' . esc_attr__('Built-in challenges', 'lrob-email-toolkit') . '">';
+            foreach ($homemade as $slug => $challenge) {
+                $route = \LRob\EmailToolkit\Modules\Captcha\Routing::homemade($slug);
+                $html .= '<option value="' . esc_attr($route) . '"' . selected($stored, $route, false) . '>'
+                       . esc_html($challenge->label()) . '</option>';
+            }
+            $html .= '</optgroup>';
+        }
+
+        // Per-provider optgroups. Empty providers surface as disabled
+        // "Configure first" options so the form admin knows the option
+        // exists but knows where to set it up.
+        $providers = $service->hosted_providers();
+        if ($providers !== []) {
+            $by_provider = [];
+            foreach ($service->identity_repository()->all() as $identity) {
+                $by_provider[$identity->provider_slug][] = $identity;
+            }
+            foreach ($providers as $provider_slug => $provider) {
+                $rows = isset($by_provider[$provider_slug]) ? $by_provider[$provider_slug] : [];
+                $html .= '<optgroup label="' . esc_attr($provider->label()) . '">';
+                if ($rows === []) {
+                    $html .= '<option value="" disabled>'
+                           . esc_html(sprintf(
+                               /* translators: %s: provider label */
+                               __('— Configure %s first —', 'lrob-email-toolkit'),
+                               $provider->label()
+                           ))
+                           . '</option>';
+                } else {
+                    foreach ($rows as $identity) {
+                        $route = \LRob\EmailToolkit\Modules\Captcha\Routing::identity((int) $identity->id);
+                        $label = $identity->label !== '' ? $identity->label : $provider->label();
+                        $disabled = $identity->is_active ? '' : ' disabled';
+                        if (!$identity->is_active) {
+                            $label .= ' ' . __('(inactive)', 'lrob-email-toolkit');
+                        }
+                        $html .= '<option value="' . esc_attr($route) . '"'
+                               . selected($stored, $route, false) . $disabled . '>'
+                               . esc_html($label) . '</option>';
+                    }
+                }
+                $html .= '</optgroup>';
+            }
+        }
+
+        return $html;
+    }
+
+    /**
+     * Label shown next to "Default" in the picker — surfaces what the
+     * Captcha module's contact_form context currently resolves to so the
+     * admin can see at a glance what "Default" means right now.
+     */
+    private static function captcha_default_label(?CaptchaService $service): string
+    {
+        if ($service === null) {
+            return '';
+        }
+        [$challenge, ] = $service->resolve(['context' => 'contact_form']);
+        if ($challenge === null) {
+            return __('None', 'lrob-email-toolkit');
+        }
+        return $challenge->label();
+    }
+
+    /**
+     * Build the HTML shown in the captcha preview area for a given
+     * stored routing key. The editor JS swaps this client-side once the
+     * user changes the picker. Identity routes need credentials to
+     * render their real widget — preview context falls back to a
+     * placeholder for hosted providers since we don't want to hit
+     * vendor JS from the admin editor.
+     */
+    private static function captcha_preview_html(string $stored, ?CaptchaService $service, int $form_id): string
     {
         if ($stored === CPT::CHALLENGE_NONE) {
             return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('No anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
         }
-        if ($stored !== '' && isset($available[$stored])) {
-            return $available[$stored]->render(['context' => 'preview']);
+        if ($service === null) {
+            return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('No challenge registered.', 'lrob-email-toolkit') . '</p>';
         }
-        // Empty or legacy: render the form's effective default.
-        $effective = Settings::effective_challenge($form_id);
-        if ($effective === CPT::CHALLENGE_NONE) {
-            return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('Default: no anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
+        // Empty stored value = inherit; resolve against the contact_form
+        // context so the preview shows what visitors will actually see.
+        $context = ['context' => 'contact_form', 'form_id' => $form_id, 'preview_call' => true];
+        if ($stored !== '') {
+            $context['force_route'] = $stored;
         }
-        if ($service !== null && isset($available[$effective])) {
-            return $available[$effective]->render(['context' => 'preview']);
+        // Use render() so identity credentials are injected; force the
+        // preview sub-context so providers can render a placeholder
+        // instead of fetching their vendor JS.
+        $context['context'] = 'preview';
+        $html = $service->render($context);
+        if ($html === '') {
+            $context['context'] = 'contact_form';
+            return $service->render($context);
         }
-        if ($service !== null && $service->active() !== null) {
-            return $service->active()->render(['context' => 'preview']);
-        }
-        return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('No challenge registered.', 'lrob-email-toolkit') . '</p>';
+        return $html;
     }
 
     /**

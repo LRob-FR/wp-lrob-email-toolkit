@@ -52,24 +52,97 @@ final class Module extends AbstractModule
 
     public function db_version_int(): int
     {
-        return 2;
+        return 3;
     }
 
     public function install(): void
     {
         Schema::install();
+        self::migrate_captcha_routing_keys();
     }
 
     /**
      * v1 → v2: submissions table grew `captcha_slug` + `captcha_outcome`
-     * columns. dbDelta handles the additive ALTER TABLE — just rerun
-     * install() and it picks up the new column definitions.
+     * columns. dbDelta handles the additive ALTER TABLE — rerun install().
+     *
+     * v2 → v3: per-form `_lrob_etk_cf_challenge` post meta now stores
+     * captcha routing keys ('homemade:math', 'identity:7', …) instead of
+     * bare challenge slugs. The old `lrob_etk_contact_form_settings.challenge`
+     * entry is folded into the Captcha module's `lrob_etk_captcha_context_map`
+     * if the contact_form context is still set to 'inherit'. install()
+     * forwards through to migrate_captcha_routing_keys() which is fully
+     * idempotent.
      */
     public function migrate(int $from_version, int $to_version): void
     {
         unset($to_version);
         if ($from_version < 2) {
             Schema::install();
+        }
+        if ($from_version < 3) {
+            self::migrate_captcha_routing_keys();
+        }
+    }
+
+    /**
+     * One-time conversion of pre-v0.1.0 captcha settings to routing keys.
+     * Idempotent: re-runs see nothing left to convert.
+     */
+    private static function migrate_captcha_routing_keys(): void
+    {
+        // 1. Per-form meta: bare slugs → 'homemade:<slug>'. 'none' and ''
+        //    (empty/inherit) stay as-is. Anything already shaped like a
+        //    routing key (contains ':' or is 'none') is left alone.
+        global $wpdb;
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                CPT::META_CHALLENGE_KIND
+            ),
+            ARRAY_A
+        );
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                $value = isset($row['meta_value']) ? (string) $row['meta_value'] : '';
+                if ($value === '' || $value === 'default' || $value === CPT::CHALLENGE_NONE) {
+                    if ($value === 'default') {
+                        update_post_meta((int) $row['post_id'], CPT::META_CHALLENGE_KIND, '');
+                    }
+                    continue;
+                }
+                if (str_contains($value, ':')) {
+                    continue; // already a routing key
+                }
+                // Pre-v0.1.0 slug — promote to homemade route.
+                update_post_meta(
+                    (int) $row['post_id'],
+                    CPT::META_CHALLENGE_KIND,
+                    'homemade:' . sanitize_key($value)
+                );
+            }
+        }
+
+        // 2. Old Contact Form-wide default challenge → Captcha context map's
+        //    contact_form entry (only when that entry is still 'inherit',
+        //    so we don't clobber what the admin already set on the new
+        //    Captcha page).
+        $old = get_option(Settings::OPTION, []);
+        if (is_array($old) && isset($old['challenge']) && is_string($old['challenge']) && $old['challenge'] !== '') {
+            $old_challenge = $old['challenge'];
+            $map = get_option('lrob_etk_captcha_context_map', []);
+            if (!is_array($map)) {
+                $map = [];
+            }
+            $current = isset($map['contact_form']) ? (string) $map['contact_form'] : 'inherit';
+            if ($current === 'inherit' || $current === '') {
+                $map['contact_form'] = $old_challenge === CPT::CHALLENGE_NONE
+                    ? 'none'
+                    : 'homemade:' . sanitize_key($old_challenge);
+                update_option('lrob_etk_captcha_context_map', $map);
+            }
+            // Drop the now-unused challenge key from the option.
+            unset($old['challenge']);
+            update_option(Settings::OPTION, $old);
         }
     }
 

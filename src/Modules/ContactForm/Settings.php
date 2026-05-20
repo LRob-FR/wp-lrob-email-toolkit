@@ -33,7 +33,6 @@ final class Settings
     public const KEY_RATE_MAX              = 'rate_max';
     public const KEY_RATE_WINDOW_MINUTES   = 'rate_window_minutes';
     public const KEY_HONEYPOT              = 'honeypot';
-    public const KEY_CHALLENGE             = 'challenge';
     public const KEY_STYLE_PRESET          = 'style_preset';
     public const KEY_ACCENT                = 'accent';
     public const KEY_RADIUS                = 'radius';
@@ -51,7 +50,6 @@ final class Settings
             self::KEY_RATE_MAX              => 5,
             self::KEY_RATE_WINDOW_MINUTES   => 10,
             self::KEY_HONEYPOT              => true,
-            self::KEY_CHALLENGE             => CPT::CHALLENGE_MATH,
             self::KEY_STYLE_PRESET          => CPT::STYLE_DEFAULT,
             self::KEY_ACCENT                => '',
             self::KEY_RADIUS                => '',
@@ -92,7 +90,6 @@ final class Settings
             self::KEY_HONEYPOT               => (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN),
             self::KEY_RECIPIENT              => is_string($value) ? self::sanitize_recipient_list($value) : '',
             self::KEY_REPLY_TO_FIELD         => is_string($value) ? sanitize_key($value) : '',
-            self::KEY_CHALLENGE              => self::sanitize_challenge_slug($value, (string) $default),
             self::KEY_STYLE_PRESET           => is_string($value) && $value !== '' ? sanitize_html_class($value) : (string) $default,
             self::KEY_SUBJECT_TEMPLATE,
             self::KEY_SUCCESS_MESSAGE        => is_string($value) ? sanitize_textarea_field($value) : '',
@@ -101,23 +98,6 @@ final class Settings
             self::KEY_FONT_SIZE              => is_string($value) ? trim($value) : '',
             default                          => $value,
         };
-    }
-
-    /**
-     * Accept any slug-shaped value; `CaptchaService` is the source of truth
-     * for which slugs actually exist at runtime, and falls back to its own
-     * registered challenge when an unknown one is stored. Pinning the
-     * allow-list here would require a hard dependency on the captcha
-     * container and re-introduce the "Math (a+b)" vs "Picture recognition"
-     * desync the user just hit.
-     */
-    private static function sanitize_challenge_slug(mixed $value, string $default): string
-    {
-        if (!is_string($value)) {
-            return $default;
-        }
-        $value = sanitize_key($value);
-        return $value !== '' ? $value : $default;
     }
 
     /**
@@ -224,13 +204,24 @@ final class Settings
         return (bool) (self::all()[self::KEY_HONEYPOT] ?? true);
     }
 
-    public static function effective_challenge(int $form_id): string
+    /**
+     * Per-form captcha routing key (or '' to inherit the Captcha module's
+     * contact_form context). Stored as the new Routing::ROUTE_* strings:
+     *   ''                  → inherit Captcha → contact_form
+     *   'none'              → no captcha for this form
+     *   'homemade:<slug>'   → use built-in challenge
+     *   'identity:<id>'     → use a hosted-provider identity
+     *
+     * Stage-3 migration converts the old slug-shaped values
+     * ('math', 'image_recognition', 'default') in place.
+     */
+    public static function effective_routing_key(int $form_id): string
     {
         $per_form = (string) get_post_meta($form_id, CPT::META_CHALLENGE_KIND, true);
-        if ($per_form !== '' && $per_form !== 'default') {
-            return $per_form;
+        if ($per_form === '' || $per_form === 'default') {
+            return '';
         }
-        return (string) (self::all()[self::KEY_CHALLENGE] ?? CPT::CHALLENGE_MATH);
+        return $per_form;
     }
 
     public static function effective_style_preset(int $form_id): string

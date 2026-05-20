@@ -126,6 +126,7 @@ final class SettingsPage
             'reply_to_email'  => $identity?->reply_to_email ?? '',
             'is_default'      => $identity?->is_default ?? false,
             'is_active'       => $identity ? $identity->is_active : true,
+            'has_password'    => $identity ? $identity->smtp_password_encrypted !== '' : false,
         ];
         ?>
         <form class="lrob-etk-card-form" novalidate>
@@ -239,7 +240,15 @@ final class SettingsPage
                         <?php $this->render_override_dot($overridden, 'smtp_password_encrypted'); ?>
                         <?php Tooltip::render(__('Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS.', 'lrob-email-toolkit'), 'lock'); ?>
                     </label>
-                    <input type="password" name="smtp_password" class="lrob-etk-field-password" autocomplete="new-password" placeholder="<?php esc_attr_e('(unchanged when editing)', 'lrob-email-toolkit'); ?>">
+                    <?php
+                    // Bullets in the placeholder when a password is stored
+                    // matches the password-manager pattern admins already
+                    // know. Empty placeholder when there's nothing to keep.
+                    $password_placeholder = $f['has_password']
+                        ? str_repeat("\u{2022}", 10)
+                        : '';
+                    ?>
+                    <input type="password" name="smtp_password" class="lrob-etk-field-password" autocomplete="new-password" placeholder="<?php echo esc_attr($password_placeholder); ?>">
                 </div>
             </div>
         </section>

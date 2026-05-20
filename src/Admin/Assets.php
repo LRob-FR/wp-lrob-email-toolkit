@@ -16,6 +16,7 @@ final class Assets
     public const HANDLE_SMTP       = 'lrob-etk-admin-smtp';
     public const HANDLE_LOGGING    = 'lrob-etk-admin-logging';
     public const HANDLE_CF         = 'lrob-etk-admin-contact-form';
+    public const HANDLE_CAPTCHA    = 'lrob-etk-admin-captcha';
 
     private const STYLE_FILES = [
         self::HANDLE_BASE       => 'admin/css/admin-base.css',
@@ -24,6 +25,7 @@ final class Assets
         self::HANDLE_SMTP       => 'admin/css/admin-smtp.css',
         self::HANDLE_LOGGING    => 'admin/css/admin-logging.css',
         self::HANDLE_CF         => 'admin/css/admin-contact-form.css',
+        self::HANDLE_CAPTCHA    => 'admin/css/admin-captcha.css',
     ];
 
     public const HANDLE_CONTROLS_JS = 'lrob-etk-controls';
@@ -185,6 +187,15 @@ final class Assets
      * surprise when we re-zip the same release with a fix.
      */
     private static function asset_version(string $relative_path): string
+    {
+        return self::asset_version_for($relative_path);
+    }
+
+    /**
+     * Public version of asset_version() so per-module enqueuers reuse the
+     * same cache-busting scheme.
+     */
+    public static function asset_version_for(string $relative_path): string
     {
         $version = LROB_ETK_VERSION;
         $full = LROB_ETK_PATH . ltrim($relative_path, '/');

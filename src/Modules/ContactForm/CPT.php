@@ -57,9 +57,14 @@ final class CPT
 
     public const CONFIRMATION_FULL = 'full';
 
+    /**
+     * Per-form captcha routing-key sentinel meaning "no challenge for this
+     * form". Matches Routing::ROUTE_NONE — kept here so consumers inside
+     * ContactForm don't need to import the Captcha module just for the
+     * string. Other routing keys (`homemade:<slug>`, `identity:<id>`) are
+     * free-form and don't need constants.
+     */
     public const CHALLENGE_NONE = 'none';
-
-    public const CHALLENGE_MATH = 'math';
 
     public const STYLE_DEFAULT = 'default';
 

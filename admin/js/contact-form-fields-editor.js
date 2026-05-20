@@ -36,6 +36,9 @@
     function init() {
         var sections = document.querySelectorAll('.lrob-etk-cf-fields');
         Array.prototype.forEach.call(sections, bindSection);
+        // Mount hCaptcha widgets PHP rendered into the initial captcha
+        // previews (one per form card when hCaptcha is the active route).
+        document.querySelectorAll('[data-captcha-preview]').forEach(mountCaptchaPreview);
     }
 
     function bindSection(section) {
@@ -417,7 +420,10 @@
             if (target.matches('[data-captcha-pick]')) {
                 var block = target.closest('[data-captcha-block]');
                 var preview = block && block.querySelector('[data-captcha-preview]');
-                if (preview) preview.innerHTML = captchaPreviewHtml(target.value);
+                if (preview) {
+                    preview.innerHTML = captchaPreviewHtml(target.value);
+                    mountCaptchaPreview(preview);
+                }
                 return;
             }
 
@@ -1045,10 +1051,16 @@
 
         function inlineSettingsHtml(shell) {
             var type = shell.getAttribute('data-field-type') || '';
-            if (type === 'captcha') return '';
-            var inner = type === 'submit'
-                ? alignSegmentedHtml(shell)
-                : typeSpecificInlineHtml(shell, type);
+            var inner;
+            if (type === 'submit') {
+                inner = alignSegmentedHtml(shell, { defaultAlign: 'right', includeStretch: true });
+            } else if (type === 'captcha') {
+                // Captcha has no "full width" — hCaptcha is a fixed-width
+                // iframe. Left / center / right only.
+                inner = alignSegmentedHtml(shell, { defaultAlign: 'center', includeStretch: false });
+            } else {
+                inner = typeSpecificInlineHtml(shell, type);
+            }
             if (inner === '') return '';
             return '<div class="lrob-etk-cf-inline-settings" data-inline-settings>' + inner + '</div>';
         }
@@ -1122,14 +1134,18 @@
                 + '<span>' + esc(label) + '</span>'
                 + '</label>';
         }
-        function alignSegmentedHtml(shell) {
-            var align = shell.getAttribute('data-attr-align') || 'right';
+        function alignSegmentedHtml(shell, options) {
+            var defaultAlign = (options && options.defaultAlign) || 'right';
+            var includeStretch = !options || options.includeStretch !== false;
+            var align = shell.getAttribute('data-attr-align') || defaultAlign;
             var aligns = [
                 ['left',    EDITOR_I18N.alignLeft    || 'Left'],
                 ['center',  EDITOR_I18N.alignCenter  || 'Center'],
                 ['right',   EDITOR_I18N.alignRight   || 'Right'],
-                ['stretch', EDITOR_I18N.alignStretch || 'Full width'],
             ];
+            if (includeStretch) {
+                aligns.push(['stretch', EDITOR_I18N.alignStretch || 'Full width']);
+            }
             var btns = aligns.map(function (a) {
                 return '<button type="button" class="lrob-etk-cf-inline-seg' + (a[0] === align ? ' is-on' : '') + '"'
                     + ' data-inline-seg="align" data-value="' + a[0] + '">'
@@ -1287,10 +1303,15 @@
                 s.classList.toggle('is-on', s === seg);
             });
             if (key === 'align') {
-                var submitField = shell.querySelector('.lrob-etk-cf-field--submit');
-                if (submitField) {
-                    submitField.className = submitField.className.replace(/\s*is-align-(left|center|right|stretch)/g, '').trim();
-                    submitField.classList.add('is-align-' + val);
+                // Submit + captcha both store the chosen alignment as
+                // `is-align-*` on the field wrapper. For captcha, the
+                // wrapper is the editor stub (.lrob-etk-cf-field--captcha).
+                var alignTarget = shell.querySelector('.lrob-etk-cf-field--submit')
+                    || shell.querySelector('.lrob-etk-cf-field--captcha')
+                    || shell.querySelector('.lrob-etk-cf-field--challenge');
+                if (alignTarget) {
+                    alignTarget.className = alignTarget.className.replace(/\s*is-align-(left|center|right|stretch)/g, '').trim();
+                    alignTarget.classList.add('is-align-' + val);
                 }
             }
             commitAndSave();
@@ -1592,7 +1613,7 @@
                     + '</div>';
             }
             if (type === 'captcha') {
-                return captchaEditorStubHtml('');
+                return captchaEditorStubHtml('', 'center');
             }
             slug = slug || defaultSlug(type);
             var labelText = typeLabel;
@@ -1663,71 +1684,57 @@
          * hooks into the per-form card's auto-save plumbing — same wire
          * the Advanced > Challenge combobox uses.
          */
-        function captchaEditorStubHtml(currentSlug) {
+        function captchaEditorStubHtml(currentRoute, align) {
             var key = EDITOR_DATA.captchaKey || '_lrob_etk_cf_challenge';
-            var challenges = Array.isArray(EDITOR_DATA.challenges) ? EDITOR_DATA.challenges : [];
-            // Surface the inherited value in the "Default" option label so
-            // the admin can see what "Default" actually resolves to right
-            // now — e.g. "Default (Math)" instead of just "Default".
-            var defaultLabel = esc(EDITOR_I18N.captchaDefault || 'Default');
-            var inheritedLabel = defaultChallengeLabel();
-            if (inheritedLabel) defaultLabel += ' (' + esc(inheritedLabel) + ')';
-            var opts = '<option value=""' + (currentSlug === '' ? ' selected' : '') + '>'
-                + defaultLabel + '</option>';
-            opts += '<option value="none"' + (currentSlug === 'none' ? ' selected' : '') + '>'
-                + esc(EDITOR_I18N.captchaNone || 'None') + '</option>';
-            challenges.forEach(function (c) {
-                opts += '<option value="' + escAttr(c.slug) + '"' + (currentSlug === c.slug ? ' selected' : '') + '>'
-                    + esc(c.label) + '</option>';
-            });
-            return '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub" data-captcha-block>'
+            var entries = captchaEntries();
+            var safeAlign = (align === 'left' || align === 'center' || align === 'right') ? align : 'center';
+            // Build option/optgroup HTML, preserving the entries' insertion
+            // order so the picker matches what the server emits. Entries
+            // with an `optgroup` open a fresh <optgroup> on encountering a
+            // new group name.
+            var opts = '';
+            var currentGroup = '';
+            for (var i = 0; i < entries.length; i++) {
+                var e = entries[i];
+                var group = e.optgroup || '';
+                if (group !== currentGroup) {
+                    if (currentGroup !== '') opts += '</optgroup>';
+                    if (group !== '') opts += '<optgroup label="' + escAttr(group) + '">';
+                    currentGroup = group;
+                }
+                var selected = (currentRoute === e.route) ? ' selected' : '';
+                var disabled = e.disabled ? ' disabled' : '';
+                opts += '<option value="' + escAttr(e.route) + '"' + selected + disabled + '>'
+                      + esc(e.label) + '</option>';
+            }
+            if (currentGroup !== '') opts += '</optgroup>';
+
+            return '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub is-align-' + safeAlign + '" data-captcha-block>'
                 + '<div class="lrob-etk-cf-captcha-stub-head">'
                 + '<span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span>'
                 + '<label class="lrob-etk-cf-captcha-stub-label">' + esc(EDITOR_I18N.captchaPick || 'Anti-spam:') + '</label>'
                 + '<select class="lrob-etk-cf-field lrob-etk-cf-captcha-pick" name="' + escAttr(key) + '" data-key="' + escAttr(key) + '" data-captcha-pick>' + opts + '</select>'
                 + '</div>'
-                + '<div class="lrob-etk-cf-captcha-stub-preview" data-captcha-preview>' + captchaPreviewHtml(currentSlug) + '</div>'
+                + '<div class="lrob-etk-cf-captcha-stub-preview" data-captcha-preview>' + captchaPreviewHtml(currentRoute) + '</div>'
                 + '</div>';
         }
         /**
-         * Looks up the pre-rendered preview HTML for a given challenge
-         * slug (sent over via wp_localize_script). Sentinel slugs ('' /
-         * 'none') render as small placeholder paragraphs instead.
+         * Look up the pre-rendered preview HTML for a routing key sent over
+         * via wp_localize_script. Default ('') and none have their own
+         * entries in the list — they always exist.
          */
-        function captchaPreviewHtml(slug) {
-            if (slug === 'none') {
-                return '<p class="lrob-etk-cf-captcha-stub-empty">'
-                    + esc(EDITOR_I18N.captchaOff || 'No anti-spam challenge.')
-                    + '</p>';
+        function captchaPreviewHtml(route) {
+            var entries = captchaEntries();
+            for (var i = 0; i < entries.length; i++) {
+                if (entries[i].route === route && entries[i].preview) return entries[i].preview;
             }
-            // Empty slug ("Default") resolves to the form's inherited
-            // default — render that challenge's preview directly so the
-            // user sees the actual captcha, not a static placeholder.
-            // Falls back to the inherit-label only when the inherited
-            // challenge isn't usable (none / unregistered).
-            if (slug === '') {
-                var inheritedSlug = EDITOR_DATA.globalDefaultChallenge || '';
-                if (inheritedSlug === '' || inheritedSlug === 'none') {
-                    return '<p class="lrob-etk-cf-captcha-stub-empty">'
-                        + esc(EDITOR_I18N.captchaOff || 'No anti-spam challenge.')
-                        + '</p>';
-                }
-                slug = inheritedSlug;
-            }
-            var list = Array.isArray(EDITOR_DATA.challenges) ? EDITOR_DATA.challenges : [];
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].slug === slug && list[i].preview) return list[i].preview;
-            }
-            return '<p class="lrob-etk-cf-captcha-stub-empty">' + esc(slug) + '</p>';
+            return '<p class="lrob-etk-cf-captcha-stub-empty">'
+                + esc(EDITOR_I18N.captchaOff || 'No anti-spam challenge.')
+                + '</p>';
         }
-        function defaultChallengeLabel() {
-            var slug = EDITOR_DATA.globalDefaultChallenge || '';
-            if (!slug || slug === 'none') return '';
-            var list = Array.isArray(EDITOR_DATA.challenges) ? EDITOR_DATA.challenges : [];
-            for (var i = 0; i < list.length; i++) {
-                if (list[i].slug === slug) return list[i].label || '';
-            }
-            return '';
+        function captchaEntries() {
+            var opts = EDITOR_DATA.captchaOptions || {};
+            return Array.isArray(opts.entries) ? opts.entries : [];
         }
         function defaultSlug(type) {
             if (type === 'submit') return '';
@@ -1795,7 +1802,10 @@
                 f.align = shell.getAttribute('data-attr-align') || 'right';
                 return f;
             }
-            if (type === 'captcha') return f;
+            if (type === 'captcha') {
+                f.align = shell.getAttribute('data-attr-align') || 'center';
+                return f;
+            }
 
             // Inline-edit values.
             var labelEl = shell.querySelector('[data-edit="label"]');
@@ -1876,10 +1886,17 @@
             if (wrap && wrap.hasAttribute('data-field')) {
                 shell.setAttribute('data-attr-slug', wrap.getAttribute('data-field'));
             }
-            // Submit align: read from the field's class (is-align-X).
-            var submitWrap = shell.querySelector('.lrob-etk-cf-field--submit');
-            if (submitWrap) {
-                var m = submitWrap.className.match(/is-align-(left|center|right|stretch)/);
+            // Submit / captcha align: read from the field's class
+            // (is-align-X). Captcha has no stretch variant. For captcha,
+            // the carrier in the editor is .lrob-etk-cf-field--captcha
+            // (the editor stub); .lrob-etk-cf-field--challenge only
+            // appears later inside the preview slot once JS injects the
+            // live widget.
+            var alignWrap = shell.querySelector('.lrob-etk-cf-field--submit')
+                || shell.querySelector('.lrob-etk-cf-field--captcha')
+                || shell.querySelector('.lrob-etk-cf-field--challenge');
+            if (alignWrap) {
+                var m = alignWrap.className.match(/is-align-(left|center|right|stretch)/);
                 if (m) shell.setAttribute('data-attr-align', m[1]);
             }
             // Required: editor mode renders a star + checkbox marker. The
@@ -1976,6 +1993,77 @@
         // Seed the history with the initial state, AFTER the data-attr sync
         // so undo from any later mutation lands back on a complete snapshot.
         commit();
+    }
+
+    /**
+     * Mount any unmounted hCaptcha widgets that live inside a preview
+     * slot. Called on initial load (for whatever PHP rendered) and after
+     * a captcha-pick dropdown change swaps fresh HTML into the slot.
+     *
+     * hCaptcha can host many widgets per page natively — each gets a
+     * unique iframe + internal widget id — so we don't worry about
+     * cleanup when a preview gets replaced. The old widget's DOM goes
+     * away with the innerHTML swap; any internal references hCaptcha
+     * holds become garbage on the next solve/page nav.
+     */
+    function mountCaptchaPreview(previewEl) {
+        if (!previewEl) return;
+        var widgets = previewEl.querySelectorAll('.h-captcha:not([data-etk-mounted])');
+        if (widgets.length === 0) return;
+        ensureHCaptchaScript(function () {
+            widgets.forEach(function (el) {
+                if (el.hasAttribute('data-etk-mounted')) return;
+                if (!window.hcaptcha || typeof window.hcaptcha.render !== 'function') return;
+                try {
+                    window.hcaptcha.render(el);
+                    el.setAttribute('data-etk-mounted', '1');
+                } catch (e) {
+                    // Already rendered (auto-render kicked in first) — fine.
+                    el.setAttribute('data-etk-mounted', '1');
+                }
+            });
+        });
+    }
+
+    /**
+     * Lazy-load the hCaptcha vendor script the first time the editor
+     * needs it. Uses default mode (no ?render=explicit) so the first
+     * batch of widgets present at load auto-renders; subsequent
+     * dynamically-injected widgets are rendered manually via
+     * hcaptcha.render(). Polls for the global since hCaptcha's script
+     * doesn't expose a documented onload promise.
+     */
+    var hCaptchaLoading = false;
+    var hCaptchaCallbacks = [];
+    function ensureHCaptchaScript(callback) {
+        if (window.hcaptcha && typeof window.hcaptcha.render === 'function') {
+            callback();
+            return;
+        }
+        hCaptchaCallbacks.push(callback);
+        if (hCaptchaLoading) return;
+        hCaptchaLoading = true;
+
+        if (!document.querySelector('script[src*="js.hcaptcha.com"]')) {
+            var s = document.createElement('script');
+            s.src = 'https://js.hcaptcha.com/1/api.js';
+            s.async = true;
+            s.defer = true;
+            document.head.appendChild(s);
+        }
+        var attempts = 0;
+        var poll = setInterval(function () {
+            if (window.hcaptcha && typeof window.hcaptcha.render === 'function') {
+                clearInterval(poll);
+                var fns = hCaptchaCallbacks.splice(0);
+                fns.forEach(function (fn) { try { fn(); } catch (e) {} });
+            } else if (++attempts > 100) {
+                // 10s ceiling; give up rather than poll forever on a
+                // blocked network.
+                clearInterval(poll);
+                hCaptchaCallbacks.length = 0;
+            }
+        }, 100);
     }
 
     if (document.readyState === 'loading') {

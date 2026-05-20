@@ -14,10 +14,12 @@
 /* ---------- Contact Form admin page ---------- */
 
 /* Form cards are interactive — the whole card is a settings editor with
- * two columns inside. Use the SMTP identity-card grid (380–540px) so the
- * Delivery / Anti-spam columns get enough room before they collapse. */
+ * two columns inside. Upper bound 750px lets an hCaptcha widget
+ * (303px min, plus card chrome + padding) sit comfortably in a 1-col
+ * row without the column scrollbar fallback. Lower bound (420px) keeps
+ * the Delivery / Anti-spam columns legible before they collapse. */
 .lrob-etk-cf-forms-grid {
-    grid-template-columns: repeat(auto-fit, minmax(420px, 580px));
+    grid-template-columns: repeat(auto-fit, minmax(420px, 750px));
 }
 
 .lrob-etk-cf-form-card .lrob-etk-card-form {
@@ -788,6 +790,12 @@
     overflow: hidden;
     pointer-events: none;
     transition: max-height 0.22s ease, margin-top 0.22s ease, padding 0.22s ease, border-top-width 0.22s ease, opacity 0.18s ease;
+    /* `.lrob-etk-cf-field` is a flex column whose `align-items` shifts
+     * when the user picks Submit/Captcha alignment. Without this override
+     * the strip itself slides with that alignment, dragging the chip
+     * the cursor was just on. Pin it to full width regardless. */
+    align-self: stretch;
+    width: 100%;
 }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-inline-settings,
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-inline-settings,
@@ -1383,6 +1391,18 @@
     border-radius: 6px;
     transition: padding 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
+
+/* Captcha alignment in the editor preview — applies to the widget slot
+ * only so the picker head (admin chrome) stays put regardless of which
+ * alignment the visitor will see. Frontend uses a different wrapper
+ * (.lrob-etk-cf-captcha-align in contact-form.css). */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-field--captcha .lrob-etk-cf-captcha-stub-preview {
+    display: flex;
+    flex-direction: column;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-field--captcha.is-align-left   .lrob-etk-cf-captcha-stub-preview { align-items: flex-start; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-field--captcha.is-align-center .lrob-etk-cf-captcha-stub-preview { align-items: center; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-field--captcha.is-align-right  .lrob-etk-cf-captcha-stub-preview { align-items: flex-end; }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover > .lrob-etk-cf-field--captcha.is-editor-stub,
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) > .lrob-etk-cf-field--captcha.is-editor-stub,
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active > .lrob-etk-cf-field--captcha.is-editor-stub,

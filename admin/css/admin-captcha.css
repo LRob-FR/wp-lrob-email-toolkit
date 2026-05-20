@@ -1,0 +1,368 @@
+/* Captcha admin page — built-in list + provider identity cards + routing grid.
+ * Card primitives (.lrob-etk-card-form*, .lrob-etk-identity-card,
+ * .lrob-etk-card-status, .lrob-etk-card-footer*) come from
+ * admin-components.css. This file only adds the captcha-specific pieces. */
+
+.lrob-etk-captcha-section {
+    margin-top: 24px;
+}
+
+.lrob-etk-captcha-section .lrob-etk-section-title {
+    margin: 0 0 10px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--etk-muted);
+    font-weight: 600;
+}
+
+/* --- Built-in challenges list --- */
+.lrob-etk-captcha-builtins {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 10px;
+    max-width: 880px;
+}
+.lrob-etk-captcha-builtins li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+}
+.lrob-etk-captcha-builtins .dashicons {
+    color: var(--etk-success);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.lrob-etk-captcha-builtins strong {
+    display: block;
+    font-size: 14px;
+}
+.lrob-etk-captcha-builtins p {
+    margin: 2px 0 0;
+    color: var(--etk-muted);
+    font-size: 12px;
+}
+
+/* --- Identity cards --- */
+.lrob-etk-captcha-identities {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.lrob-etk-captcha-card {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    box-shadow: 0 1px 2px rgba(0,0,0,.03);
+}
+.lrob-etk-captcha-card.is-new {
+    border-color: var(--etk-accent);
+    box-shadow: 0 1px 6px rgba(34,113,177,.15);
+}
+
+.lrob-etk-captcha-card-provider {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 6px;
+    background: var(--etk-soft);
+    color: var(--etk-fg);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.lrob-etk-captcha-card-logo {
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+}
+.lrob-etk-captcha-card-logo svg {
+    display: block;
+}
+
+/* Slug chip: monospace identifier just under the header. Surfaces the
+ * stable derived id (e.g. hcaptcha_main-site_3) so admins can paste it
+ * into hook listeners or external integrations later. */
+.lrob-etk-captcha-card-meta {
+    padding: 0 18px;
+    margin: 4px 0 0;
+}
+.lrob-etk-captcha-card-slug {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--etk-muted);
+    font-size: 11px;
+}
+.lrob-etk-captcha-card-slug .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+.lrob-etk-captcha-card-slug code {
+    background: transparent;
+    padding: 0;
+    font-size: 11px;
+    color: var(--etk-muted);
+}
+
+/* Provider dropdown — visible only on unsaved cards when multiple
+ * providers are registered, drops out after save. */
+.lrob-etk-captcha-provider-pick-field {
+    padding: 0 18px;
+    margin: 10px 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-captcha-provider-pick-field label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--etk-muted);
+    font-weight: 600;
+}
+.lrob-etk-captcha-provider-pick-field select {
+    width: 100%;
+}
+
+/* Inline widget preview + test feedback area. */
+.lrob-etk-captcha-card-preview {
+    padding: 12px 18px 4px;
+    margin-top: 8px;
+    border-top: 1px solid var(--etk-soft);
+}
+.lrob-etk-captcha-card-preview-head {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--etk-muted);
+    font-weight: 600;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+.lrob-etk-captcha-card-preview-head .description {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--etk-muted);
+}
+.lrob-etk-captcha-card-preview-widget {
+    min-height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.lrob-etk-captcha-card-preview-widget .description {
+    margin: 0;
+    color: var(--etk-muted);
+    font-size: 12px;
+    font-style: italic;
+}
+.lrob-etk-captcha-card-test-result {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: var(--etk-radius);
+    font-size: 13px;
+    font-weight: 500;
+}
+.lrob-etk-captcha-card-test-result.is-testing {
+    background: var(--etk-soft);
+    color: var(--etk-muted);
+}
+.lrob-etk-captcha-card-test-result.is-ok {
+    background: var(--etk-success-bg);
+    color: #1e6b3a;
+}
+.lrob-etk-captcha-card-test-result.is-fail {
+    background: var(--etk-danger-bg);
+    color: #8a0000;
+}
+
+.lrob-etk-captcha-card-body {
+    padding: 12px 0 4px;
+    display: grid;
+    gap: 14px;
+}
+
+.lrob-etk-captcha-card-body .lrob-etk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-captcha-card-body label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lrob-etk-captcha-card-body input[type="text"],
+.lrob-etk-captcha-card-body input[type="password"] {
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+}
+.lrob-etk-captcha-card-body .description {
+    color: var(--etk-muted);
+    font-size: 11px;
+    margin: 0;
+}
+.lrob-etk-captcha-card-body .lrob-etk-required {
+    color: var(--etk-danger);
+    margin-left: 2px;
+}
+.lrob-etk-captcha-card-body [data-field-error] {
+    color: var(--etk-danger);
+    font-size: 12px;
+    margin: 0;
+}
+
+/* Visual cue for failed-validation inputs. Cleared on next focus
+ * (handled in captcha-admin.js). The label input sits in the card
+ * header so it gets the same treatment as the credentials inputs
+ * inside the card body. */
+.lrob-etk-captcha-card input.is-invalid,
+.lrob-etk-captcha-card .is-invalid {
+    border-color: var(--etk-danger);
+    box-shadow: 0 0 0 1px var(--etk-danger);
+}
+.lrob-etk-captcha-card .lrob-etk-title-input.is-invalid {
+    border-bottom-color: var(--etk-danger);
+    box-shadow: 0 1px 0 0 var(--etk-danger);
+}
+
+.lrob-etk-captcha-providers-empty {
+    background: var(--etk-soft);
+    padding: 14px 16px;
+    border-radius: var(--etk-radius);
+    color: var(--etk-muted);
+    margin: 0;
+}
+
+/* --- Routing grid --- */
+.lrob-etk-captcha-routing-grid {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+    max-width: 720px;
+}
+.lrob-etk-captcha-routing-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+}
+.lrob-etk-captcha-routing-row label {
+    font-weight: 500;
+    font-size: 13px;
+}
+.lrob-etk-captcha-routing-row select {
+    width: 100%;
+    max-width: 100%;
+}
+.lrob-etk-captcha-routing-default {
+    background: var(--etk-soft);
+    border-color: var(--etk-line-strong);
+}
+.lrob-etk-captcha-routing-default label {
+    font-weight: 600;
+}
+
+/* Disabled options ("Configure hCaptcha first") rendered in red. */
+.lrob-etk-captcha-routing-row select option:disabled {
+    color: var(--etk-danger);
+}
+
+/* hCaptcha widget is 303×78px (normal) and the iframe doesn't shrink to
+ * fit narrow columns. Reserve its natural width and allow horizontal
+ * scroll within the field — better than letting the iframe visually
+ * leak onto adjacent columns or other fields. Applies to both the
+ * editor preview and the frontend form. */
+.lrob-etk-cf-field--challenge {
+    overflow-x: auto;
+    max-width: 100%;
+}
+.lrob-etk-cf-hcaptcha .h-captcha {
+    min-width: 303px;
+}
+
+/* Diagnostics: collapsed by default, surfaces stored state for routing
+ * + per-identity credential blobs. Keep this lightweight — it's a
+ * troubleshooting aid, not a primary surface. */
+.lrob-etk-captcha-diag summary {
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--etk-muted);
+    font-weight: 600;
+    padding: 6px 0;
+}
+.lrob-etk-captcha-diag summary .dashicons {
+    vertical-align: text-bottom;
+    margin-right: 4px;
+}
+.lrob-etk-captcha-diag-body {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius);
+    padding: 12px 16px;
+    margin-top: 6px;
+}
+.lrob-etk-captcha-diag-body h3 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-muted);
+}
+.lrob-etk-captcha-diag-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.lrob-etk-captcha-diag-table th,
+.lrob-etk-captcha-diag-table td {
+    text-align: left;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--etk-soft);
+}
+.lrob-etk-captcha-diag-table th {
+    color: var(--etk-muted);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lrob-etk-captcha-diag-table code {
+    background: var(--etk-soft);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+@media (max-width: 600px) {
+    .lrob-etk-captcha-routing-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+}

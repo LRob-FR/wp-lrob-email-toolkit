@@ -31,6 +31,21 @@ The plugin is in **iterative pre-1.0 development**. Every shipped iteration is a
 
 Bump at the end of each piece of work, before running `./release.sh`. Don't ship two releases with the same version — the zip filename uses it. Don't bump aggressively just because something "feels big" — the milestone rule is conservative on purpose so the version conveys real maturity.
 
+**Note on version skips:** the early milestones (SMTP+Logging, Contact Form milestone-1) were under-numbered as patch bumps — the project landed at 0.0.7 when it should have been around 0.3.x by the milestone rule. The Captcha multi-context routing + first hosted provider iteration is being released as 0.1.0 to start re-aligning. Don't retro-renumber past releases; from 0.1.0 onward, follow the milestone rule strictly.
+
+## Pre-1.0 release prerequisites
+
+Before the first 1.0 release ships, two things must be done:
+
+1. **Make the GitHub repo public.** Until then the plugin only ships as a manually-distributed zip from `../releases/`.
+2. **Build a GitHub-hosted auto-update mechanism**, mirroring the one in https://github.com/LRob-FR/wp-lrob-calendar. The reference plugin uses the standard "update from GitHub releases" pattern: a small PHP class hooks into `pre_set_site_transient_update_plugins` + `plugins_api`, fetches the latest release tag from the GitHub API, compares it to `LROB_ETK_VERSION`, and points WordPress at the release-zip asset. When implementing here:
+   - Reuse that plugin's class shape so admins who run both plugins see consistent behaviour.
+   - Hook + class names follow this plugin's `lrob_etk_` / `LRob\EmailToolkit\` prefixes — don't copy `lrob_calendar_` identifiers.
+   - Inspect the calendar repo's implementation (fetch via WebFetch when starting that task) rather than guessing — the exact transient shape and GitHub API call format matter.
+   - This is not "Integrations module" work; it lives under `src/Support/` or a small dedicated `src/AutoUpdate/` namespace.
+
+Neither is in scope for any current module's work — they're a 1.0 release-gate, tracked here so we don't ship 1.0 without them.
+
 ## Naming convention — **MANDATORY**
 
 User has a strong rule: prefixes must be plugin-specific, not vendor-wide. Several LRob plugins coexist; "lrob_" alone collides. This plugin uses `etk` (= "email toolkit") everywhere a runtime identifier appears.
@@ -291,6 +306,7 @@ Not in scope now, but architectural decisions in the current module may make the
 - **Per-context SMTP identity routing.** SMTP module currently routes by domain / explicit selection. Add a "context" mapping so the user assigns identities to email categories — WooCommerce, admin notifications, contact forms, newsletter, comments, password resets, etc. — without bloating the admin UI. Probably one small table on the SMTP settings page with sensible defaults; the matching happens in `MailRouter` from message headers / hook context. Keep the UX simple: most users want defaults, power users want overrides.
 - **Contact form submission logging with captcha-used tracking.** Every contact-form submission gets a row in a submissions table (separate from `logs`), recording which captcha provider/challenge was active at the time and whether it was solved cleanly. This lets the user spot a captcha letting spam through and switch providers.
 - **Contact form visual customization.** Per-form (with global defaults) settings for colours, corner roundness, background illumination, hover/focus glow, button animations, submit-success celebration animation, etc. Ships with named templates ("sober", "fancy", others). The submitter's visual experience needs to feel polished; the webmaster's editor needs to make these accessible without overwhelming. See [[project-contact-form-visual-polish]] memory.
+- **Responsive preview modes for the contact-form editor (Desktop / Tablet / Phone).** Today the form card preview is a single fixed-width container (`minmax(420px, 680px)` grid track), so the admin can't see how their layout behaves at narrower viewports. Add three preview-width toggles at the top of the Forms page that constrain the form-card preview to representative widths (e.g. 1280 / 768 / 380) and re-flow columns/fields exactly as the frontend would. Tricky bits: the form card normally shares the page grid with other cards, so the toggle would need to either swap the grid layout (single-column when a non-Desktop mode is active) or scope the resize to one card at a time. Worth doing once visual customization lands — it'll be the natural place to verify a chosen preset across breakpoints. Until then, the 680px upper bound is a pragmatic compromise that gives hCaptcha (303px min) breathing room without rebuilding the chrome.
 - **Subscribe-to-comments.** Visitor-facing feature (low priority, after newsletter): when someone comments on a post, offer to receive email when they get a reply. Must include proper unsubscribe (per-comment-thread token, list-unsubscribe header, dedicated page). Don't reinvent the wheel — there's a "Subscribe to Comments" plugin that's the reference for behaviour, but we implement ours so it integrates with the toolkit's SMTP routing + captcha + logging.
 - **Email export.** Bulk export of log entries (CSV at minimum, possibly mbox/EML for full message reconstruction). `LogRepository` already has filtered query helpers; export should reuse them, not re-implement filtering. Stream the response — don't buffer thousands of rows in memory.
 - **Injection safety from stored email content** — *this is the touchy one.* `logs.body_html`, `subject`, `from_name`, header values, and attachment filenames are attacker-controllable when the site receives mail (future IMAP-save, future reply-to-log flows, contact form reflection, etc.). Everywhere this data is rendered or re-emitted:

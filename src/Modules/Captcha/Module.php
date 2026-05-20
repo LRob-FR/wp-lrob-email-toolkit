@@ -13,6 +13,11 @@ use LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface;
  * ContactForm (and eventually Newsletter, comments, lost-password) uses.
  * Always enabled — the toolkit always has at least one challenge available
  * — so this module ignores the standard enable/disable toggle.
+ *
+ * Two flavours of challenge live side by side:
+ *  - Homemade (Challenges/) — self-contained, no credentials.
+ *  - Hosted provider (Providers/) — needs a credentialled identity row.
+ * Both directories are auto-scanned at boot.
  */
 final class Module extends AbstractModule
 {
@@ -29,7 +34,7 @@ final class Module extends AbstractModule
     public function description(): string
     {
         return __(
-            'Anti-bot challenges shared across modules. Default math challenge ships; future providers (hCaptcha, Turnstile, reCAPTCHA) plug in here.',
+            'Anti-bot challenges shared across modules. Homemade challenges (math, image) ship by default; hosted providers (hCaptcha, Turnstile, reCAPTCHA) plug in here.',
             'lrob-email-toolkit'
         );
     }
@@ -60,9 +65,43 @@ final class Module extends AbstractModule
         return admin_url('admin.php?page=' . PageController::SLUG);
     }
 
+    /**
+     * Schema version 3 = identities table + context map. Bumped from 2 to 3
+     * to recover sites stuck on a broken v0.1.0 first-release migration that
+     * set version=2 without creating the table (because the default
+     * AbstractModule::migrate path was a no-op). The migrate() override
+     * below forwards every migrate call back into install(), which is
+     * idempotent — dbDelta CREATE TABLE + a "seed if missing" guard.
+     */
+    public function db_version_int(): int
+    {
+        return 3;
+    }
+
+    public function install(): void
+    {
+        Schema::install();
+        self::seed_context_map_if_missing();
+    }
+
+    /**
+     * Sites running v0.0.7 already had `lrob_etk_captcha_db_version=1`
+     * recorded by AbstractModule's default-version no-op install path
+     * (service modules run maybe_migrate every boot). When we bump the
+     * target to 2 those sites take the migrate() branch — not install() —
+     * so the new identities table never gets created. Forward that path
+     * back into install(); both Schema::install (dbDelta) and the
+     * context-map seed are fully idempotent.
+     */
+    public function migrate(int $from_version, int $to_version): void
+    {
+        unset($from_version, $to_version);
+        $this->install();
+    }
+
     public function register(): void
     {
-        $service = new CaptchaService();
+        $service = new CaptchaService(new IdentityRepository());
         self::register_challenges($service);
         $this->container->set(CaptchaService::class, $service);
 
@@ -72,17 +111,35 @@ final class Module extends AbstractModule
     }
 
     /**
-     * Auto-discover and register every challenge dropped into
-     * `src/Modules/Captcha/Challenges/`. Adding a new challenge is as
-     * simple as creating a class that implements ChallengeInterface in
-     * that folder — no changes to this file, no glue code anywhere
-     * else. The PSR-4 autoloader resolves the class from its filename,
-     * the `instanceof` check below filters out anything that doesn't
-     * fulfil the contract.
+     * Auto-discover and register every challenge/provider dropped into
+     * `Challenges/` or `Providers/`. Adding a new homemade challenge or
+     * a new hosted provider is as simple as creating a class in the right
+     * folder that implements ChallengeInterface (or ProviderInterface) —
+     * no edits to this file, no glue code anywhere else.
      */
     private static function register_challenges(CaptchaService $service): void
     {
-        $dir = LROB_ETK_PATH . 'src/Modules/Captcha/Challenges';
+        self::register_from_directory(
+            $service,
+            LROB_ETK_PATH . 'src/Modules/Captcha/Challenges',
+            __NAMESPACE__ . '\\Challenges\\',
+            ['ChallengeInterface']
+        );
+        self::register_from_directory(
+            $service,
+            LROB_ETK_PATH . 'src/Modules/Captcha/Providers',
+            __NAMESPACE__ . '\\Providers\\',
+            ['ProviderInterface']
+        );
+    }
+
+    /** @param array<int, string> $skip_basenames */
+    private static function register_from_directory(
+        CaptchaService $service,
+        string $dir,
+        string $namespace,
+        array $skip_basenames
+    ): void {
         $files = glob($dir . '/*.php');
         if (!is_array($files)) {
             return;
@@ -90,10 +147,10 @@ final class Module extends AbstractModule
         sort($files); // deterministic registration order (= filename order)
         foreach ($files as $file) {
             $base = basename($file, '.php');
-            if ($base === 'ChallengeInterface') {
+            if (in_array($base, $skip_basenames, true)) {
                 continue;
             }
-            $fqcn = __NAMESPACE__ . '\\Challenges\\' . $base;
+            $fqcn = $namespace . $base;
             if (!class_exists($fqcn)) {
                 continue;
             }
@@ -103,5 +160,39 @@ final class Module extends AbstractModule
             }
             $service->add_challenge($reflection->newInstance());
         }
+    }
+
+    /**
+     * One-time migration from the v0.0.7 single-default world to the new
+     * per-context routing map. Runs once on install() (which itself only
+     * runs when db_version was 0); subsequent boots short-circuit via
+     * maybe_migrate().
+     *
+     * - If a context map already exists, leave it alone (admin already
+     *   moved past the migration).
+     * - Otherwise seed `default` from the legacy `active_challenge` option,
+     *   falling back to homemade:math.
+     */
+    private static function seed_context_map_if_missing(): void
+    {
+        $existing = get_option(Routing::OPTION_CONTEXT_MAP, null);
+        if (is_array($existing) && !empty($existing)) {
+            return;
+        }
+
+        $legacy = get_option(CaptchaService::OPTION_SETTINGS, []);
+        $legacy_active = is_array($legacy) && isset($legacy[CaptchaService::SETTING_ACTIVE]) && is_string($legacy[CaptchaService::SETTING_ACTIVE])
+            ? $legacy[CaptchaService::SETTING_ACTIVE]
+            : '';
+
+        $default = ($legacy_active === '' || $legacy_active === CaptchaService::SLUG_NONE)
+            ? Routing::homemade('math')
+            : Routing::homemade($legacy_active);
+
+        $map = [Routing::KEY_DEFAULT => $default];
+        foreach (Routing::known_contexts() as $context) {
+            $map[$context] = Routing::ROUTE_INHERIT;
+        }
+        update_option(Routing::OPTION_CONTEXT_MAP, $map);
     }
 }
