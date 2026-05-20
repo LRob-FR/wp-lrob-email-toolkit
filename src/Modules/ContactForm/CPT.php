@@ -49,6 +49,9 @@ final class CPT
 
     public const META_STYLE_VARS = '_lrob_etk_cf_style_vars';
 
+    /** Tri-state ('default' / 'on' / 'off'): per-form override for "save submissions to database". */
+    public const META_SAVE_SUBMISSIONS = '_lrob_etk_cf_save_submissions';
+
     public const CONFIRMATION_NONE = 'none';
 
     public const CONFIRMATION_BASIC = 'basic';

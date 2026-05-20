@@ -460,3 +460,19 @@
     display: flex;
     justify-content: flex-end;
 }
+
+/* Contact-form panel on the dashboard: two stat cards (delivered + spam
+ * blocked) above a "recent submissions" mini-table. Re-uses .lrob-etk-stat-card
+ * for chrome consistency. */
+.lrob-etk-cf-stat-grid {
+    margin-top: 8px;
+    margin-bottom: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.lrob-etk-cf-stat-grid .lrob-etk-stat-card.is-blocked {
+    border-color: rgba(220, 38, 38, 0.18);
+}
+.lrob-etk-cf-stat-grid .lrob-etk-stat-card .lrob-etk-stat-rate {
+    margin-left: 4px;
+}
+.lrob-etk-cf-recent-wrap { margin-top: 4px; }

@@ -8,6 +8,7 @@ use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\AjaxController;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\PageController;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage;
 
 /**
  * Contact Form module — customizable forms with stacked anti-spam (honeypot,
@@ -52,7 +53,7 @@ final class Module extends AbstractModule
 
     public function db_version_int(): int
     {
-        return 3;
+        return 4;
     }
 
     public function install(): void
@@ -72,6 +73,10 @@ final class Module extends AbstractModule
      * if the contact_form context is still set to 'inherit'. install()
      * forwards through to migrate_captcha_routing_keys() which is fully
      * idempotent.
+     *
+     * v3 → v4: submissions table grew an `ip_address` column. Default empty
+     * string means "raw IP not captured" (privacy-first default). dbDelta
+     * handles the additive ALTER TABLE.
      */
     public function migrate(int $from_version, int $to_version): void
     {
@@ -81,6 +86,9 @@ final class Module extends AbstractModule
         }
         if ($from_version < 3) {
             self::migrate_captcha_routing_keys();
+        }
+        if ($from_version < 4) {
+            Schema::install();
         }
     }
 
@@ -148,8 +156,9 @@ final class Module extends AbstractModule
 
     public function uninstall(): void
     {
-        // Schedule cleanup of the rate-limit cron before dropping tables.
+        // Schedule cleanup of the rate-limit + retention crons before dropping tables.
         (new RateLimiter())->unregister();
+        (new SubmissionsRetentionCron(new SubmissionRepository()))->unschedule();
 
         // Trash every contact form CPT post — uninstall.php's table/option
         // sweeper covers our submissions + rate tables and prefs.
@@ -207,6 +216,9 @@ final class Module extends AbstractModule
             (new Frontend())->register();
             $rate_limiter->register();
             (new SubmitHandler($rate_limiter, $submissions))->register();
+            $retention = new SubmissionsRetentionCron($submissions);
+            $retention->register();
+            $retention->schedule();
         }
 
         // Admin chrome stays registered regardless of enabled state, so the
@@ -214,7 +226,8 @@ final class Module extends AbstractModule
         // re-enable from there (FormsPage shows a disabled-state message).
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
-            $forms_page = new FormsPage($this);
+            $submissions_page = new SubmissionsPage($submissions);
+            $forms_page = new FormsPage($this, $submissions_page);
             $forms_page->register();
             (new PageController($this, $forms_page))->register();
             (new AjaxController())->register();

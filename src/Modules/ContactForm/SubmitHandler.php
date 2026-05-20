@@ -67,9 +67,18 @@ final class SubmitHandler
         $ip_hash = RateLimiter::hash_ip($ip);
         $context = [
             'ip_hash'    => $ip_hash,
+            // Raw IP only when admin opted in. Default is hash-only for
+            // privacy / GDPR friendliness; `ip_hash` always populated since
+            // the rate limiter needs it.
+            'ip_address' => Settings::store_raw_ip() ? $ip : '',
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? (string) $_SERVER['HTTP_USER_AGENT'] : '',
             'referer'    => isset($_SERVER['HTTP_REFERER']) ? (string) $_SERVER['HTTP_REFERER'] : '',
         ];
+        // Per-form opt-out of submission persistence. Notification email
+        // still goes out (that's the form's whole point); we just don't
+        // archive. SubmitHandler routes every insert() call through this
+        // gate via $persist below.
+        $persist = Settings::effective_save_submissions($form_id);
 
         // Captcha state captured up front so every insert path (honeypot,
         // time-trap, rate-limit, challenge-fail, happy path) records the
@@ -104,14 +113,18 @@ final class SubmitHandler
 
         // Honeypot returns a successful-looking response so bots can't adapt.
         if (Settings::effective_honeypot($form_id) && Honeypot::tripped($post)) {
-            $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'honeypot_tripped'], SubmissionRepository::STATUS_SPAM_BLOCKED);
+            if ($persist) {
+                $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'honeypot_tripped'], SubmissionRepository::STATUS_SPAM_BLOCKED);
+            }
             Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'honeypot']);
             wp_send_json_success(['message' => Settings::effective_success_message($form_id)]);
         }
 
         $started = isset($post['_lrob_etk_cf_started']) ? (int) $post['_lrob_etk_cf_started'] : 0;
         if ($started > 0 && (time() - $started) < self::MIN_FORM_TIME_SECONDS) {
-            $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'time_trap'], SubmissionRepository::STATUS_SPAM_BLOCKED);
+            if ($persist) {
+                $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'time_trap'], SubmissionRepository::STATUS_SPAM_BLOCKED);
+            }
             Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'time_trap']);
             wp_send_json_success(['message' => Settings::effective_success_message($form_id)]);
         }
@@ -127,7 +140,9 @@ final class SubmitHandler
             [$ok, $message] = $captcha_service->verify($post, $captcha_context);
             if (!$ok) {
                 $context['captcha_outcome'] = SubmissionRepository::CAPTCHA_OUTCOME_FAILED;
-                $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'captcha_failed'], SubmissionRepository::STATUS_SPAM_BLOCKED);
+                if ($persist) {
+                    $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'captcha_failed'], SubmissionRepository::STATUS_SPAM_BLOCKED);
+                }
                 $this->rate_limiter->record($ip_hash, $form_id);
                 Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'captcha']);
                 wp_send_json_error(['message' => $message], 400);
@@ -147,7 +162,9 @@ final class SubmitHandler
         }
 
         // Persist submission row early so we have an id even if mail send blows up.
-        $submission_id = $this->submissions->insert($form_id, $field_values, $context);
+        $submission_id = $persist
+            ? $this->submissions->insert($form_id, $field_values, $context)
+            : 0;
         $this->rate_limiter->record($ip_hash, $form_id);
 
         Events::dispatch('contact_form.submitted', [
@@ -159,13 +176,17 @@ final class SubmitHandler
         // Send via SMTP — push 'contact_form' source so SMTP routing rules can target it.
         $send_result = $this->send_notification_email($form, $form_id, $field_blocks, $field_values);
 
+        if ($persist && $submission_id > 0) {
+            if ($send_result['ok']) {
+                $this->submissions->update_status($submission_id, SubmissionRepository::STATUS_DELIVERED, $send_result['log_id']);
+            } else {
+                $this->submissions->update_status($submission_id, SubmissionRepository::STATUS_FAILED, null, $send_result['error']);
+                // Still tell the user we received it — the message *is* on the
+                // server. Admin can resend from the Logs page.
+            }
+        }
         if ($send_result['ok']) {
-            $this->submissions->update_status($submission_id, SubmissionRepository::STATUS_DELIVERED, $send_result['log_id']);
             Events::dispatch('contact_form.delivered', ['form_id' => $form_id, 'submission_id' => $submission_id]);
-        } else {
-            $this->submissions->update_status($submission_id, SubmissionRepository::STATUS_FAILED, null, $send_result['error']);
-            // Still tell the user we received it — the message *is* on the
-            // server. Admin can resend from the Logs page.
         }
 
         wp_send_json_success(['message' => Settings::effective_success_message($form_id)]);

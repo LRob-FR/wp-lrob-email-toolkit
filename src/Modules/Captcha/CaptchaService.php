@@ -47,8 +47,10 @@ final class CaptchaService
     /** @var array<string, ChallengeInterface> */
     private array $challenges = [];
 
-    public function __construct(private IdentityRepository $identities)
-    {
+    public function __construct(
+        private IdentityRepository $identities,
+        private ?StatsRepository $stats = null,
+    ) {
     }
 
     public function add_challenge(ChallengeInterface $challenge): void
@@ -211,9 +213,13 @@ final class CaptchaService
      */
     public function verify(array $post, array $context = []): array
     {
+        $route = $this->resolve_route($context);
         [$challenge, $credentials, $state] = $this->resolve($context);
         if ($challenge === null) {
             if ($state === self::STATE_BROKEN) {
+                // Broken route counts as a failure so the dashboard tile
+                // reflects what the visitor actually saw (rejection).
+                $this->stats?->record($route, StatsRepository::OUTCOME_FAILED);
                 return [false, __('Anti-spam check is unavailable right now. Please try again later or contact the site administrator.', 'lrob-email-toolkit')];
             }
             return [true, null];
@@ -221,7 +227,12 @@ final class CaptchaService
         if ($credentials !== []) {
             $context['credentials'] = $credentials;
         }
-        return $challenge->verify($post, $context);
+        [$ok, $error] = $challenge->verify($post, $context);
+        $this->stats?->record(
+            $route,
+            $ok ? StatsRepository::OUTCOME_PASSED : StatsRepository::OUTCOME_FAILED
+        );
+        return [$ok, $error];
     }
 
     /**

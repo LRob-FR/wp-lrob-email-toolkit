@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Logging\Admin;
 
 use LRob\EmailToolkit\Admin\ModuleToggle;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage as ContactFormSubmissionsPage;
+use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository as ContactFormSubmissions;
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
 use LRob\EmailToolkit\Modules\Logging\LogRepository;
 use LRob\EmailToolkit\Modules\Logging\RetentionCron;
@@ -92,8 +94,28 @@ final class LogsPage
         }
 
         $this->render_bulk_toolbar($page, $total, $per_page);
-        $this->render_table($entries);
+        $this->render_table($entries, $this->submission_link_map($entries));
         $this->render_pagination($page, $total_pages, $total);
+    }
+
+    /**
+     * Batched log_id → submission_id lookup for the current page. Returns an
+     * empty map when the Contact Form module isn't installed or has no
+     * submissions table.
+     *
+     * @param array<int, LogEntry> $entries
+     * @return array<int, int>
+     */
+    private function submission_link_map(array $entries): array
+    {
+        if (!class_exists(ContactFormSubmissions::class)) {
+            return [];
+        }
+        $log_ids = array_map(static fn (LogEntry $e): int => $e->id, $entries);
+        if ($log_ids === []) {
+            return [];
+        }
+        return (new ContactFormSubmissions())->submission_ids_for_log_ids($log_ids);
     }
 
     /**
@@ -231,8 +253,11 @@ final class LogsPage
         <?php
     }
 
-    /** @param array<int, LogEntry> $entries */
-    private function render_table(array $entries): void
+    /**
+     * @param array<int, LogEntry> $entries
+     * @param array<int, int> $submission_link_map  log_id → submission_id
+     */
+    private function render_table(array $entries, array $submission_link_map = []): void
     {
         ?>
         <div class="lrob-etk-logs-table-wrap">
@@ -251,7 +276,7 @@ final class LogsPage
                 </thead>
                 <tbody>
                     <?php foreach ($entries as $entry) : ?>
-                        <?php $this->render_table_row($entry); ?>
+                        <?php $this->render_table_row($entry, $submission_link_map[$entry->id] ?? null); ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -259,7 +284,7 @@ final class LogsPage
         <?php
     }
 
-    private function render_table_row(LogEntry $entry): void
+    private function render_table_row(LogEntry $entry, ?int $submission_id = null): void
     {
         $view_url = add_query_arg(
             ['page' => PageController::SLUG, 'action' => 'view', 'id' => $entry->id],
@@ -295,6 +320,16 @@ final class LogsPage
                 <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View log entry', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-visibility"></span>
                 </a>
+                <?php if ($submission_id !== null) :
+                    $submission_url = add_query_arg(
+                        ['action' => 'view', 'id' => $submission_id],
+                        ContactFormSubmissionsPage::base_url()
+                    );
+                    ?>
+                    <a href="<?php echo esc_url($submission_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View contact form submission', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-feedback"></span>
+                    </a>
+                <?php endif; ?>
                 <button type="button" class="lrob-etk-row-action lrob-etk-row-resend" data-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Resend', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Resend email', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-update"></span>
                 </button>

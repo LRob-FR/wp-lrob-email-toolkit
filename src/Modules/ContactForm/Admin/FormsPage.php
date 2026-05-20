@@ -36,8 +36,13 @@ final class FormsPage
 
     public const ACTION_DELETE_FORM = 'lrob_etk_cform_delete';
 
-    public function __construct(private ContactFormModule $module)
-    {
+    /** Sub-view of this page that delegates rendering to SubmissionsPage. */
+    public const VIEW_SUBMISSIONS = 'submissions';
+
+    public function __construct(
+        private ContactFormModule $module,
+        private SubmissionsPage $submissions_page,
+    ) {
     }
 
     public function register(): void
@@ -529,6 +534,15 @@ final class FormsPage
             wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
         }
 
+        // View dispatch: ?view=submissions is the Submissions inbox living
+        // under this page's slug (no separate admin URL). Keeps the cap
+        // check + sidebar highlight consistent without a hidden submenu.
+        $view = isset($_GET['view']) && is_string($_GET['view']) ? sanitize_key((string) $_GET['view']) : '';
+        if ($view === self::VIEW_SUBMISSIONS) {
+            $this->submissions_page->render();
+            return;
+        }
+
         $enabled = $this->module->is_enabled();
         ?>
         <div class="wrap lrob-etk lrob-etk-cform-page">
@@ -537,6 +551,10 @@ final class FormsPage
                 <?php ModuleToggle::render_inline($this->module); ?>
                 <?php if ($enabled) : ?>
                     <div class="lrob-etk-page-header-actions">
+                        <a href="<?php echo esc_url(SubmissionsPage::base_url()); ?>" class="button">
+                            <span class="dashicons dashicons-feedback"></span>
+                            <?php esc_html_e('View submissions', 'lrob-email-toolkit'); ?>
+                        </a>
                         <button type="button" class="button" id="lrob-etk-cf-defaults-btn" data-defaults-modal-open>
                             <span class="dashicons dashicons-admin-generic"></span>
                             <?php esc_html_e('Default settings', 'lrob-email-toolkit'); ?>
@@ -561,9 +579,186 @@ final class FormsPage
                 </p>
             <?php else : ?>
                 <?php $this->render_forms_section(); ?>
+                <?php $this->render_submissions_panel(); ?>
                 <?php $this->render_defaults_modal(); ?>
+                <?php $this->render_delete_modal(); ?>
             <?php endif; ?>
         </div>
+        <?php
+    }
+
+    /**
+     * Shared confirmation modal triggered from every form card's Delete
+     * button. Wired client-side: the trigger button data-* attrs are read
+     * on click, the modal populates with the form title + count, and the
+     * orphan / cascade choice picks which pre-signed URL to navigate to.
+     * No AJAX — the URLs already carry the nonce.
+     */
+    private function render_delete_modal(): void
+    {
+        ?>
+        <div class="lrob-etk-modal lrob-etk-cf-delete-modal" id="lrob-etk-cf-delete-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-cf-delete-title" hidden>
+            <div class="lrob-etk-modal-backdrop" data-cf-delete-cancel></div>
+            <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--small">
+                <header class="lrob-etk-modal-header">
+                    <h3 id="lrob-etk-cf-delete-title" class="lrob-etk-modal-title-text"></h3>
+                    <button type="button" class="lrob-etk-modal-close" data-cf-delete-cancel aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                    </button>
+                </header>
+                <div class="lrob-etk-modal-body">
+                    <p class="lrob-etk-cf-delete-summary"></p>
+                    <p class="lrob-etk-cf-delete-warning lrob-etk-cf-delete-warning--no-subs">
+                        <?php esc_html_e('This form has no submissions yet. Deleting is final.', 'lrob-email-toolkit'); ?>
+                    </p>
+                </div>
+                <footer class="lrob-etk-modal-footer lrob-etk-cf-delete-footer">
+                    <button type="button" class="button" data-cf-delete-cancel>
+                        <?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?>
+                    </button>
+                    <button type="button" class="button lrob-etk-cf-delete-orphan" data-cf-delete-choice="orphan">
+                        <?php esc_html_e('Delete form only', 'lrob-email-toolkit'); ?>
+                    </button>
+                    <button type="button" class="button button-link-delete lrob-etk-cf-delete-cascade" data-cf-delete-choice="cascade">
+                        <?php esc_html_e('Delete form + submissions', 'lrob-email-toolkit'); ?>
+                    </button>
+                </footer>
+            </div>
+        </div>
+        <script>
+        (function () {
+            var modal = document.getElementById('lrob-etk-cf-delete-modal');
+            if (!modal) return;
+            var titleEl   = modal.querySelector('#lrob-etk-cf-delete-title');
+            var summary   = modal.querySelector('.lrob-etk-cf-delete-summary');
+            var noSubsMsg = modal.querySelector('.lrob-etk-cf-delete-warning--no-subs');
+            var orphanBtn = modal.querySelector('.lrob-etk-cf-delete-orphan');
+            var cascadeBtn = modal.querySelector('.lrob-etk-cf-delete-cascade');
+            var currentTrigger = null;
+
+            function open(btn) {
+                currentTrigger = btn;
+                var formTitle = btn.getAttribute('data-form-title') || '';
+                var total = parseInt(btn.getAttribute('data-submissions') || '0', 10);
+                var received = parseInt(btn.getAttribute('data-submissions-received') || '0', 10);
+                var blocked = parseInt(btn.getAttribute('data-submissions-blocked') || '0', 10);
+
+                titleEl.textContent =
+                    <?php /* translators: %s: contact form title */ ?>
+                    <?php echo wp_json_encode(__('Delete contact form "%s"?', 'lrob-email-toolkit')); ?>
+                        .replace('%s', formTitle);
+
+                if (total > 0) {
+                    var parts = [];
+                    if (received > 0) parts.push(received + ' ' + (received === 1
+                        ? <?php echo wp_json_encode(__('received', 'lrob-email-toolkit')); ?>
+                        : <?php echo wp_json_encode(__('received', 'lrob-email-toolkit')); ?>));
+                    if (blocked > 0) parts.push(blocked + ' ' + <?php echo wp_json_encode(__('blocked', 'lrob-email-toolkit')); ?>);
+                    summary.textContent =
+                        <?php /* translators: %1$d total submissions, %2$s breakdown */ ?>
+                        <?php echo wp_json_encode(__('This form has %1$d submissions (%2$s). What should happen to them?', 'lrob-email-toolkit')); ?>
+                            .replace('%1$d', total)
+                            .replace('%2$s', parts.join(', '));
+                    summary.hidden = false;
+                    noSubsMsg.hidden = true;
+                    orphanBtn.hidden = false;
+                    cascadeBtn.textContent =
+                        <?php /* translators: %d: number of submissions */ ?>
+                        <?php echo wp_json_encode(__('Delete form + %d submissions', 'lrob-email-toolkit')); ?>
+                            .replace('%d', total);
+                } else {
+                    summary.hidden = true;
+                    noSubsMsg.hidden = false;
+                    orphanBtn.hidden = true;
+                    cascadeBtn.textContent = <?php echo wp_json_encode(__('Delete', 'lrob-email-toolkit')); ?>;
+                }
+
+                modal.hidden = false;
+                document.body.classList.add('lrob-etk-modal-open');
+                cascadeBtn.focus();
+            }
+
+            function close() {
+                modal.hidden = true;
+                document.body.classList.remove('lrob-etk-modal-open');
+                currentTrigger = null;
+            }
+
+            document.addEventListener('click', function (e) {
+                var trigger = e.target.closest && e.target.closest('[data-cf-delete]');
+                if (trigger) {
+                    e.preventDefault();
+                    open(trigger);
+                    return;
+                }
+                if (e.target.closest && e.target.closest('[data-cf-delete-cancel]')) {
+                    e.preventDefault();
+                    close();
+                    return;
+                }
+                var choice = e.target.closest && e.target.closest('[data-cf-delete-choice]');
+                if (choice && currentTrigger) {
+                    var mode = choice.getAttribute('data-cf-delete-choice');
+                    var url = mode === 'cascade'
+                        ? currentTrigger.getAttribute('data-url-cascade')
+                        : currentTrigger.getAttribute('data-url-orphan');
+                    if (url) window.location.href = url;
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !modal.hidden) close();
+            });
+        })();
+        </script>
+        <?php
+    }
+
+    /**
+     * Aggregate submissions stats at the bottom of the Forms page. Doubles
+     * as the secondary entry point into the Submissions inbox — the primary
+     * being the "View submissions" header button. Hidden when nothing has
+     * ever been received.
+     */
+    private function render_submissions_panel(): void
+    {
+        $counts = (new SubmissionRepository())->counts_by_status();
+        if ($counts['total'] === 0) {
+            return;
+        }
+        $inbox = SubmissionsPage::base_url();
+        $blocked_url = add_query_arg('status', SubmissionRepository::STATUS_SPAM_BLOCKED, $inbox);
+        $delivered_url = add_query_arg('status', SubmissionRepository::STATUS_DELIVERED, $inbox);
+        $failed_url = add_query_arg('status', SubmissionRepository::STATUS_FAILED, $inbox);
+        ?>
+        <section class="lrob-etk-cf-submissions-panel">
+            <header class="lrob-etk-cf-submissions-panel-head">
+                <h2 class="lrob-etk-section-title"><?php esc_html_e('Submissions', 'lrob-email-toolkit'); ?></h2>
+                <a href="<?php echo esc_url($inbox); ?>" class="button button-primary">
+                    <?php esc_html_e('View all submissions', 'lrob-email-toolkit'); ?>
+                    <span aria-hidden="true">→</span>
+                </a>
+            </header>
+            <div class="lrob-etk-cf-submissions-panel-stats">
+                <a class="lrob-etk-cf-submissions-stat" href="<?php echo esc_url($delivered_url); ?>">
+                    <span class="lrob-etk-cf-submissions-stat-value"><?php echo esc_html(number_format_i18n($counts['delivered'])); ?></span>
+                    <span class="lrob-etk-cf-submissions-stat-label"><?php esc_html_e('Delivered', 'lrob-email-toolkit'); ?></span>
+                </a>
+                <a class="lrob-etk-cf-submissions-stat" href="<?php echo esc_url($blocked_url); ?>">
+                    <span class="lrob-etk-cf-submissions-stat-value"><?php echo esc_html(number_format_i18n($counts['blocked'])); ?></span>
+                    <span class="lrob-etk-cf-submissions-stat-label"><?php esc_html_e('Spam blocked', 'lrob-email-toolkit'); ?></span>
+                </a>
+                <?php if ($counts['failed'] > 0) : ?>
+                    <a class="lrob-etk-cf-submissions-stat is-failed" href="<?php echo esc_url($failed_url); ?>">
+                        <span class="lrob-etk-cf-submissions-stat-value"><?php echo esc_html(number_format_i18n($counts['failed'])); ?></span>
+                        <span class="lrob-etk-cf-submissions-stat-label"><?php esc_html_e('Failed to send', 'lrob-email-toolkit'); ?></span>
+                    </a>
+                <?php endif; ?>
+                <div class="lrob-etk-cf-submissions-stat is-total">
+                    <span class="lrob-etk-cf-submissions-stat-value"><?php echo esc_html(number_format_i18n($counts['total'])); ?></span>
+                    <span class="lrob-etk-cf-submissions-stat-label"><?php esc_html_e('Total (all time)', 'lrob-email-toolkit'); ?></span>
+                </div>
+            </div>
+        </section>
         <?php
     }
 
@@ -634,7 +829,7 @@ final class FormsPage
     {
         $form_id = (int) $form['id'];
         $edit_url = admin_url('post.php?action=edit&post=' . $form_id);
-        $delete_url = wp_nonce_url(
+        $delete_url_base = wp_nonce_url(
             add_query_arg(
                 ['action' => self::ACTION_DELETE_FORM, 'form_id' => $form_id],
                 admin_url('admin-post.php')
@@ -642,6 +837,14 @@ final class FormsPage
             self::ACTION_DELETE_FORM . '_' . $form_id,
             '_lrob_etk_nonce'
         );
+        // Two delete paths: orphan submissions (keep historical record) vs
+        // cascade (drop them too). Modal JS picks one when the user clicks
+        // Delete; URLs are pre-signed so the modal stays stateless.
+        $delete_url_orphan = $delete_url_base;
+        $delete_url_cascade = add_query_arg('cascade', 'yes', $delete_url_base);
+        $form_received = (int) ($form['submissions_received'] ?? 0);
+        $form_blocked = (int) ($form['submissions_blocked'] ?? 0);
+        $form_submissions_total = $form_received + $form_blocked;
         $created_display = $form['created'] !== ''
             ? mysql2date(get_option('date_format'), $form['created'])
             : '';
@@ -661,6 +864,7 @@ final class FormsPage
             'honeypot'     => (string) get_post_meta($form_id, CPT::META_HONEYPOT_ENABLED, true),
             'challenge'    => (string) get_post_meta($form_id, CPT::META_CHALLENGE_KIND, true),
             'style_preset' => (string) get_post_meta($form_id, CPT::META_STYLE_PRESET, true),
+            'save_subs'    => (string) get_post_meta($form_id, CPT::META_SAVE_SUBMISSIONS, true),
         ];
         $rate_window_minutes_value = $meta['rate_window'] > 0 ? (int) round($meta['rate_window'] / 60) : 0;
 
@@ -725,6 +929,16 @@ final class FormsPage
         $hp_value = $meta['honeypot'] !== '' ? $meta['honeypot'] : 'default';
         $honeypot_options = [
             ['value' => 'default', 'label' => self::label_default($hp_default_label)],
+            ['value' => 'on',      'label' => __('On',  'lrob-email-toolkit')],
+            ['value' => 'off',     'label' => __('Off', 'lrob-email-toolkit')],
+        ];
+
+        $save_default_label = !empty($globals[Settings::KEY_SAVE_SUBMISSIONS])
+            ? __('On', 'lrob-email-toolkit')
+            : __('Off', 'lrob-email-toolkit');
+        $save_value = $meta['save_subs'] !== '' ? $meta['save_subs'] : 'default';
+        $save_subs_options = [
+            ['value' => 'default', 'label' => self::label_default($save_default_label)],
             ['value' => 'on',      'label' => __('On',  'lrob-email-toolkit')],
             ['value' => 'off',     'label' => __('Off', 'lrob-email-toolkit')],
         ];
@@ -832,6 +1046,28 @@ final class FormsPage
 
                 <?php self::render_fields_editor($form_id); ?>
 
+                <?php
+                $received = (int) ($form['submissions_received'] ?? 0);
+                $blocked = (int) ($form['submissions_blocked'] ?? 0);
+                if ($received > 0 || $blocked > 0) :
+                    $submissions_url = add_query_arg('form_id', $form_id, SubmissionsPage::base_url());
+                    ?>
+                    <a class="lrob-etk-cf-submissions-link" href="<?php echo esc_url($submissions_url); ?>">
+                        <span class="lrob-etk-cf-submissions-link-received">
+                            <strong><?php echo esc_html(number_format_i18n($received)); ?></strong>
+                            <?php echo esc_html(_n('received', 'received', $received, 'lrob-email-toolkit')); ?>
+                        </span>
+                        <?php if ($blocked > 0) : ?>
+                            <span class="lrob-etk-cf-submissions-link-sep">·</span>
+                            <span class="lrob-etk-cf-submissions-link-blocked">
+                                <strong><?php echo esc_html(number_format_i18n($blocked)); ?></strong>
+                                <?php esc_html_e('blocked', 'lrob-email-toolkit'); ?>
+                            </span>
+                        <?php endif; ?>
+                        <span class="lrob-etk-cf-submissions-link-arrow" aria-hidden="true">→</span>
+                    </a>
+                <?php endif; ?>
+
                 <details class="lrob-etk-cf-advanced">
                     <summary class="lrob-etk-cf-advanced-summary">
                         <span class="lrob-etk-cf-advanced-caret" aria-hidden="true">▸</span>
@@ -839,12 +1075,8 @@ final class FormsPage
                         <?php if ($created_display !== '') : ?>
                             <span class="lrob-etk-cf-advanced-meta">
                                 <?php
-                                printf(
-                                    /* translators: 1: number of submissions, 2: localized creation date */
-                                    esc_html__('%1$s submissions · since %2$s', 'lrob-email-toolkit'),
-                                    '<strong>' . esc_html(number_format_i18n((int) $form['submissions'])) . '</strong>',
-                                    esc_html($created_display)
-                                );
+                                /* translators: %s: localized creation date */
+                                printf(esc_html__('Since %s', 'lrob-email-toolkit'), esc_html($created_display));
                                 ?>
                             </span>
                         <?php endif; ?>
@@ -906,6 +1138,13 @@ final class FormsPage
                                     </label>
                                     <?php self::render_combobox(CPT::META_CHALLENGE_KIND, $meta['challenge'], $challenge_options); ?>
                                 </div>
+                                <div class="lrob-etk-field">
+                                    <label>
+                                        <?php esc_html_e('Save submissions', 'lrob-email-toolkit'); ?>
+                                        <?php Tooltip::render(__('Archive received submissions to the database. When off, the notification email still goes out but no row is written and this form drops out of the Submissions inbox.', 'lrob-email-toolkit')); ?>
+                                    </label>
+                                    <?php self::render_combobox(CPT::META_SAVE_SUBMISSIONS, $save_value, $save_subs_options, 'default'); ?>
+                                </div>
 
                                 <h3 class="lrob-etk-form-column-head" style="margin-top: 12px;">
                                     <span class="lrob-etk-form-column-title"><?php esc_html_e('Throttling', 'lrob-email-toolkit'); ?></span>
@@ -941,15 +1180,17 @@ final class FormsPage
 
                 <footer class="lrob-etk-card-footer">
                     <div class="lrob-etk-card-footer-actions">
-                        <a href="<?php echo esc_url($delete_url); ?>"
-                           class="lrob-etk-card-delete-link"
-                           onclick="return confirm('<?php echo esc_js(sprintf(
-                               /* translators: %s: contact form title */
-                               __('Delete the contact form "%s"? This cannot be undone.', 'lrob-email-toolkit'),
-                               $title !== '' ? $title : __('(no title)', 'lrob-email-toolkit')
-                           )); ?>');">
+                        <button type="button"
+                                class="lrob-etk-card-delete-link"
+                                data-cf-delete
+                                data-form-title="<?php echo esc_attr($title !== '' ? $title : __('(no title)', 'lrob-email-toolkit')); ?>"
+                                data-submissions="<?php echo (int) $form_submissions_total; ?>"
+                                data-submissions-blocked="<?php echo (int) $form_blocked; ?>"
+                                data-submissions-received="<?php echo (int) $form_received; ?>"
+                                data-url-orphan="<?php echo esc_attr($delete_url_orphan); ?>"
+                                data-url-cascade="<?php echo esc_attr($delete_url_cascade); ?>">
                             <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
-                        </a>
+                        </button>
                     </div>
                 </footer>
             </form>
@@ -1153,6 +1394,15 @@ final class FormsPage
             ['value' => '0', 'label' => __('Off', 'lrob-email-toolkit')],
         ];
 
+        $save_options = [
+            ['value' => '1', 'label' => __('On', 'lrob-email-toolkit')],
+            ['value' => '0', 'label' => __('Off', 'lrob-email-toolkit')],
+        ];
+        $ip_options = [
+            ['value' => '0', 'label' => __('Hash only (recommended)', 'lrob-email-toolkit')],
+            ['value' => '1', 'label' => __('Store raw IP', 'lrob-email-toolkit')],
+        ];
+
         // Default challenge is now configured on the Captcha settings page
         // (Email Toolkit → Captcha → Routing → "Contact forms"). The Defaults
         // modal links there instead of duplicating the dropdown.
@@ -1340,6 +1590,52 @@ final class FormsPage
                         </section>
                     </div>
                 </div>
+
+                <section class="lrob-etk-cf-submissions-storage-section">
+                    <h3 class="lrob-etk-cf-section-title"><?php esc_html_e('Submissions storage', 'lrob-email-toolkit'); ?></h3>
+                    <div class="lrob-etk-cf-defaults-grid">
+                        <div class="lrob-etk-field">
+                            <label>
+                                <?php esc_html_e('Save submissions', 'lrob-email-toolkit'); ?>
+                                <?php Tooltip::render(__('Archive every received submission in the database (browsable in the Submissions inbox). Turn off if you only want the notification email and no audit trail — captcha and honeypot still run.', 'lrob-email-toolkit')); ?>
+                            </label>
+                            <?php self::render_combobox(Settings::KEY_SAVE_SUBMISSIONS, !empty($s[Settings::KEY_SAVE_SUBMISSIONS]) ? '1' : '0', $save_options); ?>
+                        </div>
+                        <div class="lrob-etk-field">
+                            <label>
+                                <?php esc_html_e('IP storage', 'lrob-email-toolkit'); ?>
+                                <?php Tooltip::render(__('Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions.', 'lrob-email-toolkit')); ?>
+                            </label>
+                            <?php self::render_combobox(Settings::KEY_STORE_RAW_IP, !empty($s[Settings::KEY_STORE_RAW_IP]) ? '1' : '0', $ip_options); ?>
+                        </div>
+                        <div class="lrob-etk-field">
+                            <label>
+                                <?php esc_html_e('Keep delivered for (days)', 'lrob-email-toolkit'); ?>
+                                <?php Tooltip::render(__('Submissions whose notification was sent. 0 = keep forever. Daily cron purges older rows.', 'lrob-email-toolkit')); ?>
+                            </label>
+                            <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                   name="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
+                                   class="lrob-etk-cf-field"
+                                   data-key="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
+                                   maxlength="4"
+                                   value="<?php echo (int) $s[Settings::KEY_RETENTION_DELIVERED_DAYS]; ?>"
+                                   placeholder="0">
+                        </div>
+                        <div class="lrob-etk-field">
+                            <label>
+                                <?php esc_html_e('Keep spam for (days)', 'lrob-email-toolkit'); ?>
+                                <?php Tooltip::render(__('Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and stored rows are mostly useful for short-term forensics. 0 = keep forever.', 'lrob-email-toolkit')); ?>
+                            </label>
+                            <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                   name="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
+                                   class="lrob-etk-cf-field"
+                                   data-key="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
+                                   maxlength="4"
+                                   value="<?php echo (int) $s[Settings::KEY_RETENTION_SPAM_DAYS]; ?>"
+                                   placeholder="90">
+                        </div>
+                    </div>
+                </section>
             </form>
         </article>
                 </div>
@@ -1387,8 +1683,18 @@ final class FormsPage
             wp_die(esc_html__('Security check failed. Please retry.', 'lrob-email-toolkit'));
         }
 
+        // Cascade flag: 'yes' = drop submissions too, anything else = orphan
+        // (submissions stay browsable in the inbox under "Deleted form #N").
+        // Modal UI in render_form_card surfaces the choice; if the request
+        // arrives without the flag (e.g. direct URL), default to orphaning
+        // since that's non-destructive for the historical record.
+        $cascade = isset($_GET['cascade']) && (string) $_GET['cascade'] === 'yes';
+
         $post = get_post($form_id);
         if ($post instanceof \WP_Post && $post->post_type === CPT::POST_TYPE) {
+            if ($cascade) {
+                (new SubmissionRepository())->delete_for_form($form_id);
+            }
             wp_delete_post($form_id, true);
         }
 
@@ -1416,12 +1722,17 @@ final class FormsPage
 
         $out = [];
         foreach ($posts as $post) {
+            $split = $submissions_repo
+                ? $submissions_repo->counts_for_form_split((int) $post->ID)
+                : ['received' => 0, 'blocked' => 0];
             $out[] = [
-                'id'          => (int) $post->ID,
-                'title'       => (string) $post->post_title,
-                'status'      => (string) $post->post_status,
-                'created'     => (string) $post->post_date_gmt,
-                'submissions' => $submissions_repo ? $submissions_repo->count_for_form((int) $post->ID) : 0,
+                'id'                  => (int) $post->ID,
+                'title'               => (string) $post->post_title,
+                'status'              => (string) $post->post_status,
+                'created'             => (string) $post->post_date_gmt,
+                'submissions'         => $split['received'] + $split['blocked'],
+                'submissions_received' => $split['received'],
+                'submissions_blocked'  => $split['blocked'],
             ];
         }
         return $out;

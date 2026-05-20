@@ -102,6 +102,10 @@ Admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table
 - **Tooltips** (`Admin\Tooltip::render()`) — `position: fixed` with JS-computed coords so they escape scroll containers / popovers. Tip text has explicit `text-transform: none`.
 - **CSS gotcha**: WP's `.button { display: inline-block }` overrides `[hidden]`. `.lrob-etk [hidden] { display: none !important }` is the fix — keep it.
 
+## Hidden admin pages
+
+Don't `add_submenu_page(...)` + `remove_submenu_page(...)` — `get_admin_page_cap()` walks `$submenu` for direct URLs, so an empty entry returns `'do_not_allow'` and the page 403s. Render as a **view** of an existing registered page: dispatch on `$_GET['view']` at the top of the parent's `render()` and delegate. URL pattern: `?page=<parent-slug>&view=<view-name>`. See `FormsPage` → `SubmissionsPage` (view `submissions`) and `DashboardPage` → `DataPage` (view `data`).
+
 ## Per-module AJAX
 
 Each module's admin lives under `Modules/<Name>/Admin/AjaxController.php`. One shared nonce per module (e.g. `lrob_etk_smtp_ajax`), one `action` per endpoint, JSON in/out. `manage_lrob_etk` + `check_ajax_referer` gate every handler. Don't introduce REST routes unless an external integration actually needs them.

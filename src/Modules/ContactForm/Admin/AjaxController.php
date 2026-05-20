@@ -47,6 +47,10 @@ final class AjaxController
         Settings::KEY_ACCENT,
         Settings::KEY_RADIUS,
         Settings::KEY_FONT_SIZE,
+        Settings::KEY_SAVE_SUBMISSIONS,
+        Settings::KEY_STORE_RAW_IP,
+        Settings::KEY_RETENTION_DELIVERED_DAYS,
+        Settings::KEY_RETENTION_SPAM_DAYS,
     ];
 
     /** Keys that map to post_meta (value type → coerce on save). */
@@ -61,6 +65,7 @@ final class AjaxController
         CPT::META_HONEYPOT_ENABLED    => 'tristate',
         CPT::META_CHALLENGE_KIND      => 'challenge',
         CPT::META_STYLE_PRESET        => 'style_preset',
+        CPT::META_SAVE_SUBMISSIONS    => 'tristate',
     ];
 
     public function register(): void

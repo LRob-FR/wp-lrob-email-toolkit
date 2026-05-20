@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging\Admin;
 
+use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage as ContactFormSubmissionsPage;
+use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository as ContactFormSubmissions;
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
 
 /**
@@ -44,6 +46,23 @@ final class LogViewPage
                 <a href="<?php echo esc_url($list_url); ?>" class="button button-link">
                     ← <?php esc_html_e('Back to logs', 'lrob-email-toolkit'); ?>
                 </a>
+                <?php
+                if (class_exists(ContactFormSubmissions::class)) {
+                    $submission = (new ContactFormSubmissions())->find_by_log_id($entry->id);
+                    if ($submission !== null) {
+                        $submission_url = add_query_arg(
+                            ['action' => 'view', 'id' => $submission->id],
+                            ContactFormSubmissionsPage::base_url()
+                        );
+                        ?>
+                        <a href="<?php echo esc_url($submission_url); ?>" class="button">
+                            <span class="dashicons dashicons-feedback"></span>
+                            <?php esc_html_e('View source submission', 'lrob-email-toolkit'); ?>
+                        </a>
+                        <?php
+                    }
+                }
+                ?>
             </p>
 
             <?php if ($entry->error_message !== null) : ?>

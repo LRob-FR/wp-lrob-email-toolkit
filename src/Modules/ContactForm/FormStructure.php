@@ -110,6 +110,45 @@ final class FormStructure
         ];
     }
 
+    /**
+     * Flat slug → {label, type} index of every field in the structure. Used
+     * by the submissions inbox to render stored values with their human
+     * labels (submissions store slugs, not labels — labels can change).
+     *
+     * @return array<string, array{label:string, type:string}>
+     */
+    public static function fields_index(array $structure): array
+    {
+        $out = [];
+        if (!isset($structure['rows']) || !is_array($structure['rows'])) {
+            return $out;
+        }
+        foreach ($structure['rows'] as $row) {
+            if (!is_array($row['columns'] ?? null)) {
+                continue;
+            }
+            foreach ($row['columns'] as $col) {
+                if (!is_array($col['fields'] ?? null)) {
+                    continue;
+                }
+                foreach ($col['fields'] as $f) {
+                    if (!is_array($f)) {
+                        continue;
+                    }
+                    $slug = (string) ($f['slug'] ?? '');
+                    if ($slug === '') {
+                        continue;
+                    }
+                    $out[$slug] = [
+                        'label' => (string) ($f['label'] ?? $slug),
+                        'type'  => (string) ($f['type'] ?? 'text'),
+                    ];
+                }
+            }
+        }
+        return $out;
+    }
+
     /** True if the structure contains at least one field of the given type. */
     public static function has_field_of_type(array $structure, string $type): bool
     {

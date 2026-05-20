@@ -26,7 +26,8 @@ use LRob\EmailToolkit\Modules\ModuleManager;
  */
 final class DataPage
 {
-    public const SLUG = 'lrob-etk-data';
+    /** Sub-view name on the Dashboard URL. See DashboardPage::render. */
+    public const VIEW = 'data';
 
     public const ACTION_WIPE_MODULE = 'lrob_etk_wipe_module';
 
@@ -40,43 +41,18 @@ final class DataPage
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'add_submenu'], 90);
-        add_action('admin_head', [$this, 'hide_menu_link']);
         add_action('admin_post_' . self::ACTION_WIPE_MODULE,         [$this, 'handle_wipe_module']);
         add_action('admin_post_' . self::ACTION_RESET_ALL,           [$this, 'handle_reset_all']);
         add_action('admin_post_' . self::ACTION_SAVE_UNINSTALL_MODE, [$this, 'handle_save_uninstall_mode']);
     }
 
-    /**
-     * Register the page as a normal submenu so WP's access check
-     * (user_can_access_admin_page()) finds it in $submenu — the entry
-     * point is a button at the bottom of the Dashboard, the link itself
-     * is CSS-hidden in hide_menu_link(). Earlier attempts to use
-     * `add_submenu_page(null, ...)` or `remove_submenu_page` after add
-     * both have failure modes — null parent triggers PHP 8.1+
-     * deprecations, and remove_submenu_page makes WP refuse access with
-     * "Sorry, you are not allowed to access this page." See
-     * [[project-wp-hidden-submenu-pattern]] memory for the long version.
-     */
-    public function add_submenu(): void
+    /** URL of the Plugin Data view (no extra params). */
+    public static function url(): string
     {
-        add_submenu_page(
-            Menu::SLUG,
-            __('Plugin data', 'lrob-email-toolkit'),
-            __('Plugin data', 'lrob-email-toolkit'),
-            Activator::CAPABILITY,
-            self::SLUG,
-            [$this, 'render']
+        return add_query_arg(
+            ['page' => Menu::SLUG, 'view' => self::VIEW],
+            admin_url('admin.php')
         );
-    }
-
-    /**
-     * Hide the submenu link in the left-hand admin menu without removing
-     * the page from $submenu (which would break user_can_access_admin_page).
-     */
-    public function hide_menu_link(): void
-    {
-        echo '<style>#adminmenu a[href$="page=' . esc_attr(self::SLUG) . '"]{display:none !important;}</style>';
     }
 
     public function render(): void
@@ -228,7 +204,7 @@ final class DataPage
         $module = $this->manager->get($slug);
 
         if (!$module instanceof ModuleInterface || $confirm !== $slug) {
-            wp_safe_redirect(admin_url('admin.php?page=' . self::SLUG));
+            wp_safe_redirect(self::url());
             exit;
         }
 
@@ -255,7 +231,7 @@ final class DataPage
                 __('%s data wiped.', 'lrob-email-toolkit'),
                 $module->name()
             )),
-            admin_url('admin.php?page=' . self::SLUG)
+            self::url()
         ));
         exit;
     }
@@ -265,7 +241,7 @@ final class DataPage
         $this->guard(self::ACTION_RESET_ALL);
         $confirm = isset($_POST['confirm']) ? (string) wp_unslash($_POST['confirm']) : '';
         if ($confirm !== 'lrob-email-toolkit') {
-            wp_safe_redirect(admin_url('admin.php?page=' . self::SLUG));
+            wp_safe_redirect(self::url());
             exit;
         }
 
@@ -312,7 +288,7 @@ final class DataPage
         wp_safe_redirect(add_query_arg(
             'done',
             rawurlencode(__('Uninstall behaviour saved.', 'lrob-email-toolkit')),
-            admin_url('admin.php?page=' . self::SLUG)
+            self::url()
         ));
         exit;
     }

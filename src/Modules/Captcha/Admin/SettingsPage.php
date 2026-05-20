@@ -8,6 +8,7 @@ use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Identity;
 use LRob\EmailToolkit\Modules\Captcha\Providers\ProviderInterface;
 use LRob\EmailToolkit\Modules\Captcha\Routing;
+use LRob\EmailToolkit\Modules\Captcha\StatsRepository;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
 /**
@@ -34,6 +35,9 @@ final class SettingsPage
     ) {
     }
 
+    /** @var array<string, array{passed:int, failed:int, total:int}> */
+    private array $stats_breakdown = [];
+
     public function render(): void
     {
         $homemade = $this->service->homemade_challenges();
@@ -41,6 +45,7 @@ final class SettingsPage
         $identities = $this->service->identity_repository()->all();
         $map = Routing::context_map();
         $default_route = isset($map[Routing::KEY_DEFAULT]) ? $map[Routing::KEY_DEFAULT] : Routing::ROUTE_NONE;
+        $this->stats_breakdown = (new StatsRepository())->breakdown_by_route(30);
 
         ?>
         <div class="wrap lrob-etk lrob-etk-captcha-page" data-route-options='<?php echo esc_attr((string) wp_json_encode($this->route_options_for_js($homemade, $providers, $identities))); ?>'>
@@ -89,12 +94,20 @@ final class SettingsPage
         <section class="lrob-etk-captcha-section">
             <h2 class="lrob-etk-section-title"><?php esc_html_e('Built-in challenges', 'lrob-email-toolkit'); ?></h2>
             <ul class="lrob-etk-captcha-builtins">
-                <?php foreach ($homemade as $challenge) : ?>
+                <?php foreach ($homemade as $slug => $challenge) :
+                    $route = Routing::homemade($slug);
+                    $stats = $this->stats_breakdown[$route] ?? null;
+                    ?>
                     <li>
                         <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
                         <div>
                             <strong><?php echo esc_html($challenge->label()); ?></strong>
                             <p><?php echo esc_html($challenge->description()); ?></p>
+                            <?php if ($stats !== null && $stats['total'] > 0) : ?>
+                                <p class="lrob-etk-captcha-route-stats">
+                                    <?php $this->render_route_counter($stats); ?>
+                                </p>
+                            <?php endif; ?>
                         </div>
                     </li>
                 <?php endforeach; ?>
@@ -141,6 +154,25 @@ final class SettingsPage
     private function render_identity_card(Identity $identity, ProviderInterface $provider, array $providers): void
     {
         $this->render_card_shell($identity, $provider, $providers, false);
+    }
+
+    /** @param array{passed:int, failed:int, total:int} $stats */
+    private function render_route_counter(array $stats): void
+    {
+        ?>
+        <span class="lrob-etk-captcha-stat" title="<?php esc_attr_e('Captcha activity over the last 30 days', 'lrob-email-toolkit'); ?>">
+            <span class="lrob-etk-captcha-stat-blocked">
+                <strong><?php echo esc_html(number_format_i18n($stats['failed'])); ?></strong>
+                <?php esc_html_e('blocked', 'lrob-email-toolkit'); ?>
+            </span>
+            <span class="lrob-etk-captcha-stat-sep">·</span>
+            <span class="lrob-etk-captcha-stat-passed">
+                <strong><?php echo esc_html(number_format_i18n($stats['passed'])); ?></strong>
+                <?php esc_html_e('passed', 'lrob-email-toolkit'); ?>
+            </span>
+            <span class="lrob-etk-captcha-stat-window"><?php esc_html_e('(30d)', 'lrob-email-toolkit'); ?></span>
+        </span>
+        <?php
     }
 
     /**
@@ -241,6 +273,15 @@ final class SettingsPage
                         <span class="dashicons dashicons-tag" aria-hidden="true"></span>
                         <code><?php echo esc_html($derived_slug); ?></code>
                     </span>
+                    <?php
+                    if ($identity !== null) {
+                        $route = Routing::identity((int) $identity->id);
+                        $stats = $this->stats_breakdown[$route] ?? null;
+                        if ($stats !== null && $stats['total'] > 0) {
+                            $this->render_route_counter($stats);
+                        }
+                    }
+                    ?>
                 </div>
 
                 <?php if ($can_swap_provider) : ?>

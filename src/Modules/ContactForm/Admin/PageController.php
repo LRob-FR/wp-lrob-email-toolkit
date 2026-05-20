@@ -9,16 +9,18 @@ use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\Module as ContactFormModule;
 
 /**
- * Mounts a single "Contact Forms" entry under the Email Toolkit top-level
- * menu. That entry is a custom page (FormsPage) — list of forms + global
- * defaults grouped on one screen. We don't expose the bare CPT list
- * (edit.php?post_type=...) because it would duplicate this page and
- * pre-defaults users with raw WP-list UX.
+ * Mounts the single "Contact Forms" entry under the Email Toolkit top-level
+ * menu. The Submissions inbox is a view of the same page (?view=submissions)
+ * rather than a separate submenu — see FormsPage::render. We don't expose
+ * the bare CPT list (edit.php?post_type=...) because it would duplicate the
+ * custom UI and confuse users.
  */
 final class PageController
 {
-    public function __construct(private ContactFormModule $module, private FormsPage $forms_page)
-    {
+    public function __construct(
+        private ContactFormModule $module,
+        private FormsPage $forms_page,
+    ) {
     }
 
     public function register(): void

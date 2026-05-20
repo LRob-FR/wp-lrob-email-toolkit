@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Modules\Captcha\StatsRepository as CaptchaStats;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage as ContactFormSubmissionsPage;
 use LRob\EmailToolkit\Modules\ContactForm\CPT as ContactFormCPT;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository as ContactFormSubmissions;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController as LogsPageController;
@@ -39,14 +41,25 @@ final class DashboardPage
     /** Stats range keys (subset of RANGES, no "all"). */
     private const STAT_RANGES = ['24h', '7d', '30d', '1y'];
 
-    public function __construct(private ModuleManager $manager)
-    {
+    public function __construct(
+        private ModuleManager $manager,
+        private DataPage $data_page,
+    ) {
     }
 
     public function render(): void
     {
         if (!current_user_can(Activator::CAPABILITY)) {
             wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
+        }
+
+        // View dispatch: ?view=data delegates to DataPage (Plugin Data
+        // management). Lives under the Dashboard slug rather than as its
+        // own submenu so we don't add a sidebar entry we'd need to hide.
+        $view = isset($_GET['view']) && is_string($_GET['view']) ? sanitize_key((string) $_GET['view']) : '';
+        if ($view === DataPage::VIEW) {
+            $this->data_page->render();
+            return;
         }
 
         $logging = $this->manager->get('logging');
@@ -82,6 +95,7 @@ final class DashboardPage
             <?php endif; ?>
 
             <?php $this->render_modules_grid(); ?>
+            <?php $this->render_contact_form_panel(); ?>
             <?php $this->render_recent_activity($repository); ?>
 
             <?php $this->render_test_email_popover(); ?>
@@ -491,7 +505,7 @@ final class DashboardPage
                 </ul>
             <?php endif; ?>
             <div class="lrob-etk-data-summary-actions">
-                <a href="<?php echo esc_url(admin_url('admin.php?page=' . DataPage::SLUG)); ?>" class="button">
+                <a href="<?php echo esc_url(DataPage::url()); ?>" class="button">
                     <span class="dashicons dashicons-database-view"></span>
                     <?php esc_html_e('Manage plugin data', 'lrob-email-toolkit'); ?>
                 </a>
@@ -560,6 +574,197 @@ final class DashboardPage
             </footer>
         </div>
         <?php
+    }
+
+    /**
+     * Combined Contact Form panel: spam-blocked stat (honeypot + captcha)
+     * and a "recent submissions" mini-table. Skipped entirely when the
+     * Contact Form module is disabled or no submissions exist.
+     */
+    private function render_contact_form_panel(): void
+    {
+        $cf = $this->manager->get('contact_form');
+        if (!$cf instanceof ModuleInterface || !$cf->is_enabled()) {
+            return;
+        }
+        if (!class_exists(ContactFormSubmissions::class)) {
+            return;
+        }
+        $submissions_repo = new ContactFormSubmissions();
+        $total = $submissions_repo->count_total();
+        if ($total === 0) {
+            return;
+        }
+
+        $window_days = 30;
+        $honeypot_blocked = $submissions_repo->count_honeypot_blocks($window_days);
+        $captcha_blocked = class_exists(CaptchaStats::class)
+            ? (new CaptchaStats())->total_failures($window_days)
+            : 0;
+        $total_blocked = $honeypot_blocked + $captcha_blocked;
+        $delivered_30d = $submissions_repo->count([
+            'statuses'  => [ContactFormSubmissions::STATUS_DELIVERED],
+            'date_from' => gmdate('Y-m-d H:i:s', time() - ($window_days * DAY_IN_SECONDS)),
+        ]);
+        $recent = $submissions_repo->paginate([], 1, 5);
+        $forms = get_posts([
+            'post_type'        => ContactFormCPT::POST_TYPE,
+            'post_status'      => ['publish', 'draft', 'private'],
+            'numberposts'      => -1,
+            'fields'           => 'ids',
+            'suppress_filters' => true,
+        ]);
+        $form_titles = [];
+        foreach (is_array($forms) ? $forms : [] as $fid) {
+            $post = get_post((int) $fid);
+            if ($post instanceof \WP_Post) {
+                $form_titles[(int) $fid] = (string) $post->post_title;
+            }
+        }
+        $inbox_url = ContactFormSubmissionsPage::base_url();
+        $blocked_url = add_query_arg('status', ContactFormSubmissions::STATUS_SPAM_BLOCKED, $inbox_url);
+        ?>
+        <h2 class="lrob-etk-section-title"><?php esc_html_e('Contact form submissions', 'lrob-email-toolkit'); ?></h2>
+
+        <div class="lrob-etk-stat-grid lrob-etk-cf-stat-grid">
+            <a class="lrob-etk-stat-card" href="<?php echo esc_url(add_query_arg('status', ContactFormSubmissions::STATUS_DELIVERED, $inbox_url)); ?>">
+                <p class="lrob-etk-stat-label"><?php esc_html_e('Delivered (30d)', 'lrob-email-toolkit'); ?></p>
+                <div class="lrob-etk-stat-main">
+                    <span class="lrob-etk-stat-value"><?php echo number_format_i18n($delivered_30d); ?></span>
+                    <span class="lrob-etk-stat-unit"><?php echo esc_html(_n('submission', 'submissions', $delivered_30d, 'lrob-email-toolkit')); ?></span>
+                </div>
+                <p class="lrob-etk-stat-sub">
+                    <?php
+                    /* translators: %s: total all-time submissions */
+                    printf(esc_html__('%s lifetime', 'lrob-email-toolkit'), '<strong>' . esc_html(number_format_i18n($total)) . '</strong>');
+                    ?>
+                </p>
+            </a>
+
+            <a class="lrob-etk-stat-card <?php echo $total_blocked > 0 ? 'is-blocked' : ''; ?>" href="<?php echo esc_url($blocked_url); ?>">
+                <p class="lrob-etk-stat-label"><?php esc_html_e('Spam blocked (30d)', 'lrob-email-toolkit'); ?></p>
+                <div class="lrob-etk-stat-main">
+                    <span class="lrob-etk-stat-value"><?php echo number_format_i18n($total_blocked); ?></span>
+                    <span class="lrob-etk-stat-unit"><?php echo esc_html(_n('attempt', 'attempts', $total_blocked, 'lrob-email-toolkit')); ?></span>
+                </div>
+                <p class="lrob-etk-stat-sub">
+                    <?php if ($total_blocked > 0) : ?>
+                        <span><strong><?php echo esc_html(number_format_i18n($honeypot_blocked)); ?></strong> <?php esc_html_e('honeypot', 'lrob-email-toolkit'); ?></span>
+                        <span class="lrob-etk-stat-rate"><?php echo esc_html(number_format_i18n($captcha_blocked)); ?> <?php esc_html_e('captcha', 'lrob-email-toolkit'); ?></span>
+                    <?php else : ?>
+                        <span class="lrob-etk-stat-empty"><?php esc_html_e('no spam blocked yet', 'lrob-email-toolkit'); ?></span>
+                    <?php endif; ?>
+                </p>
+            </a>
+        </div>
+
+        <?php if ($recent !== []) : ?>
+            <div class="lrob-etk-logs-table-wrap lrob-etk-cf-recent-wrap">
+                <table class="lrob-etk-logs-table">
+                    <thead>
+                        <tr>
+                            <th class="col-date"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
+                            <th class="col-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
+                            <th class="col-form"><?php esc_html_e('Form', 'lrob-email-toolkit'); ?></th>
+                            <th class="col-preview"><?php esc_html_e('Preview', 'lrob-email-toolkit'); ?></th>
+                            <th class="col-actions"><?php esc_html_e('Actions', 'lrob-email-toolkit'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recent as $sub) :
+                            $view_url = add_query_arg(
+                                ['action' => 'view', 'id' => $sub->id],
+                                ContactFormSubmissionsPage::base_url()
+                            );
+                            $form_title = $form_titles[$sub->form_id] ?? sprintf(
+                                /* translators: %d: form id */
+                                __('Deleted form #%d', 'lrob-email-toolkit'),
+                                $sub->form_id
+                            );
+                            ?>
+                            <tr>
+                                <td class="col-date">
+                                    <?php echo esc_html($sub->submitted_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
+                                </td>
+                                <td class="col-status">
+                                    <span class="lrob-etk-status <?php echo esc_attr($this->submission_status_class($sub->status)); ?>">
+                                        <?php echo esc_html($this->submission_status_label($sub->status, $sub->notes)); ?>
+                                    </span>
+                                </td>
+                                <td class="col-form"><?php echo esc_html($form_title); ?></td>
+                                <td class="col-preview">
+                                    <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-subject-link">
+                                        <?php echo esc_html($this->submission_preview($sub)); ?>
+                                    </a>
+                                </td>
+                                <td class="col-actions">
+                                    <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>">
+                                        <span class="dashicons dashicons-visibility"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <p class="lrob-etk-recent-activity-footer">
+                <a href="<?php echo esc_url($inbox_url); ?>" class="button">
+                    <?php esc_html_e('View all submissions', 'lrob-email-toolkit'); ?>
+                    <span aria-hidden="true">→</span>
+                </a>
+            </p>
+        <?php endif; ?>
+        <?php
+    }
+
+    private function submission_status_class(string $status): string
+    {
+        return match ($status) {
+            ContactFormSubmissions::STATUS_DELIVERED    => 'lrob-etk-status--on',
+            ContactFormSubmissions::STATUS_RECEIVED     => 'lrob-etk-status--pending',
+            ContactFormSubmissions::STATUS_FAILED       => 'lrob-etk-status--fail',
+            ContactFormSubmissions::STATUS_SPAM_BLOCKED => 'lrob-etk-status--off',
+            default                                     => 'lrob-etk-status--off',
+        };
+    }
+
+    private function submission_status_label(string $status, ?string $notes): string
+    {
+        if ($status === ContactFormSubmissions::STATUS_SPAM_BLOCKED) {
+            if ($notes === 'honeypot_tripped') {
+                return __('Blocked (honeypot)', 'lrob-email-toolkit');
+            }
+            if ($notes === 'captcha_failed') {
+                return __('Blocked (captcha)', 'lrob-email-toolkit');
+            }
+            return __('Blocked', 'lrob-email-toolkit');
+        }
+        return match ($status) {
+            ContactFormSubmissions::STATUS_DELIVERED => __('Delivered', 'lrob-email-toolkit'),
+            ContactFormSubmissions::STATUS_RECEIVED  => __('Received', 'lrob-email-toolkit'),
+            ContactFormSubmissions::STATUS_FAILED    => __('Failed', 'lrob-email-toolkit'),
+            default                                  => $status,
+        };
+    }
+
+    private function submission_preview(\LRob\EmailToolkit\Modules\ContactForm\Submission $sub): string
+    {
+        if ($sub->fields === []) {
+            return __('(no content)', 'lrob-email-toolkit');
+        }
+        foreach ($sub->fields as $value) {
+            if (is_string($value) && trim($value) !== '') {
+                $text = trim($value);
+                return mb_strlen($text) > 70 ? rtrim(mb_substr($text, 0, 69)) . '…' : $text;
+            }
+            if (is_array($value)) {
+                $joined = implode(', ', array_filter($value, 'is_scalar'));
+                if (trim($joined) !== '') {
+                    return mb_strlen($joined) > 70 ? rtrim(mb_substr($joined, 0, 69)) . '…' : $joined;
+                }
+            }
+        }
+        return __('(no content)', 'lrob-email-toolkit');
     }
 
     private function render_recent_activity(?LogRepository $repository): void

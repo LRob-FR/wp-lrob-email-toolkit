@@ -366,3 +366,26 @@
         gap: 4px;
     }
 }
+
+/* Per-route verify stats surfaced next to each challenge / identity card.
+ * Reads from wp_lrob_etk_captcha_stats (30-day window). */
+.lrob-etk-captcha-route-stats {
+    margin: 6px 0 0;
+    font-size: 12px;
+}
+.lrob-etk-captcha-stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 3px 10px;
+    background: var(--etk-soft);
+    border-radius: 999px;
+    color: var(--etk-text-muted);
+    font-size: 12px;
+}
+.lrob-etk-captcha-stat strong { color: var(--etk-text); font-weight: 600; }
+.lrob-etk-captcha-stat-blocked strong { color: var(--etk-text); }
+.lrob-etk-captcha-stat-passed strong { color: var(--etk-text); }
+.lrob-etk-captcha-stat-sep { opacity: 0.5; }
+.lrob-etk-captcha-stat-window { opacity: 0.7; font-style: italic; }
+.lrob-etk-captcha-card-meta .lrob-etk-captcha-stat { margin-left: 8px; }

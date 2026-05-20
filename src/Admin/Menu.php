@@ -22,14 +22,16 @@ final class Menu
 
     public function __construct(private ModuleManager $manager)
     {
-        $this->dashboard = new DashboardPage($manager);
         $this->data = new DataPage($manager);
+        $this->dashboard = new DashboardPage($manager, $this->data);
     }
 
     public function register(): void
     {
         add_action('admin_menu', [$this, 'add_pages']);
         add_action('admin_enqueue_scripts', [Assets::class, 'enqueue_admin']);
+        // DataPage is rendered as a view of the Dashboard URL — only its
+        // admin_post action handlers need registering; no submenu of its own.
         $this->data->register();
     }
 

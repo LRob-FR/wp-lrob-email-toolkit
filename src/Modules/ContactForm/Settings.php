@@ -37,6 +37,10 @@ final class Settings
     public const KEY_ACCENT                = 'accent';
     public const KEY_RADIUS                = 'radius';
     public const KEY_FONT_SIZE             = 'font_size';
+    public const KEY_SAVE_SUBMISSIONS      = 'save_submissions';
+    public const KEY_STORE_RAW_IP          = 'store_raw_ip';
+    public const KEY_RETENTION_DELIVERED_DAYS = 'retention_delivered_days';
+    public const KEY_RETENTION_SPAM_DAYS   = 'retention_spam_days';
 
     /** @return array<string, mixed> */
     public static function defaults(): array
@@ -54,6 +58,10 @@ final class Settings
             self::KEY_ACCENT                => '',
             self::KEY_RADIUS                => '',
             self::KEY_FONT_SIZE             => '',
+            self::KEY_SAVE_SUBMISSIONS      => true,  // privacy-neutral default
+            self::KEY_STORE_RAW_IP          => false, // privacy-first default
+            self::KEY_RETENTION_DELIVERED_DAYS => 0,  // 0 = keep forever
+            self::KEY_RETENTION_SPAM_DAYS   => 90,    // spam churns fast, 90d default
         ];
     }
 
@@ -87,7 +95,11 @@ final class Settings
             self::KEY_RATE_MAX,
             self::KEY_RATE_WINDOW_MINUTES,
             self::KEY_IDENTITY               => max(0, (int) $value),
-            self::KEY_HONEYPOT               => (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            self::KEY_RETENTION_DELIVERED_DAYS,
+            self::KEY_RETENTION_SPAM_DAYS    => max(0, min(3650, (int) $value)),
+            self::KEY_HONEYPOT,
+            self::KEY_SAVE_SUBMISSIONS,
+            self::KEY_STORE_RAW_IP           => (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN),
             self::KEY_RECIPIENT              => is_string($value) ? self::sanitize_recipient_list($value) : '',
             self::KEY_REPLY_TO_FIELD         => is_string($value) ? sanitize_key($value) : '',
             self::KEY_STYLE_PRESET           => is_string($value) && $value !== '' ? sanitize_html_class($value) : (string) $default,
@@ -231,5 +243,43 @@ final class Settings
             return $per_form;
         }
         return (string) (self::all()[self::KEY_STYLE_PRESET] ?? CPT::STYLE_DEFAULT);
+    }
+
+    /**
+     * Whether this form's submissions should be persisted to the database.
+     * Per-form override (`on`/`off`) beats global default. When false:
+     *
+     *   - No row is written to `lrob_etk_contact_submissions`.
+     *   - The notification email still goes out (that's the whole point of
+     *     the form). Captcha + honeypot still run.
+     *   - Spam stats for *this form* go missing because they're derived
+     *     from the submissions table. (Captcha-wide stats still update
+     *     because they live in their own counter table.)
+     */
+    public static function effective_save_submissions(int $form_id): bool
+    {
+        $per_form = (string) get_post_meta($form_id, CPT::META_SAVE_SUBMISSIONS, true);
+        if ($per_form === 'on') {
+            return true;
+        }
+        if ($per_form === 'off') {
+            return false;
+        }
+        return (bool) (self::all()[self::KEY_SAVE_SUBMISSIONS] ?? true);
+    }
+
+    public static function store_raw_ip(): bool
+    {
+        return (bool) (self::all()[self::KEY_STORE_RAW_IP] ?? false);
+    }
+
+    public static function retention_delivered_days(): int
+    {
+        return max(0, (int) (self::all()[self::KEY_RETENTION_DELIVERED_DAYS] ?? 0));
+    }
+
+    public static function retention_spam_days(): int
+    {
+        return max(0, (int) (self::all()[self::KEY_RETENTION_SPAM_DAYS] ?? 90));
     }
 }

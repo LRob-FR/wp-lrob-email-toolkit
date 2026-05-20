@@ -67,16 +67,17 @@ final class Module extends AbstractModule
     }
 
     /**
-     * Schema version 3 = identities table + context map. Bumped from 2 to 3
-     * to recover sites stuck on a broken v0.1.0 first-release migration that
-     * set version=2 without creating the table (because the default
-     * AbstractModule::migrate path was a no-op). The migrate() override
-     * below forwards every migrate call back into install(), which is
-     * idempotent — dbDelta CREATE TABLE + a "seed if missing" guard.
+     * Schema version 4 = identities table + context map + stats table.
+     *
+     * v3 was the recovery bump from a broken v0.1.0 first-release migration
+     * that set version=2 without creating the table. v4 adds the stats table
+     * (day_date, route_key, outcome, n). migrate() forwards every call back
+     * into install(), which is idempotent — dbDelta CREATE TABLE for both
+     * tables + a "seed if missing" guard for the context map.
      */
     public function db_version_int(): int
     {
-        return 3;
+        return 4;
     }
 
     public function install(): void
@@ -102,9 +103,11 @@ final class Module extends AbstractModule
 
     public function register(): void
     {
-        $service = new CaptchaService(new IdentityRepository());
+        $stats = new StatsRepository();
+        $service = new CaptchaService(new IdentityRepository(), $stats);
         self::register_challenges($service);
         $this->container->set(CaptchaService::class, $service);
+        $this->container->set(StatsRepository::class, $stats);
 
         if (is_admin()) {
             (new PageController($this, $service))->register();

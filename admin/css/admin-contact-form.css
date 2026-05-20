@@ -1628,3 +1628,328 @@
     background: rgba(37, 99, 235, 0.06);
 }
 
+
+/* === Submissions inbox + cross-link stat (slice 1) ============================
+ * The form-card stat link sits above the "Advanced settings" details and
+ * gives a one-glance "N received · M blocked" view per form, clicking to
+ * the submissions inbox filtered by that form.
+ * ========================================================================= */
+.lrob-etk-cf-submissions-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    align-self: flex-start;
+    margin: 6px 0 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--etk-soft);
+    color: var(--etk-text);
+    font-size: 13px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: border-color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-submissions-link:hover,
+.lrob-etk-cf-submissions-link:focus {
+    border-color: var(--etk-accent);
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--etk-text);
+    text-decoration: none;
+}
+.lrob-etk-cf-submissions-link strong { font-weight: 700; }
+.lrob-etk-cf-submissions-link-received { color: var(--etk-text); }
+.lrob-etk-cf-submissions-link-blocked { color: var(--etk-text-muted); }
+.lrob-etk-cf-submissions-link-blocked strong { color: var(--etk-text); }
+.lrob-etk-cf-submissions-link-sep { color: var(--etk-text-muted); opacity: 0.6; }
+.lrob-etk-cf-submissions-link-arrow { color: var(--etk-text-muted); margin-left: 2px; }
+
+.lrob-etk-cf-form-deleted {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--etk-text-muted);
+    font-size: 12px;
+    font-style: italic;
+}
+
+.lrob-etk-cf-submissions-page .lrob-etk-page-header { margin-bottom: 8px; }
+.lrob-etk-cf-submissions-page .lrob-etk-page-subtitle {
+    color: var(--etk-text-muted);
+    font-weight: 400;
+    font-size: 0.7em;
+    margin-left: 6px;
+}
+
+.lrob-etk-cf-submissions-table .col-form { width: 18%; }
+.lrob-etk-cf-submissions-table .col-preview { width: auto; max-width: 0; overflow: hidden; }
+.lrob-etk-cf-submissions-table .col-preview a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.lrob-etk-cf-submissions-table .col-captcha {
+    width: 14%;
+    color: var(--etk-text-muted);
+    font-size: 12px;
+}
+
+/* Detail view: metadata + payload side-by-side on wide screens, stacked on narrow. */
+.lrob-etk-cf-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 12px;
+}
+@media (max-width: 900px) {
+    .lrob-etk-cf-detail-grid { grid-template-columns: minmax(0, 1fr); }
+}
+.lrob-etk-cf-detail-card {
+    background: var(--etk-card-bg, #fff);
+    border: 1px solid var(--etk-soft);
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+.lrob-etk-cf-detail-card h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-text-muted);
+    margin: 0 0 12px;
+}
+.lrob-etk-cf-detail-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 110px) minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 6px;
+    margin: 0;
+    font-size: 13px;
+}
+.lrob-etk-cf-detail-meta dt {
+    color: var(--etk-text-muted);
+    font-weight: 500;
+}
+.lrob-etk-cf-detail-meta dd {
+    margin: 0;
+    word-break: break-word;
+}
+.lrob-etk-cf-detail-meta code { font-size: 12px; }
+.lrob-etk-cf-detail-meta .lrob-etk-cf-ua {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+}
+.lrob-etk-cf-detail-payload {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px 14px;
+    margin: 0;
+}
+.lrob-etk-cf-detail-payload dt {
+    color: var(--etk-text-muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+}
+.lrob-etk-cf-detail-payload dt:first-child { margin-top: 0; }
+.lrob-etk-cf-detail-payload dd {
+    margin: 0 0 6px;
+    font-size: 14px;
+    word-break: break-word;
+}
+.lrob-etk-cf-detail-textarea {
+    background: var(--etk-soft);
+    border-radius: 6px;
+    padding: 10px 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 2px 0 0;
+    font-family: inherit;
+    font-size: 14px;
+}
+.lrob-etk-cf-detail-list {
+    margin: 0;
+    padding-left: 18px;
+}
+
+/* Bottom-of-Forms-page stats panel: 3-4 mini stat tiles linking into the
+ * Submissions inbox filtered by status. Sits below the form cards as the
+ * secondary entry point (the header button is the primary). */
+.lrob-etk-cf-submissions-panel {
+    margin-top: 28px;
+    padding: 18px 20px;
+    background: var(--etk-card-bg, #fff);
+    border: 1px solid var(--etk-soft);
+    border-radius: 12px;
+}
+.lrob-etk-cf-submissions-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+.lrob-etk-cf-submissions-panel-head h2 {
+    margin: 0;
+}
+.lrob-etk-cf-submissions-panel-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+.lrob-etk-cf-submissions-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    background: var(--etk-soft);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--etk-text);
+    border: 1px solid transparent;
+    transition: border-color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-submissions-stat:hover,
+.lrob-etk-cf-submissions-stat:focus {
+    border-color: var(--etk-accent);
+    background: rgba(37, 99, 235, 0.06);
+    color: var(--etk-text);
+    text-decoration: none;
+}
+.lrob-etk-cf-submissions-stat.is-total {
+    cursor: default;
+    background: transparent;
+    border: 1px dashed var(--etk-soft);
+}
+.lrob-etk-cf-submissions-stat.is-failed {
+    color: #b91c1c;
+}
+.lrob-etk-cf-submissions-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.lrob-etk-cf-submissions-stat-label {
+    font-size: 12px;
+    color: var(--etk-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Submissions storage section in the Defaults modal (full-width row
+ * after the two-column Email / Anti-spam grid). */
+.lrob-etk-cf-submissions-storage-section {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--etk-soft);
+}
+.lrob-etk-cf-defaults-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 18px;
+}
+
+/* Detail view rework: single column, compact metadata strip at the top,
+ * payload cards below, technical metadata in a collapsed details element. */
+.lrob-etk-cf-detail-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 24px;
+    margin: 10px 0 18px;
+    padding: 12px 16px;
+    background: var(--etk-soft);
+    border-radius: 10px;
+    font-size: 13px;
+}
+.lrob-etk-cf-detail-strip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.lrob-etk-cf-detail-strip-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-text-muted);
+}
+.lrob-etk-cf-detail-strip-value {
+    color: var(--etk-text);
+    font-weight: 500;
+}
+.lrob-etk-cf-detail-card--payload {
+    margin-top: 6px;
+}
+.lrob-etk-cf-detail-payload {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    margin: 0;
+}
+.lrob-etk-cf-detail-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 220px) minmax(0, 1fr);
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--etk-soft);
+}
+.lrob-etk-cf-detail-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.lrob-etk-cf-detail-row dt {
+    color: var(--etk-text-muted);
+    font-weight: 600;
+    font-size: 13px;
+}
+.lrob-etk-cf-detail-row dd {
+    margin: 0;
+    font-size: 14px;
+    word-break: break-word;
+}
+@media (max-width: 720px) {
+    .lrob-etk-cf-detail-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+
+.lrob-etk-cf-detail-tech {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: var(--etk-soft);
+    border-radius: 10px;
+}
+.lrob-etk-cf-detail-tech > summary {
+    cursor: pointer;
+    list-style: none;
+    color: var(--etk-text-muted);
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.lrob-etk-cf-detail-tech > summary::-webkit-details-marker { display: none; }
+.lrob-etk-cf-detail-tech[open] .lrob-etk-cf-detail-tech-caret { transform: rotate(90deg); }
+.lrob-etk-cf-detail-tech-caret {
+    display: inline-block;
+    transition: transform 0.15s ease;
+}
+.lrob-etk-cf-detail-tech .lrob-etk-cf-detail-meta {
+    margin-top: 10px;
+}
+
+/* Delete cascade modal — uses the existing modal chrome but with a
+ * smaller dialog (decision UI, not a full settings panel). */
+.lrob-etk-modal-dialog--small {
+    max-width: 540px;
+}
+.lrob-etk-cf-delete-summary {
+    margin: 0 0 8px;
+}
+.lrob-etk-cf-delete-warning {
+    margin: 0;
+    color: var(--etk-text-muted);
+    font-style: italic;
+}
+.lrob-etk-cf-delete-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+}

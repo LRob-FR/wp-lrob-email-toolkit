@@ -54,6 +54,7 @@ final class Schema
             submitted_at datetime NOT NULL,
             status varchar(20) NOT NULL DEFAULT 'received',
             ip_hash varchar(64) NOT NULL DEFAULT '',
+            ip_address varchar(45) NOT NULL DEFAULT '',
             user_agent varchar(500) NOT NULL DEFAULT '',
             referer varchar(500) NOT NULL DEFAULT '',
             fields_json longtext NOT NULL,
