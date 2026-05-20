@@ -534,12 +534,12 @@ final class DashboardPage
                     <label for="lrob-etk-dashboard-test-choice"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
                     <select id="lrob-etk-dashboard-test-choice" class="lrob-etk-select">
                         <option value="current"><?php echo esc_html(sprintf(
-                            /* translators: %s: the current logged-in user's email address */
+                            /* translators: %s: current user's email address */
                             __('Me (%s)', 'lrob-email-toolkit'),
                             $current_user->user_email
                         )); ?></option>
                         <option value="admin"><?php echo esc_html(sprintf(
-                            /* translators: %s: the site's admin email address */
+                            /* translators: %s: site admin email address */
                             __('Site admin (%s)', 'lrob-email-toolkit'),
                             $admin_email
                         )); ?></option>

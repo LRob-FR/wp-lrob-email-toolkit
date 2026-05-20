@@ -118,8 +118,8 @@ final class SettingsPage
             'from_email'      => $identity?->from_email ?? '',
             'from_name'       => $identity?->from_name ?? '',
             'smtp_host'       => $identity?->smtp_host ?? '',
-            'smtp_port'       => $identity?->smtp_port ?? 587,
-            'smtp_encryption' => $identity?->smtp_encryption ?? Identity::ENCRYPTION_STARTTLS,
+            'smtp_port'       => $identity?->smtp_port ?? 465,
+            'smtp_encryption' => $identity?->smtp_encryption ?? Identity::ENCRYPTION_SSL,
             'smtp_username'   => $identity?->smtp_username ?? '',
             'smtp_auth'       => $identity ? $identity->smtp_auth : true,
             'force_from'      => $identity ? $identity->force_from : true,
@@ -134,13 +134,6 @@ final class SettingsPage
             <input type="hidden" name="slug" class="lrob-etk-field-slug" value="<?php echo esc_attr($f['slug']); ?>" data-initial="<?php echo esc_attr($f['slug']); ?>">
 
             <header class="lrob-etk-card-form-head">
-                <input
-                    type="text"
-                    name="label"
-                    class="lrob-etk-title-input lrob-etk-field-label"
-                    value="<?php echo esc_attr($f['label']); ?>"
-                    placeholder="<?php esc_attr_e('Identity name', 'lrob-email-toolkit'); ?>"
-                    autocomplete="off">
                 <div class="lrob-etk-segmented lrob-etk-transport-segmented" title="<?php esc_attr_e('Send via', 'lrob-email-toolkit'); ?>">
                     <button type="button" data-mode="<?php echo esc_attr(Identity::TRANSPORT_SMTP); ?>" class="<?php echo $f['transport'] === Identity::TRANSPORT_SMTP ? 'is-active' : ''; ?>">
                         <?php esc_html_e('SMTP', 'lrob-email-toolkit'); ?>
@@ -150,6 +143,14 @@ final class SettingsPage
                     </button>
                     <input type="hidden" name="transport" class="lrob-etk-field-transport" value="<?php echo esc_attr($f['transport']); ?>">
                 </div>
+                <input
+                    type="text"
+                    name="label"
+                    class="lrob-etk-title-input lrob-etk-field-label"
+                    value="<?php echo esc_attr($f['label']); ?>"
+                    placeholder="<?php esc_attr_e('Identity name', 'lrob-email-toolkit'); ?>"
+                    autocomplete="off">
+                <span class="lrob-etk-card-status" aria-live="polite"></span>
                 <label class="lrob-etk-inline-switch">
                     <input type="checkbox" name="is_active" class="lrob-etk-field-is-active" value="1" <?php checked($f['is_active']); ?>>
                     <span class="lrob-etk-switch-track"></span>
@@ -159,7 +160,6 @@ final class SettingsPage
                             : esc_html__('Inactive', 'lrob-email-toolkit'); ?>
                     </span>
                 </label>
-                <span class="lrob-etk-card-status" aria-live="polite"></span>
             </header>
 
             <div class="lrob-etk-modal-columns lrob-etk-smtp-only">
@@ -477,7 +477,9 @@ final class SettingsPage
                     <div class="lrob-etk-field">
                         <label for="lrob-etk-test-recipient-choice"><?php esc_html_e('Recipient', 'lrob-email-toolkit'); ?></label>
                         <select id="lrob-etk-test-recipient-choice">
+                            <?php /* translators: %s: current user's email address */ ?>
                             <option value="current"><?php echo esc_html(sprintf(__('Me (%s)', 'lrob-email-toolkit'), $current_user->user_email)); ?></option>
+                            <?php /* translators: %s: site admin email address */ ?>
                             <option value="admin"><?php echo esc_html(sprintf(__('Site admin (%s)', 'lrob-email-toolkit'), $admin_email)); ?></option>
                             <option value="custom"><?php esc_html_e('Custom address…', 'lrob-email-toolkit'); ?></option>
                         </select>
@@ -821,21 +823,27 @@ final class SettingsPage
         field(card, 'host').addEventListener('input', function () { runHostCheck(card); });
         field(card, 'from-email').addEventListener('input', function () { syncFromWarning(card); });
 
-        // Encryption → port autofill
+        // Encryption → port autofill. The encryption control is a <select>
+        // (was radio buttons in an earlier iteration — the old listener
+        // queried `input[name="smtp_encryption"]:checked` and silently
+        // matched nothing once the markup flipped to a dropdown).
         var portDefaults = { 'tls': 587, 'ssl': 465, '': 25 };
-        var checkedEnc = card.querySelector('input[name="smtp_encryption"]:checked');
-        var portLast = checkedEnc ? portDefaults[checkedEnc.value] : 587;
-        $$('input[name="smtp_encryption"]', card).forEach(function (r) {
-            r.addEventListener('change', function () {
+        var encSelect = card.querySelector('select[name="smtp_encryption"]');
+        if (encSelect) {
+            var portLast = portDefaults[encSelect.value] !== undefined ? portDefaults[encSelect.value] : 465;
+            encSelect.addEventListener('change', function () {
                 applyCardState(card);
-                var def = portDefaults[r.value];
+                var def = portDefaults[encSelect.value];
                 if (def === undefined) return;
                 var portEl = field(card, 'port');
                 var current = parseInt(portEl.value, 10);
+                // Only auto-update the port if it's empty or still on the
+                // previous encryption's default — preserves a user's
+                // explicitly-typed non-default port.
                 if (!portEl.value || current === portLast) portEl.value = def;
                 portLast = def;
             });
-        });
+        }
 
         // Transport segmented
         $$('.lrob-etk-transport-segmented', card).forEach(function (group) {

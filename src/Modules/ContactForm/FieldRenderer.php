@@ -304,7 +304,7 @@ final class FieldRenderer
         $default_label = self::captcha_default_label($service);
         $default_option_label = $default_label !== ''
             ? sprintf(
-                /* translators: %s: current default challenge label, shown as "Default (X)" in the captcha picker */
+                /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels */
                 __('Default (%s)', 'lrob-email-toolkit'),
                 $default_label
             )
@@ -371,7 +371,7 @@ final class FieldRenderer
                 if ($rows === []) {
                     $html .= '<option value="" disabled>'
                            . esc_html(sprintf(
-                               /* translators: %s: provider label */
+                               /* translators: %s: provider label (e.g. hCaptcha) */
                                __('— Configure %s first —', 'lrob-email-toolkit'),
                                $provider->label()
                            ))

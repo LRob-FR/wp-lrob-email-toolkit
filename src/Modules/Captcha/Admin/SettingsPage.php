@@ -224,6 +224,7 @@ final class SettingsPage
                         value="<?php echo esc_attr($label); ?>"
                         placeholder="<?php esc_attr_e('e.g. Main site', 'lrob-email-toolkit'); ?>"
                         autocomplete="off">
+                    <span class="lrob-etk-card-status" aria-live="polite"></span>
                     <label class="lrob-etk-inline-switch" title="<?php esc_attr_e('Active', 'lrob-email-toolkit'); ?>">
                         <input type="checkbox" name="is_active" value="1" <?php checked($is_active); ?>>
                         <span class="lrob-etk-switch-track"></span>
@@ -233,7 +234,6 @@ final class SettingsPage
                                 : esc_html__('Inactive', 'lrob-email-toolkit'); ?>
                         </span>
                     </label>
-                    <span class="lrob-etk-card-status" aria-live="polite"></span>
                 </header>
 
                 <div class="lrob-etk-captcha-card-meta">
@@ -647,6 +647,7 @@ final class SettingsPage
             'inheritLabel'   => __('Inherit default', 'lrob-email-toolkit'),
             'noneLabel'      => __('— None (not recommended) —', 'lrob-email-toolkit'),
             'inactiveSuffix' => __('(inactive)', 'lrob-email-toolkit'),
+            /* translators: %s: provider label (e.g. hCaptcha) */
             'configureFirst' => __('— Configure %s first —', 'lrob-email-toolkit'),
             'homemadeLabel'  => __('Built-in challenges', 'lrob-email-toolkit'),
             'homemade'       => $homemade_list,

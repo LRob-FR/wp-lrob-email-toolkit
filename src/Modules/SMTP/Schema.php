@@ -46,7 +46,7 @@ final class Schema
             from_email varchar(190) NOT NULL,
             from_name varchar(190) NOT NULL,
             smtp_host varchar(190) NOT NULL DEFAULT '',
-            smtp_port smallint(5) unsigned NOT NULL DEFAULT 587,
+            smtp_port smallint(5) unsigned NOT NULL DEFAULT 465,
             smtp_encryption varchar(10) NOT NULL DEFAULT 'tls',
             smtp_username varchar(190) NOT NULL DEFAULT '',
             smtp_password_encrypted text NOT NULL,

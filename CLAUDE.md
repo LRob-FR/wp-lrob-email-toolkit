@@ -138,18 +138,21 @@ Server-rendered PHP, `WP_List_Table` where lists are needed, vanilla JS for AJAX
 
 ## Build order
 
-1. ~~**SMTP + Logging**~~ — done in v0.0.1.
-2. **Contact Form** ← in active development (v0.0.7). Done so far: WYSIWYG field editor (drag-drop, snap-to-col, **inline settings strip** instead of the retired gear popup, inline option editor for select/radio/checkbox with per-option ★ default markers), settings restructure (Essentials / Style / Advanced collapsed), recipient list widget, Reply-To dropdown of form's email fields, Subject + Success as free-mode comboboxes, per-form captcha kind picker with live preview, Defaults modal, two captcha challenges (Math, Image-recognition with 20 SVG icons), submission logging with `captcha_slug` + `captcha_outcome` tracking, **auto-generated slugs** (`<type>_<sluggified-label>_<nth>`) with stable creation-order indices that survive reordering/deletions, **required-by-default** on new fields with the `*` morphing into a labelled "Required" checkbox on hover, **option labels** (not raw values) in submission emails, **Gutenberg embed block** survives click-away + recovers gracefully when its source form is deleted. **Still pending:**
-   - Visual customization + animations (named presets, hover/focus glow, submit-success celebration) — bigger chunk, see [[project-contact-form-visual-polish]].
-   - More homemade anti-bot challenges to round out the pool (image-letter, simple logic, etc.) — see backlog "Homemade anti-bot question pool".
-   - **Multi-recipient base.** Today a form has a single recipient. Allow comma-separated emails on the per-form Recipients field + global Defaults. Validation path (`SubmitHandler::send_notification_email`) should iterate. Prereq for conditional routing below.
-   - **Conditional recipient routing** ([[project-contact-form-conditional-recipients]]). Admin picks a select/radio field on the form and maps each option value → recipient(s). Submission goes to the matching rule's recipient(s); fallback is the regular per-form recipient. Rules stored per-form as `_lrob_etk_cf_recipient_rules` post meta — JSON list of `{field_slug, value, recipient}`. UI: per-form card, a small "Routing" panel under Delivery, dropdown to pick the routing field then one row per value→recipient pair. Resolution lives in a new `Settings::effective_recipients(int $form_id, array $values): array` that inspects submitted values, returns the matching rule's recipient list, falls back to the static recipient(s) otherwise. Each rule supports comma-separated recipients once the multi-recipient base is in.
-3. **IMAP save-to-sent** (extends Logging).
-4. **Newsletter** (with importer from the Newsletter plugin). Big chunk.
-5. **Cross-feature captcha & subscribe-to-comments** (see backlog) — depends on the shared captcha infrastructure being settled, so comes after Newsletter.
-6. **Integrations** (webhooks: Slack/Discord/Matrix/n8n presets + generic).
+1. ~~**SMTP + Logging**~~ — shipped in v0.0.1.
+2. ~~**Contact Form**~~ — shipped in v0.0.7. WYSIWYG field editor (drag-drop, snap-to-col, inline settings strip, inline option editor for select/radio/checkbox with per-option ★ default markers), settings restructure (Essentials / Style / Advanced collapsed), recipient list widget, Reply-To dropdown of form's email fields, Subject + Success as free-mode comboboxes, per-form captcha picker with live preview (real hCaptcha widget in the editor when an identity is configured), Defaults modal, two built-in challenges (Math, Image-recognition with 20 SVG icons), submission logging with `captcha_slug` + `captcha_outcome` tracking, auto-generated slugs (`<type>_<sluggified-label>_<nth>`) with stable creation-order indices, required-by-default on new fields, Gutenberg embed block.
+3. ~~**Captcha**~~ — shipped in v0.1.0. Service module (always on). Per-context routing (`contact_form`, `comments`, `newsletter_subscribe`, `lost_password`, `registration`) backed by `lrob_etk_captcha_context_map`. Multi-identity per provider via `wp_lrob_etk_captcha_identities` (AES-256-GCM encrypted credentials). Built-in challenges: Math, Image-recognition. Hosted provider: hCaptcha (Turnstile/reCAPTCHA designed to plug in via `Providers/`).
+4. **IMAP save-to-sent** ← next chunk. Extends Logging — store outbound emails into the user's IMAP Sent folder via the same identity that sent them. Identity gets new IMAP credential fields (host/port/encryption/username/password — same AES-256-GCM model). Async dispatch via WP-Cron so admin pages don't block on IMAP RTT. Failure mode: log entry annotated with `imap_save_failed` event but the outbound email is already gone — never re-send to recover.
+5. **Newsletter** (with importer from the Newsletter plugin). Big chunk.
+6. **Cross-feature captcha & subscribe-to-comments** — captcha for comments/lost-password/registration plus a subscribe-to-comments visitor feature. Depends on the captcha infrastructure being battle-tested with Contact Form (✓) and Newsletter signup.
+7. **Integrations** (webhooks: Slack/Discord/Matrix/n8n presets + generic).
 
-Don't start a later module until the previous is functionally stable. The skeletons for all four foundation modules already exist so the framework boots cleanly with everything disabled.
+Still-pending Contact Form work that doesn't gate the next milestone:
+- Visual customization + animations (named presets, hover/focus glow, submit-success celebration) — see [[project-contact-form-visual-polish]].
+- More homemade anti-bot challenges to round out the pool — see backlog "Homemade anti-bot question pool".
+- **Multi-recipient base.** Today a form has a single recipient. Allow comma-separated emails on the per-form Recipients field + global Defaults. Validation path (`SubmitHandler::send_notification_email`) should iterate. Prereq for conditional routing below.
+- **Conditional recipient routing** ([[project-contact-form-conditional-recipients]]). Admin picks a select/radio field on the form and maps each option value → recipient(s). Submission goes to the matching rule's recipient(s); fallback is the regular per-form recipient. Rules stored per-form as `_lrob_etk_cf_recipient_rules` post meta. Resolution lives in a new `Settings::effective_recipients(int $form_id, array $values): array`. Each rule supports comma-separated recipients once the multi-recipient base is in.
+
+Don't start a later module until the previous is functionally stable.
 
 ## Deployment workflow — read this before claiming a fix is live
 
@@ -159,7 +162,7 @@ CSS/JS pick up a `filemtime`-based cache-bust query string when `WP_DEBUG` is on
 
 ## UI patterns established in v0.0.1 — match these in new modules
 
-The admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table`, `notice notice-success`, `<select>`, `<datalist>`, etc.). All shared components live in `admin/css/admin.css` under `.lrob-etk-*` and `src/Admin/`. Reuse — don't reinvent — these when building Contact Form admin screens:
+The admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table`, `notice notice-success`, `<select>`, `<datalist>`, etc.). Shared components live across the per-feature CSS files (`admin/css/admin-base.css`, `admin-components.css`, `admin-dashboard.css`, `admin-smtp.css`, `admin-logging.css`, `admin-contact-form.css`, `admin-captcha.css`) under `.lrob-etk-*`, plus the shared PHP renderers in `src/Admin/`. Reuse — don't reinvent — these when building any new module's admin screens:
 
 - **Card grid** for entity lists: `display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 540px))` so a single card doesn't stretch full width.
 - **Auto-save edit cards**: existing rows save on `blur`/`change` with a small status indicator; new rows have an explicit "Create" button. Reference: `Modules/SMTP/Admin/SettingsPage.php` + its `AjaxController`.
@@ -198,41 +201,59 @@ SMTP identity rows store `from_email` and `from_name` that may be empty — mean
 
 ## Captcha module: adding a challenge / provider
 
-Two flavours of "challenge" exist in `src/Modules/Captcha/`:
+Two flavours of "challenge" coexist in `src/Modules/Captcha/`:
 
-- **Homemade challenges** — self-contained PHP-renders-HTML + verifies-server-side. `MathChallenge`, `ImageChallenge`. No external API.
-- **Hosted providers** (planned) — hCaptcha, Cloudflare Turnstile, Google reCAPTCHA. Loaded via vendor JS widget, verified via HTTP call to the vendor with site key + secret.
+- **Homemade challenges** (`Challenges/`) — self-contained PHP-renders-HTML + verifies-server-side. `MathChallenge`, `ImageChallenge`. No external API, no credentials.
+- **Hosted providers** (`Providers/`) — hCaptcha (shipped), Turnstile / reCAPTCHA designed to plug in. Loaded via vendor JS widget, verified via HTTP call to the vendor with site key + secret. Each provider can have N **identities** (credential sets) stored in `wp_lrob_etk_captcha_identities`.
 
-Both implement the same `ChallengeInterface` (`slug()`, `label()`, `description()`, `render(array $context)`, `verify(array $post, array $context)`).
+`ProviderInterface` extends `ChallengeInterface` with `credential_fields()`, `validate_credentials()`, `logo_html()` — the rendering contract is otherwise identical.
+
+### Routing model
+
+The Captcha module owns a per-context routing map (`lrob_etk_captcha_context_map`) keyed by consumer:
+
+```
+default               → homemade:math       (site-wide default)
+contact_form          → inherit             (uses the default)
+comments              → inherit
+newsletter_subscribe  → inherit
+lost_password         → inherit
+registration          → inherit
+```
+
+Routing keys are strings: `homemade:<slug>`, `identity:<int>`, `none`, or `inherit`. The `Captcha\Routing` class is the parsing/lookup boundary; `CaptchaService::resolve($context)` returns `[ChallengeInterface, decrypted_credentials]` for the effective route. Callers pass `'context' => 'contact_form'` (or other) to render/verify; advanced callers override with `'force_route' => 'homemade:image_recognition'`.
 
 ### To add a homemade challenge
 
 1. Drop a class implementing `ChallengeInterface` into `src/Modules/Captcha/Challenges/`.
-2. That's it. `Module::register_challenges()` scans the directory at boot, instantiates everything that implements the interface, registers it with `CaptchaService`. No `Module.php` edit, no glue code.
+2. That's it. `Module::register_challenges()` scans both `Challenges/` and `Providers/` at boot, instantiates everything that implements `ChallengeInterface`, registers it with `CaptchaService`. No `Module.php` edit.
 3. The new challenge automatically shows up in:
-   - The Captcha settings page picker.
+   - The Captcha settings page routing dropdowns (under "Built-in challenges" optgroup).
    - The per-form Anti-spam → Challenge dropdown in the Contact Form admin.
-   - The Contact Form WYSIWYG editor's in-block captcha picker (via `wp_localize_script`-published `EDITOR_DATA.challenges`).
-4. If the challenge needs an admin-visible preview, `render(['context' => 'preview'])` should produce sensible HTML. `SettingsPage` already embeds this for each registered challenge.
+   - The Contact Form WYSIWYG editor's in-block captcha picker (via `wp_localize_script`-published `EDITOR_DATA.captchaOptions`).
+4. If the challenge needs an admin-visible preview, `render(['context' => 'preview'])` should produce sensible HTML.
 
-### To add a hosted provider (hCaptcha / Turnstile / reCAPTCHA)
+### To add a hosted provider (Turnstile / reCAPTCHA / etc.)
 
-Bigger lift — three things every external provider needs that the homemade ones don't:
+Drop a class implementing `ProviderInterface` into `src/Modules/Captcha/Providers/`. The interface requires:
 
-1. **Per-provider config** (site key, secret key, optional score threshold, language pref). Lives in a provider-scoped option key — pattern: `lrob_etk_captcha_<slug>_settings`. The Captcha settings page renders a card per registered provider, each card containing the config inputs read from that option.
-2. **Async JS widget**. `render()` returns the placeholder `<div>` with `data-sitekey` etc.; a small enqueued shim loads the vendor's script and binds. Either enqueue conditionally per request (only when the active challenge is this provider) or include in the toolkit's frontend bundle behind a feature flag.
-3. **Server-side verification call** in `verify()` — `wp_remote_post` to the vendor's verify URL with the secret + submitted token + visitor IP. Return `[false, $error]` on any non-success.
+- `slug()`, `label()`, `description()`, `logo_html()` — identity card chrome
+- `credential_fields()` — array of `{key, label, type:'text'|'password', required, description?}` for the admin form
+- `validate_credentials($values)` — returns `{credentials: [...], errors: [field => msg]}`
+- `render(array $context)` — receives the active identity's decrypted credentials via `$context['credentials']`. For `$context['context'] === 'preview'` (admin editor), prefer a placeholder div when no site_key is available, or the real widget when credentials are present.
+- `verify(array $post, array $context)` — `wp_remote_post` to the vendor's verify URL with secret + token + visitor IP. Returns `[bool, ?error]`.
+- Optional class constant `SCRIPT_URL` — surfaced to admin JS so the in-card preview can lazy-load the vendor script.
+- Optional class constant `POST_RESPONSE_FIELD` — the `$_POST` key the vendor uses for the solved token (e.g. `'h-captcha-response'`). The Captcha admin test endpoint reads this constant.
 
-Two future-shape decisions (memories [[project-captcha-architecture-next]] and [[project-captcha-admin-preview-pending]]) that should land **together with the first external provider**, not later:
-
-- **Per-context default challenges**: every consumer (`contact_form`, `comments`, `newsletter_subscribe`, `lost_password`, `registration`) picks its own default independently. The current `CaptchaService::render($context)` signature already takes the context — replace the single `active_challenge` option with a `lrob_etk_captcha_context_map` array keyed by context.
-- **Provider identities** (multi-credential, mirrors SMTP identities): `wp_lrob_etk_captcha_identities` table with `provider`, `label`, `credentials` (encrypted JSON via `src/Support/Encryption.php`). Each context entry points at an identity, not just a provider. UI reuses the `.lrob-etk-card-*` primitives from `admin-components.css`.
-
-Bolting these on after the fact means rewriting the routing layer twice — do them once.
+No edits to `Module.php`, `CaptchaService`, or the settings page are needed — the auto-scan plus the routing dropdowns pick up the new provider automatically. Adding an identity then makes it pickable in any routing context.
 
 ### Verification + token names
 
 `verify()` receives the raw `$_POST` array — pick out whichever fields the challenge's `render()` emitted. Use `FormContext::is_active()` / `FormContext::instance()` from ContactForm if the token name needs to be scoped per-form (prevents one form's solved token from being replayed on another). The `MathChallenge` does this — copy that scope-by-context pattern for any new challenge that issues a signed token.
+
+### Service-module migration trap — read before bumping `db_version_int()`
+
+The Captcha module is a **service module** (`is_service_module() === true`, `is_enabled()` returns `true` unconditionally), so `maybe_migrate()` runs on every boot. AbstractModule's default `db_version_int() === 1` recorded version=1 on every existing site **before** the module had any install logic. Bumping to 2 then made `maybe_migrate()` take the `migrate()` branch (not `install()`), which was a no-op — schema never got created on upgrade sites. See [[project-service-module-migrate-trap]]. The fix: always override `migrate()` to forward to `install()` (idempotent — `dbDelta` + a "seed if missing" guard), and if you're recovering from an already-shipped broken bump, bump the target version one more notch so stuck sites take the migrate path again.
 
 ## Contact Form WYSIWYG editor (`admin/js/contact-form-fields-editor.js`)
 
@@ -301,10 +322,8 @@ Type-specific keys appear only on relevant types. `submit` carries `text` + `ali
 Not in scope now, but architectural decisions in the current module may make these easier or harder later. Don't build them yet, but don't paint into a corner either.
 
 - **Email reading in a modal with prev/next navigation.** Today the logs detail view is a row expansion. Future: open a full-screen-ish modal with `←` / `→` keys cycling through the current filtered/paginated list. When refactoring `LogsPage` rendering, keep the row→detail mapping addressable by index, not just by row click handler.
-- **Shared captcha settings module.** Captcha providers (hCaptcha, Cloudflare Turnstile, Google reCAPTCHA, plus the plugin's own homemade challenges — currently just `MathChallenge`, more to come) must be configured once and reused. Consumers planned: Contact Form, Newsletter subscribe, WP comments, lost-password form, registration form. When building Contact Form, put captcha provider config under a shared location (likely `src/Support/Captcha/` with its own settings sub-page under the toolkit menu) — not inside `Modules/ContactForm/`. Each module just *consumes* a captcha service.
-- **Homemade anti-bot question pool.** Beyond the current single `MathChallenge`, build a small library of self-contained questions (image-letter, simple logic, etc.) and let the webmaster pick a subset; the form picks one at random per submission. Each must be self-contained (no external API, no tracking).
+- **Homemade anti-bot question pool.** Beyond the current `MathChallenge` and `ImageChallenge`, build a small library of self-contained questions (image-letter, simple logic, etc.) and let the webmaster pick a subset; the form picks one at random per submission. Each must be self-contained (no external API, no tracking).
 - **Per-context SMTP identity routing.** SMTP module currently routes by domain / explicit selection. Add a "context" mapping so the user assigns identities to email categories — WooCommerce, admin notifications, contact forms, newsletter, comments, password resets, etc. — without bloating the admin UI. Probably one small table on the SMTP settings page with sensible defaults; the matching happens in `MailRouter` from message headers / hook context. Keep the UX simple: most users want defaults, power users want overrides.
-- **Contact form submission logging with captcha-used tracking.** Every contact-form submission gets a row in a submissions table (separate from `logs`), recording which captcha provider/challenge was active at the time and whether it was solved cleanly. This lets the user spot a captcha letting spam through and switch providers.
 - **Contact form visual customization.** Per-form (with global defaults) settings for colours, corner roundness, background illumination, hover/focus glow, button animations, submit-success celebration animation, etc. Ships with named templates ("sober", "fancy", others). The submitter's visual experience needs to feel polished; the webmaster's editor needs to make these accessible without overwhelming. See [[project-contact-form-visual-polish]] memory.
 - **Responsive preview modes for the contact-form editor (Desktop / Tablet / Phone).** Today the form card preview is a single fixed-width container (`minmax(420px, 680px)` grid track), so the admin can't see how their layout behaves at narrower viewports. Add three preview-width toggles at the top of the Forms page that constrain the form-card preview to representative widths (e.g. 1280 / 768 / 380) and re-flow columns/fields exactly as the frontend would. Tricky bits: the form card normally shares the page grid with other cards, so the toggle would need to either swap the grid layout (single-column when a non-Desktop mode is active) or scope the resize to one card at a time. Worth doing once visual customization lands — it'll be the natural place to verify a chosen preset across breakpoints. Until then, the 680px upper bound is a pragmatic compromise that gives hCaptcha (303px min) breathing room without rebuilding the chrome.
 - **Subscribe-to-comments.** Visitor-facing feature (low priority, after newsletter): when someone comments on a post, offer to receive email when they get a reply. Must include proper unsubscribe (per-comment-thread token, list-unsubscribe header, dedicated page). Don't reinvent the wheel — there's a "Subscribe to Comments" plugin that's the reference for behaviour, but we implement ours so it integrates with the toolkit's SMTP routing + captcha + logging.

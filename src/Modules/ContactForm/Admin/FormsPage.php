@@ -226,7 +226,7 @@ final class FormsPage
             [$default_challenge, $default_credentials] = $captcha_service->resolve(['context' => 'contact_form']);
             if ($default_challenge !== null) {
                 $default_route_label = sprintf(
-                    /* translators: %s: name of the challenge "Default" resolves to (e.g. Math question) */
+                    /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels */
                     __('Default (%s)', 'lrob-email-toolkit'),
                     $default_challenge->label()
                 );
@@ -267,7 +267,7 @@ final class FormsPage
                     $entries[] = [
                         'route'    => '',
                         'label'    => sprintf(
-                            /* translators: %s: provider label */
+                            /* translators: %s: provider label (e.g. hCaptcha) */
                             __('— Configure %s first —', 'lrob-email-toolkit'),
                             $provider->label()
                         ),
@@ -353,7 +353,7 @@ final class FormsPage
             $out[] = [
                 'value' => $admin,
                 'label' => sprintf(
-                    /* translators: %s: admin email */
+                    /* translators: %s: site admin email address */
                     __('Site admin (%s)', 'lrob-email-toolkit'),
                     $admin
                 ),
@@ -365,7 +365,7 @@ final class FormsPage
             $out[] = [
                 'value' => $current_user->user_email,
                 'label' => sprintf(
-                    /* translators: %s: current user email */
+                    /* translators: %s: current user's email address */
                     __('Me (%s)', 'lrob-email-toolkit'),
                     $current_user->user_email
                 ),
@@ -1094,7 +1094,7 @@ final class FormsPage
     private static function label_default(string $value): string
     {
         return sprintf(
-            /* translators: %s: current default value, shown as "Default (X)" in dropdown labels */
+            /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels */
             __('Default (%s)', 'lrob-email-toolkit'),
             $value
         );
@@ -1302,8 +1302,8 @@ final class FormsPage
                                 <p class="description" style="margin: 4px 0 0;">
                                     <?php
                                     printf(
-                                        /* translators: %s: URL to the Captcha settings page */
                                         wp_kses(
+                                            /* translators: %s: URL to the Captcha settings page */
                                             __('Configured on the <a href="%s">Captcha settings page</a> under "Contact forms". Each form can still override this default.', 'lrob-email-toolkit'),
                                             ['a' => ['href' => true]]
                                         ),

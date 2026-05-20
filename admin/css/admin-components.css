@@ -799,7 +799,14 @@ body.lrob-etk-modal-open {
     gap: 10px;
     padding-bottom: 6px;
     margin-bottom: 8px;
-    flex-wrap: wrap;
+    /* nowrap + flex-shrink:0 on every sibling makes the title input the
+     * only element that absorbs shrinkage when the save badge expands
+     * mid-cycle. The title visually "makes room" for the badge instead
+     * of pushing it to a second line. */
+    flex-wrap: nowrap;
+}
+.lrob-etk-card-form-head > *:not(.lrob-etk-title-input) {
+    flex-shrink: 0;
 }
 .lrob-etk-card-form-head .lrob-etk-title-input {
     flex: 1 1 200px;
@@ -821,14 +828,30 @@ body.lrob-etk-modal-open {
 .lrob-etk-card-status {
     font-size: 12px;
     font-weight: 500;
-    padding: 2px 8px;
     border-radius: 10px;
     background: transparent;
     color: var(--etk-muted);
     white-space: nowrap;
-    transition: opacity 0.2s ease;
-    min-width: 60px;
-    text-align: right;
+    /* Sits in the header's flex flow, between the title input and the
+     * active toggle. Collapsed at rest (max-width:0, no padding, faded
+     * out). When a state class is added, expands smoothly to its content
+     * width — the title input shrinks gradually to give it room since
+     * it's the only flex-shrinkable sibling. */
+    overflow: hidden;
+    max-width: 0;
+    padding: 2px 0;
+    opacity: 0;
+    transition: max-width 0.3s ease, padding 0.3s ease, opacity 0.25s ease;
+}
+.lrob-etk-card-status.is-saving,
+.lrob-etk-card-status.is-saved,
+.lrob-etk-card-status.is-failed {
+    /* Generous cap — fits the widest localized label in any state
+     * (fr_FR "Enregistrement…"). Actual rendered width is content-driven
+     * thanks to white-space:nowrap. */
+    max-width: 200px;
+    padding: 2px 8px;
+    opacity: 1;
 }
 .lrob-etk-card-status.is-saving {
     background: var(--etk-soft);
