@@ -17,7 +17,7 @@ No external libraries at runtime: no Composer, no React, no build pipeline. Plai
 | Module | Status | What it does |
 |---|---|---|
 | **SMTP** | ✅ shipped | Route `wp_mail()` through one or more configured SMTP servers. Multiple "from" identities, per-source routing rules (WooCommerce / contact form / default / etc.), wp-config.php constant overrides, AES-256-GCM-encrypted passwords at rest, native PHP `mail()` transport as fallback. |
-| **Email Logging** | ✅ shipped | Log every outgoing email (headers, body, attachments, status, errors). Browse / search / filter / resend in the admin. Configurable retention. Activity charts on the dashboard. IMAP "Save to Sent" archive is the next chunk on this module. |
+| **Email Logging** | ✅ shipped | Log every outgoing email (headers, body, attachments, status, errors). Browse / search / filter / resend in the admin. Configurable retention. Activity charts on the dashboard. |
 | **Contact Form** | ✅ shipped | Customizable forms with a from-scratch WYSIWYG editor (drag & drop, columns, inline settings, autosave, undo/redo). Stacked anti-spam: honeypot, time-trap, rate-limit, captcha. Starter templates. Per-form recipients, Reply-To picking, subject templates, success-message templates. Submission logging with captcha-outcome tracking. |
 | **Captcha** | ✅ shipped (service module) | Shared captcha service consumed by Contact Form (and later: comments, newsletter signup, lost password, registration). Per-context routing — pick the default site-wide then optionally override per use case. Built-in math + picture-recognition challenges. **hCaptcha** provider shipped; Cloudflare Turnstile and Google reCAPTCHA designed to plug in (multi-identity, encrypted credentials). |
 | **Newsletter** | ⏳ planned | Campaigns to your WordPress users with segmentation by role / meta / WooCommerce purchase data (HPOS-aware). Throttled sending, open/click tracking, unsubscribe handling. Migration importer from the [Newsletter](https://wordpress.org/plugins/newsletter/) plugin. |
@@ -36,7 +36,7 @@ No external libraries at runtime: no Composer, no React, no build pipeline. Plai
 
 ## Install
 
-Pre-1.0 — no auto-update from WordPress.org yet. Two ways to install:
+Two ways:
 
 **From a release:**
 
@@ -51,7 +51,7 @@ Pre-1.0 — no auto-update from WordPress.org yet. Two ways to install:
 
 In both cases, **all modules are disabled** after activation. You opt in to each one explicitly from the Email Toolkit dashboard.
 
-A GitHub-release-based auto-update mechanism (mirroring [wp-lrob-calendar](https://github.com/LRob-FR/wp-lrob-calendar)) is planned for the 1.0 release.
+A GitHub-release-based auto-update mechanism (mirroring [wp-lrob-calendar](https://github.com/LRob-FR/wp-lrob-calendar)) is on the [roadmap](#roadmap) — no fixed date.
 
 ## Security notes
 
@@ -79,22 +79,24 @@ Live event names today: `email.sending`, `email.sent`, `email.failed`, `email.im
 
 ## Versioning
 
-Pre-1.0 the schema can still change between minor versions (`0.X.0 → 0.X+1.0`), and patch bumps (`0.0.X → 0.0.X+1`) are normal dev iterations.
+Two cadences:
+- **Patch (`+0.0.1`)** — small adjustments, on demand.
+- **Minor (`+0.1.0`)** — a full module shipped (e.g. Captcha → 0.1.0, Newsletter → next minor).
 
-- Minor bumps correspond to a module reaching a feature-complete milestone (e.g. `0.1.0` = Captcha module shipped with multi-context routing + first hosted provider).
-- The first `1.0.0` will ship with the public repo + GitHub-release auto-update wired up.
-
-Migrations between versions are idempotent. Downgrades are not supported.
+Migrations between versions are idempotent. Downgrades are not supported. `1.0.0` happens when the plugin is stable enough to declare it so — no specific feature gate.
 
 ## Roadmap
 
-- **v0.1.x** (current) — Polishing the Captcha + Contact Form story, FR translation, UX iteration.
-- **v0.2.0** — Email Logging: IMAP "Save to Sent" archive, plus email export.
-- **v0.3.0** — Newsletter module (campaigns, segmentation, tracking, unsubscribe).
-- **v0.4.0** — Newsletter import from the Newsletter plugin.
-- **v0.5.0** — Cross-feature captcha (comments, newsletter signup, lost password, registration) + additional homemade anti-bot challenges.
-- **v0.6.0** — Integrations module (webhooks: Slack / Discord / Matrix / n8n / generic).
-- **v1.0.0** — Repo goes fully public + GitHub-release auto-update + WordPress.org listing.
+Priority order, no version commitment — picked as makes sense at the time.
+
+- **Contact form submissions inbox** — admin UI to browse/filter every submission captured by the Contact Form module (already stored, just not yet viewable), with per-submission detail view and a one-click reply composer.
+- **Newsletter module** — campaigns, segmentation by role / meta / WooCommerce purchase data (HPOS-aware), throttled sending, open/click tracking, unsubscribe handling. Includes importer from the [Newsletter](https://wordpress.org/plugins/newsletter/) plugin.
+- **Cross-feature captcha** — comments / lost-password / registration. Built on the existing per-context routing layer.
+- **GitHub-release auto-update** — drop-in updates from the WordPress admin, mirroring [wp-lrob-calendar](https://github.com/LRob-FR/wp-lrob-calendar). Independent — could land any time.
+- **Captcha enrichment** — more hosted providers (Cloudflare Turnstile, Google reCAPTCHA), more in-house challenges (image-letter, simple logic, proof-of-work using local browser compute).
+- **Integrations module** — outbound webhooks: Slack / Discord / Matrix / n8n + generic. Each module already emits events from v0.0.1 — devs can hook them today via WordPress actions, no module needed.
+
+**Maybe / deferred** — IMAP "Save to Sent" archive. Useful for self-hosted IMAP but adds complexity for a niche use case.
 
 ## License
 
