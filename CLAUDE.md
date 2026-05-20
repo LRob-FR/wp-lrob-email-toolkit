@@ -124,7 +124,11 @@ Server-rendered PHP, `WP_List_Table` where lists are needed, vanilla JS for AJAX
 ## Build order
 
 1. ~~**SMTP + Logging**~~ — done in v0.0.1.
-2. **Contact Form** ← in active development (v0.0.2). Field editor (custom WYSIWYG with drag-and-drop, snap-to-col, side-drop into columns, type picker, etc.) is done. Still pending: per-field settings UI polish, contact-form settings display redesign, visual customization + animations, more homemade anti-bot challenges (currently only Math), submission logging with captcha-used tracking.
+2. **Contact Form** ← in active development (v0.0.7). Done so far: WYSIWYG field editor (drag-drop, snap-to-col, **inline settings strip** instead of the retired gear popup, inline option editor for select/radio/checkbox with per-option ★ default markers), settings restructure (Essentials / Style / Advanced collapsed), recipient list widget, Reply-To dropdown of form's email fields, Subject + Success as free-mode comboboxes, per-form captcha kind picker with live preview, Defaults modal, two captcha challenges (Math, Image-recognition with 20 SVG icons), submission logging with `captcha_slug` + `captcha_outcome` tracking, **auto-generated slugs** (`<type>_<sluggified-label>_<nth>`) with stable creation-order indices that survive reordering/deletions, **required-by-default** on new fields with the `*` morphing into a labelled "Required" checkbox on hover, **option labels** (not raw values) in submission emails, **Gutenberg embed block** survives click-away + recovers gracefully when its source form is deleted. **Still pending:**
+   - Visual customization + animations (named presets, hover/focus glow, submit-success celebration) — bigger chunk, see [[project-contact-form-visual-polish]].
+   - More homemade anti-bot challenges to round out the pool (image-letter, simple logic, etc.) — see backlog "Homemade anti-bot question pool".
+   - Inherit-default comboboxes (anti-spam Challenge etc.) show "Form default" but don't surface the inherited value; should read "Default (Math)" / "Default (Image)" so the active fallback is visible.
+   - [[project-contact-form-field-behaviors]] — broader tickbox/dropdown/multi-select edge cases still pending after the settings de-clutter.
 3. **IMAP save-to-sent** (extends Logging).
 4. **Newsletter** (with importer from the Newsletter plugin). Big chunk.
 5. **Cross-feature captcha & subscribe-to-comments** (see backlog) — depends on the shared captcha infrastructure being settled, so comes after Newsletter.
@@ -179,7 +183,7 @@ SMTP identity rows store `from_email` and `from_name` that may be empty — mean
 
 ## Contact Form WYSIWYG editor (`admin/js/contact-form-fields-editor.js`)
 
-Single-IIFE, ~1500 lines. Drives every Contact Form card's field editor (preview + overlays + drag-drop + gear popup + inline option editor + serializer). Section map for navigation — line numbers drift, search by the `// --- Name ---` marker:
+Single-IIFE, ~1900 lines. Drives every Contact Form card's field editor (preview + overlays + drag-drop + inline settings strip + inline option editor + serializer + sticky-hover state). Section map for navigation — line numbers drift, search by the `// --- Name ---` marker:
 
 | Section | What lives here |
 |---|---|
@@ -191,24 +195,29 @@ Single-IIFE, ~1500 lines. Drives every Contact Form card's field editor (preview
 | Normalize insert zones | After every mutation, rebuild the `+ Field` / `+ Row` / `+ Column` insert pattern from scratch in each container — keeps the canonical "one insert between every pair plus one trailing" invariant. |
 | Insert zone state | `.is-orphan` class for the sole insert in an empty container (renders as a dashed drop-zone instead of a thin pill). `.is-drop-on-insert` during active drag. |
 | Mutators | `addField`, `deleteField`, `addRow`, `addColumn`, `moveField`, etc. Each commits exactly one history snapshot. |
-| Gear popup | Per-field settings (slug, required, type-specific maxLength/rows/min/max/step/pattern, `multiple` for checkbox). Reads/writes `data-attr-*` on the shell. Popup HTML built inline in JS — no PHP template. **Options are NOT edited here** — they live in the inline editor next to the preview. |
-| Inline option editor | `select`/`radio`/`checkbox` shells render an inline editor (`.lrob-etk-cf-options[data-options-inline]`) with one `<input> + contenteditable label + remove button` per option, plus an `+ Add option` button. `applyOptionsToPreview()` is the canonical render; `syncOptionsFromInline()` reads edits back into `data-attr-options`. `inlineOptionRowHtml` deliberately does NOT wrap the input in `<label>` — wrapping would steal click focus from the contenteditable. `buildControlHtml` must emit this same shape for new fields so they're editable immediately without a reload. |
-| DOM builders | `buildField(type, attrs)` / `buildRow(field)` / `buildColumn()`. Adding a new field type means extending this section + the gear popup + the serializer. For multi-choice types, `buildControlHtml` must seed with `inlineOptionEditorHtml` / `inlineOptionRowHtml` / `inlineAddButtonHtml`, not a static preview. |
+| Inline settings strip | Per-field type-specific knobs (`maxLength`, `rows`, `min/max/step`, `pattern`, `placeholder` combobox for select, `multiple` for checkbox, `align` for submit) inside `.lrob-etk-cf-inline-settings`. Lives at the bottom of `.lrob-etk-cf-field` with the same `max-height` collapse pattern as the empty-helper reveal. `[data-inline-prop]` inputs auto-write to `data-attr-*` on the shell. No slug chip — slugs are auto-derived. |
+| Sticky hover state | JS-managed `.is-active` class on the shell whose bounding rect (or 10px buffer around it) contains the cursor. Pairs with CSS `:hover`/`:has(+ pill:hover)`/`.is-active` so the field stays expanded across the "+ Field" pill in the gap below — pill stays clickable instead of moving up as the field collapses mid-reach. |
+| Required toggle | `.lrob-etk-cf-required-control` holds two siblings: a visual-only `.lrob-etk-cf-required-star` (`*`, red when on) and a hover-revealed `.lrob-etk-cf-required-check` (`<label>` wrapping a real checkbox + "Required" text). Star isn't clickable; the checkbox is the control. `[data-required-toggle]` change mirrors back to `data-attr-required` + the star's `is-on` class. New fields default to required. |
+| Slug derivation | `<type>_<sluggified-label>_<nth>`. `nth` is a creation-order index stored on `data-attr-nth`, assigned via `nextNth()` once and stable across reorders/deletions — keeps slugs attached to their original field. `recomputeSlug(shell)` re-derives on label blur and writes `data-attr-slug` + `.lrob-etk-cf-field`'s `data-field`. PHP `FormStructure::enforce_unique_nths_and_slugs()` is the safety net at save time. |
+| Inline option editor | `select`/`radio`/`checkbox` shells render an inline editor (`.lrob-etk-cf-options[data-options-inline]`) with one `<input> + contenteditable label + remove button` per option (plus a `★` default toggle on select), plus an `+ Add option` button. `applyOptionsToPreview()` is the canonical render; `syncOptionsFromInline()` reads edits back into `data-attr-options` (remapping `data-attr-defaults` on label renames). `inlineOptionRowHtml` deliberately does NOT wrap the input in `<label>` — wrapping would steal click focus from the contenteditable. `buildControlHtml` must emit this same shape for new fields so they're editable immediately without a reload. |
+| DOM builders | `buildField(type, attrs)` / `buildRow(field)` / `buildColumn()`. Adding a new field type means extending this section + `inlineSettingsHtml` (if it has per-field knobs) + the serializer. For multi-choice types, `buildControlHtml` must seed with `inlineOptionEditorHtml` / `inlineOptionRowHtml` / `inlineAddButtonHtml`, not a static preview. |
+| Drag enable/disable | Mousedown anywhere except a `.lrob-etk-cf-overlay-handle` flips `draggable="false"` on every `[data-draggable-type]` ancestor, restored on global mouseup — so text selection inside inputs / contenteditables / chips can't accidentally launch an HTML5 drag of the shell. |
 | Serializer | `serialize(form)` produces `{ version: 1, rows: [{ id, columns: [{ id, fields: [...] }] }] }`. Field shape: see "Serialized field shape" below. |
-| Initial sync | On first load, copies attrs from the PHP-rendered DOM into `data-attr-*` so the gear/serializer can read them. Guards via `dataset.etkInit`. |
+| Initial sync | On first load, copies attrs from the PHP-rendered DOM into `data-attr-*` and backfills `data-attr-nth` in DOM order for legacy shells. Guards via `dataset.etkInit`. |
 
 ### Serialized field shape
 
 ```json
 { "id": "f7a3", "type": "text|email|number|phone|date|textarea|select|radio|checkbox|submit|captcha",
-  "slug": "your_name", "label": "Your name", "helper": "", "placeholder": "",
+  "slug": "text_your_name_3", "nth": 3,
+  "label": "Your name", "helper": "", "placeholder": "",
   "required": true, "maxLength": 200,
   "rows": 5, "min": "0", "max": "99", "step": "1", "pattern": "...",
-  "options": [{"label": "...", "value": "..."}], "multiple": true,
+  "options": [{"label": "...", "value": "..."}], "defaults": ["..."], "multiple": true,
   "text": "Send", "align": "right" }
 ```
 
-Type-specific keys appear only on relevant types. `submit` carries `text` + `align`. `captcha` carries only `id` + `type` (challenge comes from Captcha module, not per-field).
+Type-specific keys appear only on relevant types. `submit` carries `text` + `align`. `captcha` carries only `id` + `type` (challenge comes from Captcha module, not per-field). `slug` is auto-derived from `<type>_<sluggified-label>_<nth>` and never user-editable; `nth` is the field's stable creation index.
 
 ### DOM contract the editor JS depends on
 
@@ -217,17 +226,18 @@ Type-specific keys appear only on relevant types. `submit` carries `text` + `ali
 | `.lrob-etk-cf-form.is-editor` | `data-form-id` on the wrapping `.lrob-etk-cf-fields` |
 | `.lrob-etk-cf-row` | `data-row-id`, `data-cols` (1–4) |
 | `.lrob-etk-cf-col` | `data-col-id` |
-| `.lrob-etk-cf-edit-shell` | `data-field-id`, `data-field-type`, `data-attr-slug`, `data-attr-required`, optional `data-attr-*` for type-specific keys |
-| `.lrob-etk-cf-overlay--{row\|col\|field}` | Drag handle + delete + (field only) gear button |
+| `.lrob-etk-cf-edit-shell` | `data-field-id`, `data-field-type`, `data-attr-slug`, `data-attr-nth`, `data-attr-required`, optional `data-attr-*` for type-specific keys |
+| `.lrob-etk-cf-overlay--{row\|col\|field}` | Drag handle + delete (no gear — settings live in the inline strip now) |
 | `.lrob-etk-cf-insert--{row\|field\|column}` | `data-insert` action; `.is-orphan` when sole in empty container |
 | `[contenteditable="plaintext-only"]` | `data-edit` value: `label\|helper\|submit-text` |
+| `[data-inline-prop]` / `[data-required-toggle]` / `[data-action="toggle-default-option"]` | Inline-settings inputs / Required checkbox / per-option ★ default toggle. Change events route to `data-attr-*` and the relevant preview rebuild. |
 
 `FormEditorRenderer.php` is the PHP that emits this DOM. **If you change the DOM contract on one side, change both.**
 
 ### Where to make common changes
 
-- **Add a new field type:** `buildField()` switch + `buildControlHtml()` switch (with inline option editor seed if it's multi-choice) + `serialize()`'s gear-attribute list + gear popup builder + `FieldRenderer.php` (frontend) + `FormEditorRenderer.php` (editor preview).
-- **Add a new per-field setting:** add a `data-attr-X` write in the gear popup save + a `data-attr-X` read in `serialize()` + PHP side in `FieldRenderer` + the form structure schema in `FormStructure.php`.
+- **Add a new field type:** `buildField()` switch + `buildControlHtml()` switch (with inline option editor seed if it's multi-choice) + `serialize()`'s data-attr list + `typeSpecificInlineHtml()` switch (for the inline settings strip) + `FieldRenderer.php` (frontend) + `FormEditorRenderer.php` (editor preview).
+- **Add a new per-field setting:** add a chip to `typeSpecificInlineHtml()` writing `data-inline-prop="X"` + read it in `serialize()` via `data-attr-X` + PHP side in `FieldRenderer` + the form structure schema in `FormStructure.php`.
 - **Tweak the inline option editor (multi-choice):** start at `applyOptionsToPreview` / `renderSelectPreview` / `renderOptionGroupPreview` / `syncOptionsFromInline`. Mirror any DOM shape change in `buildControlHtml` so newly-created fields don't need a reload to match.
 - **Tweak a drag-drop behaviour:** start at `pickDropHover()` / `computeDropDirection()` / `sameScope()`. Add `console.log` in those three to trace.
 - **Fix a save-status edge case:** `Save plumbing` section, `setStatus()` function.

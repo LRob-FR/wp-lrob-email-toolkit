@@ -8,8 +8,10 @@
  *     contenteditable spans.
  *   • Click-an-input → swap placeholder ↔ value so the user types the
  *     placeholder directly while editing, then it snaps back on blur.
- *   • Gear popup anchored to the gear icon: slug, required, helper,
- *     and per-type options (rows, min/max, options list, etc.).
+ *   • Inline settings strip at the top of each field shell (slug + per-
+ *     type knobs like maxLength, rows, min/max, multiple, alignment,
+ *     placeholder presets, etc.). Hidden at rest, fades in on shell hover
+ *     — the editor canvas reads as the live frontend preview.
  *   • "+" insertion zones between every pair of rows/fields and at the
  *     end of each row for new columns. Clicking opens a type picker.
  *   • Drag-and-drop reorder for rows, columns, fields (same scope as
@@ -119,9 +121,8 @@
             queueSave();
         }
         function dismissOverlays() {
-            // Any open gear popup / type picker references shells that may
-            // be replaced wholesale by an undo/redo. Close them first.
-            document.querySelectorAll('.lrob-etk-cf-gear-popup').forEach(function (p) { p.remove(); });
+            // Type picker references shells that may be replaced wholesale
+            // by an undo/redo. Close it first.
             form.querySelectorAll('.lrob-etk-cf-type-picker').forEach(function (p) { p.remove(); });
         }
         function undo() {
@@ -130,6 +131,7 @@
             historyIndex--;
             form.innerHTML = history[historyIndex];
             refreshInserts();
+            rebindShells();
             updateHistoryButtons();
             queueSave();
         }
@@ -139,8 +141,16 @@
             historyIndex++;
             form.innerHTML = history[historyIndex];
             refreshInserts();
+            rebindShells();
             updateHistoryButtons();
             queueSave();
+        }
+        function rebindShells() {
+            // After innerHTML replacement, combobox controllers and any
+            // other JS bindings need re-attaching to the new DOM nodes.
+            form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (shell) {
+                ensureInlineSettings(shell);
+            });
         }
         function updateHistoryButtons() {
             if (undoBtn) undoBtn.disabled = historyIndex <= 0;
@@ -205,10 +215,9 @@
                 case 'delete-row':           deleteRow(action); break;
                 case 'delete-col':           deleteColumn(action); break;
                 case 'delete-field':         deleteField(action); break;
-                case 'gear':                 openGearPopup(action); break;
-                case 'toggle-required':      toggleRequired(action); break;
                 case 'add-inline-option':    addInlineOption(action); break;
                 case 'delete-inline-option': deleteInlineOption(action); break;
+                case 'toggle-default-option': toggleDefaultOption(action); break;
             }
         });
 
@@ -308,12 +317,21 @@
             }
         });
         form.addEventListener('blur', function (e) {
+            if (!e.target || !e.target.matches) return;
             // Redraw the preview after an inline label edit completes so
             // values reflect the final label (the input listener can't
             // safely redraw mid-edit without ejecting the caret).
-            if (e.target && e.target.matches && e.target.matches('[data-option-edit]')) {
+            if (e.target.matches('[data-option-edit]')) {
                 var shell = e.target.closest('.lrob-etk-cf-edit-shell');
                 if (shell) applyOptionsToPreview(shell);
+            }
+            // Field-label blur: re-derive the slug from the new label so
+            // it's always `<type>_<sluggified-label>_<nth>` — the nth tail
+            // is the creation index and stays put across reorders, which
+            // keeps the slug stable when *other* fields are removed.
+            if (e.target.matches('[data-edit="label"]')) {
+                var lShell = e.target.closest('.lrob-etk-cf-edit-shell');
+                if (lShell) recomputeSlug(lShell);
             }
         }, true);
 
@@ -333,20 +351,130 @@
             }
         }
 
-        // --- Captcha in-block picker --------------------------------------
-        // The select fires its own 'change' event (auto-save catches it via
-        // bindCard's data-key path); we additionally swap the rendered
-        // preview so the user sees what visitors would see for the chosen
-        // challenge — a real picture, not a description.
+        // --- Sticky hover state on field shells ---------------------------
+        // Keeps a `.is-active` class on the shell whose bounding rect (or
+        // a 10px buffer around it) contains the cursor. The buffer is the
+        // whole trick: the "+ Field" insert pill in the gap below the
+        // shell is inside the buffer, so the field never collapses while
+        // the user is reaching for the pill — pill stays at its expanded
+        // position long enough to actually click. Geometric, not timed —
+        // the buffer is wide enough that human reaction time isn't a
+        // factor.
+        var STICKY_BUFFER = 10; // px around the shell's rect
+        var stickyShell = null;
+        function findStickyShell(node) {
+            if (!node || !node.closest) return null;
+            var shell = node.closest('.lrob-etk-cf-edit-shell');
+            if (shell) return shell;
+            var pill = node.closest('.lrob-etk-cf-insert--field');
+            if (pill) {
+                var prev = pill.previousElementSibling;
+                if (prev && prev.matches && prev.matches('.lrob-etk-cf-edit-shell')) return prev;
+            }
+            return null;
+        }
+        function setStickyShell(shell) {
+            if (shell === stickyShell) return;
+            if (stickyShell) stickyShell.classList.remove('is-active');
+            stickyShell = shell;
+            if (shell) shell.classList.add('is-active');
+        }
+        form.addEventListener('mouseover', function (e) {
+            var shell = findStickyShell(e.target);
+            if (shell) setStickyShell(shell);
+        });
+        form.addEventListener('mousemove', function (e) {
+            if (!stickyShell) return;
+            // Re-read the rect every move — the shell's height changes as
+            // its reveals open/close, and we need the *current* rect to
+            // know whether the cursor has actually escaped.
+            var r = stickyShell.getBoundingClientRect();
+            var x = e.clientX, y = e.clientY;
+            if (x < r.left - STICKY_BUFFER ||
+                x > r.right + STICKY_BUFFER ||
+                y < r.top - STICKY_BUFFER ||
+                y > r.bottom + STICKY_BUFFER) {
+                // Outside the buffer — hand the active state to whatever
+                // shell (if any) is under the cursor now.
+                setStickyShell(findStickyShell(document.elementFromPoint(x, y)));
+            }
+        });
+        form.addEventListener('mouseleave', function () {
+            setStickyShell(null);
+        });
+
+        // --- Editor-side change handlers ---------------------------------
+        // 1) Captcha picker (in-block) — swap the preview HTML so the user
+        //    sees what visitors will see for the chosen challenge.
+        // 2) Required checkbox — mirrors data-attr-required + the star's
+        //    is-on indicator so the post-blur cosmetic state stays in sync.
+        // 3) Select preview <select> — promotes the freshly-picked option
+        //    to the field's default (placeholder option clears it).
         form.addEventListener('change', function (e) {
-            if (e.target && e.target.matches && e.target.matches('[data-captcha-pick]')) {
-                var block = e.target.closest('[data-captcha-block]');
+            var target = e.target;
+            if (!target || !target.matches) return;
+
+            if (target.matches('[data-captcha-pick]')) {
+                var block = target.closest('[data-captcha-block]');
                 var preview = block && block.querySelector('[data-captcha-preview]');
-                if (preview) preview.innerHTML = captchaPreviewHtml(e.target.value);
+                if (preview) preview.innerHTML = captchaPreviewHtml(target.value);
+                return;
+            }
+
+            if (target.matches('[data-required-toggle]')) {
+                var rShell = target.closest('.lrob-etk-cf-edit-shell');
+                if (!rShell) return;
+                var on = !!target.checked;
+                rShell.setAttribute('data-attr-required', on ? '1' : '0');
+                var star = rShell.querySelector('.lrob-etk-cf-required-star');
+                if (star) star.classList.toggle('is-on', on);
+                commitAndSave();
+                return;
+            }
+
+            // Select preview: any <select> living inside a .lrob-etk-cf-
+            // field--select belongs to a dropdown field. The captcha
+            // picker is filtered out above (data-captcha-pick).
+            if (target.matches('.lrob-etk-cf-field--select > select')) {
+                var sShell = target.closest('.lrob-etk-cf-edit-shell');
+                if (!sShell) return;
+                var v = target.value;
+                sShell.setAttribute('data-attr-defaults', v === '' ? '[]' : JSON.stringify([v]));
+                applyOptionsToPreview(sShell);
+                commitAndSave();
+                return;
             }
         });
 
         // --- Drag-and-drop -------------------------------------------------
+        // Drag may ONLY start from the move arrow in a row / col / field
+        // overlay. Mousedown anywhere else proactively flips `draggable`
+        // to false on every draggable ancestor for the duration of the
+        // press — so clicking into an input, dragging to select text, or
+        // mousedown-and-drag on a contenteditable label can't accidentally
+        // launch an HTML5 drag of the whole shell/row/col. Restored on
+        // mouseup (also globally, in case the mouse leaves the form).
+        var dragDisabled = [];
+        function restoreDraggable() {
+            dragDisabled.forEach(function (el) { el.setAttribute('draggable', 'true'); });
+            dragDisabled = [];
+        }
+        form.addEventListener('mousedown', function (e) {
+            // Defensive restore — if a previous mousedown didn't see its
+            // mouseup (cursor left the window etc.) we still want a clean
+            // slate.
+            restoreDraggable();
+            if (e.target.closest && e.target.closest('.lrob-etk-cf-overlay-handle')) return;
+            var item = e.target.closest && e.target.closest('[data-draggable-type]');
+            while (item) {
+                item.setAttribute('draggable', 'false');
+                dragDisabled.push(item);
+                var parent = item.parentElement;
+                item = parent ? parent.closest('[data-draggable-type]') : null;
+            }
+        });
+        document.addEventListener('mouseup', restoreDraggable);
+
         var draggedItem = null;
         form.addEventListener('dragstart', function (e) {
             var item = e.target.closest('[data-draggable-type]');
@@ -838,16 +966,6 @@
             }
             commitAndSave();
         }
-        function toggleRequired(btn) {
-            var shell = btn.closest('.lrob-etk-cf-edit-shell');
-            if (!shell) return;
-            var on = shell.getAttribute('data-attr-required') !== '1';
-            shell.setAttribute('data-attr-required', on ? '1' : '0');
-            btn.classList.toggle('is-on', on);
-            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-            commitAndSave();
-        }
-
         function handleInsert(btn) {
             var kind = btn.getAttribute('data-insert');
             if (kind === 'column') return insertColumn(btn);
@@ -917,195 +1035,267 @@
             row.setAttribute('data-cols', String(n));
         }
 
-        // --- Gear popup ----------------------------------------------------
-        function openGearPopup(btn) {
-            var shell = btn.closest('.lrob-etk-cf-edit-shell');
-            if (!shell) return;
-            // Close any open popup first.
-            document.querySelectorAll('.lrob-etk-cf-gear-popup').forEach(function (p) { p.remove(); });
+        // --- Inline settings strip ---------------------------------------
+        // The strip sits between the field's drag/delete overlay and the
+        // label, hidden at rest, revealed on shell hover (same pattern as
+        // the helper-empty + option-remove reveal). It holds every per-
+        // field setting (slug + type-specific knobs), replacing the gear
+        // popup. Inputs write back to data-attr-* via the form-level
+        // 'input' listener below.
 
-            var tpl = section.querySelector('template[data-field-gear-popup]');
-            if (!tpl) return;
-            var popup = tpl.content.firstElementChild.cloneNode(true);
-            var body = popup.querySelector('[data-gear-body]');
-            var title = popup.querySelector('[data-gear-title]');
-
+        function inlineSettingsHtml(shell) {
             var type = shell.getAttribute('data-field-type') || '';
-            if (title) title.textContent = (FIELD_TYPES[type] || type) + ' — ' + (EDITOR_I18N.fieldOptions || 'Field options');
+            if (type === 'captcha') return '';
+            var inner = type === 'submit'
+                ? alignSegmentedHtml(shell)
+                : typeSpecificInlineHtml(shell, type);
+            if (inner === '') return '';
+            return '<div class="lrob-etk-cf-inline-settings" data-inline-settings>' + inner + '</div>';
+        }
 
-            // Build the body fields for this type. Simple text inputs + a
-            // checkbox for required. Changes write straight back to the
-            // shell's data attributes (read by the serializer).
-            if (body) body.innerHTML = buildGearBody(shell, type);
-
-            document.body.appendChild(popup);
-            anchorPopup(popup, btn);
-
-            function closePopup() {
-                if (!popup.isConnected) return;
-                popup.remove();
-                // Group every gear edit since opening into a single undo step.
-                commit();
-            }
-            popup.addEventListener('click', function (e) {
-                if (e.target.closest('[data-close]')) {
-                    closePopup();
-                    return;
-                }
-                if (e.target.closest('[data-action="add-option"]')) {
-                    e.preventDefault();
-                    var list = popup.querySelector('[data-options-list]');
-                    if (list) list.appendChild(buildOptionRow(''));
-                    syncOptionsFromPopup(shell, popup);
-                    applyOptionsToPreview(shell);
-                    commitAndSave();
-                }
-                if (e.target.closest('[data-action="delete-option"]')) {
-                    e.preventDefault();
-                    var row = e.target.closest('[data-option]');
-                    if (row) row.remove();
-                    syncOptionsFromPopup(shell, popup);
-                    applyOptionsToPreview(shell);
-                    commitAndSave();
-                }
+        function inlineChipHtml(key, label, control) {
+            return '<label class="lrob-etk-cf-inline-chip" data-inline-chip="' + key + '">'
+                + '<span class="lrob-etk-cf-inline-chip-label">' + esc(label) + '</span>'
+                + control
+                + '</label>';
+        }
+        // --- Slug derivation ---------------------------------------------
+        // Slugs are auto-derived from `<type>_<sluggified-label>_<nth>` and
+        // never manually editable. `nth` is the field's creation index,
+        // assigned once when the field is first added and stable across
+        // reorders / deletions so external references to the slug (Reply-To,
+        // {token}s in subject/success templates, etc.) don't shift when
+        // *other* fields are removed. The label still influences the slug,
+        // though — renaming a field intentionally rewrites its slug, and
+        // anything pointing to the old slug needs re-picking.
+        function nextNth() {
+            var max = 0;
+            form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (s) {
+                var n = parseInt(s.getAttribute('data-attr-nth') || '0', 10);
+                if (!isNaN(n) && n > max) max = n;
             });
-            popup.addEventListener('input', function (e) {
-                if (e.target.matches('[data-gear-prop]')) {
-                    var key = e.target.getAttribute('data-gear-prop');
-                    var val = e.target.type === 'checkbox' ? (e.target.checked ? '1' : '0') : e.target.value;
-                    shell.setAttribute('data-attr-' + key, val);
-                    if (key === 'required') updateRequiredMarker(shell, e.target.checked);
-                    if (key === 'slug') {
-                        // Reflect slug onto the inner field wrapper for the
-                        // serializer's secondary read.
-                        var fieldWrap = shell.querySelector('.lrob-etk-cf-field');
-                        if (fieldWrap) fieldWrap.setAttribute('data-field', val);
-                        applyOptionsToPreview(shell); // re-derive radio/checkbox name="slug" / "slug[]"
-                    }
-                    if (key === 'multiple') {
-                        applyOptionsToPreview(shell);
-                    }
-                    queueSave();
-                }
-                if (e.target.matches('[data-option-prop]')) {
-                    syncOptionsFromPopup(shell, popup);
-                    applyOptionsToPreview(shell);
-                    queueSave();
-                }
-            });
-            // Close on outside click.
-            setTimeout(function () {
-                document.addEventListener('click', function onDoc(ev) {
-                    if (!popup.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) {
-                        closePopup();
-                        document.removeEventListener('click', onDoc);
-                    }
-                });
-            }, 0);
+            return max + 1;
         }
-
-        function anchorPopup(popup, anchor) {
-            var rect = anchor.getBoundingClientRect();
-            var pRect = popup.getBoundingClientRect();
-            var top  = window.scrollY + rect.bottom + 6;
-            var left = window.scrollX + rect.right - pRect.width;
-            if (left < window.scrollX + 8) left = window.scrollX + 8;
-            popup.style.position = 'absolute';
-            popup.style.top  = top + 'px';
-            popup.style.left = left + 'px';
+        function deriveSlug(type, labelText, nth) {
+            if (type === 'submit' || type === 'captcha') return '';
+            var fromLabel = String(labelText || '').toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '')
+                .substring(0, 40);
+            var base = fromLabel ? type + '_' + fromLabel : type;
+            return base + '_' + (parseInt(nth, 10) || 1);
         }
-
-        function updateRequiredMarker(shell, required) {
-            // Editor mode: the required marker is the .lrob-etk-cf-required-toggle
-            // button rendered next to the label. Just flip its visual state.
-            var toggle = shell.querySelector('.lrob-etk-cf-required-toggle');
-            if (toggle) {
-                toggle.classList.toggle('is-on', !!required);
-                toggle.setAttribute('aria-pressed', required ? 'true' : 'false');
-            }
+        function recomputeSlug(shell) {
+            var type = shell.getAttribute('data-field-type') || '';
+            if (type === 'submit' || type === 'captcha') return;
+            var labelEl = shell.querySelector('[data-edit="label"]');
+            var labelText = labelEl ? readEditableText(labelEl) : '';
+            var nth = parseInt(shell.getAttribute('data-attr-nth') || '0', 10) || 1;
+            var slug = deriveSlug(type, labelText, nth);
+            if (slug === '' || slug === shell.getAttribute('data-attr-slug')) return;
+            shell.setAttribute('data-attr-slug', slug);
+            var fieldWrap = shell.querySelector('.lrob-etk-cf-field');
+            if (fieldWrap) fieldWrap.setAttribute('data-field', slug);
+            // Radio / checkbox name="slug" / "slug[]" re-derives off the
+            // current slug, so re-render the inline options too.
+            applyOptionsToPreview(shell);
+            queueSave();
         }
-
-        function buildGearBody(shell, type) {
-            if (type === 'submit')  return gearSubmitBody(shell);
-            if (type === 'captcha') return '<p class="lrob-etk-cf-gear-note">Configure the challenge type in the form\'s Anti-spam settings above. The captcha will appear here on the frontend.</p>';
-
-            var slug = shell.getAttribute('data-attr-slug') || '';
-
-            var html = ''
-                + '<div class="lrob-etk-field"><label>' + esc(EDITOR_I18N.slug || 'Slug') + '</label>'
-                + '<input type="text" data-gear-prop="slug" value="' + escAttr(slug) + '"></div>';
-
-            html += typeSpecificGearControls(shell, type);
-            return html;
+        function numChipHtml(shell, key, label, fallback) {
+            var v = shell.getAttribute('data-attr-' + key);
+            if (v === null || v === '') v = fallback != null ? String(fallback) : '';
+            return inlineChipHtml(key, label,
+                '<input type="number" data-inline-prop="' + key + '" value="' + escAttr(v) + '">'
+            );
         }
-
-        function gearSubmitBody(shell) {
+        function textChipHtml(shell, key, label) {
+            var v = shell.getAttribute('data-attr-' + key) || '';
+            return inlineChipHtml(key, label,
+                '<input type="text" data-inline-prop="' + key + '" value="' + escAttr(v) + '">'
+            );
+        }
+        function checkChipHtml(shell, key, label, defaultOn) {
+            var v = shell.getAttribute('data-attr-' + key);
+            var on = v === null ? !!defaultOn : v === '1';
+            return '<label class="lrob-etk-cf-inline-check">'
+                + '<input type="checkbox" data-inline-prop="' + key + '"' + (on ? ' checked' : '') + '>'
+                + '<span>' + esc(label) + '</span>'
+                + '</label>';
+        }
+        function alignSegmentedHtml(shell) {
             var align = shell.getAttribute('data-attr-align') || 'right';
-            var aligns = [['left', EDITOR_I18N.alignLeft || 'Left'], ['center', EDITOR_I18N.alignCenter || 'Center'], ['right', EDITOR_I18N.alignRight || 'Right'], ['stretch', EDITOR_I18N.alignStretch || 'Full width']];
-            var opts = aligns.map(function (a) { return '<option value="' + a[0] + '"' + (a[0] === align ? ' selected' : '') + '>' + esc(a[1]) + '</option>'; }).join('');
-            return '<div class="lrob-etk-field"><label>' + esc(EDITOR_I18N.alignment || 'Alignment') + '</label>'
-                + '<select data-gear-prop="align" class="lrob-etk-select">' + opts + '</select></div>';
+            var aligns = [
+                ['left',    EDITOR_I18N.alignLeft    || 'Left'],
+                ['center',  EDITOR_I18N.alignCenter  || 'Center'],
+                ['right',   EDITOR_I18N.alignRight   || 'Right'],
+                ['stretch', EDITOR_I18N.alignStretch || 'Full width'],
+            ];
+            var btns = aligns.map(function (a) {
+                return '<button type="button" class="lrob-etk-cf-inline-seg' + (a[0] === align ? ' is-on' : '') + '"'
+                    + ' data-inline-seg="align" data-value="' + a[0] + '">'
+                    + esc(a[1])
+                    + '</button>';
+            }).join('');
+            return inlineChipHtml('align', EDITOR_I18N.alignment || 'Alignment',
+                '<span class="lrob-etk-cf-inline-segmented">' + btns + '</span>'
+            );
         }
-
-        function typeSpecificGearControls(shell, type) {
+        function placeholderComboHtml(shell) {
+            var current = shell.getAttribute('data-attr-placeholder') || '';
+            var label = EDITOR_I18N.placeholderText || EDITOR_I18N.placeholder || 'Placeholder';
+            return '<label class="lrob-etk-cf-inline-chip" data-inline-chip="placeholder">'
+                + '<span class="lrob-etk-cf-inline-chip-label">' + esc(label) + '</span>'
+                + '<span class="lrob-etk-combo lrob-etk-cf-inline-combo" data-inline-combo>'
+                + '<input type="text" class="lrob-etk-combo-input" data-inline-prop="placeholder" value="' + escAttr(current) + '" placeholder="— select —" autocomplete="off">'
+                + '<button type="button" class="lrob-etk-combo-toggle" tabindex="-1" aria-label="' + esc(EDITOR_I18N.placeholder || 'Placeholder') + '">'
+                + '<span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>'
+                + '</button>'
+                + '<ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>'
+                + '</span>'
+                + '</label>';
+        }
+        function typeSpecificInlineHtml(shell, type) {
             switch (type) {
                 case 'textarea':
-                    return numField(shell, 'rows', EDITOR_I18N.rows || 'Rows', 5) + numField(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0);
+                    return numChipHtml(shell, 'rows',      EDITOR_I18N.rows      || 'Rows', 5)
+                         + numChipHtml(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0);
                 case 'text':
                 case 'email':
-                    return numField(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0);
+                    return numChipHtml(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0);
                 case 'number':
-                    return textField(shell, 'min', EDITOR_I18N.min || 'Min') + textField(shell, 'max', EDITOR_I18N.max || 'Max') + textField(shell, 'step', EDITOR_I18N.step || 'Step');
+                    return textChipHtml(shell, 'min',  EDITOR_I18N.min  || 'Min')
+                         + textChipHtml(shell, 'max',  EDITOR_I18N.max  || 'Max')
+                         + textChipHtml(shell, 'step', EDITOR_I18N.step || 'Step');
                 case 'phone':
-                    return textField(shell, 'pattern', EDITOR_I18N.pattern || 'Regex pattern');
+                    return textChipHtml(shell, 'pattern', EDITOR_I18N.pattern || 'Regex pattern');
                 case 'date':
-                    return textField(shell, 'min', EDITOR_I18N.min || 'Min') + textField(shell, 'max', EDITOR_I18N.max || 'Max');
+                    return textChipHtml(shell, 'min', EDITOR_I18N.min || 'Min')
+                         + textChipHtml(shell, 'max', EDITOR_I18N.max || 'Max');
                 case 'select':
-                case 'radio':
-                    // Options are edited inline on the field preview itself.
-                    return '<p class="lrob-etk-cf-gear-note">' + esc(EDITOR_I18N.optionsInlineHint || 'Edit options directly on the field — click any label to rename, or use the inline + / × buttons.') + '</p>';
+                    // No `multiple` chip — a native <select> is single-choice
+                    // by design here; use the checkbox field type for multi.
+                    return placeholderComboHtml(shell);
                 case 'checkbox':
-                    var multiple = shell.getAttribute('data-attr-multiple') !== '0';
-                    return '<div class="lrob-etk-field"><label class="lrob-etk-cf-inline-check"><input type="checkbox" data-gear-prop="multiple"' + (multiple ? ' checked' : '') + '> ' + esc(EDITOR_I18N.multiple || 'Multiple choices') + '</label></div>'
-                        + '<p class="lrob-etk-cf-gear-note">' + esc(EDITOR_I18N.optionsInlineHint || 'Edit options directly on the field — click any label to rename, or use the inline + / × buttons.') + '</p>';
+                    return checkChipHtml(shell, 'multiple', EDITOR_I18N.multiple || 'Multiple choices', true);
             }
             return '';
         }
+        function ensureInlineSettings(shell) {
+            if (!shell) return;
+            var field = shell.querySelector(':scope > .lrob-etk-cf-field');
+            if (!field) return;
+            if (!field.querySelector(':scope > .lrob-etk-cf-inline-settings')) {
+                var html = inlineSettingsHtml(shell);
+                if (html) {
+                    // Strip is an in-flow child of the field, appended
+                    // after the helper / error. It uses the same max-
+                    // height + opacity collapse pattern as the empty-
+                    // helper reveal so it takes zero space at rest. The
+                    // field's :hover naturally includes it because it
+                    // lives inside the shell.
+                    field.insertAdjacentHTML('beforeend', html);
+                }
+            }
+            // (Re-)attach the combobox controller after every DOM-rebuild
+            // path (initial sync, new field, undo/redo). The controller
+            // guards itself against double-binding via combo.__etkBound.
+            bindPlaceholderCombo(shell);
+        }
+        function bindPlaceholderCombo(shell) {
+            var combo = shell.querySelector('.lrob-etk-cf-inline-settings [data-inline-combo]');
+            if (!combo || !window.lrobEtkControls || !window.lrobEtkControls.attachCombobox) return;
+            var presets = EDITOR_DATA.placeholderPresets || [];
+            window.lrobEtkControls.attachCombobox(combo, {
+                mode: 'free',
+                populate: function () { return presets.slice(); },
+                setValue: function (value) {
+                    var input = combo.querySelector('.lrob-etk-combo-input');
+                    if (!input) return;
+                    input.value = value;
+                    // Dispatch 'input' so the form-level listener picks it up
+                    // exactly like a keyboard edit.
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                },
+            });
+        }
+        function toggleDefaultOption(btn) {
+            var shell = btn.closest('.lrob-etk-cf-edit-shell');
+            if (!shell || shell.getAttribute('data-field-type') !== 'select') return;
+            var row = btn.closest('[data-inline-option]');
+            if (!row) return;
+            var value = row.getAttribute('data-option-value') || '';
+            var defaults = parseDefaults(shell);
+            var multiple = shell.getAttribute('data-attr-multiple') === '1';
+            var idx = defaults.indexOf(value);
+            if (multiple) {
+                if (idx >= 0) defaults.splice(idx, 1);
+                else defaults.push(value);
+            } else {
+                defaults = idx >= 0 ? [] : [value];
+            }
+            shell.setAttribute('data-attr-defaults', JSON.stringify(defaults));
+            applyOptionsToPreview(shell);
+            commitAndSave();
+        }
+        function parseDefaults(shell) {
+            try { return JSON.parse(shell.getAttribute('data-attr-defaults') || '[]'); }
+            catch (e) { return []; }
+        }
 
-        function textField(shell, key, label) {
-            var v = shell.getAttribute('data-attr-' + key) || '';
-            return '<div class="lrob-etk-field"><label>' + esc(label) + '</label><input type="text" data-gear-prop="' + key + '" value="' + escAttr(v) + '"></div>';
-        }
-        function numField(shell, key, label, fallback) {
-            var v = shell.getAttribute('data-attr-' + key);
-            if (v === null || v === '') v = String(fallback);
-            return '<div class="lrob-etk-field"><label>' + esc(label) + '</label><input type="number" data-gear-prop="' + key + '" value="' + escAttr(v) + '"></div>';
-        }
-        function optionsBlock(shell) {
-            // Option rows expose ONLY a label input. The value is auto-
-            // derived (sluggified label) — matching what FieldRenderer's
-            // normalize_options already does server-side. Having both
-            // confused the user and ~nobody needed independent value/label
-            // pairs anyway.
-            var options = parseOptions(shell);
-            var rows = options.map(function (o) { return optionRowHtml(o.label || ''); }).join('');
-            return '<div class="lrob-etk-field lrob-etk-cf-editor-options" data-options-root>'
-                + '<label>' + esc(EDITOR_I18N.options || 'Options') + '</label>'
-                + '<div data-options-list>' + rows + '</div>'
-                + '<button type="button" class="button-link" data-action="add-option">+ ' + esc(EDITOR_I18N.addOption || 'Add option') + '</button>'
-                + '</div>';
-        }
-        function optionRowHtml(label) {
-            return '<div class="lrob-etk-cf-editor-option" data-option>'
-                + '<input type="text" data-option-prop="label" placeholder="' + esc(EDITOR_I18N.optionLabel || 'Option') + '" value="' + escAttr(label) + '">'
-                + '<button type="button" data-action="delete-option" class="lrob-etk-cf-icon-btn lrob-etk-cf-icon-btn--delete" aria-label="' + esc(EDITOR_I18N.removeOption || 'Remove option') + '">×</button>'
-                + '</div>';
-        }
-        function buildOptionRow(label) {
-            var div = document.createElement('div');
-            div.innerHTML = optionRowHtml(label || '');
-            return div.firstElementChild;
-        }
+        // Inline-settings input handler: any [data-inline-prop] edit writes
+        // back to the shell's data-attr-* and triggers a save. Also keeps
+        // the input's value/checked ATTRIBUTE in sync with its property so
+        // undo/redo snapshots (taken via innerHTML) preserve typed values.
+        form.addEventListener('input', function (e) {
+            var target = e.target.closest && e.target.closest('[data-inline-prop]');
+            if (!target) return;
+            var shell = target.closest('.lrob-etk-cf-edit-shell');
+            if (!shell) return;
+            var key = target.getAttribute('data-inline-prop');
+            var val;
+            if (target.type === 'checkbox') {
+                val = target.checked ? '1' : '0';
+                if (target.checked) target.setAttribute('checked', '');
+                else target.removeAttribute('checked');
+            } else {
+                val = target.value;
+                target.setAttribute('value', val);
+            }
+            shell.setAttribute('data-attr-' + key, val);
+            if (key === 'slug') {
+                var fieldWrap = shell.querySelector('.lrob-etk-cf-field');
+                if (fieldWrap) fieldWrap.setAttribute('data-field', val);
+                applyOptionsToPreview(shell); // re-derive radio/checkbox name="slug" / "slug[]"
+            }
+            if (key === 'multiple' || key === 'placeholder') {
+                applyOptionsToPreview(shell);
+            }
+            queueSave();
+        });
+        // Segmented controls (submit alignment): click flips the active button.
+        form.addEventListener('click', function (e) {
+            var seg = e.target.closest && e.target.closest('[data-inline-seg]');
+            if (!seg) return;
+            e.preventDefault();
+            var shell = seg.closest('.lrob-etk-cf-edit-shell');
+            if (!shell) return;
+            var key = seg.getAttribute('data-inline-seg');
+            var val = seg.getAttribute('data-value') || '';
+            shell.setAttribute('data-attr-' + key, val);
+            var siblings = seg.parentElement.querySelectorAll('[data-inline-seg="' + key + '"]');
+            Array.prototype.forEach.call(siblings, function (s) {
+                s.classList.toggle('is-on', s === seg);
+            });
+            if (key === 'align') {
+                var submitField = shell.querySelector('.lrob-etk-cf-field--submit');
+                if (submitField) {
+                    submitField.className = submitField.className.replace(/\s*is-align-(left|center|right|stretch)/g, '').trim();
+                    submitField.classList.add('is-align-' + val);
+                }
+            }
+            commitAndSave();
+        });
+
         function parseOptions(shell) {
             try { return JSON.parse(shell.getAttribute('data-attr-options') || '[]'); }
             catch (e) { return []; }
@@ -1116,30 +1306,6 @@
                 .replace(/^_+|_+$/g, '')
                 .substring(0, 40);
             return v || 'opt';
-        }
-        /**
-         * Read all label inputs in the popup, derive values, write back to
-         * the shell's data-attr-options. Called on every option-prop input
-         * + on add/delete row so the preview can re-render in real time.
-         */
-        function syncOptionsFromPopup(shell, popup) {
-            var rows = popup.querySelectorAll('[data-option]');
-            var seen = {};
-            var options = [];
-            Array.prototype.forEach.call(rows, function (row) {
-                var l = row.querySelector('[data-option-prop="label"]');
-                var label = l ? String(l.value || '').trim() : '';
-                if (label === '') return;
-                var value = deriveOptionValue(label);
-                // De-dupe slugified values: "Yes" + "yes" both → "yes".
-                // Append _2, _3 etc. so each row keeps a distinct value.
-                var base = value;
-                var i = 2;
-                while (seen[value]) { value = base + '_' + i++; }
-                seen[value] = true;
-                options.push({ label: label, value: value });
-            });
-            shell.setAttribute('data-attr-options', JSON.stringify(options));
         }
         /**
          * Rebuild the live preview control inside the field shell so
@@ -1181,10 +1347,31 @@
             // The <select> can't host contenteditable labels, so we keep
             // the native select (cosmetic) AND render an inline label
             // editor next to it. Edits update both.
+            var shell = field.closest('.lrob-etk-cf-edit-shell');
+            var defaults = shell ? parseDefaults(shell) : [];
+            var placeholder = shell ? (shell.getAttribute('data-attr-placeholder') || '') : '';
+
+            // Pick the single default option that still exists in the
+            // option list (the editor enforces single-pick). If none, the
+            // select renders a leading placeholder row so the user sees
+            // a clear "nothing selected" state — same shape FieldRenderer
+            // emits on the frontend.
+            var validValues = options.map(function (o) { return String(o.value || ''); });
+            var selectedValue = '';
+            for (var i = 0; i < defaults.length; i++) {
+                if (validValues.indexOf(defaults[i]) !== -1) { selectedValue = defaults[i]; break; }
+            }
+
             var existingSelect = field.querySelector(':scope > select');
-            var optsHtml = '<option value="">— select —</option>';
+            var placeholderText = placeholder !== '' ? placeholder : '— select —';
+            // Always emit the placeholder option — picking it from the
+            // dropdown is the user's way of clearing the default. The
+            // matching `change` handler below resets data-attr-defaults
+            // when the value is empty.
+            var optsHtml = '<option value=""' + (selectedValue === '' ? ' selected' : '') + '>' + esc(placeholderText) + '</option>';
             options.forEach(function (o) {
-                optsHtml += '<option value="' + escAttr(o.value || '') + '">' + esc(o.label || '') + '</option>';
+                var v = String(o.value || '');
+                optsHtml += '<option value="' + escAttr(v) + '"' + (v === selectedValue ? ' selected' : '') + '>' + esc(o.label || '') + '</option>';
             });
             var selectHtml = '<select id="lrob-etk-cf-editor-' + escAttr(slug) + '">' + optsHtml + '</select>';
             if (existingSelect) {
@@ -1193,7 +1380,7 @@
                 field.insertAdjacentHTML('beforeend', selectHtml);
             }
             var existingInline = field.querySelector(':scope > .lrob-etk-cf-options');
-            var inlineHtml = inlineOptionEditorHtml(options);
+            var inlineHtml = inlineOptionEditorHtml(options, defaults, true);
             if (existingInline) {
                 existingInline.outerHTML = inlineHtml;
             } else {
@@ -1222,10 +1409,23 @@
             }
         }
 
-        function inlineOptionEditorHtml(options) {
+        // `withDefault`: when true (select only), each row carries a ★
+        // "use as default" toggle next to the × remove button. The toggle
+        // is hidden at rest by the same CSS that hides the ×.
+        function inlineOptionEditorHtml(options, defaults, withDefault) {
+            defaults = defaults || [];
             var rows = options.map(function (o) {
-                return '<div class="lrob-etk-cf-inline-option" data-inline-option>'
+                var value = String(o.value || '');
+                var isDef = withDefault && defaults.indexOf(value) !== -1;
+                var defBtn = withDefault
+                    ? '<button type="button" class="lrob-etk-cf-option-default' + (isDef ? ' is-on' : '') + '"'
+                        + ' data-action="toggle-default-option"'
+                        + ' aria-pressed="' + (isDef ? 'true' : 'false') + '"'
+                        + ' title="' + esc(isDef ? (EDITOR_I18N.unsetDefault || 'Remove as default') : (EDITOR_I18N.setAsDefault || 'Use as default')) + '">★</button>'
+                    : '';
+                return '<div class="lrob-etk-cf-inline-option" data-inline-option data-option-value="' + escAttr(value) + '">'
                     + '<span class="lrob-etk-cf-option-label" contenteditable="plaintext-only" data-option-edit spellcheck="false">' + esc(o.label || '') + '</span>'
+                    + defBtn
                     + '<button type="button" class="lrob-etk-cf-option-remove" data-action="delete-inline-option" aria-label="' + esc(EDITOR_I18N.removeOption || 'Remove option') + '">×</button>'
                     + '</div>';
             }).join('');
@@ -1255,26 +1455,43 @@
 
         /**
          * Read every contenteditable option label inside a shell, derive
-         * value from label, write back to data-attr-options. Mirror of
-         * syncOptionsFromPopup but for the new inline editor.
+         * value from label, write back to data-attr-options. Also remap
+         * stored defaults (select fields) when labels rename — each row
+         * tracks its OLD value via data-option-value, so we translate
+         * old→new across the rename and rewrite both attributes together.
          */
         function syncOptionsFromInline(shell) {
             var optionsContainer = shell.querySelector('[data-options-inline]');
             if (!optionsContainer) return;
-            var labelEls = optionsContainer.querySelectorAll('[data-option-edit]');
+            var rows = optionsContainer.querySelectorAll('[data-inline-option]');
+            var oldDefaults = parseDefaults(shell);
+            var valueMap = {}; // old → new
             var seen = {};
             var options = [];
-            Array.prototype.forEach.call(labelEls, function (el) {
-                var label = String(el.textContent || '').trim();
+            Array.prototype.forEach.call(rows, function (row) {
+                var labelEl = row.querySelector('[data-option-edit]');
+                var label = labelEl ? String(labelEl.textContent || '').trim() : '';
                 if (label === '') return;
                 var base = deriveOptionValue(label);
                 var value = base;
                 var i = 2;
                 while (seen[value]) { value = base + '_' + i++; }
                 seen[value] = true;
+                var oldValue = row.getAttribute('data-option-value');
+                if (oldValue && oldValue !== value) {
+                    valueMap[oldValue] = value;
+                }
+                row.setAttribute('data-option-value', value);
                 options.push({ label: label, value: value });
             });
             shell.setAttribute('data-attr-options', JSON.stringify(options));
+            if (oldDefaults.length > 0 && shell.getAttribute('data-field-type') === 'select') {
+                var validValues = options.map(function (o) { return o.value; });
+                var newDefaults = oldDefaults
+                    .map(function (v) { return valueMap[v] || v; })
+                    .filter(function (v) { return validValues.indexOf(v) !== -1; });
+                shell.setAttribute('data-attr-defaults', JSON.stringify(newDefaults));
+            }
         }
 
         // --- DOM builders for newly-inserted elements ---------------------
@@ -1324,10 +1541,19 @@
             var id = genId('f');
             var wrap = document.createElement('div');
             wrap.innerHTML = fieldShellHtml(id, type);
-            return wrap.firstElementChild;
+            var shell = wrap.firstElementChild;
+            // Inject the inline settings strip + dataset.etkInit so the
+            // initial-sync pass on next load won't try to re-scrape what we
+            // already know.
+            ensureInlineSettings(shell);
+            if (shell) shell.dataset.etkInit = '1';
+            return shell;
         }
         function fieldShellHtml(id, type) {
-            var inner = freshFieldInnerHtml(type);
+            var nth = nextNth();
+            var initialLabel = (type === 'submit' || type === 'captcha') ? '' : (FIELD_TYPES[type] || type);
+            var initialSlug = deriveSlug(type, initialLabel, nth);
+            var inner = freshFieldInnerHtml(type, initialSlug);
             var extraAttrs = '';
             if (type === 'select' || type === 'radio' || type === 'checkbox') {
                 // Seed every new multi-choice field with two starter
@@ -1338,19 +1564,24 @@
                     { label: 'Option 2', value: 'option_2' },
                 ];
                 extraAttrs += ' data-attr-options="' + escAttr(JSON.stringify(seed)) + '"';
+                if (type === 'select') {
+                    extraAttrs += ' data-attr-placeholder="" data-attr-defaults="[]"';
+                }
                 if (type === 'checkbox') {
                     // Checkbox defaults to MULTIPLE — that's the use case
                     // the seed options make sense for. Single-checkbox
-                    // (consent-style) is reached by toggling in the gear.
+                    // (consent-style) flips via the inline settings strip.
                     extraAttrs += ' data-attr-multiple="1"';
                 }
             }
             return '<div class="lrob-etk-cf-edit-shell" data-field-id="' + id + '" data-field-type="' + type + '" data-draggable-type="field" draggable="true"'
-                + ' data-attr-slug="' + escAttr(defaultSlug(type)) + '" data-attr-required="0"'
+                + ' data-attr-nth="' + nth + '"'
+                + ' data-attr-slug="' + escAttr(initialSlug) + '"'
+                + ' data-attr-required="1"'
                 + extraAttrs
                 + '>' + fieldOverlayHtml(type) + inner + '</div>';
         }
-        function freshFieldInnerHtml(type) {
+        function freshFieldInnerHtml(type, slug) {
             // Minimal field stub. The user will fill in label / placeholder
             // / options inline; the serializer reads everything from this
             // markup on save.
@@ -1363,16 +1594,25 @@
             if (type === 'captcha') {
                 return captchaEditorStubHtml('');
             }
-            var slug = defaultSlug(type);
+            slug = slug || defaultSlug(type);
             var labelText = typeLabel;
             var control = buildControlHtml(type, slug);
             // Mirror FieldRenderer's editor markup: <div> (not <label>) so
             // clicks on the contenteditable span aren't stolen by label-for.
-            var requiredTitle = esc(EDITOR_I18N.toggleRequired || 'Toggle required');
+            // New fields are required-by-default — the user can uncheck it
+            // via the inline `[checkbox] Required` that the star morphs
+            // into on hover.
+            var requiredLabel = esc(EDITOR_I18N.required || 'Required');
             return '<div class="lrob-etk-cf-field lrob-etk-cf-field--' + type + '" data-field="' + escAttr(slug) + '">'
                 + '<div class="lrob-etk-cf-label">'
                 + '<span class="lrob-etk-cf-label-text" contenteditable="plaintext-only" data-edit="label" spellcheck="false">' + esc(labelText) + '</span>'
-                + '<button type="button" class="lrob-etk-cf-required-toggle" data-action="toggle-required" aria-pressed="false" title="' + requiredTitle + '">*</button>'
+                + '<span class="lrob-etk-cf-required-control">'
+                + '<span class="lrob-etk-cf-required-star is-on" aria-hidden="true">*</span>'
+                + '<label class="lrob-etk-cf-required-check">'
+                + '<input type="checkbox" data-required-toggle checked>'
+                + '<span>' + requiredLabel + '</span>'
+                + '</label>'
+                + '</span>'
                 + '</div>'
                 + control
                 + '<p class="lrob-etk-cf-helper lrob-etk-cf-helper-empty" contenteditable="plaintext-only" data-edit="helper" spellcheck="false">' + esc(EDITOR_I18N.helperPlaceholder || '(optional helper text)') + '</p>'
@@ -1391,12 +1631,14 @@
             switch (type) {
                 case 'textarea': return '<textarea id="' + id + '" rows="5"></textarea>';
                 case 'select':
-                    var selectOpts = '<option value="">— select —</option>'
-                        + seed.map(function (o) {
-                            return '<option value="' + escAttr(o.value) + '">' + esc(o.label) + '</option>';
-                        }).join('');
+                    // New select fields have no placeholder row and no
+                    // pre-selected defaults — both knobs live in the inline
+                    // settings strip and inline editor for the user to set.
+                    var selectOpts = seed.map(function (o) {
+                        return '<option value="' + escAttr(o.value) + '">' + esc(o.label) + '</option>';
+                    }).join('');
                     return '<select id="' + id + '">' + selectOpts + '</select>'
-                        + inlineOptionEditorHtml(seed);
+                        + inlineOptionEditorHtml(seed, [], true);
                 case 'radio':
                     return '<div class="lrob-etk-cf-options" data-options-inline>'
                         + seed.map(function (o) { return inlineOptionRowHtml('radio', slug, o.label, o.value); }).join('')
@@ -1481,11 +1723,11 @@
                 + '</div>';
         }
         function fieldOverlayHtml(type) {
-            // Captcha doesn't need slug/required/options — but Gear stays so
-            // users can find their way back to anti-spam settings.
+            // Per-field settings live inline next to the label now (see
+            // .lrob-etk-cf-inline-settings); the overlay carries just drag +
+            // delete so it stays out of the way.
             return '<div class="lrob-etk-cf-overlay lrob-etk-cf-overlay--field" aria-hidden="true">'
                 + '<span class="lrob-etk-cf-overlay-handle dashicons dashicons-move"></span>'
-                + '<button type="button" class="lrob-etk-cf-overlay-btn" data-action="gear"><span class="dashicons dashicons-admin-generic"></span></button>'
                 + '<button type="button" class="lrob-etk-cf-overlay-btn lrob-etk-cf-overlay-btn--delete" data-action="delete-field"><span class="dashicons dashicons-trash"></span></button>'
                 + '</div>';
         }
@@ -1536,13 +1778,22 @@
             var helperEl = shell.querySelector('[data-edit="helper"]');
             var inputEl = shell.querySelector('input, textarea, select');
 
-            f.slug        = shell.getAttribute('data-attr-slug') || '';
-            f.label       = labelEl ? readEditableText(labelEl) : '';
-            f.helper      = helperEl ? readEditableText(helperEl, true) : '';
-            f.placeholder = inputEl && inputEl.hasAttribute('placeholder') ? inputEl.getAttribute('placeholder') : '';
-            f.required    = shell.getAttribute('data-attr-required') === '1';
+            f.slug     = shell.getAttribute('data-attr-slug') || '';
+            f.nth      = parseInt(shell.getAttribute('data-attr-nth') || '0', 10) || 0;
+            f.label    = labelEl ? readEditableText(labelEl) : '';
+            f.helper   = helperEl ? readEditableText(helperEl, true) : '';
+            f.required = shell.getAttribute('data-attr-required') === '1';
+            // Select stores placeholder on the shell (set via the inline
+            // settings strip); other types fall back to the input's
+            // placeholder attribute if one is present.
+            if (type === 'select') {
+                f.placeholder = shell.getAttribute('data-attr-placeholder') || '';
+            } else {
+                f.placeholder = inputEl && inputEl.hasAttribute('placeholder') ? inputEl.getAttribute('placeholder') : '';
+            }
 
-            // Type-specific extras stored as data-attr-* (set by the gear).
+            // Type-specific scalars stored as data-attr-* by the inline
+            // settings strip.
             ['maxLength', 'rows', 'min', 'max', 'step', 'pattern'].forEach(function (k) {
                 var v = shell.getAttribute('data-attr-' + k);
                 if (v !== null && v !== '') {
@@ -1550,40 +1801,16 @@
                 }
             });
             if (type === 'select' || type === 'radio' || type === 'checkbox') {
-                // Options live in data-attr-options as JSON when set via the
-                // gear popup. The popup's inputs are read live if a popup is
-                // open for this field.
                 var optionsAttr = shell.getAttribute('data-attr-options');
                 if (optionsAttr) {
                     try { f.options = JSON.parse(optionsAttr); } catch (e) { f.options = []; }
                 }
-                // If gear popup is open with live edits, prefer those.
-                // Popup rows now expose only a label input; value is
-                // derived from the label so storage and preview agree.
-                var openPopup = document.querySelector('.lrob-etk-cf-gear-popup');
-                if (openPopup) {
-                    var rows = openPopup.querySelectorAll('[data-option]');
-                    if (rows.length) {
-                        var seen = {};
-                        f.options = Array.prototype.map.call(rows, function (r) {
-                            var l = r.querySelector('[data-option-prop="label"]');
-                            var label = l ? String(l.value || '').trim() : '';
-                            return label;
-                        }).filter(function (lbl) { return lbl !== ''; })
-                          .map(function (label) {
-                              var base = deriveOptionValue(label);
-                              var value = base;
-                              var i = 2;
-                              while (seen[value]) { value = base + '_' + i++; }
-                              seen[value] = true;
-                              return { label: label, value: value };
-                          });
-                        // Mirror back to data-attr-options for next save.
-                        shell.setAttribute('data-attr-options', JSON.stringify(f.options));
-                    }
-                }
+            }
+            if (type === 'select') {
+                f.defaults = parseDefaults(shell);
             }
             if (type === 'checkbox') {
+                // Default is multiple-checkboxes; only `0` flips to single.
                 f.multiple = shell.getAttribute('data-attr-multiple') !== '0';
             }
             return f;
@@ -1631,24 +1858,30 @@
                 var m = submitWrap.className.match(/is-align-(left|center|right|stretch)/);
                 if (m) shell.setAttribute('data-attr-align', m[1]);
             }
-            // Required: editor mode renders a toggle button — `.is-on` means
-            // required. The legacy `.lrob-etk-cf-required` span is still
-            // accepted in case anything else writes one.
-            if (shell.querySelector('.lrob-etk-cf-required-toggle.is-on') || shell.querySelector('.lrob-etk-cf-required')) {
+            // Required: editor mode renders a star + checkbox marker. The
+            // checkbox carries the canonical state; the legacy spans/
+            // toggle-button are still accepted in case an older PHP render
+            // is on the page.
+            if (shell.querySelector('[data-required-toggle]:checked')
+                || shell.querySelector('.lrob-etk-cf-required-star.is-on')
+                || shell.querySelector('.lrob-etk-cf-required-toggle.is-on')
+                || shell.querySelector('.lrob-etk-cf-required')) {
                 shell.setAttribute('data-attr-required', '1');
             }
 
             // Multi-choice fields: scrape options + multiple from the PHP-
             // rendered DOM so the inline editor (and serializer) has them
-            // after a page reload. Without this the gear popup options
-            // section was empty and inline edit had nothing to render.
+            // after a page reload. Without this the inline editor would be
+            // empty.
             var type = shell.getAttribute('data-field-type') || '';
             if ((type === 'select' || type === 'radio' || type === 'checkbox') && !shell.hasAttribute('data-attr-options')) {
                 var scraped = [];
+                var scrapedDefaults = [];
                 if (type === 'select') {
                     shell.querySelectorAll('select > option').forEach(function (opt) {
-                        if (opt.value === '') return; // skip "— select —" placeholder
+                        if (opt.value === '') return; // skip the placeholder row
                         scraped.push({ label: (opt.textContent || '').trim(), value: opt.value });
+                        if (opt.selected) scrapedDefaults.push(opt.value);
                     });
                 } else {
                     shell.querySelectorAll('.lrob-etk-cf-option').forEach(function (lbl) {
@@ -1663,6 +1896,19 @@
                 if (scraped.length > 0) {
                     shell.setAttribute('data-attr-options', JSON.stringify(scraped));
                 }
+                if (type === 'select' && scrapedDefaults.length > 0 && !shell.hasAttribute('data-attr-defaults')) {
+                    shell.setAttribute('data-attr-defaults', JSON.stringify(scrapedDefaults));
+                }
+            }
+            if (type === 'select' && !shell.hasAttribute('data-attr-placeholder')) {
+                var sel2 = shell.querySelector('select');
+                var first = sel2 ? sel2.querySelector('option[value=""]') : null;
+                // The frontend renderer falls back to "— select —" when the
+                // placeholder is empty, so don't lock that fallback into
+                // the data attribute — leave it empty and let the renderer
+                // re-fall-back next time.
+                var firstText = first ? (first.textContent || '').trim() : '';
+                shell.setAttribute('data-attr-placeholder', firstText === '— select —' ? '' : firstText);
             }
             if (type === 'checkbox' && !shell.hasAttribute('data-attr-multiple')) {
                 // Multi if a fieldset / option list was rendered, single
@@ -1673,11 +1919,34 @@
             }
 
             // Replace the PHP-rendered options markup with the editable
-            // inline editor so users can rename / add / remove without
-            // opening the gear popup.
+            // inline editor so users can rename / add / remove right on
+            // the preview.
             if (type === 'select' || type === 'radio' || type === 'checkbox') {
                 applyOptionsToPreview(shell);
             }
+
+            // Drop the inline settings strip in. Idempotent — also called
+            // by buildField for freshly-inserted shells.
+            ensureInlineSettings(shell);
+        });
+
+        // Assign a stable creation-order `nth` to legacy shells that lack
+        // one (forms saved before this update). Done as a second pass so
+        // existing `nth`s on the page are respected first, then any
+        // unnumbered shells slot into the next available indices in DOM
+        // order — they'll keep that index from now on, even after the
+        // user reorders or deletes other fields. Slugs left as-is on
+        // first load so external references (Reply-To, {token}s) keep
+        // matching until the user explicitly renames a field's label.
+        var maxNthInit = 0;
+        form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (s) {
+            var n = parseInt(s.getAttribute('data-attr-nth') || '0', 10);
+            if (!isNaN(n) && n > maxNthInit) maxNthInit = n;
+        });
+        form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (s) {
+            if (s.hasAttribute('data-attr-nth')) return;
+            maxNthInit++;
+            s.setAttribute('data-attr-nth', String(maxNthInit));
         });
 
         // Seed the history with the initial state, AFTER the data-attr sync

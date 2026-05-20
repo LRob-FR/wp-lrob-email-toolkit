@@ -3,8 +3,8 @@
  * Contact Form admin pages. Owns: form-card list (reusing the SMTP identity-
  * card grid with a wider min/max), per-form delivery + anti-spam editor,
  * defaults section + style section grid, WYSIWYG field editor (hover
- * overlays, "+" insertion zones, contenteditable cues, captcha stub, gear
- * popup, drag-and-drop indicators, type picker), new-form picker modal,
+ * overlays, "+" insertion zones, contenteditable cues, captcha stub,
+ * inline settings strip, drag-and-drop indicators, type picker), new-form picker modal,
  * Contact Form dashboard widget (onboard + summary).
  *
  * The Gutenberg *block* editor's preview styles live in a separate file:
@@ -188,7 +188,7 @@
 /* The editor preview reuses the FRONTEND `.lrob-etk-cf-form` styles (loaded
  * from assets/css/contact-form.css). The rules below add the editor layer
  * on top: hover-revealed overlays, "+" insertion zones, contenteditable
- * cues, captcha stub, gear popup, drop indicators. Everything here is
+ * cues, captcha stub, inline settings strip, drop indicators. Everything here is
  * scoped under `.lrob-etk-cf-form.is-editor` so it never affects published
  * forms. */
 
@@ -304,7 +304,31 @@
     outline-offset: 2px;
     border-radius: 4px;
 }
-.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover {
+/* Disable browser scroll-anchoring inside the editor. Without this, when
+ * a hovered field grows (helper/strip/option reveals) the browser picks
+ * an anchor element below and adjusts scroll to keep it stable, which
+ * makes the hovered field appear to scroll UP off-screen. */
+.lrob-etk-cf-form.is-editor,
+.lrob-etk-cf-form.is-editor * {
+    overflow-anchor: none;
+}
+/* Pseudo-element extending the shell's hover hit-area ~14px below its
+ * bottom edge. Lets the cursor traverse the gap between the field and
+ * the "+ Field" insert pill without losing :hover on the shell —
+ * combined with the `:has(+ .lrob-etk-cf-insert--field:hover)` selector
+ * below, this gives a stable hover zone all the way from the field's
+ * body across the pill into the next shell's edge. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 14px;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover),
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active {
     outline-color: rgba(37, 99, 235, 0.35);
 }
 
@@ -358,7 +382,9 @@
 
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-row:hover > .lrob-etk-cf-overlay--row,
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-col:hover > .lrob-etk-cf-overlay--col,
-.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover > .lrob-etk-cf-overlay--field {
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover > .lrob-etk-cf-overlay--field,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) > .lrob-etk-cf-overlay--field,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active > .lrob-etk-cf-overlay--field {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
@@ -651,6 +677,8 @@
     transition: max-height 0.22s ease, margin-top 0.22s ease, opacity 0.18s ease;
 }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover > .lrob-etk-cf-field > .lrob-etk-cf-helper.lrob-etk-cf-helper-empty,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) > .lrob-etk-cf-field > .lrob-etk-cf-helper.lrob-etk-cf-helper-empty,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active > .lrob-etk-cf-field > .lrob-etk-cf-helper.lrob-etk-cf-helper-empty,
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-helper.lrob-etk-cf-helper-empty:focus {
     max-height: 2.4em;
     margin-top: 0;
@@ -674,51 +702,58 @@
  * (`.is-on`): always full strength so the required state is unambiguous
  * regardless of cursor position. font-size: inherit prevents it from
  * pushing the label's line-height up. */
-.lrob-etk-cf-required-toggle {
-    appearance: none;
-    background: transparent;
-    border: 0;
-    padding: 0 2px;
+/* --- Required marker / toggle ---
+ * Two stacked siblings: a "*" star (purely visual, dim/off when not
+ * required, red/on when required) and a "[checkbox] Required" label
+ * that's only shown on shell hover/active. The checkbox is the actual
+ * interactive control; the star itself isn't clickable. Reveal triggers
+ * mirror the rest of the editor chrome (:hover / :has(+ pill:hover) /
+ * .is-active / :focus-within). */
+.lrob-etk-cf-required-control {
+    display: inline-flex;
+    align-items: center;
     margin-left: 4px;
-    cursor: pointer;
+    vertical-align: baseline;
+}
+.lrob-etk-cf-required-star {
     color: var(--etk-muted);
     font-size: inherit;
     line-height: 1;
     font-weight: 700;
-    vertical-align: baseline;
-    opacity: 0;
+    opacity: 0.35;
     transition: opacity 0.12s ease, color 0.12s ease;
 }
-.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-required-toggle:not(.is-on) {
-    opacity: 0.45;
-}
-.lrob-etk-cf-required-toggle:hover,
-.lrob-etk-cf-required-toggle:focus-visible {
-    opacity: 1 !important;
-    color: var(--etk-danger);
-    outline: none;
-}
-.lrob-etk-cf-required-toggle.is-on {
+.lrob-etk-cf-required-star.is-on {
     opacity: 1;
     color: var(--etk-danger);
 }
-
-/* --- Captcha editor stub --- */
-.lrob-etk-cf-field--captcha.is-editor-stub {
-    display: flex;
+.lrob-etk-cf-required-check {
+    display: none;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: #fafbfd;
-    border: 1px dashed var(--etk-line-strong);
-    border-radius: 4px;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     color: var(--etk-muted);
-    font-size: 12px;
-    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
 }
-.lrob-etk-cf-captcha-stub-icon {
-    color: var(--etk-accent);
-    flex: 0 0 auto;
+.lrob-etk-cf-required-check input {
+    margin: 0;
+}
+/* On shell hover/active/focus: hide the star, show the checkbox. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-required-star,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-required-star,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-required-star,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-required-star {
+    display: none;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-required-check,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-required-check,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-required-check,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-required-check {
+    display: inline-flex;
 }
 
 /* --- "No submit button" warning --- */
@@ -731,82 +766,157 @@
     font-size: 12px;
 }
 
-/* --- Gear popup --- */
-.lrob-etk-cf-gear-popup {
-    position: absolute;
-    z-index: 10000;
-    background: #fff;
-    border: 1px solid var(--etk-line);
-    border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-    width: 320px;
-    max-width: calc(100vw - 32px);
-    padding: 0;
-}
-.lrob-etk-cf-gear-popup header {
+/* --- Inline settings strip ---
+ * Per-field settings used to live in a gear popup; now they live in a
+ * compact strip that sits INSIDE each editor field, below the helper
+ * text. At rest it collapses to zero height + zero opacity (same
+ * max-height pattern as the empty-helper and "+ Add option" reveals)
+ * so the editor preview matches the frontend render exactly. On
+ * shell hover the strip slides open and joins the field's natural
+ * hover area — the cursor can travel from the field's body straight
+ * into the strip without crossing any "+ Field" insert pill. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-settings {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--etk-line);
+    gap: 4px 10px;
+    margin: 0;
+    padding: 0;
+    border-top: 0 dashed var(--etk-line);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.22s ease, margin-top 0.22s ease, padding 0.22s ease, border-top-width 0.22s ease, opacity 0.18s ease;
 }
-.lrob-etk-cf-gear-popup header strong {
-    font-size: 13px;
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-inline-settings,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-inline-settings,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-inline-settings,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-inline-settings {
+    max-height: 200px;
+    margin-top: 4px;
+    padding: 4px 0 2px;
+    border-top-width: 1px;
+    opacity: 1;
+    pointer-events: auto;
+}
+/* When the placeholder combobox menu is open, let it pop out of the
+ * strip's clipped box so the option list is visible. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-settings:has(.lrob-etk-combo.is-open) {
+    overflow: visible;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--etk-muted);
+    margin: 0;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-chip-label {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     font-weight: 600;
-    color: var(--etk-fg);
+    white-space: nowrap;
 }
-.lrob-etk-cf-gear-popup header [data-close] {
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-chip input[type="text"],
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-chip input[type="number"] {
+    width: auto;
+    min-width: 60px;
+    max-width: 160px;
+    padding: 2px 6px;
+    font-size: 12px;
+    line-height: 1.3;
+    border: 1px solid var(--etk-line);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--etk-fg);
+    box-sizing: border-box;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-chip input:focus {
+    outline: none;
+    border-color: var(--etk-accent);
+    box-shadow: 0 0 0 1px var(--etk-accent);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    color: var(--etk-muted);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-check input { margin: 0; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-segmented {
+    display: inline-flex;
+    border: 1px solid var(--etk-line);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-seg {
+    appearance: none;
+    border: 0;
+    background: #fff;
+    color: var(--etk-muted);
+    padding: 2px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    border-right: 1px solid var(--etk-line);
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-seg:last-child { border-right: 0; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-seg:hover { background: var(--etk-soft); color: var(--etk-fg); }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-seg.is-on { background: var(--etk-accent); color: #fff; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-combo {
+    display: inline-flex;
+    width: 200px;
+    max-width: 100%;
+    font-size: 12px;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-combo .lrob-etk-combo-input {
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+/* --- Per-option Default star (select only) ---
+ * Marks an option as the pre-selected default. Mirrors the × remove
+ * button's hide/reveal pattern (width-collapse at rest, fades in on
+ * shell hover). When `.is-on`, the star fills with the accent colour
+ * even at rest so the chosen default is visible in the live preview. */
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-default {
     appearance: none;
     background: transparent;
     border: 0;
+    color: var(--etk-muted);
     cursor: pointer;
-    color: var(--etk-muted);
-    padding: 2px;
-    display: inline-flex;
-    align-items: center;
+    font-size: 14px;
+    line-height: 1;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    padding: 0;
+    flex: 0 0 auto;
+    max-width: 0;
+    margin-left: -6px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-width 0.18s ease, margin-left 0.18s ease, opacity 0.18s ease, color 0.12s ease;
 }
-.lrob-etk-cf-gear-popup header [data-close]:hover { color: var(--etk-fg); }
-.lrob-etk-cf-gear-body {
-    padding: 10px 12px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 60vh;
-    overflow-y: auto;
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-option-default,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-option-default,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-option-default,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-option-default,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-default.is-on {
+    max-width: 22px;
+    margin-left: 0;
+    opacity: 1;
+    pointer-events: auto;
 }
-.lrob-etk-cf-gear-body .lrob-etk-field { margin: 0; }
-.lrob-etk-cf-gear-body .lrob-etk-field label {
-    display: block;
-    font-size: 11px;
-    color: var(--etk-muted);
-    margin-bottom: 3px;
-}
-.lrob-etk-cf-gear-body input[type="text"],
-.lrob-etk-cf-gear-body input[type="number"],
-.lrob-etk-cf-gear-body .lrob-etk-select {
-    width: 100%;
-}
-.lrob-etk-cf-gear-note {
-    margin: 0;
-    color: var(--etk-muted);
-    font-size: 12px;
-    line-height: 1.4;
-}
-.lrob-etk-cf-gear-popup .lrob-etk-cf-editor-option {
-    display: grid;
-    grid-template-columns: 1fr 100px auto;
-    gap: 6px;
-    align-items: center;
-}
-.lrob-etk-cf-inline-check {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    color: var(--etk-fg);
-}
-.lrob-etk-cf-inline-check input { margin: 0; }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-default.is-on { color: var(--etk-accent); }
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-option-default:hover { color: var(--etk-accent); }
 
 /* --- Drop indicators (drag-and-drop visual feedback) ---
  * Chunky accent bars at the seam where the dragged item will land. They
@@ -1260,22 +1370,47 @@
 }
 
 /* ---------- Captcha in-block picker (editor stub) ----------
- * Inline picker + live-swapped preview. The block reserves right-padding
- * so the head row (icon + select) never slides under the field overlay
- * (move / gear / delete) that floats at top: 4px / right: 4px. */
+ * Inline picker + live-swapped preview. The editor IS a live frontend
+ * preview, so at rest the stub has no chrome — just the rendered
+ * challenge preview underneath. The dashed frame and head row (icon +
+ * Anti-spam label + challenge picker) fade in only when the field is
+ * hovered. Same opacity + size-collapse pattern as the empty-helper
+ * reveal (line 645) and the insert pills (line 458). */
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-field--captcha.is-editor-stub {
-    padding: 12px 14px;
-    padding-right: 100px; /* clearance for the field overlay buttons */
-    background: #fafbfc;
-    border: 1px dashed var(--lrob-etk-cf-border, #cbd5e1);
+    padding: 0;
+    background: transparent;
+    border: 1px dashed transparent;
     border-radius: 6px;
+    transition: padding 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover > .lrob-etk-cf-field--captcha.is-editor-stub,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) > .lrob-etk-cf-field--captcha.is-editor-stub,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active > .lrob-etk-cf-field--captcha.is-editor-stub,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within > .lrob-etk-cf-field--captcha.is-editor-stub {
+    padding: 12px 14px;
+    background: #fafbfc;
+    border-color: var(--lrob-etk-cf-border, #cbd5e1);
 }
 .lrob-etk-cf-captcha-stub-head {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+    max-height: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.22s ease, margin-bottom 0.22s ease, opacity 0.18s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-captcha-stub-head,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-captcha-stub-head,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-captcha-stub-head,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-captcha-stub-head {
+    max-height: 60px;
     margin-bottom: 8px;
+    opacity: 1;
+    pointer-events: auto;
 }
 .lrob-etk-cf-captcha-stub-icon {
     color: var(--etk-accent);
@@ -1333,6 +1468,7 @@
     flex-direction: column;
     gap: 4px;
     margin: 4px 0;
+    min-width: 0;
 }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-option[data-inline-option],
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-inline-option {
@@ -1341,6 +1477,7 @@
     gap: 6px;
     color: var(--etk-fg);
     font-size: 13px;
+    min-width: 0;
 }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-option[data-inline-option] > label {
     display: inline-flex;
@@ -1359,6 +1496,10 @@
     border-bottom: 1px dashed transparent;
     cursor: text;
     transition: border-color 0.12s ease, background 0.12s ease;
+    /* Long single-word labels would otherwise push past the right edge of
+     * the option row in narrow columns. anywhere covers the no-whitespace
+     * case; the row's flex layout handles the rest. */
+    overflow-wrap: anywhere;
 }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-option-label:hover {
     border-bottom-color: var(--etk-muted);
@@ -1368,6 +1509,11 @@
     background: rgba(37, 99, 235, 0.04);
     outline: none;
 }
+/* Per-option × button and "+ Add option" pill are editor-only chrome:
+ * hidden at rest so each option row matches the frontend's input + label
+ * shape exactly. Width-collapse for the inline-flex × (with a negative
+ * margin to absorb the row's 6px gap), height-collapse for the +Add pill
+ * sitting on its own line. Same opacity transition as the rest. */
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-option-remove {
     appearance: none;
     background: transparent;
@@ -1376,12 +1522,25 @@
     cursor: pointer;
     font-size: 16px;
     line-height: 1;
-    width: 22px;
     height: 22px;
     border-radius: 3px;
     padding: 0;
     flex: 0 0 auto;
-    transition: color 0.12s ease, background 0.12s ease;
+    max-width: 0;
+    margin-left: -6px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-width 0.18s ease, margin-left 0.18s ease, opacity 0.18s ease, color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-option-remove,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-option-remove,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-option-remove,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-option-remove {
+    max-width: 22px;
+    margin-left: 0;
+    opacity: 1;
+    pointer-events: auto;
 }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-option-remove:hover {
     color: var(--etk-danger);
@@ -1393,14 +1552,30 @@
     background: transparent;
     border: 1px dashed var(--etk-line-strong);
     color: var(--etk-muted);
-    padding: 4px 12px;
+    padding: 0 12px;
     border-radius: 999px;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.04em;
     cursor: pointer;
-    transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+    max-height: 0;
+    margin-top: 0;
+    border-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.22s ease, margin-top 0.22s ease, padding 0.22s ease, border-width 0.22s ease, opacity 0.18s ease, border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:hover .lrob-etk-cf-option-add,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:has(+ .lrob-etk-cf-insert--field:hover) .lrob-etk-cf-option-add,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell.is-active .lrob-etk-cf-option-add,
+.lrob-etk-cf-form.is-editor .lrob-etk-cf-edit-shell:focus-within .lrob-etk-cf-option-add {
+    max-height: 32px;
     margin-top: 2px;
+    padding: 4px 12px;
+    border-width: 1px;
+    opacity: 1;
+    pointer-events: auto;
 }
 .lrob-etk-cf-form.is-editor .lrob-etk-cf-option-add:hover {
     border-color: var(--etk-accent);
@@ -1408,15 +1583,3 @@
     background: rgba(37, 99, 235, 0.06);
 }
 
-/* Compact option rows in the gear popup (legacy — kept for the unlikely
- * case the gear ever brings options back, harmless to leave). */
-.lrob-etk-cf-editor-option {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 6px;
-    margin: 0 0 4px;
-}
-.lrob-etk-cf-editor-option input[type="text"] {
-    width: 100%;
-    box-sizing: border-box;
-}

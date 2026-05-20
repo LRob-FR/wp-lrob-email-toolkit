@@ -111,18 +111,36 @@ final class FieldRenderer
         $placeholder = isset($attrs['placeholder']) ? (string) $attrs['placeholder'] : '';
         $required = !empty($attrs['required']);
         $options = self::normalize_options($attrs['options'] ?? []);
+        $defaults = isset($attrs['defaults']) && is_array($attrs['defaults'])
+            ? array_map('strval', $attrs['defaults'])
+            : [];
 
         $id = FormContext::field_id($slug);
         $name = FormContext::field_name($slug);
 
-        $opts_html = '';
-        if ($placeholder !== '') {
-            $opts_html .= '<option value="">' . esc_html($placeholder) . '</option>';
+        // Resolve which option (if any) starts selected. The placeholder
+        // option is ALWAYS emitted so the user can pick "nothing" to clear
+        // any default — selecting it from the dropdown amounts to "no
+        // default chosen".
+        $selected_value = '';
+        foreach ($defaults as $v) {
+            $exists = false;
+            foreach ($options as $opt) {
+                if ((string) $opt['value'] === $v) { $exists = true; break; }
+            }
+            if ($exists) { $selected_value = $v; break; }
         }
+
+        $opts_html = sprintf(
+            '<option value=""%s>%s</option>',
+            $selected_value === '' ? ' selected' : '',
+            esc_html($placeholder !== '' ? $placeholder : '— select —')
+        );
         foreach ($options as $opt) {
             $opts_html .= sprintf(
-                '<option value="%s">%s</option>',
+                '<option value="%s"%s>%s</option>',
                 esc_attr($opt['value']),
+                ((string) $opt['value']) === $selected_value ? ' selected' : '',
                 esc_html($opt['label'])
             );
         }
@@ -506,14 +524,28 @@ final class FieldRenderer
         );
     }
 
-    /** Editor-only: clickable star that toggles the field's `required` state. */
+    /**
+     * Editor-only: paired star + checkbox marker. The star is a pure
+     * visual indicator of the current required state (red when on, dim
+     * otherwise) and is hidden whenever the shell is hovered/active;
+     * the checkbox with its "Required" label takes over in that state
+     * and is the only interactive part — the star itself is not
+     * clickable, so users get an obvious labelled control instead of a
+     * tiny asterisk to guess at.
+     */
     private static function required_toggle_html(bool $required): string
     {
         return sprintf(
-            '<button type="button" class="lrob-etk-cf-required-toggle%s" data-action="toggle-required" aria-pressed="%s" title="%s">*</button>',
+            '<span class="lrob-etk-cf-required-control">'
+            . '<span class="lrob-etk-cf-required-star%1$s" aria-hidden="true">*</span>'
+            . '<label class="lrob-etk-cf-required-check">'
+            . '<input type="checkbox" data-required-toggle%2$s>'
+            . '<span>%3$s</span>'
+            . '</label>'
+            . '</span>',
             $required ? ' is-on' : '',
-            $required ? 'true' : 'false',
-            esc_attr__('Toggle required', 'lrob-email-toolkit')
+            $required ? ' checked' : '',
+            esc_html__('Required', 'lrob-email-toolkit')
         );
     }
 

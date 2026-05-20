@@ -503,7 +503,7 @@ final class SubmitHandler
                 ? (string) $def['attrs']['label']
                 : $slug;
             $value = $values[$slug] ?? '';
-            $display = self::value_for_display($value);
+            $display = self::value_for_display($value, is_array($def['attrs'] ?? null) ? $def['attrs'] : []);
 
             $lines_plain[] = $label . ': ' . $display;
             $rows_html[] = sprintf(
@@ -587,28 +587,54 @@ final class SubmitHandler
     private static function interpolate(string $template, array $values, array $fields, \WP_Post $form): string
     {
         $out = $template;
-        $out = (string) preg_replace_callback('/\{field:([a-z0-9_]+)\}/', static function (array $m) use ($values): string {
+        $out = (string) preg_replace_callback('/\{field:([a-z0-9_]+)\}/', static function (array $m) use ($values, $fields): string {
             $slug = $m[1];
-            return self::value_for_display($values[$slug] ?? '');
+            $attrs = isset($fields[$slug]['attrs']) && is_array($fields[$slug]['attrs']) ? $fields[$slug]['attrs'] : [];
+            return self::value_for_display($values[$slug] ?? '', $attrs);
         }, $out);
         $out = str_replace('{title}', $form->post_title, $out);
         // Strip CR/LF for header safety.
         return preg_replace('/[\r\n]+/', ' ', $out) ?? '';
     }
 
-    private static function value_for_display(mixed $value): string
+    /**
+     * Stringify a submitted value for display in subject / body / templates.
+     * For multi-choice fields (select / radio / checkbox), the submitted
+     * scalar is the option's `value` (the HTML-form transport identifier);
+     * we look the option up in `$attrs['options']` and emit its `label`
+     * instead so the email reads as "Subject: Hello" rather than
+     * "Subject: hello" or "Subject: option_1".
+     *
+     * @param array<string, mixed> $attrs
+     */
+    private static function value_for_display(mixed $value, array $attrs = []): string
     {
+        $label_map = [];
+        if (isset($attrs['options']) && is_array($attrs['options'])) {
+            foreach ($attrs['options'] as $opt) {
+                if (!is_array($opt) || !isset($opt['value'])) {
+                    continue;
+                }
+                $label_map[(string) $opt['value']] = isset($opt['label']) && $opt['label'] !== ''
+                    ? (string) $opt['label']
+                    : (string) $opt['value'];
+            }
+        }
+        $resolve = static function ($v) use ($label_map): string {
+            $s = (string) $v;
+            return $label_map[$s] ?? $s;
+        };
         if (is_array($value)) {
             $flat = [];
             foreach ($value as $v) {
                 if (is_scalar($v)) {
-                    $flat[] = (string) $v;
+                    $flat[] = $resolve($v);
                 }
             }
             return implode(', ', $flat);
         }
         if (is_scalar($value)) {
-            return (string) $value;
+            return $resolve($value);
         }
         return '';
     }

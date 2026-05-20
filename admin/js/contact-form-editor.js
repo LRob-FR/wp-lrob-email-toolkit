@@ -32,6 +32,7 @@
     var PanelBody = components.PanelBody;
     var Button = components.Button;
     var Placeholder = components.Placeholder;
+    var useBlockProps = blockEditor.useBlockProps;
 
     function formTitleFallback(id) {
         /* translators: %d: contact form ID, used when the form has no title */
@@ -127,19 +128,50 @@
             )
         );
 
-        if (!attrs.formId) {
-            return el(Fragment, null, inspector,
+        // Block-editor needs the props from useBlockProps on the outer
+        // wrapper element. Without them Gutenberg can't tag the block in
+        // the DOM and click-to-select stops working — first click works
+        // but anything afterwards is silently ignored.
+        var blockProps = useBlockProps ? useBlockProps() : {};
+
+        // Resolve the picked form (if any). When the saved formId no
+        // longer points to a published form (deleted / trashed), treat
+        // the block as orphan: render the picker so the user can swap to
+        // another form without having to delete and re-add the block.
+        var picked = null;
+        var isOrphan = false;
+        if (attrs.formId) {
+            if (snap.forms) {
+                picked = snap.forms.find(function (f) { return f.id === attrs.formId; }) || null;
+                if (!picked) isOrphan = true;
+            }
+        }
+        var showPicker = !attrs.formId || isOrphan;
+
+        if (showPicker) {
+            var instructions;
+            if (snap.loading) {
+                instructions = __('Loading available forms…', 'lrob-email-toolkit');
+            } else if (isOrphan) {
+                instructions = sprintf(
+                    /* translators: %d: missing form ID */
+                    __('Form #%d is no longer published. Pick another contact form to embed on this page.', 'lrob-email-toolkit'),
+                    attrs.formId
+                );
+            } else if (snap.forms && snap.forms.length === 0) {
+                instructions = __('No published contact forms yet. Create one first under Email Toolkit → Contact Forms.', 'lrob-email-toolkit');
+            } else {
+                instructions = __('Pick a contact form to embed on this page.', 'lrob-email-toolkit');
+            }
+            return el('div', blockProps,
+                inspector,
                 el(Placeholder, {
                     label: __('Contact Form', 'lrob-email-toolkit'),
                     icon: 'feedback',
-                    instructions: snap.loading
-                        ? __('Loading available forms…', 'lrob-email-toolkit')
-                        : (snap.forms && snap.forms.length === 0
-                            ? __('No published contact forms yet. Create one first under Email Toolkit → Contact Forms.', 'lrob-email-toolkit')
-                            : __('Pick a contact form to embed on this page.', 'lrob-email-toolkit'))
+                    instructions: instructions
                 },
                     el(SelectControl, {
-                        value: '0',
+                        value: String(attrs.formId || 0),
                         options: options,
                         onChange: function (v) { props.setAttributes({ formId: parseInt(v, 10) || 0 }); }
                     })
@@ -147,10 +179,10 @@
             );
         }
 
-        var picked = snap.forms ? snap.forms.find(function (f) { return f.id === attrs.formId; }) : null;
         var title = picked ? ((picked.title && (picked.title.rendered || picked.title.raw)) || formTitleFallback(picked.id)) : formTitleFallback(attrs.formId);
 
-        return el(Fragment, null, inspector,
+        return el('div', blockProps,
+            inspector,
             el('div', { className: 'lrob-etk-cf-embed-preview lrob-etk-cf-preset--' + (attrs.preset || 'default') },
                 el('div', { className: 'lrob-etk-cf-embed-preview-head' },
                     el('span', { className: 'dashicons dashicons-feedback' }),

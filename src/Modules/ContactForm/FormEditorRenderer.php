@@ -202,8 +202,6 @@ final class FormEditorRenderer
     {
         return '<div class="lrob-etk-cf-overlay lrob-etk-cf-overlay--field" aria-hidden="true">'
             . '<span class="lrob-etk-cf-overlay-handle dashicons dashicons-move" title="' . esc_attr__('Drag to reorder field', 'lrob-email-toolkit') . '"></span>'
-            . '<button type="button" class="lrob-etk-cf-overlay-btn" data-action="gear" title="' . esc_attr__('Field options', 'lrob-email-toolkit') . '">'
-            . '<span class="dashicons dashicons-admin-generic"></span></button>'
             . '<button type="button" class="lrob-etk-cf-overlay-btn lrob-etk-cf-overlay-btn--delete" data-action="delete-field" title="' . esc_attr__('Delete field', 'lrob-email-toolkit') . '">'
             . '<span class="dashicons dashicons-trash"></span></button>'
             . '</div>';

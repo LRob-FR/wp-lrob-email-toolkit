@@ -215,11 +215,14 @@ final class AjaxController
             $title = __('Untitled form', 'lrob-email-toolkit');
         }
 
+        // See FormStructure::save() for the JSON_UNESCAPED_UNICODE / wp_slash
+        // reasoning — wp_insert_post unslashes its input on save.
+        $json = (string) wp_json_encode($structure, JSON_UNESCAPED_UNICODE);
         $new_id = wp_insert_post([
             'post_type'    => CPT::POST_TYPE,
             'post_status'  => 'publish',
             'post_title'   => $title,
-            'post_content' => (string) wp_json_encode($structure),
+            'post_content' => wp_slash($json),
         ], true);
 
         if (is_wp_error($new_id) || $new_id === 0) {

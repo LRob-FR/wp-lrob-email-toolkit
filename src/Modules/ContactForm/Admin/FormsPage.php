@@ -167,8 +167,20 @@ final class FormsPage
                 'captchaOff'        => __('No anti-spam challenge will be shown to visitors.', 'lrob-email-toolkit'),
                 'optionLabel'       => __('Option', 'lrob-email-toolkit'),
                 'removeOption'      => __('Remove option', 'lrob-email-toolkit'),
-                'noOptionsHint'     => __('Add options in the gear popup.', 'lrob-email-toolkit'),
+                'setAsDefault'      => __('Use as default', 'lrob-email-toolkit'),
+                'unsetDefault'      => __('Remove as default', 'lrob-email-toolkit'),
+                'placeholderText'   => __('Placeholder text', 'lrob-email-toolkit'),
                 'singleCheckboxHint'=> __('Single checkbox — no options needed.', 'lrob-email-toolkit'),
+            ],
+            // Shown in the per-select inline placeholder combobox. Leaving
+            // the value empty falls back to "— select —" at render time, so
+            // the dropdown never silently swallows the user's "no default"
+            // intent.
+            'placeholderPresets' => [
+                ['value' => '— select —',     'label' => '— select —'],
+                ['value' => 'Choose one…',    'label' => 'Choose one…'],
+                ['value' => 'Pick one…',      'label' => 'Pick one…'],
+                ['value' => 'Please choose…', 'label' => 'Please choose…'],
             ],
         ]);
     }
@@ -944,18 +956,6 @@ final class FormsPage
                 </div>
             </template>
 
-            <!-- Gear popup (cloned by JS and anchored to the field's gear icon) -->
-            <template data-field-gear-popup>
-                <div class="lrob-etk-cf-gear-popup" role="dialog">
-                    <header>
-                        <strong data-gear-title><?php esc_html_e('Field options', 'lrob-email-toolkit'); ?></strong>
-                        <button type="button" data-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
-                            <span class="dashicons dashicons-no-alt"></span>
-                        </button>
-                    </header>
-                    <div class="lrob-etk-cf-gear-body" data-gear-body></div>
-                </div>
-            </template>
         </section>
         <?php
     }

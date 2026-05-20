@@ -86,9 +86,18 @@ final class FormStructure
     public static function save(int $form_id, array $structure): void
     {
         $clean = self::normalize($structure);
+        // `wp_update_post` runs `wp_unslash` on its inputs, so anything we
+        // pass must be `wp_slash`-ed to survive a round-trip. `wp_json_encode`
+        // defaults to escaping non-ASCII characters (e.g. "—" → "—"),
+        // and the internal unslash would strip the backslash from each
+        // `—`, persisting literal "u2014" text in the DB. `JSON_
+        // UNESCAPED_UNICODE` keeps multibyte chars as themselves (no
+        // backslash to strip); `wp_slash` then handles the few characters
+        // JSON does escape (e.g. `\"`, `\\`).
+        $json = (string) wp_json_encode($clean, JSON_UNESCAPED_UNICODE);
         wp_update_post([
             'ID'           => $form_id,
-            'post_content' => (string) wp_json_encode($clean),
+            'post_content' => wp_slash($json),
         ]);
     }
 
@@ -148,7 +157,68 @@ final class FormStructure
             }
         }
 
+        self::enforce_unique_nths_and_slugs($out);
+
         return $out;
+    }
+
+    /**
+     * Post-pass over the normalised tree. Walks every field, assigns a
+     * creation-order `nth` to anything that doesn't have one (in DOM
+     * order), forces duplicate nths apart, and finally guarantees unique
+     * slugs by suffixing collisions with `_2`, `_3`, ... — a safety net
+     * in case two fields somehow end up with the same `<type>_<label>_
+     * <nth>` shape (e.g. legacy data with hand-typed slugs).
+     *
+     * @param array{rows:array<int, array{columns:array<int, array{fields:array<int, array>}>}>} $out
+     */
+    private static function enforce_unique_nths_and_slugs(array &$out): void
+    {
+        $max_nth = 0;
+        // Pass 1: discover the highest existing nth.
+        foreach ($out['rows'] as $row) {
+            foreach ($row['columns'] as $col) {
+                foreach ($col['fields'] as $f) {
+                    if (isset($f['nth']) && (int) $f['nth'] > $max_nth) {
+                        $max_nth = (int) $f['nth'];
+                    }
+                }
+            }
+        }
+        // Pass 2: backfill missing or duplicated nths.
+        $seen_nths = [];
+        foreach ($out['rows'] as $ri => $row) {
+            foreach ($row['columns'] as $ci => $col) {
+                foreach ($col['fields'] as $fi => $f) {
+                    $nth = (int) ($f['nth'] ?? 0);
+                    if ($nth <= 0 || isset($seen_nths[$nth])) {
+                        $nth = ++$max_nth;
+                    }
+                    $seen_nths[$nth] = true;
+                    $out['rows'][$ri]['columns'][$ci]['fields'][$fi]['nth'] = $nth;
+                }
+            }
+        }
+        // Pass 3: enforce slug uniqueness across the form.
+        $seen_slugs = [];
+        foreach ($out['rows'] as $ri => $row) {
+            foreach ($row['columns'] as $ci => $col) {
+                foreach ($col['fields'] as $fi => $f) {
+                    $slug = (string) ($f['slug'] ?? '');
+                    if ($slug === '') {
+                        continue;
+                    }
+                    $base = $slug;
+                    $n = 2;
+                    while (isset($seen_slugs[$slug])) {
+                        $slug = $base . '_' . $n;
+                        $n++;
+                    }
+                    $seen_slugs[$slug] = true;
+                    $out['rows'][$ri]['columns'][$ci]['fields'][$fi]['slug'] = $slug;
+                }
+            }
+        }
     }
 
     /** @return array{id:string, columns:array<int, array{id:string, fields:array<int, array>}>}|null */
@@ -217,9 +287,15 @@ final class FormStructure
                 : self::gen_id('f'),
             'type'        => $type,
             'slug'        => isset($field['slug']) ? sanitize_key((string) $field['slug']) : '',
-            'label'       => isset($field['label']) ? sanitize_text_field((string) $field['label']) : '',
-            'helper'      => isset($field['helper']) ? sanitize_text_field((string) $field['helper']) : '',
-            'placeholder' => isset($field['placeholder']) ? sanitize_text_field((string) $field['placeholder']) : '',
+            // Stable creation-order index — survives reordering and
+            // deletions of other fields so slugs (`<type>_<label>_<nth>`)
+            // stay attached to their original field across edits. 0 here
+            // means "not yet assigned"; the post-pass in normalize()
+            // backfills any 0 with the next free index.
+            'nth'         => isset($field['nth']) ? max(0, (int) $field['nth']) : 0,
+            'label'       => isset($field['label']) ? self::recover_unicode_escapes(sanitize_text_field((string) $field['label'])) : '',
+            'helper'      => isset($field['helper']) ? self::recover_unicode_escapes(sanitize_text_field((string) $field['helper'])) : '',
+            'placeholder' => isset($field['placeholder']) ? self::recover_unicode_escapes(sanitize_text_field((string) $field['placeholder'])) : '',
             'required'    => !empty($field['required']),
         ];
         // Type-specific keys.
@@ -258,6 +334,12 @@ final class FormStructure
                 }
                 break;
             case 'select':
+                $clean['options']  = self::normalize_options($field['options'] ?? []);
+                // A native <select> is always single-choice in this plugin —
+                // multi-pick lists belong in the checkbox field type. Cap
+                // defaults at one entry regardless of what's stored.
+                $clean['defaults'] = self::normalize_defaults($field['defaults'] ?? [], $clean['options'], false);
+                break;
             case 'radio':
                 $clean['options'] = self::normalize_options($field['options'] ?? []);
                 break;
@@ -291,6 +373,60 @@ final class FormStructure
     private static function gen_id(string $prefix): string
     {
         return $prefix . '_' . substr(bin2hex(random_bytes(4)), 0, 8);
+    }
+
+    /**
+     * Recover literal "uXXXX" sequences (and "\uXXXX" if any survived)
+     * that were left in stored strings by forms saved before wp_update_
+     * post's internal unslash was compensated for. The unslash stripped
+     * the leading backslash from each `\uXXXX` JSON escape produced by
+     * `wp_json_encode`'s default unicode escaping, persisting plain
+     * "u2014" / "u2026" / etc. as text in the DB. Loose match — bounded
+     * by non-alphanumeric neighbours so naturally-occurring words aren't
+     * touched.
+     */
+    private static function recover_unicode_escapes(string $s): string
+    {
+        if ($s === '' || strpos($s, 'u') === false) {
+            return $s;
+        }
+        return (string) preg_replace_callback(
+            '/(?<![A-Za-z0-9])\\\\?u([0-9a-fA-F]{4})(?![A-Za-z0-9])/',
+            function ($m) {
+                return mb_convert_encoding(pack('n', hexdec($m[1])), 'UTF-8', 'UTF-16BE');
+            },
+            $s
+        );
+    }
+
+    /**
+     * Sanitise the `defaults` list (option values that start pre-selected on
+     * select fields). Drops anything not present in $options. Caps the list
+     * to a single entry when $multiple is false.
+     *
+     * @param array<int, array{value:string, label:string}> $options
+     * @return array<int, string>
+     */
+    private static function normalize_defaults(mixed $raw, array $options, bool $multiple): array
+    {
+        if (!is_array($raw)) {
+            return [];
+        }
+        $valid = array_column($options, 'value');
+        $out = [];
+        foreach ($raw as $v) {
+            if (!is_scalar($v)) {
+                continue;
+            }
+            $v = (string) $v;
+            if ($v !== '' && in_array($v, $valid, true) && !in_array($v, $out, true)) {
+                $out[] = $v;
+            }
+        }
+        if (!$multiple && count($out) > 1) {
+            $out = [$out[0]];
+        }
+        return $out;
     }
 
     /** @return array<int, array{value:string, label:string}> */
