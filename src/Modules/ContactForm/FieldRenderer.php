@@ -292,7 +292,7 @@ final class FieldRenderer
         // The select swaps this client-side on change.
         $preview_html = self::captcha_preview_html($stored, $service, $available, $form_id);
 
-        $options_html = '<option value="">' . esc_html__('Form default', 'lrob-email-toolkit') . '</option>'
+        $options_html = '<option value="">' . esc_html__('Default', 'lrob-email-toolkit') . '</option>'
                       . '<option value="' . esc_attr(CPT::CHALLENGE_NONE) . '"' . selected($stored, CPT::CHALLENGE_NONE, false) . '>'
                       . esc_html__('None', 'lrob-email-toolkit')
                       . '</option>';
@@ -338,7 +338,7 @@ final class FieldRenderer
         // Empty or legacy: render the form's effective default.
         $effective = Settings::effective_challenge($form_id);
         if ($effective === CPT::CHALLENGE_NONE) {
-            return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('Form default: no anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
+            return '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('Default: no anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
         }
         if ($service !== null && isset($available[$effective])) {
             return $available[$effective]->render(['context' => 'preview']);

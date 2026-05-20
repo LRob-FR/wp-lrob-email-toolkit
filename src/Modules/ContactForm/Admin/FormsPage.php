@@ -161,7 +161,7 @@ final class FormsPage
                 'redo'              => __('Redo', 'lrob-email-toolkit'),
                 'fieldLabel'        => __('Field', 'lrob-email-toolkit'),
                 'captchaPick'       => __('Anti-spam challenge', 'lrob-email-toolkit'),
-                'captchaDefault'    => __('Default (inherits form anti-spam setting)', 'lrob-email-toolkit'),
+                'captchaDefault'    => __('Default', 'lrob-email-toolkit'),
                 'captchaNone'       => __('None — no anti-spam challenge', 'lrob-email-toolkit'),
                 'captchaInherit'    => __('Uses the form\'s default challenge (set in Advanced settings).', 'lrob-email-toolkit'),
                 'captchaOff'        => __('No anti-spam challenge will be shown to visitors.', 'lrob-email-toolkit'),

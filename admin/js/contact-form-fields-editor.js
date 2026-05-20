@@ -1667,7 +1667,7 @@
             var key = EDITOR_DATA.captchaKey || '_lrob_etk_cf_challenge';
             var challenges = Array.isArray(EDITOR_DATA.challenges) ? EDITOR_DATA.challenges : [];
             var opts = '<option value=""' + (currentSlug === '' ? ' selected' : '') + '>'
-                + esc(EDITOR_I18N.captchaDefault || 'Form default') + '</option>';
+                + esc(EDITOR_I18N.captchaDefault || 'Default') + '</option>';
             opts += '<option value="none"' + (currentSlug === 'none' ? ' selected' : '') + '>'
                 + esc(EDITOR_I18N.captchaNone || 'None') + '</option>';
             challenges.forEach(function (c) {

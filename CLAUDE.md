@@ -127,7 +127,8 @@ Server-rendered PHP, `WP_List_Table` where lists are needed, vanilla JS for AJAX
 2. **Contact Form** ← in active development (v0.0.7). Done so far: WYSIWYG field editor (drag-drop, snap-to-col, **inline settings strip** instead of the retired gear popup, inline option editor for select/radio/checkbox with per-option ★ default markers), settings restructure (Essentials / Style / Advanced collapsed), recipient list widget, Reply-To dropdown of form's email fields, Subject + Success as free-mode comboboxes, per-form captcha kind picker with live preview, Defaults modal, two captcha challenges (Math, Image-recognition with 20 SVG icons), submission logging with `captcha_slug` + `captcha_outcome` tracking, **auto-generated slugs** (`<type>_<sluggified-label>_<nth>`) with stable creation-order indices that survive reordering/deletions, **required-by-default** on new fields with the `*` morphing into a labelled "Required" checkbox on hover, **option labels** (not raw values) in submission emails, **Gutenberg embed block** survives click-away + recovers gracefully when its source form is deleted. **Still pending:**
    - Visual customization + animations (named presets, hover/focus glow, submit-success celebration) — bigger chunk, see [[project-contact-form-visual-polish]].
    - More homemade anti-bot challenges to round out the pool (image-letter, simple logic, etc.) — see backlog "Homemade anti-bot question pool".
-   - Inherit-default comboboxes (anti-spam Challenge etc.) show "Form default" but don't surface the inherited value; should read "Default (Math)" / "Default (Image)" so the active fallback is visible.
+   - Inherit-default comboboxes (anti-spam Challenge etc.) show "Default" but don't surface the inherited value; should read "Default (Math)" / "Default (Image)" so the active fallback is visible.
+   - Captcha-block picker bug: switching from "Default" to an explicit challenge then back to "Default" leaves the preview area showing the static "Uses the form's default challenge" placeholder instead of actually rendering the form's effective default. `captchaPreviewHtml('')` in `admin/js/contact-form-fields-editor.js` should resolve the form's current default slug and render that challenge, not just print a static label.
    - [[project-contact-form-field-behaviors]] — broader tickbox/dropdown/multi-select edge cases still pending after the settings de-clutter.
 3. **IMAP save-to-sent** (extends Logging).
 4. **Newsletter** (with importer from the Newsletter plugin). Big chunk.
@@ -180,6 +181,44 @@ SMTP identity rows store `from_email` and `from_name` that may be empty — mean
 ## Attachments in logs
 
 `logs.attachments` is JSON: `[{"name": "...", "path": "..."}]`. `LogEntry::normalize_attachments()` upgrades legacy string-only entries to that shape — keep it as long as old rows can exist. Resend re-attaches files whose `path` still resolves on disk and reports `attachments_dropped` for the rest. Archiving the actual file bytes is explicitly out of scope for now (deferred low-priority).
+
+## Captcha module: adding a challenge / provider
+
+Two flavours of "challenge" exist in `src/Modules/Captcha/`:
+
+- **Homemade challenges** — self-contained PHP-renders-HTML + verifies-server-side. `MathChallenge`, `ImageChallenge`. No external API.
+- **Hosted providers** (planned) — hCaptcha, Cloudflare Turnstile, Google reCAPTCHA. Loaded via vendor JS widget, verified via HTTP call to the vendor with site key + secret.
+
+Both implement the same `ChallengeInterface` (`slug()`, `label()`, `description()`, `render(array $context)`, `verify(array $post, array $context)`).
+
+### To add a homemade challenge
+
+1. Drop a class implementing `ChallengeInterface` into `src/Modules/Captcha/Challenges/`.
+2. That's it. `Module::register_challenges()` scans the directory at boot, instantiates everything that implements the interface, registers it with `CaptchaService`. No `Module.php` edit, no glue code.
+3. The new challenge automatically shows up in:
+   - The Captcha settings page picker.
+   - The per-form Anti-spam → Challenge dropdown in the Contact Form admin.
+   - The Contact Form WYSIWYG editor's in-block captcha picker (via `wp_localize_script`-published `EDITOR_DATA.challenges`).
+4. If the challenge needs an admin-visible preview, `render(['context' => 'preview'])` should produce sensible HTML. `SettingsPage` already embeds this for each registered challenge.
+
+### To add a hosted provider (hCaptcha / Turnstile / reCAPTCHA)
+
+Bigger lift — three things every external provider needs that the homemade ones don't:
+
+1. **Per-provider config** (site key, secret key, optional score threshold, language pref). Lives in a provider-scoped option key — pattern: `lrob_etk_captcha_<slug>_settings`. The Captcha settings page renders a card per registered provider, each card containing the config inputs read from that option.
+2. **Async JS widget**. `render()` returns the placeholder `<div>` with `data-sitekey` etc.; a small enqueued shim loads the vendor's script and binds. Either enqueue conditionally per request (only when the active challenge is this provider) or include in the toolkit's frontend bundle behind a feature flag.
+3. **Server-side verification call** in `verify()` — `wp_remote_post` to the vendor's verify URL with the secret + submitted token + visitor IP. Return `[false, $error]` on any non-success.
+
+Two future-shape decisions (memories [[project-captcha-architecture-next]] and [[project-captcha-admin-preview-pending]]) that should land **together with the first external provider**, not later:
+
+- **Per-context default challenges**: every consumer (`contact_form`, `comments`, `newsletter_subscribe`, `lost_password`, `registration`) picks its own default independently. The current `CaptchaService::render($context)` signature already takes the context — replace the single `active_challenge` option with a `lrob_etk_captcha_context_map` array keyed by context.
+- **Provider identities** (multi-credential, mirrors SMTP identities): `wp_lrob_etk_captcha_identities` table with `provider`, `label`, `credentials` (encrypted JSON via `src/Support/Encryption.php`). Each context entry points at an identity, not just a provider. UI reuses the `.lrob-etk-card-*` primitives from `admin-components.css`.
+
+Bolting these on after the fact means rewriting the routing layer twice — do them once.
+
+### Verification + token names
+
+`verify()` receives the raw `$_POST` array — pick out whichever fields the challenge's `render()` emitted. Use `FormContext::is_active()` / `FormContext::instance()` from ContactForm if the token name needs to be scoped per-form (prevents one form's solved token from being replayed on another). The `MathChallenge` does this — copy that scope-by-context pattern for any new challenge that issues a signed token.
 
 ## Contact Form WYSIWYG editor (`admin/js/contact-form-fields-editor.js`)
 

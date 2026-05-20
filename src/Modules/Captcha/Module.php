@@ -6,8 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha;
 
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Captcha\Admin\PageController;
-use LRob\EmailToolkit\Modules\Captcha\Challenges\ImageChallenge;
-use LRob\EmailToolkit\Modules\Captcha\Challenges\MathChallenge;
+use LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface;
 
 /**
  * Captcha service module. Owns the shared anti-bot challenge pool that
@@ -64,12 +63,45 @@ final class Module extends AbstractModule
     public function register(): void
     {
         $service = new CaptchaService();
-        $service->add_challenge(new MathChallenge());
-        $service->add_challenge(new ImageChallenge());
+        self::register_challenges($service);
         $this->container->set(CaptchaService::class, $service);
 
         if (is_admin()) {
             (new PageController($this, $service))->register();
+        }
+    }
+
+    /**
+     * Auto-discover and register every challenge dropped into
+     * `src/Modules/Captcha/Challenges/`. Adding a new challenge is as
+     * simple as creating a class that implements ChallengeInterface in
+     * that folder — no changes to this file, no glue code anywhere
+     * else. The PSR-4 autoloader resolves the class from its filename,
+     * the `instanceof` check below filters out anything that doesn't
+     * fulfil the contract.
+     */
+    private static function register_challenges(CaptchaService $service): void
+    {
+        $dir = LROB_ETK_PATH . 'src/Modules/Captcha/Challenges';
+        $files = glob($dir . '/*.php');
+        if (!is_array($files)) {
+            return;
+        }
+        sort($files); // deterministic registration order (= filename order)
+        foreach ($files as $file) {
+            $base = basename($file, '.php');
+            if ($base === 'ChallengeInterface') {
+                continue;
+            }
+            $fqcn = __NAMESPACE__ . '\\Challenges\\' . $base;
+            if (!class_exists($fqcn)) {
+                continue;
+            }
+            $reflection = new \ReflectionClass($fqcn);
+            if ($reflection->isAbstract() || !$reflection->implementsInterface(ChallengeInterface::class)) {
+                continue;
+            }
+            $service->add_challenge($reflection->newInstance());
         }
     }
 }
