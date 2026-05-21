@@ -173,6 +173,16 @@
     color: var(--etk-muted);
 }
 
+/* WP 7.0 set `.wp-core-ui .button .dashicons { line-height: 1.9 }`, which
+   pushes the icon down and breaks vertical alignment for every button that
+   pairs a dashicon with text inside our pages. Same specificity (0,3,0) +
+   loads after wp-admin.css → our rule wins on tie. */
+.lrob-etk .button .dashicons,
+.lrob-etk .button-primary .dashicons,
+.lrob-etk .button-secondary .dashicons {
+    line-height: 1;
+}
+
 /* ---------- Footer ---------- */
 
 .lrob-etk-footer {
