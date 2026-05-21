@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-20T22:42:21+00:00\n"
+"POT-Creation-Date: 2026-05-21T00:46:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -45,7 +45,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:183
 #: src/Modules/ContactForm/Admin/AjaxController.php:248
 #: src/Modules/ContactForm/Admin/FormsPage.php:534
-#: src/Modules/ContactForm/Admin/FormsPage.php:1678
+#: src/Modules/ContactForm/Admin/FormsPage.php:1726
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:49
 #: src/Modules/Logging/Admin/AjaxController.php:163
 #: src/Modules/Logging/Admin/PageController.php:62
@@ -240,9 +240,10 @@ msgid "Send test email"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:529
-#: src/Modules/ContactForm/Admin/FormsPage.php:605
-#: src/Modules/ContactForm/Admin/FormsPage.php:1215
-#: src/Modules/ContactForm/Admin/FormsPage.php:1434
+#: src/Modules/ContactForm/Admin/FormsPage.php:610
+#: src/Modules/ContactForm/Admin/FormsPage.php:1220
+#: src/Modules/ContactForm/Admin/FormsPage.php:1430
+#: src/Modules/ContactForm/Admin/FormsPage.php:1628
 #: src/Modules/Logging/Admin/LogsPage.php:395
 #: src/Modules/Logging/Admin/LogsPage.php:428
 #: src/Modules/SMTP/Admin/SettingsPage.php:456
@@ -287,7 +288,7 @@ msgid "Custom recipient"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:570
-#: src/Modules/ContactForm/Admin/FormsPage.php:617
+#: src/Modules/ContactForm/Admin/FormsPage.php:622
 #: src/Modules/Logging/Admin/LogsPage.php:411
 #: src/Modules/Logging/Admin/LogsPage.php:455
 #: src/Modules/SMTP/Admin/SettingsPage.php:497
@@ -340,7 +341,7 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:666
 #: src/Admin/DashboardPage.php:785
-#: src/Modules/ContactForm/Admin/FormsPage.php:1352
+#: src/Modules/ContactForm/Admin/FormsPage.php:1357
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:264
 #: src/Modules/Logging/Admin/LogsPage.php:268
 #: src/Modules/Logging/Admin/LogViewPage.php:76
@@ -399,7 +400,7 @@ msgid "View submission"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:712
-#: src/Modules/ContactForm/Admin/FormsPage.php:737
+#: src/Modules/ContactForm/Admin/FormsPage.php:742
 msgid "View all submissions"
 msgstr ""
 
@@ -419,7 +420,7 @@ msgid "Blocked"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:743
-#: src/Modules/ContactForm/Admin/FormsPage.php:744
+#: src/Modules/ContactForm/Admin/FormsPage.php:749
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:168
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:698
 msgid "Delivered"
@@ -624,7 +625,7 @@ msgstr ""
 
 #: src/Admin/DataPage.php:303
 #: src/Modules/AbstractModule.php:144
-#: src/Modules/ContactForm/Admin/FormsPage.php:1683
+#: src/Modules/ContactForm/Admin/FormsPage.php:1731
 #: src/Modules/Logging/Admin/PageController.php:178
 msgid "Security check failed. Please retry."
 msgstr ""
@@ -768,8 +769,8 @@ msgid "Captcha activity over the last 30 days"
 msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:166
-#: src/Modules/ContactForm/Admin/FormsPage.php:656
-#: src/Modules/ContactForm/Admin/FormsPage.php:1064
+#: src/Modules/ContactForm/Admin/FormsPage.php:661
+#: src/Modules/ContactForm/Admin/FormsPage.php:1069
 msgid "blocked"
 msgstr ""
 
@@ -811,8 +812,8 @@ msgid "Discard"
 msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:325
-#: src/Modules/ContactForm/Admin/FormsPage.php:673
-#: src/Modules/ContactForm/Admin/FormsPage.php:1192
+#: src/Modules/ContactForm/Admin/FormsPage.php:678
+#: src/Modules/ContactForm/Admin/FormsPage.php:1197
 #: src/Modules/Logging/Admin/LogsPage.php:248
 #: src/Modules/Logging/Admin/LogsPage.php:336
 #: src/Modules/Logging/Admin/LogViewPage.php:249
@@ -875,7 +876,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:468
 #: src/Modules/ContactForm/Admin/FormsPage.php:159
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
-#: src/Modules/ContactForm/Admin/FormsPage.php:1778
+#: src/Modules/ContactForm/Admin/FormsPage.php:1826
 #: src/Modules/ContactForm/FieldRenderer.php:311
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
@@ -1297,7 +1298,7 @@ msgid "Pick a known email"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:91
-#: src/Modules/ContactForm/Admin/FormsPage.php:1454
+#: src/Modules/ContactForm/Admin/FormsPage.php:1450
 msgid "email@example.com"
 msgstr ""
 
@@ -1398,12 +1399,12 @@ msgid "(field label)"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:155
-#: src/Modules/ContactForm/Admin/FormsPage.php:1285
+#: src/Modules/ContactForm/Admin/FormsPage.php:1290
 msgid "Undo"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:156
-#: src/Modules/ContactForm/Admin/FormsPage.php:1293
+#: src/Modules/ContactForm/Admin/FormsPage.php:1298
 msgid "Redo"
 msgstr ""
 
@@ -1459,7 +1460,7 @@ msgstr ""
 
 #. translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels
 #: src/Modules/ContactForm/Admin/FormsPage.php:235
-#: src/Modules/ContactForm/Admin/FormsPage.php:1339
+#: src/Modules/ContactForm/Admin/FormsPage.php:1344
 #: src/Modules/ContactForm/FieldRenderer.php:308
 #: admin/js/contact-form-editor.js:44
 msgid "Default (%s)"
@@ -1470,8 +1471,8 @@ msgid "Default (none)"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:248
-#: src/Modules/ContactForm/Admin/FormsPage.php:956
-#: src/Modules/ContactForm/Admin/FormsPage.php:959
+#: src/Modules/ContactForm/Admin/FormsPage.php:961
+#: src/Modules/ContactForm/Admin/FormsPage.php:964
 #: src/Modules/ContactForm/FieldRenderer.php:341
 #: src/Modules/ContactForm/FieldRenderer.php:411
 #: src/Modules/SMTP/Admin/SettingsPage.php:314
@@ -1509,454 +1510,462 @@ msgid "View submissions"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:560
-msgid "Default settings"
+msgid "Storage"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:564
+msgid "Default settings"
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:568
 msgid "New form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:578
+#: src/Modules/ContactForm/Admin/FormsPage.php:582
 msgid "Enable the Contact Form module to start building forms."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:612
+#: src/Modules/ContactForm/Admin/FormsPage.php:617
 msgid "This form has no submissions yet. Deleting is final."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:620
+#: src/Modules/ContactForm/Admin/FormsPage.php:625
 msgid "Delete form only"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:623
+#: src/Modules/ContactForm/Admin/FormsPage.php:628
 msgid "Delete form + submissions"
 msgstr ""
 
 #. translators: %s: contact form title
-#: src/Modules/ContactForm/Admin/FormsPage.php:648
+#: src/Modules/ContactForm/Admin/FormsPage.php:653
 msgid "Delete contact form \"%s\"?"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:654
-#: src/Modules/ContactForm/Admin/FormsPage.php:655
-#: src/Modules/ContactForm/Admin/FormsPage.php:1058
+#: src/Modules/ContactForm/Admin/FormsPage.php:659
+#: src/Modules/ContactForm/Admin/FormsPage.php:660
+#: src/Modules/ContactForm/Admin/FormsPage.php:1063
 msgid "received"
 msgid_plural "received"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %1$d total submissions, %2$s breakdown
-#: src/Modules/ContactForm/Admin/FormsPage.php:659
+#: src/Modules/ContactForm/Admin/FormsPage.php:664
 msgid "This form has %1$d submissions (%2$s). What should happen to them?"
 msgstr ""
 
 #. translators: %d: number of submissions
-#: src/Modules/ContactForm/Admin/FormsPage.php:667
+#: src/Modules/ContactForm/Admin/FormsPage.php:672
 msgid "Delete form + %d submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:735
+#: src/Modules/ContactForm/Admin/FormsPage.php:740
 msgid "Submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:748
+#: src/Modules/ContactForm/Admin/FormsPage.php:753
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:174
 msgid "Spam blocked"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:753
+#: src/Modules/ContactForm/Admin/FormsPage.php:758
 msgid "Failed to send"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:758
+#: src/Modules/ContactForm/Admin/FormsPage.php:763
 msgid "Total (all time)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:776
+#: src/Modules/ContactForm/Admin/FormsPage.php:781
 msgid "Defaults saved."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:778
+#: src/Modules/ContactForm/Admin/FormsPage.php:783
 msgid "Form deleted."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:789
+#: src/Modules/ContactForm/Admin/FormsPage.php:794
 msgid "Your contact forms"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:794
+#: src/Modules/ContactForm/Admin/FormsPage.php:799
 msgid "Create my first contact form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:796
+#: src/Modules/ContactForm/Admin/FormsPage.php:801
 msgid "Pick a starter template or build from scratch. Stacked anti-spam is on by default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:799
+#: src/Modules/ContactForm/Admin/FormsPage.php:804
 msgid "Create a contact form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:874
+#: src/Modules/ContactForm/Admin/FormsPage.php:879
 msgid "Default — SMTP routing"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:889
-#: src/Modules/ContactForm/Admin/FormsPage.php:989
-#: src/Modules/ContactForm/Admin/FormsPage.php:1419
+#: src/Modules/ContactForm/Admin/FormsPage.php:894
+#: src/Modules/ContactForm/Admin/FormsPage.php:994
+#: src/Modules/ContactForm/Admin/FormsPage.php:1415
 msgid "None — no Reply-To header"
 msgstr ""
 
 #. translators: %s: form field slug used as the auto-default.
-#: src/Modules/ContactForm/Admin/FormsPage.php:895
+#: src/Modules/ContactForm/Admin/FormsPage.php:900
 msgid "Auto (%s — first email field)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:899
+#: src/Modules/ContactForm/Admin/FormsPage.php:904
 msgid "No email field yet"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:904
-#: src/Modules/ContactForm/Admin/FormsPage.php:1426
+#: src/Modules/ContactForm/Admin/FormsPage.php:909
+#: src/Modules/ContactForm/Admin/FormsPage.php:1422
 msgid "[Site] New submission from {title}"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:910
-#: src/Modules/ContactForm/Admin/FormsPage.php:1427
+#: src/Modules/ContactForm/Admin/FormsPage.php:915
+#: src/Modules/ContactForm/Admin/FormsPage.php:1423
 #: src/Modules/ContactForm/Frontend.php:46
 #: src/Modules/ContactForm/Settings.php:185
 msgid "Thanks! Your message has been sent."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:927
 #: src/Modules/ContactForm/Admin/FormsPage.php:932
 #: src/Modules/ContactForm/Admin/FormsPage.php:937
 #: src/Modules/ContactForm/Admin/FormsPage.php:942
-#: src/Modules/ContactForm/Admin/FormsPage.php:1393
+#: src/Modules/ContactForm/Admin/FormsPage.php:947
 #: src/Modules/ContactForm/Admin/FormsPage.php:1398
+#: src/Modules/ContactForm/Admin/FormsPage.php:1615
 msgid "On"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:928
 #: src/Modules/ContactForm/Admin/FormsPage.php:933
 #: src/Modules/ContactForm/Admin/FormsPage.php:938
 #: src/Modules/ContactForm/Admin/FormsPage.php:943
-#: src/Modules/ContactForm/Admin/FormsPage.php:1394
+#: src/Modules/ContactForm/Admin/FormsPage.php:948
 #: src/Modules/ContactForm/Admin/FormsPage.php:1399
+#: src/Modules/ContactForm/Admin/FormsPage.php:1616
 msgid "Off"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1014
+#: src/Modules/ContactForm/Admin/FormsPage.php:1019
 msgid "Form name"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1017
+#: src/Modules/ContactForm/Admin/FormsPage.php:1022
 msgid "Draft"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1024
-#: src/Modules/ContactForm/Admin/FormsPage.php:1451
+#: src/Modules/ContactForm/Admin/FormsPage.php:1029
+#: src/Modules/ContactForm/Admin/FormsPage.php:1447
 msgid "Recipients"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1028
+#: src/Modules/ContactForm/Admin/FormsPage.php:1033
 msgid "No recipient is set anywhere — submissions will only be saved on this site, no email will be sent. Add at least one recipient below, or set a global default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1034
-#: src/Modules/ContactForm/Admin/FormsPage.php:1459
+#: src/Modules/ContactForm/Admin/FormsPage.php:1039
+#: src/Modules/ContactForm/Admin/FormsPage.php:1455
 msgid "SMTP identity"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1040
-#: src/Modules/ContactForm/Admin/FormsPage.php:1465
+#: src/Modules/ContactForm/Admin/FormsPage.php:1045
+#: src/Modules/ContactForm/Admin/FormsPage.php:1461
 #: admin/js/contact-form-editor.js:106
 msgid "Style"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1042
-#: src/Modules/ContactForm/Admin/FormsPage.php:1468
+#: src/Modules/ContactForm/Admin/FormsPage.php:1047
+#: src/Modules/ContactForm/Admin/FormsPage.php:1464
 #: admin/js/contact-form-editor.js:108
 msgid "Preset"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1074
+#: src/Modules/ContactForm/Admin/FormsPage.php:1079
 msgid "Advanced settings"
 msgstr ""
 
 #. translators: %s: localized creation date
-#: src/Modules/ContactForm/Admin/FormsPage.php:1079
+#: src/Modules/ContactForm/Admin/FormsPage.php:1084
 msgid "Since %s"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1088
-#: src/Modules/ContactForm/Admin/FormsPage.php:1348
-#: src/Modules/ContactForm/Admin/FormsPage.php:1502
+#: src/Modules/ContactForm/Admin/FormsPage.php:1093
+#: src/Modules/ContactForm/Admin/FormsPage.php:1353
+#: src/Modules/ContactForm/Admin/FormsPage.php:1498
 #: src/Modules/ContactForm/TemplateRegistry.php:116
 msgid "Email"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1092
-#: src/Modules/ContactForm/Admin/FormsPage.php:1506
+#: src/Modules/ContactForm/Admin/FormsPage.php:1097
+#: src/Modules/ContactForm/Admin/FormsPage.php:1502
 msgid "Reply-To field"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1093
+#: src/Modules/ContactForm/Admin/FormsPage.php:1098
 msgid "Which form field's email address is set as the Reply-To header on the notification. Pick \"None\" if you don't want a Reply-To header — some mail providers flag a Reply-To different from the From address as spam."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1099
-#: src/Modules/ContactForm/Admin/FormsPage.php:1513
+#: src/Modules/ContactForm/Admin/FormsPage.php:1104
+#: src/Modules/ContactForm/Admin/FormsPage.php:1509
 msgid "Subject template"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1100
+#: src/Modules/ContactForm/Admin/FormsPage.php:1105
 msgid "Subject line of the notification email. Tokens like {title} are replaced with form values. Open the dropdown to insert the default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1111
-#: src/Modules/ContactForm/Admin/FormsPage.php:1525
+#: src/Modules/ContactForm/Admin/FormsPage.php:1116
+#: src/Modules/ContactForm/Admin/FormsPage.php:1521
 msgid "Success message"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1112
+#: src/Modules/ContactForm/Admin/FormsPage.php:1117
 msgid "Message shown to the visitor after a successful submission. Open the dropdown to insert the default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1125
-#: src/Modules/ContactForm/Admin/FormsPage.php:1539
+#: src/Modules/ContactForm/Admin/FormsPage.php:1130
+#: src/Modules/ContactForm/Admin/FormsPage.php:1535
 msgid "Anti-spam"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1129
-#: src/Modules/ContactForm/Admin/FormsPage.php:1543
+#: src/Modules/ContactForm/Admin/FormsPage.php:1134
+#: src/Modules/ContactForm/Admin/FormsPage.php:1539
 msgid "Honeypot"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1130
+#: src/Modules/ContactForm/Admin/FormsPage.php:1135
 msgid "A hidden field invisible to humans. If anything fills it, the submission is silently treated as spam. Effective against most automated bots; no impact on real visitors."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1136
-#: src/Modules/ContactForm/Admin/FormsPage.php:1550
+#: src/Modules/ContactForm/Admin/FormsPage.php:1141
+#: src/Modules/ContactForm/Admin/FormsPage.php:1546
 msgid "Challenge"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1137
+#: src/Modules/ContactForm/Admin/FormsPage.php:1142
 msgid "Anti-bot prompt visitors see (e.g. a tiny math question). Configured globally in the Captcha settings page; override here per form if needed."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1143
-#: src/Modules/ContactForm/Admin/FormsPage.php:1599
+#: src/Modules/ContactForm/Admin/FormsPage.php:1148
+#: src/Modules/ContactForm/Admin/FormsPage.php:1647
 msgid "Save submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1144
+#: src/Modules/ContactForm/Admin/FormsPage.php:1149
 msgid "Archive received submissions to the database. When off, the notification email still goes out but no row is written and this form drops out of the Submissions inbox."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1150
-#: src/Modules/ContactForm/Admin/FormsPage.php:1567
+#: src/Modules/ContactForm/Admin/FormsPage.php:1155
+#: src/Modules/ContactForm/Admin/FormsPage.php:1563
 msgid "Throttling"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1151
+#: src/Modules/ContactForm/Admin/FormsPage.php:1156
 msgid "Server-side rate limit per submitter (identified by IP hash). Blocks the same address from re-submitting more than Max times within Window minutes."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1155
-#: src/Modules/ContactForm/Admin/FormsPage.php:1572
+#: src/Modules/ContactForm/Admin/FormsPage.php:1160
+#: src/Modules/ContactForm/Admin/FormsPage.php:1568
 msgid "Max per IP"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1165
-#: src/Modules/ContactForm/Admin/FormsPage.php:1581
+#: src/Modules/ContactForm/Admin/FormsPage.php:1170
+#: src/Modules/ContactForm/Admin/FormsPage.php:1577
 msgid "Window (min)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1186
-#: src/Modules/ContactForm/Admin/FormsPage.php:1242
+#: src/Modules/ContactForm/Admin/FormsPage.php:1191
+#: src/Modules/ContactForm/Admin/FormsPage.php:1247
 msgid "(no title)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1214
+#: src/Modules/ContactForm/Admin/FormsPage.php:1219
 msgid "Start a new contact form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1221
+#: src/Modules/ContactForm/Admin/FormsPage.php:1226
 msgid "Starter templates"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1224
+#: src/Modules/ContactForm/Admin/FormsPage.php:1229
 msgid "Blank form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1225
+#: src/Modules/ContactForm/Admin/FormsPage.php:1230
 msgid "Start with no fields and build from scratch."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1238
+#: src/Modules/ContactForm/Admin/FormsPage.php:1243
 msgid "From your existing forms"
 msgstr ""
 
 #. translators: %s: submission count
-#: src/Modules/ContactForm/Admin/FormsPage.php:1246
+#: src/Modules/ContactForm/Admin/FormsPage.php:1251
 msgid "Clone this form (%s submissions so far)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1276
-#: src/Modules/ContactForm/Admin/FormsPage.php:1277
+#: src/Modules/ContactForm/Admin/FormsPage.php:1281
+#: src/Modules/ContactForm/Admin/FormsPage.php:1282
 msgid "Add a field"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1284
+#: src/Modules/ContactForm/Admin/FormsPage.php:1289
 msgid "Undo (Ctrl+Z)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1292
+#: src/Modules/ContactForm/Admin/FormsPage.php:1297
 msgid "Redo (Ctrl+Shift+Z)"
 msgstr ""
 
 #. translators: %s: current default value, shown as "Default — X" in placeholders and Default-identity labels
-#: src/Modules/ContactForm/Admin/FormsPage.php:1326
+#: src/Modules/ContactForm/Admin/FormsPage.php:1331
 #: src/Modules/SMTP/Admin/SettingsPage.php:365
 #: src/Modules/SMTP/Admin/SettingsPage.php:386
 msgid "Default — %s"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1347
+#: src/Modules/ContactForm/Admin/FormsPage.php:1352
 msgid "Text"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1349
+#: src/Modules/ContactForm/Admin/FormsPage.php:1354
 msgid "Long text"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1350
+#: src/Modules/ContactForm/Admin/FormsPage.php:1355
 msgid "Number"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1351
+#: src/Modules/ContactForm/Admin/FormsPage.php:1356
 #: src/Modules/ContactForm/TemplateRegistry.php:97
 #: src/Modules/ContactForm/TemplateRegistry.php:117
 msgid "Phone"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1353
+#: src/Modules/ContactForm/Admin/FormsPage.php:1358
 msgid "Dropdown"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1354
+#: src/Modules/ContactForm/Admin/FormsPage.php:1359
 msgid "Radio"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1355
+#: src/Modules/ContactForm/Admin/FormsPage.php:1360
 msgid "Checkbox"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1383
+#: src/Modules/ContactForm/Admin/FormsPage.php:1388
 msgid "SMTP routing decides"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1402
-msgid "Hash only (recommended)"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1403
-msgid "Store raw IP"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1433
+#: src/Modules/ContactForm/Admin/FormsPage.php:1429
 msgid "Default settings for new forms"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1440
+#: src/Modules/ContactForm/Admin/FormsPage.php:1436
 msgid "Apply to every form unless overridden in the form's settings. Changes save automatically."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1472
+#: src/Modules/ContactForm/Admin/FormsPage.php:1468
 msgid "Accent color"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1477
+#: src/Modules/ContactForm/Admin/FormsPage.php:1473
 msgid "Inherit from theme"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1480
+#: src/Modules/ContactForm/Admin/FormsPage.php:1476
 msgid "Corner roundness"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1488
+#: src/Modules/ContactForm/Admin/FormsPage.php:1484
 msgid "Font size"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1507
+#: src/Modules/ContactForm/Admin/FormsPage.php:1503
 msgid "Slug of an email field on the form whose value becomes the Reply-To header. Forms override this individually."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1514
+#: src/Modules/ContactForm/Admin/FormsPage.php:1510
 msgid "Subject line of the notification email. Tokens like {title} are replaced with form values."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1526
+#: src/Modules/ContactForm/Admin/FormsPage.php:1522
 msgid "Message shown to the visitor after a successful submission."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1544
+#: src/Modules/ContactForm/Admin/FormsPage.php:1540
 msgid "A hidden field invisible to humans. If anything fills it, the submission is silently treated as spam."
 msgstr ""
 
 #. translators: %s: URL to the Captcha settings page
-#: src/Modules/ContactForm/Admin/FormsPage.php:1557
+#: src/Modules/ContactForm/Admin/FormsPage.php:1553
 msgid "Configured on the <a href=\"%s\">Captcha settings page</a> under \"Contact forms\". Each form can still override this default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1568
+#: src/Modules/ContactForm/Admin/FormsPage.php:1564
 msgid "Server-side rate limit per submitter (IP hash). Blocks more than Max submissions within Window minutes."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1595
-msgid "Submissions storage"
+#: src/Modules/ContactForm/Admin/FormsPage.php:1619
+msgid "Hash only (recommended)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1600
-msgid "Archive every received submission in the database (browsable in the Submissions inbox). Turn off if you only want the notification email and no audit trail — captcha and honeypot still run."
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1606
-msgid "IP storage"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1607
-msgid "Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions."
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1613
-msgid "Keep delivered for (days)"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1614
-msgid "Submissions whose notification was sent. 0 = keep forever. Daily cron purges older rows."
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1626
-msgid "Keep spam for (days)"
+#: src/Modules/ContactForm/Admin/FormsPage.php:1620
+msgid "Store raw IP"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1627
+msgid "Submissions storage"
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1634
+msgid "What gets kept when a form is submitted, for how long, and how IPs are recorded. Changes save automatically."
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1648
+msgid "Archive every received submission in the database (browsable in the Submissions inbox). Turn off if you only want the notification email and no audit trail — captcha and honeypot still run."
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1654
+msgid "IP storage"
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1655
+msgid "Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions. Contact forms are currently the only place the toolkit captures a client IP."
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1661
+msgid "Keep delivered for (days)"
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1662
+msgid "Submissions whose notification was sent. 0 = keep forever. Daily cron purges older rows."
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1674
+msgid "Keep spam for (days)"
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:1675
 msgid "Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and stored rows are mostly useful for short-term forensics. 0 = keep forever."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1779
+#: src/Modules/ContactForm/Admin/FormsPage.php:1827
 #: admin/js/contact-form-editor.js:71
 msgid "Minimal"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1780
+#: src/Modules/ContactForm/Admin/FormsPage.php:1828
 #: admin/js/contact-form-editor.js:72
 msgid "Soft"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1781
+#: src/Modules/ContactForm/Admin/FormsPage.php:1829
 #: admin/js/contact-form-editor.js:73
 msgid "Contrast"
 msgstr ""

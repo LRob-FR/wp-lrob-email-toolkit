@@ -375,13 +375,14 @@
     }
 
     /**
-     * Defaults-settings modal: triggered by the header button. Backdrop
-     * click, the × button, and Escape all close it. Body scroll lock so
-     * background doesn't sneak behind the dialog.
+     * Wire up a header-button-triggered modal. Backdrop click, the × button,
+     * and Escape all close it. Body scroll lock so background doesn't sneak
+     * behind the dialog. Reused for both the "Default settings" and
+     * "Storage" modals — same chrome, different content.
      */
-    function initDefaultsModal() {
-        var modal = document.getElementById('lrob-etk-cf-defaults-modal');
-        var openBtn = document.getElementById('lrob-etk-cf-defaults-btn');
+    function bindHeaderModal(modalId, openerId) {
+        var modal = document.getElementById(modalId);
+        var openBtn = document.getElementById(openerId);
         if (!modal || !openBtn) return;
 
         function open() {
@@ -423,7 +424,8 @@
 
     function bootstrap() {
         init();
-        initDefaultsModal();
+        bindHeaderModal('lrob-etk-cf-defaults-modal', 'lrob-etk-cf-defaults-btn');
+        bindHeaderModal('lrob-etk-cf-storage-modal',  'lrob-etk-cf-storage-btn');
         smoothScrollToHash();
     }
 

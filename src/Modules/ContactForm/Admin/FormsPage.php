@@ -555,6 +555,10 @@ final class FormsPage
                             <span class="dashicons dashicons-feedback"></span>
                             <?php esc_html_e('View submissions', 'lrob-email-toolkit'); ?>
                         </a>
+                        <button type="button" class="button" id="lrob-etk-cf-storage-btn">
+                            <span class="dashicons dashicons-database"></span>
+                            <?php esc_html_e('Storage', 'lrob-email-toolkit'); ?>
+                        </button>
                         <button type="button" class="button" id="lrob-etk-cf-defaults-btn" data-defaults-modal-open>
                             <span class="dashicons dashicons-admin-generic"></span>
                             <?php esc_html_e('Default settings', 'lrob-email-toolkit'); ?>
@@ -581,6 +585,7 @@ final class FormsPage
                 <?php $this->render_forms_section(); ?>
                 <?php $this->render_submissions_panel(); ?>
                 <?php $this->render_defaults_modal(); ?>
+                <?php $this->render_storage_modal(); ?>
                 <?php $this->render_delete_modal(); ?>
             <?php endif; ?>
         </div>
@@ -1394,15 +1399,6 @@ final class FormsPage
             ['value' => '0', 'label' => __('Off', 'lrob-email-toolkit')],
         ];
 
-        $save_options = [
-            ['value' => '1', 'label' => __('On', 'lrob-email-toolkit')],
-            ['value' => '0', 'label' => __('Off', 'lrob-email-toolkit')],
-        ];
-        $ip_options = [
-            ['value' => '0', 'label' => __('Hash only (recommended)', 'lrob-email-toolkit')],
-            ['value' => '1', 'label' => __('Store raw IP', 'lrob-email-toolkit')],
-        ];
-
         // Default challenge is now configured on the Captcha settings page
         // (Email Toolkit → Captcha → Routing → "Contact forms"). The Defaults
         // modal links there instead of duplicating the dropdown.
@@ -1591,53 +1587,105 @@ final class FormsPage
                     </div>
                 </div>
 
-                <section class="lrob-etk-cf-submissions-storage-section">
-                    <h3 class="lrob-etk-cf-section-title"><?php esc_html_e('Submissions storage', 'lrob-email-toolkit'); ?></h3>
-                    <div class="lrob-etk-cf-defaults-grid">
-                        <div class="lrob-etk-field">
-                            <label>
-                                <?php esc_html_e('Save submissions', 'lrob-email-toolkit'); ?>
-                                <?php Tooltip::render(__('Archive every received submission in the database (browsable in the Submissions inbox). Turn off if you only want the notification email and no audit trail — captcha and honeypot still run.', 'lrob-email-toolkit')); ?>
-                            </label>
-                            <?php self::render_combobox(Settings::KEY_SAVE_SUBMISSIONS, !empty($s[Settings::KEY_SAVE_SUBMISSIONS]) ? '1' : '0', $save_options); ?>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label>
-                                <?php esc_html_e('IP storage', 'lrob-email-toolkit'); ?>
-                                <?php Tooltip::render(__('Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions.', 'lrob-email-toolkit')); ?>
-                            </label>
-                            <?php self::render_combobox(Settings::KEY_STORE_RAW_IP, !empty($s[Settings::KEY_STORE_RAW_IP]) ? '1' : '0', $ip_options); ?>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label>
-                                <?php esc_html_e('Keep delivered for (days)', 'lrob-email-toolkit'); ?>
-                                <?php Tooltip::render(__('Submissions whose notification was sent. 0 = keep forever. Daily cron purges older rows.', 'lrob-email-toolkit')); ?>
-                            </label>
-                            <input type="text" inputmode="numeric" pattern="[0-9]*"
-                                   name="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
-                                   class="lrob-etk-cf-field"
-                                   data-key="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
-                                   maxlength="4"
-                                   value="<?php echo (int) $s[Settings::KEY_RETENTION_DELIVERED_DAYS]; ?>"
-                                   placeholder="0">
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label>
-                                <?php esc_html_e('Keep spam for (days)', 'lrob-email-toolkit'); ?>
-                                <?php Tooltip::render(__('Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and stored rows are mostly useful for short-term forensics. 0 = keep forever.', 'lrob-email-toolkit')); ?>
-                            </label>
-                            <input type="text" inputmode="numeric" pattern="[0-9]*"
-                                   name="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
-                                   class="lrob-etk-cf-field"
-                                   data-key="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
-                                   maxlength="4"
-                                   value="<?php echo (int) $s[Settings::KEY_RETENTION_SPAM_DAYS]; ?>"
-                                   placeholder="90">
-                        </div>
-                    </div>
-                </section>
             </form>
         </article>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Storage modal — split from the Defaults modal so the two concerns
+     * stay distinct: Defaults is "how new forms behave", Storage is
+     * "what we keep, how, how long, with what privacy". Submissions are
+     * currently the only thing the toolkit captures with a client IP
+     * (outbound logs have no client IP), so this lives on the Contact
+     * Form page rather than in a plugin-level settings screen.
+     *
+     * Reuses the same auto-save mechanism as the Defaults modal: the
+     * article carries `data-defaults-card="1"`, every input has a
+     * `data-key` matching a key in AjaxController::DEFAULT_KEYS, and the
+     * shared JS save handler in contact-form-admin.js binds on init.
+     */
+    private function render_storage_modal(): void
+    {
+        $s = Settings::all();
+        $save_options = [
+            ['value' => '1', 'label' => __('On', 'lrob-email-toolkit')],
+            ['value' => '0', 'label' => __('Off', 'lrob-email-toolkit')],
+        ];
+        $ip_options = [
+            ['value' => '0', 'label' => __('Hash only (recommended)', 'lrob-email-toolkit')],
+            ['value' => '1', 'label' => __('Store raw IP', 'lrob-email-toolkit')],
+        ];
+        ?>
+        <div class="lrob-etk-modal" id="lrob-etk-cf-storage-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-cf-storage-title" hidden>
+            <div class="lrob-etk-modal-backdrop" data-modal-close></div>
+            <div class="lrob-etk-modal-dialog">
+                <header class="lrob-etk-modal-header">
+                    <h3 id="lrob-etk-cf-storage-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Submissions storage', 'lrob-email-toolkit'); ?></h3>
+                    <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                    </button>
+                </header>
+                <div class="lrob-etk-modal-body">
+                    <p class="description" style="margin-top: 0;">
+                        <?php esc_html_e('What gets kept when a form is submitted, for how long, and how IPs are recorded. Changes save automatically.', 'lrob-email-toolkit'); ?>
+                    </p>
+
+                    <article class="lrob-etk-identity-card lrob-etk-cf-form-card lrob-etk-cf-form-card--defaults" data-defaults-card="1">
+                        <form class="lrob-etk-card-form" onsubmit="return false">
+                            <header class="lrob-etk-card-form-head">
+                                <span class="lrob-etk-card-status" aria-live="polite"></span>
+                            </header>
+
+                            <section class="lrob-etk-cf-submissions-storage-section">
+                                <div class="lrob-etk-cf-defaults-grid">
+                                    <div class="lrob-etk-field">
+                                        <label>
+                                            <?php esc_html_e('Save submissions', 'lrob-email-toolkit'); ?>
+                                            <?php Tooltip::render(__('Archive every received submission in the database (browsable in the Submissions inbox). Turn off if you only want the notification email and no audit trail — captcha and honeypot still run.', 'lrob-email-toolkit')); ?>
+                                        </label>
+                                        <?php self::render_combobox(Settings::KEY_SAVE_SUBMISSIONS, !empty($s[Settings::KEY_SAVE_SUBMISSIONS]) ? '1' : '0', $save_options); ?>
+                                    </div>
+                                    <div class="lrob-etk-field">
+                                        <label>
+                                            <?php esc_html_e('IP storage', 'lrob-email-toolkit'); ?>
+                                            <?php Tooltip::render(__('Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions. Contact forms are currently the only place the toolkit captures a client IP.', 'lrob-email-toolkit')); ?>
+                                        </label>
+                                        <?php self::render_combobox(Settings::KEY_STORE_RAW_IP, !empty($s[Settings::KEY_STORE_RAW_IP]) ? '1' : '0', $ip_options); ?>
+                                    </div>
+                                    <div class="lrob-etk-field">
+                                        <label>
+                                            <?php esc_html_e('Keep delivered for (days)', 'lrob-email-toolkit'); ?>
+                                            <?php Tooltip::render(__('Submissions whose notification was sent. 0 = keep forever. Daily cron purges older rows.', 'lrob-email-toolkit')); ?>
+                                        </label>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                               name="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
+                                               class="lrob-etk-cf-field"
+                                               data-key="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
+                                               maxlength="4"
+                                               value="<?php echo (int) $s[Settings::KEY_RETENTION_DELIVERED_DAYS]; ?>"
+                                               placeholder="0">
+                                    </div>
+                                    <div class="lrob-etk-field">
+                                        <label>
+                                            <?php esc_html_e('Keep spam for (days)', 'lrob-email-toolkit'); ?>
+                                            <?php Tooltip::render(__('Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and stored rows are mostly useful for short-term forensics. 0 = keep forever.', 'lrob-email-toolkit')); ?>
+                                        </label>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                               name="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
+                                               class="lrob-etk-cf-field"
+                                               data-key="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
+                                               maxlength="4"
+                                               value="<?php echo (int) $s[Settings::KEY_RETENTION_SPAM_DAYS]; ?>"
+                                               placeholder="90">
+                                    </div>
+                                </div>
+                            </section>
+                        </form>
+                    </article>
                 </div>
             </div>
         </div>
