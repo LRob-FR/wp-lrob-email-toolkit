@@ -52,12 +52,21 @@ if ($mode === 'wipe') {
 }
 
 // Both `archive` and `wipe` drop options + capability + cron — these are
-// configuration, not user data.
-$option_like = $wpdb->esc_like('lrob_etk_') . '%';
+// configuration, not user data. The LIKE walks lrob_etk_* options AND
+// _transient_lrob_etk_*  / _transient_timeout_lrob_etk_* (transients live
+// in the options table with that underscore-prefixed name pair).
+$option_like  = $wpdb->esc_like('lrob_etk_') . '%';
+$transient_like_a = $wpdb->esc_like('_transient_lrob_etk_') . '%';
+$transient_like_b = $wpdb->esc_like('_transient_timeout_lrob_etk_') . '%';
 $option_names = $wpdb->get_col(
     $wpdb->prepare(
-        "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
-        $option_like
+        "SELECT option_name FROM {$wpdb->options}
+         WHERE option_name LIKE %s
+            OR option_name LIKE %s
+            OR option_name LIKE %s",
+        $option_like,
+        $transient_like_a,
+        $transient_like_b
     )
 );
 if (is_array($option_names)) {

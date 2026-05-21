@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-21T00:46:37+00:00\n"
+"POT-Creation-Date: 2026-05-21T01:05:42+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -710,6 +710,18 @@ msgstr "Activer"
 #: src/Admin/Tooltip.php:28
 msgid "More info"
 msgstr "Plus d'infos"
+
+#: src/AutoUpdate/Updater.php:136
+#, fuzzy
+msgid ""
+"Modular all-in-one email plugin: SMTP routing, email logging, contact forms, "
+"captcha, newsletters, and webhook integrations. Each module is independently "
+"activatable."
+msgstr ""
+"Extension email tout-en-un modulaire : routage SMTP, journalisation des "
+"emails avec archivage IMAP « Enregistrer dans les Envoyés », formulaires de "
+"contact, newsletters et intégrations webhook. Chaque module est activable "
+"indépendamment."
 
 #: src/Modules/Captcha/Admin/AjaxController.php:61
 msgid "Solve the captcha first to run a test."
@@ -1919,9 +1931,9 @@ msgid ""
 "email still goes out but no row is written and this form drops out of the "
 "Submissions inbox."
 msgstr ""
-"Archive chaque soumission reçue dans la base de données. Désactivé, l'e-"
-"mail de notification est toujours envoyé mais aucune ligne n'est écrite et "
-"ce formulaire disparaît de la boîte de réception."
+"Archive chaque soumission reçue dans la base de données. Désactivé, l'e-mail "
+"de notification est toujours envoyé mais aucune ligne n'est écrite et ce "
+"formulaire disparaît de la boîte de réception."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1155
 #: src/Modules/ContactForm/Admin/FormsPage.php:1563
@@ -2150,8 +2162,8 @@ msgid ""
 msgstr ""
 "Haché par défaut pour la vie privée / conformité RGPD. Stocker l'IP brute "
 "facilite les enquêtes en cas d'abus mais nécessite une base légale dans "
-"certaines juridictions. Les formulaires de contact sont actuellement le "
-"seul endroit où la boîte à outils capture une IP client."
+"certaines juridictions. Les formulaires de contact sont actuellement le seul "
+"endroit où la boîte à outils capture une IP client."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1661
 msgid "Keep delivered for (days)"
@@ -2174,9 +2186,9 @@ msgid ""
 "Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and "
 "stored rows are mostly useful for short-term forensics. 0 = keep forever."
 msgstr ""
-"Lignes bloquées par le honeypot ou le captcha. 90 jours par défaut — le "
-"spam tourne vite et les lignes stockées ne sont utiles qu'à court terme. 0 "
-"= conservation indéfinie."
+"Lignes bloquées par le honeypot ou le captcha. 90 jours par défaut — le spam "
+"tourne vite et les lignes stockées ne sont utiles qu'à court terme. 0 = "
+"conservation indéfinie."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1827
 #: admin/js/contact-form-editor.js:71

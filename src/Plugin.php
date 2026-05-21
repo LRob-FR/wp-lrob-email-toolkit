@@ -51,6 +51,12 @@ final class Plugin
             (new Menu($manager))->register();
         }
 
+        // Self-hosted updater runs in every context — wp_update_plugins() can
+        // be triggered by wp-cron from a frontend visitor's request when
+        // DISABLE_WP_CRON is set, and we'd miss the chance to inject our
+        // update entry if we scoped this to is_admin().
+        (new \LRob\EmailToolkit\AutoUpdate\Updater())->register();
+
         $manager->boot_all();
     }
 
