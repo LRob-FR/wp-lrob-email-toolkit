@@ -323,22 +323,22 @@ msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
 #: src/Admin/DashboardPage.php:631
 msgid "Delivered (30d)"
-msgstr ""
+msgstr "Livrés (30 j)"
 
 #. translators: %s: total all-time submissions
 #: src/Admin/DashboardPage.php:639
 msgid "%s lifetime"
-msgstr ""
+msgstr "%s au total"
 
 #: src/Admin/DashboardPage.php:645
 msgid "Spam blocked (30d)"
-msgstr ""
+msgstr "Spam bloqués (30 j)"
 
 #: src/Admin/DashboardPage.php:648
 msgid "attempt"
 msgid_plural "attempts"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "tentative"
+msgstr[1] "tentatives"
 
 #: src/Admin/DashboardPage.php:652
 #, fuzzy
@@ -423,7 +423,7 @@ msgstr "Nouvelle soumission"
 #: src/Admin/DashboardPage.php:735
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:690
 msgid "Blocked (honeypot)"
-msgstr ""
+msgstr "Bloqué (honeypot)"
 
 #: src/Admin/DashboardPage.php:738
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:693
@@ -449,7 +449,7 @@ msgstr "tous délivrés"
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:171
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:699
 msgid "Received"
-msgstr ""
+msgstr "Reçues"
 
 #: src/Admin/DashboardPage.php:745 src/Admin/DashboardPage.php:864
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:177
@@ -821,7 +821,7 @@ msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:163
 msgid "Captcha activity over the last 30 days"
-msgstr ""
+msgstr "Activité du captcha sur les 30 derniers jours"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:166
 #: src/Modules/ContactForm/Admin/FormsPage.php:661
@@ -833,11 +833,11 @@ msgstr "cadenas"
 #: src/Modules/Captcha/Admin/SettingsPage.php:171
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:717
 msgid "passed"
-msgstr ""
+msgstr "réussis"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:173
 msgid "(30d)"
-msgstr ""
+msgstr "(30 j)"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:257
 msgid "e.g. Main site"
@@ -1050,6 +1050,8 @@ msgid ""
 "Anti-spam check is unavailable right now. Please try again later or contact "
 "the site administrator."
 msgstr ""
+"La vérification anti-spam est indisponible pour le moment. Veuillez "
+"réessayer plus tard ou contacter l'administrateur du site."
 
 #: src/Modules/Captcha/Challenges/ImageChallenge.php:39
 msgid "Picture recognition"
@@ -1230,6 +1232,9 @@ msgid ""
 "submissions until you fix this — open the Captcha settings page to pick a "
 "working challenge or re-enter credentials."
 msgstr ""
+"La configuration du captcha est cassée pour : %s. Les formulaires concernés "
+"rejetteront toutes les soumissions jusqu'à correction — ouvrez la page "
+"Captcha pour choisir un défi fonctionnel ou ressaisir les identifiants."
 
 #: src/Modules/Captcha/Module.php:170
 #, fuzzy
@@ -1618,7 +1623,7 @@ msgstr "Nouvelle soumission"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:560
 msgid "Storage"
-msgstr ""
+msgstr "Stockage"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:564
 msgid "Default settings"
@@ -1636,7 +1641,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:617
 msgid "This form has no submissions yet. Deleting is final."
-msgstr ""
+msgstr "Ce formulaire n'a aucune soumission. La suppression est définitive."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:625
 #, fuzzy
@@ -1659,13 +1664,13 @@ msgstr "Envoyé depuis le formulaire de contact « %s »"
 #: src/Modules/ContactForm/Admin/FormsPage.php:1063
 msgid "received"
 msgid_plural "received"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "reçue"
+msgstr[1] "reçues"
 
 #. translators: %1$d total submissions, %2$s breakdown
 #: src/Modules/ContactForm/Admin/FormsPage.php:664
 msgid "This form has %1$d submissions (%2$s). What should happen to them?"
-msgstr ""
+msgstr "Ce formulaire a %1$d soumissions (%2$s). Que voulez-vous en faire ?"
 
 #. translators: %d: number of submissions
 #: src/Modules/ContactForm/Admin/FormsPage.php:672
@@ -1681,7 +1686,7 @@ msgstr "soumission"
 #: src/Modules/ContactForm/Admin/FormsPage.php:753
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:174
 msgid "Spam blocked"
-msgstr ""
+msgstr "Spam bloqué"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:758
 #, fuzzy
@@ -1690,7 +1695,7 @@ msgstr "email envoyé"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:763
 msgid "Total (all time)"
-msgstr ""
+msgstr "Total (depuis le début)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:781
 msgid "Defaults saved."
@@ -1816,7 +1821,7 @@ msgstr "Réglages avancés"
 #. translators: %s: localized creation date
 #: src/Modules/ContactForm/Admin/FormsPage.php:1084
 msgid "Since %s"
-msgstr ""
+msgstr "Depuis le %s"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1093
 #: src/Modules/ContactForm/Admin/FormsPage.php:1353
@@ -1914,6 +1919,9 @@ msgid ""
 "email still goes out but no row is written and this form drops out of the "
 "Submissions inbox."
 msgstr ""
+"Archive chaque soumission reçue dans la base de données. Désactivé, l'e-"
+"mail de notification est toujours envoyé mais aucune ligne n'est écrite et "
+"ce formulaire disparaît de la boîte de réception."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1155
 #: src/Modules/ContactForm/Admin/FormsPage.php:1563
@@ -2103,7 +2111,7 @@ msgstr "— Aucun (non recommandé) —"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1620
 msgid "Store raw IP"
-msgstr ""
+msgstr "Stocker l'IP brute"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1627
 #, fuzzy
@@ -2115,6 +2123,9 @@ msgid ""
 "What gets kept when a form is submitted, for how long, and how IPs are "
 "recorded. Changes save automatically."
 msgstr ""
+"Ce qui est conservé lors d'une soumission, pendant combien de temps et "
+"comment les IP sont enregistrées. Les modifications sont enregistrées "
+"automatiquement."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1648
 msgid ""
@@ -2122,10 +2133,13 @@ msgid ""
 "Submissions inbox). Turn off if you only want the notification email and no "
 "audit trail — captcha and honeypot still run."
 msgstr ""
+"Archive chaque soumission reçue dans la base (consultable dans la boîte de "
+"réception). Désactivez si vous ne voulez que l'e-mail de notification sans "
+"piste d'audit — le captcha et le honeypot restent actifs."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1654
 msgid "IP storage"
-msgstr ""
+msgstr "Stockage des IP"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1655
 msgid ""
@@ -2134,26 +2148,35 @@ msgid ""
 "jurisdictions. Contact forms are currently the only place the toolkit "
 "captures a client IP."
 msgstr ""
+"Haché par défaut pour la vie privée / conformité RGPD. Stocker l'IP brute "
+"facilite les enquêtes en cas d'abus mais nécessite une base légale dans "
+"certaines juridictions. Les formulaires de contact sont actuellement le "
+"seul endroit où la boîte à outils capture une IP client."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1661
 msgid "Keep delivered for (days)"
-msgstr ""
+msgstr "Conservation des livrés (jours)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1662
 msgid ""
 "Submissions whose notification was sent. 0 = keep forever. Daily cron purges "
 "older rows."
 msgstr ""
+"Soumissions dont la notification a été envoyée. 0 = conservation indéfinie. "
+"Un cron quotidien purge les lignes plus anciennes."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1674
 msgid "Keep spam for (days)"
-msgstr ""
+msgstr "Conservation du spam (jours)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1675
 msgid ""
 "Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and "
 "stored rows are mostly useful for short-term forensics. 0 = keep forever."
 msgstr ""
+"Lignes bloquées par le honeypot ou le captcha. 90 jours par défaut — le "
+"spam tourne vite et les lignes stockées ne sont utiles qu'à court terme. 0 "
+"= conservation indéfinie."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1827
 #: admin/js/contact-form-editor.js:71
@@ -2188,7 +2211,7 @@ msgstr "Tous"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:185
 msgid "Any"
-msgstr ""
+msgstr "Tous"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:187
 #, fuzzy
@@ -2197,7 +2220,7 @@ msgstr "Mot de passe"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:193
 msgid "Skipped"
-msgstr ""
+msgstr "Ignoré"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:199
 #: src/Modules/Logging/Admin/LogsPage.php:198
@@ -2214,7 +2237,7 @@ msgstr "Rechercher"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:211
 msgid "Field values, notes…"
-msgstr ""
+msgstr "Valeurs des champs, notes…"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:215
 #: src/Modules/Logging/Admin/LogsPage.php:214
@@ -2235,7 +2258,7 @@ msgstr "Affichage de %1$d–%2$d sur %3$d"
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:335
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:445
 msgid "View outbound email"
-msgstr ""
+msgstr "Voir l'e-mail sortant"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:335
 #, fuzzy
@@ -2287,23 +2310,23 @@ msgstr "soumission"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:440
 msgid "Back"
-msgstr ""
+msgstr "Retour"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:453
 msgid "Submitted"
-msgstr ""
+msgstr "Envoyé le"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:472
 msgid "Notes"
-msgstr ""
+msgstr "Notes"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:479
 msgid "Submitted values"
-msgstr ""
+msgstr "Valeurs envoyées"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:481
 msgid "No fields recorded for this submission."
-msgstr ""
+msgstr "Aucun champ enregistré pour cette soumission."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:499
 #, fuzzy
@@ -2312,23 +2335,23 @@ msgstr "Détails du projet"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:503
 msgid "IP address"
-msgstr ""
+msgstr "Adresse IP"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:506
 msgid "IP hash"
-msgstr ""
+msgstr "Empreinte IP"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:509
 msgid "(raw IP not stored — enable in settings if needed)"
-msgstr ""
+msgstr "(IP brute non stockée — à activer dans les réglages si besoin)"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:514
 msgid "User agent"
-msgstr ""
+msgstr "User agent"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:519
 msgid "Referer"
-msgstr ""
+msgstr "Référent"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:527
 #, fuzzy
@@ -2344,12 +2367,12 @@ msgstr "Voir l'entrée du journal"
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:575
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:587
 msgid "(unnamed field)"
-msgstr ""
+msgstr "(champ sans nom)"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:653
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:664
 msgid "(empty)"
-msgstr ""
+msgstr "(vide)"
 
 #: src/Modules/ContactForm/CPT.php:87 src/Modules/ContactForm/Module.php:38
 #: admin/js/contact-form-editor.js:169 admin/js/contact-form-editor.js:198
