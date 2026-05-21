@@ -70,13 +70,14 @@ Anything Claude adds — new option, table, hook, CSS class — **must** follow 
 1. ~~SMTP + Logging~~ — v0.0.1
 2. ~~Contact Form~~ — v0.0.7
 3. ~~Captcha~~ — v0.1.0
+4. ~~Contact Form submissions inbox~~ — v0.2.0 (view of FormsPage at `?page=lrob-etk-cform&view=submissions`; filters, detail view, dashboard tiles, captcha counters, save-toggle, IP-storage toggle, retention cron, form-delete cascade modal). Reply composer was deferred — low priority.
+5. ~~GitHub-release auto-update~~ — v0.2.0 (`src/AutoUpdate/Updater.php`; 1h cache, force-refresh on `update-core.php` or `$_GET['force-check']`).
 
 **On deck — priority order, no version commitment.** Pick whatever's most useful at the time:
 
-- **Contact form submissions inbox.** Data is already captured (`SubmissionRepository` writes every submission with captcha outcome to `wp_lrob_etk_cf_submissions`) but there's no admin UI to browse or act on it. Build a list page (filter by form / date / captcha-outcome / status), per-submission detail view, and a "reply" composer that prefills From + To from the form's resolved identity + the submission's Reply-To field. Reuse the `.lrob-etk-logs-table` data table and the per-module AJAX shape. Small-to-medium chunk; completes the Contact Form story.
 - **Newsletter module.** Campaigns, segmentation by role / meta / WooCommerce purchase data (HPOS-aware), throttled sending, open/click tracking, unsubscribe handling. Includes importer from the [Newsletter](https://wordpress.org/plugins/newsletter/) plugin. Biggest single chunk on the list.
 - **Cross-feature captcha.** Captcha for comments / lost-password / registration. The Captcha module already declares these contexts; small lift. Ships naturally near Newsletter since `newsletter_subscribe` becomes a real consumer at that point.
-- **GitHub-release auto-update.** Drop-in updates from the WordPress admin, mirroring [wp-lrob-calendar](https://github.com/LRob-FR/wp-lrob-calendar). Independent of any module; can land any time. Lives under `src/Support/` or a small `src/AutoUpdate/` namespace; uses this plugin's `lrob_etk_` / `LRob\EmailToolkit\` prefixes (not the calendar's). Inspect the calendar repo via WebFetch before guessing transient shape + API call format.
+- **Contact Form reply composer.** Deferred from the submissions-inbox work. Per-form "reply identity" setting, ad-hoc Reply-To override in composer, `replied_at` + reply count tracked on `cf_submissions`. Lives at the existing submission detail URL.
 - **Captcha enrichment.** More hosted providers (Cloudflare Turnstile, Google reCAPTCHA) drop into `Providers/`. More in-house challenges (image-letter, simple logic, proof-of-work using local browser compute) drop into `Challenges/`. Both directories are auto-scanned — zero glue code.
 - **Integrations module.** Outbound webhooks: Slack / Discord / Matrix / n8n presets + generic. Built on the `lrob_etk_event` action that already ships from v0.0.1.
 
