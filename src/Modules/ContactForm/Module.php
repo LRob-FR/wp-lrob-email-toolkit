@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
 use LRob\EmailToolkit\Forms\FieldTypeRegistry;
 use LRob\EmailToolkit\Forms\Fields\CheckboxField;
 use LRob\EmailToolkit\Forms\Fields\DateField;
@@ -20,7 +21,6 @@ use LRob\EmailToolkit\Modules\ContactForm\Admin\AjaxController;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\PageController;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage;
-use LRob\EmailToolkit\Modules\ContactForm\Fields\CaptchaField;
 
 /**
  * Contact Form module — customizable forms with stacked anti-spam (honeypot,
@@ -237,7 +237,9 @@ final class Module extends AbstractModule
             $registry->register(CPT::POST_TYPE, new RadioField());
             $registry->register(CPT::POST_TYPE, new CheckboxField());
             $registry->register(CPT::POST_TYPE, new SubmitField());
-            $registry->register(CPT::POST_TYPE, new CaptchaField());
+            // Shared captcha field, configured for the contact_form Captcha
+            // routing context + the legacy META_CHALLENGE_KIND meta key.
+            $registry->register(CPT::POST_TYPE, new SharedCaptchaField('contact_form', CPT::META_CHALLENGE_KIND));
         }
 
         // Runtime (CPT, blocks, AJAX submit, cron) only when enabled.

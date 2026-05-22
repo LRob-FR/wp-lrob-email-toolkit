@@ -26,8 +26,18 @@
 (function () {
     'use strict';
 
-    var SAVE_DATA = window.lrobEtkCfAdmin || {};
-    var EDITOR_DATA = window.lrobEtkCfEditor || {};
+    // EDITOR_DATA must be declared BEFORE SAVE_DATA — SAVE_DATA reads
+    // EDITOR_DATA.save, and although `var` hoists, the value isn't
+    // assigned until this line, so swapping order would TypeError on
+    // `.save` of undefined and kill the entire editor IIFE.
+    var EDITOR_DATA = window.lrobEtkFormEditor || {};
+    // Save plumbing is per-CPT — read from EDITOR_DATA.save so the editor
+    // works for both Contact Form (lrob_etk_cf_save_structure) and the
+    // Newsletter subscribe-form CPT (lrob_etk_nl_form_save_structure).
+    // Fall back to the contact-form auto-save admin global only for
+    // backwards compatibility with any cached page that hasn't refreshed
+    // the localize data yet.
+    var SAVE_DATA = EDITOR_DATA.save || window.lrobEtkCfAdmin || {};
     var I18N = SAVE_DATA.i18n || {};
     var EDITOR_I18N = EDITOR_DATA.i18n || {};
     var FIELD_TYPES = EDITOR_DATA.fieldTypes || {};
@@ -169,7 +179,7 @@
             var structure = serialize(form);
             setStatus('saving');
             var fd = new FormData();
-            fd.append('action', 'lrob_etk_cf_save_structure');
+            fd.append('action', SAVE_DATA.action || 'lrob_etk_cf_save_structure');
             fd.append('_nonce', SAVE_DATA.nonce || '');
             fd.append('form_id', String(formId));
             fd.append('structure', JSON.stringify(structure));
@@ -1710,12 +1720,12 @@
             if (currentGroup !== '') opts += '</optgroup>';
 
             return '<div class="lrob-etk-form-field lrob-etk-form-field--captcha is-editor-stub is-align-' + safeAlign + '" data-captcha-block>'
-                + '<div class="lrob-etk-cf-captcha-stub-head">'
-                + '<span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span>'
-                + '<label class="lrob-etk-cf-captcha-stub-label">' + esc(EDITOR_I18N.captchaPick || 'Anti-spam:') + '</label>'
-                + '<select class="lrob-etk-form-field lrob-etk-cf-captcha-pick" name="' + escAttr(key) + '" data-key="' + escAttr(key) + '" data-captcha-pick>' + opts + '</select>'
+                + '<div class="lrob-etk-form-captcha-stub-head">'
+                + '<span class="lrob-etk-form-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span>'
+                + '<label class="lrob-etk-form-captcha-stub-label">' + esc(EDITOR_I18N.captchaPick || 'Anti-spam:') + '</label>'
+                + '<select class="lrob-etk-form-field lrob-etk-form-captcha-pick" name="' + escAttr(key) + '" data-key="' + escAttr(key) + '" data-captcha-pick>' + opts + '</select>'
                 + '</div>'
-                + '<div class="lrob-etk-cf-captcha-stub-preview" data-captcha-preview>' + captchaPreviewHtml(currentRoute) + '</div>'
+                + '<div class="lrob-etk-form-captcha-stub-preview" data-captcha-preview>' + captchaPreviewHtml(currentRoute) + '</div>'
                 + '</div>';
         }
         /**
@@ -1728,7 +1738,7 @@
             for (var i = 0; i < entries.length; i++) {
                 if (entries[i].route === route && entries[i].preview) return entries[i].preview;
             }
-            return '<p class="lrob-etk-cf-captcha-stub-empty">'
+            return '<p class="lrob-etk-form-captcha-stub-empty">'
                 + esc(EDITOR_I18N.captchaOff || 'No anti-spam challenge.')
                 + '</p>';
         }

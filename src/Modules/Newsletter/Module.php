@@ -4,7 +4,15 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
+use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
+use LRob\EmailToolkit\Forms\FieldTypeRegistry;
+use LRob\EmailToolkit\Forms\Fields\EmailField;
+use LRob\EmailToolkit\Forms\Fields\SubmitField;
+use LRob\EmailToolkit\Forms\Fields\TextField;
 use LRob\EmailToolkit\Modules\AbstractModule;
+use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\AjaxController;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
 
@@ -183,12 +191,35 @@ final class Module extends AbstractModule
     {
         $subscribers = new SubscriberRepository();
         $templates = new TemplateRepository();
+        $forms = new FormRepository();
         $this->container->set(SubscriberRepository::class, $subscribers);
         $this->container->set(TemplateRepository::class, $templates);
+        $this->container->set(FormRepository::class, $forms);
 
-        // CPT registers unconditionally so admin code can edit existing
-        // templates even when the module is disabled (data preserved).
+        // CPTs register unconditionally so admin code can edit existing
+        // posts even when the module is disabled (data preserved). Both
+        // CPTs are non-public and use `rewrite=false`, so registering at
+        // any request stage is safe.
         (new TemplateCPT())->register();
+        (new FormCPT())->register();
+
+        // Register the field types the subscribe-form CPT accepts.
+        // Subset of the full form-builder vocabulary — list-picker and
+        // category-picker join in step 4 when lists + categories ship.
+        $registry = $this->container->get(FieldTypeRegistry::class);
+        if ($registry instanceof FieldTypeRegistry) {
+            $registry->register(FormCPT::POST_TYPE, new EmailField());
+            $registry->register(FormCPT::POST_TYPE, new TextField());
+            $registry->register(FormCPT::POST_TYPE, new SubmitField());
+            // Shared captcha field, configured for the newsletter_subscribe
+            // Captcha routing context + the per-form override meta key.
+            // Same class Contact Form uses (different context + meta key).
+            $registry->register(
+                FormCPT::POST_TYPE,
+                new SharedCaptchaField(CaptchaRouting::CONTEXT_NEWSLETTER, FormCPT::META_CAPTCHA_ROUTE)
+            );
+        }
+
         // Pending-seed handler runs after the CPT's init registration
         // (priority 6); priority 20 here gives that headroom.
         add_action('init', [$this, 'maybe_seed_templates'], 20);
@@ -204,9 +235,12 @@ final class Module extends AbstractModule
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
             (new TemplateValidator())->register();
-            $home = new HomePage($this, $subscribers, $templates);
+            $forms_page = new FormsPage($forms, $templates);
+            $home = new HomePage($this, $subscribers, $templates, $forms_page);
             (new PageController($this, $home))->register();
+            (new AjaxController())->register();
             add_action('admin_init', [$this, 'handle_new_from_default']);
+            add_action('admin_enqueue_scripts', [$forms_page, 'enqueue_assets']);
             add_action('admin_notices', [$this, 'render_smtp_dependency_notice']);
         }
     }

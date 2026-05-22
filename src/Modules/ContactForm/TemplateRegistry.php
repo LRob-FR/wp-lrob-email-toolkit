@@ -76,10 +76,10 @@ final class TemplateRegistry
                 'description' => __('Email, urgency level, and a description — for help requests.', 'lrob-email-toolkit'),
                 'structure'   => self::tpl_support_ticket(),
             ],
-            'newsletter_signup' => [
-                'name'        => __('Newsletter signup', 'lrob-email-toolkit'),
-                'description' => __('Just an email and a consent checkbox.', 'lrob-email-toolkit'),
-                'structure'   => self::tpl_newsletter_signup(),
+            'feedback' => [
+                'name'        => __('Feedback', 'lrob-email-toolkit'),
+                'description' => __('Name, email, type of feedback, and a message — for general site feedback.', 'lrob-email-toolkit'),
+                'structure'   => self::tpl_feedback(),
             ],
             'event_rsvp' => [
                 'name'        => __('Event RSVP', 'lrob-email-toolkit'),
@@ -156,18 +156,40 @@ final class TemplateRegistry
         ];
     }
 
-    private static function tpl_newsletter_signup(): array
+    /**
+     * Feedback template — replaces the retired `newsletter_signup` starter.
+     * That old template pretended to subscribe visitors to a newsletter
+     * but only emailed the admin; now that Newsletter ships its own
+     * subscribe forms, the old slot would mislead users into thinking
+     * a Contact Form template covers newsletter signup. Feedback is a
+     * generally-useful starter that also demonstrates radio + textarea.
+     */
+    private static function tpl_feedback(): array
     {
         return [
             'version' => FormStructure::VERSION,
             'rows'    => array_merge([
-                self::row([self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true)])]),
+                self::row([
+                    self::col([self::field('text',  'name',  __('Your name',  'lrob-email-toolkit'), false)]),
+                    self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true)]),
+                ]),
                 self::row([self::col([
-                    self::field('checkbox', 'consent', __('I agree to receive your newsletter', 'lrob-email-toolkit'), true, [
-                        'multiple' => false,
+                    self::field('radio', 'type', __('What kind of feedback?', 'lrob-email-toolkit'), true, [
+                        'options' => [
+                            ['value' => 'praise',     'label' => __('Praise — something\'s working well', 'lrob-email-toolkit')],
+                            ['value' => 'suggestion', 'label' => __('Suggestion — idea for improvement',  'lrob-email-toolkit')],
+                            ['value' => 'bug',        'label' => __('Bug report — something\'s broken',    'lrob-email-toolkit')],
+                            ['value' => 'question',   'label' => __('Question — how do I…?',              'lrob-email-toolkit')],
+                        ],
+                    ])
+                ])]),
+                self::row([self::col([
+                    self::field('textarea', 'message', __('Your message', 'lrob-email-toolkit'), true, [
+                        'rows'   => 5,
+                        'helper' => __('Be as specific as you can.', 'lrob-email-toolkit'),
                     ]),
                 ])]),
-            ], self::tail_rows(__('Subscribe', 'lrob-email-toolkit'))),
+            ], self::tail_rows(__('Send feedback', 'lrob-email-toolkit'))),
         ];
     }
 

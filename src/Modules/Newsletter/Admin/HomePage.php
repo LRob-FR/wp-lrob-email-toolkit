@@ -47,6 +47,7 @@ final class HomePage
         private ModuleInterface $module,
         private SubscriberRepository $subscribers,
         private TemplateRepository $templates,
+        private FormsPage $forms_page,
     ) {
     }
 
@@ -114,11 +115,11 @@ final class HomePage
     {
         match ($view) {
             self::VIEW_ONBOARDING => $this->render_onboarding(),
+            self::VIEW_FORMS      => $this->forms_page->render(),
             self::VIEW_CAMPAIGNS,
             self::VIEW_SUBSCRIBERS,
             self::VIEW_LISTS,
             self::VIEW_CATEGORIES,
-            self::VIEW_FORMS,
             self::VIEW_IMPORT,
             self::VIEW_SETTINGS => $this->render_placeholder($view),
             default             => $this->render_dashboard(),

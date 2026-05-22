@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Admin\ModuleToggle;
 use LRob\EmailToolkit\Admin\Tooltip;
+use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
 use LRob\EmailToolkit\Forms\FormEditorRenderer;
 use LRob\EmailToolkit\Forms\FormStructure;
+use LRob\EmailToolkit\Forms\StylePresets;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\Module as ContactFormModule;
@@ -123,11 +126,18 @@ final class FormsPage
         // preview HTML on change. Shape mirrors what the server-side
         // picker (Fields\CaptchaField::options_html) emits.
         $captcha_service = self::captcha_service();
-        $captcha_options = self::build_editor_captcha_options($captcha_service);
-        wp_localize_script('lrob-etk-form-fields-editor', 'lrobEtkCfEditor', [
+        $captcha_options = SharedCaptchaField::build_editor_options('contact_form', $captcha_service);
+        wp_localize_script('lrob-etk-form-fields-editor', 'lrobEtkFormEditor', [
             'fieldTypes'     => self::field_types(),
             'captchaKey'     => CPT::META_CHALLENGE_KIND,
             'captchaOptions' => $captcha_options,
+            // Save plumbing for the shared editor JS. Falls back to
+            // lrobEtkCfAdmin if absent (legacy / cached pages).
+            'save' => [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),
+                'action'  => AjaxController::ACTION_SAVE_STRUCTURE,
+            ],
             'i18n'        => [
                 'addField'     => __('Add field', 'lrob-email-toolkit'),
                 'fieldOptions' => __('Field options', 'lrob-email-toolkit'),
@@ -204,110 +214,6 @@ final class FormsPage
     {
         $container = Plugin::instance()->container();
         return $container->has(CaptchaService::class) ? $container->get(CaptchaService::class) : null;
-    }
-
-    /**
-     * Build the captcha picker's option list for the WYSIWYG editor JS.
-     * Same shape the in-block picker (`Fields\CaptchaField::options_html`)
-     * builds on the server, but as structured data so the editor can
-     * rebuild the picker after inserting / swapping captcha blocks.
-     *
-     * @return array<string, mixed>
-     */
-    private static function build_editor_captcha_options(?CaptchaService $captcha_service): array
-    {
-        $entries = [];
-        $default_route_label = __('Default', 'lrob-email-toolkit');
-        $none_preview = '<p class="lrob-etk-cf-captcha-stub-empty">' . esc_html__('No anti-spam challenge.', 'lrob-email-toolkit') . '</p>';
-        $default_preview = $none_preview;
-
-        if ($captcha_service !== null) {
-            // "Default" route resolves the contact_form context — surface
-            // its current target label + preview HTML so the picker can
-            // render "Default (Math question)" and show the live preview.
-            // Pass credentials through so identity-backed defaults (e.g.
-            // hCaptcha) render their actual widget, not the empty-key
-            // placeholder.
-            [$default_challenge, $default_credentials] = $captcha_service->resolve(['context' => 'contact_form']);
-            if ($default_challenge !== null) {
-                $default_route_label = sprintf(
-                    /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels */
-                    __('Default (%s)', 'lrob-email-toolkit'),
-                    $default_challenge->label()
-                );
-                $default_preview = $default_challenge->render([
-                    'context'     => 'preview',
-                    'credentials' => $default_credentials,
-                ]);
-            } else {
-                $default_route_label = __('Default (none)', 'lrob-email-toolkit');
-            }
-        }
-
-        $entries[] = ['route' => '', 'label' => $default_route_label, 'preview' => $default_preview];
-        $entries[] = ['route' => CPT::CHALLENGE_NONE, 'label' => __('None', 'lrob-email-toolkit'), 'preview' => $none_preview];
-
-        if ($captcha_service === null) {
-            return ['entries' => $entries];
-        }
-
-        foreach ($captcha_service->homemade_challenges() as $slug => $challenge) {
-            $entries[] = [
-                'route'    => \LRob\EmailToolkit\Modules\Captcha\Routing::homemade($slug),
-                'label'    => $challenge->label(),
-                'preview'  => $challenge->render(['context' => 'preview']),
-                'optgroup' => __('Built-in challenges', 'lrob-email-toolkit'),
-            ];
-        }
-
-        $providers = $captcha_service->hosted_providers();
-        if ($providers !== []) {
-            $by_provider = [];
-            foreach ($captcha_service->identity_repository()->all() as $identity) {
-                $by_provider[$identity->provider_slug][] = $identity;
-            }
-            foreach ($providers as $provider_slug => $provider) {
-                $rows = isset($by_provider[$provider_slug]) ? $by_provider[$provider_slug] : [];
-                if ($rows === []) {
-                    $entries[] = [
-                        'route'    => '',
-                        'label'    => sprintf(
-                            /* translators: %s: provider label (e.g. hCaptcha) */
-                            __('— Configure %s first —', 'lrob-email-toolkit'),
-                            $provider->label()
-                        ),
-                        'preview'  => $none_preview,
-                        'optgroup' => $provider->label(),
-                        'disabled' => true,
-                    ];
-                    continue;
-                }
-                foreach ($rows as $identity) {
-                    $label = $identity->label !== '' ? $identity->label : $provider->label();
-                    if (!$identity->is_active) {
-                        $label .= ' ' . __('(inactive)', 'lrob-email-toolkit');
-                    }
-                    // Hosted providers render their real widget on-page;
-                    // for the editor preview we just show a placeholder
-                    // (preview context already triggers this in HCaptcha).
-                    $preview = $provider->render([
-                        'context'     => 'preview',
-                        'credentials' => $identity->is_active && method_exists($identity, 'decrypted_credentials') ? (function () use ($identity) {
-                            try { return $identity->decrypted_credentials(); } catch (\Throwable) { return []; }
-                        })() : [],
-                    ]);
-                    $entries[] = [
-                        'route'    => \LRob\EmailToolkit\Modules\Captcha\Routing::identity((int) $identity->id),
-                        'label'    => $label,
-                        'preview'  => $preview,
-                        'optgroup' => $provider->label(),
-                        'disabled' => !$identity->is_active,
-                    ];
-                }
-            }
-        }
-
-        return ['entries' => $entries];
     }
 
     /**
@@ -463,69 +369,25 @@ final class FormsPage
      *
      * @param array<int, array{value:string, label:string}> $suggestions
      */
+    /**
+     * Free-text combobox — thin shim over the shared Admin\Combobox so
+     * both modules render the same DOM. Auto-save marker is hardcoded
+     * to `lrob-etk-cf-field` for ContactForm.
+     *
+     * @param array<int, array{value:string, label:string}> $suggestions
+     */
     private static function render_free_combobox(string $meta_key, string $current_value, array $suggestions, string $placeholder = ''): void
     {
-        ?>
-        <div class="lrob-etk-combo lrob-etk-cf-free-combo"
-             data-options="<?php echo esc_attr((string) wp_json_encode($suggestions)); ?>">
-            <input type="text"
-                   name="<?php echo esc_attr($meta_key); ?>"
-                   class="lrob-etk-combo-input lrob-etk-cf-field"
-                   data-key="<?php echo esc_attr($meta_key); ?>"
-                   value="<?php echo esc_attr($current_value); ?>"
-                   placeholder="<?php echo esc_attr($placeholder); ?>"
-                   autocomplete="off">
-            <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
-                    aria-label="<?php esc_attr_e('Open suggestions', 'lrob-email-toolkit'); ?>">
-                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-            </button>
-            <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
-        </div>
-        <?php
+        Combobox::render_free_text($meta_key, $current_value, $suggestions, $placeholder, 'lrob-etk-cf-field');
     }
 
+    /**
+     * Fixed-value combobox shim — same purpose as render_free_combobox,
+     * delegated to Admin\Combobox.
+     */
     private static function render_combobox(string $meta_key, string $current_value, array $options, string $inherit_value = ''): void
     {
-        $default_label = '';
-        $current_label = '';
-        foreach ($options as $opt) {
-            if ((string) $opt['value'] === $inherit_value) {
-                $default_label = (string) $opt['label'];
-            }
-            if ((string) $opt['value'] === (string) $current_value) {
-                $current_label = (string) $opt['label'];
-            }
-        }
-        $is_inheriting = ((string) $current_value === $inherit_value);
-        $input_value = $is_inheriting ? '' : $current_label;
-        $placeholder = $default_label;
-
-        $name = $meta_key;
-        $combo_id = 'lrob-etk-cf-combo-' . md5($meta_key . wp_generate_uuid4());
-        ?>
-        <div class="lrob-etk-combo lrob-etk-combo--select"
-             data-options="<?php echo esc_attr((string) wp_json_encode($options)); ?>"
-             data-inherit-value="<?php echo esc_attr($inherit_value); ?>"
-             data-default-placeholder="<?php echo esc_attr($placeholder); ?>">
-            <input type="text"
-                   id="<?php echo esc_attr($combo_id); ?>"
-                   class="lrob-etk-combo-input"
-                   value="<?php echo esc_attr($input_value); ?>"
-                   placeholder="<?php echo esc_attr($placeholder); ?>"
-                   readonly
-                   autocomplete="off">
-            <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
-                    aria-label="<?php esc_attr_e('Open options', 'lrob-email-toolkit'); ?>">
-                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-            </button>
-            <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
-            <input type="hidden"
-                   name="<?php echo esc_attr($name); ?>"
-                   class="lrob-etk-combo-value lrob-etk-cf-field"
-                   data-key="<?php echo esc_attr($meta_key); ?>"
-                   value="<?php echo esc_attr((string) $current_value); ?>">
-        </div>
-        <?php
+        Combobox::render_fixed_select($meta_key, $current_value, $options, $inherit_value, 'lrob-etk-cf-field');
     }
 
     public function render(): void
@@ -1819,14 +1681,15 @@ final class FormsPage
         return $out;
     }
 
-    /** @return array<string, string> */
+    /**
+     * Style presets shared with Newsletter via src/Forms/StylePresets.
+     * Kept as a public static here so any consumer that still imports
+     * it from ContactForm (legacy) continues to work.
+     *
+     * @return array<string, string>
+     */
     public static function style_presets(): array
     {
-        return [
-            'default'  => __('Default', 'lrob-email-toolkit'),
-            'minimal'  => __('Minimal', 'lrob-email-toolkit'),
-            'soft'     => __('Soft', 'lrob-email-toolkit'),
-            'contrast' => __('Contrast', 'lrob-email-toolkit'),
-        ];
+        return StylePresets::all();
     }
 }

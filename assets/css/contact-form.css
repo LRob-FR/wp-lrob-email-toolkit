@@ -414,10 +414,10 @@
 /* Captcha alignment wrapper — emitted by FieldRenderer::captcha around
  * whatever the provider rendered. No `stretch` variant since captcha
  * widgets are fixed-width (303px for hCaptcha). Defaults to center. */
-.lrob-etk-form .lrob-etk-cf-captcha-align {
+.lrob-etk-form .lrob-etk-form-captcha-align {
     display: flex;
     flex-direction: column;
 }
-.lrob-etk-form .lrob-etk-cf-captcha-align.is-align-left   { align-items: flex-start; }
-.lrob-etk-form .lrob-etk-cf-captcha-align.is-align-center { align-items: center; }
-.lrob-etk-form .lrob-etk-cf-captcha-align.is-align-right  { align-items: flex-end; }
+.lrob-etk-form .lrob-etk-form-captcha-align.is-align-left   { align-items: flex-start; }
+.lrob-etk-form .lrob-etk-form-captcha-align.is-align-center { align-items: center; }
+.lrob-etk-form .lrob-etk-form-captcha-align.is-align-right  { align-items: flex-end; }

@@ -1395,14 +1395,14 @@
 /* Captcha alignment in the editor preview — applies to the widget slot
  * only so the picker head (admin chrome) stays put regardless of which
  * alignment the visitor will see. Frontend uses a different wrapper
- * (.lrob-etk-cf-captcha-align in contact-form.css). */
-.lrob-etk-form.is-editor .lrob-etk-form-field--captcha .lrob-etk-cf-captcha-stub-preview {
+ * (.lrob-etk-form-captcha-align in contact-form.css). */
+.lrob-etk-form.is-editor .lrob-etk-form-field--captcha .lrob-etk-form-captcha-stub-preview {
     display: flex;
     flex-direction: column;
 }
-.lrob-etk-form.is-editor .lrob-etk-form-field--captcha.is-align-left   .lrob-etk-cf-captcha-stub-preview { align-items: flex-start; }
-.lrob-etk-form.is-editor .lrob-etk-form-field--captcha.is-align-center .lrob-etk-cf-captcha-stub-preview { align-items: center; }
-.lrob-etk-form.is-editor .lrob-etk-form-field--captcha.is-align-right  .lrob-etk-cf-captcha-stub-preview { align-items: flex-end; }
+.lrob-etk-form.is-editor .lrob-etk-form-field--captcha.is-align-left   .lrob-etk-form-captcha-stub-preview { align-items: flex-start; }
+.lrob-etk-form.is-editor .lrob-etk-form-field--captcha.is-align-center .lrob-etk-form-captcha-stub-preview { align-items: center; }
+.lrob-etk-form.is-editor .lrob-etk-form-field--captcha.is-align-right  .lrob-etk-form-captcha-stub-preview { align-items: flex-end; }
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover > .lrob-etk-form-field--captcha.is-editor-stub,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) > .lrob-etk-form-field--captcha.is-editor-stub,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active > .lrob-etk-form-field--captcha.is-editor-stub,
@@ -1411,7 +1411,7 @@
     background: #fafbfc;
     border-color: var(--lrob-etk-cf-border, #cbd5e1);
 }
-.lrob-etk-cf-captcha-stub-head {
+.lrob-etk-form-captcha-stub-head {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1423,23 +1423,23 @@
     pointer-events: none;
     transition: max-height 0.22s ease, margin-bottom 0.22s ease, opacity 0.18s ease;
 }
-.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-cf-captcha-stub-head,
-.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-cf-captcha-stub-head,
-.lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active .lrob-etk-cf-captcha-stub-head,
-.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within .lrob-etk-cf-captcha-stub-head {
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-form-captcha-stub-head,
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-form-captcha-stub-head,
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active .lrob-etk-form-captcha-stub-head,
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within .lrob-etk-form-captcha-stub-head {
     max-height: 60px;
     margin-bottom: 8px;
     opacity: 1;
     pointer-events: auto;
 }
-.lrob-etk-cf-captcha-stub-icon {
+.lrob-etk-form-captcha-stub-icon {
     color: var(--etk-accent);
     font-size: 18px;
     width: 18px;
     height: 18px;
     flex: 0 0 auto;
 }
-.lrob-etk-cf-captcha-stub-label {
+.lrob-etk-form-captcha-stub-label {
     font-weight: 600;
     color: var(--etk-fg);
     font-size: 12px;
@@ -1447,7 +1447,7 @@
     letter-spacing: 0.04em;
     flex: 0 0 auto;
 }
-.lrob-etk-cf-captcha-pick {
+.lrob-etk-form-captcha-pick {
     flex: 1 1 200px;
     min-width: 160px;
     max-width: 280px;
@@ -1459,21 +1459,21 @@
     font-size: 13px;
     color: var(--etk-fg);
 }
-.lrob-etk-cf-captcha-pick:focus {
+.lrob-etk-form-captcha-pick:focus {
     border-color: var(--etk-accent);
     outline: none;
     box-shadow: 0 0 0 1px var(--etk-accent);
 }
-.lrob-etk-cf-captcha-stub-preview {
+.lrob-etk-form-captcha-stub-preview {
     margin-top: 4px;
 }
-.lrob-etk-cf-captcha-stub-preview .lrob-etk-form-field {
+.lrob-etk-form-captcha-stub-preview .lrob-etk-form-field {
     /* The rendered challenge brings its own .lrob-etk-form-field wrapper —
      * strip its outer margins so it doesn't add an extra row of padding
      * inside our stub container. */
     margin: 0;
 }
-.lrob-etk-cf-captcha-stub-empty {
+.lrob-etk-form-captcha-stub-empty {
     margin: 0;
     color: var(--etk-muted);
     font-size: 12px;

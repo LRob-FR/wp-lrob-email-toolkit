@@ -257,3 +257,22 @@
     color: #991b1b;
     cursor: help;
 }
+
+/* Forms section header — sits inside the Newsletter hub view. The card
+ * grid below uses the shared .lrob-etk-identities + .lrob-etk-cf-form-card
+ * primitives from admin-contact-form.css for visual consistency. */
+.lrob-etk-nl-forms-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.lrob-etk-nl-forms-section-head .lrob-etk-section-title {
+    margin: 0;
+}
+
+/* Captcha stub styles live in admin-contact-form.css under the
+ * .lrob-etk-form-captcha-* prefix — Newsletter inherits them
+ * automatically now that both modules use src/Forms/CaptchaField. */
