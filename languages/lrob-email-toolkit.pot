@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LRob - Email Toolkit 0.2.2\n"
+"Project-Id-Version: LRob - Email Toolkit 0.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-22T00:19:50+00:00\n"
+"POT-Creation-Date: 2026-05-22T10:16:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -50,6 +50,8 @@ msgstr ""
 #: src/Modules/Logging/Admin/AjaxController.php:163
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
+#: src/Modules/Newsletter/Admin/HomePage.php:56
+#: src/Modules/Newsletter/Module.php:247
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
@@ -214,6 +216,7 @@ msgid "Test email"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:459
+#: src/Modules/Newsletter/TemplateCPT.php:260
 msgid "Add new"
 msgstr ""
 
@@ -628,11 +631,14 @@ msgstr ""
 #: src/Modules/AbstractModule.php:144
 #: src/Modules/ContactForm/Admin/FormsPage.php:1731
 #: src/Modules/Logging/Admin/PageController.php:178
+#: src/Modules/Newsletter/Module.php:251
 msgid "Security check failed. Please retry."
 msgstr ""
 
 #: src/Admin/Menu.php:54
 #: src/Admin/Menu.php:55
+#: src/Modules/Newsletter/Admin/HomePage.php:90
+#: src/Modules/Newsletter/Admin/HomePage.php:275
 msgid "Dashboard"
 msgstr ""
 
@@ -993,6 +999,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/ContactForm/Admin/FormsPage.php:1826
 #: src/Modules/ContactForm/Fields/CaptchaField.php:117
+#: src/Modules/Newsletter/Admin/HomePage.php:200
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr ""
@@ -1385,7 +1392,9 @@ msgid "Source form not found."
 msgstr ""
 
 #. translators: %s: name of the source form being cloned
+#. translators: %s: localized title of the source default template (e.g. "Confirm your subscription").
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
+#: src/Modules/Newsletter/Module.php:262
 msgid "%s (copy)"
 msgstr ""
 
@@ -2590,6 +2599,8 @@ msgid "Email Logs"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:44
+#: src/Modules/Newsletter/Admin/HomePage.php:98
+#: src/Modules/Newsletter/Admin/HomePage.php:274
 msgid "Settings"
 msgstr ""
 
@@ -2845,12 +2856,314 @@ msgid_plural "%s log entries"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Module.php:25
+#: src/Modules/Newsletter/Admin/HomePage.php:65
+#: src/Modules/Newsletter/Admin/PageController.php:37
+#: src/Modules/Newsletter/Admin/PageController.php:38
+#: src/Modules/Newsletter/Module.php:41
 msgid "Newsletter"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:30
-msgid "Send campaigns to your WordPress users with advanced segmentation and tracking."
+#: src/Modules/Newsletter/Admin/HomePage.php:75
+msgid "Enable the Newsletter module to start managing campaigns and subscribers."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:91
+#: src/Modules/Newsletter/Admin/HomePage.php:267
+msgid "Campaigns"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:92
+#: src/Modules/Newsletter/Admin/HomePage.php:268
+msgid "Subscribers"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:93
+#: src/Modules/Newsletter/Admin/HomePage.php:269
+msgid "Lists"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:94
+#: src/Modules/Newsletter/Admin/HomePage.php:270
+msgid "Categories"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:95
+#: src/Modules/Newsletter/Admin/HomePage.php:271
+msgid "Onboarding"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:96
+#: src/Modules/Newsletter/Admin/HomePage.php:272
+msgid "Forms"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:97
+#: src/Modules/Newsletter/Admin/HomePage.php:273
+msgid "Import"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:146
+msgid "System emails sent automatically during subscription onboarding. Edit any template in the block editor. Tokens marked with an asterisk (*) are required for the email to function."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:169
+msgid "Start a new draft pre-filled with the default content for this purpose."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:170
+msgid "+ New from default"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:175
+msgid "Available tokens:"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:178
+msgid "Required for this onboarding purpose"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:184
+msgid "No templates yet for this purpose."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:197
+msgid "(untitled)"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:200
+msgid "Currently used by the newsletter for this purpose."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:203
+msgid "Auto-created on module install."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:203
+msgid "Seeded"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:206
+msgid "OK"
+msgstr ""
+
+#. translators: %d: number of validation issues.
+#: src/Modules/Newsletter/Admin/HomePage.php:211
+msgid "%d issue"
+msgid_plural "%d issues"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:232
+msgid "Build campaigns to your WordPress users and subscribers. Pick a section above to start."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:237
+msgid "Email-only subscribers"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:241
+msgid "WP users (potential recipients)"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:245
+msgid "This module is in active development — the dashboard, campaigns, send pipeline, and forms land across the next few releases."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:258
+msgid "This section is part of the Newsletter module rollout and will land in a coming release."
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:46
+msgid "Send campaigns to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline."
+msgstr ""
+
+#. translators: %s: number of subscribers (already formatted with i18n thousands separator).
+#: src/Modules/Newsletter/Module.php:177
+msgid "%s subscriber"
+msgid_plural "%s subscribers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Newsletter/Module.php:255
+msgid "Unknown onboarding email purpose."
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:278
+msgid "Could not create the template draft."
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:311
+msgid "Newsletter: SMTP module not enabled"
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:312
+msgid "Subscribe forms and the Newsletter admin work, but campaign sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity."
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:314
+msgid "Open SMTP settings"
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:335
+msgid "General"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:93
+msgid "Available tokens"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:107
+msgid "No tokens available — this template's purpose isn't set."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:112
+msgid "Click a token to copy it. Paste anywhere in the email body — values are substituted per-recipient at send time."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:122
+msgid "Required for this purpose — click to copy."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:123
+msgid "Click to copy."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:133
+msgid "* must appear at least once in the template body."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:258
+#: src/Modules/Newsletter/TemplateCPT.php:268
+#: src/Modules/Newsletter/TemplateCPT.php:269
+msgid "Email templates"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:259
+msgid "Email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:261
+msgid "Add new email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:262
+msgid "Edit email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:263
+msgid "New email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:264
+msgid "View email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:265
+msgid "Search email templates"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:266
+msgid "No email templates yet."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:267
+msgid "No email templates in trash."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:381
+msgid "Confirmation email"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:382
+msgid "Reminder email"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:383
+msgid "Refuse acknowledgment"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:71
+msgid "Default — Confirm your subscription"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:72
+msgid "Default — Reminder: confirm your subscription"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:73
+msgid "Default — Subscription declined"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:74
+msgid "Default email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:96
+#: src/Modules/Newsletter/TemplateSeeder.php:116
+#: src/Modules/Newsletter/TemplateSeeder.php:136
+msgid "Hi {{name}},"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:97
+msgid "Thanks for signing up to <strong>{{site_name}}</strong>. Please confirm your subscription using the button below."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:98
+msgid "Confirm subscription"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:99
+msgid "No thanks — don't subscribe me"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:100
+msgid "Didn't sign up? You can safely ignore this email or click \"No thanks\" above and we'll never bother you again."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:117
+msgid "You started signing up to <strong>{{site_name}}</strong> but haven't confirmed yet. Want to finish?"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:118
+msgid "Yes, confirm my subscription"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:119
+msgid "No, I changed my mind"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:120
+msgid "If you ignore this email we won't send another reminder."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:137
+msgid "You've declined to subscribe to <strong>{{site_name}}</strong>. We won't add you and we won't email you again about this. Sorry for the noise."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:138
+msgid "— The {{site_name}} team"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateValidator.php:80
+msgid "This email template has issues that will prevent it from being used:"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateValidator.php:98
+msgid "Template post not found."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateValidator.php:102
+msgid "Template purpose is not set."
+msgstr ""
+
+#. translators: %s: purpose value stored in post meta.
+#: src/Modules/Newsletter/TemplateValidator.php:109
+msgid "Unknown template purpose \"%s\"."
+msgstr ""
+
+#. translators: %s: required token name, e.g. "{{confirm_url}}".
+#: src/Modules/Newsletter/TemplateValidator.php:120
+msgid "Missing required token: %s"
 msgstr ""
 
 #: src/Modules/SMTP/Admin/AjaxController.php:71

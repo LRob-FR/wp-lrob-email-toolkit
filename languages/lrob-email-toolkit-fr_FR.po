@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-22T00:02:23+00:00\n"
+"POT-Creation-Date: 2026-05-22T10:16:37+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -59,6 +59,8 @@ msgstr "https://www.lrob.fr"
 #: src/Modules/Logging/Admin/AjaxController.php:163
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
+#: src/Modules/Newsletter/Admin/HomePage.php:56
+#: src/Modules/Newsletter/Module.php:247
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
@@ -228,7 +230,7 @@ msgstr "Désactivé"
 msgid "Test email"
 msgstr "Email de test"
 
-#: src/Admin/DashboardPage.php:459
+#: src/Admin/DashboardPage.php:459 src/Modules/Newsletter/TemplateCPT.php:260
 msgid "Add new"
 msgstr "Ajouter"
 
@@ -673,10 +675,13 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Admin/DataPage.php:303 src/Modules/AbstractModule.php:144
 #: src/Modules/ContactForm/Admin/FormsPage.php:1731
 #: src/Modules/Logging/Admin/PageController.php:178
+#: src/Modules/Newsletter/Module.php:251
 msgid "Security check failed. Please retry."
 msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 
 #: src/Admin/Menu.php:54 src/Admin/Menu.php:55
+#: src/Modules/Newsletter/Admin/HomePage.php:90
+#: src/Modules/Newsletter/Admin/HomePage.php:275
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
@@ -1057,6 +1062,7 @@ msgstr "Résout vers"
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/ContactForm/Admin/FormsPage.php:1826
 #: src/Modules/ContactForm/Fields/CaptchaField.php:117
+#: src/Modules/Newsletter/Admin/HomePage.php:200
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr "Par défaut"
@@ -1504,7 +1510,9 @@ msgid "Source form not found."
 msgstr "Formulaire source introuvable."
 
 #. translators: %s: name of the source form being cloned
+#. translators: %s: localized title of the source default template (e.g. "Confirm your subscription").
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
+#: src/Modules/Newsletter/Module.php:262
 msgid "%s (copy)"
 msgstr "%s (copie)"
 
@@ -2845,6 +2853,8 @@ msgid "Email Logs"
 msgstr "Journaux d'emails"
 
 #: src/Modules/Logging/Admin/LogsPage.php:44
+#: src/Modules/Newsletter/Admin/HomePage.php:98
+#: src/Modules/Newsletter/Admin/HomePage.php:274
 msgid "Settings"
 msgstr "Réglages"
 
@@ -3121,17 +3131,366 @@ msgid_plural "%s log entries"
 msgstr[0] "%s entrée de journal"
 msgstr[1] "%s entrées de journal"
 
-#: src/Modules/Newsletter/Module.php:25
+#: src/Modules/Newsletter/Admin/HomePage.php:65
+#: src/Modules/Newsletter/Admin/PageController.php:37
+#: src/Modules/Newsletter/Admin/PageController.php:38
+#: src/Modules/Newsletter/Module.php:41
 msgid "Newsletter"
 msgstr "Newsletter"
 
-#: src/Modules/Newsletter/Module.php:30
+#: src/Modules/Newsletter/Admin/HomePage.php:75
 msgid ""
-"Send campaigns to your WordPress users with advanced segmentation and "
-"tracking."
+"Enable the Newsletter module to start managing campaigns and subscribers."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:91
+#: src/Modules/Newsletter/Admin/HomePage.php:267
+msgid "Campaigns"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:92
+#: src/Modules/Newsletter/Admin/HomePage.php:268
+#, fuzzy
+msgid "Subscribers"
+msgstr "S'inscrire"
+
+#: src/Modules/Newsletter/Admin/HomePage.php:93
+#: src/Modules/Newsletter/Admin/HomePage.php:269
+msgid "Lists"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:94
+#: src/Modules/Newsletter/Admin/HomePage.php:270
+msgid "Categories"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:95
+#: src/Modules/Newsletter/Admin/HomePage.php:271
+msgid "Onboarding"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:96
+#: src/Modules/Newsletter/Admin/HomePage.php:272
+#, fuzzy
+msgid "Forms"
+msgstr "Formulaire"
+
+#: src/Modules/Newsletter/Admin/HomePage.php:97
+#: src/Modules/Newsletter/Admin/HomePage.php:273
+msgid "Import"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:146
+msgid ""
+"System emails sent automatically during subscription onboarding. Edit any "
+"template in the block editor. Tokens marked with an asterisk (*) are "
+"required for the email to function."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:169
+msgid "Start a new draft pre-filled with the default content for this purpose."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:170
+#, fuzzy
+msgid "+ New from default"
+msgstr "Définir par défaut"
+
+#: src/Modules/Newsletter/Admin/HomePage.php:175
+msgid "Available tokens:"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:178
+msgid "Required for this onboarding purpose"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:184
+msgid "No templates yet for this purpose."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:197
+#, fuzzy
+msgid "(untitled)"
+msgstr "(sans titre)"
+
+#: src/Modules/Newsletter/Admin/HomePage.php:200
+msgid "Currently used by the newsletter for this purpose."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:203
+msgid "Auto-created on module install."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:203
+msgid "Seeded"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:206
+msgid "OK"
+msgstr ""
+
+#. translators: %d: number of validation issues.
+#: src/Modules/Newsletter/Admin/HomePage.php:211
+msgid "%d issue"
+msgid_plural "%d issues"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:232
+#, fuzzy
+msgid ""
+"Build campaigns to your WordPress users and subscribers. Pick a section "
+"above to start."
 msgstr ""
 "Envoyez des campagnes à vos utilisateurs WordPress avec segmentation avancée "
 "et suivi."
+
+#: src/Modules/Newsletter/Admin/HomePage.php:237
+msgid "Email-only subscribers"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:241
+msgid "WP users (potential recipients)"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:245
+msgid ""
+"This module is in active development — the dashboard, campaigns, send "
+"pipeline, and forms land across the next few releases."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:258
+msgid ""
+"This section is part of the Newsletter module rollout and will land in a "
+"coming release."
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:46
+msgid ""
+"Send campaigns to your WordPress users and email-only subscribers, with rule-"
+"based segments, per-category opt-outs, and a throttled AJAX+Cron send "
+"pipeline."
+msgstr ""
+
+#. translators: %s: number of subscribers (already formatted with i18n thousands separator).
+#: src/Modules/Newsletter/Module.php:177
+#, fuzzy
+msgid "%s subscriber"
+msgid_plural "%s subscribers"
+msgstr[0] "S'inscrire"
+msgstr[1] "S'inscrire"
+
+#: src/Modules/Newsletter/Module.php:255
+#, fuzzy
+msgid "Unknown onboarding email purpose."
+msgstr "Modèle inconnu."
+
+#: src/Modules/Newsletter/Module.php:278
+#, fuzzy
+msgid "Could not create the template draft."
+msgstr "Impossible de créer le formulaire."
+
+#: src/Modules/Newsletter/Module.php:311
+msgid "Newsletter: SMTP module not enabled"
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:312
+msgid ""
+"Subscribe forms and the Newsletter admin work, but campaign sending is "
+"disabled until you enable the SMTP module — Newsletter routes every send "
+"through an SMTP identity."
+msgstr ""
+
+#: src/Modules/Newsletter/Module.php:314
+#, fuzzy
+msgid "Open SMTP settings"
+msgstr "Réglages par défaut"
+
+#: src/Modules/Newsletter/Module.php:335
+msgid "General"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:93
+msgid "Available tokens"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:107
+msgid "No tokens available — this template's purpose isn't set."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:112
+msgid ""
+"Click a token to copy it. Paste anywhere in the email body — values are "
+"substituted per-recipient at send time."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:122
+msgid "Required for this purpose — click to copy."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:123
+msgid "Click to copy."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:133
+msgid "* must appear at least once in the template body."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:258
+#: src/Modules/Newsletter/TemplateCPT.php:268
+#: src/Modules/Newsletter/TemplateCPT.php:269
+#, fuzzy
+msgid "Email templates"
+msgstr "Modèles de démarrage"
+
+#: src/Modules/Newsletter/TemplateCPT.php:259
+#, fuzzy
+msgid "Email template"
+msgstr "Modèles de démarrage"
+
+#: src/Modules/Newsletter/TemplateCPT.php:261
+msgid "Add new email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:262
+#, fuzzy
+msgid "Edit email template"
+msgstr "Modèles de démarrage"
+
+#: src/Modules/Newsletter/TemplateCPT.php:263
+#, fuzzy
+msgid "New email template"
+msgstr "Aucun champ email pour le moment"
+
+#: src/Modules/Newsletter/TemplateCPT.php:264
+msgid "View email template"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateCPT.php:265
+#, fuzzy
+msgid "Search email templates"
+msgstr "Modèles de démarrage"
+
+#: src/Modules/Newsletter/TemplateCPT.php:266
+#, fuzzy
+msgid "No email templates yet."
+msgstr "Aucun champ email pour le moment"
+
+#: src/Modules/Newsletter/TemplateCPT.php:267
+#, fuzzy
+msgid "No email templates in trash."
+msgstr "Aucun formulaire de contact dans la corbeille."
+
+#: src/Modules/Newsletter/TemplateCPT.php:381
+#, fuzzy
+msgid "Confirmation email"
+msgstr "Échec de la connexion."
+
+#: src/Modules/Newsletter/TemplateCPT.php:382
+#, fuzzy
+msgid "Reminder email"
+msgstr "Renvoyer l'email"
+
+#: src/Modules/Newsletter/TemplateCPT.php:383
+msgid "Refuse acknowledgment"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:71
+msgid "Default — Confirm your subscription"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:72
+msgid "Default — Reminder: confirm your subscription"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:73
+#, fuzzy
+msgid "Default — Subscription declined"
+msgstr "Par défaut — utilise l'identifiant de boîte mail"
+
+#: src/Modules/Newsletter/TemplateSeeder.php:74
+#, fuzzy
+msgid "Default email template"
+msgstr "Emails par défaut"
+
+#: src/Modules/Newsletter/TemplateSeeder.php:96
+#: src/Modules/Newsletter/TemplateSeeder.php:116
+#: src/Modules/Newsletter/TemplateSeeder.php:136
+msgid "Hi {{name}},"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:97
+msgid ""
+"Thanks for signing up to <strong>{{site_name}}</strong>. Please confirm your "
+"subscription using the button below."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:98
+#, fuzzy
+msgid "Confirm subscription"
+msgstr "[%s] Nouvelle soumission de formulaire de contact"
+
+#: src/Modules/Newsletter/TemplateSeeder.php:99
+msgid "No thanks — don't subscribe me"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:100
+msgid ""
+"Didn't sign up? You can safely ignore this email or click \"No thanks\" "
+"above and we'll never bother you again."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:117
+msgid ""
+"You started signing up to <strong>{{site_name}}</strong> but haven't "
+"confirmed yet. Want to finish?"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:118
+msgid "Yes, confirm my subscription"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:119
+msgid "No, I changed my mind"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:120
+msgid "If you ignore this email we won't send another reminder."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:137
+msgid ""
+"You've declined to subscribe to <strong>{{site_name}}</strong>. We won't add "
+"you and we won't email you again about this. Sorry for the noise."
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateSeeder.php:138
+msgid "— The {{site_name}} team"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateValidator.php:80
+msgid "This email template has issues that will prevent it from being used:"
+msgstr ""
+
+#: src/Modules/Newsletter/TemplateValidator.php:98
+#, fuzzy
+msgid "Template post not found."
+msgstr "Identité introuvable."
+
+#: src/Modules/Newsletter/TemplateValidator.php:102
+msgid "Template purpose is not set."
+msgstr ""
+
+#. translators: %s: purpose value stored in post meta.
+#: src/Modules/Newsletter/TemplateValidator.php:109
+#, fuzzy
+msgid "Unknown template purpose \"%s\"."
+msgstr "Modèle inconnu."
+
+#. translators: %s: required token name, e.g. "{{confirm_url}}".
+#: src/Modules/Newsletter/TemplateValidator.php:120
+msgid "Missing required token: %s"
+msgstr ""
 
 #: src/Modules/SMTP/Admin/AjaxController.php:71
 msgid "No host provided."
@@ -3636,6 +3995,14 @@ msgid ""
 msgstr ""
 "Les champs du formulaire apparaîtront ici sur la page publiée. Modifiez le "
 "formulaire sur la page admin Formulaires de contact pour les changer."
+
+#, fuzzy
+#~ msgid "+ New template"
+#~ msgstr "Modèle de sujet"
+
+#, fuzzy
+#~ msgid "Templates"
+#~ msgstr "Modèles de démarrage"
 
 #~ msgid "Delete the contact form \"%s\"? This cannot be undone."
 #~ msgstr ""

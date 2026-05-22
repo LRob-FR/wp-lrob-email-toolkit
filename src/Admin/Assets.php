@@ -17,6 +17,7 @@ final class Assets
     public const HANDLE_LOGGING    = 'lrob-etk-admin-logging';
     public const HANDLE_CF         = 'lrob-etk-admin-contact-form';
     public const HANDLE_CAPTCHA    = 'lrob-etk-admin-captcha';
+    public const HANDLE_NL         = 'lrob-etk-admin-newsletter';
 
     private const STYLE_FILES = [
         self::HANDLE_BASE       => 'admin/css/admin-base.css',
@@ -26,6 +27,7 @@ final class Assets
         self::HANDLE_LOGGING    => 'admin/css/admin-logging.css',
         self::HANDLE_CF         => 'admin/css/admin-contact-form.css',
         self::HANDLE_CAPTCHA    => 'admin/css/admin-captcha.css',
+        self::HANDLE_NL         => 'admin/css/admin-newsletter.css',
     ];
 
     public const HANDLE_CONTROLS_JS = 'lrob-etk-controls';

@@ -1,0 +1,278 @@
+<?php
+
+declare(strict_types=1);
+
+namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
+
+use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Admin\ModuleToggle;
+use LRob\EmailToolkit\Modules\ModuleInterface;
+use LRob\EmailToolkit\Modules\Newsletter\Module as NewsletterModule;
+use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
+use LRob\EmailToolkit\Modules\Newsletter\TemplateCPT;
+use LRob\EmailToolkit\Modules\Newsletter\TemplateRepository;
+use LRob\EmailToolkit\Modules\Newsletter\TemplateTokens;
+use LRob\EmailToolkit\Modules\Newsletter\TemplateValidator;
+
+/**
+ * Newsletter homepage hub — single page at `?page=lrob-etk-nl` with
+ * `&view=` dispatch to keep every Newsletter UI under one URL slug.
+ *
+ * v0.3.0 step 1: scaffolding only. Each view renders a placeholder card so
+ * the navigation is real and the URLs are stable, but the actual screens
+ * land in later steps (campaigns / subscribers / lists / categories /
+ * templates / forms / import / settings). The dashboard (no `&view=`)
+ * shows a brief "what is this module" intro plus what little data we
+ * already have (subscriber count, once anything lands there).
+ */
+final class HomePage
+{
+    public const VIEW_CAMPAIGNS   = 'campaigns';
+
+    public const VIEW_SUBSCRIBERS = 'subscribers';
+
+    public const VIEW_LISTS       = 'lists';
+
+    public const VIEW_CATEGORIES  = 'categories';
+
+    public const VIEW_ONBOARDING  = 'onboarding';
+
+    public const VIEW_FORMS       = 'forms';
+
+    public const VIEW_IMPORT      = 'import';
+
+    public const VIEW_SETTINGS    = 'settings';
+
+    public function __construct(
+        private ModuleInterface $module,
+        private SubscriberRepository $subscribers,
+        private TemplateRepository $templates,
+    ) {
+    }
+
+    public function render(): void
+    {
+        if (!current_user_can(Activator::CAPABILITY)) {
+            wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
+        }
+
+        $view = isset($_GET['view']) && is_string($_GET['view']) ? sanitize_key((string) $_GET['view']) : '';
+        $enabled = $this->module->is_enabled();
+        ?>
+        <div class="wrap lrob-etk lrob-etk-nl-page">
+            <header class="lrob-etk-page-header">
+                <h1 class="lrob-etk-page-title">
+                    <?php esc_html_e('Newsletter', 'lrob-email-toolkit'); ?>
+                    <?php if ($view !== '') : ?>
+                        <span class="lrob-etk-page-title-sub">— <?php echo esc_html($this->view_label($view)); ?></span>
+                    <?php endif; ?>
+                </h1>
+                <?php ModuleToggle::render_inline($this->module); ?>
+            </header>
+
+            <?php if (!$enabled) : ?>
+                <p class="lrob-etk-disabled-message">
+                    <?php esc_html_e('Enable the Newsletter module to start managing campaigns and subscribers.', 'lrob-email-toolkit'); ?>
+                </p>
+            <?php else : ?>
+                <?php $this->render_nav($view); ?>
+                <?php $this->render_view($view); ?>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    /** Sticky-style sub-nav across the hub views. Inert "Coming soon" until each view lands. */
+    private function render_nav(string $current): void
+    {
+        $base = admin_url('admin.php?page=' . PageController::SLUG);
+        $tabs = [
+            ''                       => __('Dashboard', 'lrob-email-toolkit'),
+            self::VIEW_CAMPAIGNS     => __('Campaigns', 'lrob-email-toolkit'),
+            self::VIEW_SUBSCRIBERS   => __('Subscribers', 'lrob-email-toolkit'),
+            self::VIEW_LISTS         => __('Lists', 'lrob-email-toolkit'),
+            self::VIEW_CATEGORIES    => __('Categories', 'lrob-email-toolkit'),
+            self::VIEW_ONBOARDING     => __('Onboarding', 'lrob-email-toolkit'),
+            self::VIEW_FORMS         => __('Forms', 'lrob-email-toolkit'),
+            self::VIEW_IMPORT        => __('Import', 'lrob-email-toolkit'),
+            self::VIEW_SETTINGS      => __('Settings', 'lrob-email-toolkit'),
+        ];
+        ?>
+        <nav class="lrob-etk-nl-tabs">
+            <?php foreach ($tabs as $slug => $label) : ?>
+                <?php $url = $slug === '' ? $base : add_query_arg('view', $slug, $base); ?>
+                <a href="<?php echo esc_url($url); ?>"
+                   class="lrob-etk-nl-tab<?php echo $current === $slug ? ' is-active' : ''; ?>">
+                    <?php echo esc_html($label); ?>
+                </a>
+            <?php endforeach; ?>
+        </nav>
+        <?php
+    }
+
+    private function render_view(string $view): void
+    {
+        match ($view) {
+            self::VIEW_ONBOARDING => $this->render_onboarding(),
+            self::VIEW_CAMPAIGNS,
+            self::VIEW_SUBSCRIBERS,
+            self::VIEW_LISTS,
+            self::VIEW_CATEGORIES,
+            self::VIEW_FORMS,
+            self::VIEW_IMPORT,
+            self::VIEW_SETTINGS => $this->render_placeholder($view),
+            default             => $this->render_dashboard(),
+        };
+    }
+
+    /**
+     * Onboarding view: one section per system-email purpose
+     * (confirmation, reminder, refuse_ack). These are the emails the
+     * newsletter sends automatically as subscribers move through the
+     * signup flow — distinct from campaign content the admin composes.
+     * Each row links to the Gutenberg post editor; defaults carry a
+     * "Default" badge; validator issues surface inline.
+     */
+    private function render_onboarding(): void
+    {
+        $grouped = $this->templates->list_all_grouped();
+        $resolved_defaults = [];
+        foreach (TemplateCPT::purposes() as $purpose) {
+            $resolved_defaults[$purpose] = $this->templates->default_id_for_purpose($purpose);
+        }
+        ?>
+        <section class="lrob-etk-nl-templates">
+            <p class="lrob-etk-nl-templates-intro">
+                <?php esc_html_e('System emails sent automatically during subscription onboarding. Edit any template in the block editor. Tokens marked with an asterisk (*) are required for the email to function.', 'lrob-email-toolkit'); ?>
+            </p>
+
+            <?php foreach (TemplateCPT::purposes() as $purpose) : ?>
+                <?php
+                $posts = $grouped[$purpose] ?? [];
+                $default_id = $resolved_defaults[$purpose] ?? 0;
+                $tokens = TemplateTokens::available_tokens($purpose);
+                $required = TemplateTokens::required_tokens($purpose);
+                $new_url = wp_nonce_url(
+                    add_query_arg(
+                        [
+                            'action'  => NewsletterModule::ACTION_NEW_FROM_DEFAULT,
+                            'purpose' => $purpose,
+                        ],
+                        admin_url('admin.php')
+                    ),
+                    NewsletterModule::ACTION_NEW_FROM_DEFAULT
+                );
+                ?>
+                <article class="lrob-etk-nl-template-group">
+                    <header class="lrob-etk-nl-template-group-head">
+                        <h2 class="lrob-etk-nl-template-group-title"><?php echo esc_html(TemplateCPT::purpose_label($purpose)); ?></h2>
+                        <a class="button button-secondary" href="<?php echo esc_url($new_url); ?>" title="<?php esc_attr_e('Start a new draft pre-filled with the default content for this purpose.', 'lrob-email-toolkit'); ?>">
+                            <?php esc_html_e('+ New from default', 'lrob-email-toolkit'); ?>
+                        </a>
+                    </header>
+
+                    <p class="lrob-etk-nl-template-group-tokens">
+                        <?php esc_html_e('Available tokens:', 'lrob-email-toolkit'); ?>
+                        <?php foreach ($tokens as $i => $token) : ?>
+                            <?php $is_req = in_array($token, $required, true); ?>
+                            <code<?php echo $is_req ? ' class="is-required" title="' . esc_attr__('Required for this onboarding purpose', 'lrob-email-toolkit') . '"' : ''; ?>>{{<?php echo esc_html($token); ?>}}<?php echo $is_req ? '*' : ''; ?></code><?php echo $i < count($tokens) - 1 ? ' ' : ''; ?>
+                        <?php endforeach; ?>
+                    </p>
+
+                    <?php if ($posts === []) : ?>
+                        <p class="lrob-etk-nl-template-empty">
+                            <?php esc_html_e('No templates yet for this purpose.', 'lrob-email-toolkit'); ?>
+                        </p>
+                    <?php else : ?>
+                        <ul class="lrob-etk-nl-template-list">
+                            <?php foreach ($posts as $post) : ?>
+                                <?php
+                                $edit_url = get_edit_post_link($post->ID);
+                                $is_default_seed = (bool) get_post_meta($post->ID, TemplateCPT::META_IS_DEFAULT, true);
+                                $is_resolved_default = ((int) $post->ID === $default_id);
+                                $validation = TemplateValidator::validate($post->ID);
+                                ?>
+                                <li class="lrob-etk-nl-template-row">
+                                    <a class="lrob-etk-nl-template-title" href="<?php echo esc_url((string) $edit_url); ?>">
+                                        <?php echo esc_html($post->post_title !== '' ? $post->post_title : __('(untitled)', 'lrob-email-toolkit')); ?>
+                                    </a>
+                                    <?php if ($is_resolved_default) : ?>
+                                        <span class="lrob-etk-nl-template-badge is-default" title="<?php esc_attr_e('Currently used by the newsletter for this purpose.', 'lrob-email-toolkit'); ?>"><?php esc_html_e('Default', 'lrob-email-toolkit'); ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($is_default_seed && !$is_resolved_default) : ?>
+                                        <span class="lrob-etk-nl-template-badge is-seed" title="<?php esc_attr_e('Auto-created on module install.', 'lrob-email-toolkit'); ?>"><?php esc_html_e('Seeded', 'lrob-email-toolkit'); ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($validation['valid']) : ?>
+                                        <span class="lrob-etk-nl-template-status is-valid"><?php esc_html_e('OK', 'lrob-email-toolkit'); ?></span>
+                                    <?php else : ?>
+                                        <span class="lrob-etk-nl-template-status is-invalid" title="<?php echo esc_attr(implode(' · ', $validation['issues'])); ?>">
+                                            <?php echo esc_html(sprintf(
+                                                /* translators: %d: number of validation issues. */
+                                                _n('%d issue', '%d issues', count($validation['issues']), 'lrob-email-toolkit'),
+                                                count($validation['issues'])
+                                            )); ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </article>
+            <?php endforeach; ?>
+        </section>
+        <?php
+    }
+
+    private function render_dashboard(): void
+    {
+        $subs = $this->subscribers->count_total();
+        ?>
+        <section class="lrob-etk-nl-dashboard">
+            <p class="lrob-etk-nl-intro">
+                <?php esc_html_e('Build campaigns to your WordPress users and subscribers. Pick a section above to start.', 'lrob-email-toolkit'); ?>
+            </p>
+            <div class="lrob-etk-nl-tiles">
+                <div class="lrob-etk-nl-tile">
+                    <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n($subs)); ?></span>
+                    <span class="lrob-etk-nl-tile-label"><?php esc_html_e('Email-only subscribers', 'lrob-email-toolkit'); ?></span>
+                </div>
+                <div class="lrob-etk-nl-tile">
+                    <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n((int) count_users()['total_users'])); ?></span>
+                    <span class="lrob-etk-nl-tile-label"><?php esc_html_e('WP users (potential recipients)', 'lrob-email-toolkit'); ?></span>
+                </div>
+            </div>
+            <p class="lrob-etk-nl-skeleton-note">
+                <?php esc_html_e('This module is in active development — the dashboard, campaigns, send pipeline, and forms land across the next few releases.', 'lrob-email-toolkit'); ?>
+            </p>
+        </section>
+        <?php
+    }
+
+    private function render_placeholder(string $view): void
+    {
+        ?>
+        <section class="lrob-etk-nl-placeholder">
+            <div class="lrob-etk-nl-placeholder-icon dashicons dashicons-clock" aria-hidden="true"></div>
+            <h2 class="lrob-etk-nl-placeholder-title"><?php echo esc_html($this->view_label($view)); ?></h2>
+            <p class="lrob-etk-nl-placeholder-text">
+                <?php esc_html_e('This section is part of the Newsletter module rollout and will land in a coming release.', 'lrob-email-toolkit'); ?>
+            </p>
+        </section>
+        <?php
+    }
+
+    private function view_label(string $view): string
+    {
+        return match ($view) {
+            self::VIEW_CAMPAIGNS   => __('Campaigns', 'lrob-email-toolkit'),
+            self::VIEW_SUBSCRIBERS => __('Subscribers', 'lrob-email-toolkit'),
+            self::VIEW_LISTS       => __('Lists', 'lrob-email-toolkit'),
+            self::VIEW_CATEGORIES  => __('Categories', 'lrob-email-toolkit'),
+            self::VIEW_ONBOARDING  => __('Onboarding', 'lrob-email-toolkit'),
+            self::VIEW_FORMS       => __('Forms', 'lrob-email-toolkit'),
+            self::VIEW_IMPORT      => __('Import', 'lrob-email-toolkit'),
+            self::VIEW_SETTINGS    => __('Settings', 'lrob-email-toolkit'),
+            default                => __('Dashboard', 'lrob-email-toolkit'),
+        };
+    }
+}
