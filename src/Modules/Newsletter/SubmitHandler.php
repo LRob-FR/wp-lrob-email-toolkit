@@ -46,8 +46,11 @@ final class SubmitHandler
     /** Minimum seconds a human takes to fill a subscribe form. Below = bot. */
     private const MIN_FORM_TIME_SECONDS = 2;
 
-    public function __construct(private SubscriberRepository $subscribers)
-    {
+    public function __construct(
+        private SubscriberRepository $subscribers,
+        private ListRepository $lists,
+        private CategoryRepository $categories,
+    ) {
     }
 
     public function register(): void
@@ -121,10 +124,18 @@ final class SubmitHandler
         }
         $name = self::pick_name_field($form_id, $field_values);
 
+        // Picker values: which lists this subscriber wants to join +
+        // which categories they want (anything they tick they want;
+        // unticked = opt out). Resolved against the form's structure
+        // so unknown slugs / ids are dropped.
+        $chosen_lists = self::extract_chosen_lists($form_id, $field_values);
+        $chosen_categories = self::extract_chosen_categories($form_id, $field_values);
+        $has_category_picker = self::form_has_field($form_id, 'category_picker');
+
         // Recipient resolution.
         $wp_user = get_user_by('email', $email);
         if ($wp_user instanceof \WP_User) {
-            $this->opt_in_wp_user($wp_user, $form_id);
+            $this->opt_in_wp_user($wp_user, $form_id, $chosen_lists, $chosen_categories, $has_category_picker);
             self::respond_success($form_id, __('Welcome back! You\'re subscribed.', 'lrob-email-toolkit'));
         }
 
@@ -140,6 +151,7 @@ final class SubmitHandler
             }
             $subscriber_id = (int) $existing['id'];
             $this->subscribers->reset_to_pending($subscriber_id);
+            $this->apply_subscriber_preferences($subscriber_id, $form_id, $chosen_lists, $chosen_categories, $has_category_picker);
             $this->dispatch_confirmation($subscriber_id, $email, $name, $form_id);
             Events::dispatch('newsletter.subscriber.resubscribed', [
                 'subscriber_id'   => $subscriber_id,
@@ -158,6 +170,7 @@ final class SubmitHandler
                 'message' => __('Could not record your subscription. Please try again.', 'lrob-email-toolkit'),
             ], 500);
         }
+        $this->apply_subscriber_preferences($new_id, $form_id, $chosen_lists, $chosen_categories, $has_category_picker);
         $this->dispatch_confirmation($new_id, $email, $name, $form_id);
         Events::dispatch('newsletter.subscriber.added', [
             'subscriber_id' => $new_id,
@@ -171,10 +184,19 @@ final class SubmitHandler
     /**
      * Opt a WP user into the newsletter — they already validated their
      * email at registration time, so we don't force them through
-     * double-opt-in. Fires `newsletter.subscriber.confirmed` directly.
+     * double-opt-in. Applies any list-picker / category-picker choices
+     * immediately. Fires `newsletter.subscriber.confirmed`.
+     *
+     * @param array<int, int>    $chosen_lists List IDs ticked in a list_picker field.
+     * @param array<int, string> $chosen_categories Category slugs ticked in a category_picker field.
      */
-    private function opt_in_wp_user(\WP_User $user, int $form_id): void
-    {
+    private function opt_in_wp_user(
+        \WP_User $user,
+        int $form_id,
+        array $chosen_lists,
+        array $chosen_categories,
+        bool $has_category_picker
+    ): void {
         $user_id = (int) $user->ID;
         update_user_meta($user_id, UserMeta::OPTED_IN, '1');
         update_user_meta($user_id, UserMeta::STATUS, UserMeta::STATUS_ACTIVE);
@@ -186,6 +208,22 @@ final class SubmitHandler
             update_user_meta($user_id, UserMeta::PREFS_TOKEN, UserMeta::generate_prefs_token());
         }
         update_user_meta($user_id, UserMeta::SOURCE, 'form:' . $form_id);
+
+        // Apply explicit list memberships from the picker, plus the
+        // form's default list if no picker was present.
+        $list_ids = $this->resolve_list_membership($form_id, $chosen_lists);
+        foreach ($list_ids as $list_id) {
+            $this->lists->add_member($list_id, UserMeta::KIND_USER, $user_id);
+        }
+
+        // Category opt-outs only computed when the picker was on the
+        // form. Without a picker, the WP user inherits the global
+        // default (opted in to everything) which is no opt-outs.
+        if ($has_category_picker) {
+            $opt_outs = $this->compute_opt_outs($chosen_categories);
+            update_user_meta($user_id, UserMeta::CATEGORY_OPT_OUTS, (string) wp_json_encode($opt_outs));
+        }
+
         Events::dispatch('newsletter.subscriber.confirmed', [
             'recipient_kind' => UserMeta::KIND_USER,
             'recipient_id'   => $user_id,
@@ -193,6 +231,78 @@ final class SubmitHandler
             'form_id'        => $form_id,
             'via'            => 'wp_user_optin',
         ]);
+    }
+
+    /**
+     * Persist list memberships + category opt-outs for a subscriber
+     * row. Called after insert / reset_to_pending in the pending-flow
+     * path. The subscriber's `category_opt_outs` JSON column is
+     * updated directly; list_members rows are inserted via the
+     * repository (idempotent on the UNIQUE key).
+     *
+     * @param array<int, int>    $chosen_lists
+     * @param array<int, string> $chosen_categories
+     */
+    private function apply_subscriber_preferences(
+        int $subscriber_id,
+        int $form_id,
+        array $chosen_lists,
+        array $chosen_categories,
+        bool $has_category_picker
+    ): void {
+        $list_ids = $this->resolve_list_membership($form_id, $chosen_lists);
+        foreach ($list_ids as $list_id) {
+            $this->lists->add_member($list_id, UserMeta::KIND_SUBSCRIBER, $subscriber_id);
+        }
+        if ($has_category_picker) {
+            $opt_outs = $this->compute_opt_outs($chosen_categories);
+            global $wpdb;
+            $wpdb->update(
+                Schema::subscribers_table(),
+                ['category_opt_outs' => (string) wp_json_encode($opt_outs)],
+                ['id' => $subscriber_id],
+                ['%s'],
+                ['%d']
+            );
+        }
+    }
+
+    /**
+     * Resolve the list ids to add the new subscriber to:
+     *   1. Explicit picker ticks, intersected with existing list ids.
+     *   2. Form's default list (META_DEFAULT_LIST_ID) — only when the
+     *      submission had no picker selections (empty $chosen_lists).
+     *      "Form had a picker but visitor ticked nothing" defers to
+     *      the visitor's choice; "form had no picker, admin set a
+     *      default" uses that default.
+     *
+     * @param array<int, int> $chosen_lists
+     * @return array<int, int>
+     */
+    private function resolve_list_membership(int $form_id, array $chosen_lists): array
+    {
+        if ($chosen_lists !== []) {
+            return $chosen_lists;
+        }
+        $default = (int) get_post_meta($form_id, FormCPT::META_DEFAULT_LIST_ID, true);
+        if ($default <= 0) {
+            return [];
+        }
+        return $this->lists->find($default) !== null ? [$default] : [];
+    }
+
+    /**
+     * Build the category_opt_outs payload from a list of *ticked*
+     * category slugs. opt_outs = all categories minus the ones the
+     * subscriber chose.
+     *
+     * @param array<int, string> $chosen_slugs
+     * @return array<int, string>
+     */
+    private function compute_opt_outs(array $chosen_slugs): array
+    {
+        $all_slugs = array_keys($this->categories->slug_label_map());
+        return array_values(array_diff($all_slugs, $chosen_slugs));
     }
 
     private function dispatch_confirmation(int $subscriber_id, string $email, string $name, int $form_id): void
@@ -281,6 +391,90 @@ final class SubmitHandler
                     $val = $field_values[$slug] ?? '';
                     if (is_string($val) && trim($val) !== '') {
                         return sanitize_text_field(trim($val));
+                    }
+                }
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Resolve list-picker submissions to list IDs the picker actually
+     * exposed. Walks the form structure to find the list_picker
+     * field, reads its slug, picks the submitted value off the
+     * extracted field map. Drops list IDs that don't exist (defensive
+     * against tampered submissions).
+     *
+     * @return array<int, int>
+     */
+    private static function extract_chosen_lists(int $form_id, array $field_values): array
+    {
+        $slug = self::find_field_slug_by_type($form_id, 'list_picker');
+        if ($slug === '') {
+            return [];
+        }
+        $raw = $field_values[$slug] ?? [];
+        if (!is_array($raw)) {
+            return [];
+        }
+        $ids = [];
+        $repo = new ListRepository();
+        foreach ($raw as $v) {
+            $list_id = (int) $v;
+            if ($list_id > 0 && $repo->find($list_id) !== null) {
+                $ids[] = $list_id;
+            }
+        }
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * Resolve category-picker submissions to category slugs that exist.
+     * Same shape as extract_chosen_lists but the picker submits slug
+     * strings.
+     *
+     * @return array<int, string>
+     */
+    private static function extract_chosen_categories(int $form_id, array $field_values): array
+    {
+        $slug = self::find_field_slug_by_type($form_id, 'category_picker');
+        if ($slug === '') {
+            return [];
+        }
+        $raw = $field_values[$slug] ?? [];
+        if (!is_array($raw)) {
+            return [];
+        }
+        $valid_slugs = array_keys((new CategoryRepository())->slug_label_map());
+        $out = [];
+        foreach ($raw as $v) {
+            $s = is_string($v) ? sanitize_title($v) : '';
+            if ($s !== '' && in_array($s, $valid_slugs, true)) {
+                $out[] = $s;
+            }
+        }
+        return array_values(array_unique($out));
+    }
+
+    /** True if the form's structure contains at least one field of $type. */
+    private static function form_has_field(int $form_id, string $type): bool
+    {
+        return self::find_field_slug_by_type($form_id, $type) !== '';
+    }
+
+    /** Return the slug of the first field of $type in the form, or '' if none. */
+    private static function find_field_slug_by_type(int $form_id, string $type): string
+    {
+        $structure = FormStructure::load($form_id);
+        foreach ($structure['rows'] as $row) {
+            foreach ($row['columns'] as $col) {
+                foreach ($col['fields'] as $field) {
+                    if (($field['type'] ?? '') !== $type) {
+                        continue;
+                    }
+                    $slug = (string) ($field['slug'] ?? '');
+                    if ($slug !== '') {
+                        return $slug;
                     }
                 }
             }

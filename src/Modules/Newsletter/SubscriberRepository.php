@@ -135,4 +135,86 @@ final class SubscriberRepository
         );
         return is_array($row) ? $row : null;
     }
+
+    /**
+     * Look up a subscriber by their opaque prefs_token (the secret
+     * carried in tokenised prefs / unsubscribe URLs). Returns null on
+     * miss — caller falls through to checking WP users via user_meta.
+     */
+    public function find_by_prefs_token(string $token): ?array
+    {
+        if ($token === '') {
+            return null;
+        }
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $row = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM `$table` WHERE prefs_token = %s LIMIT 1", $token),
+            ARRAY_A
+        );
+        return is_array($row) ? $row : null;
+    }
+
+    /** Replace the subscribers.category_opt_outs JSON column. */
+    public function set_category_opt_outs(int $id, array $opt_out_slugs): void
+    {
+        global $wpdb;
+        $wpdb->update(
+            Schema::subscribers_table(),
+            ['category_opt_outs' => (string) wp_json_encode(array_values($opt_out_slugs))],
+            ['id' => $id],
+            ['%s'],
+            ['%d']
+        );
+    }
+
+    /**
+     * Cron-friendly scan: pending subscribers whose last reminder was
+     * more than $interval_days ago (or never) AND whose reminder_count
+     * is below $max. Ordered by oldest-first so a partial-batch run
+     * picks up the longest-waiting subscribers next time. LIMIT keeps
+     * one tick bounded.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function list_pending_for_reminder(int $first_after_days, int $interval_days, int $max_reminders, int $limit = 50): array
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $first_threshold = gmdate('Y-m-d H:i:s', time() - ($first_after_days * DAY_IN_SECONDS));
+        $interval_threshold = gmdate('Y-m-d H:i:s', time() - ($interval_days * DAY_IN_SECONDS));
+        return (array) $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM `$table`
+                  WHERE status = 'pending'
+                    AND reminder_count < %d
+                    AND (
+                        (reminder_count = 0 AND created_at <= %s)
+                        OR (reminder_count > 0 AND last_reminder_at <= %s)
+                    )
+                  ORDER BY created_at ASC
+                  LIMIT %d",
+                $max_reminders,
+                $first_threshold,
+                $interval_threshold,
+                $limit
+            ),
+            ARRAY_A
+        );
+    }
+
+    /** Increment reminder_count and stamp last_reminder_at. */
+    public function record_reminder_sent(int $id): void
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $wpdb->query($wpdb->prepare(
+            "UPDATE `$table`
+                SET reminder_count = reminder_count + 1,
+                    last_reminder_at = %s
+              WHERE id = %d",
+            current_time('mysql', true),
+            $id
+        ));
+    }
 }

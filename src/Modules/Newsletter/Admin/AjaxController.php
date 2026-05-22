@@ -6,8 +6,10 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Forms\FormStructure;
+use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 use LRob\EmailToolkit\Modules\Newsletter\FormTemplateRegistry;
+use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 
 /**
  * Admin-AJAX endpoints for the newsletter Forms admin UI:
@@ -37,6 +39,32 @@ final class AjaxController
 
     public const ACTION_DELETE_FORM    = 'lrob_etk_nl_form_delete';
 
+    public const ACTION_CATEGORY_CREATE = 'lrob_etk_nl_category_create';
+
+    public const ACTION_CATEGORY_RENAME = 'lrob_etk_nl_category_rename';
+
+    public const ACTION_CATEGORY_DELETE = 'lrob_etk_nl_category_delete';
+
+    public const ACTION_LIST_CREATE     = 'lrob_etk_nl_list_create';
+
+    public const ACTION_LIST_RENAME     = 'lrob_etk_nl_list_rename';
+
+    public const ACTION_LIST_DELETE     = 'lrob_etk_nl_list_delete';
+
+    /**
+     * Per-key option save for the Settings view. Each whitelisted
+     * option gets its own sanitisation rule below; unknown keys are
+     * rejected with a 400.
+     */
+    public const ACTION_SETTING_SAVE    = 'lrob_etk_nl_setting_save';
+
+    /** Settings keys the AJAX save endpoint accepts. */
+    private const WHITELIST_SETTING_KEYS = [
+        'lrob_etk_nl_reminder_max',
+        'lrob_etk_nl_first_reminder_after_days',
+        'lrob_etk_nl_reminder_interval_days',
+    ];
+
     private const WHITELIST_META_KEYS = [
         FormCPT::META_CONFIRMATION_TEMPLATE_ID,
         FormCPT::META_DEFAULT_LIST_ID,
@@ -61,6 +89,132 @@ final class AjaxController
         // confirms, the trigger's data-url-orphan is followed, hitting
         // this handler which deletes + redirects back to the Forms view.
         add_action('admin_post_' . self::ACTION_DELETE_FORM, [$this, 'handle_delete_form']);
+
+        // Categories + lists: simple CRUD over the admin-ajax route,
+        // JSON responses. The admin pages submit via fetch and re-
+        // render the affected row on success.
+        add_action('wp_ajax_' . self::ACTION_CATEGORY_CREATE, [$this, 'handle_category_create']);
+        add_action('wp_ajax_' . self::ACTION_CATEGORY_RENAME, [$this, 'handle_category_rename']);
+        add_action('wp_ajax_' . self::ACTION_CATEGORY_DELETE, [$this, 'handle_category_delete']);
+        add_action('wp_ajax_' . self::ACTION_LIST_CREATE,     [$this, 'handle_list_create']);
+        add_action('wp_ajax_' . self::ACTION_LIST_RENAME,     [$this, 'handle_list_rename']);
+        add_action('wp_ajax_' . self::ACTION_LIST_DELETE,     [$this, 'handle_list_delete']);
+        add_action('wp_ajax_' . self::ACTION_SETTING_SAVE,    [$this, 'handle_setting_save']);
+    }
+
+    /**
+     * Save a whitelisted module option. Payload: { key, value }.
+     * Per-key sanitisation lives below — option_keys are validated
+     * against WHITELIST_SETTING_KEYS before dispatch.
+     */
+    public function handle_setting_save(): void
+    {
+        $this->guard();
+        $key = isset($_POST['key']) ? sanitize_key(wp_unslash((string) $_POST['key'])) : '';
+        if (!in_array($key, self::WHITELIST_SETTING_KEYS, true)) {
+            wp_send_json_error(['message' => __('Unknown setting.', 'lrob-email-toolkit')], 400);
+        }
+        $raw = isset($_POST['value']) ? wp_unslash((string) $_POST['value']) : '';
+
+        switch ($key) {
+            case 'lrob_etk_nl_reminder_max':
+                // 0 disables reminders entirely. Cap at 10 to prevent
+                // absurd values; that's overkill anyway.
+                $value = max(0, min(10, (int) $raw));
+                break;
+            case 'lrob_etk_nl_first_reminder_after_days':
+            case 'lrob_etk_nl_reminder_interval_days':
+                // 1-day floor — the cron runs daily so anything below
+                // 1 is meaningless. 365-day ceiling because longer
+                // windows likely indicate a misconfiguration.
+                $value = max(1, min(365, (int) $raw));
+                break;
+            default:
+                wp_send_json_error(['message' => __('Unsupported setting.', 'lrob-email-toolkit')], 400);
+        }
+
+        update_option($key, $value, false);
+        wp_send_json_success(['value' => $value]);
+    }
+
+    public function handle_category_create(): void
+    {
+        $this->guard();
+        $name = isset($_POST['name']) ? sanitize_text_field(wp_unslash((string) $_POST['name'])) : '';
+        if ($name === '') {
+            wp_send_json_error(['message' => __('Category name is required.', 'lrob-email-toolkit')], 400);
+        }
+        $id = (new CategoryRepository())->insert($name);
+        if ($id <= 0) {
+            wp_send_json_error(['message' => __('Could not create the category (the slug may collide with an existing one).', 'lrob-email-toolkit')], 409);
+        }
+        wp_send_json_success(['id' => $id]);
+    }
+
+    public function handle_category_rename(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $name = isset($_POST['name']) ? sanitize_text_field(wp_unslash((string) $_POST['name'])) : '';
+        if ($id <= 0 || $name === '') {
+            wp_send_json_error(['message' => __('Missing category id or name.', 'lrob-email-toolkit')], 400);
+        }
+        $ok = (new CategoryRepository())->rename($id, $name);
+        if (!$ok) {
+            wp_send_json_error(['message' => __('Could not rename the category.', 'lrob-email-toolkit')], 500);
+        }
+        wp_send_json_success();
+    }
+
+    public function handle_category_delete(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $ok = $id > 0 && (new CategoryRepository())->delete($id);
+        if (!$ok) {
+            wp_send_json_error(['message' => __('Could not delete the category (the default "general" category is protected).', 'lrob-email-toolkit')], 400);
+        }
+        wp_send_json_success();
+    }
+
+    public function handle_list_create(): void
+    {
+        $this->guard();
+        $name = isset($_POST['name']) ? sanitize_text_field(wp_unslash((string) $_POST['name'])) : '';
+        if ($name === '') {
+            wp_send_json_error(['message' => __('List name is required.', 'lrob-email-toolkit')], 400);
+        }
+        $id = (new ListRepository())->insert($name);
+        if ($id <= 0) {
+            wp_send_json_error(['message' => __('Could not create the list (the slug may collide with an existing one).', 'lrob-email-toolkit')], 409);
+        }
+        wp_send_json_success(['id' => $id]);
+    }
+
+    public function handle_list_rename(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $name = isset($_POST['name']) ? sanitize_text_field(wp_unslash((string) $_POST['name'])) : '';
+        if ($id <= 0 || $name === '') {
+            wp_send_json_error(['message' => __('Missing list id or name.', 'lrob-email-toolkit')], 400);
+        }
+        $ok = (new ListRepository())->rename($id, $name);
+        if (!$ok) {
+            wp_send_json_error(['message' => __('Could not rename the list.', 'lrob-email-toolkit')], 500);
+        }
+        wp_send_json_success();
+    }
+
+    public function handle_list_delete(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $ok = $id > 0 && (new ListRepository())->delete($id);
+        if (!$ok) {
+            wp_send_json_error(['message' => __('Could not delete the list.', 'lrob-email-toolkit')], 500);
+        }
+        wp_send_json_success();
     }
 
     /**

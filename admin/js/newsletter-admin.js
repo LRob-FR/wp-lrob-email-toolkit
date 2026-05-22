@@ -27,10 +27,22 @@
         if (!el || !el.classList || !el.classList.contains('lrob-etk-nl-field')) return;
         var key = el.getAttribute('data-key');
         if (!key) return;
-        var section = el.closest('[data-form-id]');
-        if (!section) return;
-        var formId = section.getAttribute('data-form-id');
-        if (!formId) return;
+
+        // Three save dispatches:
+        //   - form-card meta: requires a [data-form-id] ancestor.
+        //   - resource renames (category/list): carry data-resource-id
+        //     instead, no form_id.
+        //   - module setting saves: carry their option key as the value
+        //     of data-option-key, no form_id either.
+        var isResourceRename = (key === 'rename-category' || key === 'rename-list');
+        var isSettingSave = (el.getAttribute('data-option-key') !== null);
+        var formId = 0;
+        if (!isResourceRename && !isSettingSave) {
+            var section = el.closest('[data-form-id]');
+            if (!section) return;
+            formId = section.getAttribute('data-form-id');
+            if (!formId) return;
+        }
 
         // Only save changed values; track on focus and compare on blur.
         if (e.type === 'blur') {
@@ -53,12 +65,39 @@
         var statusEl = findStatusEl(sourceEl);
         setStatus(statusEl, 'saving');
 
+        // Resource-rename dispatches go to dedicated endpoints rather
+        // than save_meta — categories and lists aren't forms and their
+        // payload shape is different ({id, name} not {form_id, key,
+        // value}).
         var fd = new FormData();
-        fd.append('action', ACTIONS.saveMeta || 'lrob_etk_nl_form_save_meta');
-        fd.append('_nonce', ADMIN.nonce);
-        fd.append('form_id', formId);
-        fd.append('key', key);
-        fd.append('value', sourceEl.value);
+        var optionKey = sourceEl.getAttribute('data-option-key');
+        if (optionKey) {
+            // Module setting save — option name lives on data-option-key,
+            // value is the field's current value.
+            fd.append('action', 'lrob_etk_nl_setting_save');
+            fd.append('_nonce', ADMIN.nonce);
+            fd.append('key', optionKey);
+            fd.append('value', sourceEl.value);
+        } else if (key === 'rename-category' || key === 'rename-list') {
+            var resourceId = sourceEl.getAttribute('data-resource-id');
+            if (!resourceId) {
+                setStatus(statusEl, 'error');
+                return;
+            }
+            var action = key === 'rename-category'
+                ? 'lrob_etk_nl_category_rename'
+                : 'lrob_etk_nl_list_rename';
+            fd.append('action', action);
+            fd.append('_nonce', ADMIN.nonce);
+            fd.append('id', resourceId);
+            fd.append('name', sourceEl.value);
+        } else {
+            fd.append('action', ACTIONS.saveMeta || 'lrob_etk_nl_form_save_meta');
+            fd.append('_nonce', ADMIN.nonce);
+            fd.append('form_id', formId);
+            fd.append('key', key);
+            fd.append('value', sourceEl.value);
+        }
 
         fetch(ADMIN.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
             .then(function (r) { return r.json().catch(function () { return { success: false }; }); })

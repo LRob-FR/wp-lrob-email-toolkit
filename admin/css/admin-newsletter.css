@@ -276,3 +276,201 @@
 /* Captcha stub styles live in admin-contact-form.css under the
  * .lrob-etk-form-captcha-* prefix — Newsletter inherits them
  * automatically now that both modules use src/Forms/CaptchaField. */
+
+/* Resource (Categories / Lists) CRUD pages */
+.lrob-etk-nl-resource-head {
+    margin-bottom: 1rem;
+}
+
+.lrob-etk-nl-resource-intro {
+    margin: 0.25rem 0 0;
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-size: 0.9rem;
+    max-width: 50rem;
+}
+
+.lrob-etk-nl-resource-new {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 6px;
+}
+
+.lrob-etk-nl-resource-new-name {
+    flex: 1;
+    padding: 0.4rem 0.55rem;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.lrob-etk-nl-resource-new-status {
+    font-size: 0.85rem;
+    color: var(--lrob-etk-color-muted, #50575e);
+}
+
+.lrob-etk-nl-resource-new-status.is-error {
+    color: #b91c1c;
+}
+
+.lrob-etk-nl-resource-empty {
+    color: var(--lrob-etk-color-muted, #6b7280);
+    font-style: italic;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 6px;
+    margin: 0;
+}
+
+.lrob-etk-nl-resource-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.lrob-etk-nl-resource-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 6px;
+    margin: 0;
+}
+
+.lrob-etk-nl-resource-name {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.lrob-etk-nl-resource-name:focus,
+.lrob-etk-nl-resource-name:hover {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--lrob-etk-color-border, #dcdcde);
+}
+
+.lrob-etk-nl-resource-slug {
+    color: var(--lrob-etk-color-muted, #6b7280);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+    cursor: help;
+}
+
+.lrob-etk-nl-resource-protected {
+    color: var(--lrob-etk-color-muted, #6b7280);
+    font-size: 0.75rem;
+    font-style: italic;
+    padding: 0.15rem 0.5rem;
+    border: 1px dashed var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 4px;
+}
+
+/* Settings view */
+.lrob-etk-nl-settings-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.lrob-etk-nl-settings-head .lrob-etk-section-title {
+    margin: 0;
+}
+
+.lrob-etk-nl-settings-intro {
+    margin: 0 0 1rem;
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-size: 0.9rem;
+    max-width: 50rem;
+}
+
+/* Inline-mode (rendered inside another view) — drops the page-level
+ * intro/header chrome since the surrounding view owns those. */
+.lrob-etk-nl-settings--inline {
+    margin-top: 1.5rem;
+}
+
+.lrob-etk-nl-settings-context-link {
+    display: inline-block;
+    margin-left: 0.4rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: #2271b1;
+}
+
+.lrob-etk-nl-settings-context-link:hover {
+    text-decoration: underline;
+}
+
+.lrob-etk-nl-settings-group {
+    background: #fff;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 0 0 1rem;
+}
+
+.lrob-etk-nl-settings-group-title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.lrob-etk-nl-settings-group-intro {
+    margin: 0 0 1rem;
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-size: 0.9rem;
+    max-width: 50rem;
+}
+
+.lrob-etk-nl-settings-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+    grid-template-areas:
+        "label input"
+        "help  help";
+    gap: 0.35rem 1rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.lrob-etk-nl-settings-row:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.lrob-etk-nl-settings-row > label {
+    grid-area: label;
+    font-weight: 500;
+    align-self: center;
+}
+
+.lrob-etk-nl-settings-row > input[type="number"] {
+    grid-area: input;
+    width: 6rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 4px;
+    text-align: right;
+}
+
+.lrob-etk-nl-settings-row > .description {
+    grid-area: help;
+    margin: 0;
+    color: var(--lrob-etk-color-muted, #6b7280);
+    font-size: 0.85rem;
+}

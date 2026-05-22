@@ -37,10 +37,22 @@ final class ConfirmationDispatcher
         $confirm_url   = add_query_arg('lrob-etk-nl-confirm', $confirm_token, home_url('/'));
         $refuse_url    = add_query_arg('lrob-etk-nl-refuse',  $refuse_token,  home_url('/'));
 
+        // The subscriber's stored prefs_token doubles as the unsubscribe
+        // URL secret. Look it up once; if for any reason it's missing
+        // (data import, etc.) skip the unsub link rather than emitting
+        // a broken URL.
+        $prefs_token = self::prefs_token_for_subscriber($subscriber_id);
+        $prefs_url = $prefs_token !== ''
+            ? add_query_arg(PrefsHandler::QUERY_PREFS, $prefs_token, home_url('/'))
+            : '';
+        $unsub_url = $prefs_token !== ''
+            ? add_query_arg(PrefsHandler::QUERY_UNSUB, $prefs_token, home_url('/'))
+            : '';
+
         $tokens = [
             'confirm_url' => $confirm_url,
             'refuse_url'  => $refuse_url,
-            'prefs_url'   => '',
+            'prefs_url'   => $prefs_url,
             'name'        => $name !== '' ? $name : $email,
             'first_name'  => self::first_name($name),
             'email'       => $email,
@@ -71,7 +83,28 @@ final class ConfirmationDispatcher
             'X-Lrob-Etk-Newsletter-Confirmation: 1',
         ];
 
+        // RFC 8058 one-click unsubscribe. Gmail / Apple Mail show a
+        // native unsubscribe button when both headers are present.
+        // The List-Unsubscribe URL is the same token-based endpoint
+        // the footer "unsubscribe" link points at; the one-click
+        // POST handler routes that to PrefsHandler::handle_unsub.
+        if ($unsub_url !== '') {
+            $headers[] = 'List-Unsubscribe: <' . $unsub_url . '>';
+            $headers[] = 'List-Unsubscribe-Post: List-Unsubscribe=One-Click';
+        }
+
         return wp_mail($email, $subject, $body_html, $headers);
+    }
+
+    /**
+     * Fetch the subscriber's prefs_token. Caches nothing — confirmation
+     * dispatch is rare per row, the lookup is indexed (prefs_token
+     * KEY on the subscribers table since schema v4).
+     */
+    private static function prefs_token_for_subscriber(int $subscriber_id): string
+    {
+        $row = (new SubscriberRepository())->find_by_id($subscriber_id);
+        return is_array($row) ? (string) ($row['prefs_token'] ?? '') : '';
     }
 
     /**

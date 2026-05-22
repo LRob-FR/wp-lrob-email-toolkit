@@ -2,7 +2,7 @@
 
 Working design doc for the Newsletter module (target: v0.3.0). Companion to CLAUDE.md, not a replacement. CLAUDE.md still has the cross-module rules (naming, lifecycle, UI patterns) — this file owns only the Newsletter-specific shape.
 
-Status: **design locked, not implemented**. Open questions tracked at the bottom of this file.
+Status: **v0.3.0 in active implementation** — steps 0–4b shipped (uncommitted-but-tested on demo). Next: step 4c (WC My Account + Gutenberg prefs block) then step 5 (trash + refuse). See "Implementation slicing" at the bottom for the precise where-we-are.
 
 ## Module identifiers
 
@@ -565,14 +565,24 @@ UI patterns inherit from CLAUDE.md's UI conventions: card grids, auto-save edit 
 - **Send-statistics importer** from the Newsletter plugin (only templates + subscribers + lists imported).
 - **WP-user trash** (only category-level opt-out for WP users; full removal = delete the WP account).
 
-## Implementation slicing (suggested order, not committed)
+## Implementation slicing (status: where-we-are anchor)
 
-0. **Refactor**: extract form-builder to `src/Forms/`. Contact Form refactored to consume. Patch release (e.g. v0.2.2). No DB changes.
-1. **Schema + recipient model**: tables + migration + Module skeleton + admin homepage hub shell. SMTP-dependency notice. Hooks: `user_register` (promote subscriber + auto-opt-in), `deleted_user` (cleanup list memberships).
-2. **System email templates**: CPT + Gutenberg config + token substitution + validation + default templates seeded. Lands before subscribe forms since forms reference them.
-3. **Subscribe forms**: CPT registration, allowed field types, frontend block + shortcode, submit handler, double-opt-in email using templates + tokens. Captcha wired (no new work — context exists).
-4. **Categories + prefs page**: category CRUD, prefs page (token URL + WP profile + WC My Account + Gutenberg block), one-click unsubscribe handler.
-5. **Trash + refuse flow**: trash view, restore/purge actions, refuse button on confirmation emails, reminder cron.
+### ✅ Shipped
+
+0. ✅ **Refactor → src/Forms/**. v0.2.2 (released on GitHub). Form-builder shared between modules.
+1. ✅ **Schema + recipient model**. Schema v1 with 7 tables; user_register / deleted_user hooks; SMTP-dependency admin notice; hub shell at `?page=lrob-etk-nl` with `&view=` dispatch.
+2. ✅ **System email templates** (renamed "Onboarding"). `lrob_etk_nl_etpl` CPT, three seeded purposes (confirmation / reminder / refuse_ack), token registry + substitution + validator; "+ New from default" action; token-reference metabox in editor. Schema v3 includes a repair migration for the v2 esc_url_raw token-stripping bug.
+3. ✅ **Subscribe forms**. `lrob_etk_nl_form` CPT, FormsPage card-grid admin matching Contact Form's UX, `Blocks` + shortcode + `EmbedRenderer`, frontend `assets/js/form-submit.js` shared between modules, `SubmitHandler` with full pipeline (nonce → form → honeypot → time-trap → captcha → email → recipient resolution → confirmation dispatch), `ConfirmationTokens` HMAC, `ConfirmationDispatcher`, `ConfirmationHandler` for confirm/refuse URLs. Starter templates (blank / email_only / email_name). Shared `Combobox`, `StylePresets`, `CaptchaField`, `Honeypot` in `src/Forms/` + `src/Admin/`.
+4a. ✅ **Categories + Lists**. `CategoryRepository`, `ListRepository` (manual lists only; rule_json stays empty). Admin CRUD pages for both. `CategoryPicker` + `ListPicker` field types registered for the newsletter CPT. SubmitHandler captures picker values, applies opt-outs / list memberships for both WP-user and subscriber recipients. Form-card "default list" picker; "+ Field" menu surfaces both new field types.
+4b. ✅ **Prefs page + WP profile + one-click unsubscribe + reminder cron**. Schema v4 added `reminder_count` + `last_reminder_at` + `prefs_token` index + `pending_followup` composite index. `PrefsRenderer` (shared UI), `PrefsHandler` (public token URL: GET renders prefs, POST saves / unsubscribes / forget-me; one-click unsub POST endpoint per RFC 8058 with `OK` 200 response), `ProfileSection` (WP user-edit page integration with scoped CSS to tame `<legend>` sizing), `ReminderCron` (daily, scheduled on enable/unscheduled on disable). `ConfirmationDispatcher` now adds `List-Unsubscribe` + `List-Unsubscribe-Post` headers and substitutes `{{prefs_url}}`. `SettingsPage` real page with reminder-schedule controls; same controls mirrored on Onboarding view (Settings is the central hub; Onboarding is the canonical contextual home — both call the shared `SettingsPage::render_reminder_schedule_section()`).
+
+### 🚧 Next
+
+4c. **WC My Account + Gutenberg prefs block** (DEFERRED from 4). Both render the same `PrefsRenderer::render_inputs` inside different surfaces. Admin-toggleable WC integration (default-on when WC is detected).
+5. **Trash + refuse polish**: Subscribers view with `?status=trashed` sub-tab + Restore / Empty trash actions. Auto-purge cron honouring `lrob_etk_nl_trash_auto_purge_days` (default 0 = never). Refuse acknowledgment page can use the seeded refuse_ack template.
+
+### Later
+
 6. **Campaign CPT + composer**: CPT, Gutenberg config, native fields, sender identity picker, target picker, category picker, scheduling UI, test-send popover.
 7. **Send pipeline**: chunked materialization, recipients table, AJAX endpoint, Cron tick, per-domain throttle, status transitions, pause/resume/abort, sender-identity routing.
 8. **Logging integration**: header tagging, Logging-module filter for newsletter, "Log all sends" override.
@@ -583,6 +593,18 @@ UI patterns inherit from CLAUDE.md's UI conventions: card grids, auto-save edit 
 13. **Dashboard polish**: tiles, queue health, recent-campaign details.
 14. **CSS inliner**: written along the way; finalized before v0.3.0 ship.
 15. **Localization sweep**: `wp i18n make-pot`, French translations, ship.
+
+### Polish landed during iteration (not in original slicing)
+
+- Subscribe forms admin: card-grid matches Contact Form UX, "+ New from default" starter modal, always-visible footer delete link, per-form style preset (uses shared `StylePresets`).
+- Editor JS save plumbing refactored: `lrobEtkFormEditor.save = {url, action, nonce}` so both modules drive `form-fields-editor.js` against their own AJAX endpoints. Action name no longer hardcoded.
+- CSS class rename `lrob-etk-cf-*` → `lrob-etk-form-*` for form-builder DOM (already in 0.2.2 but extended to captcha-stub-* in step 3).
+- Module enable/disable toggle gated to the Dashboard view only — subpages don't render it.
+- Newsletter hub-wide JS enqueue moved from `FormsPage::enqueue_assets` to `HomePage::enqueue_assets` so per-card auto-save works on Categories / Lists / Settings views too.
+
+## Open questions during iteration
+
+None blocking. Resubscribe always re-issues double-opt-in. WP users skip double-opt-in on form submit (already email-verified at registration). Confirmation emails get full List-Unsubscribe + List-Unsubscribe-Post headers. Reminder cron defaults: max=2, first-after=3d, interval=7d (admin-configurable).
 
 ## Open questions
 

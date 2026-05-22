@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Admin\Assets as SharedAssets;
 use LRob\EmailToolkit\Admin\ModuleToggle;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 use LRob\EmailToolkit\Modules\Newsletter\Module as NewsletterModule;
@@ -43,12 +44,55 @@ final class HomePage
 
     public const VIEW_SETTINGS    = 'settings';
 
+    /**
+     * Auto-save listener handle. Loaded hub-wide (not per-view) since
+     * every CRUD page in the hub (Forms, Categories, Lists, future
+     * Subscribers, …) wires fields to it.
+     */
+    public const HANDLE_ADMIN_JS = 'lrob-etk-nl-admin';
+
     public function __construct(
         private ModuleInterface $module,
         private SubscriberRepository $subscribers,
         private TemplateRepository $templates,
         private FormsPage $forms_page,
+        private CategoriesPage $categories_page,
+        private ListsPage $lists_page,
+        private SettingsPage $settings_page,
     ) {
+    }
+
+    /**
+     * Hub-wide assets. Loaded on every view since each page wires
+     * auto-save through the same listener. View-specific assets
+     * (form-builder editor, frontend CSS preview, etc.) live in
+     * each page class's own enqueue_assets.
+     */
+    public function enqueue_assets(string $hook_suffix): void
+    {
+        if (!str_contains($hook_suffix, 'lrob-etk-nl')) {
+            return;
+        }
+        wp_enqueue_script(
+            self::HANDLE_ADMIN_JS,
+            LROB_ETK_URL . 'admin/js/newsletter-admin.js',
+            [SharedAssets::HANDLE_CONTROLS_JS],
+            SharedAssets::asset_version_for('admin/js/newsletter-admin.js'),
+            true
+        );
+        wp_localize_script(self::HANDLE_ADMIN_JS, 'lrobEtkNlAdmin', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),
+            'actions' => [
+                'saveMeta'      => AjaxController::ACTION_SAVE_META,
+                'saveStructure' => AjaxController::ACTION_SAVE_STRUCTURE,
+            ],
+            'i18n'    => [
+                'saving' => __('Saving…', 'lrob-email-toolkit'),
+                'saved'  => __('Saved', 'lrob-email-toolkit'),
+                'error'  => __('Save failed', 'lrob-email-toolkit'),
+            ],
+        ]);
     }
 
     public function render(): void
@@ -68,7 +112,15 @@ final class HomePage
                         <span class="lrob-etk-page-title-sub">— <?php echo esc_html($this->view_label($view)); ?></span>
                     <?php endif; ?>
                 </h1>
-                <?php ModuleToggle::render_inline($this->module); ?>
+                <?php
+                // The enable/disable toggle reads as a property of the
+                // whole module, not of the current view — surfacing it
+                // next to a subpage title makes it look like it gates
+                // just that subpage. Keep it on the Dashboard only.
+                if ($view === '') {
+                    ModuleToggle::render_inline($this->module);
+                }
+                ?>
             </header>
 
             <?php if (!$enabled) : ?>
@@ -116,13 +168,13 @@ final class HomePage
         match ($view) {
             self::VIEW_ONBOARDING => $this->render_onboarding(),
             self::VIEW_FORMS      => $this->forms_page->render(),
+            self::VIEW_CATEGORIES => $this->categories_page->render(),
+            self::VIEW_LISTS      => $this->lists_page->render(),
+            self::VIEW_SETTINGS   => $this->settings_page->render(),
             self::VIEW_CAMPAIGNS,
             self::VIEW_SUBSCRIBERS,
-            self::VIEW_LISTS,
-            self::VIEW_CATEGORIES,
-            self::VIEW_IMPORT,
-            self::VIEW_SETTINGS => $this->render_placeholder($view),
-            default             => $this->render_dashboard(),
+            self::VIEW_IMPORT     => $this->render_placeholder($view),
+            default               => $this->render_dashboard(),
         };
     }
 
@@ -220,6 +272,16 @@ final class HomePage
                     <?php endif; ?>
                 </article>
             <?php endforeach; ?>
+        </section>
+
+        <?php
+        // Reminder schedule lives below the templates because that's the
+        // schedule that drives the reminder template's dispatch. Same
+        // controls also live on the Settings hub — both surfaces auto-
+        // save to the same option keys.
+        ?>
+        <section class="lrob-etk-nl-settings lrob-etk-nl-settings--inline">
+            <?php SettingsPage::render_reminder_schedule_section(false); ?>
         </section>
         <?php
     }

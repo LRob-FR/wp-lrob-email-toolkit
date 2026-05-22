@@ -12,9 +12,14 @@ use LRob\EmailToolkit\Forms\Fields\TextField;
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\AjaxController;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\CategoriesPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\ListsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\SettingsPage;
+use LRob\EmailToolkit\Modules\Newsletter\Fields\CategoryPicker;
+use LRob\EmailToolkit\Modules\Newsletter\Fields\ListPicker;
 
 /**
  * Newsletter module — campaigns to WordPress users and email-only
@@ -70,10 +75,15 @@ final class Module extends AbstractModule
      *       persisted with broken URL tokens (esc_url_raw stripped the
      *       `{` and `}` from `{{confirm_url}}`). The pending-seed flag
      *       triggers re-seeding on init with the fixed content.
+     *   4 — subscribers table grows `reminder_count` + `last_reminder_at`
+     *       columns + a pending-followup index for the reminder cron's
+     *       scan query. Also adds a prefs_token index for the public
+     *       prefs URL handler's O(1) lookup. dbDelta handles the ALTER
+     *       TABLE additively.
      */
     public function db_version_int(): int
     {
-        return 3;
+        return 4;
     }
 
     public function install(): void
@@ -89,6 +99,11 @@ final class Module extends AbstractModule
         // flag is picked up by maybe_seed_templates() on init priority
         // 20, after TemplateCPT registers at init priority 6.
         update_option(self::OPTION_PENDING_TEMPLATE_SEED, '1', false);
+
+        // Daily reminder cron — schedule on first install + every
+        // migration (idempotent; wp_schedule_event short-circuits
+        // when the hook is already queued).
+        ReminderCron::schedule();
     }
 
     /**
@@ -164,9 +179,19 @@ final class Module extends AbstractModule
 
     public function uninstall(): void
     {
-        // Cron unschedules will land here as the reminder / retention /
-        // send-tick crons ship in later steps. Schema::drop() always runs.
+        ReminderCron::unschedule();
         Schema::drop();
+    }
+
+    /**
+     * Disable-side cron cleanup. AbstractModule::disable preserves data
+     * but doesn't drop cron events — override to clear them so a disabled
+     * module isn't still firing its reminder tick.
+     */
+    public function disable(): void
+    {
+        ReminderCron::unschedule();
+        parent::disable();
     }
 
     public function admin_page_url(): ?string
@@ -192,9 +217,13 @@ final class Module extends AbstractModule
         $subscribers = new SubscriberRepository();
         $templates = new TemplateRepository();
         $forms = new FormRepository();
+        $categories = new CategoryRepository();
+        $lists = new ListRepository();
         $this->container->set(SubscriberRepository::class, $subscribers);
         $this->container->set(TemplateRepository::class, $templates);
         $this->container->set(FormRepository::class, $forms);
+        $this->container->set(CategoryRepository::class, $categories);
+        $this->container->set(ListRepository::class, $lists);
 
         // CPTs register unconditionally so admin code can edit existing
         // posts even when the module is disabled (data preserved). Both
@@ -218,6 +247,10 @@ final class Module extends AbstractModule
                 FormCPT::POST_TYPE,
                 new SharedCaptchaField(CaptchaRouting::CONTEXT_NEWSLETTER, FormCPT::META_CAPTCHA_ROUTE)
             );
+            // Newsletter-specific picker fields. Categories + lists
+            // are newsletter concepts so these are module-local.
+            $registry->register(FormCPT::POST_TYPE, new CategoryPicker());
+            $registry->register(FormCPT::POST_TYPE, new ListPicker());
         }
 
         // Pending-seed handler runs after the CPT's init registration
@@ -238,18 +271,33 @@ final class Module extends AbstractModule
             // them on demand when a form actually renders.
             (new Frontend())->register();
             (new Blocks())->register();
-            (new SubmitHandler($subscribers))->register();
+            (new SubmitHandler($subscribers, $lists, $categories))->register();
             (new ConfirmationHandler($subscribers))->register();
+
+            // Preferences page + one-click unsubscribe + WP profile
+            // section. PrefsHandler hooks on init to catch the public
+            // URLs; ProfileSection hooks on show/edit_user_profile to
+            // surface the same UI inside the admin user-edit page.
+            (new PrefsHandler($subscribers, $lists, $categories))->register();
+            (new ProfileSection($categories, $lists))->register();
+
+            // Daily reminder cron for pending subscribers — the
+            // schedule itself lives on install / disable transitions.
+            (new ReminderCron($subscribers))->register();
         }
 
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
             (new TemplateValidator())->register();
             $forms_page = new FormsPage($forms, $templates);
-            $home = new HomePage($this, $subscribers, $templates, $forms_page);
+            $categories_page = new CategoriesPage($categories);
+            $lists_page = new ListsPage($lists);
+            $settings_page = new SettingsPage();
+            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page);
             (new PageController($this, $home))->register();
             (new AjaxController())->register();
             add_action('admin_init', [$this, 'handle_new_from_default']);
+            add_action('admin_enqueue_scripts', [$home, 'enqueue_assets']);
             add_action('admin_enqueue_scripts', [$forms_page, 'enqueue_assets']);
             add_action('admin_notices', [$this, 'render_smtp_dependency_notice']);
         }

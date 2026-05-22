@@ -48,6 +48,9 @@ final class FormsPage
     {
         // Hub page hook is "email-toolkit_page_lrob-etk-nl" (or similar).
         // Only enqueue when we're on the Newsletter hub AND the Forms view.
+        // The hub-wide newsletter-admin.js (auto-save listener) is enqueued
+        // separately by HomePage::enqueue_assets so it's available across
+        // every hub view, not just Forms.
         if (!str_contains($hook_suffix, 'lrob-etk-nl')) {
             return;
         }
@@ -66,35 +69,13 @@ final class FormsPage
             SharedAssets::asset_version_for('assets/css/contact-form.css')
         );
 
-        // Per-form-card auto-save script. Mirrors ContactForm's
-        // contact-form-admin.js — listens for blur/change on inputs
-        // carrying the auto-save marker class and posts to save_meta.
-        wp_enqueue_script(
-            'lrob-etk-nl-admin',
-            LROB_ETK_URL . 'admin/js/newsletter-admin.js',
-            [SharedAssets::HANDLE_CONTROLS_JS],
-            SharedAssets::asset_version_for('admin/js/newsletter-admin.js'),
-            true
-        );
-        wp_localize_script('lrob-etk-nl-admin', 'lrobEtkNlAdmin', [
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),
-            'actions' => [
-                'saveMeta'      => AjaxController::ACTION_SAVE_META,
-                'saveStructure' => AjaxController::ACTION_SAVE_STRUCTURE,
-            ],
-            'i18n'    => [
-                'saving' => __('Saving…', 'lrob-email-toolkit'),
-                'saved'  => __('Saved', 'lrob-email-toolkit'),
-                'error'  => __('Save failed', 'lrob-email-toolkit'),
-            ],
-        ]);
-
         // Shared form-builder WYSIWYG editor — mounted on every card.
+        // Depends on the hub-wide newsletter-admin.js for auto-save
+        // status indicator flashing.
         wp_enqueue_script(
             'lrob-etk-form-fields-editor',
             LROB_ETK_URL . 'admin/js/form-fields-editor.js',
-            ['lrob-etk-nl-admin'],
+            [HomePage::HANDLE_ADMIN_JS],
             SharedAssets::asset_version_for('admin/js/form-fields-editor.js'),
             true
         );
@@ -523,17 +504,19 @@ final class FormsPage
 
     /**
      * Field-type picker for newsletter subscribe forms. Subset of the
-     * full form-builder vocabulary — list-picker / category-picker
-     * join in step 4 when lists + categories CRUD ships.
+     * full form-builder vocabulary scoped to fields that make sense
+     * on a signup form.
      *
      * @return array<string, string>
      */
     private static function field_types(): array
     {
         return [
-            'email'  => __('Email', 'lrob-email-toolkit'),
-            'text'   => __('Text (name, etc.)', 'lrob-email-toolkit'),
-            'submit' => __('Submit button', 'lrob-email-toolkit'),
+            'email'            => __('Email', 'lrob-email-toolkit'),
+            'text'             => __('Text (name, etc.)', 'lrob-email-toolkit'),
+            'list_picker'      => __('List picker', 'lrob-email-toolkit'),
+            'category_picker'  => __('Category picker', 'lrob-email-toolkit'),
+            'submit'           => __('Submit button', 'lrob-email-toolkit'),
         ];
     }
 

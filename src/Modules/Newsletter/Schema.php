@@ -112,6 +112,9 @@ final class Schema
         // status enum: pending | confirmed | unsubscribed | refused | bounced | trashed
         // (varchar instead of MySQL ENUM — dbDelta + ENUM is flaky).
         // category_opt_outs is JSON-encoded array of category slugs.
+        // reminder_count + last_reminder_at drive the pending-followup
+        // cron: stops after the configurable max + spaces messages out
+        // by the configured interval.
         $sql_subscribers = "CREATE TABLE $subscribers (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             email varchar(190) NOT NULL,
@@ -122,6 +125,8 @@ final class Schema
             prefs_token varchar(64) NOT NULL,
             source varchar(50) NOT NULL DEFAULT '',
             bounce_count smallint unsigned NOT NULL DEFAULT 0,
+            reminder_count smallint unsigned NOT NULL DEFAULT 0,
+            last_reminder_at datetime DEFAULT NULL,
             confirmed_at datetime DEFAULT NULL,
             created_at datetime NOT NULL,
             trashed_at datetime DEFAULT NULL,
@@ -129,7 +134,9 @@ final class Schema
             PRIMARY KEY  (id),
             UNIQUE KEY email (email),
             KEY status (status),
-            KEY created_at (created_at)
+            KEY created_at (created_at),
+            KEY prefs_token (prefs_token),
+            KEY pending_followup (status, last_reminder_at)
         ) $charset_collate;";
 
         // rule_json: JSON filter expression (see newsletter.md "Rule grammar")
