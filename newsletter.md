@@ -2,7 +2,7 @@
 
 Working design doc for the Newsletter module (target: v0.3.0). Companion to CLAUDE.md, not a replacement. CLAUDE.md still has the cross-module rules (naming, lifecycle, UI patterns) — this file owns only the Newsletter-specific shape.
 
-Status: **v0.3.0 in active implementation** — steps 0–7 (minimum viable send) shipped: materialization, sequential send loop, AJAX-driven send + progress, test-send popover. Deferred to step 7b: Cron safety net, per-domain throttle, pause/resume/abort, CSS inliner. WC My Account integration still deferred. Next: step 7b polish or jump to step 8 (Logging integration). See "Implementation slicing" at the bottom for the precise where-we-are.
+Status: **v0.3.0 in active implementation** — steps 0–7 + step 7b core (cron safety net, pause/resume/abort, scheduled-send cron handoff) shipped, plus the **newsletter cards refactor**: every newsletter's settings + send actions now live on a single card in the Newsletters admin view (no more Gutenberg metaboxes; Gutenberg is content-only). Send button is state-aware (Send-now ⇄ Schedule), modal-based confirmations everywhere, recipients endpoint serves the frozen `newsletter_recipients` snapshot (per-row status) for sent/sending newsletters and falls back to a dry-run preview for drafts. From-name/Reply-to overrides removed from UI (identity is single source of truth); meta + send-loop header-emit path stays for back-compat. Deferred to step 7b polish: per-domain throttle, CSS inliner. Next: step 8 (Logging integration) or the deferred newsletter-list polish (preview / per-newsletter recipients view / sub-tabs / archive / templates). See "Implementation slicing" at the bottom + the CLAUDE.md backlog section for the precise where-we-are.
 
 ## Module identifiers
 
