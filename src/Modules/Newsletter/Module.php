@@ -22,6 +22,9 @@ use LRob\EmailToolkit\Modules\Newsletter\Admin\SettingsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SubscribersPage;
 use LRob\EmailToolkit\Modules\Newsletter\Fields\CategoryPicker;
 use LRob\EmailToolkit\Modules\Newsletter\Fields\ListPicker;
+use LRob\EmailToolkit\Modules\Newsletter\Send\Materializer;
+use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
+use LRob\EmailToolkit\Modules\Newsletter\Send\SendLoop;
 
 /**
  * Newsletter module — campaigns to WordPress users and email-only
@@ -305,6 +308,13 @@ final class Module extends AbstractModule
             // at tick time, so toggling the option in Settings takes
             // effect on the next cron run without a re-schedule.
             (new TrashCron($subscribers))->register();
+
+            // Send pipeline AJAX endpoints: send_tick (real send) +
+            // test_send (preview-to-self / ad-hoc / test list).
+            // Cron safety-net + per-domain throttle land in step 7b.
+            $materializer = new Materializer($campaigns, $categories);
+            $send_loop = new SendLoop($campaigns);
+            (new SendAjaxController($materializer, $send_loop, $campaigns, $lists))->register();
         }
 
         if (is_admin()) {

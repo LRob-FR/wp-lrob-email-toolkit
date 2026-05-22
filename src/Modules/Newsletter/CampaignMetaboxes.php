@@ -6,6 +6,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Container;
+use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository as SMTPIdentityRepository;
 
 /**
@@ -46,6 +47,14 @@ final class CampaignMetaboxes
     public function register_boxes(\WP_Post $post): void
     {
         add_meta_box(
+            'lrob-etk-nl-campaign-send',
+            __('Send', 'lrob-email-toolkit'),
+            [$this, 'render_send_box'],
+            CampaignCPT::POST_TYPE,
+            'side',
+            'high'
+        );
+        add_meta_box(
             'lrob-etk-nl-campaign-sender',
             __('Sender & preview', 'lrob-email-toolkit'),
             [$this, 'render_sender_box'],
@@ -77,6 +86,214 @@ final class CampaignMetaboxes
             'side',
             'default'
         );
+    }
+
+    public function render_send_box(\WP_Post $post): void
+    {
+        $companion = $this->campaigns->find_by_post_id($post->ID);
+        $status = (string) ($companion['status'] ?? CampaignRepository::STATUS_DRAFT);
+        $is_terminal = in_array($status, [
+            CampaignRepository::STATUS_SENT,
+            CampaignRepository::STATUS_FAILED,
+            CampaignRepository::STATUS_ABORTED,
+        ], true);
+        $is_sending = $status === CampaignRepository::STATUS_SENDING;
+        $total = (int) ($companion['total_recipients'] ?? 0);
+        $sent = (int) ($companion['sent_count'] ?? 0);
+        $failed = (int) ($companion['failed_count'] ?? 0);
+
+        $ajax_url = admin_url('admin-ajax.php');
+        $nonce = wp_create_nonce(SendAjaxController::NONCE_ACTION);
+
+        $test_list_id = (int) get_option(SendAjaxController::OPTION_TEST_LIST_ID, 0);
+        $test_list = $test_list_id > 0 ? $this->lists->find($test_list_id) : null;
+        $test_list_name = $test_list !== null ? (string) ($test_list['name'] ?? '') : '';
+
+        /* translators: %s: campaign title in confirmation prompt */
+        $confirm_send = __('Send "%s" to every targeted recipient? This cannot be undone once it starts.', 'lrob-email-toolkit');
+        ?>
+        <div class="lrob-etk-nl-send-box" data-campaign-id="<?php echo (int) $post->ID; ?>">
+            <p>
+                <strong><?php esc_html_e('Status', 'lrob-email-toolkit'); ?>:</strong>
+                <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($status); ?>" data-send-status>
+                    <?php echo esc_html(self::translate_status($status)); ?>
+                </span>
+            </p>
+
+            <div class="lrob-etk-nl-send-progress" data-send-progress <?php echo ($is_sending || $is_terminal || $total > 0) ? '' : 'hidden'; ?>>
+                <div class="lrob-etk-nl-send-progress-bar">
+                    <div class="lrob-etk-nl-send-progress-fill" data-progress-fill style="width: <?php echo $total > 0 ? esc_attr((string) min(100, (int) round(($sent + $failed) * 100 / max(1, $total)))) : '0'; ?>%"></div>
+                </div>
+                <p class="lrob-etk-nl-send-progress-text">
+                    <span data-progress-sent><?php echo (int) $sent; ?></span> /
+                    <span data-progress-total><?php echo (int) $total; ?></span>
+                    <?php esc_html_e('sent', 'lrob-email-toolkit'); ?>,
+                    <span data-progress-failed><?php echo (int) $failed; ?></span> <?php esc_html_e('failed', 'lrob-email-toolkit'); ?>
+                </p>
+            </div>
+
+            <p class="lrob-etk-nl-send-actions">
+                <button type="button"
+                        class="button button-primary"
+                        data-send-now
+                        data-confirm="<?php echo esc_attr(sprintf($confirm_send, $post->post_title !== '' ? $post->post_title : __('(untitled)', 'lrob-email-toolkit'))); ?>"
+                        <?php echo $is_terminal ? 'disabled' : ''; ?>>
+                    <?php echo $is_sending ? esc_html__('Resume send', 'lrob-email-toolkit') : esc_html__('Send now', 'lrob-email-toolkit'); ?>
+                </button>
+            </p>
+
+            <details class="lrob-etk-nl-send-test">
+                <summary><?php esc_html_e('Send test email', 'lrob-email-toolkit'); ?></summary>
+                <div class="lrob-etk-nl-send-test-body">
+                    <p>
+                        <label>
+                            <input type="radio" name="lrob_etk_nl_test_target" value="self" checked>
+                            <?php
+                            $self = wp_get_current_user();
+                            printf(
+                                /* translators: %s: current admin email */
+                                esc_html__('Send to me (%s)', 'lrob-email-toolkit'),
+                                esc_html((string) ($self->user_email ?? ''))
+                            );
+                            ?>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="radio" name="lrob_etk_nl_test_target" value="adhoc">
+                            <?php esc_html_e('Send to a specific address', 'lrob-email-toolkit'); ?>
+                        </label>
+                        <input type="email"
+                               name="lrob_etk_nl_test_email"
+                               class="widefat"
+                               placeholder="<?php esc_attr_e('email@example.com', 'lrob-email-toolkit'); ?>"
+                               style="margin-top: 0.25rem;">
+                    </p>
+                    <?php if ($test_list !== null) : ?>
+                        <p>
+                            <label>
+                                <input type="radio" name="lrob_etk_nl_test_target" value="list">
+                                <?php
+                                printf(
+                                    /* translators: %s: configured test list name */
+                                    esc_html__('Send to test list (%s)', 'lrob-email-toolkit'),
+                                    esc_html($test_list_name)
+                                );
+                                ?>
+                            </label>
+                        </p>
+                    <?php endif; ?>
+                    <p class="lrob-etk-nl-send-test-actions">
+                        <button type="button" class="button" data-test-send><?php esc_html_e('Send test', 'lrob-email-toolkit'); ?></button>
+                        <span class="lrob-etk-nl-send-test-result" data-test-result aria-live="polite"></span>
+                    </p>
+                    <p class="description">
+                        <?php esc_html_e('Test sends use the campaign\'s content + sender settings. They don\'t affect counters or recipients.', 'lrob-email-toolkit'); ?>
+                    </p>
+                </div>
+            </details>
+        </div>
+        <?php
+        // Pre-extract for wp i18n make-pot (doesn't reliably descend
+        // through wp_json_encode(__(...))).
+        $i18n_tick_failed = __('Send tick failed. Stopped.', 'lrob-email-toolkit');
+        /* translators: %1$d: sent count, %2$d: failed count */
+        $i18n_test_done = __('Test done: %1$d sent, %2$d failed.', 'lrob-email-toolkit');
+        $i18n_test_failed = __('Test send failed.', 'lrob-email-toolkit');
+        ?>
+        <script>
+        (function () {
+            var root = document.querySelector('.lrob-etk-nl-send-box');
+            if (!root) return;
+            var campaignId = parseInt(root.getAttribute('data-campaign-id'), 10) || 0;
+            var ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
+            var nonce = <?php echo wp_json_encode($nonce); ?>;
+            var actions = {
+                tick: <?php echo wp_json_encode(SendAjaxController::ACTION_TICK); ?>,
+                test: <?php echo wp_json_encode(SendAjaxController::ACTION_TEST_SEND); ?>
+            };
+            var i18n = {
+                tickFailed: <?php echo wp_json_encode($i18n_tick_failed); ?>,
+                testDone:   <?php echo wp_json_encode($i18n_test_done); ?>,
+                testFailed: <?php echo wp_json_encode($i18n_test_failed); ?>
+            };
+
+            function post(action, fields) {
+                var fd = new FormData();
+                fd.append('action', action);
+                fd.append('_nonce', nonce);
+                Object.keys(fields).forEach(function (k) { fd.append(k, fields[k]); });
+                return fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                    .then(function (r) { return r.json().catch(function () { return { success: false }; }); });
+            }
+
+            function fmt(s, args) {
+                return s
+                    .replace('%1$d', args[0])
+                    .replace('%2$d', args[1])
+                    .replace('%d', args[0]);
+            }
+
+            function applyProgress(p) {
+                if (!p) return;
+                root.querySelector('[data-progress-sent]').textContent = p.sent || 0;
+                root.querySelector('[data-progress-total]').textContent = p.total || 0;
+                root.querySelector('[data-progress-failed]').textContent = p.failed || 0;
+                var pct = p.total > 0 ? Math.min(100, Math.round(((p.sent + p.failed) * 100) / p.total)) : 0;
+                root.querySelector('[data-progress-fill]').style.width = pct + '%';
+                var box = root.querySelector('[data-send-progress]');
+                if (box) box.removeAttribute('hidden');
+                var st = root.querySelector('[data-send-status]');
+                if (st && p.status) {
+                    st.className = 'lrob-etk-nl-status lrob-etk-nl-status-' + p.status;
+                    st.textContent = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+                }
+            }
+
+            function loopTick() {
+                post(actions.tick, { campaign_id: campaignId }).then(function (resp) {
+                    if (!resp || !resp.success) {
+                        window.alert((resp && resp.data && resp.data.message) || i18n.tickFailed);
+                        return;
+                    }
+                    applyProgress(resp.data);
+                    if ((resp.data.remaining || 0) > 0 && resp.data.status === 'sending') {
+                        setTimeout(loopTick, 250);
+                    }
+                });
+            }
+
+            var sendBtn = root.querySelector('[data-send-now]');
+            if (sendBtn) {
+                sendBtn.addEventListener('click', function () {
+                    var msg = sendBtn.getAttribute('data-confirm') || '';
+                    if (msg && !window.confirm(msg)) return;
+                    sendBtn.disabled = true;
+                    loopTick();
+                });
+            }
+
+            var testBtn = root.querySelector('[data-test-send]');
+            if (testBtn) {
+                testBtn.addEventListener('click', function () {
+                    var target = (root.querySelector('input[name="lrob_etk_nl_test_target"]:checked') || {}).value || 'self';
+                    var email = (root.querySelector('input[name="lrob_etk_nl_test_email"]') || {}).value || '';
+                    var resultEl = root.querySelector('[data-test-result]');
+                    testBtn.disabled = true;
+                    if (resultEl) resultEl.textContent = '';
+                    post(actions.test, { campaign_id: campaignId, target: target, email: email }).then(function (resp) {
+                        testBtn.disabled = false;
+                        if (resp && resp.success) {
+                            if (resultEl) resultEl.textContent = fmt(i18n.testDone, [resp.data.sent, resp.data.failed]);
+                        } else {
+                            if (resultEl) resultEl.textContent = (resp && resp.data && resp.data.message) || i18n.testFailed;
+                        }
+                    });
+                });
+            }
+        })();
+        </script>
+        <?php
     }
 
     public function render_sender_box(\WP_Post $post): void
