@@ -6,7 +6,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 
 /**
  * CRUD for newsletter email categories. Categories are required on
- * every future campaign (per newsletter.md) — the per-recipient
+ * every future newsletter (per newsletter.md) — the per-recipient
  * preference granularity. Subscribers store category opt-outs as
  * a JSON array of category SLUGS so renames don't break references.
  *

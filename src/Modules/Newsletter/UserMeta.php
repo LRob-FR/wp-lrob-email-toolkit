@@ -12,7 +12,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  * state with them, no cleanup needed on this side).
  *
  * The `kind` constants (`user`, `subscriber`) are shared between user_meta
- * code and the lists/campaign_recipients junction tables — same string in
+ * code and the lists/newsletter_recipients junction tables — same string in
  * both places.
  *
  * Status enum on the user_meta side is simpler than the subscriber-row
@@ -40,7 +40,7 @@ final class UserMeta
 
     public const STATUS_BOUNCED = 'bounced';
 
-    /** Recipient-kind tags used in list_members / campaign_recipients / tracking_events. */
+    /** Recipient-kind tags used in list_members / newsletter_recipients / tracking_events. */
     public const KIND_USER       = 'user';
 
     public const KIND_SUBSCRIBER = 'subscriber';

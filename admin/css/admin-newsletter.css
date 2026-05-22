@@ -664,14 +664,11 @@
 }
 
 /* -------------------------------------------------------------------------
- * Campaign editor — Send metabox: progress bar, test-send panel.
- * Step 7 (minimum viable send) added the surface; the bar reflects
- * sent+failed against total_recipients on the companion row.
+ * Newsletter card — Send progress + test result.
+ * The progress bar reflects sent+failed against total_recipients on the
+ * companion row; the test-result line is the live status under the
+ * test-send modal trigger.
  * ----------------------------------------------------------------------- */
-
-.lrob-etk-nl-send-box {
-    font-size: 0.92rem;
-}
 
 .lrob-etk-nl-send-progress-bar {
     width: 100%;
@@ -694,64 +691,9 @@
     color: var(--lrob-etk-color-muted, #50575e);
 }
 
-.lrob-etk-nl-send-actions {
-    margin: 0.75rem 0 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-/* Override WP's .button display so [hidden] actually hides — same
- * problem the .lrob-etk wrapper solves elsewhere, but the Send
- * metabox lives inside Gutenberg's .postbox without that wrapper. */
-.lrob-etk-nl-send-actions .button[hidden] {
-    display: none !important;
-}
-
-.lrob-etk-nl-send-actions .lrob-etk-nl-send-abort {
-    color: var(--lrob-etk-color-danger, #b32d2e) !important;
-    border-color: var(--lrob-etk-color-danger, #b32d2e) !important;
-    margin-left: auto;
-}
-
-.lrob-etk-nl-send-test {
-    margin-top: 1rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    padding-top: 0.75rem;
-}
-
-.lrob-etk-nl-send-test summary {
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.lrob-etk-nl-send-test-body {
-    margin-top: 0.5rem;
-}
-
-.lrob-etk-nl-send-test-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0.5rem 0 0;
-}
-
 .lrob-etk-nl-send-test-result {
     font-size: 0.85rem;
     color: var(--lrob-etk-color-muted, #50575e);
-}
-
-/* Constrain the campaign editor's sidebar selects so a long identity
- * label doesn't push the metabox out and cause a horizontal scroll
- * on the whole Gutenberg page. `widefat` sets width:100% but doesn't
- * cap the intrinsic minimum-content width some browsers compute for
- * <select>s; box-sizing + max-width clamp the rendered box. */
-.lrob-etk-nl-campaign-meta select,
-.lrob-etk-nl-campaign-meta input[type="text"],
-.lrob-etk-nl-campaign-meta input[type="email"],
-.lrob-etk-nl-campaign-meta input[type="datetime-local"] {
-    max-width: 100%;
-    box-sizing: border-box;
 }
 
 /* Full-width setting row (e.g. the newsletter-footer HTML textarea).

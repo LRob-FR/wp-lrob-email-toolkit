@@ -10,7 +10,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  * newsletter.md. Step 4a ships manual lists only — rule_json stays
  * empty for everything created through the admin UI. Rule editor +
  * rule evaluator land with the send pipeline when targeting actually
- * matters (campaigns ship later).
+ * matters (newsletters ship later).
  *
  * Memberships live in wp_lrob_etk_nl_list_members keyed by
  * (list_id, recipient_kind, recipient_id). UserHooks::on_deleted_user

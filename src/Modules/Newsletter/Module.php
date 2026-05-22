@@ -28,18 +28,15 @@ use LRob\EmailToolkit\Modules\Newsletter\Send\SendCron;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendLoop;
 
 /**
- * Newsletter module — campaigns to WordPress users and email-only
+ * Newsletter module — newsletters to WordPress users and email-only
  * subscribers, with rule-based + manual lists, category-scoped opt-outs,
  * Gutenberg-composed emails, AJAX+Cron send pipeline, and tracking.
  *
  * Full design spec at repo-root `newsletter.md`. v0.3.0 ships across
- * multiple iterations; today's slice (step 1) lands: schema, recipient
- * model (subscribers table + WP-user user_meta), admin homepage hub
- * shell with `&view=` dispatch, user-register/deleted-user hooks, and
- * the SMTP-dependency admin notice.
- *
- * Forms, campaigns, templates, send pipeline, and tracking endpoints land
- * in later steps — the menu reflects them as "Coming soon" placeholders.
+ * multiple iterations; steps 0–7 + step 7b core + the cards refactor +
+ * the Campaign → Newsletter vocabulary rename (schema v6) are live.
+ * Tracking (step 9), bounce handling, import/export, and the dashboard
+ * polish are the remaining slices.
  */
 final class Module extends AbstractModule
 {
@@ -63,7 +60,7 @@ final class Module extends AbstractModule
     public function description(): string
     {
         return __(
-            'Send campaigns to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline.',
+            'Send newsletters to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline.',
             'lrob-email-toolkit'
         );
     }
@@ -535,7 +532,7 @@ final class Module extends AbstractModule
 
     /**
      * Persistent admin notice when Newsletter is enabled but SMTP isn't.
-     * Subscribe-form ingest and admin UI work without SMTP — only campaign
+     * Subscribe-form ingest and admin UI work without SMTP — only newsletter
      * sending is gated. Re-renders on every page load until SMTP is on.
      */
     public function render_smtp_dependency_notice(): void
@@ -560,7 +557,7 @@ final class Module extends AbstractModule
         printf(
             '<div class="notice notice-warning"><p><strong>%1$s</strong></p><p>%2$s</p><p><a href="%3$s" class="button">%4$s</a></p></div>',
             esc_html__('Newsletter: SMTP module not enabled', 'lrob-email-toolkit'),
-            esc_html__('Subscribe forms and the Newsletter admin work, but campaign sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity.', 'lrob-email-toolkit'),
+            esc_html__('Subscribe forms and the Newsletter admin work, but newsletter sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity.', 'lrob-email-toolkit'),
             esc_url($smtp_url),
             esc_html__('Open SMTP settings', 'lrob-email-toolkit')
         );
@@ -568,7 +565,7 @@ final class Module extends AbstractModule
 
     /**
      * Seed a `general` category so single-category sites don't have to
-     * think about categories at all — every campaign sent before the admin
+     * think about categories at all — every newsletter sent before the admin
      * touches the Categories screen lands on this default. Idempotent: if
      * any category already exists (legacy import, restore) we leave the
      * table alone.

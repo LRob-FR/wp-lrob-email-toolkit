@@ -39,7 +39,7 @@ final class CategoriesPage
             <header class="lrob-etk-nl-resource-head">
                 <h2 class="lrob-etk-section-title"><?php esc_html_e('Email categories', 'lrob-email-toolkit'); ?></h2>
                 <p class="lrob-etk-nl-resource-intro">
-                    <?php esc_html_e('Every campaign is tagged with a category. Subscribers can opt out of categories individually — useful for separating product updates from promotions, for example.', 'lrob-email-toolkit'); ?>
+                    <?php esc_html_e('Every newsletter is tagged with a category. Subscribers can opt out of categories individually — useful for separating product updates from promotions, for example.', 'lrob-email-toolkit'); ?>
                 </p>
             </header>
 

@@ -124,7 +124,7 @@ final class SendCron
                 continue;
             }
             // Materialize flips status sending and resolves recipients.
-            // Then run one batch right away — gets the campaign moving
+            // Then run one batch right away — gets the newsletter moving
             // without waiting for the next tick.
             $this->materializer->materialize($post_id);
             $this->loop->tick($post_id);

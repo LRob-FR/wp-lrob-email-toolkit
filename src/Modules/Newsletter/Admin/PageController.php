@@ -11,7 +11,7 @@ use LRob\EmailToolkit\Modules\ModuleInterface;
 /**
  * Registers the Newsletter submenu under the Email Toolkit parent. The
  * single submenu entry resolves to `?page=lrob-etk-nl`; sub-areas
- * (Subscribers, Lists, Campaigns, Categories, Templates, Forms, Import,
+ * (Subscribers, Lists, Newsletters, Categories, Onboarding, Forms, Import,
  * Settings) are reached via `&view=…` on the same slug — the
  * hidden-page-pattern documented in CLAUDE.md.
  */

@@ -12,22 +12,22 @@ use LRob\EmailToolkit\Support\Events;
 
 /**
  * One tick of the send loop: claim up to N pending recipients for a
- * campaign, render + wp_mail each, update statuses + counters, and
- * mark the campaign tick timestamp. Bounded per call so the admin's
+ * newsletter, render + wp_mail each, update statuses + counters, and
+ * mark the newsletter tick timestamp. Bounded per call so the admin's
  * AJAX loop stays responsive — caller decides whether to call again
  * based on the returned `remaining`.
  *
  * Minimum-viable shape today:
- *   - No per-domain throttle (step 7b).
- *   - No Cron safety-net (step 7b).
+ *   - No per-domain throttle (step 7b polish).
+ *   - Cron safety-net shipped in step 7b core (SendCron).
  *   - Sequential wp_mail (no async queueing).
  *   - Claim semantics: SELECT pending rows, then UPDATE each row to
  *     'sending'. Race-safe for the single-admin AJAX driver; concurrent
- *     ticks for the same campaign would double-send (revisit when
- *     Cron lands and races become real).
+ *     ticks for the same newsletter could double-send under heavy Cron
+ *     contention (mitigated by the 2-minute stale-tick threshold).
  *
  * Completion detection: when zero pending rows remain after a tick,
- * campaign status → 'sent', completed_at stamped, event dispatched.
+ * companion status → 'sent', completed_at stamped, event dispatched.
  */
 final class SendLoop
 {
@@ -40,7 +40,7 @@ final class SendLoop
     }
 
     /**
-     * Process one batch for the campaign. Returns a progress dict:
+     * Process one batch for the newsletter. Returns a progress dict:
      *   ['sent' => int, 'failed' => int, 'remaining' => int, 'total' => int, 'status' => string]
      *
      * @return array<string, mixed>
@@ -66,7 +66,7 @@ final class SendLoop
             return $this->progress($newsletter_id, 0, 0, NewsletterRepository::STATUS_SENT);
         }
 
-        // Build per-campaign sending context once. Subject + headers
+        // Build per-newsletter sending context once. Subject + headers
         // are constant across the batch; only body + recipient vary.
         $subject = $post->post_title !== '' ? $post->post_title : __('(no subject)', 'lrob-email-toolkit');
         $from_name_override = (string) get_post_meta($newsletter_id, NewsletterCPT::META_FROM_NAME_OVERRIDE, true);
@@ -184,7 +184,7 @@ final class SendLoop
     }
 
     /**
-     * Atomic counter bump on the campaigns companion row. UPDATE
+     * Atomic counter bump on the newsletters companion row. UPDATE
      * with `col = col + N` so concurrent ticks don't lose increments.
      */
     private function bump_counters(int $newsletter_id, int $sent, int $failed): void

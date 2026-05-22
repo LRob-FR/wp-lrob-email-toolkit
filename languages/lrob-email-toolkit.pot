@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-22T22:45:56+00:00\n"
+"POT-Creation-Date: 2026-05-22T23:27:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -64,8 +64,8 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:678
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:707
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:736
-#: src/Modules/Newsletter/Module.php:498
-#: src/Modules/Newsletter/Send/SendAjaxController.php:420
+#: src/Modules/Newsletter/Module.php:495
+#: src/Modules/Newsletter/Send/SendAjaxController.php:426
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
@@ -233,7 +233,7 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:459
 #: src/Modules/Newsletter/FormCPT.php:80
-#: src/Modules/Newsletter/NewsletterCPT.php:103
+#: src/Modules/Newsletter/NewsletterCPT.php:102
 #: src/Modules/Newsletter/TemplateCPT.php:260
 msgid "Add new"
 msgstr ""
@@ -515,7 +515,7 @@ msgstr ""
 #: src/Admin/DashboardPage.php:803
 #: src/Modules/Logging/Admin/LogsPage.php:297
 #: src/Modules/Logging/Admin/LogViewPage.php:40
-#: src/Modules/Newsletter/Send/SendAjaxController.php:175
+#: src/Modules/Newsletter/Send/SendAjaxController.php:181
 #: src/Modules/Newsletter/Send/SendLoop.php:71
 msgid "(no subject)"
 msgstr ""
@@ -674,7 +674,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:682
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:712
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:741
-#: src/Modules/Newsletter/Module.php:502
+#: src/Modules/Newsletter/Module.php:499
 msgid "Security check failed. Please retry."
 msgstr ""
 
@@ -1489,7 +1489,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:188
 #: src/Modules/ContactForm/Admin/AjaxController.php:253
 #: src/Modules/Newsletter/Admin/AjaxController.php:619
-#: src/Modules/Newsletter/Send/SendAjaxController.php:424
+#: src/Modules/Newsletter/Send/SendAjaxController.php:430
 msgid "Security check failed. Please reload the page."
 msgstr ""
 
@@ -1527,7 +1527,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
 #: src/Modules/Newsletter/Admin/AjaxController.php:388
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:749
-#: src/Modules/Newsletter/Module.php:513
+#: src/Modules/Newsletter/Module.php:510
 msgid "%s (copy)"
 msgstr ""
 
@@ -3063,9 +3063,9 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/AjaxController.php:465
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:716
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:745
-#: src/Modules/Newsletter/Send/SendAjaxController.php:144
-#: src/Modules/Newsletter/Send/SendAjaxController.php:166
-#: src/Modules/Newsletter/Send/SendAjaxController.php:301
+#: src/Modules/Newsletter/Send/SendAjaxController.php:150
+#: src/Modules/Newsletter/Send/SendAjaxController.php:172
+#: src/Modules/Newsletter/Send/SendAjaxController.php:307
 msgid "Newsletter not found."
 msgstr ""
 
@@ -3092,7 +3092,7 @@ msgid "Email categories"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:42
-msgid "Every campaign is tagged with a category. Subscribers can opt out of categories individually — useful for separating product updates from promotions, for example."
+msgid "Every newsletter is tagged with a category. Subscribers can opt out of categories individually — useful for separating product updates from promotions, for example."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:49
@@ -3291,21 +3291,21 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/HomePage.php:167
 #: src/Modules/Newsletter/Admin/PageController.php:37
 #: src/Modules/Newsletter/Admin/PageController.php:38
-#: src/Modules/Newsletter/Module.php:60
-#: src/Modules/Newsletter/NewsletterCPT.php:102
+#: src/Modules/Newsletter/Module.php:57
+#: src/Modules/Newsletter/NewsletterCPT.php:101
 msgid "Newsletter"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:185
-msgid "Enable the Newsletter module to start managing campaigns and subscribers."
+msgid "Enable the Newsletter module to start managing newsletters and subscribers."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:201
 #: src/Modules/Newsletter/Admin/HomePage.php:387
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:73
-#: src/Modules/Newsletter/NewsletterCPT.php:101
+#: src/Modules/Newsletter/NewsletterCPT.php:100
+#: src/Modules/Newsletter/NewsletterCPT.php:110
 #: src/Modules/Newsletter/NewsletterCPT.php:111
-#: src/Modules/Newsletter/NewsletterCPT.php:112
 msgid "Newsletters"
 msgstr ""
 
@@ -3389,7 +3389,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:352
-msgid "Build campaigns to your WordPress users and subscribers. Pick a section above to start."
+msgid "Send newsletters to your WordPress users and subscribers. Pick a section above to start."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:357
@@ -3401,7 +3401,7 @@ msgid "WP users (potential recipients)"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:365
-msgid "This module is in active development — the dashboard, campaigns, send pipeline, and forms land across the next few releases."
+msgid "This module is in active development — dashboard polish, tracking, bounce handling, and import/export land across the next few releases."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:378
@@ -3435,7 +3435,7 @@ msgid "Delete the \"%s\" list? Subscribers stay on the system but lose their mem
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:76
-#: src/Modules/Newsletter/NewsletterCPT.php:106
+#: src/Modules/Newsletter/NewsletterCPT.php:105
 msgid "New newsletter"
 msgstr ""
 
@@ -4026,62 +4026,62 @@ msgstr ""
 msgid "Collect the subscriber's name too for friendlier emails."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:65
-msgid "Send campaigns to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline."
+#: src/Modules/Newsletter/Module.php:62
+msgid "Send newsletters to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline."
 msgstr ""
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
-#: src/Modules/Newsletter/Module.php:341
+#: src/Modules/Newsletter/Module.php:338
 msgid "%s subscriber"
 msgid_plural "%s subscribers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Module.php:506
+#: src/Modules/Newsletter/Module.php:503
 msgid "Unknown onboarding email purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:529
+#: src/Modules/Newsletter/Module.php:526
 msgid "Could not create the template draft."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:562
+#: src/Modules/Newsletter/Module.php:559
 msgid "Newsletter: SMTP module not enabled"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:563
-msgid "Subscribe forms and the Newsletter admin work, but campaign sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity."
+#: src/Modules/Newsletter/Module.php:560
+msgid "Subscribe forms and the Newsletter admin work, but newsletter sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:565
+#: src/Modules/Newsletter/Module.php:562
 msgid "Open SMTP settings"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:586
+#: src/Modules/Newsletter/Module.php:583
 msgid "General"
 msgstr ""
 
-#: src/Modules/Newsletter/NewsletterCPT.php:104
+#: src/Modules/Newsletter/NewsletterCPT.php:103
 msgid "Add new newsletter"
 msgstr ""
 
-#: src/Modules/Newsletter/NewsletterCPT.php:105
+#: src/Modules/Newsletter/NewsletterCPT.php:104
 msgid "Edit newsletter"
 msgstr ""
 
-#: src/Modules/Newsletter/NewsletterCPT.php:107
+#: src/Modules/Newsletter/NewsletterCPT.php:106
 msgid "View newsletter"
 msgstr ""
 
-#: src/Modules/Newsletter/NewsletterCPT.php:108
+#: src/Modules/Newsletter/NewsletterCPT.php:107
 msgid "Search newsletters"
 msgstr ""
 
-#: src/Modules/Newsletter/NewsletterCPT.php:109
+#: src/Modules/Newsletter/NewsletterCPT.php:108
 msgid "No newsletters yet."
 msgstr ""
 
-#: src/Modules/Newsletter/NewsletterCPT.php:110
+#: src/Modules/Newsletter/NewsletterCPT.php:109
 msgid "No newsletters in trash."
 msgstr ""
 
@@ -4235,29 +4235,29 @@ msgstr ""
 msgid "Unsubscribe"
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:92
+#: src/Modules/Newsletter/Send/SendAjaxController.php:98
 msgid "Could not render this newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:140
-#: src/Modules/Newsletter/Send/SendAjaxController.php:162
-#: src/Modules/Newsletter/Send/SendAjaxController.php:297
+#: src/Modules/Newsletter/Send/SendAjaxController.php:146
+#: src/Modules/Newsletter/Send/SendAjaxController.php:168
+#: src/Modules/Newsletter/Send/SendAjaxController.php:303
 msgid "Missing newsletter id."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:171
+#: src/Modules/Newsletter/Send/SendAjaxController.php:177
 msgid "No valid test recipient."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:219
+#: src/Modules/Newsletter/Send/SendAjaxController.php:225
 msgid "Only a sending newsletter can be paused."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:235
+#: src/Modules/Newsletter/Send/SendAjaxController.php:241
 msgid "Only a paused newsletter can be resumed."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:256
+#: src/Modules/Newsletter/Send/SendAjaxController.php:262
 msgid "Only a sending or paused newsletter can be aborted."
 msgstr ""
 

@@ -13,7 +13,7 @@ use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
  * rename + delete).
  *
  * Rule-based lists land later when the targeting UI matters
- * (campaigns + their target picker). For now everything created
+ * (newsletters + their target picker). For now everything created
  * through this page is a manual list (rule_json stays empty).
  */
 final class ListsPage

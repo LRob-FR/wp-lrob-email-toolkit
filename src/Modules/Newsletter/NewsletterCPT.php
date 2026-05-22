@@ -18,7 +18,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
  *
  *   - lrob_etk_newsletter: 19 chars, fits WP's 20-char CPT slug limit.
  *   - non-public, show_in_menu=false (managed through the Newsletter
- *     hub's Campaigns view, not the WP sidebar).
+ *     hub's Newsletters view + per-newsletter cards, not the WP sidebar).
  *   - show_in_rest=true so Gutenberg can edit it.
  *   - capability_type='post' mapped to the toolkit's manage_lrob_etk
  *     primitive via plural caps only — avoids the singular-meta-cap
@@ -26,11 +26,10 @@ use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
  *     (map_meta_cap stays true; we only declare plural caps in the
  *     capabilities array).
  *
- * Sending lives in step 7 — this slice ships the composer + admin
- * management surface only. Until the send pipeline lands, campaigns
- * stay in `draft` or `scheduled` status forever; the Send button in
- * the meta box is wired to a stub that surfaces "send pipeline not
- * implemented yet".
+ * Step 7 ships the send pipeline; the newsletter cards refactor moved
+ * settings + send actions out of metaboxes into NewslettersPage cards,
+ * so this CPT registration is now plumbing only — Gutenberg edits the
+ * post content, everything else lives on the card.
  */
 final class NewsletterCPT
 {
@@ -67,7 +66,7 @@ final class NewsletterCPT
 
     /**
      * Same email-safe block subset as TemplateCPT. The CSS inliner (step
-     * 7 onwards) relies on this restricted vocabulary; campaigns and
+     * 7b polish) relies on this restricted vocabulary; newsletters and
      * templates share the inliner so they must agree on what blocks can
      * appear.
      */
@@ -271,7 +270,7 @@ final class NewsletterCPT
 
     /**
      * Constrain the block inserter to the email-safe subset when
-     * editing a campaign. Same approach as TemplateCPT.
+     * editing a newsletter. Same approach as TemplateCPT.
      *
      * @param array<int, string>|bool $allowed
      */
@@ -287,7 +286,7 @@ final class NewsletterCPT
     /**
      * Gutenberg's back-to-list / save-and-exit lands on
      * edit.php?post_type=<cpt>. Our CPT has show_in_menu=false so
-     * that bare list has no sidebar context. Bounce to the Campaigns
+     * that bare list has no sidebar context. Bounce to the Newsletters
      * view of the Newsletter hub instead.
      */
     public function redirect_post_list(): void

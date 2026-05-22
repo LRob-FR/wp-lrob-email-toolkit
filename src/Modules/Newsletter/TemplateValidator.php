@@ -12,7 +12,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  * surface them as an admin notice on the next page load — the author
  * sees the warning, can edit again to fix, and never loses content.
  *
- * The send-pipeline step will additionally hard-fail any campaign whose
+ * The send-pipeline step will additionally hard-fail any newsletter whose
  * confirmation/reminder template is incomplete. That's the safety net;
  * this class is the friendly preflight.
  */

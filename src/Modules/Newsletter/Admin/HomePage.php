@@ -22,8 +22,8 @@ use LRob\EmailToolkit\Modules\Newsletter\TemplateValidator;
  *
  * v0.3.0 step 1: scaffolding only. Each view renders a placeholder card so
  * the navigation is real and the URLs are stable, but the actual screens
- * land in later steps (campaigns / subscribers / lists / categories /
- * templates / forms / import / settings). The dashboard (no `&view=`)
+ * land in later steps (newsletters / subscribers / lists / categories /
+ * onboarding / forms / import / settings). The dashboard (no `&view=`)
  * shows a brief "what is this module" intro plus what little data we
  * already have (subscriber count, once anything lands there).
  */
@@ -182,7 +182,7 @@ final class HomePage
 
             <?php if (!$enabled) : ?>
                 <p class="lrob-etk-disabled-message">
-                    <?php esc_html_e('Enable the Newsletter module to start managing campaigns and subscribers.', 'lrob-email-toolkit'); ?>
+                    <?php esc_html_e('Enable the Newsletter module to start managing newsletters and subscribers.', 'lrob-email-toolkit'); ?>
                 </p>
             <?php else : ?>
                 <?php $this->render_nav($view); ?>
@@ -239,7 +239,7 @@ final class HomePage
      * Onboarding view: one section per system-email purpose
      * (confirmation, reminder, refuse_ack). These are the emails the
      * newsletter sends automatically as subscribers move through the
-     * signup flow — distinct from campaign content the admin composes.
+     * signup flow — distinct from newsletter content the admin composes.
      * Each row links to the Gutenberg post editor; defaults carry a
      * "Default" badge; validator issues surface inline.
      */
@@ -349,7 +349,7 @@ final class HomePage
         ?>
         <section class="lrob-etk-nl-dashboard">
             <p class="lrob-etk-nl-intro">
-                <?php esc_html_e('Build campaigns to your WordPress users and subscribers. Pick a section above to start.', 'lrob-email-toolkit'); ?>
+                <?php esc_html_e('Send newsletters to your WordPress users and subscribers. Pick a section above to start.', 'lrob-email-toolkit'); ?>
             </p>
             <div class="lrob-etk-nl-tiles">
                 <div class="lrob-etk-nl-tile">
@@ -362,7 +362,7 @@ final class HomePage
                 </div>
             </div>
             <p class="lrob-etk-nl-skeleton-note">
-                <?php esc_html_e('This module is in active development — the dashboard, campaigns, send pipeline, and forms land across the next few releases.', 'lrob-email-toolkit'); ?>
+                <?php esc_html_e('This module is in active development — dashboard polish, tracking, bounce handling, and import/export land across the next few releases.', 'lrob-email-toolkit'); ?>
             </p>
         </section>
         <?php

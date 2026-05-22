@@ -44,9 +44,9 @@ final class Materializer
     }
 
     /**
-     * Materialize the recipient set for a campaign. Returns the
+     * Materialize the recipient set for a newsletter. Returns the
      * resulting total_recipients count. Returns 0 (and is a no-op)
-     * when the campaign already has rows in campaign_recipients.
+     * when the newsletter already has rows in newsletter_recipients.
      */
     public function materialize(int $newsletter_id): int
     {
@@ -93,7 +93,7 @@ final class Materializer
     }
 
     /**
-     * Resolve the campaign's target_spec into a flat list of
+     * Resolve the newsletter's target_spec into a flat list of
      * `[kind, id, email, name, prefs_token]` rows ready for insertion.
      *
      * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
@@ -352,8 +352,8 @@ final class Materializer
     }
 
     /**
-     * True when the recipient hasn't opted out of the campaign's
-     * category. Empty category_slug = no category filter (campaign
+     * True when the recipient hasn't opted out of the newsletter's
+     * category. Empty category_slug = no category filter (newsletter
      * doesn't have a category set) → always pass.
      */
     private static function category_allows(string $opt_outs_json, string $category_slug): bool

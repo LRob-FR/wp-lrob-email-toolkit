@@ -6,7 +6,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Send;
 
 /**
  * Minimum-viable email-layout helpers — applied to every rendered
- * campaign + system email body before it goes out the wire. Two
+ * newsletter + system email body before it goes out the wire. Two
  * passes:
  *
  *   1. `inline_alignment_classes()` — Gutenberg ships layout via
@@ -18,7 +18,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Send;
  *
  *   2. `wrap_email_skeleton()` — wrap the body in a centered
  *      max-width container with a neutral background, so a long
- *      campaign doesn't render edge-to-edge on big webmail viewports
+ *      newsletter doesn't render edge-to-edge on big webmail viewports
  *      and a short one doesn't float in the top-left corner. Uses
  *      inline styles only — no `<style>` block needed (and no CSS
  *      inliner to teach about it).
@@ -32,7 +32,7 @@ final class EmailLayout
     public const CONTENT_MAX_WIDTH_PX = 600;
 
     /**
-     * Apply the full layout pass to a campaign / template body.
+     * Apply the full layout pass to a newsletter / template body.
      * Caller passes already-substituted HTML (post-token-replace).
      */
     public static function apply(string $body_html, string $title): string

@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-22T22:42:04+00:00\n"
+"POT-Creation-Date: 2026-05-22T23:26:34+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -73,8 +73,8 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:678
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:707
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:736
-#: src/Modules/Newsletter/Module.php:498
-#: src/Modules/Newsletter/Send/SendAjaxController.php:420
+#: src/Modules/Newsletter/Module.php:495
+#: src/Modules/Newsletter/Send/SendAjaxController.php:426
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
@@ -247,7 +247,7 @@ msgid "Test email"
 msgstr "Email de test"
 
 #: src/Admin/DashboardPage.php:459 src/Modules/Newsletter/FormCPT.php:80
-#: src/Modules/Newsletter/NewsletterCPT.php:103
+#: src/Modules/Newsletter/NewsletterCPT.php:102
 #: src/Modules/Newsletter/TemplateCPT.php:260
 msgid "Add new"
 msgstr "Ajouter"
@@ -527,7 +527,7 @@ msgstr "Source"
 
 #: src/Admin/DashboardPage.php:803 src/Modules/Logging/Admin/LogsPage.php:297
 #: src/Modules/Logging/Admin/LogViewPage.php:40
-#: src/Modules/Newsletter/Send/SendAjaxController.php:175
+#: src/Modules/Newsletter/Send/SendAjaxController.php:181
 #: src/Modules/Newsletter/Send/SendLoop.php:71
 msgid "(no subject)"
 msgstr "(sans sujet)"
@@ -718,7 +718,7 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:682
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:712
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:741
-#: src/Modules/Newsletter/Module.php:502
+#: src/Modules/Newsletter/Module.php:499
 msgid "Security check failed. Please retry."
 msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 
@@ -1596,7 +1596,7 @@ msgstr "Inscription utilisateur"
 #: src/Modules/ContactForm/Admin/AjaxController.php:188
 #: src/Modules/ContactForm/Admin/AjaxController.php:253
 #: src/Modules/Newsletter/Admin/AjaxController.php:619
-#: src/Modules/Newsletter/Send/SendAjaxController.php:424
+#: src/Modules/Newsletter/Send/SendAjaxController.php:430
 msgid "Security check failed. Please reload the page."
 msgstr "Échec du contrôle de sécurité. Veuillez recharger la page."
 
@@ -1634,7 +1634,7 @@ msgstr "Formulaire source introuvable."
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
 #: src/Modules/Newsletter/Admin/AjaxController.php:388
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:749
-#: src/Modules/Newsletter/Module.php:513
+#: src/Modules/Newsletter/Module.php:510
 msgid "%s (copy)"
 msgstr "%s (copie)"
 
@@ -3347,9 +3347,9 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/AjaxController.php:465
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:716
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:745
-#: src/Modules/Newsletter/Send/SendAjaxController.php:144
-#: src/Modules/Newsletter/Send/SendAjaxController.php:166
-#: src/Modules/Newsletter/Send/SendAjaxController.php:301
+#: src/Modules/Newsletter/Send/SendAjaxController.php:150
+#: src/Modules/Newsletter/Send/SendAjaxController.php:172
+#: src/Modules/Newsletter/Send/SendAjaxController.php:307
 #, fuzzy
 msgid "Newsletter not found."
 msgstr "Formulaire source introuvable."
@@ -3383,7 +3383,7 @@ msgstr "Modèles de démarrage"
 
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:42
 msgid ""
-"Every campaign is tagged with a category. Subscribers can opt out of "
+"Every newsletter is tagged with a category. Subscribers can opt out of "
 "categories individually — useful for separating product updates from "
 "promotions, for example."
 msgstr ""
@@ -3610,22 +3610,22 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/HomePage.php:167
 #: src/Modules/Newsletter/Admin/PageController.php:37
 #: src/Modules/Newsletter/Admin/PageController.php:38
-#: src/Modules/Newsletter/Module.php:60
-#: src/Modules/Newsletter/NewsletterCPT.php:102
+#: src/Modules/Newsletter/Module.php:57
+#: src/Modules/Newsletter/NewsletterCPT.php:101
 msgid "Newsletter"
 msgstr "Newsletter"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:185
 msgid ""
-"Enable the Newsletter module to start managing campaigns and subscribers."
+"Enable the Newsletter module to start managing newsletters and subscribers."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:201
 #: src/Modules/Newsletter/Admin/HomePage.php:387
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:73
-#: src/Modules/Newsletter/NewsletterCPT.php:101
+#: src/Modules/Newsletter/NewsletterCPT.php:100
+#: src/Modules/Newsletter/NewsletterCPT.php:110
 #: src/Modules/Newsletter/NewsletterCPT.php:111
-#: src/Modules/Newsletter/NewsletterCPT.php:112
 #, fuzzy
 msgid "Newsletters"
 msgstr "Newsletter"
@@ -3718,7 +3718,7 @@ msgstr[1] ""
 #: src/Modules/Newsletter/Admin/HomePage.php:352
 #, fuzzy
 msgid ""
-"Build campaigns to your WordPress users and subscribers. Pick a section "
+"Send newsletters to your WordPress users and subscribers. Pick a section "
 "above to start."
 msgstr ""
 "Envoyez des campagnes à vos utilisateurs WordPress avec segmentation avancée "
@@ -3734,8 +3734,8 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:365
 msgid ""
-"This module is in active development — the dashboard, campaigns, send "
-"pipeline, and forms land across the next few releases."
+"This module is in active development — dashboard polish, tracking, bounce "
+"handling, and import/export land across the next few releases."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:378
@@ -3780,7 +3780,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:76
-#: src/Modules/Newsletter/NewsletterCPT.php:106
+#: src/Modules/Newsletter/NewsletterCPT.php:105
 #, fuzzy
 msgid "New newsletter"
 msgstr "Newsletter"
@@ -4487,77 +4487,77 @@ msgstr "Modèles de démarrage"
 msgid "Collect the subscriber's name too for friendlier emails."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:65
+#: src/Modules/Newsletter/Module.php:62
 msgid ""
-"Send campaigns to your WordPress users and email-only subscribers, with rule-"
-"based segments, per-category opt-outs, and a throttled AJAX+Cron send "
+"Send newsletters to your WordPress users and email-only subscribers, with "
+"rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send "
 "pipeline."
 msgstr ""
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
-#: src/Modules/Newsletter/Module.php:341
+#: src/Modules/Newsletter/Module.php:338
 #, fuzzy
 msgid "%s subscriber"
 msgid_plural "%s subscribers"
 msgstr[0] "S'inscrire"
 msgstr[1] "S'inscrire"
 
-#: src/Modules/Newsletter/Module.php:506
+#: src/Modules/Newsletter/Module.php:503
 #, fuzzy
 msgid "Unknown onboarding email purpose."
 msgstr "Modèle inconnu."
 
-#: src/Modules/Newsletter/Module.php:529
+#: src/Modules/Newsletter/Module.php:526
 #, fuzzy
 msgid "Could not create the template draft."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Module.php:562
+#: src/Modules/Newsletter/Module.php:559
 msgid "Newsletter: SMTP module not enabled"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:563
+#: src/Modules/Newsletter/Module.php:560
 msgid ""
-"Subscribe forms and the Newsletter admin work, but campaign sending is "
+"Subscribe forms and the Newsletter admin work, but newsletter sending is "
 "disabled until you enable the SMTP module — Newsletter routes every send "
 "through an SMTP identity."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:565
+#: src/Modules/Newsletter/Module.php:562
 #, fuzzy
 msgid "Open SMTP settings"
 msgstr "Réglages par défaut"
 
-#: src/Modules/Newsletter/Module.php:586
+#: src/Modules/Newsletter/Module.php:583
 msgid "General"
 msgstr ""
 
-#: src/Modules/Newsletter/NewsletterCPT.php:104
+#: src/Modules/Newsletter/NewsletterCPT.php:103
 #, fuzzy
 msgid "Add new newsletter"
 msgstr "Ajouter un formulaire de contact"
 
-#: src/Modules/Newsletter/NewsletterCPT.php:105
+#: src/Modules/Newsletter/NewsletterCPT.php:104
 #, fuzzy
 msgid "Edit newsletter"
 msgstr "Modifier le formulaire de contact"
 
-#: src/Modules/Newsletter/NewsletterCPT.php:107
+#: src/Modules/Newsletter/NewsletterCPT.php:106
 #, fuzzy
 msgid "View newsletter"
 msgstr "Voir le formulaire de contact"
 
-#: src/Modules/Newsletter/NewsletterCPT.php:108
+#: src/Modules/Newsletter/NewsletterCPT.php:107
 #, fuzzy
 msgid "Search newsletters"
 msgstr "Rechercher des formulaires de contact"
 
-#: src/Modules/Newsletter/NewsletterCPT.php:109
+#: src/Modules/Newsletter/NewsletterCPT.php:108
 #, fuzzy
 msgid "No newsletters yet."
 msgstr "Aucun formulaire de contact pour le moment."
 
-#: src/Modules/Newsletter/NewsletterCPT.php:110
+#: src/Modules/Newsletter/NewsletterCPT.php:109
 #, fuzzy
 msgid "No newsletters in trash."
 msgstr "Aucun formulaire de contact dans la corbeille."
@@ -4746,32 +4746,32 @@ msgstr "Modèles de démarrage"
 msgid "Unsubscribe"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:92
+#: src/Modules/Newsletter/Send/SendAjaxController.php:98
 #, fuzzy
 msgid "Could not render this newsletter."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:140
-#: src/Modules/Newsletter/Send/SendAjaxController.php:162
-#: src/Modules/Newsletter/Send/SendAjaxController.php:297
+#: src/Modules/Newsletter/Send/SendAjaxController.php:146
+#: src/Modules/Newsletter/Send/SendAjaxController.php:168
+#: src/Modules/Newsletter/Send/SendAjaxController.php:303
 #, fuzzy
 msgid "Missing newsletter id."
 msgstr "Structure manquante."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:171
+#: src/Modules/Newsletter/Send/SendAjaxController.php:177
 #, fuzzy
 msgid "No valid test recipient."
 msgstr "Retirer ce destinataire"
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:219
+#: src/Modules/Newsletter/Send/SendAjaxController.php:225
 msgid "Only a sending newsletter can be paused."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:235
+#: src/Modules/Newsletter/Send/SendAjaxController.php:241
 msgid "Only a paused newsletter can be resumed."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:256
+#: src/Modules/Newsletter/Send/SendAjaxController.php:262
 msgid "Only a sending or paused newsletter can be aborted."
 msgstr ""
 
@@ -5509,164 +5509,3 @@ msgid ""
 "Embed the email-preferences form on a public page. Logged-in users manage "
 "their settings; anonymous visitors get a short message."
 msgstr ""
-
-#, fuzzy
-#~ msgid "Delete this newsletter"
-#~ msgstr "Supprimer cette entrée du journal ?"
-
-#, fuzzy
-#~ msgid "Sender"
-#~ msgstr "Envoyer"
-
-#, fuzzy
-#~ msgid "(use identity default)"
-#~ msgstr "Identité supprimée."
-
-#, fuzzy
-#~ msgid "From name (override)"
-#~ msgstr "Nom d'expédition"
-
-#, fuzzy
-#~ msgid "Reply-to (override)"
-#~ msgstr "Champ Reply-To"
-
-#, fuzzy
-#~ msgid "modified %s"
-#~ msgstr "Nom"
-
-#, fuzzy
-#~ msgid "(default routing)"
-#~ msgstr "Par défaut — routage SMTP"
-
-#, fuzzy
-#~ msgid "Subject (also used as the title)"
-#~ msgstr "Utiliser le mode automatique (utilise le titre du site)"
-
-#, fuzzy
-#~ msgid "Sender & preview"
-#~ msgstr "Aucun défi enregistré."
-
-#, fuzzy
-#~ msgid "Preview text"
-#~ msgstr "Précédent"
-
-#, fuzzy
-#~ msgid "Send to"
-#~ msgstr "Envoyer le test"
-
-#, fuzzy
-#~ msgid "Newsletter title"
-#~ msgstr "Newsletter"
-
-#, fuzzy
-#~ msgid "%1$s / %2$s sent"
-#~ msgstr "%1$s (%2$s)"
-
-#, fuzzy
-#~ msgid "%d failed"
-#~ msgstr "échec"
-
-#, fuzzy
-#~ msgid "Not sent yet"
-#~ msgstr "Aucun formulaire de contact pour le moment."
-
-#, fuzzy
-#~ msgid "Delete this newsletter? This cannot be undone."
-#~ msgstr ""
-#~ "Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
-
-#, fuzzy
-#~ msgid "Title"
-#~ msgstr "Sans titre"
-
-#, fuzzy
-#~ msgid "Sent / total"
-#~ msgstr "Envoyé le"
-
-#, fuzzy
-#~ msgid "Untitled campaign"
-#~ msgstr "Formulaire sans titre"
-
-#, fuzzy
-#~ msgid "Could not create the campaign."
-#~ msgstr "Impossible de créer le formulaire."
-
-#, fuzzy
-#~ msgid "Campaign not found."
-#~ msgstr "Formulaire introuvable."
-
-#, fuzzy
-#~ msgid "Add new campaign"
-#~ msgstr "Ajouter un destinataire"
-
-#, fuzzy
-#~ msgid "Search campaigns"
-#~ msgstr "Modèles de démarrage"
-
-#, fuzzy
-#~ msgid "No campaigns yet."
-#~ msgstr "Aucun champ email pour le moment"
-
-#, fuzzy
-#~ msgid "No campaigns in trash."
-#~ msgstr "Aucun formulaire de contact dans la corbeille."
-
-#, fuzzy
-#~ msgid "Missing campaign id."
-#~ msgstr "Structure manquante."
-
-#, fuzzy
-#~ msgid "Reminder emails"
-#~ msgstr "Renvoyer l'email"
-
-#, fuzzy
-#~ msgid "Captcha module not available."
-#~ msgstr "Classe du fournisseur non disponible."
-
-#, fuzzy
-#~ msgid "No anti-spam challenge — set one in the Captcha settings."
-#~ msgstr "Aucun défi anti-spam ne sera affiché aux visiteurs."
-
-#, fuzzy
-#~ msgid ""
-#~ "Shown to the visitor after they submit. Leave empty to use the default."
-#~ msgstr ""
-#~ "Message affiché au visiteur après une soumission réussie. Ouvrez le menu "
-#~ "déroulant pour insérer la valeur par défaut."
-
-#, fuzzy
-#~ msgid "Delete this form"
-#~ msgstr "Supprimer cette entrée du journal ?"
-
-#~ msgid "Just an email and a consent checkbox."
-#~ msgstr "Juste un email et une case de consentement."
-
-#~ msgid "I agree to receive your newsletter"
-#~ msgstr "J'accepte de recevoir votre newsletter"
-
-#, fuzzy
-#~ msgid "Back to forms"
-#~ msgstr "Retour aux journaux"
-
-#, fuzzy
-#~ msgid "Form title"
-#~ msgstr "(sans titre)"
-
-#, fuzzy
-#~ msgid "Form settings"
-#~ msgstr "Réglages des journaux"
-
-#, fuzzy
-#~ msgid "+ New template"
-#~ msgstr "Modèle de sujet"
-
-#, fuzzy
-#~ msgid "Templates"
-#~ msgstr "Modèles de démarrage"
-
-#, fuzzy
-#~ msgid "Submission"
-#~ msgstr "soumission"
-
-#~ msgid "%1$s submissions · since %2$s"
-#~ msgstr "%1$s soumissions · depuis le %2$s"

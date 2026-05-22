@@ -8,16 +8,16 @@ use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\PrefsHandler;
 
 /**
- * Render a campaign CPT post to per-recipient HTML. Mirrors
+ * Render a newsletter CPT post to per-recipient HTML. Mirrors
  * TemplateRenderer's pipeline (do_blocks → token substitute) but with
- * the campaign-specific token list (no confirm/refuse — those are
+ * the newsletter-specific token list (no confirm/refuse — those are
  * onboarding-only).
  *
  * Tokens substituted per recipient at send time. Personalisation
  * URLs (prefs / unsub) carry the recipient's opaque prefs_token so
  * the link works without the recipient logging in.
  *
- * CSS inliner stub for now — the proper inliner lands as step 7b.
+ * CSS inliner stub for now — the proper inliner lands as step 7b polish.
  * Most modern email clients tolerate non-inlined CSS in `<style>`
  * tags better than they used to, and Gutenberg's block markup
  * already inlines common styles.
@@ -25,7 +25,7 @@ use LRob\EmailToolkit\Modules\Newsletter\PrefsHandler;
 final class NewsletterRenderer
 {
     /**
-     * Render the campaign body. Caller passes the resolved tokens
+     * Render the newsletter body. Caller passes the resolved tokens
      * map (everything per-recipient: name, prefs_url, etc.) — this
      * renderer just substitutes.
      *
@@ -55,7 +55,7 @@ final class NewsletterRenderer
 
     /**
      * Build the per-recipient tokens map. Caller supplies recipient
-     * identity + prefs_token; we wrap them in the campaign-token
+     * identity + prefs_token; we wrap them in the newsletter-token
      * vocabulary.
      *
      * @return array<string, string>
@@ -79,7 +79,7 @@ final class NewsletterRenderer
         ];
     }
 
-    /** Available campaign tokens — used by docs / future editor sidebar. */
+    /** Available newsletter tokens — used by docs / future editor sidebar. */
     public static function available_tokens(): array
     {
         return [
