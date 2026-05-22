@@ -35,12 +35,12 @@
     var useBlockProps = blockEditor.useBlockProps;
 
     function formTitleFallback(id) {
-        /* translators: %d: contact form ID, used when the form has no title */
+        /* translators: %d: form ID, used as a fallback label when the form has no title */
         return sprintf(__('Form #%d', 'lrob-email-toolkit'), id);
     }
 
     function labelDefault(name) {
-        /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels */
+        /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers */
         return sprintf(__('Default (%s)', 'lrob-email-toolkit'), name);
     }
 

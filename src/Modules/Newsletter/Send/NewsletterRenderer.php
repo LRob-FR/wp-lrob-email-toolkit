@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter\Send;
 
-use LRob\EmailToolkit\Modules\Newsletter\CampaignCPT;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\PrefsHandler;
 
 /**
@@ -22,7 +22,7 @@ use LRob\EmailToolkit\Modules\Newsletter\PrefsHandler;
  * tags better than they used to, and Gutenberg's block markup
  * already inlines common styles.
  */
-final class CampaignRenderer
+final class NewsletterRenderer
 {
     /**
      * Render the campaign body. Caller passes the resolved tokens
@@ -31,16 +31,26 @@ final class CampaignRenderer
      *
      * @param array<string, string> $tokens
      */
-    public static function render(int $campaign_id, array $tokens): string
+    public static function render(int $newsletter_id, array $tokens): string
     {
-        $post = get_post($campaign_id);
-        if (!$post instanceof \WP_Post || $post->post_type !== CampaignCPT::POST_TYPE) {
+        $post = get_post($newsletter_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
             return '';
         }
 
-        $html = do_blocks($post->post_content);
-        $html = self::substitute($html, $tokens);
-        return $html;
+        // Body + always-on footer (Preferences / Unsubscribe). Footer
+        // is concatenated BEFORE token substitution so the same
+        // substitute() pass replaces tokens in both. The footer's
+        // unsubscribe token is enforced by NewsletterFooter::resolve.
+        $body = do_blocks($post->post_content);
+        $footer = NewsletterFooter::resolve();
+        $html = self::substitute($body . $footer, $tokens);
+
+        // Inline Gutenberg's class-driven alignment + wrap in a
+        // centered max-width skeleton. Proper CSS-to-inline-style
+        // transformer lands as step 7b.
+        $title = $post->post_title !== '' ? $post->post_title : (string) get_bloginfo('name');
+        return EmailLayout::apply($html, $title);
     }
 
     /**

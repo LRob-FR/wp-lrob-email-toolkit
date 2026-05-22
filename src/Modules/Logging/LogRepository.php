@@ -337,7 +337,7 @@ final class LogRepository
             'status'        => $entry->status,
             'source'        => $entry->source,
             'identity_id'   => $entry->identity_id,
-            'campaign_id'   => $entry->campaign_id,
+            'newsletter_id'   => $entry->newsletter_id,
             'recipient_id'  => $entry->recipient_id,
             'from_email'    => $entry->from_email,
             'from_name'     => $entry->from_name,
@@ -361,7 +361,7 @@ final class LogRepository
     /** @return array<int, string> */
     private function insert_formats(): array
     {
-        // status, source, identity_id, campaign_id, recipient_id,
+        // status, source, identity_id, newsletter_id, recipient_id,
         // from_email, from_name, to_emails, cc_emails, bcc_emails,
         // reply_to, subject, body_html, body_text, headers, attachments,
         // message_id, error_message, retry_count, imap_saved, imap_error,

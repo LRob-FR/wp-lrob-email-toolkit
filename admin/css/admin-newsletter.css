@@ -724,3 +724,45 @@
     font-size: 0.85rem;
     color: var(--lrob-etk-color-muted, #50575e);
 }
+
+/* Constrain the campaign editor's sidebar selects so a long identity
+ * label doesn't push the metabox out and cause a horizontal scroll
+ * on the whole Gutenberg page. `widefat` sets width:100% but doesn't
+ * cap the intrinsic minimum-content width some browsers compute for
+ * <select>s; box-sizing + max-width clamp the rendered box. */
+.lrob-etk-nl-campaign-meta select,
+.lrob-etk-nl-campaign-meta input[type="text"],
+.lrob-etk-nl-campaign-meta input[type="email"],
+.lrob-etk-nl-campaign-meta input[type="datetime-local"] {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Full-width setting row (e.g. the newsletter-footer HTML textarea).
+ * Overrides the default two-column label|input grid; label sits on
+ * top, the input spans the row underneath. */
+.lrob-etk-nl-settings-row--full {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "label"
+        "input"
+        "help";
+}
+
+.lrob-etk-nl-settings-row--full > input,
+.lrob-etk-nl-settings-row--full > textarea {
+    grid-area: input;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.lrob-etk-nl-field-textarea {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 8rem;
+}

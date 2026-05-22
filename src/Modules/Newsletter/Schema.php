@@ -13,12 +13,12 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  *                         in this table.
  *  - lists .............. unified manual + rule-based groupings.
  *  - list_members ....... explicit junction (list_id, recipient).
- *  - categories ......... email categories, required per campaign. "General"
+ *  - categories ......... email categories, required per newsletter. "General"
  *                         is seeded on install.
- *  - campaigns .......... companion table keyed by campaign post_id; holds
+ *  - newsletters ........ companion table keyed by newsletter post_id; holds
  *                         hot runtime counters (status, sent_count,
  *                         opens_count, …) off the postmeta hot path.
- *  - campaign_recipients  per-send recipient state. The send loop's primary
+ *  - newsletter_recipients  per-send recipient state. The send loop's primary
  *                         working set; designed for chunked materialization
  *                         and crash-safe AJAX↔Cron handoff.
  *  - tracking_events .... open/click/unsubscribe timeline. IP anonymised
@@ -34,19 +34,19 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  */
 final class Schema
 {
-    public const TABLE_SUBSCRIBERS         = 'lrob_etk_nl_subscribers';
+    public const TABLE_SUBSCRIBERS           = 'lrob_etk_nl_subscribers';
 
-    public const TABLE_LISTS               = 'lrob_etk_nl_lists';
+    public const TABLE_LISTS                 = 'lrob_etk_nl_lists';
 
-    public const TABLE_LIST_MEMBERS        = 'lrob_etk_nl_list_members';
+    public const TABLE_LIST_MEMBERS          = 'lrob_etk_nl_list_members';
 
-    public const TABLE_CATEGORIES          = 'lrob_etk_nl_categories';
+    public const TABLE_CATEGORIES            = 'lrob_etk_nl_categories';
 
-    public const TABLE_CAMPAIGNS           = 'lrob_etk_nl_campaigns';
+    public const TABLE_NEWSLETTERS           = 'lrob_etk_nl_newsletters';
 
-    public const TABLE_CAMPAIGN_RECIPIENTS = 'lrob_etk_nl_campaign_recipients';
+    public const TABLE_NEWSLETTER_RECIPIENTS = 'lrob_etk_nl_newsletter_recipients';
 
-    public const TABLE_TRACKING_EVENTS     = 'lrob_etk_nl_tracking_events';
+    public const TABLE_TRACKING_EVENTS       = 'lrob_etk_nl_tracking_events';
 
     public static function subscribers_table(): string
     {
@@ -72,16 +72,16 @@ final class Schema
         return $wpdb->prefix . self::TABLE_CATEGORIES;
     }
 
-    public static function campaigns_table(): string
+    public static function newsletters_table(): string
     {
         global $wpdb;
-        return $wpdb->prefix . self::TABLE_CAMPAIGNS;
+        return $wpdb->prefix . self::TABLE_NEWSLETTERS;
     }
 
-    public static function campaign_recipients_table(): string
+    public static function newsletter_recipients_table(): string
     {
         global $wpdb;
-        return $wpdb->prefix . self::TABLE_CAMPAIGN_RECIPIENTS;
+        return $wpdb->prefix . self::TABLE_NEWSLETTER_RECIPIENTS;
     }
 
     public static function tracking_events_table(): string
@@ -101,13 +101,13 @@ final class Schema
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
 
-        $subscribers         = self::subscribers_table();
-        $lists               = self::lists_table();
-        $list_members        = self::list_members_table();
-        $categories          = self::categories_table();
-        $campaigns           = self::campaigns_table();
-        $campaign_recipients = self::campaign_recipients_table();
-        $tracking_events     = self::tracking_events_table();
+        $subscribers           = self::subscribers_table();
+        $lists                 = self::lists_table();
+        $list_members          = self::list_members_table();
+        $categories            = self::categories_table();
+        $newsletters           = self::newsletters_table();
+        $newsletter_recipients = self::newsletter_recipients_table();
+        $tracking_events       = self::tracking_events_table();
 
         // status enum: pending | confirmed | unsubscribed | refused | bounced | trashed
         // (varchar instead of MySQL ENUM — dbDelta + ENUM is flaky).
@@ -119,6 +119,7 @@ final class Schema
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             email varchar(190) NOT NULL,
             name varchar(190) NOT NULL DEFAULT '',
+            language varchar(20) NOT NULL DEFAULT '',
             status varchar(20) NOT NULL DEFAULT 'pending',
             previous_status varchar(20) NOT NULL DEFAULT '',
             category_opt_outs longtext NOT NULL,
@@ -180,11 +181,11 @@ final class Schema
             UNIQUE KEY slug (slug)
         ) $charset_collate;";
 
-        // Keyed by post_id (1:1 with the lrob_etk_nl_campaign CPT post).
+        // Keyed by post_id (1:1 with the lrob_etk_newsletter CPT post).
         // Hot counters live here so updating sent_count++ per recipient
         // doesn't touch the wp_postmeta hot path.
         // status: draft | scheduled | materializing | sending | paused | sent | failed | aborted
-        $sql_campaigns = "CREATE TABLE $campaigns (
+        $sql_newsletters = "CREATE TABLE $newsletters (
             post_id bigint(20) unsigned NOT NULL,
             status varchar(20) NOT NULL DEFAULT 'draft',
             total_recipients int unsigned NOT NULL DEFAULT 0,
@@ -202,18 +203,18 @@ final class Schema
             KEY status (status)
         ) $charset_collate;";
 
-        // Send-loop working set. The composite (campaign_id, status, domain)
+        // Send-loop working set. The composite (newsletter_id, status, domain)
         // KEY supports the batch-claim query
         //   UPDATE … SET status='sending', tick_id=?
-        //   WHERE status='pending' AND campaign_id=? AND domain=?
+        //   WHERE status='pending' AND newsletter_id=? AND domain=?
         //   LIMIT N
         // which is the inner loop of the per-domain throttle. snapshot
         // columns (email_snapshot, name_snapshot) freeze the recipient's
-        // identity at materialization time so a rename mid-campaign doesn't
+        // identity at materialization time so a rename mid-send doesn't
         // break logging.
-        $sql_campaign_recipients = "CREATE TABLE $campaign_recipients (
+        $sql_newsletter_recipients = "CREATE TABLE $newsletter_recipients (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            campaign_id bigint(20) unsigned NOT NULL,
+            newsletter_id bigint(20) unsigned NOT NULL,
             recipient_kind varchar(20) NOT NULL,
             recipient_id bigint(20) unsigned NOT NULL,
             email_snapshot varchar(190) NOT NULL,
@@ -228,18 +229,18 @@ final class Schema
             last_click_at datetime DEFAULT NULL,
             unsubscribed_via_email tinyint(1) NOT NULL DEFAULT 0,
             PRIMARY KEY  (id),
-            UNIQUE KEY campaign_recipient (campaign_id, recipient_kind, recipient_id),
-            KEY domain_pending (campaign_id, domain, status),
+            UNIQUE KEY newsletter_recipient (newsletter_id, recipient_kind, recipient_id),
+            KEY domain_pending (newsletter_id, domain, status),
             KEY status (status)
         ) $charset_collate;";
 
         // kind: 'open' | 'click' | 'unsubscribe'. ip_anon is truncated /24 (v4) or /48 (v6).
-        // user_agent stays empty unless the campaign opts in to UA storage.
+        // user_agent stays empty unless the send opts in to UA storage.
         // Retention cron prunes rows older than the configured window using
         // chunked DELETE … LIMIT to keep tx size bounded on big tables.
         $sql_tracking_events = "CREATE TABLE $tracking_events (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            campaign_id bigint(20) unsigned NOT NULL,
+            newsletter_id bigint(20) unsigned NOT NULL,
             recipient_kind varchar(20) NOT NULL,
             recipient_id bigint(20) unsigned NOT NULL,
             kind varchar(20) NOT NULL,
@@ -248,7 +249,7 @@ final class Schema
             user_agent varchar(500) NOT NULL DEFAULT '',
             occurred_at datetime NOT NULL,
             PRIMARY KEY  (id),
-            KEY campaign_kind (campaign_id, kind),
+            KEY newsletter_kind (newsletter_id, kind),
             KEY occurred_at (occurred_at),
             KEY recipient (recipient_kind, recipient_id)
         ) $charset_collate;";
@@ -258,8 +259,8 @@ final class Schema
         dbDelta($sql_lists);
         dbDelta($sql_list_members);
         dbDelta($sql_categories);
-        dbDelta($sql_campaigns);
-        dbDelta($sql_campaign_recipients);
+        dbDelta($sql_newsletters);
+        dbDelta($sql_newsletter_recipients);
         dbDelta($sql_tracking_events);
     }
 
@@ -271,8 +272,8 @@ final class Schema
             self::lists_table(),
             self::list_members_table(),
             self::categories_table(),
-            self::campaigns_table(),
-            self::campaign_recipients_table(),
+            self::newsletters_table(),
+            self::newsletter_recipients_table(),
             self::tracking_events_table(),
         ];
         foreach ($tables as $table) {

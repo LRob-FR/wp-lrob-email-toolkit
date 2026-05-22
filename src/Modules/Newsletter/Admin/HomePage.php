@@ -28,7 +28,7 @@ use LRob\EmailToolkit\Modules\Newsletter\TemplateValidator;
  */
 final class HomePage
 {
-    public const VIEW_CAMPAIGNS   = 'campaigns';
+    public const VIEW_NEWSLETTERS = 'newsletters';
 
     public const VIEW_SUBSCRIBERS = 'subscribers';
 
@@ -60,7 +60,7 @@ final class HomePage
         private ListsPage $lists_page,
         private SettingsPage $settings_page,
         private SubscribersPage $subscribers_page,
-        private CampaignsPage $campaigns_page,
+        private NewslettersPage $newsletters_page,
     ) {
     }
 
@@ -143,7 +143,7 @@ final class HomePage
         $base = admin_url('admin.php?page=' . PageController::SLUG);
         $tabs = [
             ''                       => __('Dashboard', 'lrob-email-toolkit'),
-            self::VIEW_CAMPAIGNS     => __('Campaigns', 'lrob-email-toolkit'),
+            self::VIEW_NEWSLETTERS     => __('Newsletters', 'lrob-email-toolkit'),
             self::VIEW_SUBSCRIBERS   => __('Subscribers', 'lrob-email-toolkit'),
             self::VIEW_LISTS         => __('Lists', 'lrob-email-toolkit'),
             self::VIEW_CATEGORIES    => __('Categories', 'lrob-email-toolkit'),
@@ -173,7 +173,7 @@ final class HomePage
             self::VIEW_CATEGORIES  => $this->categories_page->render(),
             self::VIEW_LISTS       => $this->lists_page->render(),
             self::VIEW_SUBSCRIBERS => $this->subscribers_page->render(),
-            self::VIEW_CAMPAIGNS   => $this->campaigns_page->render(),
+            self::VIEW_NEWSLETTERS   => $this->newsletters_page->render(),
             self::VIEW_SETTINGS    => $this->settings_page->render(),
             self::VIEW_IMPORT      => $this->render_placeholder($view),
             default                => $this->render_dashboard(),
@@ -329,7 +329,7 @@ final class HomePage
     private function view_label(string $view): string
     {
         return match ($view) {
-            self::VIEW_CAMPAIGNS   => __('Campaigns', 'lrob-email-toolkit'),
+            self::VIEW_NEWSLETTERS   => __('Newsletters', 'lrob-email-toolkit'),
             self::VIEW_SUBSCRIBERS => __('Subscribers', 'lrob-email-toolkit'),
             self::VIEW_LISTS       => __('Lists', 'lrob-email-toolkit'),
             self::VIEW_CATEGORIES  => __('Categories', 'lrob-email-toolkit'),

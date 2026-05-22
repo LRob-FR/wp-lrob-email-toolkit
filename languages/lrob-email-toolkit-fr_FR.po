@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-22T16:23:54+00:00\n"
+"POT-Creation-Date: 2026-05-22T17:26:36+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -67,12 +67,13 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/Logging/Admin/AjaxController.php:163
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
-#: src/Modules/Newsletter/Admin/AjaxController.php:424
-#: src/Modules/Newsletter/Admin/AjaxController.php:446
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:136
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:158
+#: src/Modules/Newsletter/Admin/AjaxController.php:434
+#: src/Modules/Newsletter/Admin/AjaxController.php:456
 #: src/Modules/Newsletter/Admin/HomePage.php:103
-#: src/Modules/Newsletter/Module.php:374
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:144
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:166
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:195
+#: src/Modules/Newsletter/Module.php:485
 #: src/Modules/Newsletter/Send/SendAjaxController.php:251
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
@@ -151,7 +152,7 @@ msgstr[1] "emails envoyés"
 
 #: src/Admin/DashboardPage.php:328
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:718
-#: src/Modules/Newsletter/CampaignMetaboxes.php:131
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:131
 msgid "failed"
 msgid_plural "failed"
 msgstr[0] "échec"
@@ -244,8 +245,8 @@ msgstr "Désactivé"
 msgid "Test email"
 msgstr "Email de test"
 
-#: src/Admin/DashboardPage.php:459 src/Modules/Newsletter/CampaignCPT.php:103
-#: src/Modules/Newsletter/FormCPT.php:80
+#: src/Admin/DashboardPage.php:459 src/Modules/Newsletter/FormCPT.php:80
+#: src/Modules/Newsletter/NewsletterCPT.php:103
 #: src/Modules/Newsletter/TemplateCPT.php:260
 msgid "Add new"
 msgstr "Ajouter"
@@ -269,7 +270,7 @@ msgid "Manage plugin data"
 msgstr "Gérer les données de l'extension"
 
 #: src/Admin/DashboardPage.php:526 src/Admin/DashboardPage.php:528
-#: src/Modules/Newsletter/CampaignMetaboxes.php:146
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:146
 msgid "Send test email"
 msgstr "Envoyer un email de test"
 
@@ -333,7 +334,7 @@ msgstr "Annuler"
 #: src/Admin/DashboardPage.php:572 src/Admin/DashboardPage.php:861
 #: src/Forms/Fields/SubmitField.php:27 src/Forms/Fields/SubmitField.php:51
 #: src/Forms/FormStructure.php:68 src/Modules/ContactForm/EmbedRenderer.php:76
-#: src/Modules/Newsletter/CampaignMetaboxes.php:51
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:51
 msgid "Send"
 msgstr "Envoyer"
 
@@ -392,10 +393,10 @@ msgstr "Date"
 #: src/Modules/Logging/Admin/LogsPage.php:167
 #: src/Modules/Logging/Admin/LogsPage.php:269
 #: src/Modules/Logging/Admin/LogViewPage.php:80
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:67
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:70
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:157
-#: src/Modules/Newsletter/CampaignMetaboxes.php:117
-#: src/Modules/Newsletter/CampaignMetaboxes.php:514
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:117
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:514
 msgid "Status"
 msgstr "État"
 
@@ -416,7 +417,7 @@ msgstr "Précédent"
 #: src/Admin/DashboardPage.php:670 src/Admin/DashboardPage.php:790
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:269
 #: src/Modules/Logging/Admin/LogsPage.php:274
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:70
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:73
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:160
 msgid "Actions"
 msgstr "Actions"
@@ -485,8 +486,8 @@ msgstr "Reçues"
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:700
 #: src/Modules/Logging/Admin/LogsPage.php:174
 #: src/Modules/Logging/Admin/LogsPage.php:728
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:185
-#: src/Modules/Newsletter/CampaignMetaboxes.php:715
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:252
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:715
 msgid "Failed"
 msgstr "Échec"
 
@@ -546,8 +547,8 @@ msgstr "Une erreur est survenue."
 
 #: src/Admin/DashboardPage.php:863 src/Modules/Logging/Admin/LogsPage.php:171
 #: src/Modules/Logging/Admin/LogsPage.php:727
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:184
-#: src/Modules/Newsletter/CampaignMetaboxes.php:714
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:251
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:714
 msgid "Sent"
 msgstr "Envoyé"
 
@@ -709,10 +710,11 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Admin/DataPage.php:303 src/Modules/AbstractModule.php:144
 #: src/Modules/ContactForm/Admin/FormsPage.php:1593
 #: src/Modules/Logging/Admin/PageController.php:178
-#: src/Modules/Newsletter/Admin/AjaxController.php:429
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:140
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:163
-#: src/Modules/Newsletter/Module.php:378
+#: src/Modules/Newsletter/Admin/AjaxController.php:439
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:148
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:171
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:200
+#: src/Modules/Newsletter/Module.php:489
 msgid "Security check failed. Please retry."
 msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 
@@ -770,8 +772,6 @@ msgid "Anti-spam challenge"
 msgstr "Défi anti-spam"
 
 #. translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers
-#. translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels
-#. translators: %s: name of the value "Default" resolves to (e.g. "Math question")
 #: src/Forms/CaptchaField.php:127 src/Forms/CaptchaField.php:293
 #: src/Modules/ContactForm/Admin/FormsPage.php:1206
 #: src/Modules/Newsletter/Admin/FormsPage.php:317
@@ -1128,11 +1128,11 @@ msgstr "Abandonner"
 #: src/Modules/Logging/Admin/LogsPage.php:248
 #: src/Modules/Logging/Admin/LogsPage.php:336
 #: src/Modules/Logging/Admin/LogViewPage.php:249
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:126
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:87
 #: src/Modules/Newsletter/Admin/FormsPage.php:285
 #: src/Modules/Newsletter/Admin/FormsPage.php:443
 #: src/Modules/Newsletter/Admin/ListsPage.php:78
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:134
 #: src/Modules/SMTP/Admin/SettingsPage.php:200
 msgid "Delete"
 msgstr "Supprimer"
@@ -1590,14 +1590,14 @@ msgstr "Inscription utilisateur"
 #: src/Modules/ContactForm/Admin/AjaxController.php:119
 #: src/Modules/ContactForm/Admin/AjaxController.php:188
 #: src/Modules/ContactForm/Admin/AjaxController.php:253
-#: src/Modules/Newsletter/Admin/AjaxController.php:454
+#: src/Modules/Newsletter/Admin/AjaxController.php:464
 #: src/Modules/Newsletter/Send/SendAjaxController.php:255
 msgid "Security check failed. Please reload the page."
 msgstr "Échec du contrôle de sécurité. Veuillez recharger la page."
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:99
 #: src/Modules/ContactForm/Admin/AjaxController.php:137
-#: src/Modules/Newsletter/Admin/AjaxController.php:130
+#: src/Modules/Newsletter/Admin/AjaxController.php:132
 msgid "Unknown setting."
 msgstr "Réglage inconnu."
 
@@ -1616,20 +1616,20 @@ msgid "Invalid structure JSON."
 msgstr "JSON de structure invalide."
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:199
-#: src/Modules/Newsletter/Admin/AjaxController.php:334
+#: src/Modules/Newsletter/Admin/AjaxController.php:344
 msgid "Unknown template."
 msgstr "Modèle inconnu."
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:209
-#: src/Modules/Newsletter/Admin/AjaxController.php:344
+#: src/Modules/Newsletter/Admin/AjaxController.php:354
 msgid "Source form not found."
 msgstr "Formulaire source introuvable."
 
-#. translators: %s: name of the source form being cloned
-#. translators: %s: localized title of the source default template (e.g. "Confirm your subscription").
+#. translators: %s: original item title being cloned (form, newsletter, template, etc.)
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
-#: src/Modules/Newsletter/Admin/AjaxController.php:349
-#: src/Modules/Newsletter/Module.php:389
+#: src/Modules/Newsletter/Admin/AjaxController.php:359
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:208
+#: src/Modules/Newsletter/Module.php:500
 msgid "%s (copy)"
 msgstr "%s (copie)"
 
@@ -1658,7 +1658,7 @@ msgstr "Choisir un email connu"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:94
 #: src/Modules/ContactForm/Admin/FormsPage.php:1312
-#: src/Modules/Newsletter/CampaignMetaboxes.php:170
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:170
 msgid "email@example.com"
 msgstr "email@example.com"
 
@@ -1986,9 +1986,9 @@ msgid "Form name"
 msgstr "Nom du formulaire"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:884
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:180
 #: src/Modules/Newsletter/Admin/FormsPage.php:211
-#: src/Modules/Newsletter/CampaignMetaboxes.php:710
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:247
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:710
 msgid "Draft"
 msgstr "Brouillon"
 
@@ -2009,7 +2009,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:901
 #: src/Modules/ContactForm/Admin/FormsPage.php:1317
-#: src/Modules/Newsletter/CampaignMetaboxes.php:400
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:400
 msgid "SMTP identity"
 msgstr "Identité SMTP"
 
@@ -2989,8 +2989,8 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:177
 #: src/Modules/Logging/Admin/LogsPage.php:729
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:182
-#: src/Modules/Newsletter/CampaignMetaboxes.php:712
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:249
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:712
 msgid "Sending"
 msgstr "Envoi en cours"
 
@@ -3249,200 +3249,107 @@ msgid_plural "%s log entries"
 msgstr[0] "%s entrée de journal"
 msgstr[1] "%s entrées de journal"
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:155
-#: src/Modules/Newsletter/Admin/AjaxController.php:309
+#: src/Modules/Newsletter/Admin/AjaxController.php:165
+#: src/Modules/Newsletter/Admin/AjaxController.php:319
 #, fuzzy
 msgid "Unsupported setting."
 msgstr "Réglage inconnu."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:167
+#: src/Modules/Newsletter/Admin/AjaxController.php:177
 #, fuzzy
 msgid "Category name is required."
 msgstr "La clé de site est requise."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:171
+#: src/Modules/Newsletter/Admin/AjaxController.php:181
 msgid ""
 "Could not create the category (the slug may collide with an existing one)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:182
+#: src/Modules/Newsletter/Admin/AjaxController.php:192
 msgid "Missing category id or name."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:186
+#: src/Modules/Newsletter/Admin/AjaxController.php:196
 #, fuzzy
 msgid "Could not rename the category."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:197
+#: src/Modules/Newsletter/Admin/AjaxController.php:207
 msgid ""
 "Could not delete the category (the default \"general\" category is "
 "protected)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:207
+#: src/Modules/Newsletter/Admin/AjaxController.php:217
 #, fuzzy
 msgid "List name is required."
 msgstr "Le libellé est requis."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:211
+#: src/Modules/Newsletter/Admin/AjaxController.php:221
 msgid "Could not create the list (the slug may collide with an existing one)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:222
+#: src/Modules/Newsletter/Admin/AjaxController.php:232
 #, fuzzy
 msgid "Missing list id or name."
 msgstr "Structure manquante."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:226
+#: src/Modules/Newsletter/Admin/AjaxController.php:236
 #, fuzzy
 msgid "Could not rename the list."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:237
+#: src/Modules/Newsletter/Admin/AjaxController.php:247
 #, fuzzy
 msgid "Could not delete the list."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:257
+#: src/Modules/Newsletter/Admin/AjaxController.php:267
 #, fuzzy
 msgid "Invalid structure payload."
 msgstr "JSON de structure invalide."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:289
+#: src/Modules/Newsletter/Admin/AjaxController.php:299
 #, fuzzy
 msgid "Unknown setting key."
 msgstr "Réglage inconnu."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:354
+#: src/Modules/Newsletter/Admin/AjaxController.php:364
 #, fuzzy
 msgid "Untitled subscribe form"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:368
+#: src/Modules/Newsletter/Admin/AjaxController.php:378
 #, fuzzy
 msgid "Could not create the subscribe form."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:379
+#: src/Modules/Newsletter/Admin/AjaxController.php:389
 #, fuzzy
 msgid "Missing subscriber id."
 msgstr "Structure manquante."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:391
+#: src/Modules/Newsletter/Admin/AjaxController.php:401
 #, fuzzy
 msgid "Could not restore — the subscriber may no longer be in trash."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:402
+#: src/Modules/Newsletter/Admin/AjaxController.php:412
 msgid ""
 "Only trashed subscribers can be permanently deleted. Move the row to trash "
 "first."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:433
+#: src/Modules/Newsletter/Admin/AjaxController.php:443
 #: src/Modules/Newsletter/SubmitHandler.php:76
 #, fuzzy
 msgid "Subscribe form not found."
 msgstr "Formulaire source introuvable."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:462
+#: src/Modules/Newsletter/Admin/AjaxController.php:472
 #, fuzzy
 msgid "Newsletter form not found."
 msgstr "Formulaire source introuvable."
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:48
-#: src/Modules/Newsletter/Admin/HomePage.php:146
-#: src/Modules/Newsletter/Admin/HomePage.php:332
-#: src/Modules/Newsletter/CampaignCPT.php:101
-#: src/Modules/Newsletter/CampaignCPT.php:111
-#: src/Modules/Newsletter/CampaignCPT.php:112
-msgid "Campaigns"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:51
-#: src/Modules/Newsletter/CampaignCPT.php:106
-msgid "New campaign"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:55
-msgid ""
-"Compose campaigns in the block editor. Sending lands in a coming release — "
-"drafts and scheduled campaigns sit here until then."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:60
-#, fuzzy
-msgid "No campaigns yet. Click \"New campaign\" to start one."
-msgstr ""
-"Aucun captcha configuré pour le moment. Cliquez sur « Ajouter un captcha » "
-"pour en configurer un."
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:66
-#, fuzzy
-msgid "Title"
-msgstr "Sans titre"
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:68
-#, fuzzy
-msgid "Sent / total"
-msgstr "Envoyé le"
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:69
-#, fuzzy
-msgid "Last modified"
-msgstr "Nom"
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:104
-#: src/Modules/Newsletter/Admin/FormsPage.php:188
-#: src/Modules/Newsletter/Admin/FormsPage.php:308
-#: src/Modules/Newsletter/Admin/HomePage.php:252
-#: src/Modules/Newsletter/CampaignMetaboxes.php:139
-#, fuzzy
-msgid "(untitled)"
-msgstr "(sans titre)"
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:122
-msgid "Edit"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:125
-#, fuzzy
-msgid "Delete this campaign? This cannot be undone."
-msgstr ""
-"Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:145
-#, fuzzy
-msgid "Untitled campaign"
-msgstr "Formulaire sans titre"
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:149
-#, fuzzy
-msgid "Could not create the campaign."
-msgstr "Impossible de créer le formulaire."
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:167
-#: src/Modules/Newsletter/Send/SendAjaxController.php:70
-#: src/Modules/Newsletter/Send/SendAjaxController.php:92
-#, fuzzy
-msgid "Campaign not found."
-msgstr "Formulaire introuvable."
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:181
-#: src/Modules/Newsletter/CampaignMetaboxes.php:711
-msgid "Scheduled"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:183
-#: src/Modules/Newsletter/CampaignMetaboxes.php:713
-msgid "Paused"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CampaignsPage.php:186
-#: src/Modules/Newsletter/CampaignMetaboxes.php:716
-msgid "Aborted"
-msgstr ""
 
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:40
 #: src/Modules/Newsletter/PrefsRenderer.php:65
@@ -3514,14 +3421,23 @@ msgstr ""
 msgid "Create a subscribe form"
 msgstr "Créer mon premier formulaire de contact"
 
+#: src/Modules/Newsletter/Admin/FormsPage.php:188
+#: src/Modules/Newsletter/Admin/FormsPage.php:308
+#: src/Modules/Newsletter/Admin/HomePage.php:252
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:111
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:139
+#, fuzzy
+msgid "(untitled)"
+msgstr "(sans titre)"
+
 #: src/Modules/Newsletter/Admin/FormsPage.php:218
 #, fuzzy
 msgid "Confirmation email template"
 msgstr "Échec de la connexion."
 
-#. translators: %s: opening + closing <a> tags around "Onboarding view".
+#. translators: %1$s: opening <a> tag, %2$s: closing </a> tag, around "Onboarding view".
 #: src/Modules/Newsletter/Admin/FormsPage.php:230
-msgid "Edit confirmation emails in the %sOnboarding view%s."
+msgid "Edit confirmation emails in the %1$sOnboarding view%2$s."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:239
@@ -3534,7 +3450,7 @@ msgid "No automatic list — coming soon"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:267
-#: src/Modules/Newsletter/SubmitHandler.php:503
+#: src/Modules/Newsletter/SubmitHandler.php:533
 msgid "Thanks! Check your inbox to confirm your subscription."
 msgstr ""
 
@@ -3582,6 +3498,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/PageController.php:37
 #: src/Modules/Newsletter/Admin/PageController.php:38
 #: src/Modules/Newsletter/Module.php:59
+#: src/Modules/Newsletter/NewsletterCPT.php:102
 msgid "Newsletter"
 msgstr "Newsletter"
 
@@ -3589,6 +3506,16 @@ msgstr "Newsletter"
 msgid ""
 "Enable the Newsletter module to start managing campaigns and subscribers."
 msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:146
+#: src/Modules/Newsletter/Admin/HomePage.php:332
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:51
+#: src/Modules/Newsletter/NewsletterCPT.php:101
+#: src/Modules/Newsletter/NewsletterCPT.php:111
+#: src/Modules/Newsletter/NewsletterCPT.php:112
+#, fuzzy
+msgid "Newsletters"
+msgstr "Newsletter"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:147
 #: src/Modules/Newsletter/Admin/HomePage.php:333
@@ -3641,6 +3568,7 @@ msgid "+ New from default"
 msgstr "Définir par défaut"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:230
+#: src/Modules/Newsletter/Admin/SettingsPage.php:77
 msgid "Available tokens:"
 msgstr ""
 
@@ -3739,79 +3667,182 @@ msgid ""
 "membership in this list."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:34
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:54
+#: src/Modules/Newsletter/NewsletterCPT.php:106
+#, fuzzy
+msgid "New newsletter"
+msgstr "Newsletter"
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:58
+msgid ""
+"Compose newsletters in the block editor. Drafts and scheduled newsletters "
+"sit here until you send them."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:63
+#, fuzzy
+msgid "No newsletters yet. Click \"New newsletter\" to start one."
+msgstr ""
+"Aucun captcha configuré pour le moment. Cliquez sur « Ajouter un captcha » "
+"pour en configurer un."
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:69
+#, fuzzy
+msgid "Title"
+msgstr "Sans titre"
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:71
+#, fuzzy
+msgid "Sent / total"
+msgstr "Envoyé le"
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:72
+#, fuzzy
+msgid "Last modified"
+msgstr "Nom"
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:129
+msgid "Edit"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:130
+msgid "Duplicate"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:133
+#, fuzzy
+msgid "Delete this newsletter? This cannot be undone."
+msgstr ""
+"Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:153
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:211
+#, fuzzy
+msgid "Untitled newsletter"
+msgstr "Formulaire sans titre"
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:157
+#, fuzzy
+msgid "Could not create the newsletter."
+msgstr "Impossible de créer le formulaire."
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:175
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:204
+#: src/Modules/Newsletter/Send/SendAjaxController.php:70
+#: src/Modules/Newsletter/Send/SendAjaxController.php:92
+#, fuzzy
+msgid "Newsletter not found."
+msgstr "Formulaire source introuvable."
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:221
+#, fuzzy
+msgid "Could not duplicate the newsletter."
+msgstr "Impossible de créer le formulaire."
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:248
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:711
+msgid "Scheduled"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:250
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:713
+msgid "Paused"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:253
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:716
+msgid "Aborted"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SettingsPage.php:35
 #, fuzzy
 msgid "Newsletter settings"
 msgstr "Inscription à la newsletter"
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:38
+#: src/Modules/Newsletter/Admin/SettingsPage.php:39
 msgid ""
 "Module-wide controls. Each section here is mirrored on the page where the "
 "related feature is managed — changes flow both ways."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:60
+#: src/Modules/Newsletter/Admin/SettingsPage.php:62
+#, fuzzy
+msgid "Newsletter footer"
+msgstr "Newsletter"
+
+#: src/Modules/Newsletter/Admin/SettingsPage.php:64
+msgid ""
+"Appended to every sent newsletter. Customise the copy and layout, but keep "
+"{{unsub_url}} — if you remove it, the renderer falls back to the default so "
+"unsubscribe links always reach the recipient."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SettingsPage.php:69
+msgid "Footer HTML"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SettingsPage.php:100
 #, fuzzy
 msgid "Trash retention"
 msgstr "Rétention"
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:62
+#: src/Modules/Newsletter/Admin/SettingsPage.php:102
 msgid ""
 "Set how many days trashed subscribers stay in the trash before being "
 "permanently deleted. 0 (the default) disables auto-purge — trash is kept "
 "until you click \"Empty trash\" manually."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:67
+#: src/Modules/Newsletter/Admin/SettingsPage.php:107
 msgid "Auto-purge trash after (days)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:76
+#: src/Modules/Newsletter/Admin/SettingsPage.php:116
 msgid ""
 "0 = never auto-purge. A daily cron handles the deletion when this is set "
 "above 0."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:104
+#: src/Modules/Newsletter/Admin/SettingsPage.php:144
 #, fuzzy
 msgid "Reminder schedule"
 msgstr "Renvoyer l'email"
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:106
+#: src/Modules/Newsletter/Admin/SettingsPage.php:146
 msgid ""
 "When a visitor signs up but doesn't click the confirmation link, the daily "
 "cron nudges them with the reminder template. Set max to 0 to disable "
 "reminders entirely."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:109
+#: src/Modules/Newsletter/Admin/SettingsPage.php:149
 msgid "Manage on the Onboarding page →"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:116
+#: src/Modules/Newsletter/Admin/SettingsPage.php:156
 #, fuzzy
 msgid "Maximum reminders to send"
 msgstr "email envoyé"
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:125
+#: src/Modules/Newsletter/Admin/SettingsPage.php:165
 msgid ""
 "0 disables reminders for everyone going forward. Already-pending subscribers "
 "stop receiving nudges immediately."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:130
+#: src/Modules/Newsletter/Admin/SettingsPage.php:170
 msgid "Send first reminder after (days)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:139
+#: src/Modules/Newsletter/Admin/SettingsPage.php:179
 msgid "Days from signup before the first reminder fires. Default: 3."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:144
+#: src/Modules/Newsletter/Admin/SettingsPage.php:184
 msgid "Days between reminders"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/SettingsPage.php:153
+#: src/Modules/Newsletter/Admin/SettingsPage.php:193
 msgid "Wait this long between subsequent reminders. Default: 7."
 msgstr ""
 
@@ -3936,229 +3967,6 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:309
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:322
 msgid "Trashed"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignCPT.php:102
-msgid "Campaign"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignCPT.php:104
-#, fuzzy
-msgid "Add new campaign"
-msgstr "Ajouter un destinataire"
-
-#: src/Modules/Newsletter/CampaignCPT.php:105
-msgid "Edit campaign"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignCPT.php:107
-msgid "View campaign"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignCPT.php:108
-#, fuzzy
-msgid "Search campaigns"
-msgstr "Modèles de démarrage"
-
-#: src/Modules/Newsletter/CampaignCPT.php:109
-#, fuzzy
-msgid "No campaigns yet."
-msgstr "Aucun champ email pour le moment"
-
-#: src/Modules/Newsletter/CampaignCPT.php:110
-#, fuzzy
-msgid "No campaigns in trash."
-msgstr "Aucun formulaire de contact dans la corbeille."
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:59
-#, fuzzy
-msgid "Sender & preview"
-msgstr "Aucun défi enregistré."
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:67
-msgid "Audience"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:75
-msgid "Schedule"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:83
-msgid "Tracking"
-msgstr ""
-
-#. translators: %s: campaign title in confirmation prompt
-#: src/Modules/Newsletter/CampaignMetaboxes.php:113
-msgid ""
-"Send \"%s\" to every targeted recipient? This cannot be undone once it "
-"starts."
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:130
-#, fuzzy
-msgid "sent"
-msgstr "email envoyé"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:141
-#, fuzzy
-msgid "Resume send"
-msgstr "Renvoyer"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:141
-#, fuzzy
-msgid "Send now"
-msgstr "Envoyer le test"
-
-#. translators: %s: current admin email
-#: src/Modules/Newsletter/CampaignMetaboxes.php:155
-#, fuzzy
-msgid "Send to me (%s)"
-msgstr "Envoyer le test"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:164
-msgid "Send to a specific address"
-msgstr ""
-
-#. translators: %s: configured test list name
-#: src/Modules/Newsletter/CampaignMetaboxes.php:181
-#, fuzzy
-msgid "Send to test list (%s)"
-msgstr "Envoyer un email de test"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:189
-#: src/Modules/SMTP/Admin/SettingsPage.php:499
-#: src/Modules/SMTP/Admin/SettingsPage.php:589
-msgid "Send test"
-msgstr "Envoyer le test"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:193
-msgid ""
-"Test sends use the campaign's content + sender settings. They don't affect "
-"counters or recipients."
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:201
-msgid "Send tick failed. Stopped."
-msgstr ""
-
-#. translators: %1$d: sent count, %2$d: failed count
-#: src/Modules/Newsletter/CampaignMetaboxes.php:203
-msgid "Test done: %1$d sent, %2$d failed."
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:204
-#, fuzzy
-msgid "Test send failed."
-msgstr "Échec du renvoi."
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:371
-#, fuzzy
-msgid "Preview text"
-msgstr "Précédent"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:378
-msgid "Snippet shown in the inbox preview"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:379
-msgid "Up to ~150 characters. Most clients show the first ~90."
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:382
-#, fuzzy
-msgid "From name override"
-msgstr "Nom d'expédition"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:388
-#, fuzzy
-msgid "(use identity default)"
-msgstr "Identité supprimée."
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:391
-#, fuzzy
-msgid "Reply-to override"
-msgstr "Champ Reply-To"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:397
-msgid "(use identity reply-to)"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:402
-#, fuzzy
-msgid "(default routing)"
-msgstr "Par défaut — routage SMTP"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:409
-msgid ""
-"Pick which sending mailbox this campaign uses. Default routing follows the "
-"SMTP module's rules."
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:428
-#, fuzzy
-msgid "Category"
-msgstr "Ajouter un captcha"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:431
-#, fuzzy
-msgid "(no categories defined)"
-msgstr "Classe du fournisseur non disponible."
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:440
-msgid "Recipients who opted out of this category are excluded at send time."
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:444
-#, fuzzy
-msgid "Send to"
-msgstr "Envoyer le test"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:447
-msgid "All recipients (confirmed subscribers + opted-in WP users)"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:451
-msgid "All confirmed subscribers (email-only)"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:455
-msgid "All opted-in WordPress users"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:459
-msgid "Specific list"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:463
-#, fuzzy
-msgid "— Select a list —"
-msgstr "— Sélectionner un formulaire —"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:520
-#, fuzzy
-msgid "Send at"
-msgstr "Envoyer via"
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:526
-msgid ""
-"Leave blank to send immediately when you trigger Send. (Send pipeline lands "
-"in a coming release — this preference is stored now and used then.)"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:544
-msgid "Track opens"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:550
-msgid "Track clicks"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:556
-msgid "Log every send for this campaign"
-msgstr ""
-
-#: src/Modules/Newsletter/CampaignMetaboxes.php:558
-msgid "Overrides the Logging module's default sampling."
 msgstr ""
 
 #. translators: %s: site name.
@@ -4327,41 +4135,262 @@ msgid ""
 msgstr ""
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
-#: src/Modules/Newsletter/Module.php:222
+#: src/Modules/Newsletter/Module.php:333
 #, fuzzy
 msgid "%s subscriber"
 msgid_plural "%s subscribers"
 msgstr[0] "S'inscrire"
 msgstr[1] "S'inscrire"
 
-#: src/Modules/Newsletter/Module.php:382
+#: src/Modules/Newsletter/Module.php:493
 #, fuzzy
 msgid "Unknown onboarding email purpose."
 msgstr "Modèle inconnu."
 
-#: src/Modules/Newsletter/Module.php:405
+#: src/Modules/Newsletter/Module.php:516
 #, fuzzy
 msgid "Could not create the template draft."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Module.php:438
+#: src/Modules/Newsletter/Module.php:549
 msgid "Newsletter: SMTP module not enabled"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:439
+#: src/Modules/Newsletter/Module.php:550
 msgid ""
 "Subscribe forms and the Newsletter admin work, but campaign sending is "
 "disabled until you enable the SMTP module — Newsletter routes every send "
 "through an SMTP identity."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:441
+#: src/Modules/Newsletter/Module.php:552
 #, fuzzy
 msgid "Open SMTP settings"
 msgstr "Réglages par défaut"
 
-#: src/Modules/Newsletter/Module.php:462
+#: src/Modules/Newsletter/Module.php:573
 msgid "General"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterCPT.php:104
+#, fuzzy
+msgid "Add new newsletter"
+msgstr "Ajouter un formulaire de contact"
+
+#: src/Modules/Newsletter/NewsletterCPT.php:105
+#, fuzzy
+msgid "Edit newsletter"
+msgstr "Modifier le formulaire de contact"
+
+#: src/Modules/Newsletter/NewsletterCPT.php:107
+#, fuzzy
+msgid "View newsletter"
+msgstr "Voir le formulaire de contact"
+
+#: src/Modules/Newsletter/NewsletterCPT.php:108
+#, fuzzy
+msgid "Search newsletters"
+msgstr "Rechercher des formulaires de contact"
+
+#: src/Modules/Newsletter/NewsletterCPT.php:109
+#, fuzzy
+msgid "No newsletters yet."
+msgstr "Aucun formulaire de contact pour le moment."
+
+#: src/Modules/Newsletter/NewsletterCPT.php:110
+#, fuzzy
+msgid "No newsletters in trash."
+msgstr "Aucun formulaire de contact dans la corbeille."
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:59
+#, fuzzy
+msgid "Sender & preview"
+msgstr "Aucun défi enregistré."
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:67
+msgid "Audience"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:75
+msgid "Schedule"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:83
+msgid "Tracking"
+msgstr ""
+
+#. translators: %s: newsletter title in confirmation prompt
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:113
+msgid ""
+"Send \"%s\" to every targeted recipient? This cannot be undone once it "
+"starts."
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:130
+#, fuzzy
+msgid "sent"
+msgstr "email envoyé"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:141
+#, fuzzy
+msgid "Resume send"
+msgstr "Renvoyer"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:141
+#, fuzzy
+msgid "Send now"
+msgstr "Envoyer le test"
+
+#. translators: %s: current admin email
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:155
+#, fuzzy
+msgid "Send to me (%s)"
+msgstr "Envoyer le test"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:164
+msgid "Send to a specific address"
+msgstr ""
+
+#. translators: %s: configured test list name
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:181
+#, fuzzy
+msgid "Send to test list (%s)"
+msgstr "Envoyer un email de test"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:189
+#: src/Modules/SMTP/Admin/SettingsPage.php:499
+#: src/Modules/SMTP/Admin/SettingsPage.php:589
+msgid "Send test"
+msgstr "Envoyer le test"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:193
+msgid ""
+"Test sends use the newsletter's content + sender settings. They don't affect "
+"counters or recipients."
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:201
+msgid "Send tick failed. Stopped."
+msgstr ""
+
+#. translators: %1$d: sent count, %2$d: failed count
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:203
+msgid "Test done: %1$d sent, %2$d failed."
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:204
+#, fuzzy
+msgid "Test send failed."
+msgstr "Échec du renvoi."
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:371
+#, fuzzy
+msgid "Preview text"
+msgstr "Précédent"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:378
+msgid "Snippet shown in the inbox preview"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:379
+msgid "Up to ~150 characters. Most clients show the first ~90."
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:382
+#, fuzzy
+msgid "From name override"
+msgstr "Nom d'expédition"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:388
+#, fuzzy
+msgid "(use identity default)"
+msgstr "Identité supprimée."
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:391
+#, fuzzy
+msgid "Reply-to override"
+msgstr "Champ Reply-To"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:397
+msgid "(use identity reply-to)"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:402
+#, fuzzy
+msgid "(default routing)"
+msgstr "Par défaut — routage SMTP"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:409
+msgid ""
+"Pick which sending mailbox this campaign uses. Default routing follows the "
+"SMTP module's rules."
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:428
+#, fuzzy
+msgid "Category"
+msgstr "Ajouter un captcha"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:431
+#, fuzzy
+msgid "(no categories defined)"
+msgstr "Classe du fournisseur non disponible."
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:440
+msgid "Recipients who opted out of this category are excluded at send time."
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:444
+#, fuzzy
+msgid "Send to"
+msgstr "Envoyer le test"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:447
+msgid "All recipients (confirmed subscribers + opted-in WP users)"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:451
+msgid "All confirmed subscribers (email-only)"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:455
+msgid "All opted-in WordPress users"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:459
+msgid "Specific list"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:463
+#, fuzzy
+msgid "— Select a list —"
+msgstr "— Sélectionner un formulaire —"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:520
+#, fuzzy
+msgid "Send at"
+msgstr "Envoyer via"
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:526
+msgid ""
+"Leave blank to send immediately when you trigger Send. (Send pipeline lands "
+"in a coming release — this preference is stored now and used then.)"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:544
+msgid "Track opens"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:550
+msgid "Track clicks"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:556
+msgid "Log every send for this campaign"
+msgstr ""
+
+#: src/Modules/Newsletter/NewsletterMetaboxes.php:558
+msgid "Overrides the Logging module's default sampling."
 msgstr ""
 
 #: src/Modules/Newsletter/PrefsBlock.php:140
@@ -4534,10 +4563,24 @@ msgstr ""
 msgid "Reminder: confirm your subscription to %s"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
+#: src/Modules/Newsletter/Send/NewsletterFooter.php:48
+msgid "You're receiving this email because you subscribed at"
+msgstr ""
+
+#: src/Modules/Newsletter/Send/NewsletterFooter.php:49
+#, fuzzy
+msgid "Manage preferences"
+msgstr "Modèles de démarrage"
+
+#: src/Modules/Newsletter/Send/NewsletterFooter.php:50
+#, fuzzy
+msgid "Unsubscribe"
+msgstr "S'inscrire"
+
 #: src/Modules/Newsletter/Send/SendAjaxController.php:66
 #: src/Modules/Newsletter/Send/SendAjaxController.php:88
 #, fuzzy
-msgid "Missing campaign id."
+msgid "Missing newsletter id."
 msgstr "Structure manquante."
 
 #: src/Modules/Newsletter/Send/SendAjaxController.php:97
@@ -4554,7 +4597,7 @@ msgstr "Échec du contrôle anti-spam."
 msgid "Welcome back! You're subscribed."
 msgstr ""
 
-#: src/Modules/Newsletter/SubmitHandler.php:170
+#: src/Modules/Newsletter/SubmitHandler.php:171
 msgid "Could not record your subscription. Please try again."
 msgstr ""
 
@@ -5177,8 +5220,7 @@ msgstr "De : %s"
 msgid "If you received this, your SMTP configuration is working."
 msgstr "Si vous avez reçu ceci, votre configuration SMTP fonctionne."
 
-#. translators: %d: contact form ID, used when the form has no title
-#. translators: %d: newsletter form ID, used when the form has no title.
+#. translators: %d: form ID, used as a fallback label when the form has no title
 #: admin/js/contact-form-editor.js:39 admin/js/newsletter-block-editor.js:35
 msgid "Form #%d"
 msgstr "Formulaire n°%d"
@@ -5277,6 +5319,38 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+#~ msgid "Untitled campaign"
+#~ msgstr "Formulaire sans titre"
+
+#, fuzzy
+#~ msgid "Could not create the campaign."
+#~ msgstr "Impossible de créer le formulaire."
+
+#, fuzzy
+#~ msgid "Campaign not found."
+#~ msgstr "Formulaire introuvable."
+
+#, fuzzy
+#~ msgid "Add new campaign"
+#~ msgstr "Ajouter un destinataire"
+
+#, fuzzy
+#~ msgid "Search campaigns"
+#~ msgstr "Modèles de démarrage"
+
+#, fuzzy
+#~ msgid "No campaigns yet."
+#~ msgstr "Aucun champ email pour le moment"
+
+#, fuzzy
+#~ msgid "No campaigns in trash."
+#~ msgstr "Aucun formulaire de contact dans la corbeille."
+
+#, fuzzy
+#~ msgid "Missing campaign id."
+#~ msgstr "Structure manquante."
+
+#, fuzzy
 #~ msgid "Reminder emails"
 #~ msgstr "Renvoyer l'email"
 
@@ -5304,10 +5378,6 @@ msgstr ""
 
 #~ msgid "I agree to receive your newsletter"
 #~ msgstr "J'accepte de recevoir votre newsletter"
-
-#, fuzzy
-#~ msgid "Untitled newsletter form"
-#~ msgstr "Formulaire sans titre"
 
 #, fuzzy
 #~ msgid "Back to forms"

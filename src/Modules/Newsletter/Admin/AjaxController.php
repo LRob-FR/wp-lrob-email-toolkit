@@ -10,6 +10,7 @@ use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 use LRob\EmailToolkit\Modules\Newsletter\FormTemplateRegistry;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
+use LRob\EmailToolkit\Modules\Newsletter\Send\NewsletterFooter;
 use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
 use LRob\EmailToolkit\Modules\Newsletter\TrashCron;
 
@@ -74,6 +75,7 @@ final class AjaxController
         'lrob_etk_nl_first_reminder_after_days',
         'lrob_etk_nl_reminder_interval_days',
         TrashCron::OPTION_DAYS,
+        NewsletterFooter::OPTION_HTML,
     ];
 
     private const WHITELIST_META_KEYS = [
@@ -150,6 +152,14 @@ final class AjaxController
                 // for compliance archives but eventually the trash isn't
                 // doing anything useful.
                 $value = max(0, min(3650, (int) $raw));
+                break;
+            case NewsletterFooter::OPTION_HTML:
+                // wp_kses_post strips JS/forms but keeps the table
+                // markup needed for cross-client centering. The
+                // renderer enforces unsub_url presence on read, so
+                // we don't validate it here — empty/broken stored
+                // value just falls back to the default at render.
+                $value = wp_kses_post(trim((string) $raw));
                 break;
             default:
                 wp_send_json_error(['message' => __('Unsupported setting.', 'lrob-email-toolkit')], 400);
@@ -345,7 +355,7 @@ final class AjaxController
             }
             $structure = FormStructure::load($src_id);
             if ($title === '') {
-                /* translators: %s: name of the source form being cloned */
+                /* translators: %s: original item title being cloned (form, newsletter, template, etc.) */
                 $title = sprintf(__('%s (copy)', 'lrob-email-toolkit'), $src->post_title);
             }
         }

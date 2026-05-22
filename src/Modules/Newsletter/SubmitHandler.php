@@ -164,7 +164,8 @@ final class SubmitHandler
 
         // Fresh signup.
         $source = 'form:' . $form_id;
-        $new_id = $this->subscribers->insert_pending($email, $name, $source);
+        $language = self::detect_language();
+        $new_id = $this->subscribers->insert_pending($email, $name, $source, $language);
         if ($new_id <= 0) {
             wp_send_json_error([
                 'message' => __('Could not record your subscription. Please try again.', 'lrob-email-toolkit'),
@@ -486,6 +487,35 @@ final class SubmitHandler
     {
         $service = Plugin::instance()->container()->get(CaptchaService::class);
         return $service instanceof CaptchaService ? $service : null;
+    }
+
+    /**
+     * Best-effort recipient locale at subscribe time. Reads the top
+     * preference from the Accept-Language header (e.g. `fr-FR,fr;q=0.9`
+     * → `fr_FR`). Normalises BCP-47 hyphens to underscores for
+     * downstream consumers (WP uses the underscore form). Returns
+     * empty string when nothing usable is in the header.
+     */
+    private static function detect_language(): string
+    {
+        $raw = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
+            ? (string) $_SERVER['HTTP_ACCEPT_LANGUAGE']
+            : '';
+        if ($raw === '') {
+            return '';
+        }
+        $first = strtok($raw, ',');
+        if ($first === false) {
+            return '';
+        }
+        $first = trim(strtok($first, ';') ?: '');
+        if ($first === '') {
+            return '';
+        }
+        $normalised = str_replace('-', '_', $first);
+        // Cap to varchar(20) and keep only locale-like characters.
+        $normalised = preg_replace('/[^A-Za-z0-9_]/', '', $normalised) ?? '';
+        return substr($normalised, 0, 20);
     }
 
     /**

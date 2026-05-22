@@ -226,8 +226,8 @@ final class FormsPage
                         <p class="description">
                             <?php
                             printf(
-                                /* translators: %s: opening + closing <a> tags around "Onboarding view". */
-                                esc_html__('Edit confirmation emails in the %sOnboarding view%s.', 'lrob-email-toolkit'),
+                                /* translators: %1$s: opening <a> tag, %2$s: closing </a> tag, around "Onboarding view". */
+                                esc_html__('Edit confirmation emails in the %1$sOnboarding view%2$s.', 'lrob-email-toolkit'),
                                 '<a href="' . esc_url($template_admin_url) . '">',
                                 '</a>'
                             );
@@ -313,7 +313,7 @@ final class FormsPage
     private static function label_default(string $value): string
     {
         return sprintf(
-            /* translators: %s: name of the value "Default" resolves to (e.g. "Math question") */
+            /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers */
             __('Default (%s)', 'lrob-email-toolkit'),
             $value
         );

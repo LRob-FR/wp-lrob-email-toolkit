@@ -1202,7 +1202,7 @@ final class FormsPage
     private static function label_default(string $value): string
     {
         return sprintf(
-            /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels */
+            /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers */
             __('Default (%s)', 'lrob-email-toolkit'),
             $value
         );

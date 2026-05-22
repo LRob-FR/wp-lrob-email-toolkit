@@ -8,15 +8,15 @@ use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
 
 /**
- * Registers the `lrob_etk_nl_campaign` post type — newsletter campaigns
+ * Registers the `lrob_etk_newsletter` post type — newsletter posts
  * composed in Gutenberg with the same constrained block subset as the
- * system email templates. Each campaign post has a companion row in
- * `wp_lrob_etk_nl_campaigns` (keyed by post_id) holding hot runtime
+ * system email templates. Each newsletter post has a companion row in
+ * `wp_lrob_etk_nl_newsletters` (keyed by post_id) holding hot runtime
  * state (status, counters, started_at, …); the row is created on first
- * save via CampaignRepository::ensure_row() and removed in
+ * save via NewsletterRepository::ensure_row() and removed in
  * before_delete_post.
  *
- *   - lrob_etk_nl_campaign: 19 chars, fits WP's 20-char CPT slug limit.
+ *   - lrob_etk_newsletter: 19 chars, fits WP's 20-char CPT slug limit.
  *   - non-public, show_in_menu=false (managed through the Newsletter
  *     hub's Campaigns view, not the WP sidebar).
  *   - show_in_rest=true so Gutenberg can edit it.
@@ -32,9 +32,9 @@ use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
  * the meta box is wired to a stub that surfaces "send pipeline not
  * implemented yet".
  */
-final class CampaignCPT
+final class NewsletterCPT
 {
-    public const POST_TYPE = 'lrob_etk_nl_campaign';
+    public const POST_TYPE = 'lrob_etk_newsletter';
 
     public const META_PREVIEW_TEXT      = '_lrob_etk_nl_preview_text';
 
@@ -98,18 +98,18 @@ final class CampaignCPT
     public function register_post_type(): void
     {
         $labels = [
-            'name'               => __('Campaigns', 'lrob-email-toolkit'),
-            'singular_name'      => __('Campaign', 'lrob-email-toolkit'),
+            'name'               => __('Newsletters', 'lrob-email-toolkit'),
+            'singular_name'      => __('Newsletter', 'lrob-email-toolkit'),
             'add_new'            => __('Add new', 'lrob-email-toolkit'),
-            'add_new_item'       => __('Add new campaign', 'lrob-email-toolkit'),
-            'edit_item'          => __('Edit campaign', 'lrob-email-toolkit'),
-            'new_item'           => __('New campaign', 'lrob-email-toolkit'),
-            'view_item'          => __('View campaign', 'lrob-email-toolkit'),
-            'search_items'       => __('Search campaigns', 'lrob-email-toolkit'),
-            'not_found'          => __('No campaigns yet.', 'lrob-email-toolkit'),
-            'not_found_in_trash' => __('No campaigns in trash.', 'lrob-email-toolkit'),
-            'all_items'          => __('Campaigns', 'lrob-email-toolkit'),
-            'menu_name'          => __('Campaigns', 'lrob-email-toolkit'),
+            'add_new_item'       => __('Add new newsletter', 'lrob-email-toolkit'),
+            'edit_item'          => __('Edit newsletter', 'lrob-email-toolkit'),
+            'new_item'           => __('New newsletter', 'lrob-email-toolkit'),
+            'view_item'          => __('View newsletter', 'lrob-email-toolkit'),
+            'search_items'       => __('Search newsletters', 'lrob-email-toolkit'),
+            'not_found'          => __('No newsletters yet.', 'lrob-email-toolkit'),
+            'not_found_in_trash' => __('No newsletters in trash.', 'lrob-email-toolkit'),
+            'all_items'          => __('Newsletters', 'lrob-email-toolkit'),
+            'menu_name'          => __('Newsletters', 'lrob-email-toolkit'),
         ];
 
         register_post_type(self::POST_TYPE, [
@@ -121,7 +121,7 @@ final class CampaignCPT
             'show_in_admin_bar'   => false,
             'show_in_nav_menus'   => false,
             'show_in_rest'        => true,
-            'rest_base'           => 'lrob-etk-nl-campaigns',
+            'rest_base'           => 'lrob-etk-nl-newsletters',
             'has_archive'         => false,
             'hierarchical'        => false,
             // Internal-only post type: no rewrite rules, no public query
@@ -209,15 +209,15 @@ final class CampaignCPT
                 }
                 $kind = isset($decoded['kind']) ? sanitize_key((string) $decoded['kind']) : '';
                 if (!in_array($kind, [
-                    CampaignCPT::TARGET_KIND_ALL,
-                    CampaignCPT::TARGET_KIND_ALL_USERS,
-                    CampaignCPT::TARGET_KIND_ALL_SUBSCRIBERS,
-                    CampaignCPT::TARGET_KIND_LIST,
+                    NewsletterCPT::TARGET_KIND_ALL,
+                    NewsletterCPT::TARGET_KIND_ALL_USERS,
+                    NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS,
+                    NewsletterCPT::TARGET_KIND_LIST,
                 ], true)) {
                     return '';
                 }
                 $out = ['kind' => $kind];
-                if ($kind === CampaignCPT::TARGET_KIND_LIST) {
+                if ($kind === NewsletterCPT::TARGET_KIND_LIST) {
                     $out['list_id'] = isset($decoded['list_id']) ? (int) $decoded['list_id'] : 0;
                 }
                 return (string) wp_json_encode($out);
@@ -303,7 +303,7 @@ final class CampaignCPT
             return;
         }
         wp_safe_redirect(admin_url(
-            'admin.php?page=' . PageController::SLUG . '&view=' . \LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage::VIEW_CAMPAIGNS
+            'admin.php?page=' . PageController::SLUG . '&view=' . \LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage::VIEW_NEWSLETTERS
         ));
         exit;
     }

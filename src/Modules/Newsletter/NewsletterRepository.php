@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
 /**
- * Companion-table operations for the `lrob_etk_nl_campaign` CPT. The
+ * Companion-table operations for the `lrob_etk_newsletter` CPT. The
  * row is keyed by post_id and carries hot runtime state (status,
  * send-loop counters, started_at/last_tick_at) so the post_meta hot
  * path stays cool during sending.
@@ -14,10 +14,10 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  * aborted. The composer (step 6) only writes draft and scheduled;
  * the send pipeline (step 7) drives the rest.
  *
- * ensure_row() is called on every save_post for a campaign CPT — it
+ * ensure_row() is called on every save_post for a newsletter CPT — it
  * INSERT IGNOREs the row, so re-saves are cheap and crash-safe.
  */
-final class CampaignRepository
+final class NewsletterRepository
 {
     public const STATUS_DRAFT    = 'draft';
 
@@ -44,7 +44,7 @@ final class CampaignRepository
             return;
         }
         global $wpdb;
-        $table = Schema::campaigns_table();
+        $table = Schema::newsletters_table();
         $wpdb->query($wpdb->prepare(
             "INSERT IGNORE INTO `$table` (post_id, status) VALUES (%d, %s)",
             $post_id,
@@ -61,7 +61,7 @@ final class CampaignRepository
             return null;
         }
         global $wpdb;
-        $table = Schema::campaigns_table();
+        $table = Schema::newsletters_table();
         $row = $wpdb->get_row(
             $wpdb->prepare("SELECT * FROM `$table` WHERE post_id = %d LIMIT 1", $post_id),
             ARRAY_A
@@ -76,7 +76,7 @@ final class CampaignRepository
         }
         global $wpdb;
         $wpdb->update(
-            Schema::campaigns_table(),
+            Schema::newsletters_table(),
             ['status' => $status],
             ['post_id' => $post_id],
             ['%s'],
@@ -86,9 +86,9 @@ final class CampaignRepository
 
     /**
      * Drop the companion row + any per-recipient state when a
-     * campaign post is deleted (called from before_delete_post). The
-     * `campaign_recipients` rows would be orphaned without this
-     * cleanup since they share no FK with wp_posts.
+     * newsletter post is deleted (called from before_delete_post).
+     * The `newsletter_recipients` rows would be orphaned without
+     * this cleanup since they share no FK with wp_posts.
      */
     public function delete_for_post(int $post_id): void
     {
@@ -96,8 +96,8 @@ final class CampaignRepository
             return;
         }
         global $wpdb;
-        $wpdb->delete(Schema::campaigns_table(), ['post_id' => $post_id], ['%d']);
-        $wpdb->delete(Schema::campaign_recipients_table(), ['campaign_id' => $post_id], ['%d']);
+        $wpdb->delete(Schema::newsletters_table(), ['post_id' => $post_id], ['%d']);
+        $wpdb->delete(Schema::newsletter_recipients_table(), ['newsletter_id' => $post_id], ['%d']);
     }
 
     /**
@@ -110,8 +110,8 @@ final class CampaignRepository
     public function list_all(int $limit = 50, int $offset = 0): array
     {
         global $wpdb;
-        $cpt = CampaignCPT::POST_TYPE;
-        $campaigns_table = Schema::campaigns_table();
+        $cpt = NewsletterCPT::POST_TYPE;
+        $newsletters_table = Schema::newsletters_table();
         return (array) $wpdb->get_results($wpdb->prepare(
             "SELECT p.ID AS post_id,
                     p.post_title,
@@ -127,7 +127,7 @@ final class CampaignRepository
                     c.completed_at,
                     c.last_tick_at
                FROM {$wpdb->posts} p
-               LEFT JOIN `$campaigns_table` c ON c.post_id = p.ID
+               LEFT JOIN `$newsletters_table` c ON c.post_id = p.ID
               WHERE p.post_type = %s
                 AND p.post_status NOT IN ('auto-draft','trash')
               ORDER BY p.post_modified_gmt DESC
@@ -145,7 +145,7 @@ final class CampaignRepository
             "SELECT COUNT(*) FROM {$wpdb->posts}
               WHERE post_type = %s
                 AND post_status NOT IN ('auto-draft','trash')",
-            CampaignCPT::POST_TYPE
+            NewsletterCPT::POST_TYPE
         ));
     }
 }

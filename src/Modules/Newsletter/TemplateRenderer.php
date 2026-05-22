@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
+use LRob\EmailToolkit\Modules\Newsletter\Send\EmailLayout;
+
 /**
  * Renders an email-template post to ready-to-send HTML. Pipeline:
  *
@@ -12,13 +14,10 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  *      becomes plain HTML.
  *   3. TemplateTokens::substitute() replaces every `{{token}}` with the
  *      caller-supplied value (escaped at substitution time).
- *   4. CSS inliner stub — leaves HTML unchanged for now. The real
- *      transformer lands with the send-pipeline step (campaigns share
- *      the same pipeline) and will convert <style> rules into inline
- *      `style="…"` attributes for Outlook/Gmail compatibility.
- *
- * Each step is a small static helper so the campaign renderer can pick
- * the same primitives once it lands.
+ *   4. EmailLayout::apply() inlines Gutenberg's alignment classes +
+ *      wraps the body in a centered max-width container. The full
+ *      CSS-to-inline-style transformer (Outlook/Gmail compatibility)
+ *      lands as step 7b.
  */
 final class TemplateRenderer
 {
@@ -32,18 +31,7 @@ final class TemplateRenderer
 
         $html = do_blocks($post->post_content);
         $html = TemplateTokens::substitute($html, $tokens);
-        $html = self::inline_css($html);
-
-        return $html;
-    }
-
-    /**
-     * CSS-to-inline-style transformer. Stub for now — returns input
-     * unchanged. Will land alongside the send-pipeline implementation
-     * since campaigns share this pass.
-     */
-    private static function inline_css(string $html): string
-    {
-        return $html;
+        $title = $post->post_title !== '' ? $post->post_title : (string) get_bloginfo('name');
+        return EmailLayout::apply($html, $title);
     }
 }

@@ -31,7 +31,7 @@
     var useBlockProps = blockEditor.useBlockProps;
 
     function formTitleFallback(id) {
-        /* translators: %d: newsletter form ID, used when the form has no title. */
+        /* translators: %d: form ID, used as a fallback label when the form has no title */
         return sprintf(__('Form #%d', 'lrob-email-toolkit'), id);
     }
 

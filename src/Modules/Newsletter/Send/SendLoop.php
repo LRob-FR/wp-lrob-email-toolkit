@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter\Send;
 
-use LRob\EmailToolkit\Modules\Newsletter\CampaignCPT;
-use LRob\EmailToolkit\Modules\Newsletter\CampaignRepository;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
@@ -33,9 +33,9 @@ final class SendLoop
 {
     public const DEFAULT_BATCH = 25;
 
-    public const HEADER_CAMPAIGN_ID = 'X-Lrob-Etk-Newsletter-Campaign-ID';
+    public const HEADER_NEWSLETTER_ID = 'X-Lrob-Etk-Newsletter-ID';
 
-    public function __construct(private CampaignRepository $campaigns)
+    public function __construct(private NewsletterRepository $newsletters)
     {
     }
 
@@ -45,32 +45,32 @@ final class SendLoop
      *
      * @return array<string, mixed>
      */
-    public function tick(int $campaign_id, int $batch_size = self::DEFAULT_BATCH): array
+    public function tick(int $newsletter_id, int $batch_size = self::DEFAULT_BATCH): array
     {
-        $post = get_post($campaign_id);
-        if (!$post instanceof \WP_Post || $post->post_type !== CampaignCPT::POST_TYPE) {
-            return $this->progress($campaign_id, 0, 0, 'invalid');
+        $post = get_post($newsletter_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            return $this->progress($newsletter_id, 0, 0, 'invalid');
         }
 
-        $companion = $this->campaigns->find_by_post_id($campaign_id);
-        $status = (string) ($companion['status'] ?? CampaignRepository::STATUS_DRAFT);
-        if ($status !== CampaignRepository::STATUS_SENDING) {
-            return $this->progress($campaign_id, 0, 0, $status);
+        $companion = $this->newsletters->find_by_post_id($newsletter_id);
+        $status = (string) ($companion['status'] ?? NewsletterRepository::STATUS_DRAFT);
+        if ($status !== NewsletterRepository::STATUS_SENDING) {
+            return $this->progress($newsletter_id, 0, 0, $status);
         }
 
         $batch_size = max(1, min(200, $batch_size));
-        $claimed = $this->claim_batch($campaign_id, $batch_size);
+        $claimed = $this->claim_batch($newsletter_id, $batch_size);
         if ($claimed === []) {
             // No pending left → mark sent + dispatch event.
-            $this->mark_complete($campaign_id);
-            return $this->progress($campaign_id, 0, 0, CampaignRepository::STATUS_SENT);
+            $this->mark_complete($newsletter_id);
+            return $this->progress($newsletter_id, 0, 0, NewsletterRepository::STATUS_SENT);
         }
 
         // Build per-campaign sending context once. Subject + headers
         // are constant across the batch; only body + recipient vary.
         $subject = $post->post_title !== '' ? $post->post_title : __('(no subject)', 'lrob-email-toolkit');
-        $from_name_override = (string) get_post_meta($campaign_id, CampaignCPT::META_FROM_NAME_OVERRIDE, true);
-        $reply_to = (string) get_post_meta($campaign_id, CampaignCPT::META_REPLY_TO_OVERRIDE, true);
+        $from_name_override = (string) get_post_meta($newsletter_id, NewsletterCPT::META_FROM_NAME_OVERRIDE, true);
+        $reply_to = (string) get_post_meta($newsletter_id, NewsletterCPT::META_REPLY_TO_OVERRIDE, true);
 
         $sent = 0;
         $failed = 0;
@@ -80,21 +80,21 @@ final class SendLoop
             $name = (string) ($row['name_snapshot'] ?? '');
             $prefs_token = $this->prefs_token_for($row);
 
-            $tokens = CampaignRenderer::tokens_for_recipient($email, $name, $prefs_token);
-            $body = CampaignRenderer::render($campaign_id, $tokens);
+            $tokens = NewsletterRenderer::tokens_for_recipient($email, $name, $prefs_token);
+            $body = NewsletterRenderer::render($newsletter_id, $tokens);
             if ($body === '' || !is_email($email)) {
                 $this->mark_failed($row_id, 'invalid_recipient_or_body');
                 $failed++;
                 continue;
             }
 
-            $headers = $this->build_headers($campaign_id, $prefs_token, $from_name_override, $reply_to);
+            $headers = $this->build_headers($newsletter_id, $prefs_token, $from_name_override, $reply_to);
             $ok = (bool) wp_mail($email, (string) $subject, $body, $headers);
             if ($ok) {
                 $this->mark_sent($row_id);
                 $sent++;
                 Events::dispatch('newsletter.recipient.sent', [
-                    'campaign_id'    => $campaign_id,
+                    'newsletter_id'    => $newsletter_id,
                     'recipient_kind' => (string) $row['recipient_kind'],
                     'recipient_id'   => (int) $row['recipient_id'],
                     'email'          => $email,
@@ -103,7 +103,7 @@ final class SendLoop
                 $this->mark_failed($row_id, 'wp_mail_failed');
                 $failed++;
                 Events::dispatch('newsletter.recipient.failed', [
-                    'campaign_id'    => $campaign_id,
+                    'newsletter_id'    => $newsletter_id,
                     'recipient_kind' => (string) $row['recipient_kind'],
                     'recipient_id'   => (int) $row['recipient_id'],
                     'email'          => $email,
@@ -112,20 +112,20 @@ final class SendLoop
             }
         }
 
-        $this->bump_counters($campaign_id, $sent, $failed);
+        $this->bump_counters($newsletter_id, $sent, $failed);
 
         // Re-read companion to compute remaining + decide completion.
-        $row = $this->campaigns->find_by_post_id($campaign_id);
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
         $total = (int) ($row['total_recipients'] ?? 0);
         $total_sent = (int) ($row['sent_count'] ?? 0);
         $total_failed = (int) ($row['failed_count'] ?? 0);
         $remaining = max(0, $total - $total_sent - $total_failed);
         if ($remaining === 0) {
-            $this->mark_complete($campaign_id);
-            return $this->progress($campaign_id, $sent, $failed, CampaignRepository::STATUS_SENT);
+            $this->mark_complete($newsletter_id);
+            return $this->progress($newsletter_id, $sent, $failed, NewsletterRepository::STATUS_SENT);
         }
 
-        return $this->progress($campaign_id, $sent, $failed, CampaignRepository::STATUS_SENDING);
+        return $this->progress($newsletter_id, $sent, $failed, NewsletterRepository::STATUS_SENDING);
     }
 
     /**
@@ -134,16 +134,16 @@ final class SendLoop
      *
      * @return array<int, array<string, mixed>>
      */
-    private function claim_batch(int $campaign_id, int $limit): array
+    private function claim_batch(int $newsletter_id, int $limit): array
     {
         global $wpdb;
-        $table = Schema::campaign_recipients_table();
+        $table = Schema::newsletter_recipients_table();
         $rows = (array) $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM `$table`
-              WHERE campaign_id = %d AND status = 'pending'
+              WHERE newsletter_id = %d AND status = 'pending'
               ORDER BY id ASC
               LIMIT %d",
-            $campaign_id,
+            $newsletter_id,
             $limit
         ), ARRAY_A);
         if ($rows === []) {
@@ -163,7 +163,7 @@ final class SendLoop
     {
         global $wpdb;
         $wpdb->update(
-            Schema::campaign_recipients_table(),
+            Schema::newsletter_recipients_table(),
             ['status' => 'sent', 'sent_at' => current_time('mysql', true)],
             ['id' => $row_id],
             ['%s', '%s'],
@@ -175,7 +175,7 @@ final class SendLoop
     {
         global $wpdb;
         $wpdb->update(
-            Schema::campaign_recipients_table(),
+            Schema::newsletter_recipients_table(),
             ['status' => 'failed', 'failure_code' => $failure_code],
             ['id' => $row_id],
             ['%s', '%s'],
@@ -187,10 +187,10 @@ final class SendLoop
      * Atomic counter bump on the campaigns companion row. UPDATE
      * with `col = col + N` so concurrent ticks don't lose increments.
      */
-    private function bump_counters(int $campaign_id, int $sent, int $failed): void
+    private function bump_counters(int $newsletter_id, int $sent, int $failed): void
     {
         global $wpdb;
-        $table = Schema::campaigns_table();
+        $table = Schema::newsletters_table();
         $wpdb->query($wpdb->prepare(
             "UPDATE `$table`
                 SET sent_count = sent_count + %d,
@@ -200,35 +200,35 @@ final class SendLoop
             $sent,
             $failed,
             current_time('mysql', true),
-            $campaign_id
+            $newsletter_id
         ));
     }
 
-    private function mark_complete(int $campaign_id): void
+    private function mark_complete(int $newsletter_id): void
     {
         global $wpdb;
         $wpdb->update(
-            Schema::campaigns_table(),
+            Schema::newsletters_table(),
             [
-                'status'       => CampaignRepository::STATUS_SENT,
+                'status'       => NewsletterRepository::STATUS_SENT,
                 'completed_at' => current_time('mysql', true),
                 'last_tick_at' => current_time('mysql', true),
             ],
-            ['post_id' => $campaign_id],
+            ['post_id' => $newsletter_id],
             ['%s', '%s', '%s'],
             ['%d']
         );
-        Events::dispatch('newsletter.campaign.completed', [
-            'campaign_id' => $campaign_id,
+        Events::dispatch('newsletter.completed', [
+            'newsletter_id' => $newsletter_id,
         ]);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function progress(int $campaign_id, int $sent_this_tick, int $failed_this_tick, string $status): array
+    private function progress(int $newsletter_id, int $sent_this_tick, int $failed_this_tick, string $status): array
     {
-        $row = $this->campaigns->find_by_post_id($campaign_id);
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
         $total = (int) ($row['total_recipients'] ?? 0);
         $total_sent = (int) ($row['sent_count'] ?? 0);
         $total_failed = (int) ($row['failed_count'] ?? 0);
@@ -275,11 +275,11 @@ final class SendLoop
     /**
      * @return array<int, string>
      */
-    private function build_headers(int $campaign_id, string $prefs_token, string $from_name_override, string $reply_to): array
+    private function build_headers(int $newsletter_id, string $prefs_token, string $from_name_override, string $reply_to): array
     {
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
-            self::HEADER_CAMPAIGN_ID . ': ' . (int) $campaign_id,
+            self::HEADER_NEWSLETTER_ID . ': ' . (int) $newsletter_id,
         ];
         if ($from_name_override !== '') {
             $headers[] = 'X-Lrob-Etk-From-Name: ' . self::strip_crlf($from_name_override);

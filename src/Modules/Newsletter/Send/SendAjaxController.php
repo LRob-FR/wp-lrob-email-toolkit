@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter\Send;
 
 use LRob\EmailToolkit\Activator;
-use LRob\EmailToolkit\Modules\Newsletter\CampaignCPT;
-use LRob\EmailToolkit\Modules\Newsletter\CampaignRepository;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
@@ -28,12 +28,12 @@ use LRob\EmailToolkit\Support\Events;
  *    flags these so future tracking + logging integrations can exclude
  *    them from stats.
  *
- * One shared nonce action (`lrob_etk_nl_campaign_send`) gates both.
+ * One shared nonce action (`lrob_etk_nl_newsletter_send`) gates both.
  * Capability check via Activator::CAPABILITY on every call.
  */
 final class SendAjaxController
 {
-    public const NONCE_ACTION = 'lrob_etk_nl_campaign_send';
+    public const NONCE_ACTION = 'lrob_etk_nl_newsletter_send';
 
     public const ACTION_TICK      = 'lrob_etk_nl_send_tick';
 
@@ -46,7 +46,7 @@ final class SendAjaxController
     public function __construct(
         private Materializer $materializer,
         private SendLoop $loop,
-        private CampaignRepository $campaigns,
+        private NewsletterRepository $newsletters,
         private ListRepository $lists,
     ) {
     }
@@ -60,36 +60,36 @@ final class SendAjaxController
     public function handle_tick(): void
     {
         $this->guard();
-        $campaign_id = isset($_POST['campaign_id']) ? (int) wp_unslash((string) $_POST['campaign_id']) : 0;
+        $newsletter_id = isset($_POST['newsletter_id']) ? (int) wp_unslash((string) $_POST['newsletter_id']) : 0;
         $batch_size = isset($_POST['batch_size']) ? (int) wp_unslash((string) $_POST['batch_size']) : SendLoop::DEFAULT_BATCH;
-        if ($campaign_id <= 0) {
-            wp_send_json_error(['message' => __('Missing campaign id.', 'lrob-email-toolkit')], 400);
+        if ($newsletter_id <= 0) {
+            wp_send_json_error(['message' => __('Missing newsletter id.', 'lrob-email-toolkit')], 400);
         }
-        $post = get_post($campaign_id);
-        if (!$post instanceof \WP_Post || $post->post_type !== CampaignCPT::POST_TYPE) {
-            wp_send_json_error(['message' => __('Campaign not found.', 'lrob-email-toolkit')], 404);
+        $post = get_post($newsletter_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            wp_send_json_error(['message' => __('Newsletter not found.', 'lrob-email-toolkit')], 404);
         }
 
         // First tick may need to materialize. Subsequent ticks are
         // no-ops on the materializer (it short-circuits when rows
         // already exist).
-        $this->materializer->materialize($campaign_id);
+        $this->materializer->materialize($newsletter_id);
 
-        $progress = $this->loop->tick($campaign_id, $batch_size);
+        $progress = $this->loop->tick($newsletter_id, $batch_size);
         wp_send_json_success($progress);
     }
 
     public function handle_test_send(): void
     {
         $this->guard();
-        $campaign_id = isset($_POST['campaign_id']) ? (int) wp_unslash((string) $_POST['campaign_id']) : 0;
+        $newsletter_id = isset($_POST['newsletter_id']) ? (int) wp_unslash((string) $_POST['newsletter_id']) : 0;
         $target = isset($_POST['target']) ? sanitize_key(wp_unslash((string) $_POST['target'])) : '';
-        if ($campaign_id <= 0) {
-            wp_send_json_error(['message' => __('Missing campaign id.', 'lrob-email-toolkit')], 400);
+        if ($newsletter_id <= 0) {
+            wp_send_json_error(['message' => __('Missing newsletter id.', 'lrob-email-toolkit')], 400);
         }
-        $post = get_post($campaign_id);
-        if (!$post instanceof \WP_Post || $post->post_type !== CampaignCPT::POST_TYPE) {
-            wp_send_json_error(['message' => __('Campaign not found.', 'lrob-email-toolkit')], 404);
+        $post = get_post($newsletter_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            wp_send_json_error(['message' => __('Newsletter not found.', 'lrob-email-toolkit')], 404);
         }
 
         $recipients = $this->resolve_test_recipients($target);
@@ -99,19 +99,19 @@ final class SendAjaxController
 
         $subject_prefix = '[TEST] ';
         $subject = $subject_prefix . ($post->post_title !== '' ? $post->post_title : __('(no subject)', 'lrob-email-toolkit'));
-        $from_name_override = (string) get_post_meta($campaign_id, CampaignCPT::META_FROM_NAME_OVERRIDE, true);
-        $reply_to = (string) get_post_meta($campaign_id, CampaignCPT::META_REPLY_TO_OVERRIDE, true);
+        $from_name_override = (string) get_post_meta($newsletter_id, NewsletterCPT::META_FROM_NAME_OVERRIDE, true);
+        $reply_to = (string) get_post_meta($newsletter_id, NewsletterCPT::META_REPLY_TO_OVERRIDE, true);
 
         $sent = 0;
         $failed = 0;
         foreach ($recipients as $r) {
-            $tokens = CampaignRenderer::tokens_for_recipient($r['email'], $r['name'], $r['prefs_token']);
-            $body = CampaignRenderer::render($campaign_id, $tokens);
+            $tokens = NewsletterRenderer::tokens_for_recipient($r['email'], $r['name'], $r['prefs_token']);
+            $body = NewsletterRenderer::render($newsletter_id, $tokens);
             if ($body === '' || !is_email($r['email'])) {
                 $failed++;
                 continue;
             }
-            $headers = $this->build_test_headers($campaign_id, $r['prefs_token'], $from_name_override, $reply_to);
+            $headers = $this->build_test_headers($newsletter_id, $r['prefs_token'], $from_name_override, $reply_to);
             $ok = (bool) wp_mail($r['email'], $subject, $body, $headers);
             if ($ok) {
                 $sent++;
@@ -120,8 +120,8 @@ final class SendAjaxController
             }
         }
 
-        Events::dispatch('newsletter.campaign.test_sent', [
-            'campaign_id' => $campaign_id,
+        Events::dispatch('newsletter.test_sent', [
+            'newsletter_id' => $newsletter_id,
             'target'      => $target,
             'sent'        => $sent,
             'failed'      => $failed,
@@ -219,11 +219,11 @@ final class SendAjaxController
     /**
      * @return array<int, string>
      */
-    private function build_test_headers(int $campaign_id, string $prefs_token, string $from_name_override, string $reply_to): array
+    private function build_test_headers(int $newsletter_id, string $prefs_token, string $from_name_override, string $reply_to): array
     {
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
-            SendLoop::HEADER_CAMPAIGN_ID . ': ' . (int) $campaign_id,
+            SendLoop::HEADER_NEWSLETTER_ID . ': ' . (int) $newsletter_id,
             self::HEADER_TEST . ': 1',
         ];
         if ($from_name_override !== '') {

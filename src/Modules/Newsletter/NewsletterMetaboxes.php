@@ -14,7 +14,7 @@ use LRob\EmailToolkit\Modules\SMTP\IdentityRepository as SMTPIdentityRepository;
  * schedule, tracking). Standard add_meta_box surfaces — matches the
  * codebase's preference for vanilla PHP/JS over JSX/React. Each box
  * renders a wp_nonce_field; the shared save_post hook validates every
- * nonce + writes the meta. The companion-row sync (CampaignRepository
+ * nonce + writes the meta. The companion-row sync (NewsletterRepository
  * ensure_row) runs unconditionally on save so a new campaign always
  * has a draft companion row by the time the admin first edits it.
  *
@@ -23,14 +23,14 @@ use LRob\EmailToolkit\Modules\SMTP\IdentityRepository as SMTPIdentityRepository;
  * "(default routing)" placeholder otherwise. Send pipeline (step 7)
  * is the consumer.
  */
-final class CampaignMetaboxes
+final class NewsletterMetaboxes
 {
-    private const NONCE_FIELD = '_lrob_etk_nl_campaign_nonce';
+    private const NONCE_FIELD = '_lrob_etk_nl_newsletter_nonce';
 
-    private const NONCE_ACTION = 'lrob_etk_nl_campaign_save';
+    private const NONCE_ACTION = 'lrob_etk_nl_newsletter_save';
 
     public function __construct(
-        private CampaignRepository $campaigns,
+        private NewsletterRepository $newsletters,
         private CategoryRepository $categories,
         private ListRepository $lists,
         private Container $container,
@@ -39,8 +39,8 @@ final class CampaignMetaboxes
 
     public function register(): void
     {
-        add_action('add_meta_boxes_' . CampaignCPT::POST_TYPE, [$this, 'register_boxes']);
-        add_action('save_post_' . CampaignCPT::POST_TYPE, [$this, 'save'], 10, 2);
+        add_action('add_meta_boxes_' . NewsletterCPT::POST_TYPE, [$this, 'register_boxes']);
+        add_action('save_post_' . NewsletterCPT::POST_TYPE, [$this, 'save'], 10, 2);
         add_action('before_delete_post', [$this, 'on_before_delete']);
     }
 
@@ -50,7 +50,7 @@ final class CampaignMetaboxes
             'lrob-etk-nl-campaign-send',
             __('Send', 'lrob-email-toolkit'),
             [$this, 'render_send_box'],
-            CampaignCPT::POST_TYPE,
+            NewsletterCPT::POST_TYPE,
             'side',
             'high'
         );
@@ -58,7 +58,7 @@ final class CampaignMetaboxes
             'lrob-etk-nl-campaign-sender',
             __('Sender & preview', 'lrob-email-toolkit'),
             [$this, 'render_sender_box'],
-            CampaignCPT::POST_TYPE,
+            NewsletterCPT::POST_TYPE,
             'side',
             'high'
         );
@@ -66,7 +66,7 @@ final class CampaignMetaboxes
             'lrob-etk-nl-campaign-audience',
             __('Audience', 'lrob-email-toolkit'),
             [$this, 'render_audience_box'],
-            CampaignCPT::POST_TYPE,
+            NewsletterCPT::POST_TYPE,
             'normal',
             'high'
         );
@@ -74,7 +74,7 @@ final class CampaignMetaboxes
             'lrob-etk-nl-campaign-schedule',
             __('Schedule', 'lrob-email-toolkit'),
             [$this, 'render_schedule_box'],
-            CampaignCPT::POST_TYPE,
+            NewsletterCPT::POST_TYPE,
             'side',
             'default'
         );
@@ -82,7 +82,7 @@ final class CampaignMetaboxes
             'lrob-etk-nl-campaign-tracking',
             __('Tracking', 'lrob-email-toolkit'),
             [$this, 'render_tracking_box'],
-            CampaignCPT::POST_TYPE,
+            NewsletterCPT::POST_TYPE,
             'side',
             'default'
         );
@@ -90,14 +90,14 @@ final class CampaignMetaboxes
 
     public function render_send_box(\WP_Post $post): void
     {
-        $companion = $this->campaigns->find_by_post_id($post->ID);
-        $status = (string) ($companion['status'] ?? CampaignRepository::STATUS_DRAFT);
+        $companion = $this->newsletters->find_by_post_id($post->ID);
+        $status = (string) ($companion['status'] ?? NewsletterRepository::STATUS_DRAFT);
         $is_terminal = in_array($status, [
-            CampaignRepository::STATUS_SENT,
-            CampaignRepository::STATUS_FAILED,
-            CampaignRepository::STATUS_ABORTED,
+            NewsletterRepository::STATUS_SENT,
+            NewsletterRepository::STATUS_FAILED,
+            NewsletterRepository::STATUS_ABORTED,
         ], true);
-        $is_sending = $status === CampaignRepository::STATUS_SENDING;
+        $is_sending = $status === NewsletterRepository::STATUS_SENDING;
         $total = (int) ($companion['total_recipients'] ?? 0);
         $sent = (int) ($companion['sent_count'] ?? 0);
         $failed = (int) ($companion['failed_count'] ?? 0);
@@ -109,10 +109,10 @@ final class CampaignMetaboxes
         $test_list = $test_list_id > 0 ? $this->lists->find($test_list_id) : null;
         $test_list_name = $test_list !== null ? (string) ($test_list['name'] ?? '') : '';
 
-        /* translators: %s: campaign title in confirmation prompt */
+        /* translators: %s: newsletter title in confirmation prompt */
         $confirm_send = __('Send "%s" to every targeted recipient? This cannot be undone once it starts.', 'lrob-email-toolkit');
         ?>
-        <div class="lrob-etk-nl-send-box" data-campaign-id="<?php echo (int) $post->ID; ?>">
+        <div class="lrob-etk-nl-send-box" data-newsletter-id="<?php echo (int) $post->ID; ?>">
             <p>
                 <strong><?php esc_html_e('Status', 'lrob-email-toolkit'); ?>:</strong>
                 <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($status); ?>" data-send-status>
@@ -190,7 +190,7 @@ final class CampaignMetaboxes
                         <span class="lrob-etk-nl-send-test-result" data-test-result aria-live="polite"></span>
                     </p>
                     <p class="description">
-                        <?php esc_html_e('Test sends use the campaign\'s content + sender settings. They don\'t affect counters or recipients.', 'lrob-email-toolkit'); ?>
+                        <?php esc_html_e('Test sends use the newsletter\'s content + sender settings. They don\'t affect counters or recipients.', 'lrob-email-toolkit'); ?>
                     </p>
                 </div>
             </details>
@@ -207,7 +207,7 @@ final class CampaignMetaboxes
         (function () {
             var root = document.querySelector('.lrob-etk-nl-send-box');
             if (!root) return;
-            var campaignId = parseInt(root.getAttribute('data-campaign-id'), 10) || 0;
+            var newsletterId = parseInt(root.getAttribute('data-newsletter-id'), 10) || 0;
             var ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
             var nonce = <?php echo wp_json_encode($nonce); ?>;
             var actions = {
@@ -253,7 +253,7 @@ final class CampaignMetaboxes
             }
 
             function loopTick() {
-                post(actions.tick, { campaign_id: campaignId }).then(function (resp) {
+                post(actions.tick, { newsletter_id: newsletterId }).then(function (resp) {
                     if (!resp || !resp.success) {
                         window.alert((resp && resp.data && resp.data.message) || i18n.tickFailed);
                         return;
@@ -341,7 +341,7 @@ final class CampaignMetaboxes
                     testBtn.disabled = true;
                     if (resultEl) resultEl.textContent = '';
                     saveFirst().then(function () {
-                        return post(actions.test, { campaign_id: campaignId, target: target, email: email });
+                        return post(actions.test, { newsletter_id: newsletterId, target: target, email: email });
                     }).then(function (resp) {
                         testBtn.disabled = false;
                         if (resp && resp.success) {
@@ -360,10 +360,10 @@ final class CampaignMetaboxes
     public function render_sender_box(\WP_Post $post): void
     {
         wp_nonce_field(self::NONCE_ACTION, self::NONCE_FIELD);
-        $preview_text = (string) get_post_meta($post->ID, CampaignCPT::META_PREVIEW_TEXT, true);
-        $from_name = (string) get_post_meta($post->ID, CampaignCPT::META_FROM_NAME_OVERRIDE, true);
-        $reply_to = (string) get_post_meta($post->ID, CampaignCPT::META_REPLY_TO_OVERRIDE, true);
-        $identity_id = (int) get_post_meta($post->ID, CampaignCPT::META_SMTP_IDENTITY, true);
+        $preview_text = (string) get_post_meta($post->ID, NewsletterCPT::META_PREVIEW_TEXT, true);
+        $from_name = (string) get_post_meta($post->ID, NewsletterCPT::META_FROM_NAME_OVERRIDE, true);
+        $reply_to = (string) get_post_meta($post->ID, NewsletterCPT::META_REPLY_TO_OVERRIDE, true);
+        $identity_id = (int) get_post_meta($post->ID, NewsletterCPT::META_SMTP_IDENTITY, true);
         $identities = $this->available_identities();
         ?>
         <div class="lrob-etk-nl-campaign-meta">
@@ -414,10 +414,10 @@ final class CampaignMetaboxes
 
     public function render_audience_box(\WP_Post $post): void
     {
-        $category_id = (int) get_post_meta($post->ID, CampaignCPT::META_CATEGORY_ID, true);
-        $target_raw = (string) get_post_meta($post->ID, CampaignCPT::META_TARGET_SPEC, true);
+        $category_id = (int) get_post_meta($post->ID, NewsletterCPT::META_CATEGORY_ID, true);
+        $target_raw = (string) get_post_meta($post->ID, NewsletterCPT::META_TARGET_SPEC, true);
         $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : [];
-        $target_kind = (string) ($target['kind'] ?? CampaignCPT::TARGET_KIND_ALL);
+        $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
         $target_list_id = (int) ($target['list_id'] ?? 0);
 
         $cats = $this->categories->list_all();
@@ -443,19 +443,19 @@ final class CampaignMetaboxes
             <fieldset class="lrob-etk-nl-campaign-target">
                 <legend><strong><?php esc_html_e('Send to', 'lrob-email-toolkit'); ?></strong></legend>
                 <label>
-                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(CampaignCPT::TARGET_KIND_ALL); ?>" <?php checked($target_kind, CampaignCPT::TARGET_KIND_ALL); ?>>
+                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(NewsletterCPT::TARGET_KIND_ALL); ?>" <?php checked($target_kind, NewsletterCPT::TARGET_KIND_ALL); ?>>
                     <?php esc_html_e('All recipients (confirmed subscribers + opted-in WP users)', 'lrob-email-toolkit'); ?>
                 </label>
                 <label>
-                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(CampaignCPT::TARGET_KIND_ALL_SUBSCRIBERS); ?>" <?php checked($target_kind, CampaignCPT::TARGET_KIND_ALL_SUBSCRIBERS); ?>>
+                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS); ?>" <?php checked($target_kind, NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS); ?>>
                     <?php esc_html_e('All confirmed subscribers (email-only)', 'lrob-email-toolkit'); ?>
                 </label>
                 <label>
-                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(CampaignCPT::TARGET_KIND_ALL_USERS); ?>" <?php checked($target_kind, CampaignCPT::TARGET_KIND_ALL_USERS); ?>>
+                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(NewsletterCPT::TARGET_KIND_ALL_USERS); ?>" <?php checked($target_kind, NewsletterCPT::TARGET_KIND_ALL_USERS); ?>>
                     <?php esc_html_e('All opted-in WordPress users', 'lrob-email-toolkit'); ?>
                 </label>
                 <label>
-                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(CampaignCPT::TARGET_KIND_LIST); ?>" <?php checked($target_kind, CampaignCPT::TARGET_KIND_LIST); ?>>
+                    <input type="radio" name="lrob_etk_nl_target_kind" value="<?php echo esc_attr(NewsletterCPT::TARGET_KIND_LIST); ?>" <?php checked($target_kind, NewsletterCPT::TARGET_KIND_LIST); ?>>
                     <?php esc_html_e('Specific list', 'lrob-email-toolkit'); ?>
                 </label>
                 <div class="lrob-etk-nl-campaign-list-picker" data-target-list-picker>
@@ -477,7 +477,7 @@ final class CampaignMetaboxes
             var picker = root.querySelector('[data-target-list-picker]');
             function sync() {
                 var sel = root.querySelector('input[name="lrob_etk_nl_target_kind"]:checked');
-                var on = sel && sel.value === <?php echo wp_json_encode(CampaignCPT::TARGET_KIND_LIST); ?>;
+                var on = sel && sel.value === <?php echo wp_json_encode(NewsletterCPT::TARGET_KIND_LIST); ?>;
                 picker.style.display = on ? '' : 'none';
             }
             root.addEventListener('change', function (e) {
@@ -497,9 +497,9 @@ final class CampaignMetaboxes
 
     public function render_schedule_box(\WP_Post $post): void
     {
-        $scheduled_at = (string) get_post_meta($post->ID, CampaignCPT::META_SCHEDULED_AT, true);
-        $companion = $this->campaigns->find_by_post_id($post->ID);
-        $status = (string) ($companion['status'] ?? CampaignRepository::STATUS_DRAFT);
+        $scheduled_at = (string) get_post_meta($post->ID, NewsletterCPT::META_SCHEDULED_AT, true);
+        $companion = $this->newsletters->find_by_post_id($post->ID);
+        $status = (string) ($companion['status'] ?? NewsletterRepository::STATUS_DRAFT);
         // Convert UTC stored value to local datetime-local input value.
         $input_value = '';
         if ($scheduled_at !== '') {
@@ -531,11 +531,11 @@ final class CampaignMetaboxes
 
     public function render_tracking_box(\WP_Post $post): void
     {
-        $existing = (string) get_post_meta($post->ID, CampaignCPT::META_TRACK_OPENS, true);
+        $existing = (string) get_post_meta($post->ID, NewsletterCPT::META_TRACK_OPENS, true);
         $opens = $existing === '' ? true : (bool) $existing;
-        $existing_clicks = (string) get_post_meta($post->ID, CampaignCPT::META_TRACK_CLICKS, true);
+        $existing_clicks = (string) get_post_meta($post->ID, NewsletterCPT::META_TRACK_CLICKS, true);
         $clicks = $existing_clicks === '' ? true : (bool) $existing_clicks;
-        $log_all = (bool) get_post_meta($post->ID, CampaignCPT::META_LOG_ALL_SENDS, true);
+        $log_all = (bool) get_post_meta($post->ID, NewsletterCPT::META_LOG_ALL_SENDS, true);
         ?>
         <div class="lrob-etk-nl-campaign-meta">
             <p>
@@ -571,7 +571,7 @@ final class CampaignMetaboxes
         if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
             return;
         }
-        if ($post->post_type !== CampaignCPT::POST_TYPE) {
+        if ($post->post_type !== NewsletterCPT::POST_TYPE) {
             return;
         }
         $nonce = isset($_POST[self::NONCE_FIELD]) ? (string) wp_unslash((string) $_POST[self::NONCE_FIELD]) : '';
@@ -579,7 +579,7 @@ final class CampaignMetaboxes
             // No nonce = Gutenberg REST save (uses register_meta's
             // own auth_callback). Skip the metabox-write path; the
             // companion-row sync below still runs.
-            $this->campaigns->ensure_row($post_id);
+            $this->newsletters->ensure_row($post_id);
             return;
         }
         if (!current_user_can(Activator::CAPABILITY)) {
@@ -587,8 +587,8 @@ final class CampaignMetaboxes
         }
 
         $string_fields = [
-            CampaignCPT::META_PREVIEW_TEXT       => 'lrob_etk_nl_preview_text',
-            CampaignCPT::META_FROM_NAME_OVERRIDE => 'lrob_etk_nl_from_name_override',
+            NewsletterCPT::META_PREVIEW_TEXT       => 'lrob_etk_nl_preview_text',
+            NewsletterCPT::META_FROM_NAME_OVERRIDE => 'lrob_etk_nl_from_name_override',
         ];
         foreach ($string_fields as $meta_key => $post_key) {
             $value = isset($_POST[$post_key]) ? sanitize_text_field(wp_unslash((string) $_POST[$post_key])) : '';
@@ -598,43 +598,43 @@ final class CampaignMetaboxes
         $reply_to = isset($_POST['lrob_etk_nl_reply_to_override'])
             ? sanitize_email(wp_unslash((string) $_POST['lrob_etk_nl_reply_to_override']))
             : '';
-        update_post_meta($post_id, CampaignCPT::META_REPLY_TO_OVERRIDE, $reply_to);
+        update_post_meta($post_id, NewsletterCPT::META_REPLY_TO_OVERRIDE, $reply_to);
 
         $identity_id = isset($_POST['lrob_etk_nl_smtp_identity_id'])
             ? (int) wp_unslash((string) $_POST['lrob_etk_nl_smtp_identity_id'])
             : 0;
-        update_post_meta($post_id, CampaignCPT::META_SMTP_IDENTITY, $identity_id);
+        update_post_meta($post_id, NewsletterCPT::META_SMTP_IDENTITY, $identity_id);
 
         $category_id = isset($_POST['lrob_etk_nl_category_id'])
             ? (int) wp_unslash((string) $_POST['lrob_etk_nl_category_id'])
             : 0;
-        update_post_meta($post_id, CampaignCPT::META_CATEGORY_ID, $category_id);
+        update_post_meta($post_id, NewsletterCPT::META_CATEGORY_ID, $category_id);
 
         $target_kind = isset($_POST['lrob_etk_nl_target_kind'])
             ? sanitize_key(wp_unslash((string) $_POST['lrob_etk_nl_target_kind']))
-            : CampaignCPT::TARGET_KIND_ALL;
+            : NewsletterCPT::TARGET_KIND_ALL;
         $allowed = [
-            CampaignCPT::TARGET_KIND_ALL,
-            CampaignCPT::TARGET_KIND_ALL_USERS,
-            CampaignCPT::TARGET_KIND_ALL_SUBSCRIBERS,
-            CampaignCPT::TARGET_KIND_LIST,
+            NewsletterCPT::TARGET_KIND_ALL,
+            NewsletterCPT::TARGET_KIND_ALL_USERS,
+            NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS,
+            NewsletterCPT::TARGET_KIND_LIST,
         ];
         if (!in_array($target_kind, $allowed, true)) {
-            $target_kind = CampaignCPT::TARGET_KIND_ALL;
+            $target_kind = NewsletterCPT::TARGET_KIND_ALL;
         }
         $target_spec = ['kind' => $target_kind];
-        if ($target_kind === CampaignCPT::TARGET_KIND_LIST) {
+        if ($target_kind === NewsletterCPT::TARGET_KIND_LIST) {
             $target_spec['list_id'] = isset($_POST['lrob_etk_nl_target_list_id'])
                 ? (int) wp_unslash((string) $_POST['lrob_etk_nl_target_list_id'])
                 : 0;
         }
-        update_post_meta($post_id, CampaignCPT::META_TARGET_SPEC, (string) wp_json_encode($target_spec));
+        update_post_meta($post_id, NewsletterCPT::META_TARGET_SPEC, (string) wp_json_encode($target_spec));
 
         $scheduled_raw = isset($_POST['lrob_etk_nl_scheduled_at'])
             ? trim((string) wp_unslash((string) $_POST['lrob_etk_nl_scheduled_at']))
             : '';
         if ($scheduled_raw === '') {
-            update_post_meta($post_id, CampaignCPT::META_SCHEDULED_AT, '');
+            update_post_meta($post_id, NewsletterCPT::META_SCHEDULED_AT, '');
         } else {
             // Input is local time (datetime-local has no tz). Read it
             // through wp_date's clock so the stored UTC matches what
@@ -642,31 +642,31 @@ final class CampaignMetaboxes
             $ts = strtotime($scheduled_raw . ' ' . wp_timezone_string());
             update_post_meta(
                 $post_id,
-                CampaignCPT::META_SCHEDULED_AT,
+                NewsletterCPT::META_SCHEDULED_AT,
                 $ts === false ? '' : gmdate('Y-m-d H:i:s', $ts)
             );
         }
 
-        update_post_meta($post_id, CampaignCPT::META_TRACK_OPENS, !empty($_POST['lrob_etk_nl_track_opens']));
-        update_post_meta($post_id, CampaignCPT::META_TRACK_CLICKS, !empty($_POST['lrob_etk_nl_track_clicks']));
-        update_post_meta($post_id, CampaignCPT::META_LOG_ALL_SENDS, !empty($_POST['lrob_etk_nl_log_all_sends']));
+        update_post_meta($post_id, NewsletterCPT::META_TRACK_OPENS, !empty($_POST['lrob_etk_nl_track_opens']));
+        update_post_meta($post_id, NewsletterCPT::META_TRACK_CLICKS, !empty($_POST['lrob_etk_nl_track_clicks']));
+        update_post_meta($post_id, NewsletterCPT::META_LOG_ALL_SENDS, !empty($_POST['lrob_etk_nl_log_all_sends']));
 
         // Companion row always exists by the time the editor renders
         // again. ensure_row is idempotent (INSERT IGNORE).
-        $this->campaigns->ensure_row($post_id);
+        $this->newsletters->ensure_row($post_id);
 
         // Reflect scheduled-vs-draft on the companion status if it's
         // still in a pre-send state. Once the send pipeline starts the
         // companion through sending/sent/etc, manual scheduling
         // changes shouldn't yank the row back.
-        $row = $this->campaigns->find_by_post_id($post_id);
-        $current = (string) ($row['status'] ?? CampaignRepository::STATUS_DRAFT);
-        if (in_array($current, [CampaignRepository::STATUS_DRAFT, CampaignRepository::STATUS_SCHEDULED], true)) {
+        $row = $this->newsletters->find_by_post_id($post_id);
+        $current = (string) ($row['status'] ?? NewsletterRepository::STATUS_DRAFT);
+        if (in_array($current, [NewsletterRepository::STATUS_DRAFT, NewsletterRepository::STATUS_SCHEDULED], true)) {
             $next = $scheduled_raw !== ''
-                ? CampaignRepository::STATUS_SCHEDULED
-                : CampaignRepository::STATUS_DRAFT;
+                ? NewsletterRepository::STATUS_SCHEDULED
+                : NewsletterRepository::STATUS_DRAFT;
             if ($next !== $current) {
-                $this->campaigns->update_status($post_id, $next);
+                $this->newsletters->update_status($post_id, $next);
             }
         }
     }
@@ -674,10 +674,10 @@ final class CampaignMetaboxes
     public function on_before_delete(int $post_id): void
     {
         $post = get_post($post_id);
-        if (!$post instanceof \WP_Post || $post->post_type !== CampaignCPT::POST_TYPE) {
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
             return;
         }
-        $this->campaigns->delete_for_post($post_id);
+        $this->newsletters->delete_for_post($post_id);
     }
 
     /**
@@ -707,13 +707,13 @@ final class CampaignMetaboxes
     private static function translate_status(string $status): string
     {
         return match ($status) {
-            CampaignRepository::STATUS_DRAFT     => __('Draft', 'lrob-email-toolkit'),
-            CampaignRepository::STATUS_SCHEDULED => __('Scheduled', 'lrob-email-toolkit'),
-            CampaignRepository::STATUS_SENDING   => __('Sending', 'lrob-email-toolkit'),
-            CampaignRepository::STATUS_PAUSED    => __('Paused', 'lrob-email-toolkit'),
-            CampaignRepository::STATUS_SENT      => __('Sent', 'lrob-email-toolkit'),
-            CampaignRepository::STATUS_FAILED    => __('Failed', 'lrob-email-toolkit'),
-            CampaignRepository::STATUS_ABORTED   => __('Aborted', 'lrob-email-toolkit'),
+            NewsletterRepository::STATUS_DRAFT     => __('Draft', 'lrob-email-toolkit'),
+            NewsletterRepository::STATUS_SCHEDULED => __('Scheduled', 'lrob-email-toolkit'),
+            NewsletterRepository::STATUS_SENDING   => __('Sending', 'lrob-email-toolkit'),
+            NewsletterRepository::STATUS_PAUSED    => __('Paused', 'lrob-email-toolkit'),
+            NewsletterRepository::STATUS_SENT      => __('Sent', 'lrob-email-toolkit'),
+            NewsletterRepository::STATUS_FAILED    => __('Failed', 'lrob-email-toolkit'),
+            NewsletterRepository::STATUS_ABORTED   => __('Aborted', 'lrob-email-toolkit'),
             default                              => $status,
         };
     }

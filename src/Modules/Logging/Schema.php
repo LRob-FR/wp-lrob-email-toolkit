@@ -8,7 +8,7 @@ namespace LRob\EmailToolkit\Modules\Logging;
  * Owns the Logging module's database schema. dbDelta SQL is hand-formatted —
  * two spaces before PRIMARY KEY, lowercase column types, no IF NOT EXISTS.
  *
- * Columns reserved for future modules (campaign_id, recipient_id, message_id,
+ * Columns reserved for future modules (newsletter_id, recipient_id, message_id,
  * provider) are present from v1 so we don't need a migration once Newsletter
  * and IMAP-save land — they just start populating those columns.
  */
@@ -16,7 +16,14 @@ final class Schema
 {
     public const TABLE = 'lrob_etk_logs';
 
-    private const SCHEMA_VERSION = '1';
+    /**
+     * Schema versions:
+     *   1 — initial install with placeholder columns for future modules.
+     *   2 — rename `campaign_id` column → `newsletter_id` to align with
+     *       the Newsletter module's class/CPT rename (the column was
+     *       reserved but never written to; rename is data-safe).
+     */
+    private const SCHEMA_VERSION = '2';
 
     private const VERSION_OPTION = 'lrob_etk_logging_db_version';
 
@@ -33,6 +40,28 @@ final class Schema
             return;
         }
 
+        // v1 → v2: rename the placeholder column before dbDelta runs.
+        // dbDelta can't rename columns (only add); we must ALTER first
+        // so the upcoming CREATE TABLE matches and dbDelta is a no-op.
+        if ($installed === '1') {
+            global $wpdb;
+            $table = $wpdb->prefix . self::TABLE;
+            $has_old = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM information_schema.COLUMNS
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = %s
+                    AND COLUMN_NAME = 'campaign_id'",
+                $table
+            ));
+            if ($has_old > 0) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query("ALTER TABLE `$table` CHANGE `campaign_id` `newsletter_id` bigint(20) unsigned DEFAULT NULL");
+                // Drop the old index name; dbDelta will recreate by the new name.
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query("ALTER TABLE `$table` DROP INDEX `campaign_id`");
+            }
+        }
+
         global $wpdb;
         $table = self::table_name();
         $charset_collate = $wpdb->get_charset_collate();
@@ -45,7 +74,7 @@ final class Schema
             status varchar(20) NOT NULL DEFAULT 'sending',
             source varchar(50) NOT NULL DEFAULT 'unknown',
             identity_id bigint(20) unsigned DEFAULT NULL,
-            campaign_id bigint(20) unsigned DEFAULT NULL,
+            newsletter_id bigint(20) unsigned DEFAULT NULL,
             recipient_id bigint(20) unsigned DEFAULT NULL,
             from_email varchar(190) NOT NULL DEFAULT '',
             from_name varchar(190) DEFAULT NULL,
@@ -67,7 +96,7 @@ final class Schema
             KEY status_created (status, created_at),
             KEY source (source),
             KEY created_at (created_at),
-            KEY campaign_id (campaign_id),
+            KEY newsletter_id (newsletter_id),
             KEY identity_id (identity_id)
         ) $charset_collate;";
 

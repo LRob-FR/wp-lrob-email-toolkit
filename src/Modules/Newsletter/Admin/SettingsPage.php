@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Modules\Newsletter\ReminderCron;
+use LRob\EmailToolkit\Modules\Newsletter\Send\NewsletterFooter;
 use LRob\EmailToolkit\Modules\Newsletter\TrashCron;
 
 /**
@@ -40,7 +41,46 @@ final class SettingsPage
 
             <?php self::render_reminder_schedule_section(true); ?>
             <?php self::render_trash_retention_section(); ?>
+            <?php self::render_newsletter_footer_section(); ?>
         </section>
+        <?php
+    }
+
+    /**
+     * Newsletter footer section. The footer is appended to every
+     * sent newsletter; admins can rewrite the copy but the renderer
+     * enforces presence of {{unsub_url}} (falls back to the default
+     * otherwise so unsub-less mail never goes out).
+     */
+    public static function render_newsletter_footer_section(): void
+    {
+        $stored = (string) get_option(NewsletterFooter::OPTION_HTML, '');
+        $value = $stored !== '' ? $stored : NewsletterFooter::default_html();
+        $available_tokens = ['{{prefs_url}}', '{{unsub_url}}', '{{site_name}}', '{{site_url}}', '{{name}}', '{{first_name}}', '{{email}}'];
+        ?>
+        <article class="lrob-etk-nl-settings-group">
+            <h3 class="lrob-etk-nl-settings-group-title"><?php esc_html_e('Newsletter footer', 'lrob-email-toolkit'); ?></h3>
+            <p class="lrob-etk-nl-settings-group-intro">
+                <?php esc_html_e('Appended to every sent newsletter. Customise the copy and layout, but keep {{unsub_url}} — if you remove it, the renderer falls back to the default so unsubscribe links always reach the recipient.', 'lrob-email-toolkit'); ?>
+            </p>
+
+            <div class="lrob-etk-nl-settings-row lrob-etk-nl-settings-row--full">
+                <label for="lrob-etk-nl-setting-footer">
+                    <?php esc_html_e('Footer HTML', 'lrob-email-toolkit'); ?>
+                </label>
+                <textarea id="lrob-etk-nl-setting-footer"
+                          class="lrob-etk-nl-field lrob-etk-nl-field-textarea"
+                          data-key="setting-newsletter-footer"
+                          data-option-key="<?php echo esc_attr(NewsletterFooter::OPTION_HTML); ?>"
+                          rows="10"><?php echo esc_textarea($value); ?></textarea>
+                <p class="description">
+                    <?php esc_html_e('Available tokens:', 'lrob-email-toolkit'); ?>
+                    <?php foreach ($available_tokens as $i => $token) : ?>
+                        <code><?php echo esc_html($token); ?></code><?php echo $i < count($available_tokens) - 1 ? ' ' : ''; ?>
+                    <?php endforeach; ?>
+                </p>
+            </div>
+        </article>
         <?php
     }
 

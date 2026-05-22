@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter\Send;
 
-use LRob\EmailToolkit\Modules\Newsletter\CampaignCPT;
-use LRob\EmailToolkit\Modules\Newsletter\CampaignRepository;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
 
 /**
- * Resolves a campaign's target_spec into rows in
- * `wp_lrob_etk_nl_campaign_recipients`. One-time per campaign — once
- * a row exists for a campaign in the recipients table, materialize()
- * is a no-op (the existence check uses the (campaign_id, kind, id)
- * UNIQUE so re-runs are safe but pointless).
+ * Resolves a newsletter's target_spec into rows in
+ * `wp_lrob_etk_nl_newsletter_recipients`. One-time per newsletter —
+ * once a row exists for a newsletter in the recipients table,
+ * materialize() is a no-op (the existence check uses the
+ * (newsletter_id, kind, id) UNIQUE so re-runs are safe but pointless).
  *
  * Filters at materialization time:
  *   - WP users: lrob_etk_nl_opted_in = '1' AND status user_meta NOT in
  *     {bounced, refused, unsubscribed}.
  *   - Subscribers: status = 'confirmed'.
- *   - Both: the campaign's category slug is NOT in the recipient's
+ *   - Both: the newsletter's category slug is NOT in the recipient's
  *     category_opt_outs JSON.
  *   - List target: only members of that list, intersected with the
  *     above filters.
@@ -30,15 +30,15 @@ use LRob\EmailToolkit\Support\Events;
  * Inserts use chunked multi-value INSERTs (50 rows per query) to
  * keep wpdb prepared-statement size bounded on big targets.
  *
- * On success: flips campaign status to `sending`, sets total_recipients,
- * stamps started_at, fires `newsletter.campaign.started`.
+ * On success: flips newsletter status to `sending`, sets total_recipients,
+ * stamps started_at, fires `newsletter.started`.
  */
 final class Materializer
 {
     private const INSERT_CHUNK = 50;
 
     public function __construct(
-        private CampaignRepository $campaigns,
+        private NewsletterRepository $newsletters,
         private CategoryRepository $categories,
     ) {
     }
@@ -48,44 +48,44 @@ final class Materializer
      * resulting total_recipients count. Returns 0 (and is a no-op)
      * when the campaign already has rows in campaign_recipients.
      */
-    public function materialize(int $campaign_id): int
+    public function materialize(int $newsletter_id): int
     {
-        $post = get_post($campaign_id);
-        if (!$post instanceof \WP_Post || $post->post_type !== CampaignCPT::POST_TYPE) {
+        $post = get_post($newsletter_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
             return 0;
         }
-        if ($this->already_materialized($campaign_id)) {
-            $row = $this->campaigns->find_by_post_id($campaign_id);
+        if ($this->already_materialized($newsletter_id)) {
+            $row = $this->newsletters->find_by_post_id($newsletter_id);
             return (int) ($row['total_recipients'] ?? 0);
         }
 
-        $target_raw = (string) get_post_meta($campaign_id, CampaignCPT::META_TARGET_SPEC, true);
-        $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => CampaignCPT::TARGET_KIND_ALL];
-        $target_kind = (string) ($target['kind'] ?? CampaignCPT::TARGET_KIND_ALL);
+        $target_raw = (string) get_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, true);
+        $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => NewsletterCPT::TARGET_KIND_ALL];
+        $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
         $list_id = isset($target['list_id']) ? (int) $target['list_id'] : 0;
 
-        $category_id = (int) get_post_meta($campaign_id, CampaignCPT::META_CATEGORY_ID, true);
+        $category_id = (int) get_post_meta($newsletter_id, NewsletterCPT::META_CATEGORY_ID, true);
         $category_slug = $this->category_slug($category_id);
 
         $recipients = $this->resolve_recipients($target_kind, $list_id, $category_slug);
-        $total = $this->insert_recipients($campaign_id, $recipients);
+        $total = $this->insert_recipients($newsletter_id, $recipients);
 
         global $wpdb;
         $wpdb->update(
-            Schema::campaigns_table(),
+            Schema::newsletters_table(),
             [
-                'status'           => CampaignRepository::STATUS_SENDING,
+                'status'           => NewsletterRepository::STATUS_SENDING,
                 'total_recipients' => $total,
                 'started_at'       => current_time('mysql', true),
                 'last_tick_at'     => current_time('mysql', true),
             ],
-            ['post_id' => $campaign_id],
+            ['post_id' => $newsletter_id],
             ['%s', '%d', '%s', '%s'],
             ['%d']
         );
 
-        Events::dispatch('newsletter.campaign.started', [
-            'campaign_id'      => $campaign_id,
+        Events::dispatch('newsletter.started', [
+            'newsletter_id'      => $newsletter_id,
             'total_recipients' => $total,
         ]);
 
@@ -108,11 +108,11 @@ final class Materializer
 
         // Subscriber side
         if (in_array($target_kind, [
-            CampaignCPT::TARGET_KIND_ALL,
-            CampaignCPT::TARGET_KIND_ALL_SUBSCRIBERS,
-            CampaignCPT::TARGET_KIND_LIST,
+            NewsletterCPT::TARGET_KIND_ALL,
+            NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS,
+            NewsletterCPT::TARGET_KIND_LIST,
         ], true)) {
-            if ($target_kind === CampaignCPT::TARGET_KIND_LIST) {
+            if ($target_kind === NewsletterCPT::TARGET_KIND_LIST) {
                 $rows = $list_id > 0 ? (array) $wpdb->get_results($wpdb->prepare(
                     "SELECT s.id, s.email, s.name, s.prefs_token, s.category_opt_outs
                        FROM `$subscribers_table` s
@@ -148,9 +148,9 @@ final class Materializer
 
         // WP-user side
         if (in_array($target_kind, [
-            CampaignCPT::TARGET_KIND_ALL,
-            CampaignCPT::TARGET_KIND_ALL_USERS,
-            CampaignCPT::TARGET_KIND_LIST,
+            NewsletterCPT::TARGET_KIND_ALL,
+            NewsletterCPT::TARGET_KIND_ALL_USERS,
+            NewsletterCPT::TARGET_KIND_LIST,
         ], true)) {
             $users = $this->fetch_opted_in_users($target_kind, $list_id);
             foreach ($users as $u) {
@@ -203,7 +203,7 @@ final class Materializer
             'display_name' => (string) $u->display_name,
         ], is_array($users) ? $users : []);
 
-        if ($target_kind === CampaignCPT::TARGET_KIND_LIST && $list_id > 0) {
+        if ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_id > 0) {
             // Intersect with list members. Cheaper than joining in SQL
             // because users come from get_users (multisite-aware) and
             // list_members is a custom table.
@@ -238,13 +238,13 @@ final class Materializer
      *
      * @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients
      */
-    private function insert_recipients(int $campaign_id, array $recipients): int
+    private function insert_recipients(int $newsletter_id, array $recipients): int
     {
         if ($recipients === []) {
             return 0;
         }
         global $wpdb;
-        $table = Schema::campaign_recipients_table();
+        $table = Schema::newsletter_recipients_table();
         $inserted = 0;
         $chunks = array_chunk($recipients, self::INSERT_CHUNK);
         foreach ($chunks as $chunk) {
@@ -252,7 +252,7 @@ final class Materializer
             $args = [];
             foreach ($chunk as $r) {
                 $placeholders[] = '(%d, %s, %d, %s, %s, %s, %s)';
-                $args[] = $campaign_id;
+                $args[] = $newsletter_id;
                 $args[] = $r['kind'];
                 $args[] = (int) $r['id'];
                 $args[] = (string) $r['email'];
@@ -261,7 +261,7 @@ final class Materializer
                 $args[] = 'pending';
             }
             $sql = "INSERT IGNORE INTO `$table`
-                        (campaign_id, recipient_kind, recipient_id, email_snapshot, name_snapshot, domain, status)
+                        (newsletter_id, recipient_kind, recipient_id, email_snapshot, name_snapshot, domain, status)
                     VALUES " . implode(', ', $placeholders);
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
             $affected = $wpdb->query($wpdb->prepare($sql, $args));
@@ -272,13 +272,13 @@ final class Materializer
         return $inserted;
     }
 
-    private function already_materialized(int $campaign_id): bool
+    private function already_materialized(int $newsletter_id): bool
     {
         global $wpdb;
-        $table = Schema::campaign_recipients_table();
+        $table = Schema::newsletter_recipients_table();
         return (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM `$table` WHERE campaign_id = %d LIMIT 1",
-            $campaign_id
+            "SELECT COUNT(*) FROM `$table` WHERE newsletter_id = %d LIMIT 1",
+            $newsletter_id
         )) > 0;
     }
 

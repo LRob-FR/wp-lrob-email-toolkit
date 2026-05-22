@@ -69,13 +69,14 @@ final class SubscriberRepository
      * anyway but the caller's flow needs to know whether to insert or
      * update.
      */
-    public function insert_pending(string $email, string $name, string $source): int
+    public function insert_pending(string $email, string $name, string $source, string $language = ''): int
     {
         global $wpdb;
         $now = current_time('mysql', true);
         $ok = $wpdb->insert(Schema::subscribers_table(), [
             'email'             => $email,
             'name'              => $name,
+            'language'          => $language,
             'status'            => 'pending',
             'previous_status'   => '',
             'category_opt_outs' => '[]',
@@ -83,7 +84,7 @@ final class SubscriberRepository
             'source'            => $source,
             'bounce_count'      => 0,
             'created_at'        => $now,
-        ], ['%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s']);
+        ], ['%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s']);
         if ($ok === false) {
             return 0;
         }

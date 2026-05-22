@@ -12,11 +12,11 @@ use LRob\EmailToolkit\Forms\Fields\TextField;
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\AjaxController;
-use LRob\EmailToolkit\Modules\Newsletter\Admin\CampaignsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\CategoriesPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\ListsPage;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\NewslettersPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SettingsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SubscribersPage;
@@ -85,10 +85,24 @@ final class Module extends AbstractModule
      *       scan query. Also adds a prefs_token index for the public
      *       prefs URL handler's O(1) lookup. dbDelta handles the ALTER
      *       TABLE additively.
+     *   5 — subscribers table grows `language` (varchar(20), default '')
+     *       so future target-picker filters can scope by recipient
+     *       locale. Captured from Accept-Language at subscribe time;
+     *       empty means "unknown" — caller must tolerate the gap.
+     *   6 — vocabulary rename pass: Campaign → Newsletter at the
+     *       persistence layer. RENAMEs companion tables
+     *       (lrob_etk_nl_campaigns → lrob_etk_nl_newsletters,
+     *       lrob_etk_nl_campaign_recipients → newsletter_recipients),
+     *       renames every `campaign_id` column to `newsletter_id`
+     *       (including the dropped/recreated indexes), and migrates
+     *       CPT posts via UPDATE wp_posts SET post_type=
+     *       'lrob_etk_newsletter' WHERE post_type='lrob_etk_nl_campaign'.
+     *       Class names + event names + payload keys are renamed in
+     *       code only — no further data migration needed.
      */
     public function db_version_int(): int
     {
-        return 4;
+        return 6;
     }
 
     public function install(): void
@@ -122,14 +136,111 @@ final class Module extends AbstractModule
      * deferred via flag and the seeder itself skips non-empty purposes).
      * v3 adds a repair step: delete is_default templates whose content
      * is missing required tokens, so the deferred seeder rebuilds them.
+     *
+     * v6 runs the campaign→newsletter rename BEFORE install() since
+     * dbDelta would otherwise try to CREATE the new tables alongside
+     * the still-present old ones.
      */
     public function migrate(int $from_version, int $to_version): void
     {
         unset($to_version);
+        if ($from_version < 6) {
+            self::migrate_campaign_to_newsletter();
+        }
         $this->install();
         if ($from_version < 3) {
             self::repair_broken_default_templates();
         }
+    }
+
+    /**
+     * Schema-v6: rename the persistence layer to align with the
+     * Campaign → Newsletter vocabulary shift. ALTER + UPDATE statements;
+     * dbDelta can't rename tables/columns/indexes so we do it by hand
+     * before install() runs. Each step is guarded with information_schema
+     * checks so re-running is safe.
+     */
+    private static function migrate_campaign_to_newsletter(): void
+    {
+        global $wpdb;
+        $database = (string) $wpdb->get_var('SELECT DATABASE()');
+        $old_campaigns = $wpdb->prefix . 'lrob_etk_nl_campaigns';
+        $new_newsletters = $wpdb->prefix . 'lrob_etk_nl_newsletters';
+        $old_recipients = $wpdb->prefix . 'lrob_etk_nl_campaign_recipients';
+        $new_recipients = $wpdb->prefix . 'lrob_etk_nl_newsletter_recipients';
+        $tracking = $wpdb->prefix . 'lrob_etk_nl_tracking_events';
+
+        $table_exists = static function (string $table) use ($wpdb, $database): bool {
+            return (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s",
+                $database,
+                $table
+            )) > 0;
+        };
+        $column_exists = static function (string $table, string $column) use ($wpdb, $database): bool {
+            return (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM information_schema.COLUMNS
+                  WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = %s",
+                $database,
+                $table,
+                $column
+            )) > 0;
+        };
+        $index_exists = static function (string $table, string $index) use ($wpdb, $database): bool {
+            return (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM information_schema.STATISTICS
+                  WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND INDEX_NAME = %s",
+                $database,
+                $table,
+                $index
+            )) > 0;
+        };
+
+        // 1. Rename companion tables.
+        if ($table_exists($old_campaigns) && !$table_exists($new_newsletters)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $wpdb->query("RENAME TABLE `$old_campaigns` TO `$new_newsletters`");
+        }
+        if ($table_exists($old_recipients) && !$table_exists($new_recipients)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $wpdb->query("RENAME TABLE `$old_recipients` TO `$new_recipients`");
+        }
+
+        // 2. Rename campaign_id columns. dbDelta will then see the
+        //    renamed columns and run as a no-op against the new
+        //    CREATE TABLE statements.
+        if ($table_exists($new_recipients) && $column_exists($new_recipients, 'campaign_id')) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $wpdb->query("ALTER TABLE `$new_recipients` CHANGE `campaign_id` `newsletter_id` bigint(20) unsigned NOT NULL");
+            // Old index names use the campaign_* prefix; drop so dbDelta
+            // recreates them under the newsletter_* names.
+            if ($index_exists($new_recipients, 'campaign_recipient')) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query("ALTER TABLE `$new_recipients` DROP INDEX `campaign_recipient`");
+            }
+            if ($index_exists($new_recipients, 'domain_pending')) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query("ALTER TABLE `$new_recipients` DROP INDEX `domain_pending`");
+            }
+        }
+        if ($table_exists($tracking) && $column_exists($tracking, 'campaign_id')) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $wpdb->query("ALTER TABLE `$tracking` CHANGE `campaign_id` `newsletter_id` bigint(20) unsigned NOT NULL");
+            if ($index_exists($tracking, 'campaign_kind')) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query("ALTER TABLE `$tracking` DROP INDEX `campaign_kind`");
+            }
+        }
+
+        // 3. Migrate CPT posts to the new post_type slug. wp_posts is
+        //    a core WP table — column name is `post_type` and slug
+        //    needs to fit the 20-char post_type column.
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->posts} SET post_type = %s WHERE post_type = %s",
+            'lrob_etk_newsletter',
+            'lrob_etk_nl_campaign'
+        ));
     }
 
     /**
@@ -231,13 +342,13 @@ final class Module extends AbstractModule
         $forms = new FormRepository();
         $categories = new CategoryRepository();
         $lists = new ListRepository();
-        $campaigns = new CampaignRepository();
+        $newsletters = new NewsletterRepository();
         $this->container->set(SubscriberRepository::class, $subscribers);
         $this->container->set(TemplateRepository::class, $templates);
         $this->container->set(FormRepository::class, $forms);
         $this->container->set(CategoryRepository::class, $categories);
         $this->container->set(ListRepository::class, $lists);
-        $this->container->set(CampaignRepository::class, $campaigns);
+        $this->container->set(NewsletterRepository::class, $newsletters);
 
         // CPTs register unconditionally so admin code can edit existing
         // posts even when the module is disabled (data preserved). All
@@ -245,7 +356,7 @@ final class Module extends AbstractModule
         // registering at any request stage is safe.
         (new TemplateCPT())->register();
         (new FormCPT())->register();
-        (new CampaignCPT())->register();
+        (new NewsletterCPT())->register();
 
         // Register the field types the subscribe-form CPT accepts.
         // Subset of the full form-builder vocabulary — list-picker and
@@ -312,23 +423,23 @@ final class Module extends AbstractModule
             // Send pipeline AJAX endpoints: send_tick (real send) +
             // test_send (preview-to-self / ad-hoc / test list).
             // Cron safety-net + per-domain throttle land in step 7b.
-            $materializer = new Materializer($campaigns, $categories);
-            $send_loop = new SendLoop($campaigns);
-            (new SendAjaxController($materializer, $send_loop, $campaigns, $lists))->register();
+            $materializer = new Materializer($newsletters, $categories);
+            $send_loop = new SendLoop($newsletters);
+            (new SendAjaxController($materializer, $send_loop, $newsletters, $lists))->register();
         }
 
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
             (new TemplateValidator())->register();
-            (new CampaignMetaboxes($campaigns, $categories, $lists, $this->container))->register();
+            (new NewsletterMetaboxes($newsletters, $categories, $lists, $this->container))->register();
             $forms_page = new FormsPage($forms, $templates);
             $categories_page = new CategoriesPage($categories);
             $lists_page = new ListsPage($lists);
             $settings_page = new SettingsPage();
             $subscribers_page = new SubscribersPage($subscribers);
-            $campaigns_page = new CampaignsPage($campaigns);
-            $campaigns_page->register();
-            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page, $subscribers_page, $campaigns_page);
+            $newsletters_page = new NewslettersPage($newsletters);
+            $newsletters_page->register();
+            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page, $subscribers_page, $newsletters_page);
             (new PageController($this, $home))->register();
             (new AjaxController())->register();
             add_action('admin_init', [$this, 'handle_new_from_default']);
@@ -385,7 +496,7 @@ final class Module extends AbstractModule
         // Title hints "(copy)" so the admin can tell the new draft apart
         // from the auto-seeded original at a glance in the Onboarding list.
         $title = sprintf(
-            /* translators: %s: localized title of the source default template (e.g. "Confirm your subscription"). */
+            /* translators: %s: original item title being cloned (form, newsletter, template, etc.) */
             __('%s (copy)', 'lrob-email-toolkit'),
             TemplateSeeder::default_title($purpose)
         );

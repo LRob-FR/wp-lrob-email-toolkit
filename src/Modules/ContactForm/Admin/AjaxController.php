@@ -210,7 +210,7 @@ final class AjaxController
             }
             $structure = FormStructure::load($src_id);
             if ($title === '') {
-                /* translators: %s: name of the source form being cloned */
+                /* translators: %s: original item title being cloned (form, newsletter, template, etc.) */
                 $title = sprintf(__('%s (copy)', 'lrob-email-toolkit'), $src->post_title);
             }
         }
