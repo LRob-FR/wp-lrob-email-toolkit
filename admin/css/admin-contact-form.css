@@ -1100,38 +1100,6 @@
     line-height: 1.55;
 }
 
-.lrob-etk-cf-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 18px;
-    background: #fff;
-    border: 1px solid var(--etk-line);
-    border-radius: 8px;
-    margin-bottom: 24px;
-}
-.lrob-etk-cf-summary-numbers {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--etk-muted);
-}
-.lrob-etk-cf-summary-num {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--etk-fg);
-}
-.lrob-etk-cf-summary-sep {
-    color: var(--etk-muted);
-    margin: 0 4px;
-}
-.lrob-etk-cf-summary-buttons {
-    display: inline-flex;
-    gap: 8px;
-}
-
 /* ---------- Form card: re-organised settings layout ----------
  *
  * Essentials (recipients + identity) sit at the top, Style next, then the

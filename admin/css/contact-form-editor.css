@@ -79,24 +79,6 @@
     cursor: default;
 }
 
-/* Options editor inside the inspector */
-.lrob-etk-form-options-editor {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.lrob-etk-form-options-editor .lrob-etk-form-option-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 6px;
-    align-items: end;
-}
-
-.lrob-etk-form-options-editor .lrob-etk-form-option-row .components-base-control {
-    margin: 0;
-}
-
 /* Embed preview block on a page */
 .lrob-etk-cf-embed-preview {
     border: 1px dashed #c3c4c7;

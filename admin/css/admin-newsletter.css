@@ -696,6 +696,11 @@
     color: var(--lrob-etk-color-muted, #50575e);
 }
 
+.lrob-etk-nl-send-abort {
+    color: var(--lrob-etk-color-danger, #b32d2e) !important;
+    border-color: var(--lrob-etk-color-danger, #b32d2e) !important;
+}
+
 /* Full-width setting row (e.g. the newsletter-footer HTML textarea).
  * Overrides the default two-column label|input grid; label sits on
  * top, the input spans the row underneath. */
@@ -973,35 +978,6 @@
     display: none !important;
 }
 
-/* Sub-label inside the Audience block (the inline Category picker). */
-.lrob-etk-nl-card-category-inline {
-    margin-top: 0.75rem;
-    padding-top: 0.5rem;
-    border-top: 1px dashed rgba(0, 0, 0, 0.08);
-}
-
-.lrob-etk-nl-card-sub-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--lrob-etk-color-muted, #6b7280);
-    margin-bottom: 4px;
-}
-
-/* "Sender" group header — small label that announces the next 3 fields
- * belong together (identity / from-name / reply-to). */
-.lrob-etk-nl-card-section-label {
-    margin: 0.5rem 0 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--lrob-etk-color-muted, #6b7280);
-}
 
 /* Status message under the action row. Shows scheduled-for, sent-ago,
  * failure note, etc. Tone-coded with is-info / is-sent / is-warn /
