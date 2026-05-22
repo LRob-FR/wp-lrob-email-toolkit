@@ -185,13 +185,21 @@ final class Materializer
      */
     private function fetch_opted_in_users(string $target_kind, int $list_id): array
     {
+        // WP users are opt-OUT, not opt-in: a user without the
+        // OPTED_IN user_meta (every pre-existing site member) counts
+        // as eligible. The PrefsHandler explicitly writes '0' when
+        // someone opts out; everyone else is in.
         $args = [
             'fields'     => ['ID', 'user_email', 'display_name'],
             'meta_query' => [
-                'relation' => 'AND',
+                'relation' => 'OR',
                 [
                     'key'   => UserMeta::OPTED_IN,
                     'value' => '1',
+                ],
+                [
+                    'key'     => UserMeta::OPTED_IN,
+                    'compare' => 'NOT EXISTS',
                 ],
             ],
             'number'     => -1,
@@ -270,6 +278,53 @@ final class Materializer
             }
         }
         return $inserted;
+    }
+
+    /**
+     * Dry-run resolution: returns the targeted recipient set
+     * WITHOUT inserting into `newsletter_recipients`. For the
+     * Recipients-preview modal so admins can verify their target
+     * before clicking Send.
+     *
+     * @return array{total:int, by_kind:array<string,int>, sample:array<int, array{kind:string, email:string, name:string}>}
+     */
+    public function preview_recipients(int $newsletter_id, int $sample_limit = 50): array
+    {
+        $post = get_post($newsletter_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            return ['total' => 0, 'by_kind' => [], 'sample' => []];
+        }
+        $target_raw = (string) get_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, true);
+        $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => NewsletterCPT::TARGET_KIND_ALL];
+        $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
+        $list_id = isset($target['list_id']) ? (int) $target['list_id'] : 0;
+        $category_id = (int) get_post_meta($newsletter_id, NewsletterCPT::META_CATEGORY_ID, true);
+        $category_slug = $this->category_slug($category_id);
+        $recipients = $this->resolve_recipients($target_kind, $list_id, $category_slug);
+
+        $by_kind = [
+            UserMeta::KIND_SUBSCRIBER => 0,
+            UserMeta::KIND_USER       => 0,
+        ];
+        foreach ($recipients as $r) {
+            $k = (string) $r['kind'];
+            if (isset($by_kind[$k])) {
+                $by_kind[$k]++;
+            }
+        }
+        $sample = [];
+        foreach (array_slice($recipients, 0, max(0, $sample_limit)) as $r) {
+            $sample[] = [
+                'kind'  => (string) $r['kind'],
+                'email' => (string) $r['email'],
+                'name'  => (string) ($r['name'] ?? ''),
+            ];
+        }
+        return [
+            'total'   => count($recipients),
+            'by_kind' => $by_kind,
+            'sample'  => $sample,
+        ];
     }
 
     private function already_materialized(int $newsletter_id): bool

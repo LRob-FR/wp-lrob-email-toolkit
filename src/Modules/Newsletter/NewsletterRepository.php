@@ -130,12 +130,71 @@ final class NewsletterRepository
                LEFT JOIN `$newsletters_table` c ON c.post_id = p.ID
               WHERE p.post_type = %s
                 AND p.post_status NOT IN ('auto-draft','trash')
-              ORDER BY p.post_modified_gmt DESC
+              ORDER BY p.post_date_gmt DESC
               LIMIT %d OFFSET %d",
             $cpt,
             $limit,
             $offset
         ), ARRAY_A);
+    }
+
+    /**
+     * Frozen recipient snapshot for a sent (or in-progress) newsletter.
+     * Reads `newsletter_recipients` — the rows materialised at send
+     * time — so the admin sees the actual list as it was when the
+     * send started, not a fresh dry-run.
+     *
+     * Returns ['total' => N, 'by_status' => [..], 'sample' => [..]].
+     * Empty 'sample' / 0 'total' = no materialisation yet (caller
+     * should fall back to a dry-run preview).
+     *
+     * @return array{total:int, by_status:array<string,int>, sample:array<int, array{kind:string, email:string, name:string, status:string, failure_code:string, sent_at:string}>}
+     */
+    public function recipients_snapshot(int $post_id, int $limit = 50): array
+    {
+        global $wpdb;
+        $table = Schema::newsletter_recipients_table();
+        $total = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM `$table` WHERE newsletter_id = %d",
+            $post_id
+        ));
+        if ($total === 0) {
+            return ['total' => 0, 'by_status' => [], 'sample' => []];
+        }
+
+        $status_rows = (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT status, COUNT(*) AS c FROM `$table`
+              WHERE newsletter_id = %d
+              GROUP BY status",
+            $post_id
+        ), ARRAY_A);
+        $by_status = [];
+        foreach ($status_rows as $sr) {
+            $by_status[(string) $sr['status']] = (int) $sr['c'];
+        }
+
+        $rows = (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT recipient_kind, email_snapshot, name_snapshot, status, failure_code, sent_at
+               FROM `$table`
+              WHERE newsletter_id = %d
+              ORDER BY id ASC
+              LIMIT %d",
+            $post_id,
+            $limit
+        ), ARRAY_A);
+
+        $sample = [];
+        foreach ($rows as $r) {
+            $sample[] = [
+                'kind'         => (string) ($r['recipient_kind'] ?? ''),
+                'email'        => (string) ($r['email_snapshot'] ?? ''),
+                'name'         => (string) ($r['name_snapshot'] ?? ''),
+                'status'       => (string) ($r['status'] ?? ''),
+                'failure_code' => (string) ($r['failure_code'] ?? ''),
+                'sent_at'      => (string) ($r['sent_at'] ?? ''),
+            ];
+        }
+        return ['total' => $total, 'by_status' => $by_status, 'sample' => $sample];
     }
 
     public function count_all(): int

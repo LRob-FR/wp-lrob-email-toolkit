@@ -9,6 +9,7 @@ use LRob\EmailToolkit\Admin\Assets as SharedAssets;
 use LRob\EmailToolkit\Admin\ModuleToggle;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 use LRob\EmailToolkit\Modules\Newsletter\Module as NewsletterModule;
+use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
 use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
 use LRob\EmailToolkit\Modules\Newsletter\TemplateCPT;
 use LRob\EmailToolkit\Modules\Newsletter\TemplateRepository;
@@ -86,13 +87,67 @@ final class HomePage
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),
             'actions' => [
-                'saveMeta'      => AjaxController::ACTION_SAVE_META,
-                'saveStructure' => AjaxController::ACTION_SAVE_STRUCTURE,
+                'saveMeta'           => AjaxController::ACTION_SAVE_META,
+                'saveStructure'      => AjaxController::ACTION_SAVE_STRUCTURE,
+                'saveNewsletterMeta' => AjaxController::ACTION_NEWSLETTER_SAVE_META,
             ],
             'i18n'    => [
                 'saving' => __('Saving…', 'lrob-email-toolkit'),
                 'saved'  => __('Saved', 'lrob-email-toolkit'),
                 'error'  => __('Save failed', 'lrob-email-toolkit'),
+            ],
+        ]);
+
+        // Newsletter cards send-pipeline script. Uses its own nonce
+        // action (SendAjaxController gates the send endpoints) so it
+        // can't be used to forge generic admin saves and vice-versa.
+        $send_handle = 'lrob-etk-nl-cards';
+        wp_enqueue_script(
+            $send_handle,
+            LROB_ETK_URL . 'admin/js/newsletter-cards.js',
+            [],
+            SharedAssets::asset_version_for('admin/js/newsletter-cards.js'),
+            true
+        );
+        /* translators: %1$d: sent count, %2$d: failed count */
+        $i18n_test_done = __('Test done: %1$d sent, %2$d failed.', 'lrob-email-toolkit');
+        $i18n_test_failed = __('Test send failed.', 'lrob-email-toolkit');
+        $i18n_tick_failed = __('Send tick failed. Stopped.', 'lrob-email-toolkit');
+        wp_localize_script($send_handle, 'lrobEtkNlSend', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce(SendAjaxController::NONCE_ACTION),
+            'actions' => [
+                'tick'              => SendAjaxController::ACTION_TICK,
+                'test'              => SendAjaxController::ACTION_TEST_SEND,
+                'pause'             => SendAjaxController::ACTION_PAUSE,
+                'resume'            => SendAjaxController::ACTION_RESUME,
+                'abort'             => SendAjaxController::ACTION_ABORT,
+                'preview'           => SendAjaxController::ACTION_PREVIEW,
+                'recipientsPreview' => SendAjaxController::ACTION_RECIPIENTS_PREVIEW,
+            ],
+            'i18n'    => [
+                'tickFailed'           => $i18n_tick_failed,
+                'testDone'             => $i18n_test_done,
+                'testFailed'           => $i18n_test_failed,
+                'previewFailed'        => __('Could not load the preview.', 'lrob-email-toolkit'),
+                'recipientsLoading'    => __('Computing recipient set…', 'lrob-email-toolkit'),
+                'recipientsTotal'      => __('recipients', 'lrob-email-toolkit'),
+                'recipientsSubscribers' => __('subscribers', 'lrob-email-toolkit'),
+                'recipientsUsers'      => __('WordPress users', 'lrob-email-toolkit'),
+                /* translators: %d: sample size */
+                'recipientsSample'     => __('Sample (first %d):', 'lrob-email-toolkit'),
+                'snapshotNote'         => __('frozen at send time', 'lrob-email-toolkit'),
+                'minutes'              => __('minutes', 'lrob-email-toolkit'),
+                'minuteSingular'       => __('minute', 'lrob-email-toolkit'),
+                'hours'                => __('hours', 'lrob-email-toolkit'),
+                'hourSingular'         => __('hour', 'lrob-email-toolkit'),
+                'days'                 => __('days', 'lrob-email-toolkit'),
+                'daySingular'          => __('day', 'lrob-email-toolkit'),
+                /* translators: %1$s: relative time until send (e.g. "2 days"), %2$s: absolute datetime */
+                'scheduledTemplate'    => __('Scheduled to send in %1$s — %2$s', 'lrob-email-toolkit'),
+                'scheduledOverdue'     => __('in the past (will send on next click)', 'lrob-email-toolkit'),
+                'abortTitle'           => __('Abort send', 'lrob-email-toolkit'),
+                'abortConfirm'         => __('Abort', 'lrob-email-toolkit'),
             ],
         ]);
     }

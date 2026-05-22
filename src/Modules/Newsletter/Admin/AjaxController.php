@@ -10,6 +10,8 @@ use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 use LRob\EmailToolkit\Modules\Newsletter\FormTemplateRegistry;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
+use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Send\NewsletterFooter;
 use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
 use LRob\EmailToolkit\Modules\Newsletter\TrashCron;
@@ -62,6 +64,29 @@ final class AjaxController
 
     public const ACTION_EMPTY_TRASH         = 'lrob_etk_nl_empty_trash';
 
+    public const ACTION_NEWSLETTER_SAVE_META = 'lrob_etk_nl_newsletter_save_meta';
+
+    /**
+     * Newsletter-card meta keys. Mirror NewsletterCPT::META_* keys
+     * plus the `title` pseudo-key (post_title isn't post_meta).
+     */
+    private const WHITELIST_NEWSLETTER_KEYS = [
+        'title',
+        NewsletterCPT::META_PREVIEW_TEXT,
+        NewsletterCPT::META_FROM_NAME_OVERRIDE,
+        NewsletterCPT::META_REPLY_TO_OVERRIDE,
+        NewsletterCPT::META_SMTP_IDENTITY,
+        NewsletterCPT::META_CATEGORY_ID,
+        // target_spec is composed from target_kind + target_list_id
+        // posts — they arrive as separate keys but write the same meta.
+        'target_kind',
+        'target_list_id',
+        NewsletterCPT::META_SCHEDULED_AT,
+        NewsletterCPT::META_TRACK_OPENS,
+        NewsletterCPT::META_TRACK_CLICKS,
+        NewsletterCPT::META_LOG_ALL_SENDS,
+    ];
+
     /**
      * Per-key option save for the Settings view. Each whitelisted
      * option gets its own sanitisation rule below; unknown keys are
@@ -75,7 +100,9 @@ final class AjaxController
         'lrob_etk_nl_first_reminder_after_days',
         'lrob_etk_nl_reminder_interval_days',
         TrashCron::OPTION_DAYS,
-        NewsletterFooter::OPTION_HTML,
+        NewsletterFooter::OPTION_INTRO,
+        NewsletterFooter::OPTION_PREFS_LABEL,
+        NewsletterFooter::OPTION_UNSUB_LABEL,
     ];
 
     private const WHITELIST_META_KEYS = [
@@ -117,6 +144,7 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_SUBSCRIBER_RESTORE, [$this, 'handle_subscriber_restore']);
         add_action('wp_ajax_' . self::ACTION_SUBSCRIBER_DELETE,  [$this, 'handle_subscriber_delete']);
         add_action('wp_ajax_' . self::ACTION_EMPTY_TRASH,        [$this, 'handle_empty_trash']);
+        add_action('wp_ajax_' . self::ACTION_NEWSLETTER_SAVE_META, [$this, 'handle_newsletter_save_meta']);
     }
 
     /**
@@ -153,13 +181,14 @@ final class AjaxController
                 // doing anything useful.
                 $value = max(0, min(3650, (int) $raw));
                 break;
-            case NewsletterFooter::OPTION_HTML:
-                // wp_kses_post strips JS/forms but keeps the table
-                // markup needed for cross-client centering. The
-                // renderer enforces unsub_url presence on read, so
-                // we don't validate it here — empty/broken stored
-                // value just falls back to the default at render.
-                $value = wp_kses_post(trim((string) $raw));
+            case NewsletterFooter::OPTION_INTRO:
+            case NewsletterFooter::OPTION_PREFS_LABEL:
+            case NewsletterFooter::OPTION_UNSUB_LABEL:
+                // Plain text fields — sanitize_text_field strips HTML
+                // tags but keeps `{{token}}` literal (braces aren't
+                // touched). Renderer composes the styled markup; the
+                // admin never types angle brackets.
+                $value = sanitize_text_field(trim((string) $raw));
                 break;
             default:
                 wp_send_json_error(['message' => __('Unsupported setting.', 'lrob-email-toolkit')], 400);
@@ -419,6 +448,132 @@ final class AjaxController
         $this->guard();
         $deleted = (new SubscriberRepository())->empty_trash();
         wp_send_json_success(['deleted' => $deleted]);
+    }
+
+    /**
+     * Per-newsletter-card meta save. Mirrors handle_save_meta but
+     * scoped to the NewsletterCPT and its meta vocabulary. Two
+     * special keys: `title` writes post_title, and `target_kind` /
+     * `target_list_id` co-write the JSON-shaped META_TARGET_SPEC.
+     */
+    public function handle_newsletter_save_meta(): void
+    {
+        $this->guard();
+        $newsletter_id = isset($_POST['newsletter_id']) ? (int) wp_unslash((string) $_POST['newsletter_id']) : 0;
+        $post = $newsletter_id > 0 ? get_post($newsletter_id) : null;
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            wp_send_json_error(['message' => __('Newsletter not found.', 'lrob-email-toolkit')], 404);
+        }
+
+        $key = isset($_POST['key']) ? sanitize_key(wp_unslash((string) $_POST['key'])) : '';
+        $raw_value = $_POST['value'] ?? '';
+        $value = is_array($raw_value)
+            ? array_map(static fn ($v) => is_scalar($v) ? (string) $v : '', wp_unslash($raw_value))
+            : wp_unslash((string) $raw_value);
+
+        if (!in_array($key, self::WHITELIST_NEWSLETTER_KEYS, true)) {
+            wp_send_json_error(['message' => __('Unknown newsletter setting key.', 'lrob-email-toolkit')], 400);
+        }
+
+        // Title isn't post_meta — writes to wp_posts.post_title.
+        if ($key === 'title') {
+            wp_update_post([
+                'ID'         => $newsletter_id,
+                'post_title' => sanitize_text_field(is_array($value) ? '' : $value),
+            ]);
+            wp_send_json_success();
+        }
+
+        // target_kind / target_list_id co-write the JSON-shaped
+        // META_TARGET_SPEC. Read the other piece off the existing
+        // meta so a single-field update doesn't blank the other.
+        if ($key === 'target_kind' || $key === 'target_list_id') {
+            $current_raw = (string) get_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, true);
+            $current = $current_raw !== '' ? (array) json_decode($current_raw, true) : [];
+            $kind = (string) ($current['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
+            $list_id = isset($current['list_id']) ? (int) $current['list_id'] : 0;
+            if ($key === 'target_kind') {
+                $kind = sanitize_key(is_array($value) ? '' : (string) $value);
+            } else {
+                $list_id = (int) (is_array($value) ? 0 : $value);
+            }
+            $allowed = [
+                NewsletterCPT::TARGET_KIND_ALL,
+                NewsletterCPT::TARGET_KIND_ALL_USERS,
+                NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS,
+                NewsletterCPT::TARGET_KIND_LIST,
+            ];
+            if (!in_array($kind, $allowed, true)) {
+                $kind = NewsletterCPT::TARGET_KIND_ALL;
+            }
+            $spec = ['kind' => $kind];
+            if ($kind === NewsletterCPT::TARGET_KIND_LIST) {
+                $spec['list_id'] = $list_id;
+            }
+            update_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, (string) wp_json_encode($spec));
+            wp_send_json_success();
+        }
+
+        // Scheduled-at: input is local datetime-local (no tz), convert
+        // to UTC for storage. Same logic as the old metabox save.
+        if ($key === NewsletterCPT::META_SCHEDULED_AT) {
+            $raw = is_array($value) ? '' : trim((string) $value);
+            if ($raw === '') {
+                update_post_meta($newsletter_id, $key, '');
+                $this->sync_pre_send_status($newsletter_id, '');
+                wp_send_json_success();
+            }
+            $ts = strtotime($raw . ' ' . wp_timezone_string());
+            $stored = $ts === false ? '' : gmdate('Y-m-d H:i:s', $ts);
+            update_post_meta($newsletter_id, $key, $stored);
+            $this->sync_pre_send_status($newsletter_id, $stored);
+            wp_send_json_success();
+        }
+
+        // Per-key sanitisation.
+        switch ($key) {
+            case NewsletterCPT::META_PREVIEW_TEXT:
+            case NewsletterCPT::META_FROM_NAME_OVERRIDE:
+                update_post_meta($newsletter_id, $key, is_array($value) ? '' : sanitize_text_field((string) $value));
+                break;
+            case NewsletterCPT::META_REPLY_TO_OVERRIDE:
+                update_post_meta($newsletter_id, $key, is_array($value) ? '' : sanitize_email((string) $value));
+                break;
+            case NewsletterCPT::META_SMTP_IDENTITY:
+            case NewsletterCPT::META_CATEGORY_ID:
+                update_post_meta($newsletter_id, $key, is_array($value) ? 0 : (int) $value);
+                break;
+            case NewsletterCPT::META_TRACK_OPENS:
+            case NewsletterCPT::META_TRACK_CLICKS:
+            case NewsletterCPT::META_LOG_ALL_SENDS:
+                update_post_meta($newsletter_id, $key, !empty($value) && $value !== '0');
+                break;
+            default:
+                wp_send_json_error(['message' => __('Unsupported newsletter setting.', 'lrob-email-toolkit')], 400);
+        }
+
+        wp_send_json_success();
+    }
+
+    /**
+     * Flip the companion status between draft and scheduled based on
+     * whether a scheduled_at is set. Only writes when status is still
+     * pre-send (draft/scheduled); refuses to clobber a running send.
+     */
+    private function sync_pre_send_status(int $post_id, string $scheduled_at): void
+    {
+        $repo = new NewsletterRepository();
+        $row = $repo->find_by_post_id($post_id);
+        $current = (string) ($row['status'] ?? NewsletterRepository::STATUS_DRAFT);
+        if (!in_array($current, [NewsletterRepository::STATUS_DRAFT, NewsletterRepository::STATUS_SCHEDULED], true)) {
+            return;
+        }
+        $next = $scheduled_at !== ''
+            ? NewsletterRepository::STATUS_SCHEDULED
+            : NewsletterRepository::STATUS_DRAFT;
+        if ($next !== $current) {
+            $repo->update_status($post_id, $next);
+        }
     }
 
     /**

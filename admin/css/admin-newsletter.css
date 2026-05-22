@@ -696,6 +696,22 @@
 
 .lrob-etk-nl-send-actions {
     margin: 0.75rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Override WP's .button display so [hidden] actually hides — same
+ * problem the .lrob-etk wrapper solves elsewhere, but the Send
+ * metabox lives inside Gutenberg's .postbox without that wrapper. */
+.lrob-etk-nl-send-actions .button[hidden] {
+    display: none !important;
+}
+
+.lrob-etk-nl-send-actions .lrob-etk-nl-send-abort {
+    color: var(--lrob-etk-color-danger, #b32d2e) !important;
+    border-color: var(--lrob-etk-color-danger, #b32d2e) !important;
+    margin-left: auto;
 }
 
 .lrob-etk-nl-send-test {
@@ -749,20 +765,350 @@
         "help";
 }
 
-.lrob-etk-nl-settings-row--full > input,
-.lrob-etk-nl-settings-row--full > textarea {
+.lrob-etk-nl-settings-row--full > input[type="text"],
+.lrob-etk-nl-settings-row--full > input[type="email"],
+.lrob-etk-nl-settings-row--full > input[type="url"] {
     grid-area: input;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-}
-
-.lrob-etk-nl-field-textarea {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.85rem;
-    padding: 0.6rem 0.7rem;
+    padding: 0.4rem 0.55rem;
     border: 1px solid var(--lrob-etk-color-border, #dcdcde);
     border-radius: 4px;
-    resize: vertical;
-    min-height: 8rem;
+    font-size: 0.95rem;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Newsletter cards (newsletters list view). Mirrors Contact Form's
+ * form-card pattern: reuses .lrob-etk-identity-card for the chrome,
+ * stacks sections vertically, fields are inline-editable with
+ * auto-save through newsletter-admin.js.
+ * ----------------------------------------------------------------------- */
+
+
+/* Card grid — capped at 540px wide (same as SMTP identities). */
+.lrob-etk-nl-newsletter-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
+    gap: 14px;
+    margin: 16px 0;
+}
+
+.lrob-etk-nl-card {
+    container-type: inline-size;
+}
+
+/* Title label sits above the subject input; small uppercase caption
+ * like the .lrob-etk-field label pattern (admin-components). */
+.lrob-etk-nl-card-title-wrap {
+    flex: 1 1 200px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lrob-etk-nl-card-title-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--lrob-etk-color-muted, #6b7280);
+}
+
+.lrob-etk-nl-card .lrob-etk-card-form-head .lrob-etk-title-input {
+    /* Override the shared "flex 1 1 200px" since the wrap handles
+     * sizing now. Keep the underline style from the shared rule. */
+    flex: initial;
+    width: 100%;
+}
+
+/* Creation date sits to the right of the title (next to status). */
+.lrob-etk-nl-card-created {
+    font-size: 0.78rem;
+    color: var(--lrob-etk-color-muted, #6b7280);
+    white-space: nowrap;
+}
+
+/* Settings fieldset wrapping all editable inputs. Inherits the
+ * shared .lrob-etk-field styles inside. */
+.lrob-etk-nl-card-settings {
+    border: 0;
+    padding: 0;
+    margin: 0 0 0.75rem;
+    min-width: 0;
+}
+
+/* Individual disabled form controls inside a locked fieldset already
+ * render in their browser-default muted style. No full-fieldset
+ * opacity dim so the Recipients/Stats column (which uses an anchor
+ * for "Show list" and lives outside form-control space anyway) stays
+ * fully readable for sent newsletters. */
+
+/* Container query: collapse the 2-col field row to 1-col when the
+ * card is narrow (mirrors SMTP's same trick). */
+@container (max-width: 460px) {
+    .lrob-etk-nl-card .lrob-etk-modal-columns {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+.lrob-etk-nl-card-radio {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.15rem 0;
+    font-size: 0.9rem;
+}
+
+.lrob-etk-nl-card-list-picker {
+    padding-left: 1.5rem;
+    margin-top: 0.4rem;
+}
+
+.lrob-etk-nl-card-list-picker[hidden] {
+    display: none;
+}
+
+.lrob-etk-nl-card-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.lrob-etk-nl-card-check {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+}
+
+/* Audience row: 2-col (audience radios | recipients count). The
+ * shared .lrob-etk-modal-columns grid handles the columns; the
+ * container query in this file collapses to 1-col on narrow cards. */
+.lrob-etk-nl-card-audience-row {
+    align-items: start;
+}
+
+.lrob-etk-nl-card-recipients-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(34, 113, 177, 0.05);
+    border-left: 3px solid var(--lrob-etk-color-primary, #2271b1);
+    border-radius: 4px;
+}
+
+/* Same-line: count + label + "Show list" trigger. */
+.lrob-etk-nl-card-recipients-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.lrob-etk-nl-card-recipients-count {
+    font-weight: 700;
+    font-size: 1.4rem;
+    line-height: 1.1;
+    color: var(--lrob-etk-color-text, #1d2327);
+}
+
+.lrob-etk-nl-card-recipients-label {
+    color: var(--lrob-etk-color-muted, #6b7280);
+    font-size: 0.85rem;
+}
+
+.lrob-etk-nl-card-recipients-show {
+    margin-left: auto;
+    color: var(--lrob-etk-color-primary, #2271b1);
+    text-decoration: underline;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.lrob-etk-nl-card-recipients-show:hover,
+.lrob-etk-nl-card-recipients-show:focus {
+    color: var(--lrob-etk-color-primary-hover, #135e96);
+    text-decoration: none;
+}
+
+/* Stats breakdown (visible only when the newsletter is terminal —
+ * the Recipients zone doubles as the stats panel). */
+.lrob-etk-nl-card-recipients-stats {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.85rem;
+    color: var(--lrob-etk-color-muted, #50575e);
+}
+
+.lrob-etk-nl-card-recipients-stats strong {
+    color: var(--lrob-etk-color-text, #1d2327);
+    font-weight: 600;
+    margin-right: 0.25rem;
+}
+
+.lrob-etk-nl-card-recipients-stats li.is-warn strong {
+    color: var(--lrob-etk-color-danger, #b32d2e);
+}
+
+/* Show-list trigger: plain anchor look (WP's .button-link still
+ * renders a focus outline + sometimes a border in some themes). */
+.lrob-etk-nl-card-recipients-body .button {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    color: var(--lrob-etk-color-primary, #2271b1) !important;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+    min-height: 0;
+    line-height: 1.4;
+}
+
+.lrob-etk-nl-card-recipients-body .button:hover {
+    color: var(--lrob-etk-color-primary-hover, #135e96) !important;
+    text-decoration: none;
+}
+
+/* Schedule: a checkbox toggle + conditional datetime input. */
+.lrob-etk-nl-card-schedule {
+    margin: 0 0 0.75rem;
+}
+
+.lrob-etk-nl-card-schedule-input {
+    margin-top: 0.5rem;
+}
+
+.lrob-etk-nl-card-schedule-input[hidden] {
+    display: none;
+}
+
+.lrob-etk-nl-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.lrob-etk-nl-card-actions .button .dashicons {
+    margin-right: 0.2rem;
+    font-size: 16px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Duplicate link inside the card footer — same chrome as
+ * .lrob-etk-card-delete-link (text-only link, muted) but doesn't
+ * recolour to danger on hover since it's not destructive. */
+.lrob-etk-nl-card-duplicate-link:hover {
+    color: var(--lrob-etk-color-primary, #2271b1) !important;
+}
+
+.lrob-etk-nl-modal-confirm-danger {
+    background: #b32d2e !important;
+    border-color: #b32d2e !important;
+    color: #fff !important;
+}
+
+.lrob-etk-nl-modal-confirm-danger:hover {
+    background: #8a1d1f !important;
+    border-color: #8a1d1f !important;
+}
+
+/* WP's .button[hidden] override (same problem as elsewhere). */
+.lrob-etk-nl-card .button[hidden] {
+    display: none !important;
+}
+
+/* Sub-label inside the Audience block (the inline Category picker). */
+.lrob-etk-nl-card-category-inline {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.lrob-etk-nl-card-sub-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--lrob-etk-color-muted, #6b7280);
+    margin-bottom: 4px;
+}
+
+/* "Sender" group header — small label that announces the next 3 fields
+ * belong together (identity / from-name / reply-to). */
+.lrob-etk-nl-card-section-label {
+    margin: 0.5rem 0 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--lrob-etk-color-muted, #6b7280);
+}
+
+/* Status message under the action row. Shows scheduled-for, sent-ago,
+ * failure note, etc. Tone-coded with is-info / is-sent / is-warn /
+ * is-error classes. */
+.lrob-etk-nl-card-status-msg {
+    margin: 0.5rem 0 0;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.lrob-etk-nl-card-status-msg.is-info {
+    background: rgba(34, 113, 177, 0.08);
+    color: #0a3978;
+}
+
+.lrob-etk-nl-card-status-msg.is-sent {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.lrob-etk-nl-card-status-msg.is-warn {
+    background: #fef9ec;
+    color: #5c4400;
+}
+
+.lrob-etk-nl-card-status-msg.is-error {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.lrob-etk-nl-card-status-msg[hidden] {
+    display: none;
+}
+
+/* Quick-link next to a field label ("Edit categories →", "Manage
+ * identities →"). Sits to the right of the label text, small + muted
+ * to stay out of the way until the admin looks for it. */
+.lrob-etk-nl-field-link {
+    float: right;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--lrob-etk-color-primary, #2271b1);
+    text-decoration: none;
+}
+
+.lrob-etk-nl-field-link:hover {
+    text-decoration: underline;
 }

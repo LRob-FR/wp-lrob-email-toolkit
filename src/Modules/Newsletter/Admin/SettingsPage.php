@@ -48,37 +48,60 @@ final class SettingsPage
 
     /**
      * Newsletter footer section. The footer is appended to every
-     * sent newsletter; admins can rewrite the copy but the renderer
-     * enforces presence of {{unsub_url}} (falls back to the default
-     * otherwise so unsub-less mail never goes out).
+     * sent newsletter; admins edit three plain text fields and the
+     * renderer composes the styled HTML (no manual angle brackets,
+     * unsubscribe link structurally guaranteed).
      */
     public static function render_newsletter_footer_section(): void
     {
-        $stored = (string) get_option(NewsletterFooter::OPTION_HTML, '');
-        $value = $stored !== '' ? $stored : NewsletterFooter::default_html();
-        $available_tokens = ['{{prefs_url}}', '{{unsub_url}}', '{{site_name}}', '{{site_url}}', '{{name}}', '{{first_name}}', '{{email}}'];
+        $intro       = NewsletterFooter::resolve_intro();
+        $prefs_label = NewsletterFooter::resolve_prefs_label();
+        $unsub_label = NewsletterFooter::resolve_unsub_label();
         ?>
         <article class="lrob-etk-nl-settings-group">
             <h3 class="lrob-etk-nl-settings-group-title"><?php esc_html_e('Newsletter footer', 'lrob-email-toolkit'); ?></h3>
             <p class="lrob-etk-nl-settings-group-intro">
-                <?php esc_html_e('Appended to every sent newsletter. Customise the copy and layout, but keep {{unsub_url}} — if you remove it, the renderer falls back to the default so unsubscribe links always reach the recipient.', 'lrob-email-toolkit'); ?>
+                <?php esc_html_e('Appended to every sent newsletter. The Preferences + Unsubscribe links are wired in automatically — you just edit the copy.', 'lrob-email-toolkit'); ?>
             </p>
 
             <div class="lrob-etk-nl-settings-row lrob-etk-nl-settings-row--full">
-                <label for="lrob-etk-nl-setting-footer">
-                    <?php esc_html_e('Footer HTML', 'lrob-email-toolkit'); ?>
+                <label for="lrob-etk-nl-setting-footer-intro">
+                    <?php esc_html_e('Intro line', 'lrob-email-toolkit'); ?>
                 </label>
-                <textarea id="lrob-etk-nl-setting-footer"
-                          class="lrob-etk-nl-field lrob-etk-nl-field-textarea"
-                          data-key="setting-newsletter-footer"
-                          data-option-key="<?php echo esc_attr(NewsletterFooter::OPTION_HTML); ?>"
-                          rows="10"><?php echo esc_textarea($value); ?></textarea>
+                <input type="text"
+                       id="lrob-etk-nl-setting-footer-intro"
+                       class="lrob-etk-nl-field"
+                       data-key="setting-newsletter-footer-intro"
+                       data-option-key="<?php echo esc_attr(NewsletterFooter::OPTION_INTRO); ?>"
+                       value="<?php echo esc_attr($intro); ?>">
                 <p class="description">
-                    <?php esc_html_e('Available tokens:', 'lrob-email-toolkit'); ?>
-                    <?php foreach ($available_tokens as $i => $token) : ?>
-                        <code><?php echo esc_html($token); ?></code><?php echo $i < count($available_tokens) - 1 ? ' ' : ''; ?>
-                    <?php endforeach; ?>
+                    <?php esc_html_e('Tokens you can use:', 'lrob-email-toolkit'); ?>
+                    <code>{{site_name}}</code> <code>{{site_url}}</code> <code>{{email}}</code> <code>{{name}}</code> <code>{{first_name}}</code>
                 </p>
+            </div>
+
+            <div class="lrob-etk-nl-settings-row lrob-etk-nl-settings-row--full">
+                <label for="lrob-etk-nl-setting-footer-prefs">
+                    <?php esc_html_e('Preferences link text', 'lrob-email-toolkit'); ?>
+                </label>
+                <input type="text"
+                       id="lrob-etk-nl-setting-footer-prefs"
+                       class="lrob-etk-nl-field"
+                       data-key="setting-newsletter-footer-prefs"
+                       data-option-key="<?php echo esc_attr(NewsletterFooter::OPTION_PREFS_LABEL); ?>"
+                       value="<?php echo esc_attr($prefs_label); ?>">
+            </div>
+
+            <div class="lrob-etk-nl-settings-row lrob-etk-nl-settings-row--full">
+                <label for="lrob-etk-nl-setting-footer-unsub">
+                    <?php esc_html_e('Unsubscribe link text', 'lrob-email-toolkit'); ?>
+                </label>
+                <input type="text"
+                       id="lrob-etk-nl-setting-footer-unsub"
+                       class="lrob-etk-nl-field"
+                       data-key="setting-newsletter-footer-unsub"
+                       data-option-key="<?php echo esc_attr(NewsletterFooter::OPTION_UNSUB_LABEL); ?>"
+                       value="<?php echo esc_attr($unsub_label); ?>">
             </div>
         </article>
         <?php

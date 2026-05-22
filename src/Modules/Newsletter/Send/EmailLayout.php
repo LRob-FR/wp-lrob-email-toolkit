@@ -112,8 +112,8 @@ final class EmailLayout
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>' . $safe_title . '</title>
 </head>
-<body style="margin:0; padding:0; background:#f5f6f7; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif; color:#1d2327; line-height:1.5;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f6f7; padding:24px 12px;">
+<body style="margin:0; padding:0; background:#f5f6f7; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif; color:#1d2327; line-height:1.5; overflow-x:hidden;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f6f7; padding:24px 12px; box-sizing:border-box;">
   <tr><td align="center">
     <table role="presentation" width="' . $max . '" cellpadding="0" cellspacing="0" border="0" style="max-width:' . $max . 'px; width:100%; background:#ffffff; border-radius:8px; padding:32px 28px; text-align:left;">
       <tr><td>' . $body_html . '</td></tr>

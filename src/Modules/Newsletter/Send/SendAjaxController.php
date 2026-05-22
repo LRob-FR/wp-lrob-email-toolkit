@@ -39,6 +39,16 @@ final class SendAjaxController
 
     public const ACTION_TEST_SEND = 'lrob_etk_nl_test_send';
 
+    public const ACTION_PAUSE  = 'lrob_etk_nl_send_pause';
+
+    public const ACTION_RESUME = 'lrob_etk_nl_send_resume';
+
+    public const ACTION_ABORT  = 'lrob_etk_nl_send_abort';
+
+    public const ACTION_PREVIEW = 'lrob_etk_nl_preview';
+
+    public const ACTION_RECIPIENTS_PREVIEW = 'lrob_etk_nl_recipients_preview';
+
     public const OPTION_TEST_LIST_ID = 'lrob_etk_nl_test_list_id';
 
     public const HEADER_TEST = 'X-Lrob-Etk-Newsletter-Test';
@@ -55,6 +65,70 @@ final class SendAjaxController
     {
         add_action('wp_ajax_' . self::ACTION_TICK,      [$this, 'handle_tick']);
         add_action('wp_ajax_' . self::ACTION_TEST_SEND, [$this, 'handle_test_send']);
+        add_action('wp_ajax_' . self::ACTION_PAUSE,     [$this, 'handle_pause']);
+        add_action('wp_ajax_' . self::ACTION_RESUME,    [$this, 'handle_resume']);
+        add_action('wp_ajax_' . self::ACTION_ABORT,     [$this, 'handle_abort']);
+        add_action('wp_ajax_' . self::ACTION_PREVIEW,   [$this, 'handle_preview']);
+        add_action('wp_ajax_' . self::ACTION_RECIPIENTS_PREVIEW, [$this, 'handle_recipients_preview']);
+    }
+
+    /**
+     * Render the newsletter for the current admin and return the HTML
+     * (no email send). Used by the Preview modal's iframe.
+     */
+    public function handle_preview(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $admin = wp_get_current_user();
+        $token = $admin ? (string) get_user_meta((int) $admin->ID, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::PREFS_TOKEN, true) : '';
+        $tokens = \LRob\EmailToolkit\Modules\Newsletter\Send\NewsletterRenderer::tokens_for_recipient(
+            (string) ($admin->user_email ?? ''),
+            (string) ($admin->display_name ?? ''),
+            $token
+        );
+        $html = \LRob\EmailToolkit\Modules\Newsletter\Send\NewsletterRenderer::render($newsletter_id, $tokens);
+        if ($html === '') {
+            wp_send_json_error(['message' => __('Could not render this newsletter.', 'lrob-email-toolkit')], 400);
+        }
+        wp_send_json_success(['html' => $html]);
+    }
+
+    /**
+     * Recipient list for the modal — two modes:
+     *
+     *   - **snapshot** (preferred when rows exist in newsletter_recipients):
+     *     the frozen list as it was at send time. Each row carries its
+     *     per-recipient status (sent / failed / pending / skipped).
+     *     This is what you want for sent / sending / paused newsletters.
+     *
+     *   - **preview** (fallback for pre-send): a dry-run materialisation
+     *     of who *would* be targeted given the current settings.
+     */
+    public function handle_recipients_preview(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+
+        $snapshot = $this->newsletters->recipients_snapshot($newsletter_id, 50);
+        if ($snapshot['total'] > 0) {
+            wp_send_json_success([
+                'mode'         => 'snapshot',
+                'total'        => $snapshot['total'],
+                'by_status'    => $snapshot['by_status'],
+                'sample'       => $snapshot['sample'],
+                'sample_limit' => 50,
+            ]);
+        }
+
+        $preview = $this->materializer->preview_recipients($newsletter_id, 50);
+        wp_send_json_success([
+            'mode'         => 'preview',
+            'total'        => $preview['total'],
+            'by_kind'      => $preview['by_kind'],
+            'sample'       => $preview['sample'],
+            'sample_limit' => 50,
+        ]);
     }
 
     public function handle_tick(): void
@@ -132,6 +206,101 @@ final class SendAjaxController
             'failed' => $failed,
             'count'  => count($recipients),
         ]);
+    }
+
+    public function handle_pause(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
+        $status = (string) ($row['status'] ?? '');
+        if ($status !== NewsletterRepository::STATUS_SENDING) {
+            wp_send_json_error([
+                'message' => __('Only a sending newsletter can be paused.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        $this->newsletters->update_status($newsletter_id, NewsletterRepository::STATUS_PAUSED);
+        Events::dispatch('newsletter.paused', ['newsletter_id' => $newsletter_id]);
+        wp_send_json_success(['status' => NewsletterRepository::STATUS_PAUSED]);
+    }
+
+    public function handle_resume(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
+        $status = (string) ($row['status'] ?? '');
+        if ($status !== NewsletterRepository::STATUS_PAUSED) {
+            wp_send_json_error([
+                'message' => __('Only a paused newsletter can be resumed.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        $this->newsletters->update_status($newsletter_id, NewsletterRepository::STATUS_SENDING);
+        Events::dispatch('newsletter.resumed', ['newsletter_id' => $newsletter_id]);
+        wp_send_json_success(['status' => NewsletterRepository::STATUS_SENDING]);
+    }
+
+    /**
+     * Abort: flips status to 'aborted'. Any still-pending recipient
+     * rows get marked 'skipped' so the campaign-recipients table
+     * doesn't carry forever-pending rows. No undo.
+     */
+    public function handle_abort(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
+        $status = (string) ($row['status'] ?? '');
+        if (!in_array($status, [NewsletterRepository::STATUS_SENDING, NewsletterRepository::STATUS_PAUSED], true)) {
+            wp_send_json_error([
+                'message' => __('Only a sending or paused newsletter can be aborted.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        global $wpdb;
+        $recipients_table = Schema::newsletter_recipients_table();
+        $skipped = (int) $wpdb->query($wpdb->prepare(
+            "UPDATE `$recipients_table`
+                SET status = 'skipped'
+              WHERE newsletter_id = %d
+                AND status = 'pending'",
+            $newsletter_id
+        ));
+        $this->newsletters->update_status($newsletter_id, NewsletterRepository::STATUS_ABORTED);
+        $wpdb->update(
+            Schema::newsletters_table(),
+            [
+                'skipped_count' => $skipped,
+                'completed_at'  => current_time('mysql', true),
+            ],
+            ['post_id' => $newsletter_id],
+            ['%d', '%s'],
+            ['%d']
+        );
+        Events::dispatch('newsletter.aborted', [
+            'newsletter_id' => $newsletter_id,
+            'skipped'       => $skipped,
+        ]);
+        wp_send_json_success([
+            'status'  => NewsletterRepository::STATUS_ABORTED,
+            'skipped' => $skipped,
+        ]);
+    }
+
+    /**
+     * Shared validator for handlers that only need a post id —
+     * guard()s the request, reads `newsletter_id`, checks CPT match.
+     */
+    private function require_post_id(): int
+    {
+        $newsletter_id = isset($_POST['newsletter_id']) ? (int) wp_unslash((string) $_POST['newsletter_id']) : 0;
+        if ($newsletter_id <= 0) {
+            wp_send_json_error(['message' => __('Missing newsletter id.', 'lrob-email-toolkit')], 400);
+        }
+        $post = get_post($newsletter_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            wp_send_json_error(['message' => __('Newsletter not found.', 'lrob-email-toolkit')], 404);
+        }
+        return $newsletter_id;
     }
 
     /**

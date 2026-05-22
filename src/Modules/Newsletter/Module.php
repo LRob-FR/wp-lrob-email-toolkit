@@ -24,6 +24,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Fields\CategoryPicker;
 use LRob\EmailToolkit\Modules\Newsletter\Fields\ListPicker;
 use LRob\EmailToolkit\Modules\Newsletter\Send\Materializer;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
+use LRob\EmailToolkit\Modules\Newsletter\Send\SendCron;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendLoop;
 
 /**
@@ -128,6 +129,11 @@ final class Module extends AbstractModule
         // the admin sets `lrob_etk_nl_trash_auto_purge_days` > 0;
         // otherwise the tick is a cheap no-op.
         TrashCron::schedule();
+
+        // 1-minute send safety-net cron. Picks up sending newsletters
+        // whose last_tick_at is stale (>2 min) so a closed-browser
+        // mid-send doesn't strand a batch.
+        SendCron::schedule();
     }
 
     /**
@@ -302,6 +308,7 @@ final class Module extends AbstractModule
     {
         ReminderCron::unschedule();
         TrashCron::unschedule();
+        SendCron::unschedule();
         Schema::drop();
     }
 
@@ -314,6 +321,7 @@ final class Module extends AbstractModule
     {
         ReminderCron::unschedule();
         TrashCron::unschedule();
+        SendCron::unschedule();
         parent::disable();
     }
 
@@ -357,6 +365,12 @@ final class Module extends AbstractModule
         (new TemplateCPT())->register();
         (new FormCPT())->register();
         (new NewsletterCPT())->register();
+
+        // Newsletter lifecycle hooks (ensure companion row on save,
+        // cascade delete) — unconditional so deletes from any
+        // context (admin, REST, wp-cli) clean up the companion table
+        // even when the module is disabled.
+        (new NewsletterLifecycle($newsletters))->register();
 
         // Register the field types the subscribe-form CPT accepts.
         // Subset of the full form-builder vocabulary — list-picker and
@@ -420,24 +434,23 @@ final class Module extends AbstractModule
             // effect on the next cron run without a re-schedule.
             (new TrashCron($subscribers))->register();
 
-            // Send pipeline AJAX endpoints: send_tick (real send) +
-            // test_send (preview-to-self / ad-hoc / test list).
-            // Cron safety-net + per-domain throttle land in step 7b.
+            // Send pipeline AJAX endpoints + 1-minute safety-net
+            // cron. Per-domain throttle + CSS inliner stay deferred.
             $materializer = new Materializer($newsletters, $categories);
             $send_loop = new SendLoop($newsletters);
             (new SendAjaxController($materializer, $send_loop, $newsletters, $lists))->register();
+            (new SendCron($newsletters, $materializer, $send_loop))->register();
         }
 
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
             (new TemplateValidator())->register();
-            (new NewsletterMetaboxes($newsletters, $categories, $lists, $this->container))->register();
             $forms_page = new FormsPage($forms, $templates);
             $categories_page = new CategoriesPage($categories);
             $lists_page = new ListsPage($lists);
             $settings_page = new SettingsPage();
             $subscribers_page = new SubscribersPage($subscribers);
-            $newsletters_page = new NewslettersPage($newsletters);
+            $newsletters_page = new NewslettersPage($newsletters, $categories, $lists, $this->container);
             $newsletters_page->register();
             $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page, $subscribers_page, $newsletters_page);
             (new PageController($this, $home))->register();
