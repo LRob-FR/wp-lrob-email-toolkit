@@ -60,6 +60,7 @@ final class HomePage
         private ListsPage $lists_page,
         private SettingsPage $settings_page,
         private SubscribersPage $subscribers_page,
+        private CampaignsPage $campaigns_page,
     ) {
     }
 
@@ -172,8 +173,8 @@ final class HomePage
             self::VIEW_CATEGORIES  => $this->categories_page->render(),
             self::VIEW_LISTS       => $this->lists_page->render(),
             self::VIEW_SUBSCRIBERS => $this->subscribers_page->render(),
+            self::VIEW_CAMPAIGNS   => $this->campaigns_page->render(),
             self::VIEW_SETTINGS    => $this->settings_page->render(),
-            self::VIEW_CAMPAIGNS,
             self::VIEW_IMPORT      => $this->render_placeholder($view),
             default                => $this->render_dashboard(),
         };

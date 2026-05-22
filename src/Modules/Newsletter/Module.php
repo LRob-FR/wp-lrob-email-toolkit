@@ -12,6 +12,7 @@ use LRob\EmailToolkit\Forms\Fields\TextField;
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\AjaxController;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\CampaignsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\CategoriesPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage;
@@ -227,18 +228,21 @@ final class Module extends AbstractModule
         $forms = new FormRepository();
         $categories = new CategoryRepository();
         $lists = new ListRepository();
+        $campaigns = new CampaignRepository();
         $this->container->set(SubscriberRepository::class, $subscribers);
         $this->container->set(TemplateRepository::class, $templates);
         $this->container->set(FormRepository::class, $forms);
         $this->container->set(CategoryRepository::class, $categories);
         $this->container->set(ListRepository::class, $lists);
+        $this->container->set(CampaignRepository::class, $campaigns);
 
         // CPTs register unconditionally so admin code can edit existing
-        // posts even when the module is disabled (data preserved). Both
-        // CPTs are non-public and use `rewrite=false`, so registering at
-        // any request stage is safe.
+        // posts even when the module is disabled (data preserved). All
+        // three CPTs are non-public and use `rewrite=false`, so
+        // registering at any request stage is safe.
         (new TemplateCPT())->register();
         (new FormCPT())->register();
+        (new CampaignCPT())->register();
 
         // Register the field types the subscribe-form CPT accepts.
         // Subset of the full form-builder vocabulary — list-picker and
@@ -306,12 +310,15 @@ final class Module extends AbstractModule
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
             (new TemplateValidator())->register();
+            (new CampaignMetaboxes($campaigns, $categories, $lists, $this->container))->register();
             $forms_page = new FormsPage($forms, $templates);
             $categories_page = new CategoriesPage($categories);
             $lists_page = new ListsPage($lists);
             $settings_page = new SettingsPage();
             $subscribers_page = new SubscribersPage($subscribers);
-            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page, $subscribers_page);
+            $campaigns_page = new CampaignsPage($campaigns);
+            $campaigns_page->register();
+            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page, $subscribers_page, $campaigns_page);
             (new PageController($this, $home))->register();
             (new AjaxController())->register();
             add_action('admin_init', [$this, 'handle_new_from_default']);
