@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-22T16:18:10+00:00\n"
+"POT-Creation-Date: 2026-05-22T16:23:54+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -395,7 +395,7 @@ msgstr "Date"
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:67
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:157
 #: src/Modules/Newsletter/CampaignMetaboxes.php:117
-#: src/Modules/Newsletter/CampaignMetaboxes.php:453
+#: src/Modules/Newsletter/CampaignMetaboxes.php:514
 msgid "Status"
 msgstr "État"
 
@@ -486,7 +486,7 @@ msgstr "Reçues"
 #: src/Modules/Logging/Admin/LogsPage.php:174
 #: src/Modules/Logging/Admin/LogsPage.php:728
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:185
-#: src/Modules/Newsletter/CampaignMetaboxes.php:654
+#: src/Modules/Newsletter/CampaignMetaboxes.php:715
 msgid "Failed"
 msgstr "Échec"
 
@@ -547,7 +547,7 @@ msgstr "Une erreur est survenue."
 #: src/Admin/DashboardPage.php:863 src/Modules/Logging/Admin/LogsPage.php:171
 #: src/Modules/Logging/Admin/LogsPage.php:727
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:184
-#: src/Modules/Newsletter/CampaignMetaboxes.php:653
+#: src/Modules/Newsletter/CampaignMetaboxes.php:714
 msgid "Sent"
 msgstr "Envoyé"
 
@@ -1658,7 +1658,7 @@ msgstr "Choisir un email connu"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:94
 #: src/Modules/ContactForm/Admin/FormsPage.php:1312
-#: src/Modules/Newsletter/CampaignMetaboxes.php:169
+#: src/Modules/Newsletter/CampaignMetaboxes.php:170
 msgid "email@example.com"
 msgstr "email@example.com"
 
@@ -1988,7 +1988,7 @@ msgstr "Nom du formulaire"
 #: src/Modules/ContactForm/Admin/FormsPage.php:884
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:180
 #: src/Modules/Newsletter/Admin/FormsPage.php:211
-#: src/Modules/Newsletter/CampaignMetaboxes.php:649
+#: src/Modules/Newsletter/CampaignMetaboxes.php:710
 msgid "Draft"
 msgstr "Brouillon"
 
@@ -2009,7 +2009,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:901
 #: src/Modules/ContactForm/Admin/FormsPage.php:1317
-#: src/Modules/Newsletter/CampaignMetaboxes.php:339
+#: src/Modules/Newsletter/CampaignMetaboxes.php:400
 msgid "SMTP identity"
 msgstr "Identité SMTP"
 
@@ -2990,7 +2990,7 @@ msgstr ""
 #: src/Modules/Logging/Admin/LogsPage.php:177
 #: src/Modules/Logging/Admin/LogsPage.php:729
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:182
-#: src/Modules/Newsletter/CampaignMetaboxes.php:651
+#: src/Modules/Newsletter/CampaignMetaboxes.php:712
 msgid "Sending"
 msgstr "Envoi en cours"
 
@@ -3430,17 +3430,17 @@ msgid "Campaign not found."
 msgstr "Formulaire introuvable."
 
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:181
-#: src/Modules/Newsletter/CampaignMetaboxes.php:650
+#: src/Modules/Newsletter/CampaignMetaboxes.php:711
 msgid "Scheduled"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:183
-#: src/Modules/Newsletter/CampaignMetaboxes.php:652
+#: src/Modules/Newsletter/CampaignMetaboxes.php:713
 msgid "Paused"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/CampaignsPage.php:186
-#: src/Modules/Newsletter/CampaignMetaboxes.php:655
+#: src/Modules/Newsletter/CampaignMetaboxes.php:716
 msgid "Aborted"
 msgstr ""
 
@@ -4020,144 +4020,144 @@ msgid "Send to a specific address"
 msgstr ""
 
 #. translators: %s: configured test list name
-#: src/Modules/Newsletter/CampaignMetaboxes.php:179
+#: src/Modules/Newsletter/CampaignMetaboxes.php:181
 #, fuzzy
 msgid "Send to test list (%s)"
 msgstr "Envoyer un email de test"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:187
+#: src/Modules/Newsletter/CampaignMetaboxes.php:189
 #: src/Modules/SMTP/Admin/SettingsPage.php:499
 #: src/Modules/SMTP/Admin/SettingsPage.php:589
 msgid "Send test"
 msgstr "Envoyer le test"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:191
+#: src/Modules/Newsletter/CampaignMetaboxes.php:193
 msgid ""
 "Test sends use the campaign's content + sender settings. They don't affect "
 "counters or recipients."
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:199
+#: src/Modules/Newsletter/CampaignMetaboxes.php:201
 msgid "Send tick failed. Stopped."
 msgstr ""
 
 #. translators: %1$d: sent count, %2$d: failed count
-#: src/Modules/Newsletter/CampaignMetaboxes.php:201
+#: src/Modules/Newsletter/CampaignMetaboxes.php:203
 msgid "Test done: %1$d sent, %2$d failed."
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:202
+#: src/Modules/Newsletter/CampaignMetaboxes.php:204
 #, fuzzy
 msgid "Test send failed."
 msgstr "Échec du renvoi."
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:310
+#: src/Modules/Newsletter/CampaignMetaboxes.php:371
 #, fuzzy
 msgid "Preview text"
 msgstr "Précédent"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:317
+#: src/Modules/Newsletter/CampaignMetaboxes.php:378
 msgid "Snippet shown in the inbox preview"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:318
+#: src/Modules/Newsletter/CampaignMetaboxes.php:379
 msgid "Up to ~150 characters. Most clients show the first ~90."
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:321
+#: src/Modules/Newsletter/CampaignMetaboxes.php:382
 #, fuzzy
 msgid "From name override"
 msgstr "Nom d'expédition"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:327
+#: src/Modules/Newsletter/CampaignMetaboxes.php:388
 #, fuzzy
 msgid "(use identity default)"
 msgstr "Identité supprimée."
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:330
+#: src/Modules/Newsletter/CampaignMetaboxes.php:391
 #, fuzzy
 msgid "Reply-to override"
 msgstr "Champ Reply-To"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:336
+#: src/Modules/Newsletter/CampaignMetaboxes.php:397
 msgid "(use identity reply-to)"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:341
+#: src/Modules/Newsletter/CampaignMetaboxes.php:402
 #, fuzzy
 msgid "(default routing)"
 msgstr "Par défaut — routage SMTP"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:348
+#: src/Modules/Newsletter/CampaignMetaboxes.php:409
 msgid ""
 "Pick which sending mailbox this campaign uses. Default routing follows the "
 "SMTP module's rules."
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:367
+#: src/Modules/Newsletter/CampaignMetaboxes.php:428
 #, fuzzy
 msgid "Category"
 msgstr "Ajouter un captcha"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:370
+#: src/Modules/Newsletter/CampaignMetaboxes.php:431
 #, fuzzy
 msgid "(no categories defined)"
 msgstr "Classe du fournisseur non disponible."
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:379
+#: src/Modules/Newsletter/CampaignMetaboxes.php:440
 msgid "Recipients who opted out of this category are excluded at send time."
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:383
+#: src/Modules/Newsletter/CampaignMetaboxes.php:444
 #, fuzzy
 msgid "Send to"
 msgstr "Envoyer le test"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:386
+#: src/Modules/Newsletter/CampaignMetaboxes.php:447
 msgid "All recipients (confirmed subscribers + opted-in WP users)"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:390
+#: src/Modules/Newsletter/CampaignMetaboxes.php:451
 msgid "All confirmed subscribers (email-only)"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:394
+#: src/Modules/Newsletter/CampaignMetaboxes.php:455
 msgid "All opted-in WordPress users"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:398
+#: src/Modules/Newsletter/CampaignMetaboxes.php:459
 msgid "Specific list"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:402
+#: src/Modules/Newsletter/CampaignMetaboxes.php:463
 #, fuzzy
 msgid "— Select a list —"
 msgstr "— Sélectionner un formulaire —"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:459
+#: src/Modules/Newsletter/CampaignMetaboxes.php:520
 #, fuzzy
 msgid "Send at"
 msgstr "Envoyer via"
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:465
+#: src/Modules/Newsletter/CampaignMetaboxes.php:526
 msgid ""
 "Leave blank to send immediately when you trigger Send. (Send pipeline lands "
 "in a coming release — this preference is stored now and used then.)"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:483
+#: src/Modules/Newsletter/CampaignMetaboxes.php:544
 msgid "Track opens"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:489
+#: src/Modules/Newsletter/CampaignMetaboxes.php:550
 msgid "Track clicks"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:495
+#: src/Modules/Newsletter/CampaignMetaboxes.php:556
 msgid "Log every send for this campaign"
 msgstr ""
 
-#: src/Modules/Newsletter/CampaignMetaboxes.php:497
+#: src/Modules/Newsletter/CampaignMetaboxes.php:558
 msgid "Overrides the Logging module's default sampling."
 msgstr ""
 

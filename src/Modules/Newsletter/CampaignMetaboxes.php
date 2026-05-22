@@ -163,11 +163,13 @@ final class CampaignMetaboxes
                             <input type="radio" name="lrob_etk_nl_test_target" value="adhoc">
                             <?php esc_html_e('Send to a specific address', 'lrob-email-toolkit'); ?>
                         </label>
-                        <input type="email"
-                               name="lrob_etk_nl_test_email"
-                               class="widefat"
-                               placeholder="<?php esc_attr_e('email@example.com', 'lrob-email-toolkit'); ?>"
-                               style="margin-top: 0.25rem;">
+                        <span class="lrob-etk-nl-test-adhoc-input" data-test-adhoc-input hidden>
+                            <input type="email"
+                                   name="lrob_etk_nl_test_email"
+                                   class="widefat"
+                                   placeholder="<?php esc_attr_e('email@example.com', 'lrob-email-toolkit'); ?>"
+                                   style="margin-top: 0.25rem;">
+                        </span>
                     </p>
                     <?php if ($test_list !== null) : ?>
                         <p>
@@ -263,13 +265,70 @@ final class CampaignMetaboxes
                 });
             }
 
+            // Save the campaign post + its meta before sending so the
+            // recipient sees the latest content / sender / target. In
+            // the Gutenberg editor we go through wp.data.savePost +
+            // wait on isSavingPost; falls through to an immediate
+            // resolve outside the editor (e.g. if the box ever gets
+            // shown in a non-Gutenberg context).
+            function saveFirst() {
+                if (!(window.wp && wp.data && wp.data.select && wp.data.dispatch)) {
+                    return Promise.resolve();
+                }
+                var editor = wp.data.select('core/editor');
+                var dispatcher = wp.data.dispatch('core/editor');
+                if (!editor || !dispatcher) return Promise.resolve();
+                // Nothing to save? Skip the round trip.
+                if (typeof editor.isEditedPostDirty === 'function' && !editor.isEditedPostDirty()) {
+                    return Promise.resolve();
+                }
+                return dispatcher.savePost().then(function () {
+                    return new Promise(function (resolve) {
+                        var unsub = wp.data.subscribe(function () {
+                            if (!editor.isSavingPost() && !editor.isAutosavingPost()) {
+                                unsub();
+                                resolve();
+                            }
+                        });
+                        // Belt-and-suspenders: if isSavingPost is
+                        // already false by the time we subscribed
+                        // (race), resolve on the next tick.
+                        setTimeout(function () {
+                            if (!editor.isSavingPost() && !editor.isAutosavingPost()) {
+                                try { unsub(); } catch (_) {}
+                                resolve();
+                            }
+                        }, 0);
+                    });
+                });
+            }
+
+            // Toggle the ad-hoc email input visibility based on which
+            // test target is selected. Only "Send to a specific
+            // address" reveals the input.
+            var adhocInput = root.querySelector('[data-test-adhoc-input]');
+            function syncTestTarget() {
+                if (!adhocInput) return;
+                var sel = root.querySelector('input[name="lrob_etk_nl_test_target"]:checked');
+                var show = sel && sel.value === 'adhoc';
+                if (show) {
+                    adhocInput.removeAttribute('hidden');
+                } else {
+                    adhocInput.setAttribute('hidden', '');
+                }
+            }
+            root.addEventListener('change', function (e) {
+                if (e.target && e.target.name === 'lrob_etk_nl_test_target') syncTestTarget();
+            });
+            syncTestTarget();
+
             var sendBtn = root.querySelector('[data-send-now]');
             if (sendBtn) {
                 sendBtn.addEventListener('click', function () {
                     var msg = sendBtn.getAttribute('data-confirm') || '';
                     if (msg && !window.confirm(msg)) return;
                     sendBtn.disabled = true;
-                    loopTick();
+                    saveFirst().then(loopTick);
                 });
             }
 
@@ -281,7 +340,9 @@ final class CampaignMetaboxes
                     var resultEl = root.querySelector('[data-test-result]');
                     testBtn.disabled = true;
                     if (resultEl) resultEl.textContent = '';
-                    post(actions.test, { campaign_id: campaignId, target: target, email: email }).then(function (resp) {
+                    saveFirst().then(function () {
+                        return post(actions.test, { campaign_id: campaignId, target: target, email: email });
+                    }).then(function (resp) {
                         testBtn.disabled = false;
                         if (resp && resp.success) {
                             if (resultEl) resultEl.textContent = fmt(i18n.testDone, [resp.data.sent, resp.data.failed]);
