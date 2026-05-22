@@ -30,7 +30,11 @@ final class LogsPage
         $notice = PageController::pop_flash('notice');
         $errors = PageController::pop_flash('errors');
         $enabled = $this->module->is_enabled();
-        $log_count = $this->repository->count();
+        // Count across everything (including newsletter rows) so the "no
+        // logs yet" disabled-message doesn't fire on sites that have only
+        // newsletter-failure logs (default behaviour hides those from the
+        // main view but they still exist in the table).
+        $log_count = $this->repository->count(['newsletter_mode' => 'include']);
 
         ?>
         <div class="wrap lrob-etk lrob-etk-logs-page">
@@ -119,7 +123,7 @@ final class LogsPage
     }
 
     /**
-     * @return array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string}
+     * @return array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string, newsletter_id?: int, newsletter_mode?: string}
      */
     private function parse_filters(): array
     {
@@ -145,23 +149,42 @@ final class LogsPage
                 $f['date_to'] = $d . ' 23:59:59';
             }
         }
+        // Newsletter visibility — exclude by default. The recipients-drawer
+        // cross-link passes both newsletter_id and newsletter_mode=only so
+        // landing from there shows the right rows immediately.
+        if (!empty($_GET['newsletter_id'])) {
+            $f['newsletter_id'] = (int) $_GET['newsletter_id'];
+        }
+        $mode = isset($_GET['newsletter_mode']) && is_string($_GET['newsletter_mode'])
+            ? sanitize_key($_GET['newsletter_mode'])
+            : '';
+        if (in_array($mode, ['include', 'only'], true)) {
+            $f['newsletter_mode'] = $mode;
+        }
         return $f;
     }
 
-    /** @param array<string, string> $filters */
+    /** @param array<string, mixed> $filters */
     private function render_filter_bar(array $filters): void
     {
         $sources = $this->repository->distinct_sources();
-        $current_status = $filters['status'] ?? '';
-        $current_source = $filters['source'] ?? '';
-        $current_search = $filters['search'] ?? '';
+        $current_status = (string) ($filters['status'] ?? '');
+        $current_source = (string) ($filters['source'] ?? '');
+        $current_search = (string) ($filters['search'] ?? '');
         // The filter array keeps full timestamps; the UI just shows the date.
         $current_from = isset($filters['date_from']) ? substr((string) $filters['date_from'], 0, 10) : '';
         $current_to = isset($filters['date_to']) ? substr((string) $filters['date_to'], 0, 10) : '';
-        $has_filter = $current_status !== '' || $current_source !== '' || $current_search !== '' || $current_from !== '' || $current_to !== '';
+        $current_nl_id = isset($filters['newsletter_id']) ? (int) $filters['newsletter_id'] : 0;
+        $current_nl_mode = (string) ($filters['newsletter_mode'] ?? 'exclude');
+        $has_filter = $current_status !== '' || $current_source !== '' || $current_search !== ''
+            || $current_from !== '' || $current_to !== ''
+            || $current_nl_id > 0 || $current_nl_mode !== 'exclude';
         ?>
         <form method="get" class="lrob-etk-logs-filter">
             <input type="hidden" name="page" value="<?php echo esc_attr(PageController::SLUG); ?>">
+            <?php if ($current_nl_id > 0) : ?>
+                <input type="hidden" name="newsletter_id" value="<?php echo (int) $current_nl_id; ?>">
+            <?php endif; ?>
 
             <div class="lrob-etk-logs-filter-field">
                 <label for="lrob-etk-filter-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></label>
@@ -193,6 +216,17 @@ final class LogsPage
                     <?php endforeach; ?>
                 </select>
             </div>
+
+            <?php if ($current_nl_id === 0) : ?>
+                <div class="lrob-etk-logs-filter-field">
+                    <label for="lrob-etk-filter-newsletter"><?php esc_html_e('Newsletter', 'lrob-email-toolkit'); ?></label>
+                    <select name="newsletter_mode" id="lrob-etk-filter-newsletter" class="lrob-etk-select">
+                        <option value="exclude" <?php selected($current_nl_mode, 'exclude'); ?>><?php esc_html_e('Hide newsletter sends', 'lrob-email-toolkit'); ?></option>
+                        <option value="include" <?php selected($current_nl_mode, 'include'); ?>><?php esc_html_e('Show all', 'lrob-email-toolkit'); ?></option>
+                        <option value="only"    <?php selected($current_nl_mode, 'only');    ?>><?php esc_html_e('Newsletter only', 'lrob-email-toolkit'); ?></option>
+                    </select>
+                </div>
+            <?php endif; ?>
 
             <div class="lrob-etk-logs-filter-field">
                 <label for="lrob-etk-filter-date-from"><?php esc_html_e('From', 'lrob-email-toolkit'); ?></label>

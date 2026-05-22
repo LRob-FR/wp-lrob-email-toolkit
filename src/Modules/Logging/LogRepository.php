@@ -74,7 +74,9 @@ final class LogRepository
      *     source?: string,
      *     search?: string,
      *     date_from?: string,
-     *     date_to?: string
+     *     date_to?: string,
+     *     newsletter_id?: int,
+     *     newsletter_mode?: string
      * } $filters
      */
     public function count(array $filters = []): int
@@ -87,7 +89,7 @@ final class LogRepository
     }
 
     /**
-     * @param array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string} $filters
+     * @param array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string, newsletter_id?: int, newsletter_mode?: string} $filters
      * @return array<int, LogEntry>
      */
     public function paginate(array $filters, int $page, int $per_page): array
@@ -284,6 +286,49 @@ final class LogRepository
         }
     }
 
+    /**
+     * For a given newsletter, return a map of recipient-row id → log id for
+     * any logged entry. Used by the recipients drawer to attach a "View in
+     * Logs" link to failed rows. Since the default newsletter-suppress rule
+     * deletes successes, in practice only failed rows have a match here.
+     *
+     * @param array<int, int> $recipient_ids
+     * @return array<int, int>
+     */
+    public function log_ids_for_newsletter_recipients(int $newsletter_id, array $recipient_ids): array
+    {
+        if ($newsletter_id <= 0 || $recipient_ids === []) {
+            return [];
+        }
+        global $wpdb;
+        $clean = array_values(array_filter(array_map('intval', $recipient_ids), static fn (int $i): bool => $i > 0));
+        if ($clean === []) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($clean), '%d'));
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT id, recipient_id FROM `' . Schema::table_name() . "`
+                  WHERE newsletter_id = %d AND recipient_id IN ($placeholders)
+                  ORDER BY id DESC",
+                $newsletter_id,
+                ...$clean
+            ),
+            ARRAY_A
+        );
+        $out = [];
+        foreach (is_array($rows) ? $rows : [] as $r) {
+            $rid = (int) ($r['recipient_id'] ?? 0);
+            $lid = (int) ($r['id'] ?? 0);
+            // ORDER BY id DESC means the first row we see per recipient is
+            // the newest log — what the admin wants to inspect.
+            if ($rid > 0 && $lid > 0 && !isset($out[$rid])) {
+                $out[$rid] = $lid;
+            }
+        }
+        return $out;
+    }
+
     /** @return array<int, string> distinct sources present in the table */
     public function distinct_sources(): array
     {
@@ -294,7 +339,7 @@ final class LogRepository
     }
 
     /**
-     * @param array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string} $filters
+     * @param array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string, newsletter_id?: int, newsletter_mode?: string} $filters
      * @return array{0: string, 1: array<int, scalar>} [where clause including WHERE keyword if present, params array]
      */
     private function build_where(array $filters): array
@@ -324,6 +369,21 @@ final class LogRepository
         if (!empty($filters['date_to'])) {
             $clauses[] = 'created_at <= %s';
             $params[] = (string) $filters['date_to'];
+        }
+        // Newsletter visibility — default is exclude. The Logs page exposes a
+        // tri-state dropdown so the admin can see newsletter rows when
+        // debugging without losing the clean default view. An explicit
+        // newsletter_id wins over the mode.
+        if (isset($filters['newsletter_id']) && (int) $filters['newsletter_id'] > 0) {
+            $clauses[] = 'newsletter_id = %d';
+            $params[] = (int) $filters['newsletter_id'];
+        } else {
+            $mode = (string) ($filters['newsletter_mode'] ?? 'exclude');
+            if ($mode === 'only') {
+                $clauses[] = 'newsletter_id IS NOT NULL';
+            } elseif ($mode !== 'include') {
+                $clauses[] = 'newsletter_id IS NULL';
+            }
         }
 
         $where = $clauses === [] ? '' : 'WHERE ' . implode(' AND ', $clauses);

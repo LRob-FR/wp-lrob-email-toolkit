@@ -137,6 +137,7 @@ final class HomePage
                 /* translators: %d: sample size */
                 'recipientsSample'     => __('Sample (first %d):', 'lrob-email-toolkit'),
                 'snapshotNote'         => __('frozen at send time', 'lrob-email-toolkit'),
+                'viewInLogs'           => __('View in Logs →', 'lrob-email-toolkit'),
                 'minutes'              => __('minutes', 'lrob-email-toolkit'),
                 'minuteSingular'       => __('minute', 'lrob-email-toolkit'),
                 'hours'                => __('hours', 'lrob-email-toolkit'),

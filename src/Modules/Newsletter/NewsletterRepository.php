@@ -148,7 +148,13 @@ final class NewsletterRepository
      * Empty 'sample' / 0 'total' = no materialisation yet (caller
      * should fall back to a dry-run preview).
      *
-     * @return array{total:int, by_status:array<string,int>, sample:array<int, array{kind:string, email:string, name:string, status:string, failure_code:string, sent_at:string}>}
+     * The `row_id` per sample is `newsletter_recipients.id` — the per-send
+     * row id, which is what `X-Lrob-Etk-Newsletter-Recipient-ID` carries and
+     * what the Logging module persists into `logs.recipient_id`. Callers
+     * pass that id to `LogRepository::log_ids_for_newsletter_recipients()`
+     * to attach a "View in Logs" link to failed rows.
+     *
+     * @return array{total:int, by_status:array<string,int>, sample:array<int, array{row_id:int, kind:string, email:string, name:string, status:string, failure_code:string, sent_at:string}>}
      */
     public function recipients_snapshot(int $post_id, int $limit = 50): array
     {
@@ -174,7 +180,7 @@ final class NewsletterRepository
         }
 
         $rows = (array) $wpdb->get_results($wpdb->prepare(
-            "SELECT recipient_kind, email_snapshot, name_snapshot, status, failure_code, sent_at
+            "SELECT id, recipient_kind, email_snapshot, name_snapshot, status, failure_code, sent_at
                FROM `$table`
               WHERE newsletter_id = %d
               ORDER BY id ASC
@@ -186,6 +192,7 @@ final class NewsletterRepository
         $sample = [];
         foreach ($rows as $r) {
             $sample[] = [
+                'row_id'       => (int) ($r['id'] ?? 0),
                 'kind'         => (string) ($r['recipient_kind'] ?? ''),
                 'email'        => (string) ($r['email_snapshot'] ?? ''),
                 'name'         => (string) ($r['name_snapshot'] ?? ''),

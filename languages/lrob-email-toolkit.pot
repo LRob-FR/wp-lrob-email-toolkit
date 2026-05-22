@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-22T23:34:46+00:00\n"
+"POT-Creation-Date: 2026-05-22T23:47:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -60,12 +60,12 @@ msgstr ""
 #: src/Modules/Logging/Admin/PageController.php:174
 #: src/Modules/Newsletter/Admin/AjaxController.php:589
 #: src/Modules/Newsletter/Admin/AjaxController.php:611
-#: src/Modules/Newsletter/Admin/HomePage.php:158
+#: src/Modules/Newsletter/Admin/HomePage.php:159
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:678
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:707
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:736
 #: src/Modules/Newsletter/Module.php:495
-#: src/Modules/Newsletter/Send/SendAjaxController.php:426
+#: src/Modules/Newsletter/Send/SendAjaxController.php:472
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
@@ -266,8 +266,8 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1082
 #: src/Modules/ContactForm/Admin/FormsPage.php:1292
 #: src/Modules/ContactForm/Admin/FormsPage.php:1490
-#: src/Modules/Logging/Admin/LogsPage.php:395
-#: src/Modules/Logging/Admin/LogsPage.php:428
+#: src/Modules/Logging/Admin/LogsPage.php:429
+#: src/Modules/Logging/Admin/LogsPage.php:462
 #: src/Modules/Newsletter/Admin/FormsPage.php:393
 #: src/Modules/Newsletter/Admin/FormsPage.php:431
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:548
@@ -318,8 +318,8 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:570
 #: src/Modules/ContactForm/Admin/FormsPage.php:484
-#: src/Modules/Logging/Admin/LogsPage.php:411
-#: src/Modules/Logging/Admin/LogsPage.php:455
+#: src/Modules/Logging/Admin/LogsPage.php:445
+#: src/Modules/Logging/Admin/LogsPage.php:489
 #: src/Modules/Newsletter/Admin/FormsPage.php:440
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:593
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:644
@@ -377,7 +377,7 @@ msgstr ""
 #: src/Forms/Fields/DateField.php:19
 #: src/Modules/ContactForm/Admin/FormsPage.php:1219
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:264
-#: src/Modules/Logging/Admin/LogsPage.php:268
+#: src/Modules/Logging/Admin/LogsPage.php:302
 #: src/Modules/Logging/Admin/LogViewPage.php:76
 msgid "Date"
 msgstr ""
@@ -387,8 +387,8 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:164
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:265
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:459
-#: src/Modules/Logging/Admin/LogsPage.php:167
-#: src/Modules/Logging/Admin/LogsPage.php:269
+#: src/Modules/Logging/Admin/LogsPage.php:190
+#: src/Modules/Logging/Admin/LogsPage.php:303
 #: src/Modules/Logging/Admin/LogViewPage.php:80
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:157
 msgid "Status"
@@ -411,7 +411,7 @@ msgstr ""
 #: src/Admin/DashboardPage.php:670
 #: src/Admin/DashboardPage.php:790
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:269
-#: src/Modules/Logging/Admin/LogsPage.php:274
+#: src/Modules/Logging/Admin/LogsPage.php:308
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:160
 msgid "Actions"
 msgstr ""
@@ -426,13 +426,13 @@ msgstr ""
 #: src/Admin/DashboardPage.php:701
 #: src/Admin/DashboardPage.php:822
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:325
-#: src/Modules/Logging/Admin/LogsPage.php:320
+#: src/Modules/Logging/Admin/LogsPage.php:354
 msgid "View"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:701
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:325
-#: src/Modules/Logging/Admin/LogsPage.php:329
+#: src/Modules/Logging/Admin/LogsPage.php:363
 msgid "View submission"
 msgstr ""
 
@@ -474,8 +474,8 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:177
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:190
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:700
-#: src/Modules/Logging/Admin/LogsPage.php:174
-#: src/Modules/Logging/Admin/LogsPage.php:728
+#: src/Modules/Logging/Admin/LogsPage.php:197
+#: src/Modules/Logging/Admin/LogsPage.php:762
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:837
 msgid "Failed"
 msgstr ""
@@ -492,36 +492,36 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:787
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:204
-#: src/Modules/Logging/Admin/LogsPage.php:203
-#: src/Modules/Logging/Admin/LogsPage.php:271
+#: src/Modules/Logging/Admin/LogsPage.php:237
+#: src/Modules/Logging/Admin/LogsPage.php:305
 #: src/Modules/Logging/Admin/LogViewPage.php:91
 msgid "To"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:788
-#: src/Modules/Logging/Admin/LogsPage.php:272
+#: src/Modules/Logging/Admin/LogsPage.php:306
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:161
 msgid "Subject"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:789
-#: src/Modules/Logging/Admin/LogsPage.php:186
-#: src/Modules/Logging/Admin/LogsPage.php:273
+#: src/Modules/Logging/Admin/LogsPage.php:209
+#: src/Modules/Logging/Admin/LogsPage.php:307
 #: src/Modules/Logging/Admin/LogViewPage.php:81
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:159
 msgid "Source"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:803
-#: src/Modules/Logging/Admin/LogsPage.php:297
+#: src/Modules/Logging/Admin/LogsPage.php:331
 #: src/Modules/Logging/Admin/LogViewPage.php:40
-#: src/Modules/Newsletter/Send/SendAjaxController.php:181
-#: src/Modules/Newsletter/Send/SendLoop.php:71
+#: src/Modules/Newsletter/Send/SendAjaxController.php:227
+#: src/Modules/Newsletter/Send/SendLoop.php:73
 msgid "(no subject)"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:822
-#: src/Modules/Logging/Admin/LogsPage.php:320
+#: src/Modules/Logging/Admin/LogsPage.php:354
 msgid "View log entry"
 msgstr ""
 
@@ -536,14 +536,14 @@ msgid "Sending…"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:862
-#: src/Modules/Logging/Admin/LogsPage.php:489
+#: src/Modules/Logging/Admin/LogsPage.php:523
 #: src/Modules/SMTP/Admin/SettingsPage.php:584
 msgid "Something went wrong."
 msgstr ""
 
 #: src/Admin/DashboardPage.php:863
-#: src/Modules/Logging/Admin/LogsPage.php:171
-#: src/Modules/Logging/Admin/LogsPage.php:727
+#: src/Modules/Logging/Admin/LogsPage.php:194
+#: src/Modules/Logging/Admin/LogsPage.php:761
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:836
 msgid "Sent"
 msgstr ""
@@ -680,8 +680,8 @@ msgstr ""
 
 #: src/Admin/Menu.php:54
 #: src/Admin/Menu.php:55
-#: src/Modules/Newsletter/Admin/HomePage.php:200
-#: src/Modules/Newsletter/Admin/HomePage.php:395
+#: src/Modules/Newsletter/Admin/HomePage.php:201
+#: src/Modules/Newsletter/Admin/HomePage.php:396
 msgid "Dashboard"
 msgstr ""
 
@@ -741,7 +741,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:468
 #: src/Modules/ContactForm/Admin/FormsPage.php:169
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:91
-#: src/Modules/Newsletter/Admin/HomePage.php:310
+#: src/Modules/Newsletter/Admin/HomePage.php:311
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr ""
@@ -1077,8 +1077,8 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:325
 #: src/Modules/ContactForm/Admin/FormsPage.php:540
 #: src/Modules/ContactForm/Admin/FormsPage.php:1059
-#: src/Modules/Logging/Admin/LogsPage.php:248
-#: src/Modules/Logging/Admin/LogsPage.php:336
+#: src/Modules/Logging/Admin/LogsPage.php:282
+#: src/Modules/Logging/Admin/LogsPage.php:370
 #: src/Modules/Logging/Admin/LogViewPage.php:249
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:87
 #: src/Modules/Newsletter/Admin/FormsPage.php:285
@@ -1192,7 +1192,7 @@ msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:729
 #: src/Modules/ContactForm/Admin/FormsPage.php:88
-#: src/Modules/Logging/Admin/LogsPage.php:488
+#: src/Modules/Logging/Admin/LogsPage.php:522
 #: src/Modules/Newsletter/Admin/HomePage.php:95
 #: src/Modules/SMTP/Admin/SettingsPage.php:575
 msgid "Saving…"
@@ -1489,7 +1489,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:188
 #: src/Modules/ContactForm/Admin/AjaxController.php:253
 #: src/Modules/Newsletter/Admin/AjaxController.php:619
-#: src/Modules/Newsletter/Send/SendAjaxController.php:430
+#: src/Modules/Newsletter/Send/SendAjaxController.php:476
 msgid "Security check failed. Please reload the page."
 msgstr ""
 
@@ -2164,8 +2164,8 @@ msgid "All forms"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:166
-#: src/Modules/Logging/Admin/LogsPage.php:169
-#: src/Modules/Logging/Admin/LogsPage.php:188
+#: src/Modules/Logging/Admin/LogsPage.php:192
+#: src/Modules/Logging/Admin/LogsPage.php:211
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:303
 msgid "All"
 msgstr ""
@@ -2183,15 +2183,15 @@ msgid "Skipped"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:199
-#: src/Modules/Logging/Admin/LogsPage.php:198
-#: src/Modules/Logging/Admin/LogsPage.php:270
+#: src/Modules/Logging/Admin/LogsPage.php:232
+#: src/Modules/Logging/Admin/LogsPage.php:304
 #: src/Modules/Logging/Admin/LogViewPage.php:85
 #: src/Modules/SMTP/Admin/SettingsPage.php:340
 msgid "From"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:209
-#: src/Modules/Logging/Admin/LogsPage.php:208
+#: src/Modules/Logging/Admin/LogsPage.php:242
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:109
 msgid "Search"
 msgstr ""
@@ -2201,18 +2201,18 @@ msgid "Field values, notes…"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:215
-#: src/Modules/Logging/Admin/LogsPage.php:214
+#: src/Modules/Logging/Admin/LogsPage.php:248
 msgid "Filter"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:218
-#: src/Modules/Logging/Admin/LogsPage.php:217
+#: src/Modules/Logging/Admin/LogsPage.php:251
 msgid "Reset"
 msgstr ""
 
 #. translators: 1: first index, 2: last index, 3: total count
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:237
-#: src/Modules/Logging/Admin/LogsPage.php:237
+#: src/Modules/Logging/Admin/LogsPage.php:271
 msgid "Showing %1$d–%2$d of %3$d"
 msgstr ""
 
@@ -2226,12 +2226,12 @@ msgid "View outbound email log"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:355
-#: src/Modules/Logging/Admin/LogsPage.php:355
+#: src/Modules/Logging/Admin/LogsPage.php:389
 msgid "Previous"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:356
-#: src/Modules/Logging/Admin/LogsPage.php:356
+#: src/Modules/Logging/Admin/LogsPage.php:390
 msgid "Next"
 msgstr ""
 
@@ -2244,7 +2244,7 @@ msgid "No submissions match your filters."
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:379
-#: src/Modules/Logging/Admin/LogsPage.php:379
+#: src/Modules/Logging/Admin/LogsPage.php:413
 msgid "Clear filters"
 msgstr ""
 
@@ -2720,157 +2720,178 @@ msgstr ""
 msgid "Resend failed."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:38
+#: src/Modules/Logging/Admin/LogsPage.php:42
 #: src/Modules/Logging/Admin/PageController.php:51
 #: src/Modules/Logging/Admin/PageController.php:52
 msgid "Email Logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:44
-#: src/Modules/Newsletter/Admin/HomePage.php:208
-#: src/Modules/Newsletter/Admin/HomePage.php:394
+#: src/Modules/Logging/Admin/LogsPage.php:48
+#: src/Modules/Newsletter/Admin/HomePage.php:209
+#: src/Modules/Newsletter/Admin/HomePage.php:395
 msgid "Settings"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:48
+#: src/Modules/Logging/Admin/LogsPage.php:52
 msgid "Cleanup"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:60
+#: src/Modules/Logging/Admin/LogsPage.php:64
 msgid "Enable email logging to capture every outgoing email and let you audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:177
-#: src/Modules/Logging/Admin/LogsPage.php:729
+#: src/Modules/Logging/Admin/LogsPage.php:200
+#: src/Modules/Logging/Admin/LogsPage.php:763
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:834
 msgid "Sending"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:180
-#: src/Modules/Logging/Admin/LogsPage.php:730
+#: src/Modules/Logging/Admin/LogsPage.php:203
+#: src/Modules/Logging/Admin/LogsPage.php:764
 msgid "Retried"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:210
+#: src/Modules/Logging/Admin/LogsPage.php:222
+#: src/Modules/Newsletter/Admin/HomePage.php:168
+#: src/Modules/Newsletter/Admin/PageController.php:37
+#: src/Modules/Newsletter/Admin/PageController.php:38
+#: src/Modules/Newsletter/Module.php:57
+#: src/Modules/Newsletter/NewsletterCPT.php:101
+msgid "Newsletter"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:224
+msgid "Hide newsletter sends"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:225
+msgid "Show all"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:226
+msgid "Newsletter only"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogsPage.php:244
 msgid "Subject, from, to…"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:247
+#: src/Modules/Logging/Admin/LogsPage.php:281
 msgid "Bulk action…"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:250
+#: src/Modules/Logging/Admin/LogsPage.php:284
 msgid "Apply"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:329
+#: src/Modules/Logging/Admin/LogsPage.php:363
 msgid "View contact form submission"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:333
+#: src/Modules/Logging/Admin/LogsPage.php:367
 #: src/Modules/Logging/Admin/LogViewPage.php:236
 msgid "Resend"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:333
+#: src/Modules/Logging/Admin/LogsPage.php:367
 msgid "Resend email"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:336
+#: src/Modules/Logging/Admin/LogsPage.php:370
 msgid "Delete log entry"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:363
+#: src/Modules/Logging/Admin/LogsPage.php:397
 msgid "Logs pagination"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:376
+#: src/Modules/Logging/Admin/LogsPage.php:410
 msgid "No log entries match your filters."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:383
+#: src/Modules/Logging/Admin/LogsPage.php:417
 msgid "No emails logged yet."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:392
-#: src/Modules/Logging/Admin/LogsPage.php:394
+#: src/Modules/Logging/Admin/LogsPage.php:426
+#: src/Modules/Logging/Admin/LogsPage.php:428
 msgid "Cleanup logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:400
+#: src/Modules/Logging/Admin/LogsPage.php:434
 msgid "One-shot manual cleanup. Automatic retention is configured in Settings."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:403
+#: src/Modules/Logging/Admin/LogsPage.php:437
 msgid "Delete logs older than"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:405
-#: src/Modules/Logging/Admin/LogsPage.php:438
-#: src/Modules/Newsletter/Admin/HomePage.php:144
+#: src/Modules/Logging/Admin/LogsPage.php:439
+#: src/Modules/Logging/Admin/LogsPage.php:472
+#: src/Modules/Newsletter/Admin/HomePage.php:145
 msgid "days"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:413
+#: src/Modules/Logging/Admin/LogsPage.php:447
 msgid "Delete matching logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:425
-#: src/Modules/Logging/Admin/LogsPage.php:427
+#: src/Modules/Logging/Admin/LogsPage.php:459
+#: src/Modules/Logging/Admin/LogsPage.php:461
 msgid "Log settings"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:434
+#: src/Modules/Logging/Admin/LogsPage.php:468
 msgid "Retention"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:435
+#: src/Modules/Logging/Admin/LogsPage.php:469
 msgid "Older entries are deleted daily by a cron event. 0 = keep forever."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:443
+#: src/Modules/Logging/Admin/LogsPage.php:477
 msgid "Entries per page"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:457
+#: src/Modules/Logging/Admin/LogsPage.php:491
 msgid "Save"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:478
+#: src/Modules/Logging/Admin/LogsPage.php:512
 #: src/Modules/Logging/Admin/LogViewPage.php:245
 msgid "Delete this log entry?"
 msgstr ""
 
 #. translators: %d: number of selected log entries
-#: src/Modules/Logging/Admin/LogsPage.php:481
+#: src/Modules/Logging/Admin/LogsPage.php:515
 msgid "Delete %d selected log entries?"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:483
+#: src/Modules/Logging/Admin/LogsPage.php:517
 msgid "Resend this email now?"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:484
+#: src/Modules/Logging/Admin/LogsPage.php:518
 msgid "Select at least one entry."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:485
+#: src/Modules/Logging/Admin/LogsPage.php:519
 msgid "Pick an action first."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:486
+#: src/Modules/Logging/Admin/LogsPage.php:520
 msgid "Resending…"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:487
+#: src/Modules/Logging/Admin/LogsPage.php:521
 msgid "Working…"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:758
+#: src/Modules/Logging/Admin/LogsPage.php:792
 msgid "Email logging is now active."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:759
+#: src/Modules/Logging/Admin/LogsPage.php:793
 msgid "Email logging is now off. Existing logs are preserved."
 msgstr ""
 
@@ -3063,9 +3084,9 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/AjaxController.php:465
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:716
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:745
-#: src/Modules/Newsletter/Send/SendAjaxController.php:150
-#: src/Modules/Newsletter/Send/SendAjaxController.php:172
-#: src/Modules/Newsletter/Send/SendAjaxController.php:307
+#: src/Modules/Newsletter/Send/SendAjaxController.php:196
+#: src/Modules/Newsletter/Send/SendAjaxController.php:218
+#: src/Modules/Newsletter/Send/SendAjaxController.php:353
 msgid "Newsletter not found."
 msgstr ""
 
@@ -3143,7 +3164,7 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:188
 #: src/Modules/Newsletter/Admin/FormsPage.php:308
-#: src/Modules/Newsletter/Admin/HomePage.php:307
+#: src/Modules/Newsletter/Admin/HomePage.php:308
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:430
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:527
 msgid "(untitled)"
@@ -3250,58 +3271,54 @@ msgid "frozen at send time"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:140
-msgid "minutes"
+msgid "View in Logs →"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:141
-msgid "minute"
+msgid "minutes"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:142
-msgid "hours"
+msgid "minute"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:143
+msgid "hours"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:144
 msgid "hour"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:145
+#: src/Modules/Newsletter/Admin/HomePage.php:146
 msgid "day"
 msgstr ""
 
 #. translators: %1$s: relative time until send (e.g. "2 days"), %2$s: absolute datetime
-#: src/Modules/Newsletter/Admin/HomePage.php:147
+#: src/Modules/Newsletter/Admin/HomePage.php:148
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:491
 msgid "Scheduled to send in %1$s — %2$s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:148
+#: src/Modules/Newsletter/Admin/HomePage.php:149
 msgid "in the past (will send on next click)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:149
+#: src/Modules/Newsletter/Admin/HomePage.php:150
 msgid "Abort send"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:150
+#: src/Modules/Newsletter/Admin/HomePage.php:151
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:461
 msgid "Abort"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:167
-#: src/Modules/Newsletter/Admin/PageController.php:37
-#: src/Modules/Newsletter/Admin/PageController.php:38
-#: src/Modules/Newsletter/Module.php:57
-#: src/Modules/Newsletter/NewsletterCPT.php:101
-msgid "Newsletter"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/HomePage.php:185
+#: src/Modules/Newsletter/Admin/HomePage.php:186
 msgid "Enable the Newsletter module to start managing newsletters and subscribers."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:201
-#: src/Modules/Newsletter/Admin/HomePage.php:387
+#: src/Modules/Newsletter/Admin/HomePage.php:202
+#: src/Modules/Newsletter/Admin/HomePage.php:388
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:73
 #: src/Modules/Newsletter/NewsletterCPT.php:100
 #: src/Modules/Newsletter/NewsletterCPT.php:110
@@ -3309,102 +3326,102 @@ msgstr ""
 msgid "Newsletters"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:202
-#: src/Modules/Newsletter/Admin/HomePage.php:388
+#: src/Modules/Newsletter/Admin/HomePage.php:203
+#: src/Modules/Newsletter/Admin/HomePage.php:389
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:73
 msgid "Subscribers"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:203
-#: src/Modules/Newsletter/Admin/HomePage.php:389
-msgid "Lists"
-msgstr ""
-
 #: src/Modules/Newsletter/Admin/HomePage.php:204
 #: src/Modules/Newsletter/Admin/HomePage.php:390
-#: src/Modules/Newsletter/Fields/CategoryPicker.php:56
-msgid "Categories"
+msgid "Lists"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:205
 #: src/Modules/Newsletter/Admin/HomePage.php:391
-msgid "Onboarding"
+#: src/Modules/Newsletter/Fields/CategoryPicker.php:56
+msgid "Categories"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:206
 #: src/Modules/Newsletter/Admin/HomePage.php:392
-msgid "Forms"
+msgid "Onboarding"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:207
 #: src/Modules/Newsletter/Admin/HomePage.php:393
+msgid "Forms"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/HomePage.php:208
+#: src/Modules/Newsletter/Admin/HomePage.php:394
 msgid "Import"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:256
+#: src/Modules/Newsletter/Admin/HomePage.php:257
 msgid "System emails sent automatically during subscription onboarding. Edit any template in the block editor. Tokens marked with an asterisk (*) are required for the email to function."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:279
+#: src/Modules/Newsletter/Admin/HomePage.php:280
 msgid "Start a new draft pre-filled with the default content for this purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:280
+#: src/Modules/Newsletter/Admin/HomePage.php:281
 msgid "+ New from default"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:285
+#: src/Modules/Newsletter/Admin/HomePage.php:286
 msgid "Available tokens:"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:288
+#: src/Modules/Newsletter/Admin/HomePage.php:289
 msgid "Required for this onboarding purpose"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:294
+#: src/Modules/Newsletter/Admin/HomePage.php:295
 msgid "No templates yet for this purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:310
+#: src/Modules/Newsletter/Admin/HomePage.php:311
 msgid "Currently used by the newsletter for this purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:313
+#: src/Modules/Newsletter/Admin/HomePage.php:314
 msgid "Auto-created on module install."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:313
+#: src/Modules/Newsletter/Admin/HomePage.php:314
 msgid "Seeded"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:316
+#: src/Modules/Newsletter/Admin/HomePage.php:317
 msgid "OK"
 msgstr ""
 
 #. translators: %d: number of validation issues.
-#: src/Modules/Newsletter/Admin/HomePage.php:321
+#: src/Modules/Newsletter/Admin/HomePage.php:322
 msgid "%d issue"
 msgid_plural "%d issues"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:352
+#: src/Modules/Newsletter/Admin/HomePage.php:353
 msgid "Send newsletters to your WordPress users and subscribers. Pick a section above to start."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:357
+#: src/Modules/Newsletter/Admin/HomePage.php:358
 msgid "Email-only subscribers"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:361
+#: src/Modules/Newsletter/Admin/HomePage.php:362
 msgid "WP users (potential recipients)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:365
+#: src/Modules/Newsletter/Admin/HomePage.php:366
 msgid "This module is in active development — dashboard polish, tracking, bounce handling, and import/export land across the next few releases."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:378
+#: src/Modules/Newsletter/Admin/HomePage.php:379
 msgid "This section is part of the Newsletter module rollout and will land in a coming release."
 msgstr ""
 
@@ -4239,25 +4256,25 @@ msgstr ""
 msgid "Could not render this newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:146
-#: src/Modules/Newsletter/Send/SendAjaxController.php:168
-#: src/Modules/Newsletter/Send/SendAjaxController.php:303
+#: src/Modules/Newsletter/Send/SendAjaxController.php:192
+#: src/Modules/Newsletter/Send/SendAjaxController.php:214
+#: src/Modules/Newsletter/Send/SendAjaxController.php:349
 msgid "Missing newsletter id."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:177
+#: src/Modules/Newsletter/Send/SendAjaxController.php:223
 msgid "No valid test recipient."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:225
+#: src/Modules/Newsletter/Send/SendAjaxController.php:271
 msgid "Only a sending newsletter can be paused."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:241
+#: src/Modules/Newsletter/Send/SendAjaxController.php:287
 msgid "Only a paused newsletter can be resumed."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:262
+#: src/Modules/Newsletter/Send/SendAjaxController.php:308
 msgid "Only a sending or paused newsletter can be aborted."
 msgstr ""
 

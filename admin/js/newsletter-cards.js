@@ -333,11 +333,19 @@
                             statusBadge = ' <span style="float:right;font-size:0.75em;text-transform:uppercase;letter-spacing:0.05em;color:' + color + ';font-weight:600;">' +
                                 r.status + (r.failure_code ? ' (' + r.failure_code + ')' : '') + '</span>';
                         }
+                        // Failed sends keep a Logging row; surface the link so
+                        // the admin can jump straight to the error + body.
+                        var logLink = '';
+                        if (r.log_url) {
+                            logLink = ' <a href="' + r.log_url + '" style="margin-left:0.5rem;font-size:0.8em;">' +
+                                (I18N.viewInLogs || 'View in Logs →') + '</a>';
+                        }
                         html += '<li style="padding:0.4rem 0.6rem;border-bottom:1px solid #f0f0f1;font-size:0.9em;">' +
                                 '<span style="color:#6b7280;font-size:0.75em;text-transform:uppercase;letter-spacing:0.05em;margin-right:0.5rem;">' +
                                 (r.kind || '') + '</span>' +
                                 (r.email || '') +
                                 (r.name ? ' <span style="color:#6b7280;">(' + r.name + ')</span>' : '') +
+                                logLink +
                                 statusBadge +
                                 '</li>';
                     });

@@ -18,12 +18,33 @@ use PHPMailer\PHPMailer\PHPMailer;
  * If the SMTP module is disabled, source defaults to 'unknown' and identity
  * stays null — basic logging still works without SMTP.
  *
+ * Newsletter integration: the Newsletter module's SendLoop emits
+ * `X-Lrob-Etk-Newsletter-ID` (and per-recipient `X-Lrob-Etk-Newsletter-Recipient-ID`)
+ * on every send. Logger reads those headers + the test-send marker + the
+ * per-newsletter `_lrob_etk_nl_log_all_sends` meta. Default behaviour for
+ * newsletter sends is to log failures only and prune the row on success —
+ * the bulk of newsletter sends already live in newsletter_recipients, no
+ * point duplicating millions of rows in the global logs table.
+ *
  * After PHPMailer::send() returns, wp_mail fires `wp_mail_succeeded` or
- * `wp_mail_failed` and Logger flips the row's status accordingly.
+ * `wp_mail_failed` and Logger flips the row's status accordingly (or
+ * deletes it when the newsletter-suppress rule kicks in).
  */
 final class Logger
 {
+    public const HEADER_NEWSLETTER_ID           = 'X-Lrob-Etk-Newsletter-ID';
+
+    public const HEADER_NEWSLETTER_RECIPIENT_ID = 'X-Lrob-Etk-Newsletter-Recipient-ID';
+
+    public const HEADER_NEWSLETTER_TEST         = 'X-Lrob-Etk-Newsletter-Test';
+
+    public const META_LOG_ALL_SENDS             = '_lrob_etk_nl_log_all_sends';
+
     private ?int $current_log_id = null;
+
+    private ?int $current_newsletter_id = null;
+
+    private bool $current_is_test = false;
 
     /** @var array<string, mixed> */
     private array $pending_sending_event = [];
@@ -60,16 +81,33 @@ final class Logger
             if (!empty($this->pending_sending_event['identity_id'])) {
                 $changes['identity_id'] = (int) $this->pending_sending_event['identity_id'];
             }
+
+            // Newsletter headers — set on every outbound send by SendLoop /
+            // TestSender. Promote them to columns so log filtering + the
+            // recipients-drawer cross-link work.
+            [$nl_id, $rcp_id, $is_test] = self::extract_newsletter_headers($entry->headers);
+            if ($nl_id !== null) {
+                $changes['newsletter_id'] = $nl_id;
+                $changes['source'] = $is_test ? 'newsletter_test' : 'newsletter';
+            }
+            if ($rcp_id !== null) {
+                $changes['recipient_id'] = $rcp_id;
+            }
+
             if ($changes !== []) {
                 $entry = $entry->with($changes);
             }
 
-            $this->current_log_id = $this->repository->insert($entry);
+            $this->current_log_id        = $this->repository->insert($entry);
+            $this->current_newsletter_id = $nl_id;
+            $this->current_is_test       = $is_test;
         } catch (\Throwable $e) {
             // Logging must never break wp_mail. Surface the failure to the PHP
             // error log so site owners can find it, then move on.
             error_log('[lrob-etk] Logger insert failed: ' . $e->getMessage());
             $this->current_log_id = null;
+            $this->current_newsletter_id = null;
+            $this->current_is_test = false;
         } finally {
             $this->pending_sending_event = [];
         }
@@ -82,7 +120,14 @@ final class Logger
             return;
         }
         try {
-            $this->repository->update_status($this->current_log_id, LogEntry::STATUS_SENT);
+            // Default for newsletter sends: don't keep success rows. Failures
+            // always update normally — the admin needs to see them. The
+            // per-newsletter `_lrob_etk_nl_log_all_sends` meta overrides this.
+            if ($this->should_suppress_success_log()) {
+                $this->repository->delete($this->current_log_id);
+            } else {
+                $this->repository->update_status($this->current_log_id, LogEntry::STATUS_SENT);
+            }
         } catch (\Throwable $e) {
             error_log('[lrob-etk] Logger update_status sent failed: ' . $e->getMessage());
         }
@@ -106,9 +151,47 @@ final class Logger
         $this->reset_current();
     }
 
+    /**
+     * Pulls newsletter context out of PHPMailer's custom headers.
+     *
+     * @param  array<int, array{name: string, value: string}> $headers
+     * @return array{0: ?int, 1: ?int, 2: bool}  [newsletter_id, recipient_id, is_test]
+     */
+    private static function extract_newsletter_headers(array $headers): array
+    {
+        $nl_id = null;
+        $rcp_id = null;
+        $is_test = false;
+        foreach ($headers as $h) {
+            $name = strtolower((string) ($h['name'] ?? ''));
+            $value = (string) ($h['value'] ?? '');
+            if ($name === strtolower(self::HEADER_NEWSLETTER_ID) && $value !== '') {
+                $nl_id = (int) $value > 0 ? (int) $value : null;
+            } elseif ($name === strtolower(self::HEADER_NEWSLETTER_RECIPIENT_ID) && $value !== '') {
+                $rcp_id = (int) $value > 0 ? (int) $value : null;
+            } elseif ($name === strtolower(self::HEADER_NEWSLETTER_TEST) && $value !== '') {
+                $is_test = true;
+            }
+        }
+        return [$nl_id, $rcp_id, $is_test];
+    }
+
+    private function should_suppress_success_log(): bool
+    {
+        if ($this->current_newsletter_id === null) {
+            return false;
+        }
+        // Test sends inherit the same rule — flooding logs with [TEST]
+        // success rows isn't useful; failures still surface.
+        $log_all = (string) get_post_meta($this->current_newsletter_id, self::META_LOG_ALL_SENDS, true);
+        return $log_all !== '1';
+    }
+
     private function reset_current(): void
     {
-        $this->current_log_id = null;
+        $this->current_log_id        = null;
+        $this->current_newsletter_id = null;
+        $this->current_is_test       = false;
         $this->pending_sending_event = [];
     }
 }

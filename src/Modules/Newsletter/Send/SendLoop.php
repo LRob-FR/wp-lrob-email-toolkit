@@ -33,7 +33,9 @@ final class SendLoop
 {
     public const DEFAULT_BATCH = 25;
 
-    public const HEADER_NEWSLETTER_ID = 'X-Lrob-Etk-Newsletter-ID';
+    public const HEADER_NEWSLETTER_ID           = 'X-Lrob-Etk-Newsletter-ID';
+
+    public const HEADER_NEWSLETTER_RECIPIENT_ID = 'X-Lrob-Etk-Newsletter-Recipient-ID';
 
     public function __construct(private NewsletterRepository $newsletters)
     {
@@ -88,7 +90,7 @@ final class SendLoop
                 continue;
             }
 
-            $headers = $this->build_headers($newsletter_id, $prefs_token, $from_name_override, $reply_to);
+            $headers = $this->build_headers($newsletter_id, $row_id, $prefs_token, $from_name_override, $reply_to);
             $ok = (bool) wp_mail($email, (string) $subject, $body, $headers);
             if ($ok) {
                 $this->mark_sent($row_id);
@@ -275,11 +277,12 @@ final class SendLoop
     /**
      * @return array<int, string>
      */
-    private function build_headers(int $newsletter_id, string $prefs_token, string $from_name_override, string $reply_to): array
+    private function build_headers(int $newsletter_id, int $recipient_row_id, string $prefs_token, string $from_name_override, string $reply_to): array
     {
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
             self::HEADER_NEWSLETTER_ID . ': ' . (int) $newsletter_id,
+            self::HEADER_NEWSLETTER_RECIPIENT_ID . ': ' . (int) $recipient_row_id,
         ];
         if ($from_name_override !== '') {
             $headers[] = 'X-Lrob-Etk-From-Name: ' . self::strip_crlf($from_name_override);

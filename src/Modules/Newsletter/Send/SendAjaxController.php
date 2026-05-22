@@ -118,11 +118,12 @@ final class SendAjaxController
 
         $snapshot = $this->newsletters->recipients_snapshot($newsletter_id, 50);
         if ($snapshot['total'] > 0) {
+            $sample = $this->attach_log_urls($newsletter_id, $snapshot['sample']);
             wp_send_json_success([
                 'mode'         => 'snapshot',
                 'total'        => $snapshot['total'],
                 'by_status'    => $snapshot['by_status'],
-                'sample'       => $snapshot['sample'],
+                'sample'       => $sample,
                 'sample_limit' => 50,
             ]);
         }
@@ -135,6 +136,51 @@ final class SendAjaxController
             'sample'       => $preview['sample'],
             'sample_limit' => 50,
         ]);
+    }
+
+    /**
+     * Decorate the snapshot sample with a `log_url` per row that has a
+     * matching log entry. With newsletter sends suppressed on success by
+     * default, in practice only failed rows have a log row to link to.
+     *
+     * Late-binds the Logging classes via class_exists so the Newsletter
+     * module degrades cleanly when Logging is disabled or absent.
+     *
+     * @param  array<int, array<string, mixed>> $sample
+     * @return array<int, array<string, mixed>>
+     */
+    private function attach_log_urls(int $newsletter_id, array $sample): array
+    {
+        if ($sample === []) {
+            return $sample;
+        }
+        $log_repo_class = '\\LRob\\EmailToolkit\\Modules\\Logging\\LogRepository';
+        $log_page_class = '\\LRob\\EmailToolkit\\Modules\\Logging\\Admin\\PageController';
+        if (!class_exists($log_repo_class) || !class_exists($log_page_class)) {
+            return $sample;
+        }
+        $row_ids = array_map(static fn (array $r): int => (int) ($r['row_id'] ?? 0), $sample);
+        $row_ids = array_values(array_filter($row_ids, static fn (int $i): bool => $i > 0));
+        if ($row_ids === []) {
+            return $sample;
+        }
+        /** @var \LRob\EmailToolkit\Modules\Logging\LogRepository $repo */
+        $repo = new $log_repo_class();
+        $map = $repo->log_ids_for_newsletter_recipients($newsletter_id, $row_ids);
+        if ($map === []) {
+            return $sample;
+        }
+        foreach ($sample as &$row) {
+            $rid = (int) ($row['row_id'] ?? 0);
+            if (isset($map[$rid])) {
+                $row['log_url'] = add_query_arg(
+                    ['page' => $log_page_class::SLUG, 'action' => 'view', 'id' => (int) $map[$rid]],
+                    admin_url('admin.php')
+                );
+            }
+        }
+        unset($row);
+        return $sample;
     }
 
     public function handle_tick(): void
