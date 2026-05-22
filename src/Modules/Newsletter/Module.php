@@ -18,6 +18,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\ListsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SettingsPage;
+use LRob\EmailToolkit\Modules\Newsletter\Admin\SubscribersPage;
 use LRob\EmailToolkit\Modules\Newsletter\Fields\CategoryPicker;
 use LRob\EmailToolkit\Modules\Newsletter\Fields\ListPicker;
 
@@ -104,6 +105,11 @@ final class Module extends AbstractModule
         // migration (idempotent; wp_schedule_event short-circuits
         // when the hook is already queued).
         ReminderCron::schedule();
+
+        // Daily trash auto-purge cron — only deletes anything when
+        // the admin sets `lrob_etk_nl_trash_auto_purge_days` > 0;
+        // otherwise the tick is a cheap no-op.
+        TrashCron::schedule();
     }
 
     /**
@@ -180,6 +186,7 @@ final class Module extends AbstractModule
     public function uninstall(): void
     {
         ReminderCron::unschedule();
+        TrashCron::unschedule();
         Schema::drop();
     }
 
@@ -191,6 +198,7 @@ final class Module extends AbstractModule
     public function disable(): void
     {
         ReminderCron::unschedule();
+        TrashCron::unschedule();
         parent::disable();
     }
 
@@ -288,6 +296,11 @@ final class Module extends AbstractModule
             // Daily reminder cron for pending subscribers — the
             // schedule itself lives on install / disable transitions.
             (new ReminderCron($subscribers))->register();
+
+            // Daily trash auto-purge cron. Reads its retention setting
+            // at tick time, so toggling the option in Settings takes
+            // effect on the next cron run without a re-schedule.
+            (new TrashCron($subscribers))->register();
         }
 
         if (is_admin()) {
@@ -297,7 +310,8 @@ final class Module extends AbstractModule
             $categories_page = new CategoriesPage($categories);
             $lists_page = new ListsPage($lists);
             $settings_page = new SettingsPage();
-            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page);
+            $subscribers_page = new SubscribersPage($subscribers);
+            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page, $subscribers_page);
             (new PageController($this, $home))->register();
             (new AjaxController())->register();
             add_action('admin_init', [$this, 'handle_new_from_default']);

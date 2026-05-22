@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Modules\Newsletter\ReminderCron;
+use LRob\EmailToolkit\Modules\Newsletter\TrashCron;
 
 /**
  * Newsletter module settings — central / "see everything" surface
@@ -38,7 +39,43 @@ final class SettingsPage
             </p>
 
             <?php self::render_reminder_schedule_section(true); ?>
+            <?php self::render_trash_retention_section(); ?>
         </section>
+        <?php
+    }
+
+    /**
+     * Trash retention section. Auto-purge cron deletes trashed
+     * subscribers whose `trashed_at` is older than this many days.
+     * 0 (default) keeps the trash forever — the admin clicks Empty
+     * Trash manually on the Subscribers view. Lives in the central
+     * Settings hub; the Subscribers trash tab shows the same value
+     * in its info banner (read-only) so admins know what to expect.
+     */
+    public static function render_trash_retention_section(): void
+    {
+        $days = (int) get_option(TrashCron::OPTION_DAYS, 0);
+        ?>
+        <article class="lrob-etk-nl-settings-group">
+            <h3 class="lrob-etk-nl-settings-group-title"><?php esc_html_e('Trash retention', 'lrob-email-toolkit'); ?></h3>
+            <p class="lrob-etk-nl-settings-group-intro">
+                <?php esc_html_e('Set how many days trashed subscribers stay in the trash before being permanently deleted. 0 (the default) disables auto-purge — trash is kept until you click "Empty trash" manually.', 'lrob-email-toolkit'); ?>
+            </p>
+
+            <div class="lrob-etk-nl-settings-row">
+                <label for="lrob-etk-nl-setting-trash-days">
+                    <?php esc_html_e('Auto-purge trash after (days)', 'lrob-email-toolkit'); ?>
+                </label>
+                <input type="number"
+                       id="lrob-etk-nl-setting-trash-days"
+                       class="lrob-etk-nl-field"
+                       data-key="setting-trash-purge-days"
+                       data-option-key="<?php echo esc_attr(TrashCron::OPTION_DAYS); ?>"
+                       value="<?php echo esc_attr((string) $days); ?>"
+                       min="0" max="3650" step="1">
+                <p class="description"><?php esc_html_e('0 = never auto-purge. A daily cron handles the deletion when this is set above 0.', 'lrob-email-toolkit'); ?></p>
+            </div>
+        </article>
         <?php
     }
 

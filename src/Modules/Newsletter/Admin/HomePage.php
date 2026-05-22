@@ -59,6 +59,7 @@ final class HomePage
         private CategoriesPage $categories_page,
         private ListsPage $lists_page,
         private SettingsPage $settings_page,
+        private SubscribersPage $subscribers_page,
     ) {
     }
 
@@ -166,15 +167,15 @@ final class HomePage
     private function render_view(string $view): void
     {
         match ($view) {
-            self::VIEW_ONBOARDING => $this->render_onboarding(),
-            self::VIEW_FORMS      => $this->forms_page->render(),
-            self::VIEW_CATEGORIES => $this->categories_page->render(),
-            self::VIEW_LISTS      => $this->lists_page->render(),
-            self::VIEW_SETTINGS   => $this->settings_page->render(),
+            self::VIEW_ONBOARDING  => $this->render_onboarding(),
+            self::VIEW_FORMS       => $this->forms_page->render(),
+            self::VIEW_CATEGORIES  => $this->categories_page->render(),
+            self::VIEW_LISTS       => $this->lists_page->render(),
+            self::VIEW_SUBSCRIBERS => $this->subscribers_page->render(),
+            self::VIEW_SETTINGS    => $this->settings_page->render(),
             self::VIEW_CAMPAIGNS,
-            self::VIEW_SUBSCRIBERS,
-            self::VIEW_IMPORT     => $this->render_placeholder($view),
-            default               => $this->render_dashboard(),
+            self::VIEW_IMPORT      => $this->render_placeholder($view),
+            default                => $this->render_dashboard(),
         };
     }
 

@@ -2,7 +2,7 @@
 
 Working design doc for the Newsletter module (target: v0.3.0). Companion to CLAUDE.md, not a replacement. CLAUDE.md still has the cross-module rules (naming, lifecycle, UI patterns) — this file owns only the Newsletter-specific shape.
 
-Status: **v0.3.0 in active implementation** — steps 0–4b shipped + Gutenberg prefs block (4c partial). WC My Account integration deferred (non-essential). Next: step 5 (trash + refuse). See "Implementation slicing" at the bottom for the precise where-we-are.
+Status: **v0.3.0 in active implementation** — steps 0–5 shipped (subscribers admin view, trash workflow, auto-purge cron, refuse_ack template wiring). WC My Account integration deferred (non-essential). Next: step 6 (Campaign CPT + composer). See "Implementation slicing" at the bottom for the precise where-we-are.
 
 ## Module identifiers
 
@@ -576,10 +576,11 @@ UI patterns inherit from CLAUDE.md's UI conventions: card grids, auto-save edit 
 4a. ✅ **Categories + Lists**. `CategoryRepository`, `ListRepository` (manual lists only; rule_json stays empty). Admin CRUD pages for both. `CategoryPicker` + `ListPicker` field types registered for the newsletter CPT. SubmitHandler captures picker values, applies opt-outs / list memberships for both WP-user and subscriber recipients. Form-card "default list" picker; "+ Field" menu surfaces both new field types.
 4b. ✅ **Prefs page + WP profile + one-click unsubscribe + reminder cron**. Schema v4 added `reminder_count` + `last_reminder_at` + `prefs_token` index + `pending_followup` composite index. `PrefsRenderer` (shared UI), `PrefsHandler` (public token URL: GET renders prefs, POST saves / unsubscribes / forget-me; one-click unsub POST endpoint per RFC 8058 with `OK` 200 response), `ProfileSection` (WP user-edit page integration with scoped CSS to tame `<legend>` sizing), `ReminderCron` (daily, scheduled on enable/unscheduled on disable). `ConfirmationDispatcher` now adds `List-Unsubscribe` + `List-Unsubscribe-Post` headers and substitutes `{{prefs_url}}`. `SettingsPage` real page with reminder-schedule controls; same controls mirrored on Onboarding view (Settings is the central hub; Onboarding is the canonical contextual home — both call the shared `SettingsPage::render_reminder_schedule_section()`).
 4c. ✅ **Gutenberg prefs block + shortcode** (partial of original 4c — WC My Account postponed as non-essential). `lrob-etk/newsletter-preferences` block + `[lrob_etk_nl_preferences]` shortcode render the prefs UI on any public page. Three render paths: logged-in WP user → full prefs form (with lazy-minted `prefs_token` user_meta if missing); anonymous + valid token URL → handled by `PrefsHandler` directly (never reaches the block); anonymous without token → short message pointing at email links or login. POST flows through `PrefsHandler` via the user's prefs token URL with a `_lrob_etk_nl_return_to` hidden field so the user lands back on the host page with a `?lrob_etk_nl_saved=1` flash instead of the standalone prefs page. `PrefsRenderer::render_full_form` gained an optional `$return_to` parameter.
+5. ✅ **Trash + refuse polish**. `SubscribersPage` admin view with status sub-tabs (all / pending / confirmed / unsubscribed / refused / bounced / trashed), search (email + name LIKE), and pagination. Inline row actions: Trash (any non-trashed) / Restore / Permanently delete (trashed only). Empty-trash bulk action on the trashed tab. `SubscriberRepository` gained: `list_with_filters`, `count_with_filters`, `counts_by_status`, `trash`, `restore`, `permanently_delete`, `empty_trash`, `purge_old_trash`. New `TrashCron` (`lrob_etk_nl_trash_purge`, daily, MAX_BATCHES * 500 deletions per tick) honours `lrob_etk_nl_trash_auto_purge_days` (0 = disabled = default). SettingsPage gained a "Trash retention" section mirrored on the Subscribers trash-tab info banner. `ConfirmationHandler::handle_refuse` now uses the seeded `refuse_ack` template (if its content is non-empty) as the acknowledgment page body via a new `render_template_page` helper (wp_kses_post for safety); falls back to the hardcoded short message otherwise.
 
 ### 🚧 Next
 
-5. **Trash + refuse polish**: Subscribers view with `?status=trashed` sub-tab + Restore / Empty trash actions. Auto-purge cron honouring `lrob_etk_nl_trash_auto_purge_days` (default 0 = never). Refuse acknowledgment page can use the seeded refuse_ack template.
+6. **Campaign CPT + composer**: CPT, Gutenberg config, native fields, sender identity picker, target picker, category picker, scheduling UI, test-send popover.
 
 ### Deferred (originally in 4c)
 
@@ -587,7 +588,6 @@ UI patterns inherit from CLAUDE.md's UI conventions: card grids, auto-save edit 
 
 ### Later
 
-6. **Campaign CPT + composer**: CPT, Gutenberg config, native fields, sender identity picker, target picker, category picker, scheduling UI, test-send popover.
 7. **Send pipeline**: chunked materialization, recipients table, AJAX endpoint, Cron tick, per-domain throttle, status transitions, pause/resume/abort, sender-identity routing.
 8. **Logging integration**: header tagging, Logging-module filter for newsletter, "Log all sends" override.
 9. **Tracking**: open pixel, click rewriter, tracking events table, retention cron, test-send exclusion.

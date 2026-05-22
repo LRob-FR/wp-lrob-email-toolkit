@@ -10,6 +10,8 @@ use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 use LRob\EmailToolkit\Modules\Newsletter\FormTemplateRegistry;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
+use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
+use LRob\EmailToolkit\Modules\Newsletter\TrashCron;
 
 /**
  * Admin-AJAX endpoints for the newsletter Forms admin UI:
@@ -51,6 +53,14 @@ final class AjaxController
 
     public const ACTION_LIST_DELETE     = 'lrob_etk_nl_list_delete';
 
+    public const ACTION_SUBSCRIBER_TRASH    = 'lrob_etk_nl_subscriber_trash';
+
+    public const ACTION_SUBSCRIBER_RESTORE  = 'lrob_etk_nl_subscriber_restore';
+
+    public const ACTION_SUBSCRIBER_DELETE   = 'lrob_etk_nl_subscriber_delete';
+
+    public const ACTION_EMPTY_TRASH         = 'lrob_etk_nl_empty_trash';
+
     /**
      * Per-key option save for the Settings view. Each whitelisted
      * option gets its own sanitisation rule below; unknown keys are
@@ -63,6 +73,7 @@ final class AjaxController
         'lrob_etk_nl_reminder_max',
         'lrob_etk_nl_first_reminder_after_days',
         'lrob_etk_nl_reminder_interval_days',
+        TrashCron::OPTION_DAYS,
     ];
 
     private const WHITELIST_META_KEYS = [
@@ -100,6 +111,10 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_LIST_RENAME,     [$this, 'handle_list_rename']);
         add_action('wp_ajax_' . self::ACTION_LIST_DELETE,     [$this, 'handle_list_delete']);
         add_action('wp_ajax_' . self::ACTION_SETTING_SAVE,    [$this, 'handle_setting_save']);
+        add_action('wp_ajax_' . self::ACTION_SUBSCRIBER_TRASH,   [$this, 'handle_subscriber_trash']);
+        add_action('wp_ajax_' . self::ACTION_SUBSCRIBER_RESTORE, [$this, 'handle_subscriber_restore']);
+        add_action('wp_ajax_' . self::ACTION_SUBSCRIBER_DELETE,  [$this, 'handle_subscriber_delete']);
+        add_action('wp_ajax_' . self::ACTION_EMPTY_TRASH,        [$this, 'handle_empty_trash']);
     }
 
     /**
@@ -128,6 +143,13 @@ final class AjaxController
                 // 1 is meaningless. 365-day ceiling because longer
                 // windows likely indicate a misconfiguration.
                 $value = max(1, min(365, (int) $raw));
+                break;
+            case TrashCron::OPTION_DAYS:
+                // 0 = disabled (never auto-purge); otherwise clamp to a
+                // reasonable window. Larger retention windows are fine
+                // for compliance archives but eventually the trash isn't
+                // doing anything useful.
+                $value = max(0, min(3650, (int) $raw));
                 break;
             default:
                 wp_send_json_error(['message' => __('Unsupported setting.', 'lrob-email-toolkit')], 400);
@@ -347,6 +369,46 @@ final class AjaxController
         }
 
         wp_send_json_success(['form_id' => (int) $new_id]);
+    }
+
+    public function handle_subscriber_trash(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        if ($id <= 0) {
+            wp_send_json_error(['message' => __('Missing subscriber id.', 'lrob-email-toolkit')], 400);
+        }
+        (new SubscriberRepository())->trash($id, 'admin');
+        wp_send_json_success();
+    }
+
+    public function handle_subscriber_restore(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $ok = $id > 0 && (new SubscriberRepository())->restore($id);
+        if (!$ok) {
+            wp_send_json_error(['message' => __('Could not restore — the subscriber may no longer be in trash.', 'lrob-email-toolkit')], 400);
+        }
+        wp_send_json_success();
+    }
+
+    public function handle_subscriber_delete(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $ok = $id > 0 && (new SubscriberRepository())->permanently_delete($id);
+        if (!$ok) {
+            wp_send_json_error(['message' => __('Only trashed subscribers can be permanently deleted. Move the row to trash first.', 'lrob-email-toolkit')], 400);
+        }
+        wp_send_json_success();
+    }
+
+    public function handle_empty_trash(): void
+    {
+        $this->guard();
+        $deleted = (new SubscriberRepository())->empty_trash();
+        wp_send_json_success(['deleted' => $deleted]);
     }
 
     /**

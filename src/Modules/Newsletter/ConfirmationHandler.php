@@ -109,10 +109,46 @@ final class ConfirmationHandler
             'previous_status' => $status,
             'via'             => 'confirmation_link',
         ]);
+
+        // If the admin has a refuse_ack template configured, use its
+        // rendered content as the acknowledgment body so they can
+        // personalise the message (apology, offer to reach out, etc.).
+        // Falls back to the hardcoded short message otherwise.
+        $template_id = (new TemplateRepository())->default_id_for_purpose(TemplateCPT::PURPOSE_REFUSE_ACK);
+        if ($template_id > 0) {
+            $template_post = get_post($template_id);
+            if ($template_post instanceof \WP_Post) {
+                $body_html = TemplateRenderer::render($template_id, [
+                    'name'       => (string) ($row['name'] ?? ''),
+                    'first_name' => self::first_name((string) ($row['name'] ?? '')),
+                    'email'      => (string) ($row['email'] ?? ''),
+                    'site_name'  => (string) get_bloginfo('name'),
+                    'site_url'   => (string) home_url('/'),
+                    'prefs_url'  => '',
+                ]);
+                if ($body_html !== '') {
+                    $title = $template_post->post_title !== ''
+                        ? $template_post->post_title
+                        : __('Subscription declined', 'lrob-email-toolkit');
+                    self::render_template_page($title, $body_html);
+                }
+            }
+        }
+
         self::render_page(
             __('Subscription declined', 'lrob-email-toolkit'),
             __('No problem — we won\'t add you to the list. Sorry for the inconvenience.', 'lrob-email-toolkit')
         );
+    }
+
+    private static function first_name(string $name): string
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return '';
+        }
+        $parts = preg_split('/\s+/', $name, 2);
+        return is_array($parts) ? (string) $parts[0] : $name;
     }
 
     /**
@@ -121,6 +157,51 @@ final class ConfirmationHandler
      * landing on whatever page happens to be home_url() — keeping
      * the response minimal and theme-agnostic avoids surprises.
      */
+    /**
+     * Render an acknowledgment page using HTML produced by
+     * TemplateRenderer (so a refuse_ack template's blocks render as
+     * paragraphs / headings / etc.). The body HTML comes from our own
+     * template post + token substitution — both controlled by the
+     * admin, never from user input — so we trust it through wp_kses
+     * with the email-safe block subset.
+     */
+    private static function render_template_page(string $title, string $body_html): never
+    {
+        nocache_headers();
+        status_header(200);
+        $site_name = (string) get_bloginfo('name');
+        $back_url = home_url('/');
+        $safe_body = wp_kses_post($body_html);
+        ?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php echo esc_html($title . ' — ' . $site_name); ?></title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f6f7f7; margin: 0; padding: 2rem 1rem; color: #1d2327; }
+        .lrob-etk-nl-ack { max-width: 640px; margin: 4rem auto; background: #fff; border-radius: 8px; padding: 2.5rem 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .lrob-etk-nl-ack h1 { margin: 0 0 1rem; font-size: 1.4rem; }
+        .lrob-etk-nl-ack p { margin: 0 0 1rem; line-height: 1.55; }
+        .lrob-etk-nl-ack a { color: #2271b1; }
+        .lrob-etk-nl-ack-body img { max-width: 100%; height: auto; }
+        .lrob-etk-nl-ack-site { font-size: 0.85rem; color: #6b7280; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <main class="lrob-etk-nl-ack">
+        <h1><?php echo esc_html($title); ?></h1>
+        <div class="lrob-etk-nl-ack-body"><?php echo $safe_body; ?></div>
+        <p class="lrob-etk-nl-ack-site">
+            <a href="<?php echo esc_url($back_url); ?>"><?php echo esc_html($site_name); ?></a>
+        </p>
+    </main>
+</body>
+</html>
+        <?php
+        exit;
+    }
+
     private static function render_page(string $title, string $body): never
     {
         nocache_headers();

@@ -217,4 +217,210 @@ final class SubscriberRepository
             $id
         ));
     }
+
+    /**
+     * Paginated listing for the Subscribers admin view. `$status` filters
+     * by exact status; empty string returns every status EXCEPT trashed
+     * (the trashed tab uses status='trashed' explicitly). `$search` is a
+     * `LIKE '%term%'` match on email + name; empty disables it.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function list_with_filters(string $status, string $search, int $limit, int $offset): array
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        [$where_sql, $where_args] = self::build_where($status, $search);
+        $sql = "SELECT * FROM `$table` $where_sql ORDER BY created_at DESC LIMIT %d OFFSET %d";
+        $args = array_merge($where_args, [$limit, $offset]);
+        return (array) $wpdb->get_results(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $wpdb->prepare($sql, ...$args),
+            ARRAY_A
+        );
+    }
+
+    public function count_with_filters(string $status, string $search): int
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        [$where_sql, $where_args] = self::build_where($status, $search);
+        $sql = "SELECT COUNT(*) FROM `$table` $where_sql";
+        if ($where_args === []) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            return (int) $wpdb->get_var($sql);
+        }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (int) $wpdb->get_var($wpdb->prepare($sql, ...$where_args));
+    }
+
+    /**
+     * Returns map of `status → count` for the tab badges. `''` key holds
+     * the "all (non-trashed)" total — what the dashboard tile shows.
+     *
+     * @return array<string, int>
+     */
+    public function counts_by_status(): array
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $rows = (array) $wpdb->get_results(
+            "SELECT status, COUNT(*) AS c FROM `$table` GROUP BY status",
+            ARRAY_A
+        );
+        $counts = [
+            ''             => 0,
+            'pending'      => 0,
+            'confirmed'    => 0,
+            'unsubscribed' => 0,
+            'refused'      => 0,
+            'bounced'      => 0,
+            'trashed'      => 0,
+        ];
+        foreach ($rows as $row) {
+            $status = (string) ($row['status'] ?? '');
+            $count = (int) ($row['c'] ?? 0);
+            if (isset($counts[$status])) {
+                $counts[$status] = $count;
+            }
+            if ($status !== 'trashed') {
+                $counts[''] += $count;
+            }
+        }
+        return $counts;
+    }
+
+    /**
+     * Admin-initiated trash. Stashes the current status into
+     * previous_status so Restore can flip back to it.
+     */
+    public function trash(int $id, string $reason = 'admin'): void
+    {
+        $current = $this->find_by_id($id);
+        if (!is_array($current)) {
+            return;
+        }
+        $previous = (string) ($current['status'] ?? '');
+        if ($previous === 'trashed') {
+            return;
+        }
+        global $wpdb;
+        $wpdb->update(
+            Schema::subscribers_table(),
+            [
+                'status'          => 'trashed',
+                'previous_status' => $previous,
+                'trashed_at'      => current_time('mysql', true),
+                'trashed_reason'  => $reason,
+            ],
+            ['id' => $id],
+            ['%s', '%s', '%s', '%s'],
+            ['%d']
+        );
+    }
+
+    /**
+     * Restore a trashed row to its previous_status (or 'pending' if the
+     * previous_status was somehow blanked). Clears the trash bookkeeping
+     * columns.
+     */
+    public function restore(int $id): bool
+    {
+        $current = $this->find_by_id($id);
+        if (!is_array($current) || (string) ($current['status'] ?? '') !== 'trashed') {
+            return false;
+        }
+        $previous = (string) ($current['previous_status'] ?? '');
+        if ($previous === '' || $previous === 'trashed') {
+            $previous = 'pending';
+        }
+        global $wpdb;
+        $wpdb->update(
+            Schema::subscribers_table(),
+            [
+                'status'          => $previous,
+                'previous_status' => '',
+                'trashed_at'      => null,
+                'trashed_reason'  => '',
+            ],
+            ['id' => $id],
+            ['%s', '%s', '%s', '%s'],
+            ['%d']
+        );
+        return true;
+    }
+
+    /**
+     * Hard-delete one trashed row. Refuses to act on non-trashed rows
+     * — permanent delete should always be a two-step (trash → delete)
+     * to prevent admin slip-ups. The user_register promotion path uses
+     * the unconditional `delete()` method above instead.
+     */
+    public function permanently_delete(int $id): bool
+    {
+        $current = $this->find_by_id($id);
+        if (!is_array($current) || (string) ($current['status'] ?? '') !== 'trashed') {
+            return false;
+        }
+        $this->delete($id);
+        return true;
+    }
+
+    /**
+     * Hard-delete every trashed row. Returns the number of rows removed.
+     * No safeguard against very large batches — admins reviewing the
+     * trash know how much is in there before clicking "Empty".
+     */
+    public function empty_trash(): int
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        return (int) $wpdb->query("DELETE FROM `$table` WHERE status = 'trashed'");
+    }
+
+    /**
+     * Cron-side: hard-delete trashed rows older than `$days`. Bounded
+     * `LIMIT` keeps transaction size predictable on huge tables; the
+     * cron loops until 0 rows match.
+     */
+    public function purge_old_trash(int $days, int $batch_limit = 500): int
+    {
+        if ($days <= 0) {
+            return 0;
+        }
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $threshold = gmdate('Y-m-d H:i:s', time() - ($days * DAY_IN_SECONDS));
+        return (int) $wpdb->query($wpdb->prepare(
+            "DELETE FROM `$table`
+              WHERE status = 'trashed'
+                AND trashed_at IS NOT NULL
+                AND trashed_at <= %s
+              LIMIT %d",
+            $threshold,
+            $batch_limit
+        ));
+    }
+
+    /**
+     * @return array{0:string,1:array<int,mixed>} `[$where_sql,$args]`
+     */
+    private static function build_where(string $status, string $search): array
+    {
+        $clauses = [];
+        $args = [];
+        if ($status === '') {
+            $clauses[] = "status <> 'trashed'";
+        } else {
+            $clauses[] = 'status = %s';
+            $args[] = $status;
+        }
+        if ($search !== '') {
+            $like = '%' . $GLOBALS['wpdb']->esc_like($search) . '%';
+            $clauses[] = '(email LIKE %s OR name LIKE %s)';
+            $args[] = $like;
+            $args[] = $like;
+        }
+        return ['WHERE ' . implode(' AND ', $clauses), $args];
+    }
 }

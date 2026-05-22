@@ -474,3 +474,193 @@
     color: var(--lrob-etk-color-muted, #6b7280);
     font-size: 0.85rem;
 }
+
+/* -------------------------------------------------------------------------
+ * Subscribers view — table layout, status sub-tabs, trash actions.
+ * Step 5 (trash + refuse polish) added the view; styles reuse the
+ * resource-page primitives where possible.
+ * ----------------------------------------------------------------------- */
+
+.lrob-etk-nl-subtabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin: 1rem 0 1.25rem;
+    border-bottom: 1px solid var(--lrob-etk-color-border, #dcdcde);
+}
+
+.lrob-etk-nl-subtab {
+    padding: 0.5rem 0.85rem;
+    text-decoration: none;
+    color: var(--lrob-etk-color-muted, #50575e);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-weight: 500;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.lrob-etk-nl-subtab:hover,
+.lrob-etk-nl-subtab:focus {
+    color: var(--lrob-etk-color-primary, #2271b1);
+}
+
+.lrob-etk-nl-subtab.is-active {
+    color: var(--lrob-etk-color-primary, #2271b1);
+    border-bottom-color: var(--lrob-etk-color-primary, #2271b1);
+}
+
+.lrob-etk-nl-subtab.is-trash {
+    margin-left: auto;
+    color: var(--lrob-etk-color-danger, #b32d2e);
+}
+
+.lrob-etk-nl-subtab.is-trash.is-active {
+    border-bottom-color: var(--lrob-etk-color-danger, #b32d2e);
+}
+
+.lrob-etk-nl-subtab-count {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0 0.4rem;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 9px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.lrob-etk-nl-subscribers-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0 0 1rem;
+    flex-wrap: wrap;
+}
+
+.lrob-etk-nl-search {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 4px;
+    min-width: 18rem;
+}
+
+.lrob-etk-nl-empty-trash {
+    margin-left: auto;
+    color: var(--lrob-etk-color-danger, #b32d2e) !important;
+    border-color: var(--lrob-etk-color-danger, #b32d2e) !important;
+}
+
+.lrob-etk-nl-trash-note {
+    margin: 0 0 1rem;
+    padding: 0.6rem 0.9rem;
+    background: #fef9ec;
+    border-left: 3px solid #facc15;
+    color: #5c4400;
+    font-size: 0.9rem;
+}
+
+.lrob-etk-nl-subscribers-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.lrob-etk-nl-subscribers-table th,
+.lrob-etk-nl-subscribers-table td {
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 0.92rem;
+    vertical-align: middle;
+}
+
+.lrob-etk-nl-subscribers-table th {
+    background: #fafafa;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.lrob-etk-nl-subscribers-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.lrob-etk-nl-subscribers-table tbody tr:hover {
+    background: rgba(34, 113, 177, 0.03);
+}
+
+.lrob-etk-nl-col-actions {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.lrob-etk-nl-row-action {
+    background: transparent;
+    border: 0;
+    padding: 0.25rem 0.5rem;
+    color: var(--lrob-etk-color-primary, #2271b1);
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.lrob-etk-nl-row-action:hover {
+    color: var(--lrob-etk-color-primary-hover, #135e96);
+}
+
+.lrob-etk-nl-row-action.is-danger {
+    color: var(--lrob-etk-color-danger, #b32d2e);
+}
+
+.lrob-etk-nl-row-action.is-danger:hover {
+    color: #8a1d1f;
+}
+
+.lrob-etk-nl-status {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: rgba(0, 0, 0, 0.08);
+    color: #1d2327;
+}
+
+.lrob-etk-nl-status-pending      { background: #fff4e0; color: #8a5a00; }
+.lrob-etk-nl-status-confirmed    { background: #e1f6e6; color: #155724; }
+.lrob-etk-nl-status-unsubscribed { background: #eee; color: #50575e; }
+.lrob-etk-nl-status-refused      { background: #fae6e6; color: #8a1d1f; }
+.lrob-etk-nl-status-bounced      { background: #fae6e6; color: #8a1d1f; }
+.lrob-etk-nl-status-trashed      { background: #e6e6e6; color: #50575e; }
+
+.lrob-etk-nl-pagination {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    margin: 1.25rem 0;
+}
+
+.lrob-etk-nl-page {
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 4px;
+    color: var(--lrob-etk-color-primary, #2271b1);
+    text-decoration: none;
+    font-size: 0.88rem;
+}
+
+.lrob-etk-nl-page:hover,
+.lrob-etk-nl-page:focus {
+    background: rgba(34, 113, 177, 0.08);
+}
+
+.lrob-etk-nl-page.is-active {
+    background: var(--lrob-etk-color-primary, #2271b1);
+    border-color: var(--lrob-etk-color-primary, #2271b1);
+    color: #fff;
+}
