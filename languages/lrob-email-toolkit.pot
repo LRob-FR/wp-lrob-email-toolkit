@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-22T12:39:01+00:00\n"
+"POT-Creation-Date: 2026-05-22T12:57:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -61,7 +61,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/AjaxController.php:208
 #: src/Modules/Newsletter/Admin/AjaxController.php:230
 #: src/Modules/Newsletter/Admin/HomePage.php:57
-#: src/Modules/Newsletter/Module.php:281
+#: src/Modules/Newsletter/Module.php:291
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
@@ -317,7 +317,7 @@ msgstr ""
 #: src/Forms/Fields/SubmitField.php:27
 #: src/Forms/Fields/SubmitField.php:51
 #: src/Forms/FormStructure.php:68
-#: src/Modules/ContactForm/EmbedRenderer.php:75
+#: src/Modules/ContactForm/EmbedRenderer.php:76
 msgid "Send"
 msgstr ""
 
@@ -506,7 +506,7 @@ msgid "View all logs"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:860
-#: src/Modules/ContactForm/Frontend.php:44
+#: src/Modules/ContactForm/Frontend.php:49
 #: src/Modules/SMTP/Admin/SettingsPage.php:579
 msgid "Sending…"
 msgstr ""
@@ -646,7 +646,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1593
 #: src/Modules/Logging/Admin/PageController.php:178
 #: src/Modules/Newsletter/Admin/AjaxController.php:213
-#: src/Modules/Newsletter/Module.php:285
+#: src/Modules/Newsletter/Module.php:295
 msgid "Security check failed. Please retry."
 msgstr ""
 
@@ -886,6 +886,10 @@ msgstr ""
 
 #: src/Forms/FormEditorRenderer.php:196
 msgid "Delete field"
+msgstr ""
+
+#: src/Forms/Honeypot.php:28
+msgid "Website (leave blank)"
 msgstr ""
 
 #: src/Forms/StylePresets.php:30
@@ -1433,6 +1437,8 @@ msgid "Blog comments"
 msgstr ""
 
 #: src/Modules/Captcha/Routing.php:67
+#: admin/js/newsletter-block-editor.js:103
+#: admin/js/newsletter-block-editor.js:114
 msgid "Newsletter subscribe"
 msgstr ""
 
@@ -1459,7 +1465,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:125
 #: src/Modules/ContactForm/Admin/AjaxController.php:258
-#: src/Modules/ContactForm/SubmitHandler.php:61
+#: src/Modules/ContactForm/SubmitHandler.php:62
 msgid "Form not found."
 msgstr ""
 
@@ -1485,7 +1491,7 @@ msgstr ""
 #. translators: %s: localized title of the source default template (e.g. "Confirm your subscription").
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
 #: src/Modules/Newsletter/Admin/AjaxController.php:173
-#: src/Modules/Newsletter/Module.php:296
+#: src/Modules/Newsletter/Module.php:306
 msgid "%s (copy)"
 msgstr ""
 
@@ -1799,7 +1805,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:777
 #: src/Modules/ContactForm/Admin/FormsPage.php:1285
-#: src/Modules/ContactForm/Frontend.php:46
+#: src/Modules/ContactForm/Frontend.php:51
 #: src/Modules/ContactForm/Settings.php:185
 msgid "Thanks! Your message has been sent."
 msgstr ""
@@ -2315,30 +2321,28 @@ msgstr ""
 msgid "No contact forms in trash."
 msgstr ""
 
-#: src/Modules/ContactForm/EmbedRenderer.php:35
+#: src/Modules/ContactForm/EmbedRenderer.php:36
 msgid "No contact form selected."
 msgstr ""
 
-#: src/Modules/ContactForm/EmbedRenderer.php:40
+#: src/Modules/ContactForm/EmbedRenderer.php:41
 msgid "Contact form not found or not published."
 msgstr ""
 
-#: src/Modules/ContactForm/Frontend.php:45
+#: src/Modules/ContactForm/Frontend.php:50
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: src/Modules/ContactForm/Frontend.php:47
-#: src/Modules/ContactForm/SubmitHandler.php:306
+#: src/Modules/ContactForm/Frontend.php:52
+#: src/Modules/ContactForm/SubmitHandler.php:307
+#: src/Modules/Newsletter/SubmitHandler.php:118
+#: src/Modules/Newsletter/SubmitHandler.php:119
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: src/Modules/ContactForm/Frontend.php:48
-#: src/Modules/ContactForm/SubmitHandler.php:296
+#: src/Modules/ContactForm/Frontend.php:53
+#: src/Modules/ContactForm/SubmitHandler.php:297
 msgid "This field is required."
-msgstr ""
-
-#: src/Modules/ContactForm/Honeypot.php:25
-msgid "Website (leave blank)"
 msgstr ""
 
 #: src/Modules/ContactForm/Module.php:55
@@ -2359,80 +2363,81 @@ msgid_plural "%s submissions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:55
+#: src/Modules/ContactForm/SubmitHandler.php:56
+#: src/Modules/Newsletter/SubmitHandler.php:66
 msgid "This form has expired. Please reload the page and try again."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:137
+#: src/Modules/ContactForm/SubmitHandler.php:138
 msgid "You are submitting too quickly. Please wait a few minutes and try again."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:160
+#: src/Modules/ContactForm/SubmitHandler.php:161
 msgid "Please correct the highlighted fields."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:311
+#: src/Modules/ContactForm/SubmitHandler.php:312
 msgid "Please enter a number."
 msgstr ""
 
 #. translators: %s: minimum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:318
+#: src/Modules/ContactForm/SubmitHandler.php:319
 msgid "Value must be at least %s."
 msgstr ""
 
 #. translators: %s: maximum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:324
+#: src/Modules/ContactForm/SubmitHandler.php:325
 msgid "Value must be at most %s."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:331
-#: src/Modules/ContactForm/SubmitHandler.php:336
-#: src/Modules/ContactForm/SubmitHandler.php:338
+#: src/Modules/ContactForm/SubmitHandler.php:332
+#: src/Modules/ContactForm/SubmitHandler.php:337
+#: src/Modules/ContactForm/SubmitHandler.php:339
 msgid "Please enter a valid phone number."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:343
+#: src/Modules/ContactForm/SubmitHandler.php:344
 msgid "Please enter a valid date."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:347
+#: src/Modules/ContactForm/SubmitHandler.php:348
 msgid "Date is before the allowed range."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:349
+#: src/Modules/ContactForm/SubmitHandler.php:350
 msgid "Date is after the allowed range."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:356
-#: src/Modules/ContactForm/SubmitHandler.php:368
+#: src/Modules/ContactForm/SubmitHandler.php:357
+#: src/Modules/ContactForm/SubmitHandler.php:369
 msgid "Invalid choice."
 msgstr ""
 
 #. translators: %d: maximum character length the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:380
+#: src/Modules/ContactForm/SubmitHandler.php:381
 msgid "This field is too long (max %d characters)."
 msgstr ""
 
 #. translators: %s: form name
-#: src/Modules/ContactForm/SubmitHandler.php:514
+#: src/Modules/ContactForm/SubmitHandler.php:515
 msgid "[%s] New contact form submission"
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:515
+#: src/Modules/ContactForm/SubmitHandler.php:516
 #: admin/js/contact-form-editor.js:94
 msgid "Contact form"
 msgstr ""
 
 #. translators: %s: form title
-#: src/Modules/ContactForm/SubmitHandler.php:547
+#: src/Modules/ContactForm/SubmitHandler.php:548
 msgid "Sent from contact form \"%s\""
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:548
+#: src/Modules/ContactForm/SubmitHandler.php:549
 msgid "Untitled"
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:553
+#: src/Modules/ContactForm/SubmitHandler.php:554
 msgid "New submission"
 msgstr ""
 
@@ -2959,6 +2964,7 @@ msgid "Could not create the subscribe form."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:217
+#: src/Modules/Newsletter/SubmitHandler.php:73
 msgid "Subscribe form not found."
 msgstr ""
 
@@ -3010,6 +3016,7 @@ msgid "No automatic list — coming soon"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:286
+#: src/Modules/Newsletter/SubmitHandler.php:309
 msgid "Thanks! Check your inbox to confirm your subscription."
 msgstr ""
 
@@ -3151,6 +3158,75 @@ msgstr ""
 msgid "This section is part of the Newsletter module rollout and will land in a coming release."
 msgstr ""
 
+#. translators: %s: site name.
+#: src/Modules/Newsletter/ConfirmationDispatcher.php:61
+msgid "Confirm your subscription to %s"
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:55
+#: src/Modules/Newsletter/ConfirmationHandler.php:62
+#: src/Modules/Newsletter/ConfirmationHandler.php:92
+msgid "Link expired"
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:56
+msgid "This confirmation link is no longer valid. If you still want to subscribe, please sign up again — we'll send a fresh confirmation email."
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:63
+msgid "We couldn't find this subscription anymore. It may have been removed."
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:69
+msgid "Already confirmed"
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:70
+msgid "Your subscription is already confirmed — you're all set."
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:82
+msgid "Subscription confirmed"
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:83
+msgid "Thanks for confirming! You're now subscribed. Look out for our next email."
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:93
+msgid "This link is no longer valid."
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:99
+msgid "Already handled"
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:100
+msgid "We've already taken care of this — thanks."
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:113
+msgid "Subscription declined"
+msgstr ""
+
+#: src/Modules/Newsletter/ConfirmationHandler.php:114
+msgid "No problem — we won't add you to the list. Sorry for the inconvenience."
+msgstr ""
+
+#: src/Modules/Newsletter/EmbedRenderer.php:36
+msgid "No newsletter form selected."
+msgstr ""
+
+#: src/Modules/Newsletter/EmbedRenderer.php:40
+msgid "Newsletter form not found or not published."
+msgstr ""
+
+#: src/Modules/Newsletter/EmbedRenderer.php:70
+#: src/Modules/Newsletter/FormTemplateRegistry.php:77
+#: src/Modules/Newsletter/FormTemplateRegistry.php:90
+msgid "Subscribe"
+msgstr ""
+
 #: src/Modules/Newsletter/FormCPT.php:78
 #: src/Modules/Newsletter/FormCPT.php:88
 #: src/Modules/Newsletter/FormCPT.php:89
@@ -3205,11 +3281,6 @@ msgstr ""
 msgid "Collect the subscriber's name too for friendlier emails."
 msgstr ""
 
-#: src/Modules/Newsletter/FormTemplateRegistry.php:77
-#: src/Modules/Newsletter/FormTemplateRegistry.php:90
-msgid "Subscribe"
-msgstr ""
-
 #: src/Modules/Newsletter/Module.php:54
 msgid "Send campaigns to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline."
 msgstr ""
@@ -3221,28 +3292,40 @@ msgid_plural "%s subscribers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Module.php:289
+#: src/Modules/Newsletter/Module.php:299
 msgid "Unknown onboarding email purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:312
+#: src/Modules/Newsletter/Module.php:322
 msgid "Could not create the template draft."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:345
+#: src/Modules/Newsletter/Module.php:355
 msgid "Newsletter: SMTP module not enabled"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:346
+#: src/Modules/Newsletter/Module.php:356
 msgid "Subscribe forms and the Newsletter admin work, but campaign sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:348
+#: src/Modules/Newsletter/Module.php:358
 msgid "Open SMTP settings"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:369
+#: src/Modules/Newsletter/Module.php:379
 msgid "General"
+msgstr ""
+
+#: src/Modules/Newsletter/SubmitHandler.php:108
+msgid "Anti-spam check failed. Please try again."
+msgstr ""
+
+#: src/Modules/Newsletter/SubmitHandler.php:128
+msgid "Welcome back! You're subscribed."
+msgstr ""
+
+#: src/Modules/Newsletter/SubmitHandler.php:158
+msgid "Could not record your subscription. Please try again."
 msgstr ""
 
 #: src/Modules/Newsletter/TemplateCPT.php:93
@@ -3775,15 +3858,19 @@ msgid "If you received this, your SMTP configuration is working."
 msgstr ""
 
 #. translators: %d: contact form ID, used when the form has no title
+#. translators: %d: newsletter form ID, used when the form has no title.
 #: admin/js/contact-form-editor.js:39
+#: admin/js/newsletter-block-editor.js:35
 msgid "Form #%d"
 msgstr ""
 
 #: admin/js/contact-form-editor.js:60
+#: admin/js/newsletter-block-editor.js:51
 msgid "— Select a form —"
 msgstr ""
 
 #: admin/js/contact-form-editor.js:104
+#: admin/js/newsletter-block-editor.js:73
 msgid "Edit this form →"
 msgstr ""
 
@@ -3822,4 +3909,25 @@ msgstr ""
 
 #: admin/js/contact-form-editor.js:191
 msgid "Form fields will appear here on the published page. Edit the form on the Contact Forms admin page to change them."
+msgstr ""
+
+#: admin/js/newsletter-block-editor.js:62
+#: admin/js/newsletter-block-editor.js:93
+msgid "Subscribe form"
+msgstr ""
+
+#: admin/js/newsletter-block-editor.js:81
+msgid "This subscribe form will render here on the published page."
+msgstr ""
+
+#: admin/js/newsletter-block-editor.js:84
+msgid "Pick a subscribe form to embed."
+msgstr ""
+
+#: admin/js/newsletter-block-editor.js:104
+msgid "Loading forms…"
+msgstr ""
+
+#: admin/js/newsletter-block-editor.js:115
+msgid "Embed one of your subscribe forms on this page."
 msgstr ""

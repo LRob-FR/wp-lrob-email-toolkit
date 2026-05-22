@@ -230,6 +230,16 @@ final class Module extends AbstractModule
             $hooks = new UserHooks($subscribers);
             add_action('user_register', [$hooks, 'on_user_register'], 10, 1);
             add_action('deleted_user', [$hooks, 'on_deleted_user'], 10, 1);
+
+            // Frontend pipeline: block + shortcode + EmbedRenderer (via
+            // Blocks::register_blocks render_callback) + submit handler
+            // + confirmation URL handler. The frontend script + style
+            // register on wp_enqueue_scripts; EmbedRenderer enqueues
+            // them on demand when a form actually renders.
+            (new Frontend())->register();
+            (new Blocks())->register();
+            (new SubmitHandler($subscribers))->register();
+            (new ConfirmationHandler($subscribers))->register();
         }
 
         if (is_admin()) {

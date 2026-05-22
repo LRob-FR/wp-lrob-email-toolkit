@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules\ContactForm;
 use LRob\EmailToolkit\Forms\FieldTypeRegistry;
 use LRob\EmailToolkit\Forms\FormContext;
 use LRob\EmailToolkit\Forms\FormStructure;
+use LRob\EmailToolkit\Forms\Honeypot;
 use LRob\EmailToolkit\Plugin;
 
 /**

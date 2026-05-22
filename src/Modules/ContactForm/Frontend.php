@@ -6,15 +6,20 @@ namespace LRob\EmailToolkit\Modules\ContactForm;
 
 /**
  * Registers the frontend form CSS/JS. They are *registered* on
- * `wp_enqueue_scripts` but only actually *enqueued* by EmbedRenderer when a
- * form is rendered on the page — so pages with no form don't pull a kilobyte
- * of unused JS.
+ * `wp_enqueue_scripts` but only actually *enqueued* by EmbedRenderer
+ * when a contact form is rendered on the page — pages with no form
+ * don't pull a kilobyte of unused JS.
+ *
+ * The JS file (assets/js/form-submit.js) and the localize global
+ * (`window.lrobEtkForm`) are intentionally host-neutral so the
+ * Newsletter module reuses the same script. Both modules register
+ * the same handle — WP dedupes, and the i18n strings overlap.
  */
 final class Frontend
 {
-    public const HANDLE_CSS = 'lrob-etk-cf-frontend';
+    public const HANDLE_CSS = 'lrob-etk-form-frontend';
 
-    public const HANDLE_JS = 'lrob-etk-cf-frontend';
+    public const HANDLE_JS = 'lrob-etk-form-submit';
 
     public function register(): void
     {
@@ -32,13 +37,13 @@ final class Frontend
 
         wp_register_script(
             self::HANDLE_JS,
-            LROB_ETK_URL . 'assets/js/contact-form.js',
+            LROB_ETK_URL . 'assets/js/form-submit.js',
             [],
-            self::asset_version('assets/js/contact-form.js'),
+            self::asset_version('assets/js/form-submit.js'),
             true
         );
 
-        wp_localize_script(self::HANDLE_JS, 'lrobEtkCf', [
+        wp_localize_script(self::HANDLE_JS, 'lrobEtkForm', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'i18n'    => [
                 'sending'      => __('Sending…', 'lrob-email-toolkit'),

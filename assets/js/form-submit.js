@@ -1,20 +1,25 @@
-/* LRob Email Toolkit — Contact Form frontend script
+/* LRob Email Toolkit — frontend form submission
  *
- * Handles every form rendered with .lrob-etk-form. Plain vanilla JS, no
- * deps. Submits via fetch to admin-ajax, locks the submit button while
- * in-flight, surfaces per-field errors returned by the server, and shows
- * the success / error banner above the form.
+ * Drives every form rendered with .lrob-etk-form (both Contact Form
+ * and Newsletter subscribe forms). Plain vanilla JS, no deps. The
+ * form's own hidden `action` input drives the WP AJAX action, so this
+ * script is host-neutral — both modules emit their own AJAX endpoint
+ * name and the same JS submits to whichever one the form requests.
+ *
+ * Submits via fetch to admin-ajax, locks the submit button while
+ * in-flight, surfaces per-field errors returned by the server, and
+ * shows the success / error banner above the form.
  */
 (function () {
     'use strict';
 
-    var DATA = window.lrobEtkCf || {};
+    var DATA = window.lrobEtkForm || {};
     var I18N = DATA.i18n || {};
     var AJAX_URL = DATA.ajaxUrl || '';
 
     function init(form) {
-        if (form.__lrobEtkCfBound) return;
-        form.__lrobEtkCfBound = true;
+        if (form.__lrobEtkFormBound) return;
+        form.__lrobEtkFormBound = true;
         form.addEventListener('submit', onSubmit);
     }
 
@@ -60,7 +65,7 @@
                     try { return JSON.parse(txt); }
                     catch (e) {
                         if (window.console && console.warn) {
-                            console.warn('lrob-etk-cf: non-JSON response from submit endpoint:', txt);
+                            console.warn('lrob-etk-form: non-JSON response from submit endpoint:', txt);
                         }
                         return { success: false, data: { message: (I18N.unknownError || 'Error') + ' (server returned a non-JSON response — check the browser console).' } };
                     }
