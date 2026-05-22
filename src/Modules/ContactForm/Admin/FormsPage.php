@@ -7,10 +7,10 @@ namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\ModuleToggle;
 use LRob\EmailToolkit\Admin\Tooltip;
+use LRob\EmailToolkit\Forms\FormEditorRenderer;
+use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
-use LRob\EmailToolkit\Modules\ContactForm\FormEditorRenderer;
-use LRob\EmailToolkit\Modules\ContactForm\FormStructure;
 use LRob\EmailToolkit\Modules\ContactForm\Module as ContactFormModule;
 use LRob\EmailToolkit\Modules\ContactForm\Settings;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
@@ -92,13 +92,15 @@ final class FormsPage
             ],
         ]);
 
-        // WYSIWYG fields editor — hover overlays, contenteditable handlers,
-        // gear popup, "+" insertion zones, drag-drop, serializer.
+        // Shared WYSIWYG fields editor — hover overlays, contenteditable
+        // handlers, gear popup, "+" insertion zones, drag-drop, serializer.
+        // Lives under admin/js/form-fields-editor.js (host-neutral name) so
+        // Newsletter's form CPT can reuse the same handle + file.
         wp_enqueue_script(
-            'lrob-etk-cf-fields-editor',
-            LROB_ETK_URL . 'admin/js/contact-form-fields-editor.js',
+            'lrob-etk-form-fields-editor',
+            LROB_ETK_URL . 'admin/js/form-fields-editor.js',
             ['lrob-etk-cf-admin'],
-            self::asset_version('admin/js/contact-form-fields-editor.js'),
+            self::asset_version('admin/js/form-fields-editor.js'),
             true
         );
         // "Start a new form" picker modal.
@@ -118,13 +120,11 @@ final class FormsPage
 
         // Pass the captcha picker's option list to the editor JS so the
         // in-block picker can build itself on field insert + swap the
-        // preview HTML on change. Shape mirrors what FieldRenderer's
-        // server-side picker emits (routing keys + optgroups + previews),
-        // so the freshly-inserted captcha block looks identical to a
-        // page-reloaded one.
+        // preview HTML on change. Shape mirrors what the server-side
+        // picker (Fields\CaptchaField::options_html) emits.
         $captcha_service = self::captcha_service();
         $captcha_options = self::build_editor_captcha_options($captcha_service);
-        wp_localize_script('lrob-etk-cf-fields-editor', 'lrobEtkCfEditor', [
+        wp_localize_script('lrob-etk-form-fields-editor', 'lrobEtkCfEditor', [
             'fieldTypes'     => self::field_types(),
             'captchaKey'     => CPT::META_CHALLENGE_KIND,
             'captchaOptions' => $captcha_options,
@@ -208,7 +208,7 @@ final class FormsPage
 
     /**
      * Build the captcha picker's option list for the WYSIWYG editor JS.
-     * Same shape the in-block picker (`FieldRenderer::captcha_options_html`)
+     * Same shape the in-block picker (`Fields\CaptchaField::options_html`)
      * builds on the server, but as structured data so the editor can
      * rebuild the picker after inserting / swapping captcha blocks.
      *
@@ -1302,11 +1302,11 @@ final class FormsPage
                 <span class="lrob-etk-cf-editor-status" aria-live="polite"></span>
             </div>
 
-            <?php echo FormEditorRenderer::render($form_id); ?>
+            <?php echo FormEditorRenderer::render($form_id, CPT::FIELD_NAME_PREFIX, CPT::FIELD_ID_PREFIX); ?>
 
             <!-- Field-type picker (cloned by the editor JS each time + is clicked) -->
             <template data-field-type-picker>
-                <div class="lrob-etk-cf-type-picker" role="menu">
+                <div class="lrob-etk-form-type-picker" role="menu">
                     <?php foreach (self::field_types() as $type => $label) : ?>
                         <button type="button" role="menuitem" data-type="<?php echo esc_attr($type); ?>">
                             <?php echo esc_html($label); ?>

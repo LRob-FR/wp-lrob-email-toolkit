@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Forms\FormStructure;
+
 /**
  * Built-in form templates the user can pick from when creating a new form.
  * Each entry returns a FormStructure-shaped array — same shape that's
@@ -49,7 +51,10 @@ final class TemplateRegistry
         if ($tpl === null || !isset($tpl['structure'])) {
             return FormStructure::empty_structure();
         }
-        return FormStructure::normalize($tpl['structure']);
+        // Templates ship structures bound to Contact Form's CPT — that's
+        // the only consumer of this registry. Normalize against it so the
+        // shared FieldTypeRegistry dispatch resolves correctly.
+        return FormStructure::normalize($tpl['structure'], CPT::POST_TYPE);
     }
 
     /** @return array<string, array{name:string, description:string, structure:array}> */

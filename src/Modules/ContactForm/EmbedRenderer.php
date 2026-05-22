@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Forms\FieldTypeRegistry;
+use LRob\EmailToolkit\Forms\FormContext;
+use LRob\EmailToolkit\Forms\FormStructure;
+use LRob\EmailToolkit\Plugin;
+
 /**
  * Renders the page-side `lrob-etk/contact-form` block. Loads the referenced
  * form CPT, opens a &lt;form&gt; element with a per-render instance id, walks
@@ -40,10 +45,11 @@ final class EmbedRenderer
         Frontend::enqueue_assets();
 
         $instance = substr(bin2hex(random_bytes(5)), 0, 10);
-        FormContext::start($form_id, $instance);
+        FormContext::start($form_id, $instance, CPT::FIELD_NAME_PREFIX, CPT::FIELD_ID_PREFIX);
 
         try {
             $structure = FormStructure::load($form_id);
+            $registry = self::registry();
 
             // Honeypot lives outside the visible structure — added once at
             // the end no matter where the user placed (or didn't place) the
@@ -53,17 +59,21 @@ final class EmbedRenderer
 
             $form_attrs = self::compute_form_root_attrs($form_id, $instance, $preset, $overrides);
             $html = '<form ' . $form_attrs . '>';
-            $html .= '<div class="lrob-etk-cf-status" data-form-status hidden></div>';
-            $html .= '<div class="lrob-etk-cf-body">';
+            $html .= '<div class="lrob-etk-form-status" data-form-status hidden></div>';
+            $html .= '<div class="lrob-etk-form-body">';
 
             foreach ($structure['rows'] as $row) {
-                $html .= self::render_row($row);
+                $html .= self::render_row($row, $registry);
             }
 
             // Safety net: if the user removed the submit field, the form
-            // would have no way to submit. Append a generic one.
-            if (!FormStructure::has_field_of_type($structure, 'submit')) {
-                $html .= FieldRenderer::submit(['text' => __('Send', 'lrob-email-toolkit'), 'align' => 'right']);
+            // would have no way to submit. Append a generic one via the
+            // registered submit type.
+            if (!FormStructure::has_field_of_type($structure, 'submit') && $registry !== null) {
+                $submit = $registry->get(CPT::POST_TYPE, 'submit');
+                if ($submit !== null) {
+                    $html .= $submit->render(['text' => __('Send', 'lrob-email-toolkit'), 'align' => 'right']);
+                }
             }
 
             $html .= $honeypot_html;
@@ -80,14 +90,14 @@ final class EmbedRenderer
     /**
      * @param array{id:string, columns:array<int, array{id:string, fields:array<int, array>}>} $row
      */
-    private static function render_row(array $row): string
+    private static function render_row(array $row, ?FieldTypeRegistry $registry): string
     {
         $col_count = max(1, count($row['columns']));
-        $html = sprintf('<div class="lrob-etk-cf-row" data-cols="%d">', $col_count);
+        $html = sprintf('<div class="lrob-etk-form-row" data-cols="%d">', $col_count);
         foreach ($row['columns'] as $col) {
-            $html .= '<div class="lrob-etk-cf-col">';
+            $html .= '<div class="lrob-etk-form-col">';
             foreach ($col['fields'] as $field) {
-                $html .= self::render_field($field);
+                $html .= self::render_field($field, $registry);
             }
             $html .= '</div>';
         }
@@ -96,30 +106,21 @@ final class EmbedRenderer
     }
 
     /** @param array<string, mixed> $field */
-    private static function render_field(array $field): string
+    private static function render_field(array $field, ?FieldTypeRegistry $registry): string
     {
+        if ($registry === null) {
+            return '';
+        }
         $type = (string) ($field['type'] ?? '');
-        return match ($type) {
-            'text'     => FieldRenderer::text($field),
-            'email'    => FieldRenderer::email($field),
-            'textarea' => FieldRenderer::textarea($field),
-            'number'   => FieldRenderer::number($field),
-            'phone'    => FieldRenderer::phone($field),
-            'date'     => FieldRenderer::date($field),
-            'select'   => FieldRenderer::select($field),
-            'radio'    => FieldRenderer::radio($field),
-            'checkbox' => FieldRenderer::checkbox($field),
-            'submit'   => FieldRenderer::submit($field),
-            'captcha'  => FieldRenderer::captcha($field),
-            default    => '',
-        };
+        $field_type = $registry->get(CPT::POST_TYPE, $type);
+        return $field_type !== null ? $field_type->render($field) : '';
     }
 
     private static function compute_form_root_attrs(int $form_id, string $instance, string $preset, array $overrides): string
     {
         $classes = [
-            'lrob-etk-cf-form',
-            'lrob-etk-cf-preset--' . sanitize_html_class($preset, CPT::STYLE_DEFAULT),
+            'lrob-etk-form',
+            'lrob-etk-form-preset--' . sanitize_html_class($preset, CPT::STYLE_DEFAULT),
         ];
         $style = self::style_inline($overrides);
         return sprintf(
@@ -189,5 +190,11 @@ final class EmbedRenderer
     private static function is_block_editor_context(): bool
     {
         return defined('REST_REQUEST') && REST_REQUEST;
+    }
+
+    private static function registry(): ?FieldTypeRegistry
+    {
+        $registry = Plugin::instance()->container()->get(FieldTypeRegistry::class);
+        return $registry instanceof FieldTypeRegistry ? $registry : null;
     }
 }

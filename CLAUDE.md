@@ -75,7 +75,7 @@ Anything Claude adds — new option, table, hook, CSS class — **must** follow 
 
 **On deck — priority order, no version commitment.** Pick whatever's most useful at the time:
 
-- **Newsletter module.** Campaigns, segmentation by role / meta / WooCommerce purchase data (HPOS-aware), throttled sending, open/click tracking, unsubscribe handling. Includes importer from the [Newsletter](https://wordpress.org/plugins/newsletter/) plugin. Biggest single chunk on the list.
+- **Newsletter module.** Campaigns, segmentation by role / meta / WooCommerce purchase data (HPOS-aware), throttled sending, open/click tracking, unsubscribe handling. Includes importer from the [Newsletter](https://wordpress.org/plugins/newsletter/) plugin. Biggest single chunk on the list. **Full design spec in [newsletter.md](newsletter.md)** — read that before touching Newsletter code.
 - **Cross-feature captcha.** Captcha for comments / lost-password / registration. The Captcha module already declares these contexts; small lift. Ships naturally near Newsletter since `newsletter_subscribe` becomes a real consumer at that point.
 - **Contact Form reply composer.** Deferred from the submissions-inbox work. Per-form "reply identity" setting, ad-hoc Reply-To override in composer, `replied_at` + reply count tracked on `cf_submissions`. Lives at the existing submission detail URL.
 - **Captcha enrichment.** More hosted providers (Cloudflare Turnstile, Google reCAPTCHA) drop into `Providers/`. More in-house challenges (image-letter, simple logic, proof-of-work using local browser compute) drop into `Challenges/`. Both directories are auto-scanned — zero glue code.
@@ -162,7 +162,9 @@ No edits to `Module.php`, `CaptchaService`, or the settings page needed — auto
 
 Captcha is a **service module** (`is_service_module() === true`, always-enabled), so `maybe_migrate()` runs every boot. AbstractModule's default `db_version_int() === 1` recorded version=1 on every existing site **before** the module had any install logic. Bumping to 2 made `maybe_migrate()` take the `migrate()` branch (not `install()`) — schema never got created on upgrade sites. See [[project-service-module-migrate-trap]]. Fix: always override `migrate()` to forward to `install()` (idempotent). If recovering from an already-shipped broken bump, bump the target version one more notch so stuck sites re-take the migrate path.
 
-## Contact Form WYSIWYG editor (`admin/js/contact-form-fields-editor.js`)
+## Form-builder WYSIWYG editor (`admin/js/form-fields-editor.js`)
+
+Shared between Contact Form and Newsletter (when it lands) via `src/Forms/` — see `newsletter.md` for the split. Form-builder DOM uses the `lrob-etk-form-*` CSS prefix (renamed from historical `lrob-etk-cf-*`); module-specific admin chrome keeps its own prefix (`lrob-etk-cf-*` for Contact Form's form cards / recipients / modals, `lrob-etk-nl-*` for Newsletter's admin chrome later). The captcha field type is per-module — Contact Form's captcha emits `lrob-etk-cf-captcha-*` styles; Newsletter's will emit its own.
 
 Single-IIFE, ~1900 lines. Drives every Contact Form card's field editor (preview + overlays + drag-drop + inline settings strip + inline option editor + serializer + sticky-hover). Section map for navigation — line numbers drift, search by the `// --- Name ---` marker:
 

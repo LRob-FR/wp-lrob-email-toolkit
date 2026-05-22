@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LRob - Email Toolkit 0.2.1\n"
+"Project-Id-Version: LRob - Email Toolkit 0.2.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-21T01:20:36+00:00\n"
+"POT-Creation-Date: 2026-05-22T00:19:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -297,10 +297,10 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:572
 #: src/Admin/DashboardPage.php:861
-#: src/Modules/ContactForm/EmbedRenderer.php:66
-#: src/Modules/ContactForm/FieldRenderer.php:212
-#: src/Modules/ContactForm/FormStructure.php:74
-#: src/Modules/ContactForm/FormStructure.php:392
+#: src/Forms/Fields/SubmitField.php:27
+#: src/Forms/Fields/SubmitField.php:51
+#: src/Forms/FormStructure.php:68
+#: src/Modules/ContactForm/EmbedRenderer.php:75
 msgid "Send"
 msgstr ""
 
@@ -341,6 +341,7 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:666
 #: src/Admin/DashboardPage.php:785
+#: src/Forms/Fields/DateField.php:19
 #: src/Modules/ContactForm/Admin/FormsPage.php:1357
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:264
 #: src/Modules/Logging/Admin/LogsPage.php:268
@@ -671,6 +672,116 @@ msgstr ""
 msgid "Modular all-in-one email plugin: SMTP routing, email logging, contact forms, captcha, newsletters, and webhook integrations. Each module is independently activatable."
 msgstr ""
 
+#: src/Forms/FieldRenderHelpers.php:157
+#: src/Forms/FieldRenderHelpers.php:345
+#: src/Modules/ContactForm/Admin/FormsPage.php:154
+msgid "(field label)"
+msgstr ""
+
+#: src/Forms/FieldRenderHelpers.php:191
+#: src/Modules/ContactForm/Admin/FormsPage.php:136
+msgid "Required"
+msgstr ""
+
+#: src/Forms/FieldRenderHelpers.php:199
+#: src/Modules/ContactForm/Admin/FormsPage.php:153
+msgid "(optional helper text)"
+msgstr ""
+
+#: src/Forms/Fields/CheckboxField.php:20
+#: src/Modules/ContactForm/Admin/FormsPage.php:1360
+msgid "Checkbox"
+msgstr ""
+
+#: src/Forms/Fields/EmailField.php:19
+#: src/Modules/ContactForm/Admin/FormsPage.php:1093
+#: src/Modules/ContactForm/Admin/FormsPage.php:1353
+#: src/Modules/ContactForm/Admin/FormsPage.php:1498
+#: src/Modules/ContactForm/TemplateRegistry.php:121
+msgid "Email"
+msgstr ""
+
+#: src/Forms/Fields/NumberField.php:19
+#: src/Modules/ContactForm/Admin/FormsPage.php:1355
+msgid "Number"
+msgstr ""
+
+#: src/Forms/Fields/PhoneField.php:19
+#: src/Modules/ContactForm/Admin/FormsPage.php:1356
+#: src/Modules/ContactForm/TemplateRegistry.php:102
+#: src/Modules/ContactForm/TemplateRegistry.php:122
+msgid "Phone"
+msgstr ""
+
+#: src/Forms/Fields/RadioField.php:19
+msgid "Radio buttons"
+msgstr ""
+
+#: src/Forms/Fields/SelectField.php:20
+#: src/Modules/ContactForm/Admin/FormsPage.php:1358
+msgid "Dropdown"
+msgstr ""
+
+#: src/Forms/Fields/SubmitField.php:20
+msgid "Submit button"
+msgstr ""
+
+#: src/Forms/Fields/TextareaField.php:20
+msgid "Multi-line text"
+msgstr ""
+
+#: src/Forms/Fields/TextField.php:19
+#: src/Modules/ContactForm/Admin/FormsPage.php:1352
+msgid "Text"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:50
+#: src/Forms/FormEditorRenderer.php:54
+msgid "Add a new row here"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:61
+msgid "This form has no Submit button — visitors won't be able to send it. Add one with the \"+\" button."
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:93
+msgid "Add a column to this row"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:109
+#: src/Forms/FormEditorRenderer.php:113
+msgid "Add a field here"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:162
+#: src/Modules/ContactForm/Admin/FormsPage.php:157
+msgid "Field"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:177
+msgid "Drag to reorder row"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:178
+msgid "Delete row"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:186
+msgid "Drag to reorder column"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:187
+msgid "Delete column"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:195
+msgid "Drag to reorder field"
+msgstr ""
+
+#: src/Forms/FormEditorRenderer.php:196
+msgid "Delete field"
+msgstr ""
+
 #: src/Modules/Captcha/Admin/AjaxController.php:61
 msgid "Solve the captcha first to run a test."
 msgstr ""
@@ -752,7 +863,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:597
 #: src/Modules/Captcha/Admin/SettingsPage.php:693
 #: src/Modules/ContactForm/Admin/FormsPage.php:259
-#: src/Modules/ContactForm/FieldRenderer.php:350
+#: src/Modules/ContactForm/Fields/CaptchaField.php:156
 msgid "Built-in challenges"
 msgstr ""
 
@@ -881,7 +992,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:159
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/ContactForm/Admin/FormsPage.php:1826
-#: src/Modules/ContactForm/FieldRenderer.php:311
+#: src/Modules/ContactForm/Fields/CaptchaField.php:117
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr ""
@@ -939,14 +1050,14 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:619
 #: src/Modules/Captcha/Admin/SettingsPage.php:692
 #: src/Modules/ContactForm/Admin/FormsPage.php:276
-#: src/Modules/ContactForm/FieldRenderer.php:375
+#: src/Modules/ContactForm/Fields/CaptchaField.php:181
 msgid "— Configure %s first —"
 msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:631
 #: src/Modules/Captcha/Admin/SettingsPage.php:690
 #: src/Modules/ContactForm/Admin/FormsPage.php:288
-#: src/Modules/ContactForm/FieldRenderer.php:385
+#: src/Modules/ContactForm/Fields/CaptchaField.php:191
 msgid "(inactive)"
 msgstr ""
 
@@ -1253,7 +1364,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:125
 #: src/Modules/ContactForm/Admin/AjaxController.php:258
-#: src/Modules/ContactForm/SubmitHandler.php:60
+#: src/Modules/ContactForm/SubmitHandler.php:61
 msgid "Form not found."
 msgstr ""
 
@@ -1322,11 +1433,6 @@ msgstr ""
 msgid "Helper text"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:136
-#: src/Modules/ContactForm/FieldRenderer.php:646
-msgid "Required"
-msgstr ""
-
 #: src/Modules/ContactForm/Admin/FormsPage.php:137
 msgid "Placeholder"
 msgstr ""
@@ -1391,17 +1497,6 @@ msgstr ""
 msgid "Toggle required"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:153
-#: src/Modules/ContactForm/FieldRenderer.php:654
-msgid "(optional helper text)"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:154
-#: src/Modules/ContactForm/FieldRenderer.php:548
-#: src/Modules/ContactForm/FieldRenderer.php:609
-msgid "(field label)"
-msgstr ""
-
 #: src/Modules/ContactForm/Admin/FormsPage.php:155
 #: src/Modules/ContactForm/Admin/FormsPage.php:1290
 msgid "Undo"
@@ -1412,12 +1507,8 @@ msgstr ""
 msgid "Redo"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:157
-#: src/Modules/ContactForm/FormEditorRenderer.php:171
-msgid "Field"
-msgstr ""
-
 #: src/Modules/ContactForm/Admin/FormsPage.php:158
+#: src/Modules/ContactForm/Fields/CaptchaField.php:34
 msgid "Anti-spam challenge"
 msgstr ""
 
@@ -1458,14 +1549,14 @@ msgid "Single checkbox — no options needed."
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:221
-#: src/Modules/ContactForm/FieldRenderer.php:427
+#: src/Modules/ContactForm/Fields/CaptchaField.php:232
 msgid "No anti-spam challenge."
 msgstr ""
 
 #. translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers and dropdown labels
 #: src/Modules/ContactForm/Admin/FormsPage.php:235
 #: src/Modules/ContactForm/Admin/FormsPage.php:1344
-#: src/Modules/ContactForm/FieldRenderer.php:308
+#: src/Modules/ContactForm/Fields/CaptchaField.php:114
 #: admin/js/contact-form-editor.js:44
 msgid "Default (%s)"
 msgstr ""
@@ -1477,8 +1568,8 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:248
 #: src/Modules/ContactForm/Admin/FormsPage.php:961
 #: src/Modules/ContactForm/Admin/FormsPage.php:964
-#: src/Modules/ContactForm/FieldRenderer.php:341
-#: src/Modules/ContactForm/FieldRenderer.php:411
+#: src/Modules/ContactForm/Fields/CaptchaField.php:147
+#: src/Modules/ContactForm/Fields/CaptchaField.php:217
 #: src/Modules/SMTP/Admin/SettingsPage.php:314
 msgid "None"
 msgstr ""
@@ -1503,9 +1594,9 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:550
 #: src/Modules/ContactForm/Admin/PageController.php:59
 #: src/Modules/ContactForm/Admin/PageController.php:60
-#: src/Modules/ContactForm/CPT.php:86
-#: src/Modules/ContactForm/CPT.php:96
-#: src/Modules/ContactForm/CPT.php:97
+#: src/Modules/ContactForm/CPT.php:98
+#: src/Modules/ContactForm/CPT.php:108
+#: src/Modules/ContactForm/CPT.php:109
 msgid "Contact Forms"
 msgstr ""
 
@@ -1697,13 +1788,6 @@ msgstr ""
 msgid "Since %s"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1093
-#: src/Modules/ContactForm/Admin/FormsPage.php:1353
-#: src/Modules/ContactForm/Admin/FormsPage.php:1498
-#: src/Modules/ContactForm/TemplateRegistry.php:116
-msgid "Email"
-msgstr ""
-
 #: src/Modules/ContactForm/Admin/FormsPage.php:1097
 #: src/Modules/ContactForm/Admin/FormsPage.php:1502
 msgid "Reply-To field"
@@ -1832,34 +1916,12 @@ msgstr ""
 msgid "Default — %s"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1352
-msgid "Text"
-msgstr ""
-
 #: src/Modules/ContactForm/Admin/FormsPage.php:1354
 msgid "Long text"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1355
-msgid "Number"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1356
-#: src/Modules/ContactForm/TemplateRegistry.php:97
-#: src/Modules/ContactForm/TemplateRegistry.php:117
-msgid "Phone"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1358
-msgid "Dropdown"
-msgstr ""
-
 #: src/Modules/ContactForm/Admin/FormsPage.php:1359
 msgid "Radio"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:1360
-msgid "Checkbox"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1388
@@ -2140,101 +2202,59 @@ msgstr ""
 msgid "(empty)"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:87
-#: src/Modules/ContactForm/Module.php:38
+#: src/Modules/ContactForm/CPT.php:99
+#: src/Modules/ContactForm/Module.php:50
 #: admin/js/contact-form-editor.js:169
 #: admin/js/contact-form-editor.js:198
 msgid "Contact Form"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:88
+#: src/Modules/ContactForm/CPT.php:100
 msgid "Add New"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:89
+#: src/Modules/ContactForm/CPT.php:101
 msgid "Add New Contact Form"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:90
+#: src/Modules/ContactForm/CPT.php:102
 msgid "Edit Contact Form"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:91
+#: src/Modules/ContactForm/CPT.php:103
 msgid "New Contact Form"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:92
+#: src/Modules/ContactForm/CPT.php:104
 msgid "View Contact Form"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:93
+#: src/Modules/ContactForm/CPT.php:105
 msgid "Search Contact Forms"
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:94
+#: src/Modules/ContactForm/CPT.php:106
 msgid "No contact forms yet."
 msgstr ""
 
-#: src/Modules/ContactForm/CPT.php:95
+#: src/Modules/ContactForm/CPT.php:107
 msgid "No contact forms in trash."
 msgstr ""
 
-#: src/Modules/ContactForm/EmbedRenderer.php:30
+#: src/Modules/ContactForm/EmbedRenderer.php:35
 msgid "No contact form selected."
 msgstr ""
 
-#: src/Modules/ContactForm/EmbedRenderer.php:35
+#: src/Modules/ContactForm/EmbedRenderer.php:40
 msgid "Contact form not found or not published."
 msgstr ""
 
-#: src/Modules/ContactForm/FieldRenderer.php:324
+#: src/Modules/ContactForm/Fields/CaptchaField.php:130
 msgid "Anti-spam:"
 msgstr ""
 
-#: src/Modules/ContactForm/FieldRenderer.php:430
+#: src/Modules/ContactForm/Fields/CaptchaField.php:235
 msgid "No challenge registered."
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:44
-#: src/Modules/ContactForm/FormEditorRenderer.php:48
-msgid "Add a new row here"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:56
-msgid "This form has no Submit button — visitors won't be able to send it. Add one with the \"+\" button."
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:90
-msgid "Add a column to this row"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:106
-#: src/Modules/ContactForm/FormEditorRenderer.php:110
-msgid "Add a field here"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:186
-msgid "Drag to reorder row"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:187
-msgid "Delete row"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:195
-msgid "Drag to reorder column"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:196
-msgid "Delete column"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:204
-msgid "Drag to reorder field"
-msgstr ""
-
-#: src/Modules/ContactForm/FormEditorRenderer.php:205
-msgid "Delete field"
 msgstr ""
 
 #: src/Modules/ContactForm/Frontend.php:45
@@ -2242,12 +2262,12 @@ msgid "Something went wrong. Please try again."
 msgstr ""
 
 #: src/Modules/ContactForm/Frontend.php:47
-#: src/Modules/ContactForm/SubmitHandler.php:305
+#: src/Modules/ContactForm/SubmitHandler.php:306
 msgid "Please enter a valid email address."
 msgstr ""
 
 #: src/Modules/ContactForm/Frontend.php:48
-#: src/Modules/ContactForm/SubmitHandler.php:295
+#: src/Modules/ContactForm/SubmitHandler.php:296
 msgid "This field is required."
 msgstr ""
 
@@ -2255,250 +2275,250 @@ msgstr ""
 msgid "Website (leave blank)"
 msgstr ""
 
-#: src/Modules/ContactForm/Module.php:43
+#: src/Modules/ContactForm/Module.php:55
 msgid "Build customizable contact forms with stacked anti-spam and the existing SMTP identity routing."
 msgstr ""
 
 #. translators: %d: number of contact forms.
-#: src/Modules/ContactForm/Module.php:194
+#: src/Modules/ContactForm/Module.php:206
 msgid "%d form"
 msgid_plural "%d forms"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of submissions (already formatted with i18n thousands separator).
-#: src/Modules/ContactForm/Module.php:199
+#: src/Modules/ContactForm/Module.php:211
 msgid "%s submission"
 msgid_plural "%s submissions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:54
+#: src/Modules/ContactForm/SubmitHandler.php:55
 msgid "This form has expired. Please reload the page and try again."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:136
+#: src/Modules/ContactForm/SubmitHandler.php:137
 msgid "You are submitting too quickly. Please wait a few minutes and try again."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:159
+#: src/Modules/ContactForm/SubmitHandler.php:160
 msgid "Please correct the highlighted fields."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:310
+#: src/Modules/ContactForm/SubmitHandler.php:311
 msgid "Please enter a number."
 msgstr ""
 
 #. translators: %s: minimum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:317
+#: src/Modules/ContactForm/SubmitHandler.php:318
 msgid "Value must be at least %s."
 msgstr ""
 
 #. translators: %s: maximum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:323
+#: src/Modules/ContactForm/SubmitHandler.php:324
 msgid "Value must be at most %s."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:330
-#: src/Modules/ContactForm/SubmitHandler.php:335
-#: src/Modules/ContactForm/SubmitHandler.php:337
+#: src/Modules/ContactForm/SubmitHandler.php:331
+#: src/Modules/ContactForm/SubmitHandler.php:336
+#: src/Modules/ContactForm/SubmitHandler.php:338
 msgid "Please enter a valid phone number."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:342
+#: src/Modules/ContactForm/SubmitHandler.php:343
 msgid "Please enter a valid date."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:346
+#: src/Modules/ContactForm/SubmitHandler.php:347
 msgid "Date is before the allowed range."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:348
+#: src/Modules/ContactForm/SubmitHandler.php:349
 msgid "Date is after the allowed range."
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:355
-#: src/Modules/ContactForm/SubmitHandler.php:367
+#: src/Modules/ContactForm/SubmitHandler.php:356
+#: src/Modules/ContactForm/SubmitHandler.php:368
 msgid "Invalid choice."
 msgstr ""
 
 #. translators: %d: maximum character length the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:379
+#: src/Modules/ContactForm/SubmitHandler.php:380
 msgid "This field is too long (max %d characters)."
 msgstr ""
 
 #. translators: %s: form name
-#: src/Modules/ContactForm/SubmitHandler.php:513
+#: src/Modules/ContactForm/SubmitHandler.php:514
 msgid "[%s] New contact form submission"
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:514
+#: src/Modules/ContactForm/SubmitHandler.php:515
 #: admin/js/contact-form-editor.js:94
 msgid "Contact form"
 msgstr ""
 
 #. translators: %s: form title
-#: src/Modules/ContactForm/SubmitHandler.php:546
+#: src/Modules/ContactForm/SubmitHandler.php:547
 msgid "Sent from contact form \"%s\""
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:547
+#: src/Modules/ContactForm/SubmitHandler.php:548
 msgid "Untitled"
 msgstr ""
 
-#: src/Modules/ContactForm/SubmitHandler.php:552
+#: src/Modules/ContactForm/SubmitHandler.php:553
 msgid "New submission"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:60
+#: src/Modules/ContactForm/TemplateRegistry.php:65
 msgid "Simple contact"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:61
+#: src/Modules/ContactForm/TemplateRegistry.php:66
 msgid "Name, email, and message — the classic starting point."
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:65
+#: src/Modules/ContactForm/TemplateRegistry.php:70
 msgid "Quote request"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:66
+#: src/Modules/ContactForm/TemplateRegistry.php:71
 msgid "Name, company, phone, project description — for sales leads."
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:70
+#: src/Modules/ContactForm/TemplateRegistry.php:75
 msgid "Support ticket"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:71
+#: src/Modules/ContactForm/TemplateRegistry.php:76
 msgid "Email, urgency level, and a description — for help requests."
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:75
+#: src/Modules/ContactForm/TemplateRegistry.php:80
 msgid "Newsletter signup"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:76
+#: src/Modules/ContactForm/TemplateRegistry.php:81
 msgid "Just an email and a consent checkbox."
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:80
+#: src/Modules/ContactForm/TemplateRegistry.php:85
 msgid "Event RSVP"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:81
+#: src/Modules/ContactForm/TemplateRegistry.php:86
 msgid "Name, email, number of guests, and a notes field."
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:93
-#: src/Modules/ContactForm/TemplateRegistry.php:175
+#: src/Modules/ContactForm/TemplateRegistry.php:98
+#: src/Modules/ContactForm/TemplateRegistry.php:180
 msgid "Your name"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:96
-#: src/Modules/ContactForm/TemplateRegistry.php:133
-#: src/Modules/ContactForm/TemplateRegistry.php:159
-#: src/Modules/ContactForm/TemplateRegistry.php:176
+#: src/Modules/ContactForm/TemplateRegistry.php:101
+#: src/Modules/ContactForm/TemplateRegistry.php:138
+#: src/Modules/ContactForm/TemplateRegistry.php:164
+#: src/Modules/ContactForm/TemplateRegistry.php:181
 msgid "Your email"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:100
+#: src/Modules/ContactForm/TemplateRegistry.php:105
 msgid "Your message"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:102
+#: src/Modules/ContactForm/TemplateRegistry.php:107
 msgid "Send message"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:112
+#: src/Modules/ContactForm/TemplateRegistry.php:117
 msgid "First name"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:113
+#: src/Modules/ContactForm/TemplateRegistry.php:118
 msgid "Last name"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:119
+#: src/Modules/ContactForm/TemplateRegistry.php:124
 msgid "Company"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:121
+#: src/Modules/ContactForm/TemplateRegistry.php:126
 msgid "Project details"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:123
+#: src/Modules/ContactForm/TemplateRegistry.php:128
 msgid "Request quote"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:134
+#: src/Modules/ContactForm/TemplateRegistry.php:139
 msgid "Urgency"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:136
+#: src/Modules/ContactForm/TemplateRegistry.php:141
 msgid "Low — when you can"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:137
+#: src/Modules/ContactForm/TemplateRegistry.php:142
 msgid "Normal"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:138
+#: src/Modules/ContactForm/TemplateRegistry.php:143
 msgid "High — blocking"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:139
+#: src/Modules/ContactForm/TemplateRegistry.php:144
 msgid "Urgent — production down"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:143
+#: src/Modules/ContactForm/TemplateRegistry.php:148
 msgid "Short summary"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:145
+#: src/Modules/ContactForm/TemplateRegistry.php:150
 msgid "What's happening?"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:147
+#: src/Modules/ContactForm/TemplateRegistry.php:152
 msgid "Include steps to reproduce if relevant."
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:150
+#: src/Modules/ContactForm/TemplateRegistry.php:155
 msgid "Open ticket"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:161
+#: src/Modules/ContactForm/TemplateRegistry.php:166
 msgid "I agree to receive your newsletter"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:165
+#: src/Modules/ContactForm/TemplateRegistry.php:170
 msgid "Subscribe"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:179
+#: src/Modules/ContactForm/TemplateRegistry.php:184
 msgid "Will you attend?"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:181
+#: src/Modules/ContactForm/TemplateRegistry.php:186
 msgid "Yes"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:182
+#: src/Modules/ContactForm/TemplateRegistry.php:187
 msgid "No"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:183
+#: src/Modules/ContactForm/TemplateRegistry.php:188
 msgid "Maybe"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:186
+#: src/Modules/ContactForm/TemplateRegistry.php:191
 msgid "Number of guests"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:192
+#: src/Modules/ContactForm/TemplateRegistry.php:197
 msgid "Dietary requirements / notes"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:194
+#: src/Modules/ContactForm/TemplateRegistry.php:199
 msgid "Send RSVP"
 msgstr ""
 

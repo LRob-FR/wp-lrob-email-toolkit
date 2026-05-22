@@ -74,6 +74,18 @@ final class CPT
     /** Per-form sentinel for tri-state meta: '' / 0 / 'default' all mean "inherit the global default". */
     public const META_INHERIT = 'default';
 
+    /**
+     * `$_POST` top-level key the public form serializes under: each field
+     * is `lrob_etk_cf[<instance>][<slug>]`. EmbedRenderer passes this to
+     * FormContext at render time; SubmitHandler reads `$_POST[FIELD_NAME_PREFIX]`
+     * on submit. Newsletter has its own equivalent (`lrob_etk_nl`) so the
+     * two CPTs' submissions never collide on a single page.
+     */
+    public const FIELD_NAME_PREFIX = 'lrob_etk_cf';
+
+    /** DOM id prefix: `lrob-etk-cf-<instance>-<slug>`. Mirror of FIELD_NAME_PREFIX. */
+    public const FIELD_ID_PREFIX = 'lrob-etk-cf';
+
     public function register(): void
     {
         add_action('init', [$this, 'register_post_type'], 5);

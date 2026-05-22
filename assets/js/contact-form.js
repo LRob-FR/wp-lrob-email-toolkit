@@ -1,6 +1,6 @@
 /* LRob Email Toolkit — Contact Form frontend script
  *
- * Handles every form rendered with .lrob-etk-cf-form. Plain vanilla JS, no
+ * Handles every form rendered with .lrob-etk-form. Plain vanilla JS, no
  * deps. Submits via fetch to admin-ajax, locks the submit button while
  * in-flight, surfaces per-field errors returned by the server, and shows
  * the success / error banner above the form.
@@ -33,8 +33,8 @@
             return;
         }
 
-        var submitBtn = form.querySelector('.lrob-etk-cf-submit');
-        var labelEl = submitBtn ? submitBtn.querySelector('.lrob-etk-cf-submit-label') : null;
+        var submitBtn = form.querySelector('.lrob-etk-form-submit');
+        var labelEl = submitBtn ? submitBtn.querySelector('.lrob-etk-form-submit-label') : null;
         var originalLabel = labelEl ? labelEl.textContent : '';
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -98,7 +98,7 @@
 
     function validateClient(form) {
         var errors = [];
-        var fields = form.querySelectorAll('.lrob-etk-cf-field[data-field]');
+        var fields = form.querySelectorAll('.lrob-etk-form-field[data-field]');
         Array.prototype.forEach.call(fields, function (field) {
             var slug = field.getAttribute('data-field');
             if (!slug || slug.charAt(0) === '_') return;
@@ -154,7 +154,7 @@
         var status = form.querySelector('[data-form-status]');
         if (status) {
             status.hidden = true;
-            status.className = 'lrob-etk-cf-status';
+            status.className = 'lrob-etk-form-status';
             status.textContent = '';
         }
     }
@@ -163,7 +163,7 @@
         if (!errors || !errors.length) return;
         var firstField = null;
         errors.forEach(function (err) {
-            var field = form.querySelector('.lrob-etk-cf-field[data-field="' + cssEscape(err.field) + '"]');
+            var field = form.querySelector('.lrob-etk-form-field[data-field="' + cssEscape(err.field) + '"]');
             if (!field) return;
             field.classList.add('is-invalid');
             var slot = field.querySelector('[data-field-error]');
@@ -184,7 +184,7 @@
     function showStatus(form, kind, message) {
         var status = form.querySelector('[data-form-status]');
         if (!status) return;
-        status.className = 'lrob-etk-cf-status is-' + kind;
+        status.className = 'lrob-etk-form-status is-' + kind;
         status.textContent = message;
         status.hidden = false;
     }
@@ -201,7 +201,7 @@
     }
 
     function discoverAndInit() {
-        var forms = document.querySelectorAll('.lrob-etk-cf-form');
+        var forms = document.querySelectorAll('.lrob-etk-form');
         Array.prototype.forEach.call(forms, init);
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha\Challenges;
 
-use LRob\EmailToolkit\Modules\ContactForm\FormContext;
+use LRob\EmailToolkit\Forms\FormContext;
 
 /**
  * "Pick the picture of a tree" with 6 small SVG icons. The user clicks

@@ -136,7 +136,7 @@ final class HCaptcha implements ProviderInterface
         }
 
         // Admin preview emits the same widget shape as the frontend — the
-        // editor JS (contact-form-fields-editor + captcha-admin) loads the
+        // editor JS (form-fields-editor + captcha-admin) loads the
         // vendor script and calls hcaptcha.render() on the injected divs.
         // hCaptcha supports multiple widgets on the same page, so several
         // form-card previews can each carry their own live widget. The

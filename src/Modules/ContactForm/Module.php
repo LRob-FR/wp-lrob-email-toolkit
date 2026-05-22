@@ -4,11 +4,23 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Forms\FieldTypeRegistry;
+use LRob\EmailToolkit\Forms\Fields\CheckboxField;
+use LRob\EmailToolkit\Forms\Fields\DateField;
+use LRob\EmailToolkit\Forms\Fields\EmailField;
+use LRob\EmailToolkit\Forms\Fields\NumberField;
+use LRob\EmailToolkit\Forms\Fields\PhoneField;
+use LRob\EmailToolkit\Forms\Fields\RadioField;
+use LRob\EmailToolkit\Forms\Fields\SelectField;
+use LRob\EmailToolkit\Forms\Fields\SubmitField;
+use LRob\EmailToolkit\Forms\Fields\TextField;
+use LRob\EmailToolkit\Forms\Fields\TextareaField;
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\AjaxController;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\PageController;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage;
+use LRob\EmailToolkit\Modules\ContactForm\Fields\CaptchaField;
 
 /**
  * Contact Form module — customizable forms with stacked anti-spam (honeypot,
@@ -208,6 +220,25 @@ final class Module extends AbstractModule
         $submissions = new SubmissionRepository();
         $this->container->set(RateLimiter::class, $rate_limiter);
         $this->container->set(SubmissionRepository::class, $submissions);
+
+        // Field types this CPT accepts. The shared form-builder dispatches
+        // via the registry — adding a new field type here is the entry
+        // point. Captcha is module-specific (its routing reads contact-form
+        // meta + the contact_form Captcha context); the rest are stock.
+        $registry = $this->container->get(FieldTypeRegistry::class);
+        if ($registry instanceof FieldTypeRegistry) {
+            $registry->register(CPT::POST_TYPE, new TextField());
+            $registry->register(CPT::POST_TYPE, new EmailField());
+            $registry->register(CPT::POST_TYPE, new TextareaField());
+            $registry->register(CPT::POST_TYPE, new NumberField());
+            $registry->register(CPT::POST_TYPE, new PhoneField());
+            $registry->register(CPT::POST_TYPE, new DateField());
+            $registry->register(CPT::POST_TYPE, new SelectField());
+            $registry->register(CPT::POST_TYPE, new RadioField());
+            $registry->register(CPT::POST_TYPE, new CheckboxField());
+            $registry->register(CPT::POST_TYPE, new SubmitField());
+            $registry->register(CPT::POST_TYPE, new CaptchaField());
+        }
 
         // Runtime (CPT, blocks, AJAX submit, cron) only when enabled.
         if ($this->is_enabled()) {

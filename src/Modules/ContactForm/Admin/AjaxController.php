@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
-use LRob\EmailToolkit\Modules\ContactForm\FormStructure;
 use LRob\EmailToolkit\Modules\ContactForm\Settings;
 use LRob\EmailToolkit\Modules\ContactForm\TemplateRegistry;
 

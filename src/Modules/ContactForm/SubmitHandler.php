@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 use LRob\EmailToolkit\Modules\SMTP\MailRouter;
@@ -218,7 +219,7 @@ final class SubmitHandler
      */
     private static function extract_field_values(array $post, string $instance): array
     {
-        $raw = $post[FormContext::FIELD_NAME_PREFIX] ?? null;
+        $raw = $post[CPT::FIELD_NAME_PREFIX] ?? null;
         if (!is_array($raw)) {
             return [];
         }

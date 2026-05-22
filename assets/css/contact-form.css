@@ -1,6 +1,6 @@
 /* LRob Email Toolkit — Contact Form frontend styles
  *
- * Scoped under .lrob-etk-cf-form so it never bleeds into surrounding theme CSS.
+ * Scoped under .lrob-etk-form so it never bleeds into surrounding theme CSS.
  * Each CSS custom property uses a fallback chain:
  *   1. The plugin variable (set inline by per-block / per-form / global settings)
  *   2. The matching WP FSE theme preset variable, where one exists
@@ -9,7 +9,7 @@
  * free, but users can still pin specific values when they want.
  */
 
-.lrob-etk-cf-form {
+.lrob-etk-form {
     --lrob-etk-cf-font:        inherit;
     --lrob-etk-cf-font-size:   var(--wp--preset--font-size--medium, 1rem);
     --lrob-etk-cf-radius:      8px;
@@ -21,8 +21,8 @@
     --lrob-etk-cf-bg:          var(--wp--preset--color--base, #fff);
     --lrob-etk-cf-fg:          var(--wp--preset--color--contrast, #0f172a);
     --lrob-etk-cf-muted:       #64748b;
-    --lrob-etk-cf-error:       #b91c1c;
-    --lrob-etk-cf-error-bg:    #fef2f2;
+    --lrob-etk-form-error:       #b91c1c;
+    --lrob-etk-form-error-bg:    #fef2f2;
     --lrob-etk-cf-success-bg:  #ecfdf5;
     --lrob-etk-cf-success-fg:  #065f46;
     --lrob-etk-cf-shadow-focus: 0 0 0 3px rgba(37, 99, 235, .22);
@@ -36,11 +36,11 @@
     max-width: 100%;
 }
 
-.lrob-etk-cf-form *, .lrob-etk-cf-form *::before, .lrob-etk-cf-form *::after {
+.lrob-etk-form *, .lrob-etk-form *::before, .lrob-etk-form *::after {
     box-sizing: border-box;
 }
 
-.lrob-etk-cf-form .lrob-etk-cf-body {
+.lrob-etk-form .lrob-etk-form-body {
     display: grid;
     gap: var(--lrob-etk-cf-spacing);
 }
@@ -48,20 +48,20 @@
 /* Each form row uses CSS Grid; the column count is the editor's choice and
  * comes through as a data attribute. Collapses to a single column on narrow
  * screens so labels and inputs stay readable. */
-.lrob-etk-cf-form .lrob-etk-cf-row {
+.lrob-etk-form .lrob-etk-form-row {
     display: grid;
     gap: var(--lrob-etk-cf-spacing);
     grid-template-columns: 1fr;
 }
-.lrob-etk-cf-form .lrob-etk-cf-row[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
-.lrob-etk-cf-form .lrob-etk-cf-row[data-cols="3"] { grid-template-columns: repeat(3, 1fr); }
-.lrob-etk-cf-form .lrob-etk-cf-row[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+.lrob-etk-form .lrob-etk-form-row[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
+.lrob-etk-form .lrob-etk-form-row[data-cols="3"] { grid-template-columns: repeat(3, 1fr); }
+.lrob-etk-form .lrob-etk-form-row[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 600px) {
-    .lrob-etk-cf-form .lrob-etk-cf-row[data-cols] {
+    .lrob-etk-form .lrob-etk-form-row[data-cols] {
         grid-template-columns: 1fr;
     }
 }
-.lrob-etk-cf-form .lrob-etk-cf-col {
+.lrob-etk-form .lrob-etk-form-col {
     display: flex;
     flex-direction: column;
     gap: var(--lrob-etk-cf-spacing);
@@ -69,7 +69,7 @@
 }
 
 /* Field wrapper */
-.lrob-etk-cf-field {
+.lrob-etk-form-field {
     display: flex;
     flex-direction: column;
     gap: .35em;
@@ -79,7 +79,7 @@
     min-width: 0;
 }
 
-.lrob-etk-cf-label {
+.lrob-etk-form-label {
     font-weight: 600;
     font-size: .95em;
     line-height: 1.3;
@@ -87,35 +87,35 @@
     text-transform: none;
 }
 
-.lrob-etk-cf-required {
-    color: var(--lrob-etk-cf-error);
+.lrob-etk-form-required {
+    color: var(--lrob-etk-form-error);
     font-weight: 700;
     margin-left: .15em;
 }
 
-.lrob-etk-cf-helper {
+.lrob-etk-form-helper {
     margin: 0;
     color: var(--lrob-etk-cf-muted);
     font-size: .82em;
     line-height: 1.4;
 }
 
-.lrob-etk-cf-error {
+.lrob-etk-form-error {
     margin: 0;
-    color: var(--lrob-etk-cf-error);
+    color: var(--lrob-etk-form-error);
     font-size: .82em;
     line-height: 1.4;
     font-weight: 500;
 }
 
 /* Inputs */
-.lrob-etk-cf-form input[type="text"],
-.lrob-etk-cf-form input[type="email"],
-.lrob-etk-cf-form input[type="tel"],
-.lrob-etk-cf-form input[type="number"],
-.lrob-etk-cf-form input[type="date"],
-.lrob-etk-cf-form select,
-.lrob-etk-cf-form textarea {
+.lrob-etk-form input[type="text"],
+.lrob-etk-form input[type="email"],
+.lrob-etk-form input[type="tel"],
+.lrob-etk-form input[type="number"],
+.lrob-etk-form input[type="date"],
+.lrob-etk-form select,
+.lrob-etk-form textarea {
     appearance: none;
     -webkit-appearance: none;
     font: inherit;
@@ -130,46 +130,46 @@
     transition: border-color var(--lrob-etk-cf-trans), box-shadow var(--lrob-etk-cf-trans), background-color var(--lrob-etk-cf-trans);
 }
 
-.lrob-etk-cf-form textarea {
+.lrob-etk-form textarea {
     resize: vertical;
     min-height: 6em;
 }
 
-.lrob-etk-cf-form input:focus,
-.lrob-etk-cf-form select:focus,
-.lrob-etk-cf-form textarea:focus {
+.lrob-etk-form input:focus,
+.lrob-etk-form select:focus,
+.lrob-etk-form textarea:focus {
     outline: 0;
     border-color: var(--lrob-etk-cf-border-focus);
     box-shadow: var(--lrob-etk-cf-shadow-focus);
 }
 
-.lrob-etk-cf-form input::placeholder,
-.lrob-etk-cf-form textarea::placeholder {
+.lrob-etk-form input::placeholder,
+.lrob-etk-form textarea::placeholder {
     color: var(--lrob-etk-cf-muted);
     opacity: .8;
 }
 
 /* Field-level error state */
-.lrob-etk-cf-field.is-invalid input,
-.lrob-etk-cf-field.is-invalid select,
-.lrob-etk-cf-field.is-invalid textarea {
-    border-color: var(--lrob-etk-cf-error);
-    background: var(--lrob-etk-cf-error-bg);
+.lrob-etk-form-field.is-invalid input,
+.lrob-etk-form-field.is-invalid select,
+.lrob-etk-form-field.is-invalid textarea {
+    border-color: var(--lrob-etk-form-error);
+    background: var(--lrob-etk-form-error-bg);
 }
 
-.lrob-etk-cf-field.is-invalid .lrob-etk-cf-error {
+.lrob-etk-form-field.is-invalid .lrob-etk-form-error {
     display: block;
 }
 
 /* Options (radio / checkbox group) */
-.lrob-etk-cf-options {
+.lrob-etk-form-options {
     display: flex;
     flex-direction: column;
     gap: .35em;
 }
 
-.lrob-etk-cf-option,
-.lrob-etk-cf-checkbox-inline {
+.lrob-etk-form-option,
+.lrob-etk-form-checkbox-inline {
     display: inline-flex;
     align-items: flex-start;
     gap: .55em;
@@ -179,8 +179,8 @@
     padding: .25em 0;
 }
 
-.lrob-etk-cf-option input,
-.lrob-etk-cf-checkbox-inline input {
+.lrob-etk-form-option input,
+.lrob-etk-form-checkbox-inline input {
     appearance: auto;
     -webkit-appearance: auto;
     margin: .2em 0 0 0;
@@ -191,16 +191,16 @@
 }
 
 /* Submit */
-.lrob-etk-cf-field--submit {
+.lrob-etk-form-field--submit {
     margin-top: .25em;
 }
 
-.lrob-etk-cf-field--submit.is-align-left  { align-items: flex-start; }
-.lrob-etk-cf-field--submit.is-align-center{ align-items: center; }
-.lrob-etk-cf-field--submit.is-align-right { align-items: flex-end; }
-.lrob-etk-cf-field--submit.is-align-stretch .lrob-etk-cf-submit { width: 100%; }
+.lrob-etk-form-field--submit.is-align-left  { align-items: flex-start; }
+.lrob-etk-form-field--submit.is-align-center{ align-items: center; }
+.lrob-etk-form-field--submit.is-align-right { align-items: flex-end; }
+.lrob-etk-form-field--submit.is-align-stretch .lrob-etk-form-submit { width: 100%; }
 
-.lrob-etk-cf-submit {
+.lrob-etk-form-submit {
     position: relative;
     appearance: none;
     border: 0;
@@ -216,30 +216,30 @@
     box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.08);
 }
 
-.lrob-etk-cf-submit:hover {
+.lrob-etk-form-submit:hover {
     filter: brightness(1.05);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,.06), 0 6px 12px rgba(0,0,0,.10);
 }
 
-.lrob-etk-cf-submit:focus {
+.lrob-etk-form-submit:focus {
     outline: 0;
     box-shadow: var(--lrob-etk-cf-shadow-focus), 0 2px 6px rgba(0,0,0,.10);
 }
 
-.lrob-etk-cf-submit:active {
+.lrob-etk-form-submit:active {
     transform: translateY(0);
 }
 
-.lrob-etk-cf-submit[disabled],
-.lrob-etk-cf-submit.is-busy {
+.lrob-etk-form-submit[disabled],
+.lrob-etk-form-submit.is-busy {
     opacity: .7;
     cursor: progress;
     transform: none;
     filter: none;
 }
 
-.lrob-etk-cf-submit-spinner {
+.lrob-etk-form-submit-spinner {
     display: none;
     width: .9em;
     height: .9em;
@@ -251,14 +251,14 @@
     animation: lrob-etk-cf-spin .7s linear infinite;
 }
 
-.lrob-etk-cf-submit.is-busy .lrob-etk-cf-submit-spinner {
+.lrob-etk-form-submit.is-busy .lrob-etk-form-submit-spinner {
     display: inline-block;
 }
 
 @keyframes lrob-etk-cf-spin { to { transform: rotate(360deg); } }
 
 /* Status banner above the form */
-.lrob-etk-cf-status {
+.lrob-etk-form-status {
     border-radius: var(--lrob-etk-cf-radius);
     padding: .8em 1em;
     margin-bottom: var(--lrob-etk-cf-spacing);
@@ -268,15 +268,15 @@
     animation: lrob-etk-cf-slide-in 280ms cubic-bezier(.2,.7,.2,1);
 }
 
-.lrob-etk-cf-status.is-success {
+.lrob-etk-form-status.is-success {
     background: var(--lrob-etk-cf-success-bg);
     color: var(--lrob-etk-cf-success-fg);
     border-color: rgba(6, 95, 70, .18);
 }
 
-.lrob-etk-cf-status.is-error {
-    background: var(--lrob-etk-cf-error-bg);
-    color: var(--lrob-etk-cf-error);
+.lrob-etk-form-status.is-error {
+    background: var(--lrob-etk-form-error-bg);
+    color: var(--lrob-etk-form-error);
     border-color: rgba(185, 28, 28, .25);
 }
 
@@ -287,7 +287,7 @@
 
 /* Hide the whole form body after a successful send so the user doesn't accidentally
  * spam by clicking again. The status banner remains. */
-.lrob-etk-cf-form.is-sent .lrob-etk-cf-body { display: none; }
+.lrob-etk-form.is-sent .lrob-etk-form-body { display: none; }
 
 /* Honeypot hard hide (also hidden inline by PHP) */
 .lrob-etk-cf-hp {
@@ -306,19 +306,19 @@
 }
 
 /* Preset: minimal — flat, no shadows, sharper corners */
-.lrob-etk-cf-preset--minimal {
+.lrob-etk-form-preset--minimal {
     --lrob-etk-cf-radius: 4px;
 }
-.lrob-etk-cf-preset--minimal .lrob-etk-cf-submit {
+.lrob-etk-form-preset--minimal .lrob-etk-form-submit {
     box-shadow: none;
 }
-.lrob-etk-cf-preset--minimal .lrob-etk-cf-submit:hover {
+.lrob-etk-form-preset--minimal .lrob-etk-form-submit:hover {
     box-shadow: none;
     transform: none;
 }
 
 /* Preset: soft — heavier roundness, lighter colors */
-.lrob-etk-cf-preset--soft {
+.lrob-etk-form-preset--soft {
     --lrob-etk-cf-radius: 14px;
     --lrob-etk-cf-border: #e2e8f0;
     --lrob-etk-cf-accent: #8b5cf6;
@@ -326,7 +326,7 @@
 }
 
 /* Preset: contrast — high-contrast, accessible */
-.lrob-etk-cf-preset--contrast {
+.lrob-etk-form-preset--contrast {
     --lrob-etk-cf-accent: #0f172a;
     --lrob-etk-cf-fg: #0f172a;
     --lrob-etk-cf-border: #0f172a;
@@ -403,21 +403,21 @@
  * fit narrow columns. Reserve its natural width and allow horizontal
  * scroll on the field — better than letting the iframe visually leak
  * onto adjacent columns. */
-.lrob-etk-cf-form .lrob-etk-cf-field--challenge {
+.lrob-etk-form .lrob-etk-form-field--challenge {
     overflow-x: auto;
     max-width: 100%;
 }
-.lrob-etk-cf-form .lrob-etk-cf-hcaptcha .h-captcha {
+.lrob-etk-form .lrob-etk-cf-hcaptcha .h-captcha {
     min-width: 303px;
 }
 
 /* Captcha alignment wrapper — emitted by FieldRenderer::captcha around
  * whatever the provider rendered. No `stretch` variant since captcha
  * widgets are fixed-width (303px for hCaptcha). Defaults to center. */
-.lrob-etk-cf-form .lrob-etk-cf-captcha-align {
+.lrob-etk-form .lrob-etk-cf-captcha-align {
     display: flex;
     flex-direction: column;
 }
-.lrob-etk-cf-form .lrob-etk-cf-captcha-align.is-align-left   { align-items: flex-start; }
-.lrob-etk-cf-form .lrob-etk-cf-captcha-align.is-align-center { align-items: center; }
-.lrob-etk-cf-form .lrob-etk-cf-captcha-align.is-align-right  { align-items: flex-end; }
+.lrob-etk-form .lrob-etk-cf-captcha-align.is-align-left   { align-items: flex-start; }
+.lrob-etk-form .lrob-etk-cf-captcha-align.is-align-center { align-items: center; }
+.lrob-etk-form .lrob-etk-cf-captcha-align.is-align-right  { align-items: flex-end; }

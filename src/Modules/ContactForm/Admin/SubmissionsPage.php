@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
-use LRob\EmailToolkit\Modules\ContactForm\FormStructure;
 use LRob\EmailToolkit\Modules\ContactForm\Submission;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController as LogsPageController;

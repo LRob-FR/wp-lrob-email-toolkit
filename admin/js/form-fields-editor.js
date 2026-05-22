@@ -48,7 +48,7 @@
         var formId = parseInt(section.getAttribute('data-form-id'), 10) || 0;
         if (!formId) return;
 
-        var form = section.querySelector('.lrob-etk-cf-form.is-editor');
+        var form = section.querySelector('.lrob-etk-form.is-editor');
         if (!form) return;
 
         // Status indicator + undo/redo buttons live in the toolbar directly
@@ -64,7 +64,7 @@
                 // Gutenberg-style top "+": pick a type, append a single-col
                 // row at the end of the form. User drags it wherever after.
                 showTypePicker(addFieldBtn, function (type) {
-                    var body = form.querySelector('.lrob-etk-cf-body');
+                    var body = form.querySelector('.lrob-etk-form-body');
                     if (!body) return;
                     var newRow = buildRowWithField(type);
                     body.appendChild(newRow);
@@ -126,7 +126,7 @@
         function dismissOverlays() {
             // Type picker references shells that may be replaced wholesale
             // by an undo/redo. Close it first.
-            form.querySelectorAll('.lrob-etk-cf-type-picker').forEach(function (p) { p.remove(); });
+            form.querySelectorAll('.lrob-etk-form-type-picker').forEach(function (p) { p.remove(); });
         }
         function undo() {
             if (historyIndex <= 0) return;
@@ -151,7 +151,7 @@
         function rebindShells() {
             // After innerHTML replacement, combobox controllers and any
             // other JS bindings need re-attaching to the new DOM nodes.
-            form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (shell) {
+            form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (shell) {
                 ensureInlineSettings(shell);
             });
         }
@@ -231,7 +231,7 @@
          * has no options section anymore — inline IS the editor.
          */
         function addInlineOption(btn) {
-            var shell = btn.closest('.lrob-etk-cf-edit-shell');
+            var shell = btn.closest('.lrob-etk-form-edit-shell');
             if (!shell) return;
             var options = parseOptions(shell);
             options.push({ label: '', value: '' });
@@ -253,7 +253,7 @@
             commitAndSave();
         }
         function deleteInlineOption(btn) {
-            var shell = btn.closest('.lrob-etk-cf-edit-shell');
+            var shell = btn.closest('.lrob-etk-form-edit-shell');
             var row = btn.closest('[data-inline-option]');
             if (!shell || !row) return;
             row.remove();
@@ -268,10 +268,10 @@
         // focus so the user sees their own typing on a clean slate.
         form.addEventListener('focusin', function (e) {
             var editable = e.target.closest('[data-edit]');
-            if (editable && (editable.classList.contains('lrob-etk-cf-helper-empty') || editable.querySelector('.lrob-etk-cf-label-empty'))) {
+            if (editable && (editable.classList.contains('lrob-etk-form-helper-empty') || editable.querySelector('.lrob-etk-form-label-empty'))) {
                 // Clear placeholder text so the user types into a blank field.
                 editable.textContent = '';
-                editable.classList.remove('lrob-etk-cf-helper-empty');
+                editable.classList.remove('lrob-etk-form-helper-empty');
             }
             // Inputs in editor mode: swap placeholder → value so the user
             // edits the placeholder directly by typing.
@@ -312,7 +312,7 @@
             // but don't redraw the preview on every keystroke (would steal
             // the caret). The redraw happens on blur.
             if (e.target.closest && e.target.closest('[data-option-edit]')) {
-                var shell = e.target.closest('.lrob-etk-cf-edit-shell');
+                var shell = e.target.closest('.lrob-etk-form-edit-shell');
                 if (shell) {
                     syncOptionsFromInline(shell);
                     queueSave();
@@ -325,7 +325,7 @@
             // values reflect the final label (the input listener can't
             // safely redraw mid-edit without ejecting the caret).
             if (e.target.matches('[data-option-edit]')) {
-                var shell = e.target.closest('.lrob-etk-cf-edit-shell');
+                var shell = e.target.closest('.lrob-etk-form-edit-shell');
                 if (shell) applyOptionsToPreview(shell);
             }
             // Field-label blur: re-derive the slug from the new label so
@@ -333,7 +333,7 @@
             // is the creation index and stays put across reorders, which
             // keeps the slug stable when *other* fields are removed.
             if (e.target.matches('[data-edit="label"]')) {
-                var lShell = e.target.closest('.lrob-etk-cf-edit-shell');
+                var lShell = e.target.closest('.lrob-etk-form-edit-shell');
                 if (lShell) recomputeSlug(lShell);
             }
         }, true);
@@ -345,12 +345,12 @@
             if (text === '') {
                 if (kind === 'helper') {
                     editable.textContent = EDITOR_I18N.helperPlaceholder || '(optional helper text)';
-                    editable.classList.add('lrob-etk-cf-helper-empty');
-                } else if (kind === 'label' && editable.classList.contains('lrob-etk-cf-label-text')) {
-                    editable.innerHTML = '<span class="lrob-etk-cf-label-empty">' + (EDITOR_I18N.labelPlaceholder || '(field label)') + '</span>';
+                    editable.classList.add('lrob-etk-form-helper-empty');
+                } else if (kind === 'label' && editable.classList.contains('lrob-etk-form-label-text')) {
+                    editable.innerHTML = '<span class="lrob-etk-form-label-empty">' + (EDITOR_I18N.labelPlaceholder || '(field label)') + '</span>';
                 }
             } else {
-                editable.classList.remove('lrob-etk-cf-helper-empty');
+                editable.classList.remove('lrob-etk-form-helper-empty');
             }
         }
 
@@ -367,12 +367,12 @@
         var stickyShell = null;
         function findStickyShell(node) {
             if (!node || !node.closest) return null;
-            var shell = node.closest('.lrob-etk-cf-edit-shell');
+            var shell = node.closest('.lrob-etk-form-edit-shell');
             if (shell) return shell;
-            var pill = node.closest('.lrob-etk-cf-insert--field');
+            var pill = node.closest('.lrob-etk-form-insert--field');
             if (pill) {
                 var prev = pill.previousElementSibling;
-                if (prev && prev.matches && prev.matches('.lrob-etk-cf-edit-shell')) return prev;
+                if (prev && prev.matches && prev.matches('.lrob-etk-form-edit-shell')) return prev;
             }
             return null;
         }
@@ -428,11 +428,11 @@
             }
 
             if (target.matches('[data-required-toggle]')) {
-                var rShell = target.closest('.lrob-etk-cf-edit-shell');
+                var rShell = target.closest('.lrob-etk-form-edit-shell');
                 if (!rShell) return;
                 var on = !!target.checked;
                 rShell.setAttribute('data-attr-required', on ? '1' : '0');
-                var star = rShell.querySelector('.lrob-etk-cf-required-star');
+                var star = rShell.querySelector('.lrob-etk-form-required-star');
                 if (star) star.classList.toggle('is-on', on);
                 commitAndSave();
                 return;
@@ -441,8 +441,8 @@
             // Select preview: any <select> living inside a .lrob-etk-cf-
             // field--select belongs to a dropdown field. The captcha
             // picker is filtered out above (data-captcha-pick).
-            if (target.matches('.lrob-etk-cf-field--select > select')) {
-                var sShell = target.closest('.lrob-etk-cf-edit-shell');
+            if (target.matches('.lrob-etk-form-field--select > select')) {
+                var sShell = target.closest('.lrob-etk-form-edit-shell');
                 if (!sShell) return;
                 var v = target.value;
                 sShell.setAttribute('data-attr-defaults', v === '' ? '[]' : JSON.stringify([v]));
@@ -470,7 +470,7 @@
             // mouseup (cursor left the window etc.) we still want a clean
             // slate.
             restoreDraggable();
-            if (e.target.closest && e.target.closest('.lrob-etk-cf-overlay-handle')) return;
+            if (e.target.closest && e.target.closest('.lrob-etk-form-overlay-handle')) return;
             var item = e.target.closest && e.target.closest('[data-draggable-type]');
             while (item) {
                 item.setAttribute('draggable', 'false');
@@ -494,11 +494,11 @@
             // col. If the col stacks several fields, substituting would drag
             // all of them; the user only meant to grab the one they clicked.
             if (item.getAttribute('data-draggable-type') === 'field') {
-                var ownRow = item.closest('.lrob-etk-cf-row');
-                var ownCol = item.closest('.lrob-etk-cf-col');
+                var ownRow = item.closest('.lrob-etk-form-row');
+                var ownCol = item.closest('.lrob-etk-form-col');
                 if (ownRow && ownCol
-                    && ownRow.querySelectorAll(':scope > .lrob-etk-cf-col').length === 1
-                    && ownCol.querySelectorAll(':scope > .lrob-etk-cf-edit-shell').length === 1) {
+                    && ownRow.querySelectorAll(':scope > .lrob-etk-form-col').length === 1
+                    && ownCol.querySelectorAll(':scope > .lrob-etk-form-edit-shell').length === 1) {
                     item = ownRow;
                 }
             }
@@ -539,7 +539,7 @@
             // very-bottom slot of the form. Without this branch a drop in an
             // otherwise-empty area silently fails because the dragover
             // handler only saw block targets.
-            var insertHover = e.target.closest('.lrob-etk-cf-insert');
+            var insertHover = e.target.closest('.lrob-etk-form-insert');
             if (insertHover && isValidInsertTarget(insertHover, type, draggedItem)) {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
@@ -570,7 +570,7 @@
                 return;
             }
             if (hover.contains && hover.contains(draggedItem)) {
-                if (!hover.classList.contains('lrob-etk-cf-row')) {
+                if (!hover.classList.contains('lrob-etk-form-row')) {
                     clearDropIndicators();
                     return;
                 }
@@ -581,9 +581,9 @@
             }
             // Cap check: dropping on a col target would create a new column
             // in the target's row, so refuse if the row's already at 4.
-            if (hover.classList.contains('lrob-etk-cf-col') && type !== 'col') {
-                var hostRow = hover.closest('.lrob-etk-cf-row');
-                if (hostRow && hostRow.querySelectorAll(':scope > .lrob-etk-cf-col').length >= 4) {
+            if (hover.classList.contains('lrob-etk-form-col') && type !== 'col') {
+                var hostRow = hover.closest('.lrob-etk-form-row');
+                if (hostRow && hostRow.querySelectorAll(':scope > .lrob-etk-form-col').length >= 4) {
                     clearDropIndicators();
                     return;
                 }
@@ -612,12 +612,12 @@
             // just emptied" reshuffle that looked like a no-op to the user.
             // Col-drag is exempt: it relies on dropping onto other cols in
             // the same row to reorder.
-            var sourceRow = draggedItem ? draggedItem.closest('.lrob-etk-cf-row') : null;
+            var sourceRow = draggedItem ? draggedItem.closest('.lrob-etk-form-row') : null;
             if (sourceRow && (type === 'field' || type === 'row')) {
                 var inSourceRow = direct === sourceRow
-                    || ((direct.classList.contains('lrob-etk-cf-col')
-                        || direct.classList.contains('lrob-etk-cf-edit-shell'))
-                        && direct.closest('.lrob-etk-cf-row') === sourceRow);
+                    || ((direct.classList.contains('lrob-etk-form-col')
+                        || direct.classList.contains('lrob-etk-form-edit-shell'))
+                        && direct.closest('.lrob-etk-form-row') === sourceRow);
                 if (inSourceRow) {
                     return sourceRow;
                 }
@@ -629,8 +629,8 @@
             // cursor — that gives a single stable "drop before this col"
             // target across the whole gap, so the bar doesn't flicker
             // between cols as the cursor moves a few pixels left or right.
-            if (direct.classList.contains('lrob-etk-cf-row') && (type === 'row' || type === 'field')) {
-                var rowCols = direct.querySelectorAll(':scope > .lrob-etk-cf-col');
+            if (direct.classList.contains('lrob-etk-form-row') && (type === 'row' || type === 'field')) {
+                var rowCols = direct.querySelectorAll(':scope > .lrob-etk-form-col');
                 if (rowCols.length >= 1) {
                     var rRect = direct.getBoundingClientRect();
                     var vMargin = Math.max(rRect.height * 0.25, 10);
@@ -651,12 +651,12 @@
         form.addEventListener('drop', function (e) {
             if (!draggedItem) return;
             var type = draggedItem.getAttribute('data-draggable-type');
-            var sourceCol = (type === 'field') ? draggedItem.closest('.lrob-etk-cf-col') : null;
+            var sourceCol = (type === 'field') ? draggedItem.closest('.lrob-etk-form-col') : null;
 
             // Insert drop: place the dragged item right before the insert so
             // it lands exactly where the "+" indicated. Field on row-insert
             // wraps the field in a new single-col row.
-            var insertHover = e.target.closest('.lrob-etk-cf-insert');
+            var insertHover = e.target.closest('.lrob-etk-form-insert');
             if (insertHover && isValidInsertTarget(insertHover, type, draggedItem)) {
                 e.preventDefault();
                 var insertKind = insertHover.getAttribute('data-insert');
@@ -691,23 +691,23 @@
             e.preventDefault();
             var dir = computeDropDirection(draggedItem, hover, e);
 
-            if (hover.classList.contains('lrob-etk-cf-col') && type !== 'col') {
+            if (hover.classList.contains('lrob-etk-form-col') && type !== 'col') {
                 // Field- or row-drag landed on a column: drop the dragged
                 // payload as a NEW col before/after the target col. This is
                 // how the user inserts between two existing columns.
-                var hostRow = hover.closest('.lrob-etk-cf-row');
+                var hostRow = hover.closest('.lrob-etk-form-row');
                 var beforeRef = (dir === 'is-drop-before-h')
                     ? hover
                     : hover.nextElementSibling;
                 if (type === 'row' && isSingleColRow(draggedItem)) {
-                    var movedCol = draggedItem.querySelector(':scope > .lrob-etk-cf-col');
+                    var movedCol = draggedItem.querySelector(':scope > .lrob-etk-form-col');
                     if (movedCol && insertColIntoRow(movedCol, hostRow, beforeRef)) {
                         draggedItem.remove();
                     }
                 } else if (type === 'field') {
                     insertColIntoRow(buildColWithField(draggedItem), hostRow, beforeRef);
                 }
-            } else if (type === 'field' && hover.classList.contains('lrob-etk-cf-row')) {
+            } else if (type === 'field' && hover.classList.contains('lrob-etk-form-row')) {
                 // Field dropped on a row → new single-col row above/below.
                 wrapFieldAsRow(draggedItem, dir === 'is-drop-before' ? 'before' : 'after', hover);
             } else if (dir === 'is-drop-before-h' || dir === 'is-drop-before') {
@@ -743,10 +743,10 @@
             // Build a single-col row with the field as its only content.
             // The row inserts get rebuilt by normalizeAllInserts afterward.
             var newRow = buildRow();
-            var newCol = newRow.querySelector('.lrob-etk-cf-col');
+            var newCol = newRow.querySelector('.lrob-etk-form-col');
             // Drop the placeholder field-insert from the empty col template
             // and append the actual field + a trailing insert.
-            var placeholder = newCol.querySelector('.lrob-etk-cf-insert--field');
+            var placeholder = newCol.querySelector('.lrob-etk-form-insert--field');
             if (placeholder) placeholder.remove();
             newCol.appendChild(sourceField);
             newCol.appendChild(buildInsertZone('field'));
@@ -759,7 +759,7 @@
         }
         function buildColWithField(sourceField) {
             var newCol = buildColumn();
-            var placeholder = newCol.querySelector('.lrob-etk-cf-insert--field');
+            var placeholder = newCol.querySelector('.lrob-etk-form-insert--field');
             if (placeholder) placeholder.remove();
             newCol.appendChild(sourceField);
             newCol.appendChild(buildInsertZone('field'));
@@ -774,10 +774,10 @@
             return dragged.parentNode === hover.parentNode;
         }
         function cleanupEmptyCol(col) {
-            if (!col || col.querySelector('.lrob-etk-cf-edit-shell')) return;
-            var row = col.closest('.lrob-etk-cf-row');
+            if (!col || col.querySelector('.lrob-etk-form-edit-shell')) return;
+            var row = col.closest('.lrob-etk-form-row');
             if (!row) return;
-            var rowCols = row.querySelectorAll(':scope > .lrob-etk-cf-col');
+            var rowCols = row.querySelectorAll(':scope > .lrob-etk-form-col');
             if (rowCols.length === 1) {
                 // Single-col row: the row's only column is empty → drop the
                 // whole row. (normalizeBody will re-balance the body's row
@@ -788,8 +788,8 @@
                 // trailing column "+" if we're now under the 4-col cap.
                 col.remove();
                 updateRowCols(row);
-                if (row.querySelectorAll(':scope > .lrob-etk-cf-col').length < 4
-                    && !row.querySelector(':scope > .lrob-etk-cf-insert--column')) {
+                if (row.querySelectorAll(':scope > .lrob-etk-form-col').length < 4
+                    && !row.querySelector(':scope > .lrob-etk-form-insert--column')) {
                     row.appendChild(buildInsertZone('column'));
                 }
             }
@@ -804,10 +804,10 @@
         // before every block + one trailing. The orphan/single-col-hide CSS
         // rules then handle the visual presentation. */
         function normalizeAllInserts() {
-            var body = form.querySelector(':scope > .lrob-etk-cf-body');
-            if (body) normalizeContainer(body, '.lrob-etk-cf-row', '.lrob-etk-cf-insert--row', 'row');
-            form.querySelectorAll('.lrob-etk-cf-col').forEach(function (col) {
-                normalizeContainer(col, '.lrob-etk-cf-edit-shell', '.lrob-etk-cf-insert--field', 'field');
+            var body = form.querySelector(':scope > .lrob-etk-form-body');
+            if (body) normalizeContainer(body, '.lrob-etk-form-row', '.lrob-etk-form-insert--row', 'row');
+            form.querySelectorAll('.lrob-etk-form-col').forEach(function (col) {
+                normalizeContainer(col, '.lrob-etk-form-edit-shell', '.lrob-etk-form-insert--field', 'field');
             });
         }
         function normalizeContainer(container, blockSel, insertSel, insertKind) {
@@ -828,7 +828,7 @@
             // Col target: row- or field-drag aiming at an existing column
             // (either directly or via snap-to-col on a row). Left half →
             // insert new col before; right half → insert after.
-            if (hover.classList.contains('lrob-etk-cf-col')) {
+            if (hover.classList.contains('lrob-etk-form-col')) {
                 var midX = rect.left + rect.width / 2;
                 return e.clientX < midX ? 'is-drop-before-h' : 'is-drop-after-h';
             }
@@ -847,26 +847,26 @@
         }
         function isSingleColRow(el) {
             return el
-                && el.classList.contains('lrob-etk-cf-row')
-                && el.querySelectorAll(':scope > .lrob-etk-cf-col').length === 1;
+                && el.classList.contains('lrob-etk-form-row')
+                && el.querySelectorAll(':scope > .lrob-etk-form-col').length === 1;
         }
         function insertColIntoRow(sourceCol, targetRow, beforeRef) {
             // Generic "place this col inside this row at this position".
             // beforeRef: a sibling element to insert before, or null for end.
             // Skip past the trailing column "+" so it stays at the end.
-            if (targetRow.querySelectorAll(':scope > .lrob-etk-cf-col').length >= 4) return false;
-            if (beforeRef && beforeRef.classList && beforeRef.classList.contains('lrob-etk-cf-insert--column')) {
+            if (targetRow.querySelectorAll(':scope > .lrob-etk-form-col').length >= 4) return false;
+            if (beforeRef && beforeRef.classList && beforeRef.classList.contains('lrob-etk-form-insert--column')) {
                 beforeRef = null;
             }
             // Fall back to placing before the trailing column "+" so the
             // trailing track stays at the row's right edge.
             if (!beforeRef) {
-                beforeRef = targetRow.querySelector(':scope > .lrob-etk-cf-insert--column') || null;
+                beforeRef = targetRow.querySelector(':scope > .lrob-etk-form-insert--column') || null;
             }
             targetRow.insertBefore(sourceCol, beforeRef);
             updateRowCols(targetRow);
-            var colsNow = targetRow.querySelectorAll(':scope > .lrob-etk-cf-col').length;
-            var trailingNow = targetRow.querySelector(':scope > .lrob-etk-cf-insert--column');
+            var colsNow = targetRow.querySelectorAll(':scope > .lrob-etk-form-col').length;
+            var trailingNow = targetRow.querySelector(':scope > .lrob-etk-form-insert--column');
             if (colsNow >= 4 && trailingNow) {
                 trailingNow.remove();
             } else if (colsNow < 4 && !trailingNow) {
@@ -891,14 +891,14 @@
         // insert in an empty container so it renders as a clearly larger
         // drop-zone instead of a thin pill.
         function refreshInserts() {
-            form.querySelectorAll('.lrob-etk-cf-insert').forEach(function (el) {
+            form.querySelectorAll('.lrob-etk-form-insert').forEach(function (el) {
                 var parent = el.parentElement;
                 var kind = el.getAttribute('data-insert');
                 var isOrphan = false;
                 if (kind === 'row' && parent) {
-                    isOrphan = !parent.querySelector(':scope > .lrob-etk-cf-row');
+                    isOrphan = !parent.querySelector(':scope > .lrob-etk-form-row');
                 } else if (kind === 'field' && parent) {
-                    isOrphan = !parent.querySelector(':scope > .lrob-etk-cf-edit-shell');
+                    isOrphan = !parent.querySelector(':scope > .lrob-etk-form-edit-shell');
                 }
                 el.classList.toggle('is-orphan', isOrphan);
             });
@@ -909,7 +909,7 @@
 
         // --- Mutators ------------------------------------------------------
         function deleteRow(btn) {
-            var row = btn.closest('.lrob-etk-cf-row');
+            var row = btn.closest('.lrob-etk-form-row');
             if (!row) return;
             // Remove both the row and the trailing insert-row zone (the "+"
             // that sits just after this row) so we don't leave dangling
@@ -917,55 +917,55 @@
             // insertion point for that gap.
             var next = row.nextElementSibling;
             row.remove();
-            if (next && next.matches && next.matches('.lrob-etk-cf-insert--row')) {
+            if (next && next.matches && next.matches('.lrob-etk-form-insert--row')) {
                 next.remove();
             }
             commitAndSave();
         }
         function deleteColumn(btn) {
-            var col = btn.closest('.lrob-etk-cf-col');
+            var col = btn.closest('.lrob-etk-form-col');
             if (!col) return;
-            var row = col.closest('.lrob-etk-cf-row');
+            var row = col.closest('.lrob-etk-form-row');
             if (!row) return;
-            var cols = row.querySelectorAll('.lrob-etk-cf-col');
+            var cols = row.querySelectorAll('.lrob-etk-form-col');
             if (cols.length <= 1) return; // keep at least one column
             col.remove();
             updateRowCols(row);
             // If insertColumn previously removed the "+" because we hit the
             // 4-column cap, drop back below the cap means we need it back.
-            if (row.querySelectorAll('.lrob-etk-cf-col').length < 4
-                && !row.querySelector(':scope > .lrob-etk-cf-insert--column')) {
+            if (row.querySelectorAll('.lrob-etk-form-col').length < 4
+                && !row.querySelector(':scope > .lrob-etk-form-insert--column')) {
                 row.appendChild(buildInsertZone('column'));
             }
             commitAndSave();
         }
         function deleteField(btn) {
-            var shell = btn.closest('.lrob-etk-cf-edit-shell');
+            var shell = btn.closest('.lrob-etk-form-edit-shell');
             if (!shell) return;
-            var col = shell.closest('.lrob-etk-cf-col');
-            var row = shell.closest('.lrob-etk-cf-row');
+            var col = shell.closest('.lrob-etk-form-col');
+            var row = shell.closest('.lrob-etk-form-row');
             var next = shell.nextElementSibling;
             shell.remove();
-            if (next && next.matches && next.matches('.lrob-etk-cf-insert--field')) {
+            if (next && next.matches && next.matches('.lrob-etk-form-insert--field')) {
                 next.remove();
             }
             // Clean up empty containers left by the deletion. Single-col row
             // → remove the whole row (and its trailing body insert). Multi-
             // col row → remove just the now-empty column and update the row
             // grid (re-adding the trailing column "+" if we dropped below 4).
-            if (col && row && !col.querySelector('.lrob-etk-cf-edit-shell')) {
-                var rowCols = row.querySelectorAll(':scope > .lrob-etk-cf-col');
+            if (col && row && !col.querySelector('.lrob-etk-form-edit-shell')) {
+                var rowCols = row.querySelectorAll(':scope > .lrob-etk-form-col');
                 if (rowCols.length === 1) {
                     var rowNext = row.nextElementSibling;
                     row.remove();
-                    if (rowNext && rowNext.matches && rowNext.matches('.lrob-etk-cf-insert--row')) {
+                    if (rowNext && rowNext.matches && rowNext.matches('.lrob-etk-form-insert--row')) {
                         rowNext.remove();
                     }
                 } else {
                     col.remove();
                     updateRowCols(row);
-                    if (row.querySelectorAll(':scope > .lrob-etk-cf-col').length < 4
-                        && !row.querySelector(':scope > .lrob-etk-cf-insert--column')) {
+                    if (row.querySelectorAll(':scope > .lrob-etk-form-col').length < 4
+                        && !row.querySelector(':scope > .lrob-etk-form-insert--column')) {
                         row.appendChild(buildInsertZone('column'));
                     }
                 }
@@ -993,9 +993,9 @@
         }
 
         function insertColumn(btn) {
-            var row = btn.closest('.lrob-etk-cf-row');
+            var row = btn.closest('.lrob-etk-form-row');
             if (!row) return;
-            var existing = row.querySelectorAll(':scope > .lrob-etk-cf-col').length;
+            var existing = row.querySelectorAll(':scope > .lrob-etk-form-col').length;
             if (existing >= 4) return;
             var col = buildColumn();
             row.insertBefore(col, btn);
@@ -1006,14 +1006,14 @@
             col.classList.add('is-just-inserted');
             setTimeout(function () { col.classList.remove('is-just-inserted'); }, 700);
             // Remove the trailing column "+" if the row is now at the max.
-            if (row.querySelectorAll(':scope > .lrob-etk-cf-col').length >= 4) {
+            if (row.querySelectorAll(':scope > .lrob-etk-form-col').length >= 4) {
                 btn.remove();
             }
             commitAndSave();
         }
         function showTypePicker(btn, onPick) {
             // Close any open picker first.
-            form.querySelectorAll('.lrob-etk-cf-type-picker').forEach(function (p) { p.remove(); });
+            form.querySelectorAll('.lrob-etk-form-type-picker').forEach(function (p) { p.remove(); });
             var tpl = section.querySelector('template[data-field-type-picker]');
             if (!tpl) return;
             var picker = tpl.content.firstElementChild.cloneNode(true);
@@ -1037,7 +1037,7 @@
         }
 
         function updateRowCols(row) {
-            var n = row.querySelectorAll('.lrob-etk-cf-col').length;
+            var n = row.querySelectorAll('.lrob-etk-form-col').length;
             row.setAttribute('data-cols', String(n));
         }
 
@@ -1062,12 +1062,12 @@
                 inner = typeSpecificInlineHtml(shell, type);
             }
             if (inner === '') return '';
-            return '<div class="lrob-etk-cf-inline-settings" data-inline-settings>' + inner + '</div>';
+            return '<div class="lrob-etk-form-inline-settings" data-inline-settings>' + inner + '</div>';
         }
 
         function inlineChipHtml(key, label, control) {
-            return '<label class="lrob-etk-cf-inline-chip" data-inline-chip="' + key + '">'
-                + '<span class="lrob-etk-cf-inline-chip-label">' + esc(label) + '</span>'
+            return '<label class="lrob-etk-form-inline-chip" data-inline-chip="' + key + '">'
+                + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
                 + control
                 + '</label>';
         }
@@ -1082,7 +1082,7 @@
         // anything pointing to the old slug needs re-picking.
         function nextNth() {
             var max = 0;
-            form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (s) {
+            form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (s) {
                 var n = parseInt(s.getAttribute('data-attr-nth') || '0', 10);
                 if (!isNaN(n) && n > max) max = n;
             });
@@ -1106,7 +1106,7 @@
             var slug = deriveSlug(type, labelText, nth);
             if (slug === '' || slug === shell.getAttribute('data-attr-slug')) return;
             shell.setAttribute('data-attr-slug', slug);
-            var fieldWrap = shell.querySelector('.lrob-etk-cf-field');
+            var fieldWrap = shell.querySelector('.lrob-etk-form-field');
             if (fieldWrap) fieldWrap.setAttribute('data-field', slug);
             // Radio / checkbox name="slug" / "slug[]" re-derives off the
             // current slug, so re-render the inline options too.
@@ -1129,7 +1129,7 @@
         function checkChipHtml(shell, key, label, defaultOn) {
             var v = shell.getAttribute('data-attr-' + key);
             var on = v === null ? !!defaultOn : v === '1';
-            return '<label class="lrob-etk-cf-inline-check">'
+            return '<label class="lrob-etk-form-inline-check">'
                 + '<input type="checkbox" data-inline-prop="' + key + '"' + (on ? ' checked' : '') + '>'
                 + '<span>' + esc(label) + '</span>'
                 + '</label>';
@@ -1147,21 +1147,21 @@
                 aligns.push(['stretch', EDITOR_I18N.alignStretch || 'Full width']);
             }
             var btns = aligns.map(function (a) {
-                return '<button type="button" class="lrob-etk-cf-inline-seg' + (a[0] === align ? ' is-on' : '') + '"'
+                return '<button type="button" class="lrob-etk-form-inline-seg' + (a[0] === align ? ' is-on' : '') + '"'
                     + ' data-inline-seg="align" data-value="' + a[0] + '">'
                     + esc(a[1])
                     + '</button>';
             }).join('');
             return inlineChipHtml('align', EDITOR_I18N.alignment || 'Alignment',
-                '<span class="lrob-etk-cf-inline-segmented">' + btns + '</span>'
+                '<span class="lrob-etk-form-inline-segmented">' + btns + '</span>'
             );
         }
         function placeholderComboHtml(shell) {
             var current = shell.getAttribute('data-attr-placeholder') || '';
             var label = EDITOR_I18N.placeholderText || EDITOR_I18N.placeholder || 'Placeholder';
-            return '<label class="lrob-etk-cf-inline-chip" data-inline-chip="placeholder">'
-                + '<span class="lrob-etk-cf-inline-chip-label">' + esc(label) + '</span>'
-                + '<span class="lrob-etk-combo lrob-etk-cf-inline-combo" data-inline-combo>'
+            return '<label class="lrob-etk-form-inline-chip" data-inline-chip="placeholder">'
+                + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
+                + '<span class="lrob-etk-combo lrob-etk-form-inline-combo" data-inline-combo>'
                 + '<input type="text" class="lrob-etk-combo-input" data-inline-prop="placeholder" value="' + escAttr(current) + '" placeholder="— select —" autocomplete="off">'
                 + '<button type="button" class="lrob-etk-combo-toggle" tabindex="-1" aria-label="' + esc(EDITOR_I18N.placeholder || 'Placeholder') + '">'
                 + '<span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>'
@@ -1198,9 +1198,9 @@
         }
         function ensureInlineSettings(shell) {
             if (!shell) return;
-            var field = shell.querySelector(':scope > .lrob-etk-cf-field');
+            var field = shell.querySelector(':scope > .lrob-etk-form-field');
             if (!field) return;
-            if (!field.querySelector(':scope > .lrob-etk-cf-inline-settings')) {
+            if (!field.querySelector(':scope > .lrob-etk-form-inline-settings')) {
                 var html = inlineSettingsHtml(shell);
                 if (html) {
                     // Strip is an in-flow child of the field, appended
@@ -1218,7 +1218,7 @@
             bindPlaceholderCombo(shell);
         }
         function bindPlaceholderCombo(shell) {
-            var combo = shell.querySelector('.lrob-etk-cf-inline-settings [data-inline-combo]');
+            var combo = shell.querySelector('.lrob-etk-form-inline-settings [data-inline-combo]');
             if (!combo || !window.lrobEtkControls || !window.lrobEtkControls.attachCombobox) return;
             var presets = EDITOR_DATA.placeholderPresets || [];
             window.lrobEtkControls.attachCombobox(combo, {
@@ -1235,7 +1235,7 @@
             });
         }
         function toggleDefaultOption(btn) {
-            var shell = btn.closest('.lrob-etk-cf-edit-shell');
+            var shell = btn.closest('.lrob-etk-form-edit-shell');
             if (!shell || shell.getAttribute('data-field-type') !== 'select') return;
             var row = btn.closest('[data-inline-option]');
             if (!row) return;
@@ -1265,7 +1265,7 @@
         form.addEventListener('input', function (e) {
             var target = e.target.closest && e.target.closest('[data-inline-prop]');
             if (!target) return;
-            var shell = target.closest('.lrob-etk-cf-edit-shell');
+            var shell = target.closest('.lrob-etk-form-edit-shell');
             if (!shell) return;
             var key = target.getAttribute('data-inline-prop');
             var val;
@@ -1279,7 +1279,7 @@
             }
             shell.setAttribute('data-attr-' + key, val);
             if (key === 'slug') {
-                var fieldWrap = shell.querySelector('.lrob-etk-cf-field');
+                var fieldWrap = shell.querySelector('.lrob-etk-form-field');
                 if (fieldWrap) fieldWrap.setAttribute('data-field', val);
                 applyOptionsToPreview(shell); // re-derive radio/checkbox name="slug" / "slug[]"
             }
@@ -1293,7 +1293,7 @@
             var seg = e.target.closest && e.target.closest('[data-inline-seg]');
             if (!seg) return;
             e.preventDefault();
-            var shell = seg.closest('.lrob-etk-cf-edit-shell');
+            var shell = seg.closest('.lrob-etk-form-edit-shell');
             if (!shell) return;
             var key = seg.getAttribute('data-inline-seg');
             var val = seg.getAttribute('data-value') || '';
@@ -1305,10 +1305,10 @@
             if (key === 'align') {
                 // Submit + captcha both store the chosen alignment as
                 // `is-align-*` on the field wrapper. For captcha, the
-                // wrapper is the editor stub (.lrob-etk-cf-field--captcha).
-                var alignTarget = shell.querySelector('.lrob-etk-cf-field--submit')
-                    || shell.querySelector('.lrob-etk-cf-field--captcha')
-                    || shell.querySelector('.lrob-etk-cf-field--challenge');
+                // wrapper is the editor stub (.lrob-etk-form-field--captcha).
+                var alignTarget = shell.querySelector('.lrob-etk-form-field--submit')
+                    || shell.querySelector('.lrob-etk-form-field--captcha')
+                    || shell.querySelector('.lrob-etk-form-field--challenge');
                 if (alignTarget) {
                     alignTarget.className = alignTarget.className.replace(/\s*is-align-(left|center|right|stretch)/g, '').trim();
                     alignTarget.classList.add('is-align-' + val);
@@ -1344,7 +1344,7 @@
         function applyOptionsToPreview(shell) {
             var type = shell.getAttribute('data-field-type') || '';
             if (type !== 'select' && type !== 'radio' && type !== 'checkbox') return;
-            var field = shell.querySelector('.lrob-etk-cf-field');
+            var field = shell.querySelector('.lrob-etk-form-field');
             if (!field) return;
             var slug = shell.getAttribute('data-attr-slug') || 'field';
             var options = parseOptions(shell);
@@ -1352,8 +1352,8 @@
             if (type === 'checkbox' && shell.getAttribute('data-attr-multiple') === '0') {
                 // Single checkbox doesn't take a list of options. Wipe any
                 // existing options block and show a one-line placeholder.
-                var stale = field.querySelector(':scope > .lrob-etk-cf-options');
-                if (stale) stale.outerHTML = '<div class="lrob-etk-cf-options"><p class="lrob-etk-cf-helper">' + esc(EDITOR_I18N.singleCheckboxHint || 'Single checkbox — no options needed.') + '</p></div>';
+                var stale = field.querySelector(':scope > .lrob-etk-form-options');
+                if (stale) stale.outerHTML = '<div class="lrob-etk-form-options"><p class="lrob-etk-form-helper">' + esc(EDITOR_I18N.singleCheckboxHint || 'Single checkbox — no options needed.') + '</p></div>';
                 return;
             }
 
@@ -1368,7 +1368,7 @@
             // The <select> can't host contenteditable labels, so we keep
             // the native select (cosmetic) AND render an inline label
             // editor next to it. Edits update both.
-            var shell = field.closest('.lrob-etk-cf-edit-shell');
+            var shell = field.closest('.lrob-etk-form-edit-shell');
             var defaults = shell ? parseDefaults(shell) : [];
             var placeholder = shell ? (shell.getAttribute('data-attr-placeholder') || '') : '';
 
@@ -1400,7 +1400,7 @@
             } else {
                 field.insertAdjacentHTML('beforeend', selectHtml);
             }
-            var existingInline = field.querySelector(':scope > .lrob-etk-cf-options');
+            var existingInline = field.querySelector(':scope > .lrob-etk-form-options');
             var inlineHtml = inlineOptionEditorHtml(options, defaults, true);
             if (existingInline) {
                 existingInline.outerHTML = inlineHtml;
@@ -1413,13 +1413,13 @@
         }
 
         function renderOptionGroupPreview(field, type, slug, options) {
-            var existing = field.querySelector(':scope > .lrob-etk-cf-options, :scope > fieldset, :scope > select');
+            var existing = field.querySelector(':scope > .lrob-etk-form-options, :scope > fieldset, :scope > select');
             var inputType = type === 'radio' ? 'radio' : 'checkbox';
             var name = type === 'checkbox' ? slug + '[]' : slug;
             var items = options.map(function (o) {
                 return inlineOptionRowHtml(inputType, name, o.label || '', o.value || '');
             }).join('');
-            var html = '<div class="lrob-etk-cf-options" data-options-inline>'
+            var html = '<div class="lrob-etk-form-options" data-options-inline>'
                 + items
                 + inlineAddButtonHtml()
                 + '</div>';
@@ -1439,18 +1439,18 @@
                 var value = String(o.value || '');
                 var isDef = withDefault && defaults.indexOf(value) !== -1;
                 var defBtn = withDefault
-                    ? '<button type="button" class="lrob-etk-cf-option-default' + (isDef ? ' is-on' : '') + '"'
+                    ? '<button type="button" class="lrob-etk-form-option-default' + (isDef ? ' is-on' : '') + '"'
                         + ' data-action="toggle-default-option"'
                         + ' aria-pressed="' + (isDef ? 'true' : 'false') + '"'
                         + ' title="' + esc(isDef ? (EDITOR_I18N.unsetDefault || 'Remove as default') : (EDITOR_I18N.setAsDefault || 'Use as default')) + '">★</button>'
                     : '';
-                return '<div class="lrob-etk-cf-inline-option" data-inline-option data-option-value="' + escAttr(value) + '">'
-                    + '<span class="lrob-etk-cf-option-label" contenteditable="plaintext-only" data-option-edit spellcheck="false">' + esc(o.label || '') + '</span>'
+                return '<div class="lrob-etk-form-inline-option" data-inline-option data-option-value="' + escAttr(value) + '">'
+                    + '<span class="lrob-etk-form-option-label" contenteditable="plaintext-only" data-option-edit spellcheck="false">' + esc(o.label || '') + '</span>'
                     + defBtn
-                    + '<button type="button" class="lrob-etk-cf-option-remove" data-action="delete-inline-option" aria-label="' + esc(EDITOR_I18N.removeOption || 'Remove option') + '">×</button>'
+                    + '<button type="button" class="lrob-etk-form-option-remove" data-action="delete-inline-option" aria-label="' + esc(EDITOR_I18N.removeOption || 'Remove option') + '">×</button>'
                     + '</div>';
             }).join('');
-            return '<div class="lrob-etk-cf-options" data-options-inline>'
+            return '<div class="lrob-etk-form-options" data-options-inline>'
                 + rows
                 + inlineAddButtonHtml()
                 + '</div>';
@@ -1462,14 +1462,14 @@
             // place their caret to edit. Same trap CLAUDE.md flags for the
             // field-label markup. The radio/checkbox is purely visual in
             // editor mode, so unlinked-from-its-label is fine here.
-            return '<div class="lrob-etk-cf-option" data-inline-option>'
+            return '<div class="lrob-etk-form-option" data-inline-option>'
                 + '<input type="' + inputType + '" name="' + escAttr(name) + '" value="' + escAttr(value) + '" tabindex="-1">'
-                + '<span class="lrob-etk-cf-option-label" contenteditable="plaintext-only" data-option-edit spellcheck="false">' + esc(label) + '</span>'
-                + '<button type="button" class="lrob-etk-cf-option-remove" data-action="delete-inline-option" aria-label="' + esc(EDITOR_I18N.removeOption || 'Remove option') + '">×</button>'
+                + '<span class="lrob-etk-form-option-label" contenteditable="plaintext-only" data-option-edit spellcheck="false">' + esc(label) + '</span>'
+                + '<button type="button" class="lrob-etk-form-option-remove" data-action="delete-inline-option" aria-label="' + esc(EDITOR_I18N.removeOption || 'Remove option') + '">×</button>'
                 + '</div>';
         }
         function inlineAddButtonHtml() {
-            return '<button type="button" class="lrob-etk-cf-option-add" data-action="add-inline-option">+ '
+            return '<button type="button" class="lrob-etk-form-option-add" data-action="add-inline-option">+ '
                 + esc(EDITOR_I18N.addOption || 'Add option')
                 + '</button>';
         }
@@ -1522,7 +1522,7 @@
         function buildRow() {
             var rowId = genId('row');
             var row = document.createElement('div');
-            row.className = 'lrob-etk-cf-row';
+            row.className = 'lrob-etk-form-row';
             row.setAttribute('data-cols', '1');
             row.setAttribute('data-row-id', rowId);
             row.setAttribute('data-draggable-type', 'row');
@@ -1537,7 +1537,7 @@
             // The user thinks of this as adding a field; the row+col wrapping
             // is the storage shape FormStructure expects.
             var row = buildRow();
-            var col = row.querySelector('.lrob-etk-cf-col');
+            var col = row.querySelector('.lrob-etk-form-col');
             if (col) {
                 var field = buildField(type);
                 col.appendChild(field);
@@ -1553,7 +1553,7 @@
             return wrap.firstElementChild;
         }
         function colHtml(colId) {
-            return '<div class="lrob-etk-cf-col" data-col-id="' + colId + '" data-draggable-type="col" draggable="true">'
+            return '<div class="lrob-etk-form-col" data-col-id="' + colId + '" data-draggable-type="col" draggable="true">'
                 + colOverlayHtml()
                 + insertZoneHtml('field')
                 + '</div>';
@@ -1595,7 +1595,7 @@
                     extraAttrs += ' data-attr-multiple="1"';
                 }
             }
-            return '<div class="lrob-etk-cf-edit-shell" data-field-id="' + id + '" data-field-type="' + type + '" data-draggable-type="field" draggable="true"'
+            return '<div class="lrob-etk-form-edit-shell" data-field-id="' + id + '" data-field-type="' + type + '" data-draggable-type="field" draggable="true"'
                 + ' data-attr-nth="' + nth + '"'
                 + ' data-attr-slug="' + escAttr(initialSlug) + '"'
                 + ' data-attr-required="1"'
@@ -1608,8 +1608,8 @@
             // markup on save.
             var typeLabel = FIELD_TYPES[type] || type;
             if (type === 'submit') {
-                return '<div class="lrob-etk-cf-field lrob-etk-cf-field--submit is-align-right">'
-                    + '<button type="button" class="lrob-etk-cf-submit"><span class="lrob-etk-cf-submit-label" contenteditable="plaintext-only" data-edit="submit-text">' + esc(typeLabel) + '</span></button>'
+                return '<div class="lrob-etk-form-field lrob-etk-form-field--submit is-align-right">'
+                    + '<button type="button" class="lrob-etk-form-submit"><span class="lrob-etk-form-submit-label" contenteditable="plaintext-only" data-edit="submit-text">' + esc(typeLabel) + '</span></button>'
                     + '</div>';
             }
             if (type === 'captcha') {
@@ -1624,20 +1624,20 @@
             // via the inline `[checkbox] Required` that the star morphs
             // into on hover.
             var requiredLabel = esc(EDITOR_I18N.required || 'Required');
-            return '<div class="lrob-etk-cf-field lrob-etk-cf-field--' + type + '" data-field="' + escAttr(slug) + '">'
-                + '<div class="lrob-etk-cf-label">'
-                + '<span class="lrob-etk-cf-label-text" contenteditable="plaintext-only" data-edit="label" spellcheck="false">' + esc(labelText) + '</span>'
-                + '<span class="lrob-etk-cf-required-control">'
-                + '<span class="lrob-etk-cf-required-star is-on" aria-hidden="true">*</span>'
-                + '<label class="lrob-etk-cf-required-check">'
+            return '<div class="lrob-etk-form-field lrob-etk-form-field--' + type + '" data-field="' + escAttr(slug) + '">'
+                + '<div class="lrob-etk-form-label">'
+                + '<span class="lrob-etk-form-label-text" contenteditable="plaintext-only" data-edit="label" spellcheck="false">' + esc(labelText) + '</span>'
+                + '<span class="lrob-etk-form-required-control">'
+                + '<span class="lrob-etk-form-required-star is-on" aria-hidden="true">*</span>'
+                + '<label class="lrob-etk-form-required-check">'
                 + '<input type="checkbox" data-required-toggle checked>'
                 + '<span>' + requiredLabel + '</span>'
                 + '</label>'
                 + '</span>'
                 + '</div>'
                 + control
-                + '<p class="lrob-etk-cf-helper lrob-etk-cf-helper-empty" contenteditable="plaintext-only" data-edit="helper" spellcheck="false">' + esc(EDITOR_I18N.helperPlaceholder || '(optional helper text)') + '</p>'
-                + '<p class="lrob-etk-cf-error" data-field-error hidden></p>'
+                + '<p class="lrob-etk-form-helper lrob-etk-form-helper-empty" contenteditable="plaintext-only" data-edit="helper" spellcheck="false">' + esc(EDITOR_I18N.helperPlaceholder || '(optional helper text)') + '</p>'
+                + '<p class="lrob-etk-form-error" data-field-error hidden></p>'
                 + '</div>';
         }
         function buildControlHtml(type, slug) {
@@ -1661,12 +1661,12 @@
                     return '<select id="' + id + '">' + selectOpts + '</select>'
                         + inlineOptionEditorHtml(seed, [], true);
                 case 'radio':
-                    return '<div class="lrob-etk-cf-options" data-options-inline>'
+                    return '<div class="lrob-etk-form-options" data-options-inline>'
                         + seed.map(function (o) { return inlineOptionRowHtml('radio', slug, o.label, o.value); }).join('')
                         + inlineAddButtonHtml()
                         + '</div>';
                 case 'checkbox':
-                    return '<div class="lrob-etk-cf-options" data-options-inline>'
+                    return '<div class="lrob-etk-form-options" data-options-inline>'
                         + seed.map(function (o) { return inlineOptionRowHtml('checkbox', slug + '[]', o.label, o.value); }).join('')
                         + inlineAddButtonHtml()
                         + '</div>';
@@ -1709,11 +1709,11 @@
             }
             if (currentGroup !== '') opts += '</optgroup>';
 
-            return '<div class="lrob-etk-cf-field lrob-etk-cf-field--captcha is-editor-stub is-align-' + safeAlign + '" data-captcha-block>'
+            return '<div class="lrob-etk-form-field lrob-etk-form-field--captcha is-editor-stub is-align-' + safeAlign + '" data-captcha-block>'
                 + '<div class="lrob-etk-cf-captcha-stub-head">'
                 + '<span class="lrob-etk-cf-captcha-stub-icon dashicons dashicons-shield" aria-hidden="true"></span>'
                 + '<label class="lrob-etk-cf-captcha-stub-label">' + esc(EDITOR_I18N.captchaPick || 'Anti-spam:') + '</label>'
-                + '<select class="lrob-etk-cf-field lrob-etk-cf-captcha-pick" name="' + escAttr(key) + '" data-key="' + escAttr(key) + '" data-captcha-pick>' + opts + '</select>'
+                + '<select class="lrob-etk-form-field lrob-etk-cf-captcha-pick" name="' + escAttr(key) + '" data-key="' + escAttr(key) + '" data-captcha-pick>' + opts + '</select>'
                 + '</div>'
                 + '<div class="lrob-etk-cf-captcha-stub-preview" data-captcha-preview>' + captchaPreviewHtml(currentRoute) + '</div>'
                 + '</div>';
@@ -1742,32 +1742,32 @@
             return type;
         }
         function rowOverlayHtml() {
-            return '<div class="lrob-etk-cf-overlay lrob-etk-cf-overlay--row" aria-hidden="true">'
-                + '<span class="lrob-etk-cf-overlay-handle dashicons dashicons-move"></span>'
-                + '<button type="button" class="lrob-etk-cf-overlay-btn" data-action="delete-row"><span class="dashicons dashicons-trash"></span></button>'
+            return '<div class="lrob-etk-form-overlay lrob-etk-form-overlay--row" aria-hidden="true">'
+                + '<span class="lrob-etk-form-overlay-handle dashicons dashicons-move"></span>'
+                + '<button type="button" class="lrob-etk-form-overlay-btn" data-action="delete-row"><span class="dashicons dashicons-trash"></span></button>'
                 + '</div>';
         }
         function colOverlayHtml() {
-            return '<div class="lrob-etk-cf-overlay lrob-etk-cf-overlay--col" aria-hidden="true">'
-                + '<span class="lrob-etk-cf-overlay-handle dashicons dashicons-move"></span>'
-                + '<button type="button" class="lrob-etk-cf-overlay-btn" data-action="delete-col"><span class="dashicons dashicons-trash"></span></button>'
+            return '<div class="lrob-etk-form-overlay lrob-etk-form-overlay--col" aria-hidden="true">'
+                + '<span class="lrob-etk-form-overlay-handle dashicons dashicons-move"></span>'
+                + '<button type="button" class="lrob-etk-form-overlay-btn" data-action="delete-col"><span class="dashicons dashicons-trash"></span></button>'
                 + '</div>';
         }
         function fieldOverlayHtml(type) {
             // Per-field settings live inline next to the label now (see
-            // .lrob-etk-cf-inline-settings); the overlay carries just drag +
+            // .lrob-etk-form-inline-settings); the overlay carries just drag +
             // delete so it stays out of the way.
-            return '<div class="lrob-etk-cf-overlay lrob-etk-cf-overlay--field" aria-hidden="true">'
-                + '<span class="lrob-etk-cf-overlay-handle dashicons dashicons-move"></span>'
-                + '<button type="button" class="lrob-etk-cf-overlay-btn lrob-etk-cf-overlay-btn--delete" data-action="delete-field"><span class="dashicons dashicons-trash"></span></button>'
+            return '<div class="lrob-etk-form-overlay lrob-etk-form-overlay--field" aria-hidden="true">'
+                + '<span class="lrob-etk-form-overlay-handle dashicons dashicons-move"></span>'
+                + '<button type="button" class="lrob-etk-form-overlay-btn lrob-etk-form-overlay-btn--delete" data-action="delete-field"><span class="dashicons dashicons-trash"></span></button>'
                 + '</div>';
         }
         function insertZoneHtml(kind) {
             // Same labelling logic as FormEditorRenderer::insert_zone (PHP).
             var labelText = (kind === 'row' || kind === 'field') ? (EDITOR_I18N.fieldLabel || 'Field') : '';
-            var label = labelText ? '<span class="lrob-etk-cf-insert-label">' + esc(labelText) + '</span>' : '';
-            return '<button type="button" class="lrob-etk-cf-insert lrob-etk-cf-insert--' + kind + '" data-insert="' + kind + '" aria-label="Add">'
-                + '<span class="lrob-etk-cf-insert-plus" aria-hidden="true">+</span>' + label + '</button>';
+            var label = labelText ? '<span class="lrob-etk-form-insert-label">' + esc(labelText) + '</span>' : '';
+            return '<button type="button" class="lrob-etk-form-insert lrob-etk-form-insert--' + kind + '" data-insert="' + kind + '" aria-label="Add">'
+                + '<span class="lrob-etk-form-insert-plus" aria-hidden="true">+</span>' + label + '</button>';
         }
         function buildInsertZone(kind) {
             var wrap = document.createElement('div');
@@ -1778,11 +1778,11 @@
         // --- Serializer (DOM → JSON) --------------------------------------
         function serialize(form) {
             var rows = [];
-            form.querySelectorAll(':scope > .lrob-etk-cf-body > .lrob-etk-cf-row').forEach(function (rowEl) {
+            form.querySelectorAll(':scope > .lrob-etk-form-body > .lrob-etk-form-row').forEach(function (rowEl) {
                 var cols = [];
-                rowEl.querySelectorAll(':scope > .lrob-etk-cf-col').forEach(function (colEl) {
+                rowEl.querySelectorAll(':scope > .lrob-etk-form-col').forEach(function (colEl) {
                     var fields = [];
-                    colEl.querySelectorAll(':scope > .lrob-etk-cf-edit-shell').forEach(function (shellEl) {
+                    colEl.querySelectorAll(':scope > .lrob-etk-form-edit-shell').forEach(function (shellEl) {
                         fields.push(serializeField(shellEl));
                     });
                     cols.push({ id: colEl.getAttribute('data-col-id') || '', fields: fields });
@@ -1850,13 +1850,13 @@
             return f;
         }
         function readEditableText(el, ignoreEmptyPlaceholder) {
-            if (ignoreEmptyPlaceholder && el.classList.contains('lrob-etk-cf-helper-empty')) return '';
-            if (el.querySelector('.lrob-etk-cf-label-empty')) return '';
+            if (ignoreEmptyPlaceholder && el.classList.contains('lrob-etk-form-helper-empty')) return '';
+            if (el.querySelector('.lrob-etk-form-label-empty')) return '';
             return (el.textContent || '').trim();
         }
         function readHelperText(shell) {
             var h = shell.querySelector('[data-edit="helper"]');
-            return h && !h.classList.contains('lrob-etk-cf-helper-empty') ? (h.textContent || '').trim() : '';
+            return h && !h.classList.contains('lrob-etk-form-helper-empty') ? (h.textContent || '').trim() : '';
         }
 
         function esc(s) {
@@ -1869,7 +1869,7 @@
         // --- Initial sync: copy field attrs from the existing PHP-rendered
         // DOM into data-attr-* on each shell, so the gear popup has the
         // current values and the serializer can read them.
-        form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (shell) {
+        form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (shell) {
             // Skip if we've already populated (e.g. shells we built ourselves).
             if (shell.dataset.etkInit === '1') return;
             shell.dataset.etkInit = '1';
@@ -1882,19 +1882,19 @@
                 if (input.hasAttribute('required')) shell.setAttribute('data-attr-required', '1');
             }
             // Slug comes from the inner field wrapper's data-field attr.
-            var wrap = shell.querySelector('.lrob-etk-cf-field');
+            var wrap = shell.querySelector('.lrob-etk-form-field');
             if (wrap && wrap.hasAttribute('data-field')) {
                 shell.setAttribute('data-attr-slug', wrap.getAttribute('data-field'));
             }
             // Submit / captcha align: read from the field's class
             // (is-align-X). Captcha has no stretch variant. For captcha,
-            // the carrier in the editor is .lrob-etk-cf-field--captcha
-            // (the editor stub); .lrob-etk-cf-field--challenge only
+            // the carrier in the editor is .lrob-etk-form-field--captcha
+            // (the editor stub); .lrob-etk-form-field--challenge only
             // appears later inside the preview slot once JS injects the
             // live widget.
-            var alignWrap = shell.querySelector('.lrob-etk-cf-field--submit')
-                || shell.querySelector('.lrob-etk-cf-field--captcha')
-                || shell.querySelector('.lrob-etk-cf-field--challenge');
+            var alignWrap = shell.querySelector('.lrob-etk-form-field--submit')
+                || shell.querySelector('.lrob-etk-form-field--captcha')
+                || shell.querySelector('.lrob-etk-form-field--challenge');
             if (alignWrap) {
                 var m = alignWrap.className.match(/is-align-(left|center|right|stretch)/);
                 if (m) shell.setAttribute('data-attr-align', m[1]);
@@ -1904,9 +1904,9 @@
             // toggle-button are still accepted in case an older PHP render
             // is on the page.
             if (shell.querySelector('[data-required-toggle]:checked')
-                || shell.querySelector('.lrob-etk-cf-required-star.is-on')
-                || shell.querySelector('.lrob-etk-cf-required-toggle.is-on')
-                || shell.querySelector('.lrob-etk-cf-required')) {
+                || shell.querySelector('.lrob-etk-form-required-star.is-on')
+                || shell.querySelector('.lrob-etk-form-required-toggle.is-on')
+                || shell.querySelector('.lrob-etk-form-required')) {
                 shell.setAttribute('data-attr-required', '1');
             }
 
@@ -1925,7 +1925,7 @@
                         if (opt.selected) scrapedDefaults.push(opt.value);
                     });
                 } else {
-                    shell.querySelectorAll('.lrob-etk-cf-option').forEach(function (lbl) {
+                    shell.querySelectorAll('.lrob-etk-form-option').forEach(function (lbl) {
                         var inp = lbl.querySelector('input');
                         var span = lbl.querySelector('span') || lbl;
                         scraped.push({
@@ -1955,7 +1955,7 @@
                 // Multi if a fieldset / option list was rendered, single
                 // otherwise (a lone inline checkbox).
                 shell.setAttribute('data-attr-multiple',
-                    shell.querySelector('.lrob-etk-cf-field--checkbox-single, .lrob-etk-cf-checkbox-inline') ? '0' : '1'
+                    shell.querySelector('.lrob-etk-form-field--checkbox-single, .lrob-etk-form-checkbox-inline') ? '0' : '1'
                 );
             }
 
@@ -1980,11 +1980,11 @@
         // first load so external references (Reply-To, {token}s) keep
         // matching until the user explicitly renames a field's label.
         var maxNthInit = 0;
-        form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (s) {
+        form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (s) {
             var n = parseInt(s.getAttribute('data-attr-nth') || '0', 10);
             if (!isNaN(n) && n > maxNthInit) maxNthInit = n;
         });
-        form.querySelectorAll('.lrob-etk-cf-edit-shell').forEach(function (s) {
+        form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (s) {
             if (s.hasAttribute('data-attr-nth')) return;
             maxNthInit++;
             s.setAttribute('data-attr-nth', String(maxNthInit));

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit;
 
 use LRob\EmailToolkit\Admin\Menu;
+use LRob\EmailToolkit\Forms\FieldTypeRegistry;
 use LRob\EmailToolkit\Modules\ModuleManager;
 
 /**
@@ -41,6 +42,11 @@ final class Plugin
         $this->booted = true;
 
         add_action('init', [$this, 'load_textdomain']);
+
+        // Shared form-builder registry — populated by each module's register()
+        // with the field types its form CPT accepts. Available before
+        // ModuleManager::boot_all() so modules can register types immediately.
+        $this->container->set(FieldTypeRegistry::class, new FieldTypeRegistry());
 
         $manager = new ModuleManager($this->container);
         $this->container->set(ModuleManager::class, $manager);
