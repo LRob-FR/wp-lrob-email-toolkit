@@ -278,8 +278,12 @@ final class Module extends AbstractModule
             // section. PrefsHandler hooks on init to catch the public
             // URLs; ProfileSection hooks on show/edit_user_profile to
             // surface the same UI inside the admin user-edit page.
+            // PrefsBlock registers a Gutenberg block + shortcode that
+            // embeds the same prefs UI on any public page (typically a
+            // `/newsletter-preferences/` page linked from the menu).
             (new PrefsHandler($subscribers, $lists, $categories))->register();
             (new ProfileSection($categories, $lists))->register();
+            (new PrefsBlock($subscribers, $lists, $categories))->register();
 
             // Daily reminder cron for pending subscribers — the
             // schedule itself lives on install / disable transitions.

@@ -175,9 +175,18 @@ final class PrefsHandler
             $this->sync_list_memberships(UserMeta::KIND_SUBSCRIBER, $id, $chosen_lists);
         }
 
-        // Redirect back to the prefs URL with a flash so the user
-        // sees confirmation without re-posting on refresh.
-        wp_safe_redirect(add_query_arg([self::QUERY_PREFS => $token, 'saved' => '1'], home_url('/')));
+        // Redirect back to wherever the form was rendered. The block /
+        // shortcode surfaces pass `_lrob_etk_nl_return_to` so the user
+        // lands back on the content page they came from instead of the
+        // standalone prefs page. wp_safe_redirect rejects off-host
+        // values, falling through to the home URL.
+        $return_to = isset($_POST['_lrob_etk_nl_return_to'])
+            ? (string) wp_unslash((string) $_POST['_lrob_etk_nl_return_to'])
+            : '';
+        $redirect = $return_to !== ''
+            ? add_query_arg(['lrob_etk_nl_saved' => '1'], $return_to)
+            : add_query_arg([self::QUERY_PREFS => $token, 'saved' => '1'], home_url('/'));
+        wp_safe_redirect($redirect);
         exit;
     }
 

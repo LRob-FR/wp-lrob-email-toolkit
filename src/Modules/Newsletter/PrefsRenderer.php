@@ -126,7 +126,7 @@ final class PrefsRenderer
      *
      * @param array<string, mixed> $state
      */
-    public static function render_full_form(array $state, string $form_action, string $nonce_action): string
+    public static function render_full_form(array $state, string $form_action, string $nonce_action, string $return_to = ''): string
     {
         $kind = (string) ($state['kind'] ?? '');
         $email = (string) ($state['email'] ?? '');
@@ -136,6 +136,9 @@ final class PrefsRenderer
         <form method="post" action="<?php echo esc_url($form_action); ?>" class="lrob-etk-nl-prefs-form">
             <?php wp_nonce_field($nonce_action, '_lrob_etk_nl_nonce'); ?>
             <input type="hidden" name="lrob_etk_nl_prefs_submit" value="1">
+            <?php if ($return_to !== '') : ?>
+                <input type="hidden" name="_lrob_etk_nl_return_to" value="<?php echo esc_attr($return_to); ?>">
+            <?php endif; ?>
             <p class="lrob-etk-nl-prefs-email">
                 <?php
                 printf(

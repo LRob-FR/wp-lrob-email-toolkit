@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-22T14:26:15+00:00\n"
+"POT-Creation-Date: 2026-05-22T15:16:41+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -70,7 +70,7 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/Newsletter/Admin/AjaxController.php:362
 #: src/Modules/Newsletter/Admin/AjaxController.php:384
 #: src/Modules/Newsletter/Admin/HomePage.php:101
-#: src/Modules/Newsletter/Module.php:339
+#: src/Modules/Newsletter/Module.php:343
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
@@ -690,7 +690,7 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Modules/ContactForm/Admin/FormsPage.php:1593
 #: src/Modules/Logging/Admin/PageController.php:178
 #: src/Modules/Newsletter/Admin/AjaxController.php:367
-#: src/Modules/Newsletter/Module.php:343
+#: src/Modules/Newsletter/Module.php:347
 msgid "Security check failed. Please retry."
 msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 
@@ -1604,7 +1604,7 @@ msgstr "Formulaire source introuvable."
 #. translators: %s: localized title of the source default template (e.g. "Confirm your subscription").
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
 #: src/Modules/Newsletter/Admin/AjaxController.php:327
-#: src/Modules/Newsletter/Module.php:354
+#: src/Modules/Newsletter/Module.php:358
 msgid "%s (copy)"
 msgstr "%s (copie)"
 
@@ -3671,7 +3671,7 @@ msgstr "[%s] Nouvelle soumission de formulaire de contact"
 #: src/Modules/Newsletter/ConfirmationHandler.php:62
 #: src/Modules/Newsletter/ConfirmationHandler.php:92
 #: src/Modules/Newsletter/PrefsHandler.php:76
-#: src/Modules/Newsletter/PrefsHandler.php:195
+#: src/Modules/Newsletter/PrefsHandler.php:204
 msgid "Link expired"
 msgstr ""
 
@@ -3833,35 +3833,64 @@ msgid_plural "%s subscribers"
 msgstr[0] "S'inscrire"
 msgstr[1] "S'inscrire"
 
-#: src/Modules/Newsletter/Module.php:347
+#: src/Modules/Newsletter/Module.php:351
 #, fuzzy
 msgid "Unknown onboarding email purpose."
 msgstr "Modèle inconnu."
 
-#: src/Modules/Newsletter/Module.php:370
+#: src/Modules/Newsletter/Module.php:374
 #, fuzzy
 msgid "Could not create the template draft."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Module.php:403
+#: src/Modules/Newsletter/Module.php:407
 msgid "Newsletter: SMTP module not enabled"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:404
+#: src/Modules/Newsletter/Module.php:408
 msgid ""
 "Subscribe forms and the Newsletter admin work, but campaign sending is "
 "disabled until you enable the SMTP module — Newsletter routes every send "
 "through an SMTP identity."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:406
+#: src/Modules/Newsletter/Module.php:410
 #, fuzzy
 msgid "Open SMTP settings"
 msgstr "Réglages par défaut"
 
-#: src/Modules/Newsletter/Module.php:427
+#: src/Modules/Newsletter/Module.php:431
 msgid "General"
 msgstr ""
+
+#: src/Modules/Newsletter/PrefsBlock.php:140
+msgid "Your preferences have been saved."
+msgstr ""
+
+#: src/Modules/Newsletter/PrefsBlock.php:155
+msgid ""
+"To manage your email preferences, use the link at the bottom of any of our "
+"emails."
+msgstr ""
+
+#. translators: %s: link to the login/registration page.
+#: src/Modules/Newsletter/PrefsBlock.php:162
+msgid "You can also %s to manage them here."
+msgstr ""
+
+#: src/Modules/Newsletter/PrefsBlock.php:164
+msgid "log in or create an account"
+msgstr ""
+
+#. translators: %s: link to the login page.
+#: src/Modules/Newsletter/PrefsBlock.php:174
+msgid "Already have an account? %s to manage them here."
+msgstr ""
+
+#: src/Modules/Newsletter/PrefsBlock.php:176
+#, fuzzy
+msgid "Log in"
+msgstr "Réglages des journaux"
 
 #: src/Modules/Newsletter/PrefsHandler.php:77
 msgid ""
@@ -3901,25 +3930,25 @@ msgid ""
 "We've removed your record. We won't contact you again. Sorry for the noise."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:196
+#: src/Modules/Newsletter/PrefsHandler.php:205
 msgid "This unsubscribe link is no longer valid."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:269
+#: src/Modules/Newsletter/PrefsHandler.php:278
 #, fuzzy
 msgid "Email preferences"
 msgstr "Modèles de démarrage"
 
-#: src/Modules/Newsletter/PrefsHandler.php:294
+#: src/Modules/Newsletter/PrefsHandler.php:303
 #, fuzzy
 msgid "Your email preferences"
 msgstr "Votre email"
 
-#: src/Modules/Newsletter/PrefsHandler.php:296
+#: src/Modules/Newsletter/PrefsHandler.php:305
 msgid "Saved — your preferences have been updated."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:300
+#: src/Modules/Newsletter/PrefsHandler.php:309
 msgid ""
 "Use the form below to fine-tune what you receive — or unsubscribe entirely "
 "at the bottom."
@@ -3955,42 +3984,44 @@ msgid "No lists to choose from yet."
 msgstr "Aucun formulaire de contact pour le moment."
 
 #. translators: %s: recipient email address.
-#: src/Modules/Newsletter/PrefsRenderer.php:143
+#: src/Modules/Newsletter/PrefsRenderer.php:146
 msgid "Preferences for %s"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:151
+#: src/Modules/Newsletter/PrefsRenderer.php:154
 msgid "Save preferences"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:157
+#: src/Modules/Newsletter/PrefsRenderer.php:160
 #, fuzzy
 msgid "Leave entirely"
 msgstr "Réinitialiser toute l'extension"
 
-#: src/Modules/Newsletter/PrefsRenderer.php:159
+#: src/Modules/Newsletter/PrefsRenderer.php:162
 msgid ""
 "Unsubscribing soft-removes you — your row stays so admins can see what "
 "happened. \"Forget me entirely\" hard-deletes you and you can re-subscribe "
 "later as a brand-new visitor."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:163
+#: src/Modules/Newsletter/PrefsRenderer.php:166
 #, fuzzy
 msgid "Unsubscribe from everything"
 msgstr "Tout effacer"
 
-#: src/Modules/Newsletter/PrefsRenderer.php:166
+#: src/Modules/Newsletter/PrefsRenderer.php:169
 #, fuzzy
 msgid "Permanently delete your subscription? This cannot be undone."
 msgstr ""
 "Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
 
-#: src/Modules/Newsletter/PrefsRenderer.php:167
+#: src/Modules/Newsletter/PrefsRenderer.php:170
 msgid "Forget me entirely"
 msgstr ""
 
 #: src/Modules/Newsletter/ProfileSection.php:42
+#: admin/js/newsletter-prefs-block-editor.js:34
+#: admin/js/newsletter-prefs-block-editor.js:42
 #, fuzzy
 msgid "Newsletter preferences"
 msgstr "Newsletter"
@@ -4729,6 +4760,18 @@ msgstr "Chargement des formulaires disponibles…"
 
 #: admin/js/newsletter-block-editor.js:115
 msgid "Embed one of your subscribe forms on this page."
+msgstr ""
+
+#: admin/js/newsletter-prefs-block-editor.js:35
+msgid ""
+"Logged-in visitors see their email preferences here. Anonymous visitors see "
+"a short message pointing at the link in their emails."
+msgstr ""
+
+#: admin/js/newsletter-prefs-block-editor.js:43
+msgid ""
+"Embed the email-preferences form on a public page. Logged-in users manage "
+"their settings; anonymous visitors get a short message."
 msgstr ""
 
 #, fuzzy
