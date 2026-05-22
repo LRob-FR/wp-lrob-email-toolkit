@@ -509,15 +509,6 @@
     border-bottom-color: var(--lrob-etk-color-primary, #2271b1);
 }
 
-.lrob-etk-nl-subtab.is-trash {
-    margin-left: auto;
-    color: var(--lrob-etk-color-danger, #b32d2e);
-}
-
-.lrob-etk-nl-subtab.is-trash.is-active {
-    border-bottom-color: var(--lrob-etk-color-danger, #b32d2e);
-}
-
 .lrob-etk-nl-subtab-count {
     display: inline-block;
     margin-left: 0.4rem;
@@ -645,7 +636,7 @@
     margin: 1.25rem 0;
 }
 
-.lrob-etk-nl-page {
+.lrob-etk-nl-pagenum {
     padding: 0.35rem 0.7rem;
     border: 1px solid var(--lrob-etk-color-border, #dcdcde);
     border-radius: 4px;
@@ -654,12 +645,12 @@
     font-size: 0.88rem;
 }
 
-.lrob-etk-nl-page:hover,
-.lrob-etk-nl-page:focus {
+.lrob-etk-nl-pagenum:hover,
+.lrob-etk-nl-pagenum:focus {
     background: rgba(34, 113, 177, 0.08);
 }
 
-.lrob-etk-nl-page.is-active {
+.lrob-etk-nl-pagenum.is-active {
     background: var(--lrob-etk-color-primary, #2271b1);
     border-color: var(--lrob-etk-color-primary, #2271b1);
     color: #fff;

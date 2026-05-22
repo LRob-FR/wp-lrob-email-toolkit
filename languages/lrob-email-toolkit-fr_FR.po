@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-22T15:29:55+00:00\n"
+"POT-Creation-Date: 2026-05-22T15:47:23+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -3794,7 +3794,6 @@ msgid "Delete permanently"
 msgstr "Supprimer le champ"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:289
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:309
 msgid "Trash"
 msgstr ""
 
@@ -3826,6 +3825,7 @@ msgstr ""
 msgid "Bounced"
 msgstr ""
 
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:309
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:322
 msgid "Trashed"
 msgstr ""

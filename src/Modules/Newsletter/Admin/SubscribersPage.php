@@ -31,7 +31,7 @@ final class SubscribersPage
         'unsubscribed' => 'Unsubscribed',
         'refused'      => 'Refused',
         'bounced'      => 'Bounced',
-        'trashed'      => 'Trash',
+        'trashed'      => 'Trashed',
     ];
 
     public function __construct(private SubscriberRepository $subscribers)
@@ -86,7 +86,7 @@ final class SubscribersPage
                     $is_active = $current_status === $slug;
                     ?>
                     <a href="<?php echo esc_url($tab_url); ?>"
-                       class="lrob-etk-nl-subtab<?php echo $is_active ? ' is-active' : ''; ?><?php echo $slug === 'trashed' ? ' is-trash' : ''; ?>">
+                       class="lrob-etk-nl-subtab<?php echo $is_active ? ' is-active' : ''; ?>">
                         <?php echo esc_html(self::translate_tab_label($slug)); ?>
                         <?php if ($count > 0) : ?>
                             <span class="lrob-etk-nl-subtab-count"><?php echo esc_html(number_format_i18n($count)); ?></span>
@@ -171,7 +171,7 @@ final class SubscribersPage
                     <nav class="lrob-etk-nl-pagination">
                         <?php for ($p = 1; $p <= $max_page; $p++) : ?>
                             <?php $page_url = add_query_arg(['paged' => $p, 's' => $search], $current_status === '' ? $base_url : add_query_arg('status', $current_status, $base_url)); ?>
-                            <a href="<?php echo esc_url($page_url); ?>" class="lrob-etk-nl-page<?php echo $p === $paged ? ' is-active' : ''; ?>"><?php echo (int) $p; ?></a>
+                            <a href="<?php echo esc_url($page_url); ?>" class="lrob-etk-nl-pagenum<?php echo $p === $paged ? ' is-active' : ''; ?>"><?php echo (int) $p; ?></a>
                         <?php endfor; ?>
                     </nav>
                 <?php endif; ?>
@@ -306,7 +306,7 @@ final class SubscribersPage
             'unsubscribed' => __('Unsubscribed', 'lrob-email-toolkit'),
             'refused'      => __('Refused', 'lrob-email-toolkit'),
             'bounced'      => __('Bounced', 'lrob-email-toolkit'),
-            'trashed'      => __('Trash', 'lrob-email-toolkit'),
+            'trashed'      => __('Trashed', 'lrob-email-toolkit'),
             default        => $slug,
         };
     }
