@@ -53,6 +53,8 @@ final class SendAjaxController
 
     public const ACTION_RETRY_FAILED = 'lrob_etk_nl_retry_failed';
 
+    public const ACTION_COMMIT_SCHEDULE = 'lrob_etk_nl_commit_schedule';
+
     public const ACTION_PREVIEW = 'lrob_etk_nl_preview';
 
     public const ACTION_RECIPIENTS_PREVIEW = 'lrob_etk_nl_recipients_preview';
@@ -77,6 +79,7 @@ final class SendAjaxController
         add_action('wp_ajax_' . self::ACTION_RESUME,    [$this, 'handle_resume']);
         add_action('wp_ajax_' . self::ACTION_ABORT,     [$this, 'handle_abort']);
         add_action('wp_ajax_' . self::ACTION_RETRY_FAILED, [$this, 'handle_retry_failed']);
+        add_action('wp_ajax_' . self::ACTION_COMMIT_SCHEDULE, [$this, 'handle_commit_schedule']);
         add_action('wp_ajax_' . self::ACTION_PREVIEW,   [$this, 'handle_preview']);
         add_action('wp_ajax_' . self::ACTION_RECIPIENTS_PREVIEW, [$this, 'handle_recipients_preview']);
     }
@@ -341,6 +344,43 @@ final class SendAjaxController
             'status'  => NewsletterRepository::STATUS_ABORTED,
             'skipped' => $skipped,
         ]);
+    }
+
+    /**
+     * Commit-schedule: flips the companion `draft → scheduled`, which is
+     * the signal `SendCron` waits for to start the materializer at the
+     * configured time. Setting the date alone no longer auto-promotes —
+     * the explicit click here is what locks the schedule in.
+     *
+     * Idempotent: clicking on an already-scheduled newsletter just
+     * returns the current state.
+     */
+    public function handle_commit_schedule(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
+        $status = (string) ($row['status'] ?? '');
+        if ($status === NewsletterRepository::STATUS_SCHEDULED) {
+            wp_send_json_success(['status' => NewsletterRepository::STATUS_SCHEDULED, 'noop' => true]);
+        }
+        if ($status !== NewsletterRepository::STATUS_DRAFT) {
+            wp_send_json_error([
+                'message' => __('Only a draft newsletter can be scheduled.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        $scheduled_at = (string) get_post_meta($newsletter_id, NewsletterCPT::META_SCHEDULED_AT, true);
+        if ($scheduled_at === '') {
+            wp_send_json_error([
+                'message' => __('No schedule date set — tick the Schedule box and pick a date first.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        $this->newsletters->update_status($newsletter_id, NewsletterRepository::STATUS_SCHEDULED);
+        Events::dispatch('newsletter.scheduled', [
+            'newsletter_id' => $newsletter_id,
+            'scheduled_at'  => $scheduled_at,
+        ]);
+        wp_send_json_success(['status' => NewsletterRepository::STATUS_SCHEDULED]);
     }
 
     /**

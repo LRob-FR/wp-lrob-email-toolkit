@@ -123,6 +123,7 @@ final class HomePage
                 'resume'            => SendAjaxController::ACTION_RESUME,
                 'abort'             => SendAjaxController::ACTION_ABORT,
                 'retryFailed'       => SendAjaxController::ACTION_RETRY_FAILED,
+                'commitSchedule'    => SendAjaxController::ACTION_COMMIT_SCHEDULE,
                 'preview'           => SendAjaxController::ACTION_PREVIEW,
                 'recipientsPreview' => SendAjaxController::ACTION_RECIPIENTS_PREVIEW,
             ],

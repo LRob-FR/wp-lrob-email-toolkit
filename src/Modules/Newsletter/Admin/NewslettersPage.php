@@ -428,7 +428,17 @@ final class NewslettersPage
                         <?php esc_html_e('Test', 'lrob-email-toolkit'); ?>
                     </button>
                     <?php
-                    $has_schedule = ($scheduled_local !== '');
+                    // Overdue + already-committed schedules need a "Send now"
+                    // affordance, not a "Schedule" relabel — the schedule
+                    // commit has already happened, the cron just hasn't
+                    // fired (sites without working pseudo-cron / system cron
+                    // hit this). Treat it as immediate-send for label +
+                    // confirmation purposes.
+                    $sched_ts_for_btn = $scheduled_at !== '' ? strtotime($scheduled_at . ' UTC') : false;
+                    $is_overdue_scheduled = $status === NewsletterRepository::STATUS_SCHEDULED
+                        && $sched_ts_for_btn !== false
+                        && $sched_ts_for_btn <= time();
+                    $has_schedule = ($scheduled_local !== '') && !$is_overdue_scheduled;
                     $shown_title = $title !== '' ? $title : __('(untitled)', 'lrob-email-toolkit');
                     /* translators: %s: newsletter title in confirmation prompt */
                     $confirm_send = sprintf(__('Send "%s" to every targeted recipient? This cannot be undone once it starts.', 'lrob-email-toolkit'), $shown_title);
@@ -518,19 +528,38 @@ final class NewslettersPage
                     $status_msg_class = 'is-error';
                 } elseif ($scheduled_local !== '' && !$is_terminal) {
                     $sched_ts = strtotime($scheduled_at . ' UTC');
+                    $sched_pretty = $sched_ts !== false
+                        ? (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $sched_ts)
+                        : '';
                     if ($sched_ts !== false) {
-                        if ($sched_ts > time()) {
+                        if ($status === NewsletterRepository::STATUS_DRAFT) {
+                            // Date saved but the admin hasn't clicked Schedule
+                            // yet — the commit step is now explicit (see
+                            // SendAjaxController::handle_commit_schedule).
+                            $status_msg = sprintf(
+                                /* translators: %s: absolute datetime */
+                                __('Schedule set for %s — click Schedule to commit.', 'lrob-email-toolkit'),
+                                $sched_pretty
+                            );
+                            $status_msg_class = 'is-info';
+                        } elseif ($sched_ts > time()) {
                             $status_msg = sprintf(
                                 /* translators: %1$s: relative time until send (e.g. "2 days"), %2$s: absolute datetime */
                                 __('Scheduled to send in %1$s — %2$s', 'lrob-email-toolkit'),
                                 human_time_diff(time(), $sched_ts),
-                                (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $sched_ts)
+                                $sched_pretty
                             );
                         } else {
+                            // Overdue and committed. With WP pseudo-cron the
+                            // tick fires on the next admin / front-end hit;
+                            // the tick-on-page-load failsafe at the top of
+                            // this view also nudges it. Sites without
+                            // either need an external cron hitting
+                            // wp-cron.php.
                             $status_msg = sprintf(
                                 /* translators: %s: absolute datetime */
-                                __('Scheduled for %s (now overdue — will send on next click).', 'lrob-email-toolkit'),
-                                (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $sched_ts)
+                                __('Scheduled for %s (overdue — will run on the next cron tick).', 'lrob-email-toolkit'),
+                                $sched_pretty
                             );
                             $status_msg_class = 'is-warn';
                         }

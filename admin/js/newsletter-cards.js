@@ -389,13 +389,24 @@
             }).then(function (ok) {
                 if (!ok) return;
                 if (isSchedule) {
-                    // Scheduled path: companion status is already
-                    // 'scheduled' (sync_pre_send_status flipped it
-                    // when the datetime saved). Cron picks the
-                    // newsletter up at scheduled_at and runs
-                    // materializer + tick. Nothing to do here
-                    // except visual confirmation.
-                    setStatusBadge(card, 'scheduled');
+                    // Scheduled path: server-side commit. Only here does
+                    // the companion flip draft → scheduled (the auto-save
+                    // of the datetime field used to do this silently
+                    // which made the button click look like a no-op).
+                    // SendCron picks it up at scheduled_at and runs
+                    // materializer + tick.
+                    trigger.disabled = true;
+                    post(ACTIONS.commitSchedule, { newsletter_id: newsletterId }).then(function (resp) {
+                        trigger.disabled = false;
+                        if (resp && resp.success) {
+                            setStatusBadge(card, resp.data.status || 'scheduled');
+                            // Reload to refresh the status-msg + button
+                            // states — easier than re-rendering inline.
+                            window.location.reload();
+                        } else {
+                            window.alert((resp && resp.data && resp.data.message) || I18N.tickFailed);
+                        }
+                    });
                     return;
                 }
                 // Immediate-send path.

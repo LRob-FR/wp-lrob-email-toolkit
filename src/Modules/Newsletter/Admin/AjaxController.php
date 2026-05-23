@@ -515,18 +515,21 @@ final class AjaxController
         }
 
         // Scheduled-at: input is local datetime-local (no tz), convert
-        // to UTC for storage. Same logic as the old metabox save.
+        // to UTC for storage. We persist the date silently — the
+        // status only flips to `scheduled` when the admin explicitly
+        // clicks the Schedule button (SendAjaxController::handle_commit_schedule).
+        // The only auto-status-change here is the *de-schedule*: clearing
+        // the date when status is already `scheduled` flips back to `draft`.
         if ($key === NewsletterCPT::META_SCHEDULED_AT) {
             $raw = is_array($value) ? '' : trim((string) $value);
             if ($raw === '') {
                 update_post_meta($newsletter_id, $key, '');
-                $this->sync_pre_send_status($newsletter_id, '');
+                $this->maybe_unschedule($newsletter_id);
                 wp_send_json_success();
             }
             $ts = strtotime($raw . ' ' . wp_timezone_string());
             $stored = $ts === false ? '' : gmdate('Y-m-d H:i:s', $ts);
             update_post_meta($newsletter_id, $key, $stored);
-            $this->sync_pre_send_status($newsletter_id, $stored);
             wp_send_json_success();
         }
 
@@ -556,23 +559,23 @@ final class AjaxController
     }
 
     /**
-     * Flip the companion status between draft and scheduled based on
-     * whether a scheduled_at is set. Only writes when status is still
-     * pre-send (draft/scheduled); refuses to clobber a running send.
+     * If the newsletter is currently `scheduled` and the admin cleared
+     * the date, drop it back to `draft`. Only writes when status is
+     * still pre-send; refuses to clobber a running send.
+     *
+     * Promotion (draft → scheduled) is **not** automatic — it requires
+     * an explicit click on the Schedule button, handled by
+     * SendAjaxController::handle_commit_schedule. Auto-promotion was
+     * confusing: setting the date silently committed the schedule, and
+     * the button click became a no-op.
      */
-    private function sync_pre_send_status(int $post_id, string $scheduled_at): void
+    private function maybe_unschedule(int $post_id): void
     {
         $repo = new NewsletterRepository();
         $row = $repo->find_by_post_id($post_id);
         $current = (string) ($row['status'] ?? NewsletterRepository::STATUS_DRAFT);
-        if (!in_array($current, [NewsletterRepository::STATUS_DRAFT, NewsletterRepository::STATUS_SCHEDULED], true)) {
-            return;
-        }
-        $next = $scheduled_at !== ''
-            ? NewsletterRepository::STATUS_SCHEDULED
-            : NewsletterRepository::STATUS_DRAFT;
-        if ($next !== $current) {
-            $repo->update_status($post_id, $next);
+        if ($current === NewsletterRepository::STATUS_SCHEDULED) {
+            $repo->update_status($post_id, NewsletterRepository::STATUS_DRAFT);
         }
     }
 
