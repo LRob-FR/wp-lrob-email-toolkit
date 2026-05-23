@@ -13,6 +13,7 @@ use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
+use LRob\EmailToolkit\Modules\Newsletter\Send\SendLoop;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository as SMTPIdentityRepository;
 
 /**
@@ -113,6 +114,7 @@ final class NewslettersPage
         $post_id = (int) ($row['post_id'] ?? 0);
         $title = (string) ($row['post_title'] ?? '');
         $status = (string) ($row['status'] ?? NewsletterRepository::STATUS_DRAFT);
+        $pause_reason = (string) ($row['pause_reason'] ?? '');
         $sent = (int) ($row['sent_count'] ?? 0);
         $failed = (int) ($row['failed_count'] ?? 0);
         $total = (int) ($row['total_recipients'] ?? 0);
@@ -460,7 +462,39 @@ final class NewslettersPage
                             <?php echo ($is_sending || $is_paused) ? '' : 'hidden'; ?>>
                         <?php esc_html_e('Abort', 'lrob-email-toolkit'); ?>
                     </button>
+                    <?php if ($failed > 0) :
+                        // Re-queue failed rows back to pending. Only meaningful
+                        // when there's something to re-queue; shown for both
+                        // mid-send (paused) and post-mortem (sent / failed)
+                        // states.
+                        ?>
+                        <button type="button"
+                                class="button"
+                                data-send-retry-failed
+                                data-failed-count="<?php echo (int) $failed; ?>"
+                                title="<?php esc_attr_e('Re-queue every failed recipient for another send attempt.', 'lrob-email-toolkit'); ?>">
+                            <?php
+                            /* translators: %d: number of failed recipients */
+                            echo esc_html(sprintf(__('Retry failed (%d)', 'lrob-email-toolkit'), $failed));
+                            ?>
+                        </button>
+                    <?php endif; ?>
                 </div>
+
+                <?php if ($is_paused && $pause_reason === SendLoop::PAUSE_REASON_SMTP_UNHEALTHY) : ?>
+                    <div class="lrob-etk-nl-card-banner is-error" role="alert">
+                        <strong><?php esc_html_e('SMTP looks unhealthy — sending paused.', 'lrob-email-toolkit'); ?></strong>
+                        <span>
+                            <?php
+                            printf(
+                                /* translators: %d: consecutive-failure threshold */
+                                esc_html__('We hit %d consecutive failed sends in a row. Fix your SMTP identity, then click Resume — the next tick will re-test and either continue or pause again.', 'lrob-email-toolkit'),
+                                (int) SendLoop::CONSECUTIVE_FAILURE_THRESHOLD
+                            );
+                            ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
                 <?php
                 // Status message under the action row.
                 $status_msg = '';

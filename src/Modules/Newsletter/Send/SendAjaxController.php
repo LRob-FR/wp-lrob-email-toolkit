@@ -51,6 +51,8 @@ final class SendAjaxController
 
     public const ACTION_ABORT  = 'lrob_etk_nl_send_abort';
 
+    public const ACTION_RETRY_FAILED = 'lrob_etk_nl_retry_failed';
+
     public const ACTION_PREVIEW = 'lrob_etk_nl_preview';
 
     public const ACTION_RECIPIENTS_PREVIEW = 'lrob_etk_nl_recipients_preview';
@@ -74,6 +76,7 @@ final class SendAjaxController
         add_action('wp_ajax_' . self::ACTION_PAUSE,     [$this, 'handle_pause']);
         add_action('wp_ajax_' . self::ACTION_RESUME,    [$this, 'handle_resume']);
         add_action('wp_ajax_' . self::ACTION_ABORT,     [$this, 'handle_abort']);
+        add_action('wp_ajax_' . self::ACTION_RETRY_FAILED, [$this, 'handle_retry_failed']);
         add_action('wp_ajax_' . self::ACTION_PREVIEW,   [$this, 'handle_preview']);
         add_action('wp_ajax_' . self::ACTION_RECIPIENTS_PREVIEW, [$this, 'handle_recipients_preview']);
     }
@@ -287,7 +290,9 @@ final class SendAjaxController
                 'message' => __('Only a paused newsletter can be resumed.', 'lrob-email-toolkit'),
             ], 400);
         }
-        $this->newsletters->update_status($newsletter_id, NewsletterRepository::STATUS_SENDING);
+        // Clear pause_reason too — if SMTP is still broken, the circuit-
+        // breaker will trip again on the next tick and re-set it.
+        $this->newsletters->update_status_with_reason($newsletter_id, NewsletterRepository::STATUS_SENDING, null);
         Events::dispatch('newsletter.resumed', ['newsletter_id' => $newsletter_id]);
         wp_send_json_success(['status' => NewsletterRepository::STATUS_SENDING]);
     }
@@ -335,6 +340,66 @@ final class SendAjaxController
         wp_send_json_success([
             'status'  => NewsletterRepository::STATUS_ABORTED,
             'skipped' => $skipped,
+        ]);
+    }
+
+    /**
+     * Retry-failed: flip every `failed` newsletter_recipients row back to
+     * `pending` and decrement the companion's failed_count by the same
+     * count. Designed for two scenarios:
+     *
+     *   1. SMTP went down mid-send and the circuit-breaker tripped only
+     *      after some rows were already marked failed — the admin fixes
+     *      SMTP and clicks "Retry failed" to re-queue those rows.
+     *   2. The send completed but the post-mortem found a chunk of
+     *      transient failures (provider had a hiccup). Same fix.
+     *
+     * If the newsletter is currently in `sent`, we flip it back to
+     * `sending` so SendCron / next AJAX tick processes the re-queued rows.
+     * `paused` / `sending` stay as-is.
+     */
+    public function handle_retry_failed(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
+        $status = (string) ($row['status'] ?? '');
+        $allowed = [
+            NewsletterRepository::STATUS_SENDING,
+            NewsletterRepository::STATUS_PAUSED,
+            NewsletterRepository::STATUS_SENT,
+            NewsletterRepository::STATUS_FAILED,
+        ];
+        if (!in_array($status, $allowed, true)) {
+            wp_send_json_error([
+                'message' => __('No failed recipients to retry for this newsletter.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        $reset = $this->newsletters->retry_failed_recipients($newsletter_id);
+        if ($reset === 0) {
+            wp_send_json_error([
+                'message' => __('No failed recipients to retry.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        // If the newsletter had already converged to sent/failed because
+        // the previous pass ran to completion, flip it back to sending
+        // so the existing send pipeline picks up the re-queued rows.
+        if ($status === NewsletterRepository::STATUS_SENT || $status === NewsletterRepository::STATUS_FAILED) {
+            $this->newsletters->update_status_with_reason(
+                $newsletter_id,
+                NewsletterRepository::STATUS_SENDING,
+                null
+            );
+        }
+        Events::dispatch('newsletter.recipients.requeued', [
+            'newsletter_id' => $newsletter_id,
+            'count'         => $reset,
+        ]);
+        wp_send_json_success([
+            'requeued' => $reset,
+            'status'   => $status === NewsletterRepository::STATUS_SENT || $status === NewsletterRepository::STATUS_FAILED
+                ? NewsletterRepository::STATUS_SENDING
+                : $status,
         ]);
     }
 

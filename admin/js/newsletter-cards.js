@@ -202,7 +202,7 @@
     var testModalNewsletterId = 0;
 
     document.addEventListener('click', function (e) {
-        var trigger = e.target.closest('[data-send-now], [data-send-pause], [data-send-resume], [data-send-abort], [data-test-send], [data-card-preview], [data-card-recipients], [data-card-delete], [data-card-test]');
+        var trigger = e.target.closest('[data-send-now], [data-send-pause], [data-send-resume], [data-send-abort], [data-send-retry-failed], [data-test-send], [data-card-preview], [data-card-recipients], [data-card-delete], [data-card-test]');
         if (!trigger) return;
         // [data-test-send] (Send-test button INSIDE the modal) uses
         // testModalNewsletterId, not a card ancestor.
@@ -446,6 +446,30 @@
                     trigger.disabled = false;
                     if (resp && resp.success) setStatusBadge(card, resp.data.status || 'aborted');
                     else window.alert((resp && resp.data && resp.data.message) || I18N.tickFailed);
+                });
+            });
+            return;
+        }
+
+        if (trigger.hasAttribute('data-send-retry-failed')) {
+            var failedCount = parseInt(trigger.getAttribute('data-failed-count') || '0', 10) || 0;
+            etkConfirm({
+                title: I18N.retryFailedTitle || 'Retry failed recipients',
+                body: fmt(I18N.retryFailedConfirm || 'Re-queue %d failed recipient(s)?', [failedCount]),
+                confirmLabel: I18N.retryFailedAction || 'Retry'
+            }).then(function (ok) {
+                if (!ok) return;
+                trigger.disabled = true;
+                post(ACTIONS.retryFailed, { newsletter_id: newsletterId }).then(function (resp) {
+                    trigger.disabled = false;
+                    if (resp && resp.success) {
+                        // Reload the page so the card re-renders with
+                        // updated counters + status. The send pipeline
+                        // will pick up the re-queued rows on next tick.
+                        window.location.reload();
+                    } else {
+                        window.alert((resp && resp.data && resp.data.message) || I18N.tickFailed);
+                    }
                 });
             });
             return;

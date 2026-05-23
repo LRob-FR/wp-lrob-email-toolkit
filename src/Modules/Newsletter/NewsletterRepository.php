@@ -85,6 +85,67 @@ final class NewsletterRepository
     }
 
     /**
+     * Atomically set status + pause_reason. Used by the SMTP circuit-breaker
+     * to record *why* a send was paused, so the card UI can surface the
+     * right banner ("we paused because SMTP went bad" vs admin-pause).
+     * Pass `null` for $reason to clear the field (e.g. on resume).
+     */
+    public function update_status_with_reason(int $post_id, string $status, ?string $reason): void
+    {
+        if ($post_id <= 0) {
+            return;
+        }
+        global $wpdb;
+        $wpdb->update(
+            Schema::newsletters_table(),
+            ['status' => $status, 'pause_reason' => $reason],
+            ['post_id' => $post_id],
+            ['%s', '%s'],
+            ['%d']
+        );
+    }
+
+    /**
+     * Flip every `failed` recipient row back to `pending`, clear its
+     * failure_code, and decrement the companion's failed_count by the
+     * number of rows affected. If the companion was already in a terminal
+     * status (sent / failed) because the previous pass completed with
+     * failures, the caller can flip it back to sending separately.
+     *
+     * Returns the count of rows that were re-queued.
+     */
+    public function retry_failed_recipients(int $post_id): int
+    {
+        if ($post_id <= 0) {
+            return 0;
+        }
+        global $wpdb;
+        $recipients = Schema::newsletter_recipients_table();
+        $newsletters = Schema::newsletters_table();
+
+        $affected = (int) $wpdb->query($wpdb->prepare(
+            "UPDATE `$recipients`
+                SET status = 'pending', failure_code = ''
+              WHERE newsletter_id = %d AND status = 'failed'",
+            $post_id
+        ));
+        if ($affected <= 0) {
+            return 0;
+        }
+        // Counter bump uses GREATEST so a stale failed_count never
+        // underflows into negative territory (varies by site, recovery
+        // imports, etc.).
+        $wpdb->query($wpdb->prepare(
+            "UPDATE `$newsletters`
+                SET failed_count = GREATEST(0, CAST(failed_count AS SIGNED) - %d)
+              WHERE post_id = %d",
+            $affected,
+            $post_id
+        ));
+        return $affected;
+    }
+
+    /**
      * Drop the companion row + any per-recipient state when a
      * newsletter post is deleted (called from before_delete_post).
      * The `newsletter_recipients` rows would be orphaned without
@@ -119,6 +180,7 @@ final class NewsletterRepository
                     p.post_date_gmt,
                     p.post_modified_gmt,
                     c.status,
+                    c.pause_reason,
                     c.total_recipients,
                     c.sent_count,
                     c.failed_count,

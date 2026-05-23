@@ -185,9 +185,12 @@ final class Schema
         // Hot counters live here so updating sent_count++ per recipient
         // doesn't touch the wp_postmeta hot path.
         // status: draft | scheduled | materializing | sending | paused | sent | failed | aborted
+        // pause_reason: NULL (user-initiated pause) | smtp_unhealthy (circuit
+        //   breaker tripped on consecutive SMTP failures) | other future codes.
         $sql_newsletters = "CREATE TABLE $newsletters (
             post_id bigint(20) unsigned NOT NULL,
             status varchar(20) NOT NULL DEFAULT 'draft',
+            pause_reason varchar(50) DEFAULT NULL,
             total_recipients int unsigned NOT NULL DEFAULT 0,
             sent_count int unsigned NOT NULL DEFAULT 0,
             failed_count int unsigned NOT NULL DEFAULT 0,

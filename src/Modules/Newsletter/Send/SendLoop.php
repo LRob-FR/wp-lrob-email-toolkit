@@ -37,6 +37,18 @@ final class SendLoop
 
     public const HEADER_NEWSLETTER_RECIPIENT_ID = 'X-Lrob-Etk-Newsletter-Recipient-ID';
 
+    /**
+     * SMTP circuit-breaker threshold. Five consecutive wp_mail failures
+     * inside a single tick = "SMTP is down or misconfigured", abort the
+     * tick, release the still-claimed rows back to `pending`, and pause
+     * the newsletter with pause_reason='smtp_unhealthy'. A single isolated
+     * failure (e.g. one bad recipient address) doesn't trip the breaker —
+     * the counter resets to 0 on any successful send.
+     */
+    public const CONSECUTIVE_FAILURE_THRESHOLD = 5;
+
+    public const PAUSE_REASON_SMTP_UNHEALTHY = 'smtp_unhealthy';
+
     public function __construct(private NewsletterRepository $newsletters)
     {
     }
@@ -76,7 +88,11 @@ final class SendLoop
 
         $sent = 0;
         $failed = 0;
-        foreach ($claimed as $row) {
+        $consecutive_failures = 0;
+        $breaker_tripped = false;
+        $unprocessed_ids = [];
+
+        foreach ($claimed as $i => $row) {
             $row_id = (int) $row['id'];
             $email = (string) $row['email_snapshot'];
             $name = (string) ($row['name_snapshot'] ?? '');
@@ -85,6 +101,9 @@ final class SendLoop
             $tokens = NewsletterRenderer::tokens_for_recipient($email, $name, $prefs_token);
             $body = NewsletterRenderer::render($newsletter_id, $tokens);
             if ($body === '' || !is_email($email)) {
+                // Bad recipient data is the recipient's problem, not SMTP's.
+                // Mark it failed but don't count it toward the breaker —
+                // otherwise a batch with a few invalid emails could trip us.
                 $this->mark_failed($row_id, 'invalid_recipient_or_body');
                 $failed++;
                 continue;
@@ -95,6 +114,7 @@ final class SendLoop
             if ($ok) {
                 $this->mark_sent($row_id);
                 $sent++;
+                $consecutive_failures = 0;
                 Events::dispatch('newsletter.recipient.sent', [
                     'newsletter_id'    => $newsletter_id,
                     'recipient_kind' => (string) $row['recipient_kind'],
@@ -104,6 +124,7 @@ final class SendLoop
             } else {
                 $this->mark_failed($row_id, 'wp_mail_failed');
                 $failed++;
+                $consecutive_failures++;
                 Events::dispatch('newsletter.recipient.failed', [
                     'newsletter_id'    => $newsletter_id,
                     'recipient_kind' => (string) $row['recipient_kind'],
@@ -111,10 +132,44 @@ final class SendLoop
                     'email'          => $email,
                     'failure_code'   => 'wp_mail_failed',
                 ]);
+                if ($consecutive_failures >= self::CONSECUTIVE_FAILURE_THRESHOLD) {
+                    // SMTP is unhealthy. Stop the bleed. Any still-claimed
+                    // rows after this index were flipped to 'sending' by
+                    // claim_batch but haven't been processed — release
+                    // them back to 'pending' so resume picks them up.
+                    $breaker_tripped = true;
+                    for ($j = $i + 1; $j < count($claimed); $j++) {
+                        $unprocessed_ids[] = (int) $claimed[$j]['id'];
+                    }
+                    break;
+                }
             }
         }
 
+        if ($unprocessed_ids !== []) {
+            $this->release_claimed($unprocessed_ids);
+        }
+
         $this->bump_counters($newsletter_id, $sent, $failed);
+
+        if ($breaker_tripped) {
+            $this->newsletters->update_status_with_reason(
+                $newsletter_id,
+                NewsletterRepository::STATUS_PAUSED,
+                self::PAUSE_REASON_SMTP_UNHEALTHY
+            );
+            Events::dispatch('newsletter.paused', [
+                'newsletter_id' => $newsletter_id,
+                'reason'        => self::PAUSE_REASON_SMTP_UNHEALTHY,
+            ]);
+            return $this->progress(
+                $newsletter_id,
+                $sent,
+                $failed,
+                NewsletterRepository::STATUS_PAUSED,
+                self::PAUSE_REASON_SMTP_UNHEALTHY
+            );
+        }
 
         // Re-read companion to compute remaining + decide completion.
         $row = $this->newsletters->find_by_post_id($newsletter_id);
@@ -128,6 +183,27 @@ final class SendLoop
         }
 
         return $this->progress($newsletter_id, $sent, $failed, NewsletterRepository::STATUS_SENDING);
+    }
+
+    /**
+     * Release rows that were claimed (flipped to 'sending') but never
+     * actually processed because the SMTP circuit-breaker tripped mid-tick.
+     * Resume picks them up like any other pending row.
+     *
+     * @param array<int, int> $row_ids
+     */
+    private function release_claimed(array $row_ids): void
+    {
+        if ($row_ids === []) {
+            return;
+        }
+        global $wpdb;
+        $table = Schema::newsletter_recipients_table();
+        $placeholders = implode(',', array_fill(0, count($row_ids), '%d'));
+        $wpdb->query($wpdb->prepare(
+            "UPDATE `$table` SET status = 'pending' WHERE id IN ($placeholders)",
+            ...$row_ids
+        ));
     }
 
     /**
@@ -228,13 +304,16 @@ final class SendLoop
     /**
      * @return array<string, mixed>
      */
-    private function progress(int $newsletter_id, int $sent_this_tick, int $failed_this_tick, string $status): array
+    private function progress(int $newsletter_id, int $sent_this_tick, int $failed_this_tick, string $status, ?string $pause_reason = null): array
     {
         $row = $this->newsletters->find_by_post_id($newsletter_id);
         $total = (int) ($row['total_recipients'] ?? 0);
         $total_sent = (int) ($row['sent_count'] ?? 0);
         $total_failed = (int) ($row['failed_count'] ?? 0);
         $remaining = max(0, $total - $total_sent - $total_failed);
+        if ($pause_reason === null && isset($row['pause_reason'])) {
+            $pause_reason = (string) $row['pause_reason'] !== '' ? (string) $row['pause_reason'] : null;
+        }
         return [
             'sent_this_tick'   => $sent_this_tick,
             'failed_this_tick' => $failed_this_tick,
@@ -243,6 +322,7 @@ final class SendLoop
             'failed'           => $total_failed,
             'remaining'        => $remaining,
             'status'           => $status,
+            'pause_reason'     => $pause_reason,
         ];
     }
 

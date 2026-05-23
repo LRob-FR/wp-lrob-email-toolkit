@@ -97,10 +97,13 @@ final class Module extends AbstractModule
      *       'lrob_etk_newsletter' WHERE post_type='lrob_etk_nl_campaign'.
      *       Class names + event names + payload keys are renamed in
      *       code only — no further data migration needed.
+     *   7 — adds `pause_reason varchar(50) DEFAULT NULL` to the
+     *       newsletters companion table for the SMTP circuit-breaker
+     *       (step 7c). Additive — dbDelta handles it via plain install().
      */
     public function db_version_int(): int
     {
-        return 6;
+        return 7;
     }
 
     public function install(): void

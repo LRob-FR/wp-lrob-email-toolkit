@@ -122,6 +122,7 @@ final class HomePage
                 'pause'             => SendAjaxController::ACTION_PAUSE,
                 'resume'            => SendAjaxController::ACTION_RESUME,
                 'abort'             => SendAjaxController::ACTION_ABORT,
+                'retryFailed'       => SendAjaxController::ACTION_RETRY_FAILED,
                 'preview'           => SendAjaxController::ACTION_PREVIEW,
                 'recipientsPreview' => SendAjaxController::ACTION_RECIPIENTS_PREVIEW,
             ],
@@ -149,6 +150,12 @@ final class HomePage
                 'scheduledOverdue'     => __('in the past (will send on next click)', 'lrob-email-toolkit'),
                 'abortTitle'           => __('Abort send', 'lrob-email-toolkit'),
                 'abortConfirm'         => __('Abort', 'lrob-email-toolkit'),
+                'retryFailedTitle'     => __('Retry failed recipients', 'lrob-email-toolkit'),
+                /* translators: %d: number of failed recipients to re-queue */
+                'retryFailedConfirm'   => __('Re-queue %d failed recipient(s) for another send attempt? Make sure SMTP is healthy first.', 'lrob-email-toolkit'),
+                'retryFailedAction'    => __('Retry', 'lrob-email-toolkit'),
+                /* translators: %d: number of recipients re-queued */
+                'retryFailedDone'      => __('%d recipient(s) re-queued.', 'lrob-email-toolkit'),
             ],
         ]);
     }

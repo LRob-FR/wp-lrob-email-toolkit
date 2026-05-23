@@ -1014,6 +1014,26 @@
     display: none;
 }
 
+/* SMTP-unhealthy / other-error banner inside a newsletter card. Bigger
+ * than status-msg because it carries actionable explanation, not just a
+ * timestamp. */
+.lrob-etk-nl-card-banner {
+    margin: 0.5rem 0 0;
+    padding: 0.6rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.lrob-etk-nl-card-banner.is-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border-left: 3px solid #b32d2e;
+}
+
 /* Quick-link next to a field label ("Edit categories →", "Manage
  * identities →"). Sits to the right of the label text, small + muted
  * to stay out of the way until the admin looks for it. */
