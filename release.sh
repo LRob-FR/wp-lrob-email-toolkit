@@ -125,6 +125,11 @@ generate_pot() {
     ok "${PLUGIN_SLUG}.pot"
 }
 
+# msgmerge: pull fresh source references from the .pot into every .po,
+# strip obsolete entries (those whose source string no longer exists),
+# and print the count so milestone translation passes can see what
+# moved. Loops over *every* .po — drop a new locale (e.g. `es_ES.po`)
+# next to fr_FR.po and it gets picked up automatically.
 merge_translations() {
     step "msgmerge"
     shopt -s nullglob
@@ -133,11 +138,22 @@ merge_translations() {
     [ ${#po_files[@]} -eq 0 ] && { warn "no .po files"; return 0; }
     for po in "${po_files[@]}"; do
         msgmerge --quiet --update --backup=none "$po" "$LANGUAGES_DIR/${PLUGIN_SLUG}.pot" 2>/dev/null
-        msgattrib --no-obsolete -o "$po" "$po"
-        ok "$(basename "$po")"
+        local obsolete; obsolete=$(grep -c '^#~ msgid' "$po" || true)
+        obsolete=${obsolete:-0}
+        if [ "$obsolete" -gt 0 ]; then
+            msgattrib --no-obsolete -o "$po" "$po"
+            ok "$(basename "$po") (pruned $obsolete obsolete)"
+        else
+            ok "$(basename "$po")"
+        fi
     done
 }
 
+# msgfmt compiles each .po → .mo and prints per-language translation
+# stats. Fuzzy entries are NOT compiled into the .mo by default — they
+# need manual review (or `msgattrib --clear-fuzzy` to accept them
+# wholesale). Untranslated entries also don't ship; the source string
+# is shown to the user at runtime.
 compile_translations() {
     step "msgfmt"
     shopt -s nullglob
@@ -145,7 +161,12 @@ compile_translations() {
     shopt -u nullglob
     [ ${#po_files[@]} -eq 0 ] && return 0
     for po in "${po_files[@]}"; do
-        msgfmt -o "${po%.po}.mo" "$po" 2>/dev/null && ok "$(basename "${po%.po}.mo")"
+        if msgfmt -o "${po%.po}.mo" "$po" 2>/dev/null; then
+            local stats; stats=$(msgfmt --statistics "$po" -o /dev/null 2>&1 | tr -d '\n')
+            ok "$(basename "${po%.po}.mo") — $stats"
+        else
+            fail "$(basename "$po")"
+        fi
     done
 }
 

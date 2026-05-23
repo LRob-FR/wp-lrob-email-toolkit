@@ -125,6 +125,7 @@ final class HomePage
                 'retryFailed'       => SendAjaxController::ACTION_RETRY_FAILED,
                 'commitSchedule'    => SendAjaxController::ACTION_COMMIT_SCHEDULE,
                 'uncommitSchedule'  => SendAjaxController::ACTION_UNCOMMIT_SCHEDULE,
+                'cardStates'        => SendAjaxController::ACTION_CARD_STATES,
                 'preview'           => SendAjaxController::ACTION_PREVIEW,
                 'recipientsPreview' => SendAjaxController::ACTION_RECIPIENTS_PREVIEW,
             ],
@@ -147,7 +148,7 @@ final class HomePage
                 'hourSingular'         => __('hour', 'lrob-email-toolkit'),
                 'days'                 => __('days', 'lrob-email-toolkit'),
                 'daySingular'          => __('day', 'lrob-email-toolkit'),
-                /* translators: %1$s: relative time until send (e.g. "2 days"), %2$s: absolute datetime */
+                /* translators: %1$s: relative time span (e.g. "2 days"), %2$s: absolute datetime */
                 'scheduledTemplate'    => __('Scheduled to send in %1$s — %2$s', 'lrob-email-toolkit'),
                 /* translators: %s: absolute datetime */
                 'scheduleSetTemplate'  => __('Schedule set for %s — click Schedule to commit.', 'lrob-email-toolkit'),
@@ -164,6 +165,9 @@ final class HomePage
                 'unscheduleTitle'      => __('Unschedule send', 'lrob-email-toolkit'),
                 'unscheduleConfirm'    => __('Drop this scheduled send back to draft? The date stays saved so you can re-commit later.', 'lrob-email-toolkit'),
                 'unscheduleAction'     => __('Unschedule', 'lrob-email-toolkit'),
+                'seconds'              => __('seconds', 'lrob-email-toolkit'),
+                'secondSingular'       => __('second', 'lrob-email-toolkit'),
+                'refresh'              => __('Refresh', 'lrob-email-toolkit'),
             ],
         ]);
     }

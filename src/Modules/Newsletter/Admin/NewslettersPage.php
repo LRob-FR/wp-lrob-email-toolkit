@@ -100,6 +100,23 @@ final class NewslettersPage
     }
 
     /**
+     * Render a span carrying `data-relative-to="<unix>"` so the JS
+     * clock-tick can refresh its text every few seconds without a
+     * server round-trip. Server-rendered text is the WP `human_time_diff`
+     * value (correct on page load); the JS swaps in its own formatter
+     * that mirrors the same buckets, with second-level granularity
+     * added (human_time_diff floors anything under a minute to "1 min").
+     */
+    private static function relative_span(int $ts, int $now): string
+    {
+        return sprintf(
+            '<span data-relative-to="%d">%s</span>',
+            $ts,
+            esc_html(human_time_diff($ts, $now))
+        );
+    }
+
+    /**
      * Footer panel surfacing WP-Cron health. The Newsletter send
      * pipeline depends on `SendCron` ticking every minute, which on
      * default WP installs relies on pseudo-cron — a non-blocking HTTP
@@ -145,7 +162,7 @@ final class NewslettersPage
 
         $date_fmt = get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i:s');
         ?>
-        <section class="lrob-etk-nl-cron-diagnostic is-<?php echo esc_attr($level); ?>">
+        <section class="lrob-etk-nl-cron-diagnostic is-<?php echo esc_attr($level); ?>" data-cron-diagnostic>
             <header class="lrob-etk-nl-cron-diagnostic-head">
                 <span class="lrob-etk-nl-cron-badge"><?php
                     echo esc_html(match ($level) {
@@ -155,17 +172,29 @@ final class NewslettersPage
                         default => $level,
                     });
                 ?></span>
-                <h3 class="lrob-etk-section-title"><?php esc_html_e('WP-Cron health', 'lrob-email-toolkit'); ?></h3>
+                <h3 class="lrob-etk-section-title">
+                    <?php esc_html_e('WP-Cron health', 'lrob-email-toolkit'); ?>
+                    <?php Tooltip::render(__('A cron is a task that runs on a schedule — every minute, every hour, etc. WordPress uses one to fire off scheduled work like sending queued newsletters, cleaning up trash, or running maintenance. By default it\'s triggered by visitors loading any page on your site (called "pseudo-cron"); a real server cron is more reliable, especially during quiet hours.', 'lrob-email-toolkit')); ?>
+                </h3>
+                <button type="button" class="button button-small lrob-etk-nl-cron-refresh" data-cron-refresh
+                        title="<?php esc_attr_e('Re-fetch cron health + every card state.', 'lrob-email-toolkit'); ?>">
+                    <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                    <?php esc_html_e('Refresh', 'lrob-email-toolkit'); ?>
+                </button>
+                <label class="lrob-etk-nl-cron-autorefresh" title="<?php esc_attr_e('Poll the server every 10 seconds. Off by default — turn it on while diagnosing or watching a send.', 'lrob-email-toolkit'); ?>">
+                    <input type="checkbox" data-cron-autorefresh>
+                    <?php esc_html_e('Auto-refresh', 'lrob-email-toolkit'); ?>
+                </label>
             </header>
             <dl class="lrob-etk-nl-cron-diagnostic-grid">
                 <dt><?php esc_html_e('Last observed tick', 'lrob-email-toolkit'); ?></dt>
-                <dd>
+                <dd data-cron-last-tick="<?php echo (int) $last_tick; ?>">
                     <?php if ($last_tick > 0) : ?>
                         <?php
                         printf(
-                            /* translators: 1: relative time (e.g. "30 seconds"), 2: absolute datetime */
-                            esc_html__('%1$s ago — %2$s', 'lrob-email-toolkit'),
-                            esc_html(human_time_diff($last_tick, $now)),
+                            /* translators: 1: relative time span (e.g. "30 seconds"), 2: absolute datetime */
+                            wp_kses(__('%1$s ago — %2$s', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
+                            self::relative_span($last_tick, $now),
                             esc_html((string) wp_date($date_fmt, $last_tick))
                         );
                         ?>
@@ -174,24 +203,24 @@ final class NewslettersPage
                     <?php endif; ?>
                 </dd>
                 <dt><?php esc_html_e('Next scheduled tick', 'lrob-email-toolkit'); ?></dt>
-                <dd>
+                <dd data-cron-next-tick="<?php echo $next_tick !== false ? (int) $next_tick : 0; ?>">
                     <?php if ($next_tick === false) : ?>
                         <?php esc_html_e('not scheduled', 'lrob-email-toolkit'); ?>
                     <?php elseif ($next_tick > $now) : ?>
                         <?php
                         printf(
-                            /* translators: 1: relative time (e.g. "30 seconds"), 2: absolute datetime */
-                            esc_html__('in %1$s — %2$s', 'lrob-email-toolkit'),
-                            esc_html(human_time_diff($now, $next_tick)),
+                            /* translators: 1: relative time span (e.g. "30 seconds"), 2: absolute datetime */
+                            wp_kses(__('in %1$s — %2$s', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
+                            self::relative_span($next_tick, $now),
                             esc_html((string) wp_date($date_fmt, $next_tick))
                         );
                         ?>
                     <?php else : ?>
                         <?php
                         printf(
-                            /* translators: %s: how long the tick has been overdue (e.g. "2 minutes") */
-                            esc_html__('overdue by %s', 'lrob-email-toolkit'),
-                            esc_html(human_time_diff($next_tick, $now))
+                            /* translators: %s: relative time span (how long the tick has been overdue) */
+                            wp_kses(__('overdue by %s', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
+                            self::relative_span($next_tick, $now)
                         );
                         ?>
                     <?php endif; ?>
@@ -204,6 +233,22 @@ final class NewslettersPage
                 <?php endif; ?>
             </dl>
             <p class="lrob-etk-nl-cron-diagnostic-verdict"><?php echo esc_html($verdict); ?></p>
+            <?php if (!$disabled) : ?>
+                <p class="lrob-etk-nl-cron-tip">
+                    <strong><?php esc_html_e('Tip:', 'lrob-email-toolkit'); ?></strong>
+                    <?php
+                    echo wp_kses(
+                        sprintf(
+                            /* translators: %s: <a href="…">LRob</a> link to lrob.fr */
+                            __('You can use %s to switch to a server cron instead.', 'lrob-email-toolkit'),
+                            '<a href="https://www.lrob.fr/" target="_blank" rel="noopener noreferrer">LRob</a>'
+                        ),
+                        ['a' => ['href' => true, 'target' => true, 'rel' => true]]
+                    );
+                    Tooltip::render(__('Server crons run every minute regardless of traffic — more reliable for scheduled sends on low-traffic sites, and no per-page loopback HTTP request. LRob configures this in a click (or assists at no extra cost) and ships with 2000 mails/h enabled by default (more on demand).', 'lrob-email-toolkit'));
+                    ?>
+                </p>
+            <?php endif; ?>
         </section>
         <?php
     }
@@ -642,9 +687,9 @@ final class NewslettersPage
                     $sent_ts = strtotime(((string) ($row['completed_at'] ?? $row['started_at'] ?? $created)) . ' UTC');
                     if ($sent_ts !== false) {
                         $status_msg = sprintf(
-                            /* translators: %1$s: relative time (e.g. "5 hours"), %2$s: absolute datetime */
-                            __('Sent %1$s ago, on %2$s', 'lrob-email-toolkit'),
-                            human_time_diff($sent_ts, time()),
+                            /* translators: %1$s: relative time span (e.g. "5 hours"), %2$s: absolute datetime */
+                            wp_kses(__('Sent %1$s ago, on %2$s', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
+                            self::relative_span($sent_ts, time()),
                             (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $sent_ts)
                         );
                     }
@@ -673,9 +718,9 @@ final class NewslettersPage
                             $status_msg_class = 'is-info';
                         } elseif ($sched_ts > time()) {
                             $status_msg = sprintf(
-                                /* translators: %1$s: relative time until send (e.g. "2 days"), %2$s: absolute datetime */
-                                __('Scheduled to send in %1$s — %2$s', 'lrob-email-toolkit'),
-                                human_time_diff(time(), $sched_ts),
+                                /* translators: %1$s: relative time span (e.g. "2 days"), %2$s: absolute datetime */
+                                wp_kses(__('Scheduled to send in %1$s — %2$s', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
+                                self::relative_span($sched_ts, time()),
                                 $sched_pretty
                             );
                         } else {
@@ -687,20 +732,28 @@ final class NewslettersPage
                             // "Send now" (the button morphs to that
                             // label in the overdue case) or fix the
                             // cron pipeline.
-                            $next_tick = wp_next_scheduled(\LRob\EmailToolkit\Modules\Newsletter\Send\SendCron::CRON_HOOK);
+                            $next_tick = wp_next_scheduled(SendCron::CRON_HOOK);
+                            // 60s grace: a tick that's a few seconds late
+                            // is just normal pseudo-cron timing (one
+                            // page-load away), not a stalled cron. Only
+                            // flip to the alarming "stalled" message when
+                            // the tick is meaningfully late.
+                            $stall_threshold = 60;
                             if ($next_tick === false) {
                                 $cron_info = __('the cron tick is not scheduled — re-enable the Newsletter module to fix', 'lrob-email-toolkit');
                             } elseif ($next_tick > time()) {
                                 $cron_info = sprintf(
-                                    /* translators: %s: relative time until next cron tick (e.g. "30 seconds") */
-                                    __('next cron tick in %s', 'lrob-email-toolkit'),
-                                    human_time_diff(time(), $next_tick)
+                                    /* translators: %s: relative time span until next cron tick (e.g. "30 seconds") */
+                                    wp_kses(__('next cron tick in %s', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
+                                    self::relative_span($next_tick, time())
                                 );
+                            } elseif ((time() - $next_tick) <= $stall_threshold) {
+                                $cron_info = __('cron tick firing imminently', 'lrob-email-toolkit');
                             } else {
                                 $cron_info = sprintf(
-                                    /* translators: %s: how long ago the cron should have run (e.g. "5 minutes") */
-                                    __('cron stalled — the tick was due %s ago, pseudo-cron isn\'t firing on this site', 'lrob-email-toolkit'),
-                                    human_time_diff($next_tick, time())
+                                    /* translators: %s: relative time span (how long ago the cron should have run) */
+                                    wp_kses(__('cron stalled — the tick was due %s ago, pseudo-cron isn\'t firing on this site', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
+                                    self::relative_span($next_tick, time())
                                 );
                                 $status_msg_class = 'is-error';
                             }
@@ -718,7 +771,13 @@ final class NewslettersPage
                 }
                 ?>
                 <p class="lrob-etk-nl-card-status-msg <?php echo esc_attr($status_msg_class); ?>" data-status-msg <?php echo $status_msg === '' ? 'hidden' : ''; ?>>
-                    <?php echo esc_html($status_msg); ?>
+                    <?php
+                    // Some branches inject `<span data-relative-to>` for
+                    // the live clock-tick — wp_kses allows it through.
+                    // Other branches are plain text; wp_kses leaves them
+                    // alone (no HTML to strip).
+                    echo wp_kses($status_msg, ['span' => ['data-relative-to' => true]]);
+                    ?>
                 </p>
 
                 <?php

@@ -62,6 +62,13 @@ final class SendCron
     {
         add_filter('cron_schedules', [self::class, 'register_interval']);
         add_action(self::CRON_HOOK, [$this, 'handle_tick']);
+        // Self-heal: re-schedule if the event somehow isn't in the cron
+        // queue. Catches the install-order bug where maybe_migrate() ran
+        // BEFORE the cron_schedules filter was added — wp_schedule_event
+        // silently rejected the unknown 'lrob_etk_nl_minute' interval
+        // and the event never got queued. Idempotent because schedule()
+        // checks wp_next_scheduled first.
+        self::schedule();
     }
 
     /**
@@ -81,9 +88,17 @@ final class SendCron
 
     public static function schedule(): void
     {
-        if (wp_next_scheduled(self::CRON_HOOK) === false) {
-            wp_schedule_event(time() + 60, self::CRON_INTERVAL_KEY, self::CRON_HOOK);
+        if (wp_next_scheduled(self::CRON_HOOK) !== false) {
+            return;
         }
+        // Make sure the custom 1-minute interval is known to WP-Cron
+        // before we try to schedule with it. The Module's normal boot
+        // path also adds this filter in register(), but install() may
+        // run *before* register() during a fresh activation / migrate,
+        // in which case the filter wasn't on yet and wp_schedule_event
+        // would silently fail with an unknown-interval error.
+        add_filter('cron_schedules', [self::class, 'register_interval']);
+        wp_schedule_event(time() + 60, self::CRON_INTERVAL_KEY, self::CRON_HOOK);
     }
 
     public static function unschedule(): void

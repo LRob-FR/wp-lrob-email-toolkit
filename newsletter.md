@@ -2,7 +2,24 @@
 
 Working design doc for the Newsletter module (target: v0.3.0). Companion to CLAUDE.md, not a replacement. CLAUDE.md still has the cross-module rules (naming, lifecycle, UI patterns) — this file owns only the Newsletter-specific shape.
 
-Status: **v0.3.0 in active implementation** — steps 0–8 + step 7b core shipped (cron safety net, pause/resume/abort, scheduled-send cron handoff), plus the **Campaign → Newsletter vocabulary rename** (CPT slug `lrob_etk_newsletter`, tables `wp_lrob_etk_nl_newsletters` + `wp_lrob_etk_nl_newsletter_recipients`, schema migration v6 in place), the **newsletter cards refactor** (settings + send actions live on each card; Gutenberg is content-only), **step 8 — Logging integration** (Logger reads `X-Lrob-Etk-Newsletter-ID` + `X-Lrob-Etk-Newsletter-Recipient-ID` headers, deletes successful newsletter rows by default, per-newsletter "Log every send" override flips back to full logging, LogsPage gained a tri-state Newsletter filter [hide / show all / newsletter only], recipients drawer surfaces "View in Logs →" per failed row), and **step 7c — SMTP circuit-breaker** (schema v7 adds `pause_reason` column on the newsletters companion; `SendLoop` tracks consecutive `wp_mail` failures inside each tick, aborts at the threshold of 5, releases still-claimed rows back to `pending`, flips status to `paused` with `pause_reason='smtp_unhealthy'`, and surfaces a red banner on the card explaining "fix SMTP then Resume"; new `lrob_etk_nl_retry_failed` AJAX endpoint + `Retry failed (N)` button on each card re-queues failed rows back to pending, flipping a `sent`/`failed` newsletter back to `sending` so the pipeline picks them up). Deferred to step 7b polish: per-domain throttle, CSS inliner. Next: step 9 (Tracking — design re-locked around media-URL rewriting + per-subscriber lifetime stats + cold-subscriber detection; see Tracking section + CLAUDE.md backlog). See "Implementation slicing" at the bottom + the CLAUDE.md backlog section for the precise where-we-are.
+Status: **v0.3.0 released as alpha** — steps 0–8 + step 7b core + step 7c shipped. **The Newsletter module is alpha** and should NOT be used in production yet — field testing welcome, feedback via GitHub issues. What's in:
+
+- **Schema + recipient model + admin hub** (step 1).
+- **System email templates** with token registry (step 2).
+- **Subscribe forms** built on the shared `src/Forms/` form-builder, with double-opt-in + RFC 8058 one-click unsubscribe (step 3).
+- **Categories + Lists** with manual membership + per-category opt-outs (step 4a).
+- **Preferences page + WP-profile section + Gutenberg prefs block + reminder cron** (steps 4b + 4c).
+- **Trash + refuse-acknowledgment flows** (step 5).
+- **Newsletter CPT + composer + companion-table runtime state** (step 6).
+- **Minimum viable send pipeline** with materializer, claim-based send loop, AJAX progress, test-send modal (step 7).
+- **Step 7b core**: WP-Cron safety-net + pause/resume/abort + scheduled-send cron handoff.
+- **Step 7c**: SMTP circuit-breaker (consecutive-failure threshold trips status to `paused` with `pause_reason='smtp_unhealthy'`) + Retry-failed bulk action.
+- **Step 8**: Logging integration — Logger reads `X-Lrob-Etk-Newsletter-ID` + recipient-id headers, deletes successful newsletter rows by default (newsletter sends already live in `newsletter_recipients`, no duplication), per-newsletter "Log every send" override, LogsPage tri-state Newsletter filter, "View in Logs →" cross-link in the recipients drawer.
+- **Campaign → Newsletter vocabulary rename** (schema v6) + **newsletter cards refactor** (settings + send actions on each card, Gutenberg is content-only; status badge top-right of the title row; Send button state-aware `Send now ⇄ Schedule ⇄ Unschedule[red]`; explicit commit-schedule via dedicated AJAX so ticking a date doesn't silently promote to `scheduled`).
+- **Cron health diagnostic** at the bottom of the Newsletters view (last observed tick, next scheduled tick, `DISABLE_WP_CRON` flag, color-coded verdict, manual Refresh button + opt-in 10s auto-refresh toggle, tooltip explaining what a cron is). Inline LRob tip when the site relies on pseudo-cron.
+- **Live clock-tick + adaptive server-poll** in the cards: relative-time spans (`Scheduled to send in X`, `Sent X ago`, `next cron tick in X`) update every second when a deadline is < 1h away, every minute under 2h, every hour beyond. Server-poll runs every 10s only when an "interesting" (`sending` / `paused` / `scheduled`) card exists; stops as soon as all transitions are terminal. Multi-tab dedup via localStorage so 10 tabs of the same view don't multiply server load. Page Visibility API pauses both loops when the tab is hidden.
+
+Deferred to step 7b polish: per-domain throttle, CSS inliner. **Next**: step 9 (Tracking — design re-locked around media-URL rewriting + GIF fallback + link rewriter + per-subscriber lifetime stats + cold-subscriber detection; see Tracking section + CLAUDE.md backlog). See "Implementation slicing" at the bottom + the CLAUDE.md backlog section for the precise where-we-are.
 
 ## Module identifiers
 

@@ -737,4 +737,325 @@
         refreshRecipientCount(card);
     }
     document.querySelectorAll('[data-newsletter-id]').forEach(syncCardInitial);
+
+    /* ---------------------------------------------------------------------
+     * Auto-refresh: clock-tick + server-poll.
+     *
+     * Two independent loops, both paused when the tab is hidden:
+     *
+     *   1. clock-tick (10s) — pure client-side. Every <span data-relative-to>
+     *      on the page gets its text recomputed from now → ts. No server hit.
+     *
+     *   2. poll (20s, only when "interesting" cards exist) — hits the
+     *      ACTION_CARD_STATES endpoint to refresh card progress + cron
+     *      health. Updates the progress bar in place during sending;
+     *      reloads the whole page when a status transitions (so the
+     *      server re-renders all the per-status UI).
+     *
+     * Multi-tab dedup: localStorage lock + storage event. Even with N
+     * tabs of the same admin view open, the server gets ~1 request per
+     * 15s shared across them — other tabs read the cached response via
+     * the `storage` event listener.
+     * ------------------------------------------------------------------- */
+    // Clock-tick rate adapts to whatever future deadline is closest:
+    // counting down to a send 30 seconds away wants second-level
+    // granularity; counting down to a send 3 days away is fine at
+    // hourly resolution. Past-tense displays ("X ago") follow whatever
+    // rate the future spans set — no point burning CPU at 1Hz on a
+    // "Sent 2 hours ago" line.
+    var CLOCK_FAST_MS    = 1000;     // any future deadline within 1h
+    var CLOCK_MED_MS     = 60000;    // any future deadline 1–2h away
+    var CLOCK_SLOW_MS    = 3600000;  // farther than 2h, or no future deadlines
+    // Single fixed poll interval. Runs only when there's something to
+    // watch (sending / paused / scheduled). Stops the moment everything
+    // is terminal — after a reload the page re-renders with no
+    // "interesting" cards and the loop just doesn't start.
+    var POLL_INTERVAL_MS = 10000;
+    var POLL_MIN_GAP_MS = 8000;     // multi-tab dedup floor
+    var AUTO_REFRESH_MS = 10000;    // cron-only toggle
+    var LS_LOCK = 'lrob-etk-nl-poll-lock';
+    var LS_DATA = 'lrob-etk-nl-poll-data';
+    var LS_AUTOREFRESH = 'lrob-etk-nl-cron-autorefresh';
+    var ACTIVE_STATUSES = ['sending', 'paused', 'scheduled'];
+    var clockTimer = null;
+    var pollTimer = null;
+
+    function formatRelative(diffSec) {
+        if (diffSec < 60) {
+            return diffSec + ' ' + (diffSec === 1 ? (I18N.secondSingular || 'second') : (I18N.seconds || 'seconds'));
+        }
+        if (diffSec < 3600) {
+            var m = Math.round(diffSec / 60);
+            return m + ' ' + (m === 1 ? (I18N.minuteSingular || 'minute') : (I18N.minutes || 'minutes'));
+        }
+        if (diffSec < 86400) {
+            var h = Math.round(diffSec / 3600);
+            return h + ' ' + (h === 1 ? (I18N.hourSingular || 'hour') : (I18N.hours || 'hours'));
+        }
+        var d = Math.round(diffSec / 86400);
+        return d + ' ' + (d === 1 ? (I18N.daySingular || 'day') : (I18N.days || 'days'));
+    }
+
+    /**
+     * Recompute the text of every [data-relative-to] span and decide the
+     * next tick interval. Returns the delay-in-ms for the next call.
+     * Also detects zero-crossings (a future timestamp that just turned
+     * past) and triggers a server poll so the server can re-render the
+     * card with the post-deadline state cleanly.
+     */
+    function tickRelatives() {
+        var now = Math.floor(Date.now() / 1000);
+        var minFutureDiff = Infinity;
+        var anyJustCrossed = false;
+        var spans = document.querySelectorAll('[data-relative-to]');
+        for (var i = 0; i < spans.length; i++) {
+            var ts = parseInt(spans[i].getAttribute('data-relative-to') || '0', 10);
+            if (ts <= 0) continue;
+            var diff = ts - now;
+            spans[i].textContent = formatRelative(Math.abs(diff));
+            if (diff > 0 && diff < minFutureDiff) {
+                minFutureDiff = diff;
+            }
+            // Zero-crossing detection: previous tick saw the span in the
+            // future; this tick sees it past. Trigger a fresh server
+            // poll so the card UI catches up to whatever state SendCron
+            // moved it into.
+            var lastDiff = parseFloat(spans[i].getAttribute('data-last-diff') || 'NaN');
+            if (!isNaN(lastDiff) && lastDiff > 0 && diff <= 0) {
+                anyJustCrossed = true;
+            }
+            spans[i].setAttribute('data-last-diff', String(diff));
+        }
+        if (anyJustCrossed) {
+            // Bypass the multi-tab lock so the poll actually hits the
+            // server right now — the deadline matters.
+            try { localStorage.removeItem(LS_LOCK); } catch (e) {}
+            pollIfDue();
+        }
+        if (minFutureDiff < 3600) return CLOCK_FAST_MS;
+        if (minFutureDiff < 7200) return CLOCK_MED_MS;
+        return CLOCK_SLOW_MS;
+    }
+
+    function interestingCardIds() {
+        var ids = [];
+        var cards = document.querySelectorAll('[data-newsletter-id]');
+        for (var i = 0; i < cards.length; i++) {
+            var status = cards[i].getAttribute('data-status') || '';
+            if (ACTIVE_STATUSES.indexOf(status) !== -1) {
+                ids.push(cards[i].getAttribute('data-newsletter-id'));
+            }
+        }
+        return ids;
+    }
+
+    function postCardStates(ids) {
+        var fd = new FormData();
+        fd.append('action', ACTIONS.cardStates);
+        fd.append('_nonce', CFG.nonce);
+        ids.forEach(function (id) { fd.append('ids[]', id); });
+        return fetch(CFG.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+            .then(function (r) { return r.json().catch(function () { return { success: false }; }); });
+    }
+
+    function applyState(payload) {
+        if (!payload) return;
+        var newsletters = payload.newsletters || {};
+        var transitioned = false;
+        Object.keys(newsletters).forEach(function (id) {
+            var s = newsletters[id];
+            var card = document.querySelector('[data-newsletter-id="' + id + '"]');
+            if (!card) return;
+            var oldStatus = card.getAttribute('data-status') || '';
+            if (oldStatus !== s.status) {
+                // Server state transitioned (scheduled → sending, sending → sent,
+                // breaker tripped, etc). Reload so the server re-renders the
+                // status badge, status_msg, action-button row, and any banner.
+                transitioned = true;
+                return;
+            }
+            // Same status — update progress bar + counters in place.
+            var fill = card.querySelector('[data-progress-fill]');
+            if (fill && s.total > 0) {
+                var pct = Math.min(100, Math.round(((s.sent + s.failed) * 100) / s.total));
+                fill.style.width = pct + '%';
+            }
+            var sentEl = card.querySelector('[data-progress-sent]');
+            if (sentEl) sentEl.textContent = s.sent;
+            var totalEl = card.querySelector('[data-progress-total]');
+            if (totalEl) totalEl.textContent = s.total;
+            var failedEl = card.querySelector('[data-progress-failed]');
+            if (failedEl) failedEl.textContent = s.failed;
+        });
+        if (payload.cron) {
+            var lastEl = document.querySelector('[data-cron-last-tick]');
+            if (lastEl && payload.cron.last_tick_ts) {
+                var lastSpan = lastEl.querySelector('[data-relative-to]');
+                if (lastSpan) lastSpan.setAttribute('data-relative-to', String(payload.cron.last_tick_ts));
+            }
+            var nextEl = document.querySelector('[data-cron-next-tick]');
+            if (nextEl && payload.cron.next_tick_ts) {
+                var nextSpan = nextEl.querySelector('[data-relative-to]');
+                if (nextSpan) nextSpan.setAttribute('data-relative-to', String(payload.cron.next_tick_ts));
+            }
+            tickRelatives();
+        }
+        if (transitioned) {
+            window.location.reload();
+        }
+    }
+
+    function pollIfDue(force) {
+        var ids = interestingCardIds();
+        if (ids.length === 0 && !force) {
+            return;
+        }
+        var now = Date.now();
+        var lastPoll = parseInt(localStorage.getItem(LS_LOCK) || '0', 10);
+        if (now - lastPoll < POLL_MIN_GAP_MS) {
+            // Another tab polled recently. Use the cached response if
+            // fresh enough. Don't make a server hit.
+            var cached = localStorage.getItem(LS_DATA);
+            if (cached) {
+                try {
+                    var parsed = JSON.parse(cached);
+                    if (parsed.timestamp && (now - parsed.timestamp) < POLL_MIN_GAP_MS * 3) {
+                        applyState(parsed);
+                    }
+                } catch (e) {}
+            }
+            return;
+        }
+        try { localStorage.setItem(LS_LOCK, String(now)); } catch (e) {}
+        postCardStates(ids).then(function (resp) {
+            if (!resp || !resp.success || !resp.data) return;
+            var payload = {
+                timestamp: Date.now(),
+                newsletters: resp.data.newsletters || {},
+                cron: resp.data.cron || null
+            };
+            try { localStorage.setItem(LS_DATA, JSON.stringify(payload)); } catch (e) {}
+            applyState(payload);
+        });
+    }
+
+    /**
+     * Self-rescheduling poll loop. Stops the moment there are no
+     * "interesting" (sending / paused / scheduled) cards on the page —
+     * the page reload that fires on terminal transitions naturally
+     * lands on a state where the loop just doesn't re-arm.
+     */
+    function pollLoop() {
+        if (document.hidden) { pollTimer = null; return; }
+        if (interestingCardIds().length === 0) { pollTimer = null; return; }
+        pollIfDue();
+        pollTimer = setTimeout(pollLoop, POLL_INTERVAL_MS);
+    }
+
+    function startPolling() {
+        if (pollTimer || document.hidden) return;
+        if (interestingCardIds().length === 0) return;
+        pollLoop();
+    }
+
+    function stopPolling() {
+        if (pollTimer) clearTimeout(pollTimer);
+        pollTimer = null;
+    }
+
+    var autoRefreshTimer = null;
+
+    function isAutoRefreshOn() {
+        try { return localStorage.getItem(LS_AUTOREFRESH) === '1'; } catch (e) { return false; }
+    }
+
+    function startAutoRefresh() {
+        if (autoRefreshTimer || document.hidden) return;
+        if (!isAutoRefreshOn()) return;
+        autoRefreshTimer = setInterval(function () {
+            // force=true so cron updates even when no card is "interesting".
+            pollIfDue(true);
+        }, AUTO_REFRESH_MS);
+    }
+
+    function stopAutoRefresh() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+    }
+
+    /**
+     * Self-rescheduling clock loop. Each tick decides the next interval
+     * based on how close the most-imminent future timestamp is, so a
+     * 30-day-away schedule doesn't burn 1Hz updates and a 30-second-away
+     * one doesn't get a stale "in 1 minute" display.
+     */
+    function clockTickLoop() {
+        var nextDelay = tickRelatives();
+        if (document.hidden) {
+            clockTimer = null;
+            return;
+        }
+        clockTimer = setTimeout(clockTickLoop, nextDelay);
+    }
+
+    function startClockTick() {
+        if (clockTimer || document.hidden) return;
+        clockTickLoop();
+    }
+
+    function stopClockTick() {
+        if (clockTimer) clearTimeout(clockTimer);
+        clockTimer = null;
+    }
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            stopPolling();
+            stopClockTick();
+            stopAutoRefresh();
+        } else {
+            tickRelatives();
+            startClockTick();
+            startPolling();
+            startAutoRefresh();
+        }
+    });
+
+    // Sister tabs that polled get pushed to us via the `storage` event.
+    // We update from their cached response without making our own hit.
+    window.addEventListener('storage', function (e) {
+        if (e.key !== LS_DATA || !e.newValue) return;
+        try { applyState(JSON.parse(e.newValue)); } catch (err) {}
+    });
+
+    // Manual refresh on the cron-diagnostic panel: clears the lock so
+    // the next pollIfDue actually hits the server, then triggers it now.
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('[data-cron-refresh]')) return;
+        try { localStorage.removeItem(LS_LOCK); } catch (err) {}
+        pollIfDue(true);
+    });
+
+    // Auto-refresh checkbox: persisted in localStorage, off by default,
+    // restored on each page load. Cross-tab synced via the storage event
+    // so toggling in one tab updates the others.
+    var autoRefreshCheckbox = document.querySelector('[data-cron-autorefresh]');
+    if (autoRefreshCheckbox) {
+        autoRefreshCheckbox.checked = isAutoRefreshOn();
+        autoRefreshCheckbox.addEventListener('change', function () {
+            try { localStorage.setItem(LS_AUTOREFRESH, this.checked ? '1' : '0'); } catch (e) {}
+            stopAutoRefresh();
+            if (this.checked) startAutoRefresh();
+        });
+    }
+    window.addEventListener('storage', function (e) {
+        if (e.key !== LS_AUTOREFRESH) return;
+        if (autoRefreshCheckbox) autoRefreshCheckbox.checked = isAutoRefreshOn();
+        stopAutoRefresh();
+        if (isAutoRefreshOn()) startAutoRefresh();
+    });
+
+    startClockTick();
+    startPolling();
+    startAutoRefresh();
 })();

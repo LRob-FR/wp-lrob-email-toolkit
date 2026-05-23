@@ -57,6 +57,8 @@ final class SendAjaxController
 
     public const ACTION_UNCOMMIT_SCHEDULE = 'lrob_etk_nl_uncommit_schedule';
 
+    public const ACTION_CARD_STATES = 'lrob_etk_nl_card_states';
+
     public const ACTION_PREVIEW = 'lrob_etk_nl_preview';
 
     public const ACTION_RECIPIENTS_PREVIEW = 'lrob_etk_nl_recipients_preview';
@@ -83,6 +85,7 @@ final class SendAjaxController
         add_action('wp_ajax_' . self::ACTION_RETRY_FAILED, [$this, 'handle_retry_failed']);
         add_action('wp_ajax_' . self::ACTION_COMMIT_SCHEDULE, [$this, 'handle_commit_schedule']);
         add_action('wp_ajax_' . self::ACTION_UNCOMMIT_SCHEDULE, [$this, 'handle_uncommit_schedule']);
+        add_action('wp_ajax_' . self::ACTION_CARD_STATES, [$this, 'handle_card_states']);
         add_action('wp_ajax_' . self::ACTION_PREVIEW,   [$this, 'handle_preview']);
         add_action('wp_ajax_' . self::ACTION_RECIPIENTS_PREVIEW, [$this, 'handle_recipients_preview']);
     }
@@ -405,6 +408,68 @@ final class SendAjaxController
         $this->newsletters->update_status($newsletter_id, NewsletterRepository::STATUS_DRAFT);
         Events::dispatch('newsletter.unscheduled', ['newsletter_id' => $newsletter_id]);
         wp_send_json_success(['status' => NewsletterRepository::STATUS_DRAFT]);
+    }
+
+    /**
+     * Card-states: cheap read-only batch endpoint that returns the
+     * current state for every newsletter id on the page plus the
+     * cron-health timestamps. Powers the polling-based auto-refresh
+     * (admin watches a send progress in real time even when SendCron
+     * is doing the work in the background).
+     *
+     * Returns: {
+     *   newsletters: { "<id>": {status, sent, failed, total,
+     *                            pause_reason, completed_at_ts, ...}, … },
+     *   cron: { last_tick_ts, next_tick_ts, now_ts }
+     * }
+     *
+     * Designed to be polled at ~20s by every open admin tab — the JS
+     * side uses a localStorage cooperative lock so total server hits
+     * stay roughly 1 per 15s regardless of tab count.
+     */
+    public function handle_card_states(): void
+    {
+        $this->guard();
+        $raw_ids = $_POST['ids'] ?? [];
+        if (!is_array($raw_ids)) {
+            $raw_ids = [];
+        }
+        $ids = array_values(array_filter(
+            array_map(static fn ($v): int => (int) $v, $raw_ids),
+            static fn (int $i): bool => $i > 0
+        ));
+
+        $newsletters = [];
+        foreach ($ids as $id) {
+            $row = $this->newsletters->find_by_post_id($id);
+            if ($row === null) {
+                continue;
+            }
+            $completed_at = (string) ($row['completed_at'] ?? '');
+            $started_at   = (string) ($row['started_at'] ?? '');
+            $newsletters[(string) $id] = [
+                'status'          => (string) ($row['status'] ?? NewsletterRepository::STATUS_DRAFT),
+                'pause_reason'    => $row['pause_reason'] !== null ? (string) $row['pause_reason'] : null,
+                'total'           => (int) ($row['total_recipients'] ?? 0),
+                'sent'            => (int) ($row['sent_count'] ?? 0),
+                'failed'          => (int) ($row['failed_count'] ?? 0),
+                'completed_at_ts' => $completed_at !== '' ? (int) strtotime($completed_at . ' UTC') : 0,
+                'started_at_ts'   => $started_at !== '' ? (int) strtotime($started_at . ' UTC') : 0,
+            ];
+        }
+
+        $last_tick_s = (string) get_option(SendCron::OPTION_LAST_TICK, '');
+        $last_tick_ts = $last_tick_s !== '' ? (int) strtotime($last_tick_s . ' UTC') : 0;
+        $next_tick = wp_next_scheduled(SendCron::CRON_HOOK);
+
+        wp_send_json_success([
+            'newsletters' => $newsletters,
+            'cron' => [
+                'last_tick_ts' => $last_tick_ts,
+                'next_tick_ts' => $next_tick !== false ? (int) $next_tick : 0,
+                'now_ts'       => time(),
+            ],
+        ]);
     }
 
     /**

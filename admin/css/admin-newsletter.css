@@ -1078,6 +1078,27 @@
 .lrob-etk-nl-cron-diagnostic-head .lrob-etk-section-title {
     margin: 0;
     font-size: 1rem;
+    flex: 1;
+}
+
+.lrob-etk-nl-cron-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.lrob-etk-nl-cron-autorefresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--lrob-etk-color-muted, #6b7280);
+    cursor: pointer;
+    user-select: none;
+}
+
+.lrob-etk-nl-cron-autorefresh input[type="checkbox"] {
+    margin: 0;
 }
 
 .lrob-etk-nl-cron-badge {
@@ -1119,6 +1140,19 @@
 
 .is-error .lrob-etk-nl-cron-diagnostic-verdict { color: #991b1b; }
 .is-warn  .lrob-etk-nl-cron-diagnostic-verdict { color: #5c4400; }
+
+.lrob-etk-nl-cron-tip {
+    margin: 0.6rem 0 0;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--etk-line, #dcdcde);
+    font-size: 0.85rem;
+    color: var(--lrob-etk-color-muted, #6b7280);
+    line-height: 1.5;
+}
+
+.lrob-etk-nl-cron-tip a {
+    font-weight: 600;
+}
 
 /* Quick-link next to a field label ("Edit categories →", "Manage
  * identities →"). Sits to the right of the label text, small + muted

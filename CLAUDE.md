@@ -8,7 +8,19 @@ WordPress plugin **LRob - Email Toolkit** (slug `lrob-email-toolkit`). Modular a
 
 ## Build / lint / release
 
-`./release.sh` is the single build entry point. **Run it yourself whenever needed** — no need to ask. It lints every PHP file, regenerates `languages/lrob-email-toolkit.pot` via `wp i18n make-pot`, `msgmerge`s the fresh POT references into every `.po`, compiles `.po` → `.mo` and `.json`, then zips into `../releases/lrob-email-toolkit-<version>.zip`. No PHPUnit, PHPCS, or PHPStan config yet — don't invent commands.
+`./release.sh` is the single build entry point. **Run it yourself whenever needed** — no need to ask. Steps:
+- Lints every PHP file (`php -l`) — don't pre-lint with `php -l` separately, the script already does it.
+- Lints every JS file (`node --check`) when node is on the path — skips with a warn otherwise.
+- Scans CSS for unreferenced `.lrob-etk-*` selectors (peel-once + 3-hyphen-min heuristic suppresses dynamic-concat false positives).
+- Regenerates `languages/lrob-email-toolkit.pot` via `wp i18n make-pot`.
+- `msgmerge`s the fresh POT references into every `.po`, then `msgattrib --no-obsolete` strips orphans (reports the count when > 0).
+- Compiles `.po` → `.mo` and `.json` (Gutenberg), printing per-language stats from `msgfmt --statistics` so you can see at a glance "1113 translated, 0 untranslated, 0 fuzzy" or where work is needed.
+- Prints file-type + LoC stats (per-extension counts, PHP code-vs-comment-vs-blank ratio). Stats are display-only, never saved.
+- Zips into `../releases/lrob-email-toolkit-<version>.zip`.
+
+**Translation workflow.** Don't translate on every commit — too much churn. Run the translation pass at **milestone boundaries only** (before tagging a release). The release.sh stats line tells you what needs doing per language. To add a new locale, just drop `lrob-email-toolkit-<locale>.po` next to `fr_FR.po` and run release.sh — `msgmerge` populates the new file with all source strings as untranslated, you translate, re-run release.sh. To edit a `.po` file, use the Edit tool / sed directly (do **not** write Python parsing scripts — `msgmerge` + `msgattrib` already handle the heavy lifting). Fuzzy entries (auto-promoted by msgmerge when source strings shift slightly) are flagged but NOT compiled into the `.mo` until either you manually clear the fuzzy flag or run `msgattrib --clear-fuzzy` to accept them wholesale.
+
+No PHPUnit, PHPCS, or PHPStan config yet — don't invent commands.
 
 ## Versioning
 
