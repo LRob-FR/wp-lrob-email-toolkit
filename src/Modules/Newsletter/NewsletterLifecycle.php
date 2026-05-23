@@ -26,6 +26,7 @@ final class NewsletterLifecycle
     {
         add_action('save_post_' . NewsletterCPT::POST_TYPE, [$this, 'on_save'], 10, 2);
         add_action('before_delete_post', [$this, 'on_before_delete']);
+        add_action('trashed_post', [$this, 'on_trashed']);
     }
 
     /**
@@ -52,5 +53,24 @@ final class NewsletterLifecycle
             return;
         }
         $this->newsletters->delete_for_post($post_id);
+    }
+
+    /**
+     * Safety net: any path that trashes a newsletter (admin UI, REST,
+     * wp-cli, direct URL) flips a `scheduled` companion row back to
+     * `draft` so the send-cron won't pick it up later. Terminal
+     * statuses stay frozen.
+     */
+    public function on_trashed(int $post_id): void
+    {
+        $post = get_post($post_id);
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            return;
+        }
+        $companion = $this->newsletters->find_by_post_id($post_id);
+        $status = (string) ($companion['status'] ?? '');
+        if ($status === NewsletterRepository::STATUS_SCHEDULED) {
+            $this->newsletters->update_status($post_id, NewsletterRepository::STATUS_DRAFT);
+        }
     }
 }

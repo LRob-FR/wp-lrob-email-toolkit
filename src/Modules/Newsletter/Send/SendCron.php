@@ -132,11 +132,17 @@ final class SendCron
         global $wpdb;
         $table = Schema::newsletters_table();
         $now = gmdate('Y-m-d H:i:s');
+        // INNER JOIN wp_posts so trashed newsletters (post_status='trash')
+        // can never get picked up by the cron — defense in depth on top of
+        // the trashed_post hook that flips scheduled→draft.
         $scheduled = (array) $wpdb->get_results($wpdb->prepare(
             "SELECT c.post_id FROM `$table` c
                INNER JOIN {$wpdb->postmeta} pm
                  ON pm.post_id = c.post_id
                  AND pm.meta_key = %s
+               INNER JOIN {$wpdb->posts} p
+                 ON p.ID = c.post_id
+                 AND p.post_status <> 'trash'
               WHERE c.status = %s
                 AND pm.meta_value <> ''
                 AND pm.meta_value <= %s
@@ -163,12 +169,18 @@ final class SendCron
         }
 
         // 2. Continue sending newsletters whose last_tick_at is stale.
+        //    INNER JOIN wp_posts again so a trashed newsletter (theoretical
+        //    edge case: trashed mid-send via a path that bypassed our UI
+        //    guard) can't keep ticking.
         $stale_before = gmdate('Y-m-d H:i:s', time() - self::STALE_THRESHOLD_SECONDS);
         $rows = (array) $wpdb->get_results($wpdb->prepare(
-            "SELECT post_id FROM `$table`
-              WHERE status = %s
-                AND (last_tick_at IS NULL OR last_tick_at <= %s)
-              ORDER BY last_tick_at ASC
+            "SELECT c.post_id FROM `$table` c
+               INNER JOIN {$wpdb->posts} p
+                 ON p.ID = c.post_id
+                 AND p.post_status <> 'trash'
+              WHERE c.status = %s
+                AND (c.last_tick_at IS NULL OR c.last_tick_at <= %s)
+              ORDER BY c.last_tick_at ASC
               LIMIT %d",
             NewsletterRepository::STATUS_SENDING,
             $stale_before,

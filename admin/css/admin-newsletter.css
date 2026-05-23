@@ -743,6 +743,95 @@
  * ----------------------------------------------------------------------- */
 
 
+/* Tab navigation — pill row segmenting the cards list into
+   In-preparation / Sent / Trash. Count badges to the right of each
+   label; Empty-trash button sits at the far right when the Trash tab
+   is active. */
+.lrob-etk-nl-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--lrob-etk-color-border, #dcdcde);
+}
+
+.lrob-etk-nl-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    color: var(--lrob-etk-color-muted, #50575e);
+    background: transparent;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.lrob-etk-nl-tab:hover,
+.lrob-etk-nl-tab:focus-visible {
+    background: rgba(0, 0, 0, 0.04);
+    color: #1d2327;
+}
+
+.lrob-etk-nl-tab.is-active {
+    background: var(--lrob-etk-color-accent, #2271b1);
+    color: #fff;
+}
+
+.lrob-etk-nl-tab.is-active:hover,
+.lrob-etk-nl-tab.is-active:focus-visible {
+    background: var(--lrob-etk-color-accent, #2271b1);
+    color: #fff;
+}
+
+.lrob-etk-nl-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+}
+
+.lrob-etk-nl-tab.is-active .lrob-etk-nl-tab-count {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.lrob-etk-nl-tabs-empty {
+    margin-left: auto;
+}
+
+/* Trashed-card variant — muted look so the tab feels visibly cold. */
+.lrob-etk-nl-card.is-trashed {
+    opacity: 0.78;
+    background: rgba(0, 0, 0, 0.015);
+}
+
+.lrob-etk-nl-card.is-trashed:hover {
+    opacity: 1;
+}
+
+.lrob-etk-nl-card-restore-link {
+    color: var(--lrob-etk-color-accent, #2271b1) !important;
+}
+
+.lrob-etk-nl-card-restore-link .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    vertical-align: text-bottom;
+    margin-right: 0.15rem;
+}
+
 /* Card grid — capped at 540px wide (same as SMTP identities). */
 .lrob-etk-nl-newsletter-cards {
     display: grid;
@@ -1169,4 +1258,231 @@
 
 .lrob-etk-nl-field-link:hover {
     text-decoration: underline;
+}
+
+/* -------------------------------------------------------------------------
+ * Recipients drawer (modal-dialog--wide variant)
+ *
+ * Status filter chips + email/name substring search + paginated table.
+ * Reuses the .lrob-etk-nl-status-* color tokens for the per-row status
+ * chip so badges match the card-header badge styling.
+ * ----------------------------------------------------------------------- */
+
+.lrob-etk-nl-recipients-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    margin-bottom: 0.75rem;
+}
+
+.lrob-etk-nl-recipients-filters {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.lrob-etk-nl-recipients-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    background: #fff;
+    border-radius: 999px;
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.lrob-etk-nl-recipients-filter:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #1d2327;
+}
+
+.lrob-etk-nl-recipients-filter.is-active {
+    background: var(--lrob-etk-color-accent, #2271b1);
+    border-color: var(--lrob-etk-color-accent, #2271b1);
+    color: #fff;
+}
+
+.lrob-etk-nl-recipients-filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.3rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.07);
+    color: inherit;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.lrob-etk-nl-recipients-filter.is-active .lrob-etk-nl-recipients-filter-count {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.lrob-etk-nl-recipients-search {
+    min-width: 220px;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.lrob-etk-nl-recipients-summary {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+}
+
+.lrob-etk-nl-recipients-summary-note {
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-weight: normal;
+}
+
+.lrob-etk-nl-recipients-empty {
+    color: var(--lrob-etk-color-muted, #50575e);
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.lrob-etk-nl-recipients-loading {
+    color: var(--lrob-etk-color-muted, #50575e);
+}
+
+[data-recipients-body].is-loading {
+    opacity: 0.5;
+    transition: opacity 120ms ease;
+}
+
+.lrob-etk-nl-recipients-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.lrob-etk-nl-recipients-table th,
+.lrob-etk-nl-recipients-table td {
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid #f0f0f1;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.lrob-etk-nl-recipients-table thead th {
+    background: rgba(0, 0, 0, 0.02);
+    font-weight: 600;
+    color: var(--lrob-etk-color-muted, #50575e);
+    border-bottom-width: 2px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.lrob-etk-nl-recipients-table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.015);
+}
+
+.lrob-etk-nl-recipients-kind {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.lrob-etk-nl-recipients-email-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    word-break: break-all;
+}
+
+.lrob-etk-nl-recipients-name {
+    color: var(--lrob-etk-color-muted, #50575e);
+    margin-left: 0.4rem;
+}
+
+.lrob-etk-nl-recipients-sent-at {
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.lrob-etk-nl-recipients-failcode {
+    font-weight: normal;
+    opacity: 0.85;
+}
+
+.lrob-etk-nl-recipients-log-link {
+    font-size: 0.85em;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.lrob-etk-nl-recipients-log-link:hover {
+    text-decoration: underline;
+}
+
+.lrob-etk-nl-recipients-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    font-size: 0.85rem;
+    color: var(--lrob-etk-color-muted, #50575e);
+}
+
+.lrob-etk-nl-recipients-range {
+    font-variant-numeric: tabular-nums;
+}
+
+.lrob-etk-nl-recipients-pager {
+    display: inline-flex;
+    gap: 0.4rem;
+}
+
+/* Preview-mode (pre-send) compact list. */
+.lrob-etk-nl-recipients-bykind {
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-size: 0.9em;
+    margin: 0 0 0.5rem;
+}
+
+.lrob-etk-nl-recipients-sample-note {
+    color: var(--lrob-etk-color-muted, #50575e);
+    font-size: 0.85em;
+    margin: 1rem 0 0.4rem;
+}
+
+.lrob-etk-nl-recipients-preview-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 40vh;
+    overflow-y: auto;
+    border: 1px solid var(--lrob-etk-color-border, #dcdcde);
+    border-radius: 4px;
+}
+
+.lrob-etk-nl-recipients-preview-list li {
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.lrob-etk-nl-recipients-preview-list li:last-child {
+    border-bottom: 0;
 }

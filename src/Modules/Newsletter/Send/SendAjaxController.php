@@ -128,25 +128,38 @@ final class SendAjaxController
         $this->guard();
         $newsletter_id = $this->require_post_id();
 
-        $snapshot = $this->newsletters->recipients_snapshot($newsletter_id, 50);
+        $offset = isset($_POST['offset']) ? max(0, (int) wp_unslash((string) $_POST['offset'])) : 0;
+        $status_filter = isset($_POST['status_filter']) ? sanitize_key((string) wp_unslash((string) $_POST['status_filter'])) : '';
+        $search = isset($_POST['search']) ? (string) wp_unslash((string) $_POST['search']) : '';
+        $search = trim(sanitize_text_field($search));
+        $limit = 50;
+
+        $snapshot = $this->newsletters->recipients_snapshot($newsletter_id, $limit, $offset, $status_filter, $search);
         if ($snapshot['total'] > 0) {
             $sample = $this->attach_log_urls($newsletter_id, $snapshot['sample']);
             wp_send_json_success([
-                'mode'         => 'snapshot',
-                'total'        => $snapshot['total'],
-                'by_status'    => $snapshot['by_status'],
-                'sample'       => $sample,
-                'sample_limit' => 50,
+                'mode'           => 'snapshot',
+                'total'          => $snapshot['total'],
+                'filtered_total' => $snapshot['filtered_total'],
+                'by_status'      => $snapshot['by_status'],
+                'sample'         => $sample,
+                'limit'          => $snapshot['limit'],
+                'offset'         => $snapshot['offset'],
+                'status_filter'  => $status_filter,
+                'search'         => $search,
             ]);
         }
 
-        $preview = $this->materializer->preview_recipients($newsletter_id, 50);
+        // Pre-send: no materialisation yet, fall back to dry-run preview.
+        // Filter / search / pagination params don't apply here — the
+        // dry-run is bounded to 50 rows by design.
+        $preview = $this->materializer->preview_recipients($newsletter_id, $limit);
         wp_send_json_success([
             'mode'         => 'preview',
             'total'        => $preview['total'],
             'by_kind'      => $preview['by_kind'],
             'sample'       => $preview['sample'],
-            'sample_limit' => 50,
+            'sample_limit' => $limit,
         ]);
     }
 

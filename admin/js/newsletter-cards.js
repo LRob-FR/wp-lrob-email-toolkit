@@ -273,102 +273,32 @@
             return;
         }
 
-        // ---- Recipients modal: fetch count + sample, render into body.
-        // Two response modes:
-        //   - snapshot: frozen at send time (per-row status included)
-        //   - preview:  dry-run of who'd be targeted right now
+        // ---- Recipients modal: opens with filter / search / pagination
+        //      driven by the helpers in the "Recipients drawer" block
+        //      further down. We just kick off the initial load here.
         if (trigger.hasAttribute('data-card-recipients')) {
             // Anchor trigger (not a button — anchors stay clickable
             // even inside a fieldset-disabled settings group, so the
             // list is reachable after the newsletter is sent / locked).
             e.preventDefault();
-            var recModal = modalById('lrob-etk-nl-modal-recipients');
-            if (!recModal) return;
-            var recBody = recModal.querySelector('[data-recipients-body]');
-            if (recBody) recBody.innerHTML = '<p>' + (I18N.recipientsLoading || 'Computing…') + '</p>';
-            openModal(recModal);
-            post(ACTIONS.recipientsPreview, { newsletter_id: newsletterId }).then(function (resp) {
-                if (!resp || !resp.success || !recBody) {
-                    if (recBody) recBody.innerHTML = '<p>' + ((resp && resp.data && resp.data.message) || I18N.previewFailed || 'Failed.') + '</p>';
-                    return;
-                }
-                var d = resp.data;
-                var isSnapshot = d.mode === 'snapshot';
-                var html = '';
-
-                // Header: total + the right secondary line per mode.
-                html += '<p><strong>' + (d.total || 0) + '</strong> ' + (I18N.recipientsTotal || 'recipients');
-                if (isSnapshot) {
-                    html += ' <span style="color:#6b7280;font-weight:normal;">— ' +
-                            (I18N.snapshotNote || 'frozen at send time') + '</span>';
-                }
-                html += '</p>';
-
-                if (isSnapshot && d.by_status) {
-                    var statusParts = [];
-                    Object.keys(d.by_status).forEach(function (k) {
-                        statusParts.push((d.by_status[k] || 0) + ' ' + k);
-                    });
-                    html += '<p style="color:#6b7280;font-size:0.9em;">' + statusParts.join(' · ') + '</p>';
-                } else if (d.by_kind) {
-                    html += '<p style="color:#6b7280;font-size:0.9em;">';
-                    html += (d.by_kind.subscriber || 0) + ' ' + (I18N.recipientsSubscribers || 'subscribers') + ' · ';
-                    html += (d.by_kind.user || 0) + ' ' + (I18N.recipientsUsers || 'WordPress users');
-                    html += '</p>';
-                }
-
-                if (d.sample && d.sample.length) {
-                    html += '<p style="margin-top:1rem;color:#6b7280;font-size:0.85em;">' +
-                            (I18N.recipientsSample || 'Sample (first %d):').replace('%d', d.sample_limit || d.sample.length) +
-                            '</p>';
-                    html += '<ul style="list-style:none;padding:0;margin:0;max-height:40vh;overflow-y:auto;border:1px solid #e5e7eb;border-radius:4px;">';
-                    d.sample.forEach(function (r) {
-                        var statusBadge = '';
-                        if (isSnapshot && r.status) {
-                            var color = '#6b7280';
-                            if (r.status === 'sent')    color = '#065f46';
-                            if (r.status === 'failed')  color = '#b32d2e';
-                            if (r.status === 'skipped') color = '#8a5a00';
-                            if (r.status === 'pending') color = '#0a3978';
-                            statusBadge = ' <span style="float:right;font-size:0.75em;text-transform:uppercase;letter-spacing:0.05em;color:' + color + ';font-weight:600;">' +
-                                r.status + (r.failure_code ? ' (' + r.failure_code + ')' : '') + '</span>';
-                        }
-                        // Failed sends keep a Logging row; surface the link so
-                        // the admin can jump straight to the error + body.
-                        var logLink = '';
-                        if (r.log_url) {
-                            logLink = ' <a href="' + r.log_url + '" style="margin-left:0.5rem;font-size:0.8em;">' +
-                                (I18N.viewInLogs || 'View in Logs →') + '</a>';
-                        }
-                        html += '<li style="padding:0.4rem 0.6rem;border-bottom:1px solid #f0f0f1;font-size:0.9em;">' +
-                                '<span style="color:#6b7280;font-size:0.75em;text-transform:uppercase;letter-spacing:0.05em;margin-right:0.5rem;">' +
-                                (r.kind || '') + '</span>' +
-                                (r.email || '') +
-                                (r.name ? ' <span style="color:#6b7280;">(' + r.name + ')</span>' : '') +
-                                logLink +
-                                statusBadge +
-                                '</li>';
-                    });
-                    html += '</ul>';
-                }
-                recBody.innerHTML = html;
-            });
+            openRecipientsModal(newsletterId);
             return;
         }
 
-        // ---- Delete modal: populate title + confirm-link href.
+        // ---- Delete modal: populate title + confirm-link href +
+        //      toggle the "trash" / "permanent" variant copy.
         if (trigger.hasAttribute('data-card-delete')) {
             var delModal = modalById('lrob-etk-nl-modal-delete');
             if (!delModal) return;
             var titleEl = delModal.querySelector('[data-delete-title]');
             var confirmLink = delModal.querySelector('[data-delete-confirm]');
             if (titleEl) titleEl.textContent = trigger.getAttribute('data-newsletter-title') || '';
-            // The card already has the delete href via window object?
-            // Instead, build it here by reading nonce + post from a
-            // hidden anchor — or just delegate to the existing
-            // admin-post URL we constructed PHP-side. Simplest: ask
-            // the trigger for it.
             if (confirmLink) confirmLink.setAttribute('href', trigger.getAttribute('data-delete-url') || '#');
+            var mode = trigger.getAttribute('data-delete-mode') === 'permanent' ? 'permanent' : 'trash';
+            var variants = delModal.querySelectorAll('[data-delete-variant]');
+            for (var vi = 0; vi < variants.length; vi++) {
+                variants[vi].hidden = variants[vi].getAttribute('data-delete-variant') !== mode;
+            }
             openModal(delModal);
             return;
         }
@@ -1036,6 +966,26 @@
         pollIfDue(true);
     });
 
+    // Empty-trash button on the tab nav: confirm-then-navigate. The
+    // confirm body + URL come from data-attrs PHP-rendered on the
+    // button (count-aware copy, signed nonce URL).
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-empty-trash]');
+        if (!btn) return;
+        e.preventDefault();
+        var url = btn.getAttribute('data-empty-trash-url') || '';
+        var body = btn.getAttribute('data-empty-trash-confirm') || '';
+        if (!url) return;
+        etkConfirm({
+            title: btn.textContent.trim(),
+            body: body,
+            confirmLabel: btn.textContent.trim(),
+            danger: true,
+        }).then(function (ok) {
+            if (ok) window.location.href = url;
+        });
+    });
+
     // Auto-refresh checkbox: persisted in localStorage, off by default,
     // restored on each page load. Cross-tab synced via the storage event
     // so toggling in one tab updates the others.
@@ -1054,6 +1004,291 @@
         stopAutoRefresh();
         if (isAutoRefreshOn()) startAutoRefresh();
     });
+
+    // -----------------------------------------------------------------
+    // Recipients drawer
+    // -----------------------------------------------------------------
+    // Per-newsletter recipient list with status filter chips, email/
+    // name substring search, and offset/limit pagination. State is
+    // kept module-local (single drawer open at a time); each load
+    // re-fetches with the current state + re-renders the body.
+
+    var recipientsState = {
+        newsletterId: 0,
+        filter: '',      // '' | 'pending' | 'sent' | 'failed' | 'skipped'
+        search: '',
+        offset: 0,
+        limit: 50,
+        searchDebounce: null,
+        loadSeq: 0,      // increments per request; lets us drop stale responses
+    };
+
+    var FILTER_KEYS = ['', 'pending', 'sent', 'failed', 'skipped'];
+
+    function escHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    function filterLabel(key) {
+        if (key === '')        return I18N.recipientsFilterAll      || 'All';
+        if (key === 'pending') return I18N.recipientsFilterPending  || 'Pending';
+        if (key === 'sent')    return I18N.recipientsFilterSent     || 'Sent';
+        if (key === 'failed')  return I18N.recipientsFilterFailed   || 'Failed';
+        if (key === 'skipped') return I18N.recipientsFilterSkipped  || 'Skipped';
+        return key;
+    }
+
+    function statusLabel(s) {
+        if (s === 'pending') return I18N.recipientsFilterPending || 'pending';
+        if (s === 'sent')    return I18N.recipientsFilterSent    || 'sent';
+        if (s === 'failed')  return I18N.recipientsFilterFailed  || 'failed';
+        if (s === 'skipped') return I18N.recipientsFilterSkipped || 'skipped';
+        return s;
+    }
+
+    function openRecipientsModal(newsletterId) {
+        var modal = modalById('lrob-etk-nl-modal-recipients');
+        if (!modal) return;
+        recipientsState.newsletterId = newsletterId;
+        recipientsState.filter = '';
+        recipientsState.search = '';
+        recipientsState.offset = 0;
+        var searchInput = modal.querySelector('[data-recipients-search]');
+        if (searchInput) searchInput.value = '';
+        var controls = modal.querySelector('[data-recipients-controls]');
+        if (controls) controls.hidden = true;
+        var body = modal.querySelector('[data-recipients-body]');
+        if (body) body.innerHTML = '<p class="lrob-etk-nl-recipients-loading">' +
+            escHtml(I18N.recipientsLoading || 'Computing…') + '</p>';
+        openModal(modal);
+        loadRecipients();
+    }
+
+    function loadRecipients() {
+        var modal = modalById('lrob-etk-nl-modal-recipients');
+        if (!modal) return;
+        var body = modal.querySelector('[data-recipients-body]');
+        if (!body) return;
+        body.classList.add('is-loading');
+        var seq = ++recipientsState.loadSeq;
+        post(ACTIONS.recipientsPreview, {
+            newsletter_id: recipientsState.newsletterId,
+            offset: recipientsState.offset,
+            status_filter: recipientsState.filter,
+            search: recipientsState.search
+        }).then(function (resp) {
+            // Drop stale responses (debounced search emits faster than
+            // the AJAX cycle on slow connections).
+            if (seq !== recipientsState.loadSeq) return;
+            body.classList.remove('is-loading');
+            if (!resp || !resp.success) {
+                body.innerHTML = '<p>' + escHtml(
+                    (resp && resp.data && resp.data.message) || I18N.previewFailed || 'Failed.'
+                ) + '</p>';
+                return;
+            }
+            renderRecipients(modal, resp.data);
+        });
+    }
+
+    function renderRecipients(modal, d) {
+        var controls = modal.querySelector('[data-recipients-controls]');
+        var body     = modal.querySelector('[data-recipients-body]');
+        var isSnapshot = d.mode === 'snapshot';
+        if (controls) controls.hidden = !isSnapshot;
+        if (isSnapshot) {
+            renderSnapshot(modal, d);
+        } else {
+            renderPreview(body, d);
+        }
+    }
+
+    function renderSnapshot(modal, d) {
+        // Filter chips — re-rendered on every load so the counts stay
+        // in sync with the server's current by_status map.
+        var filtersHost = modal.querySelector('[data-recipients-filters]');
+        if (filtersHost) {
+            var total = d.total || 0;
+            var fhtml = '';
+            FILTER_KEYS.forEach(function (key) {
+                var count = key === '' ? total : ((d.by_status && d.by_status[key]) || 0);
+                var active = (recipientsState.filter === key);
+                fhtml += '<button type="button" role="tab" ' +
+                        'class="lrob-etk-nl-recipients-filter' + (active ? ' is-active' : '') + '" ' +
+                        'data-recipients-filter="' + escHtml(key) + '" ' +
+                        'aria-selected="' + (active ? 'true' : 'false') + '">' +
+                    '<span class="lrob-etk-nl-recipients-filter-label">' + escHtml(filterLabel(key)) + '</span> ' +
+                    '<span class="lrob-etk-nl-recipients-filter-count">' + count + '</span>' +
+                    '</button>';
+            });
+            filtersHost.innerHTML = fhtml;
+        }
+
+        // Body — counts header + table + pagination.
+        var body = modal.querySelector('[data-recipients-body]');
+        if (!body) return;
+        var filteredTotal = d.filtered_total != null ? d.filtered_total : (d.total || 0);
+        var offset = d.offset || 0;
+        var limit  = d.limit  || 50;
+        var rows   = d.sample || [];
+        var rangeFrom = rows.length === 0 ? 0 : (offset + 1);
+        var rangeTo   = offset + rows.length;
+
+        var html = '';
+        html += '<div class="lrob-etk-nl-recipients-summary">' +
+            '<strong>' + (d.total || 0) + '</strong> ' + escHtml(I18N.recipientsTotal || 'recipients') +
+            ' <span class="lrob-etk-nl-recipients-summary-note">— ' +
+            escHtml(I18N.snapshotNote || 'frozen at send time') +
+            '</span></div>';
+
+        if (filteredTotal === 0) {
+            html += '<p class="lrob-etk-nl-recipients-empty">' +
+                escHtml(I18N.recipientsNoneMatch || 'No recipients match this filter.') +
+                '</p>';
+            body.innerHTML = html;
+            return;
+        }
+
+        html += '<table class="lrob-etk-nl-recipients-table"><thead><tr>' +
+            '<th>' + escHtml(I18N.recipientsColKind   || 'Kind')   + '</th>' +
+            '<th>' + escHtml(I18N.recipientsColEmail  || 'Email')  + '</th>' +
+            '<th>' + escHtml(I18N.recipientsColStatus || 'Status') + '</th>' +
+            '<th>' + escHtml(I18N.recipientsColSentAt || 'Sent at') + '</th>' +
+            '<th aria-label="' + escHtml(I18N.recipientsColLogs || 'Logs') + '"></th>' +
+            '</tr></thead><tbody>';
+
+        rows.forEach(function (r) {
+            var status = r.status || '';
+            var failureCode = r.failure_code || '';
+            var sentAt = formatSentAt(r.sent_at);
+            var logLink = '';
+            if (r.log_url) {
+                logLink = '<a href="' + escHtml(r.log_url) + '" class="lrob-etk-nl-recipients-log-link">' +
+                    escHtml(I18N.viewInLogs || 'View in Logs →') + '</a>';
+            }
+            html += '<tr>' +
+                '<td><span class="lrob-etk-nl-recipients-kind">' + escHtml(r.kind || '') + '</span></td>' +
+                '<td class="lrob-etk-nl-recipients-email">' +
+                    '<span class="lrob-etk-nl-recipients-email-value">' + escHtml(r.email || '') + '</span>' +
+                    (r.name ? '<span class="lrob-etk-nl-recipients-name"> ' + escHtml(r.name) + '</span>' : '') +
+                '</td>' +
+                '<td><span class="lrob-etk-nl-status lrob-etk-nl-status-' + escHtml(status) + '"' +
+                    (failureCode ? ' title="' + escHtml(failureCode) + '"' : '') + '>' +
+                    escHtml(statusLabel(status)) +
+                    (failureCode ? ' <span class="lrob-etk-nl-recipients-failcode">(' + escHtml(failureCode) + ')</span>' : '') +
+                '</span></td>' +
+                '<td class="lrob-etk-nl-recipients-sent-at">' + escHtml(sentAt) + '</td>' +
+                '<td class="lrob-etk-nl-recipients-logs">' + logLink + '</td>' +
+                '</tr>';
+        });
+        html += '</tbody></table>';
+
+        // Pagination footer — only render the controls when there's
+        // more than one page worth of data; otherwise just show the
+        // range readout.
+        var hasMore  = (offset + rows.length) < filteredTotal;
+        var hasPrev  = offset > 0;
+        var rangeLabel = (I18N.recipientsRange || 'Showing %1$s–%2$s of %3$s')
+            .replace('%1$s', rangeFrom).replace('%2$s', rangeTo).replace('%3$s', filteredTotal);
+        html += '<footer class="lrob-etk-nl-recipients-pagination">' +
+            '<span class="lrob-etk-nl-recipients-range">' + escHtml(rangeLabel) + '</span>' +
+            (hasPrev || hasMore
+                ? '<span class="lrob-etk-nl-recipients-pager">' +
+                  '<button type="button" class="button button-small" data-recipients-page="prev"' +
+                    (hasPrev ? '' : ' disabled') + '>‹ ' + escHtml(I18N.previous || 'Previous') + '</button>' +
+                  '<button type="button" class="button button-small" data-recipients-page="next"' +
+                    (hasMore ? '' : ' disabled') + '>' + escHtml(I18N.next || 'Next') + ' ›</button>' +
+                  '</span>'
+                : '') +
+            '</footer>';
+
+        body.innerHTML = html;
+    }
+
+    function renderPreview(body, d) {
+        // Pre-send dry-run path: no per-recipient row yet, so we list
+        // who *would* be targeted given the current settings — no
+        // filtering / pagination, capped to sample_limit.
+        if (!body) return;
+        var html = '';
+        html += '<div class="lrob-etk-nl-recipients-summary">' +
+            '<strong>' + (d.total || 0) + '</strong> ' + escHtml(I18N.recipientsTotal || 'recipients') +
+            '</div>';
+        if (d.by_kind) {
+            html += '<p class="lrob-etk-nl-recipients-bykind">' +
+                (d.by_kind.subscriber || 0) + ' ' + escHtml(I18N.recipientsSubscribers || 'subscribers') + ' · ' +
+                (d.by_kind.user || 0) + ' ' + escHtml(I18N.recipientsUsers || 'WordPress users') +
+                '</p>';
+        }
+        if (d.sample && d.sample.length) {
+            var sampleNote = (I18N.recipientsSample || 'Sample (first %d):')
+                .replace('%d', d.sample_limit || d.sample.length);
+            html += '<p class="lrob-etk-nl-recipients-sample-note">' + escHtml(sampleNote) + '</p>';
+            html += '<ul class="lrob-etk-nl-recipients-preview-list">';
+            d.sample.forEach(function (r) {
+                html += '<li>' +
+                    '<span class="lrob-etk-nl-recipients-kind">' + escHtml(r.kind || '') + '</span>' +
+                    '<span class="lrob-etk-nl-recipients-email-value"> ' + escHtml(r.email || '') + '</span>' +
+                    (r.name ? '<span class="lrob-etk-nl-recipients-name"> ' + escHtml(r.name) + '</span>' : '') +
+                    '</li>';
+            });
+            html += '</ul>';
+        }
+        body.innerHTML = html;
+    }
+
+    function formatSentAt(raw) {
+        if (!raw || raw === '0000-00-00 00:00:00') return '';
+        // Server returns UTC mysql datetime; render in browser-local time.
+        var ts = Date.parse(raw.replace(' ', 'T') + 'Z');
+        if (isNaN(ts)) return raw;
+        var d = new Date(ts);
+        try {
+            return d.toLocaleString();
+        } catch (e) {
+            return raw;
+        }
+    }
+
+    // Wire the persistent controls once. Filter clicks and pagination
+    // ride on event delegation since their DOM is re-rendered per load.
+    (function wireRecipientsModal() {
+        var modal = document.getElementById('lrob-etk-nl-modal-recipients');
+        if (!modal) return;
+        modal.addEventListener('click', function (e) {
+            var filterBtn = e.target.closest('[data-recipients-filter]');
+            if (filterBtn) {
+                var key = filterBtn.getAttribute('data-recipients-filter') || '';
+                if (recipientsState.filter !== key) {
+                    recipientsState.filter = key;
+                    recipientsState.offset = 0;
+                    loadRecipients();
+                }
+                return;
+            }
+            var pageBtn = e.target.closest('[data-recipients-page]');
+            if (pageBtn && !pageBtn.disabled) {
+                var dir = pageBtn.getAttribute('data-recipients-page');
+                if (dir === 'next') recipientsState.offset += recipientsState.limit;
+                else if (dir === 'prev') recipientsState.offset = Math.max(0, recipientsState.offset - recipientsState.limit);
+                loadRecipients();
+            }
+        });
+        var searchInput = modal.querySelector('[data-recipients-search]');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                if (recipientsState.searchDebounce) clearTimeout(recipientsState.searchDebounce);
+                var value = this.value;
+                recipientsState.searchDebounce = setTimeout(function () {
+                    recipientsState.search = value;
+                    recipientsState.offset = 0;
+                    loadRecipients();
+                }, 300);
+            });
+        }
+    })();
 
     startClockTick();
     startPolling();

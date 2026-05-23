@@ -44,6 +44,14 @@ final class NewslettersPage
 
     public const ACTION_DUPLICATE = 'lrob_etk_nl_newsletter_duplicate';
 
+    public const ACTION_RESTORE = 'lrob_etk_nl_newsletter_restore';
+
+    public const ACTION_DELETE_PERMANENT = 'lrob_etk_nl_newsletter_delete_permanent';
+
+    public const ACTION_EMPTY_TRASH = 'lrob_etk_nl_newsletter_empty_trash';
+
+    private const TAB_QUERY_VAR = 'tab';
+
     public function __construct(
         private NewsletterRepository $newsletters,
         private CategoryRepository $categories,
@@ -57,11 +65,31 @@ final class NewslettersPage
         add_action('admin_post_' . self::ACTION_CREATE, [$this, 'handle_create']);
         add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handle_delete']);
         add_action('admin_post_' . self::ACTION_DUPLICATE, [$this, 'handle_duplicate']);
+        add_action('admin_post_' . self::ACTION_RESTORE, [$this, 'handle_restore']);
+        add_action('admin_post_' . self::ACTION_DELETE_PERMANENT, [$this, 'handle_delete_permanent']);
+        add_action('admin_post_' . self::ACTION_EMPTY_TRASH, [$this, 'handle_empty_trash']);
+    }
+
+    /**
+     * Resolve the current tab from `?tab=` with a fall-through to
+     * "in_prep". Any unknown value collapses to in_prep so a malformed
+     * URL can't pin the admin on an empty view forever.
+     */
+    private function current_tab(): string
+    {
+        $raw = isset($_GET[self::TAB_QUERY_VAR]) ? (string) $_GET[self::TAB_QUERY_VAR] : '';
+        return in_array($raw, [
+            NewsletterRepository::TAB_IN_PREP,
+            NewsletterRepository::TAB_SENT,
+            NewsletterRepository::TAB_TRASH,
+        ], true) ? $raw : NewsletterRepository::TAB_IN_PREP;
     }
 
     public function render(): void
     {
-        $rows = $this->newsletters->list_all();
+        $tab = $this->current_tab();
+        $rows = $this->newsletters->list_all(50, 0, $tab);
+        $counts = $this->newsletters->counts_by_tab();
         $categories = $this->categories->list_all();
         $lists = $this->lists->list_all();
         $identities = $this->available_identities();
@@ -78,18 +106,17 @@ final class NewslettersPage
                     <?php esc_html_e('New newsletter', 'lrob-email-toolkit'); ?>
                 </a>
             </header>
-            <p class="lrob-etk-nl-resource-intro">
-                <?php esc_html_e('Each newsletter\'s settings, audience, schedule, and send actions live on its card here. Click "Edit content" on a card to compose the body in the block editor.', 'lrob-email-toolkit'); ?>
-            </p>
+
+            <?php $this->render_tabs($tab, $counts); ?>
 
             <?php if ($rows === []) : ?>
                 <p class="lrob-etk-nl-resource-empty">
-                    <?php esc_html_e('No newsletters yet. Click "New newsletter" to start one.', 'lrob-email-toolkit'); ?>
+                    <?php echo esc_html($this->empty_tab_message($tab)); ?>
                 </p>
             <?php else : ?>
                 <div class="lrob-etk-nl-newsletter-cards">
                     <?php foreach ($rows as $row) : ?>
-                        <?php $this->render_card($row, $categories, $lists, $identities); ?>
+                        <?php $this->render_card($row, $categories, $lists, $identities, $tab); ?>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
@@ -97,6 +124,79 @@ final class NewslettersPage
         </section>
         <?php $this->render_shared_modals(); ?>
         <?php
+    }
+
+    /**
+     * Pill-row tab nav: In preparation / Sent / Trash, each with a
+     * count badge. Tabs are plain `<a>` links so reloading preserves
+     * the selected tab (the JS card-poller already calls
+     * `window.location.reload()` on state transitions).
+     *
+     * @param array{in_prep:int, sent:int, trash:int} $counts
+     */
+    private function render_tabs(string $current, array $counts): void
+    {
+        $base = add_query_arg(
+            ['page' => PageController::SLUG, 'view' => HomePage::VIEW_NEWSLETTERS],
+            admin_url('admin.php')
+        );
+        $tabs = [
+            NewsletterRepository::TAB_IN_PREP => __('In preparation', 'lrob-email-toolkit'),
+            NewsletterRepository::TAB_SENT    => __('Sent', 'lrob-email-toolkit'),
+            NewsletterRepository::TAB_TRASH   => __('Trash', 'lrob-email-toolkit'),
+        ];
+        ?>
+        <nav class="lrob-etk-nl-tabs" role="tablist" aria-label="<?php esc_attr_e('Newsletter filter', 'lrob-email-toolkit'); ?>">
+            <?php foreach ($tabs as $tab => $label) :
+                $url = add_query_arg([self::TAB_QUERY_VAR => $tab], $base);
+                $count = (int) ($counts[$tab] ?? 0);
+                $is_active = $tab === $current;
+                ?>
+                <a href="<?php echo esc_url($url); ?>"
+                   class="lrob-etk-nl-tab<?php echo $is_active ? ' is-active' : ''; ?>"
+                   role="tab"
+                   aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>">
+                    <span class="lrob-etk-nl-tab-label"><?php echo esc_html($label); ?></span>
+                    <span class="lrob-etk-nl-tab-count" aria-label="<?php
+                        /* translators: %d: count of newsletters in this tab */
+                        echo esc_attr(sprintf(__('%d item(s)', 'lrob-email-toolkit'), $count));
+                    ?>"><?php echo esc_html(number_format_i18n($count)); ?></span>
+                </a>
+            <?php endforeach; ?>
+            <?php if ($current === NewsletterRepository::TAB_TRASH && ((int) ($counts[NewsletterRepository::TAB_TRASH] ?? 0)) > 0) :
+                $empty_url = wp_nonce_url(
+                    add_query_arg(['action' => self::ACTION_EMPTY_TRASH], admin_url('admin-post.php')),
+                    self::ACTION_EMPTY_TRASH
+                );
+                ?>
+                <button type="button"
+                        class="button button-link-delete lrob-etk-nl-tabs-empty"
+                        data-empty-trash
+                        data-empty-trash-url="<?php echo esc_attr($empty_url); ?>"
+                        data-empty-trash-confirm="<?php echo esc_attr(sprintf(
+                            /* translators: %d: number of trashed newsletters about to be permanently deleted */
+                            _n(
+                                'Permanently delete %d trashed newsletter? This cannot be undone.',
+                                'Permanently delete all %d trashed newsletters? This cannot be undone.',
+                                (int) $counts[NewsletterRepository::TAB_TRASH],
+                                'lrob-email-toolkit'
+                            ),
+                            (int) $counts[NewsletterRepository::TAB_TRASH]
+                        )); ?>">
+                    <?php esc_html_e('Empty trash', 'lrob-email-toolkit'); ?>
+                </button>
+            <?php endif; ?>
+        </nav>
+        <?php
+    }
+
+    private function empty_tab_message(string $tab): string
+    {
+        return match ($tab) {
+            NewsletterRepository::TAB_SENT  => __('No sent newsletters yet. Drafts and scheduled sends live in the "In preparation" tab.', 'lrob-email-toolkit'),
+            NewsletterRepository::TAB_TRASH => __('Trash is empty.', 'lrob-email-toolkit'),
+            default                          => __('No newsletters in preparation. Click "New newsletter" to start one.', 'lrob-email-toolkit'),
+        };
     }
 
     /**
@@ -265,11 +365,12 @@ final class NewslettersPage
      * @param array<int, array<string, mixed>> $lists
      * @param array<int, array{id:int, label:string}> $identities
      */
-    private function render_card(array $row, array $categories, array $lists, array $identities): void
+    private function render_card(array $row, array $categories, array $lists, array $identities, string $tab): void
     {
         $post_id = (int) ($row['post_id'] ?? 0);
         $title = (string) ($row['post_title'] ?? '');
         $status = (string) ($row['status'] ?? NewsletterRepository::STATUS_DRAFT);
+        $is_trashed = (string) ($row['wp_status'] ?? '') === 'trash';
         $pause_reason = (string) ($row['pause_reason'] ?? '');
         $sent = (int) ($row['sent_count'] ?? 0);
         $failed = (int) ($row['failed_count'] ?? 0);
@@ -309,22 +410,27 @@ final class NewslettersPage
             NewsletterRepository::STATUS_FAILED,
             NewsletterRepository::STATUS_ABORTED,
         ], true);
-        $is_locked = $is_sending || $is_paused || $is_terminal;
+        $is_locked = $is_sending || $is_paused || $is_terminal || $is_trashed;
         $open_pct = $sent > 0 ? (int) round(($opens_unique * 100) / $sent) : 0;
+        // Synthetic "trash" status drives the badge label + the
+        // `data-status` selector the card-poller uses. The companion
+        // row's real status is preserved in $status for restore-time
+        // decisions.
+        $effective_status = $is_trashed ? 'trashed' : $status;
         ?>
-        <article class="lrob-etk-identity-card lrob-etk-nl-card"
+        <article class="lrob-etk-identity-card lrob-etk-nl-card<?php echo $is_trashed ? ' is-trashed' : ''; ?>"
                  data-newsletter-id="<?php echo $post_id; ?>"
-                 data-status="<?php echo esc_attr($status); ?>"
+                 data-status="<?php echo esc_attr($effective_status); ?>"
                  id="newsletter-<?php echo $post_id; ?>">
             <div class="lrob-etk-card-form">
                 <header class="lrob-etk-card-form-head">
                     <div class="lrob-etk-nl-card-title-wrap">
                         <div class="lrob-etk-nl-card-title-row">
                             <span class="lrob-etk-nl-card-title-label"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></span>
-                            <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($status); ?>"
+                            <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($effective_status); ?>"
                                   data-send-status
-                                  <?php echo $is_draft ? 'hidden' : ''; ?>>
-                                <?php echo esc_html(self::translate_status($status)); ?>
+                                  <?php echo ($is_draft && !$is_trashed) ? 'hidden' : ''; ?>>
+                                <?php echo esc_html(self::translate_status($effective_status)); ?>
                             </span>
                         </div>
                         <input type="text"
@@ -566,9 +672,11 @@ final class NewslettersPage
                 </fieldset>
 
                 <div class="lrob-etk-nl-card-actions">
-                    <?php if ($is_terminal || $is_sending) : ?>
+                    <?php if ($is_locked) : ?>
                         <button type="button" class="button" disabled
-                                title="<?php esc_attr_e('Content is locked once the newsletter has been sent or is being sent. Duplicate to start a new one.', 'lrob-email-toolkit'); ?>">
+                                title="<?php echo esc_attr($is_trashed
+                                    ? __('Restore this newsletter to edit its content.', 'lrob-email-toolkit')
+                                    : __('Content is locked once the newsletter has been sent or is being sent. Duplicate to start a new one.', 'lrob-email-toolkit')); ?>">
                             <span class="dashicons dashicons-edit" aria-hidden="true"></span>
                             <?php esc_html_e('Content', 'lrob-email-toolkit'); ?>
                         </button>
@@ -583,11 +691,12 @@ final class NewslettersPage
                         <?php esc_html_e('Preview', 'lrob-email-toolkit'); ?>
                     </button>
                     <button type="button" class="button" data-card-test
-                            <?php echo ($is_terminal || $is_sending) ? 'disabled' : ''; ?>
-                            <?php echo ($is_terminal || $is_sending) ? 'title="' . esc_attr__('Test sends are disabled once the newsletter is sending or done. Duplicate to start a new one.', 'lrob-email-toolkit') . '"' : ''; ?>>
+                            <?php echo ($is_terminal || $is_sending || $is_trashed) ? 'disabled' : ''; ?>
+                            <?php echo ($is_terminal || $is_sending) ? 'title="' . esc_attr__('Test sends are disabled once the newsletter is sending or done. Duplicate to start a new one.', 'lrob-email-toolkit') . '"' : ($is_trashed ? 'title="' . esc_attr__('Restore this newsletter to send tests.', 'lrob-email-toolkit') . '"' : ''); ?>>
                         <span class="dashicons dashicons-email" aria-hidden="true"></span>
                         <?php esc_html_e('Test', 'lrob-email-toolkit'); ?>
                     </button>
+                    <?php if (!$is_trashed) : ?>
                     <?php
                     // Three button states share the primary CTA slot:
                     //  - committed + future schedule → "Unschedule" (red);
@@ -663,6 +772,7 @@ final class NewslettersPage
                             ?>
                         </button>
                     <?php endif; ?>
+                    <?php endif; // !$is_trashed ?>
                 </div>
 
                 <?php if ($is_paused && $pause_reason === SendLoop::PAUSE_REASON_SMTP_UNHEALTHY) : ?>
@@ -700,7 +810,7 @@ final class NewslettersPage
                 } elseif ($status === NewsletterRepository::STATUS_ABORTED) {
                     $status_msg = __('This send was aborted.', 'lrob-email-toolkit');
                     $status_msg_class = 'is-error';
-                } elseif ($scheduled_local !== '' && !$is_terminal) {
+                } elseif ($scheduled_local !== '' && !$is_terminal && !$is_trashed) {
                     $sched_ts = strtotime($scheduled_at . ' UTC');
                     $sched_pretty = $sched_ts !== false
                         ? (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $sched_ts)
@@ -781,27 +891,71 @@ final class NewslettersPage
                 </p>
 
                 <?php
-                $delete_url = wp_nonce_url(
-                    add_query_arg(['action' => self::ACTION_DELETE, 'post' => $post_id], admin_url('admin-post.php')),
-                    self::ACTION_DELETE . '_' . $post_id
-                );
-                $duplicate_url = wp_nonce_url(
-                    add_query_arg(['action' => self::ACTION_DUPLICATE, 'post' => $post_id], admin_url('admin-post.php')),
-                    self::ACTION_DUPLICATE . '_' . $post_id
-                );
+                $shown_title_attr = $title !== '' ? $title : __('(untitled)', 'lrob-email-toolkit');
+                if ($is_trashed) {
+                    $restore_url = wp_nonce_url(
+                        add_query_arg(['action' => self::ACTION_RESTORE, 'post' => $post_id], admin_url('admin-post.php')),
+                        self::ACTION_RESTORE . '_' . $post_id
+                    );
+                    $delete_permanent_url = wp_nonce_url(
+                        add_query_arg(['action' => self::ACTION_DELETE_PERMANENT, 'post' => $post_id], admin_url('admin-post.php')),
+                        self::ACTION_DELETE_PERMANENT . '_' . $post_id
+                    );
+                    ?>
+                    <footer class="lrob-etk-card-footer">
+                        <a href="<?php echo esc_url($restore_url); ?>" class="lrob-etk-card-delete-link lrob-etk-nl-card-restore-link">
+                            <span class="dashicons dashicons-undo" aria-hidden="true"></span>
+                            <?php esc_html_e('Restore', 'lrob-email-toolkit'); ?>
+                        </a>
+                        <button type="button"
+                                class="lrob-etk-card-delete-link"
+                                data-card-delete
+                                data-delete-mode="permanent"
+                                data-newsletter-title="<?php echo esc_attr($shown_title_attr); ?>"
+                                data-delete-url="<?php echo esc_attr($delete_permanent_url); ?>">
+                            <?php esc_html_e('Delete permanently', 'lrob-email-toolkit'); ?>
+                        </button>
+                    </footer>
+                    <?php
+                } else {
+                    $delete_url = wp_nonce_url(
+                        add_query_arg(['action' => self::ACTION_DELETE, 'post' => $post_id], admin_url('admin-post.php')),
+                        self::ACTION_DELETE . '_' . $post_id
+                    );
+                    $duplicate_url = wp_nonce_url(
+                        add_query_arg(['action' => self::ACTION_DUPLICATE, 'post' => $post_id], admin_url('admin-post.php')),
+                        self::ACTION_DUPLICATE . '_' . $post_id
+                    );
+                    // Trashing is forbidden while a send is mid-flight to
+                    // avoid stranding pending recipient rows; admin must
+                    // abort first.
+                    $can_trash = !$is_sending && !$is_paused;
+                    ?>
+                    <footer class="lrob-etk-card-footer">
+                        <a href="<?php echo esc_url($duplicate_url); ?>" class="lrob-etk-card-delete-link lrob-etk-nl-card-duplicate-link">
+                            <?php esc_html_e('Duplicate', 'lrob-email-toolkit'); ?>
+                        </a>
+                        <?php if ($can_trash) : ?>
+                            <button type="button"
+                                    class="lrob-etk-card-delete-link"
+                                    data-card-delete
+                                    data-delete-mode="trash"
+                                    data-newsletter-title="<?php echo esc_attr($shown_title_attr); ?>"
+                                    data-delete-url="<?php echo esc_attr($delete_url); ?>">
+                                <?php esc_html_e('Trash', 'lrob-email-toolkit'); ?>
+                            </button>
+                        <?php else : ?>
+                            <button type="button"
+                                    class="lrob-etk-card-delete-link"
+                                    disabled
+                                    title="<?php esc_attr_e('Abort the send first, then this can be moved to trash.', 'lrob-email-toolkit'); ?>">
+                                <?php esc_html_e('Trash', 'lrob-email-toolkit'); ?>
+                            </button>
+                        <?php endif; ?>
+                    </footer>
+                    <?php
+                }
                 ?>
-                <footer class="lrob-etk-card-footer">
-                    <a href="<?php echo esc_url($duplicate_url); ?>" class="lrob-etk-card-delete-link lrob-etk-nl-card-duplicate-link">
-                        <?php esc_html_e('Duplicate', 'lrob-email-toolkit'); ?>
-                    </a>
-                    <button type="button"
-                            class="lrob-etk-card-delete-link"
-                            data-card-delete
-                            data-newsletter-title="<?php echo esc_attr($title !== '' ? $title : __('(untitled)', 'lrob-email-toolkit')); ?>"
-                            data-delete-url="<?php echo esc_attr($delete_url); ?>">
-                        <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
-                    </button>
-                </footer>
             </div>
         </article>
         <?php
@@ -888,15 +1042,29 @@ final class NewslettersPage
 
         <div class="lrob-etk-modal" id="lrob-etk-nl-modal-recipients" role="dialog" aria-modal="true" hidden>
             <div class="lrob-etk-modal-backdrop" data-modal-close></div>
-            <div class="lrob-etk-modal-dialog">
+            <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--wide">
                 <header class="lrob-etk-modal-header">
-                    <h3 class="lrob-etk-modal-title-text"><?php esc_html_e('Recipients preview', 'lrob-email-toolkit'); ?></h3>
+                    <h3 class="lrob-etk-modal-title-text" data-recipients-title><?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?></h3>
                     <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
                     </button>
                 </header>
-                <div class="lrob-etk-modal-body" data-recipients-body>
-                    <p class="lrob-etk-nl-recipients-loading"><?php esc_html_e('Computing recipient set…', 'lrob-email-toolkit'); ?></p>
+                <div class="lrob-etk-modal-body">
+                    <!-- Persistent filter + search row. JS hides it for the
+                         pre-send "preview" mode (everything's pending, nothing
+                         to filter); populates the filter chips per load. -->
+                    <div class="lrob-etk-nl-recipients-controls" data-recipients-controls hidden>
+                        <div class="lrob-etk-nl-recipients-filters" data-recipients-filters role="tablist" aria-label="<?php esc_attr_e('Recipient status filter', 'lrob-email-toolkit'); ?>"></div>
+                        <input type="search"
+                               class="lrob-etk-nl-recipients-search"
+                               data-recipients-search
+                               placeholder="<?php esc_attr_e('Search email or name…', 'lrob-email-toolkit'); ?>"
+                               aria-label="<?php esc_attr_e('Search recipients', 'lrob-email-toolkit'); ?>"
+                               autocomplete="off">
+                    </div>
+                    <div data-recipients-body>
+                        <p class="lrob-etk-nl-recipients-loading"><?php esc_html_e('Computing recipient set…', 'lrob-email-toolkit'); ?></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -924,20 +1092,30 @@ final class NewslettersPage
             <div class="lrob-etk-modal-backdrop" data-modal-close></div>
             <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--small">
                 <header class="lrob-etk-modal-header">
-                    <h3 class="lrob-etk-modal-title-text"><?php esc_html_e('Delete newsletter', 'lrob-email-toolkit'); ?></h3>
+                    <h3 class="lrob-etk-modal-title-text">
+                        <span data-delete-variant="trash"><?php esc_html_e('Move to trash', 'lrob-email-toolkit'); ?></span>
+                        <span data-delete-variant="permanent" hidden><?php esc_html_e('Delete permanently', 'lrob-email-toolkit'); ?></span>
+                    </h3>
                     <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
                     </button>
                 </header>
                 <div class="lrob-etk-modal-body">
-                    <p><?php esc_html_e('Permanently delete this newsletter?', 'lrob-email-toolkit'); ?>
-                       <strong data-delete-title></strong></p>
-                    <p class="description"><?php esc_html_e('This cannot be undone. Already-sent recipients are not affected.', 'lrob-email-toolkit'); ?></p>
+                    <p>
+                        <span data-delete-variant="trash"><?php esc_html_e('Move this newsletter to trash?', 'lrob-email-toolkit'); ?></span>
+                        <span data-delete-variant="permanent" hidden><?php esc_html_e('Permanently delete this newsletter?', 'lrob-email-toolkit'); ?></span>
+                        <strong data-delete-title></strong>
+                    </p>
+                    <p class="description">
+                        <span data-delete-variant="trash"><?php esc_html_e('You can restore it from the Trash tab. Already-sent recipients are not affected.', 'lrob-email-toolkit'); ?></span>
+                        <span data-delete-variant="permanent" hidden><?php esc_html_e('This cannot be undone. Already-sent recipients are not affected.', 'lrob-email-toolkit'); ?></span>
+                    </p>
                 </div>
                 <footer class="lrob-etk-modal-footer">
                     <button type="button" class="button" data-modal-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
                     <a href="#" class="button lrob-etk-nl-modal-confirm-danger" data-delete-confirm>
-                        <?php esc_html_e('Delete permanently', 'lrob-email-toolkit'); ?>
+                        <span data-delete-variant="trash"><?php esc_html_e('Move to trash', 'lrob-email-toolkit'); ?></span>
+                        <span data-delete-variant="permanent" hidden><?php esc_html_e('Delete permanently', 'lrob-email-toolkit'); ?></span>
                     </a>
                 </footer>
             </div>
@@ -974,6 +1152,12 @@ final class NewslettersPage
         exit;
     }
 
+    /**
+     * Soft-delete a newsletter into trash — recoverable via the Trash
+     * tab. Sending / paused newsletters can't be trashed (would strand
+     * pending recipient rows); the admin must abort first. Permanent
+     * deletion lives at handle_delete_permanent().
+     */
     public function handle_delete(): void
     {
         if (!current_user_can(Activator::CAPABILITY)) {
@@ -988,11 +1172,134 @@ final class NewslettersPage
         if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
             wp_die(esc_html__('Newsletter not found.', 'lrob-email-toolkit'));
         }
+        if ($post->post_status === 'trash') {
+            // Idempotent — already trashed, just bounce back.
+            $this->redirect_to_tab(NewsletterRepository::TAB_TRASH);
+        }
+        $companion = $this->newsletters->find_by_post_id($post_id);
+        $status = (string) ($companion['status'] ?? NewsletterRepository::STATUS_DRAFT);
+        if (in_array($status, [NewsletterRepository::STATUS_SENDING, NewsletterRepository::STATUS_PAUSED], true)) {
+            wp_die(esc_html__('This newsletter is currently sending. Abort the send before trashing it.', 'lrob-email-toolkit'));
+        }
+        // A scheduled newsletter goes to trash unscheduled — flip the
+        // companion row back to draft so the cron tick won't pick it
+        // up if the post is later restored. Doesn't touch terminal
+        // statuses (sent / failed / aborted stay frozen).
+        if ($status === NewsletterRepository::STATUS_SCHEDULED) {
+            $this->newsletters->update_status($post_id, NewsletterRepository::STATUS_DRAFT);
+        }
+        wp_trash_post($post_id);
+        $this->redirect_to_tab(NewsletterRepository::TAB_TRASH);
+    }
+
+    /**
+     * Restore a trashed newsletter back into the In-preparation tab.
+     * WP's wp_untrash_post() puts the post back at its pre-trash
+     * status; we additionally ensure the companion row is draft (the
+     * scheduled flip we did on trash means this is usually already
+     * the case, but a sent / failed / aborted newsletter can also be
+     * restored — those keep their terminal status so they re-appear
+     * on the Sent tab).
+     */
+    public function handle_restore(): void
+    {
+        if (!current_user_can(Activator::CAPABILITY)) {
+            wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
+        }
+        $post_id = isset($_GET['post']) ? (int) wp_unslash((string) $_GET['post']) : 0;
+        $nonce = isset($_GET['_wpnonce']) ? (string) $_GET['_wpnonce'] : '';
+        if (!wp_verify_nonce($nonce, self::ACTION_RESTORE . '_' . $post_id)) {
+            wp_die(esc_html__('Security check failed. Please retry.', 'lrob-email-toolkit'));
+        }
+        $post = $post_id > 0 ? get_post($post_id) : null;
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            wp_die(esc_html__('Newsletter not found.', 'lrob-email-toolkit'));
+        }
+        if ($post->post_status !== 'trash') {
+            $this->redirect_to_tab(NewsletterRepository::TAB_IN_PREP);
+        }
+        wp_untrash_post($post_id);
+        $companion = $this->newsletters->find_by_post_id($post_id);
+        $status = (string) ($companion['status'] ?? NewsletterRepository::STATUS_DRAFT);
+        $is_terminal = in_array($status, [
+            NewsletterRepository::STATUS_SENT,
+            NewsletterRepository::STATUS_FAILED,
+            NewsletterRepository::STATUS_ABORTED,
+        ], true);
+        $target_tab = $is_terminal ? NewsletterRepository::TAB_SENT : NewsletterRepository::TAB_IN_PREP;
+        $this->redirect_to_tab($target_tab, '#newsletter-' . $post_id);
+    }
+
+    /**
+     * Hard-delete a trashed newsletter. Only allowed on already-trashed
+     * posts — call handle_delete() to put a live newsletter in trash
+     * first. NewsletterLifecycle::before_delete_post cleans up the
+     * companion + recipient rows.
+     */
+    public function handle_delete_permanent(): void
+    {
+        if (!current_user_can(Activator::CAPABILITY)) {
+            wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
+        }
+        $post_id = isset($_GET['post']) ? (int) wp_unslash((string) $_GET['post']) : 0;
+        $nonce = isset($_GET['_wpnonce']) ? (string) $_GET['_wpnonce'] : '';
+        if (!wp_verify_nonce($nonce, self::ACTION_DELETE_PERMANENT . '_' . $post_id)) {
+            wp_die(esc_html__('Security check failed. Please retry.', 'lrob-email-toolkit'));
+        }
+        $post = $post_id > 0 ? get_post($post_id) : null;
+        if (!$post instanceof \WP_Post || $post->post_type !== NewsletterCPT::POST_TYPE) {
+            wp_die(esc_html__('Newsletter not found.', 'lrob-email-toolkit'));
+        }
+        if ($post->post_status !== 'trash') {
+            wp_die(esc_html__('Move this newsletter to trash before permanently deleting it.', 'lrob-email-toolkit'));
+        }
         wp_delete_post($post_id, true);
-        wp_safe_redirect(add_query_arg(
-            ['page' => PageController::SLUG, 'view' => HomePage::VIEW_NEWSLETTERS],
+        $this->redirect_to_tab(NewsletterRepository::TAB_TRASH);
+    }
+
+    /**
+     * Bulk hard-delete every trashed newsletter. Single-tx behaviour
+     * isn't worth the complexity here — typical trash is small and
+     * each post triggers its own before_delete_post cleanup.
+     */
+    public function handle_empty_trash(): void
+    {
+        if (!current_user_can(Activator::CAPABILITY)) {
+            wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
+        }
+        $nonce = isset($_GET['_wpnonce']) ? (string) $_GET['_wpnonce'] : '';
+        if (!wp_verify_nonce($nonce, self::ACTION_EMPTY_TRASH)) {
+            wp_die(esc_html__('Security check failed. Please retry.', 'lrob-email-toolkit'));
+        }
+        $trashed = get_posts([
+            'post_type'      => NewsletterCPT::POST_TYPE,
+            'post_status'    => 'trash',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ]);
+        foreach ($trashed as $post_id) {
+            wp_delete_post((int) $post_id, true);
+        }
+        $this->redirect_to_tab(NewsletterRepository::TAB_TRASH);
+    }
+
+    /**
+     * Send the admin back to the Newsletters view with a specific tab
+     * preselected. Optional fragment lets restore land on the freshly-
+     * restored card.
+     */
+    private function redirect_to_tab(string $tab, string $fragment = ''): void
+    {
+        $url = add_query_arg(
+            [
+                'page'                 => PageController::SLUG,
+                'view'                 => HomePage::VIEW_NEWSLETTERS,
+                self::TAB_QUERY_VAR    => $tab,
+            ],
             admin_url('admin.php')
-        ));
+        );
+        wp_safe_redirect($url . $fragment);
         exit;
     }
 
@@ -1109,6 +1416,7 @@ final class NewslettersPage
             NewsletterRepository::STATUS_SENT      => __('Sent', 'lrob-email-toolkit'),
             NewsletterRepository::STATUS_FAILED    => __('Failed', 'lrob-email-toolkit'),
             NewsletterRepository::STATUS_ABORTED   => __('Aborted', 'lrob-email-toolkit'),
+            'trashed'                              => __('Trashed', 'lrob-email-toolkit'),
             default                              => $status,
         };
     }

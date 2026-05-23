@@ -168,6 +168,21 @@ final class HomePage
                 'seconds'              => __('seconds', 'lrob-email-toolkit'),
                 'secondSingular'       => __('second', 'lrob-email-toolkit'),
                 'refresh'              => __('Refresh', 'lrob-email-toolkit'),
+                'recipientsFilterAll'     => __('All', 'lrob-email-toolkit'),
+                'recipientsFilterPending' => __('Pending', 'lrob-email-toolkit'),
+                'recipientsFilterSent'    => __('Sent', 'lrob-email-toolkit'),
+                'recipientsFilterFailed'  => __('Failed', 'lrob-email-toolkit'),
+                'recipientsFilterSkipped' => __('Skipped', 'lrob-email-toolkit'),
+                'recipientsColKind'       => __('Kind', 'lrob-email-toolkit'),
+                'recipientsColEmail'      => __('Email', 'lrob-email-toolkit'),
+                'recipientsColStatus'     => __('Status', 'lrob-email-toolkit'),
+                'recipientsColSentAt'     => __('Sent at', 'lrob-email-toolkit'),
+                'recipientsColLogs'       => __('Logs', 'lrob-email-toolkit'),
+                'recipientsNoneMatch'     => __('No recipients match this filter.', 'lrob-email-toolkit'),
+                /* translators: %1$s: range start (e.g. "1"), %2$s: range end (e.g. "50"), %3$s: total recipients */
+                'recipientsRange'         => __('Showing %1$s–%2$s of %3$s', 'lrob-email-toolkit'),
+                'previous'                => __('Previous', 'lrob-email-toolkit'),
+                'next'                    => __('Next', 'lrob-email-toolkit'),
             ],
         ]);
     }

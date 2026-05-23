@@ -161,18 +161,66 @@ final class NewsletterRepository
         $wpdb->delete(Schema::newsletter_recipients_table(), ['newsletter_id' => $post_id], ['%d']);
     }
 
+    /** Statuses considered "in preparation" (still editable, not yet sent). */
+    private const TAB_IN_PREP_STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_SCHEDULED,
+    ];
+
+    /** Statuses considered "sent or sending" (locked, send pipeline owns them). */
+    private const TAB_SENT_STATUSES = [
+        self::STATUS_SENDING,
+        self::STATUS_PAUSED,
+        self::STATUS_SENT,
+        self::STATUS_FAILED,
+        self::STATUS_ABORTED,
+    ];
+
+    public const TAB_IN_PREP = 'in_prep';
+
+    public const TAB_SENT    = 'sent';
+
+    public const TAB_TRASH   = 'trash';
+
+    /**
+     * Build the WHERE clause that selects rows belonging to a given
+     * tab. Returns just the AND-suffix (no `WHERE`, no leading AND).
+     * The tab value is validated by the caller — this helper trusts
+     * its input and string-concatenates the IN list.
+     */
+    private static function where_for_tab(string $tab): string
+    {
+        if ($tab === self::TAB_TRASH) {
+            return "p.post_status = 'trash'";
+        }
+        $statuses = $tab === self::TAB_SENT ? self::TAB_SENT_STATUSES : self::TAB_IN_PREP_STATUSES;
+        $quoted = array_map(static fn (string $s): string => "'" . esc_sql($s) . "'", $statuses);
+        return "p.post_status NOT IN ('auto-draft','trash')"
+             . " AND COALESCE(c.status, 'draft') IN (" . implode(',', $quoted) . ")";
+    }
+
     /**
      * Join wp_posts + the companion table so the admin view gets
      * post fields (title, post_status, post_date) and runtime state
-     * (status, counters) in one query. Ordered newest-first.
+     * (status, counters) in one query. Ordered newest-first (creation
+     * date desc) so freshly created newsletters land at the top.
+     *
+     * The $tab argument segments the list into "in preparation"
+     * (draft / scheduled), "sent" (sending / paused / sent / failed /
+     * aborted), and "trash" (post_status='trash'). Unknown values
+     * fall back to in_prep.
      *
      * @return array<int, array<string, mixed>>
      */
-    public function list_all(int $limit = 50, int $offset = 0): array
+    public function list_all(int $limit = 50, int $offset = 0, string $tab = self::TAB_IN_PREP): array
     {
         global $wpdb;
+        if (!in_array($tab, [self::TAB_IN_PREP, self::TAB_SENT, self::TAB_TRASH], true)) {
+            $tab = self::TAB_IN_PREP;
+        }
         $cpt = NewsletterCPT::POST_TYPE;
         $newsletters_table = Schema::newsletters_table();
+        $where_tab = self::where_for_tab($tab);
         return (array) $wpdb->get_results($wpdb->prepare(
             "SELECT p.ID AS post_id,
                     p.post_title,
@@ -191,7 +239,7 @@ final class NewsletterRepository
                FROM {$wpdb->posts} p
                LEFT JOIN `$newsletters_table` c ON c.post_id = p.ID
               WHERE p.post_type = %s
-                AND p.post_status NOT IN ('auto-draft','trash')
+                AND $where_tab
               ORDER BY p.post_date_gmt DESC
               LIMIT %d OFFSET %d",
             $cpt,
@@ -201,14 +249,48 @@ final class NewsletterRepository
     }
 
     /**
+     * Return the row count per tab in one query — feeds the tab nav
+     * badges. Cheap: post_type index + post_status index are both used.
+     *
+     * @return array{in_prep:int, sent:int, trash:int}
+     */
+    public function counts_by_tab(): array
+    {
+        global $wpdb;
+        $cpt = NewsletterCPT::POST_TYPE;
+        $newsletters_table = Schema::newsletters_table();
+        $out = ['in_prep' => 0, 'sent' => 0, 'trash' => 0];
+        foreach ([self::TAB_IN_PREP, self::TAB_SENT, self::TAB_TRASH] as $tab) {
+            $where_tab = self::where_for_tab($tab);
+            $out[$tab] = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts} p
+                   LEFT JOIN `$newsletters_table` c ON c.post_id = p.ID
+                  WHERE p.post_type = %s
+                    AND $where_tab",
+                $cpt
+            ));
+        }
+        return $out;
+    }
+
+    /** Recognised per-recipient row statuses (defends against arbitrary filter input). */
+    private const RECIPIENT_STATUSES = ['pending', 'sent', 'failed', 'skipped'];
+
+    /**
      * Frozen recipient snapshot for a sent (or in-progress) newsletter.
      * Reads `newsletter_recipients` — the rows materialised at send
      * time — so the admin sees the actual list as it was when the
      * send started, not a fresh dry-run.
      *
-     * Returns ['total' => N, 'by_status' => [..], 'sample' => [..]].
-     * Empty 'sample' / 0 'total' = no materialisation yet (caller
-     * should fall back to a dry-run preview).
+     * Supports pagination + filtering by status + email substring
+     * search so the modal can drill into thousands of rows. The
+     * `by_status` map stays *unfiltered* so the filter-tab badges
+     * always show the true distribution; `filtered_total` reflects
+     * the current filter+search and is what the pagination footer
+     * counts against.
+     *
+     * Empty result (`total === 0`) = no materialisation yet — caller
+     * should fall back to a dry-run preview.
      *
      * The `row_id` per sample is `newsletter_recipients.id` — the per-send
      * row id, which is what `X-Lrob-Etk-Newsletter-Recipient-ID` carries and
@@ -216,20 +298,44 @@ final class NewsletterRepository
      * pass that id to `LogRepository::log_ids_for_newsletter_recipients()`
      * to attach a "View in Logs" link to failed rows.
      *
-     * @return array{total:int, by_status:array<string,int>, sample:array<int, array{row_id:int, kind:string, email:string, name:string, status:string, failure_code:string, sent_at:string}>}
+     * @return array{
+     *   total:int,
+     *   filtered_total:int,
+     *   by_status:array<string,int>,
+     *   sample:array<int, array{row_id:int, kind:string, email:string, name:string, status:string, failure_code:string, sent_at:string}>,
+     *   limit:int,
+     *   offset:int
+     * }
      */
-    public function recipients_snapshot(int $post_id, int $limit = 50): array
-    {
+    public function recipients_snapshot(
+        int $post_id,
+        int $limit = 50,
+        int $offset = 0,
+        string $status_filter = '',
+        string $email_search = ''
+    ): array {
         global $wpdb;
         $table = Schema::newsletter_recipients_table();
+        $limit = max(1, min(200, $limit));
+        $offset = max(0, $offset);
+        $status_filter = in_array($status_filter, self::RECIPIENT_STATUSES, true) ? $status_filter : '';
+
         $total = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM `$table` WHERE newsletter_id = %d",
             $post_id
         ));
         if ($total === 0) {
-            return ['total' => 0, 'by_status' => [], 'sample' => []];
+            return [
+                'total'          => 0,
+                'filtered_total' => 0,
+                'by_status'      => [],
+                'sample'         => [],
+                'limit'          => $limit,
+                'offset'         => 0,
+            ];
         }
 
+        // Unfiltered per-status counts feed the filter-tab badges.
         $status_rows = (array) $wpdb->get_results($wpdb->prepare(
             "SELECT status, COUNT(*) AS c FROM `$table`
               WHERE newsletter_id = %d
@@ -241,14 +347,36 @@ final class NewsletterRepository
             $by_status[(string) $sr['status']] = (int) $sr['c'];
         }
 
+        // Build the filter clause + bound params for the page query.
+        // Hand-built LIKE escaping: we use $wpdb->esc_like + %s, so the
+        // search string is both escaping- and prepare-safe.
+        $where = '`newsletter_id` = %d';
+        $params = [$post_id];
+        if ($status_filter !== '') {
+            $where .= ' AND `status` = %s';
+            $params[] = $status_filter;
+        }
+        $email_search = trim($email_search);
+        if ($email_search !== '') {
+            $where .= ' AND (`email_snapshot` LIKE %s OR `name_snapshot` LIKE %s)';
+            $like = '%' . $wpdb->esc_like($email_search) . '%';
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        $filtered_total = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM `$table` WHERE $where",
+            ...$params
+        ));
+
+        $page_params = array_merge($params, [$limit, $offset]);
         $rows = (array) $wpdb->get_results($wpdb->prepare(
             "SELECT id, recipient_kind, email_snapshot, name_snapshot, status, failure_code, sent_at
                FROM `$table`
-              WHERE newsletter_id = %d
+              WHERE $where
               ORDER BY id ASC
-              LIMIT %d",
-            $post_id,
-            $limit
+              LIMIT %d OFFSET %d",
+            ...$page_params
         ), ARRAY_A);
 
         $sample = [];
@@ -263,7 +391,14 @@ final class NewsletterRepository
                 'sent_at'      => (string) ($r['sent_at'] ?? ''),
             ];
         }
-        return ['total' => $total, 'by_status' => $by_status, 'sample' => $sample];
+        return [
+            'total'          => $total,
+            'filtered_total' => $filtered_total,
+            'by_status'      => $by_status,
+            'sample'         => $sample,
+            'limit'          => $limit,
+            'offset'         => $offset,
+        ];
     }
 
     public function count_all(): int
