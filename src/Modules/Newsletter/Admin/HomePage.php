@@ -124,6 +124,7 @@ final class HomePage
                 'abort'             => SendAjaxController::ACTION_ABORT,
                 'retryFailed'       => SendAjaxController::ACTION_RETRY_FAILED,
                 'commitSchedule'    => SendAjaxController::ACTION_COMMIT_SCHEDULE,
+                'uncommitSchedule'  => SendAjaxController::ACTION_UNCOMMIT_SCHEDULE,
                 'preview'           => SendAjaxController::ACTION_PREVIEW,
                 'recipientsPreview' => SendAjaxController::ACTION_RECIPIENTS_PREVIEW,
             ],
@@ -148,7 +149,10 @@ final class HomePage
                 'daySingular'          => __('day', 'lrob-email-toolkit'),
                 /* translators: %1$s: relative time until send (e.g. "2 days"), %2$s: absolute datetime */
                 'scheduledTemplate'    => __('Scheduled to send in %1$s — %2$s', 'lrob-email-toolkit'),
-                'scheduledOverdue'     => __('in the past (will send on next click)', 'lrob-email-toolkit'),
+                /* translators: %s: absolute datetime */
+                'scheduleSetTemplate'  => __('Schedule set for %s — click Schedule to commit.', 'lrob-email-toolkit'),
+                /* translators: %s: absolute datetime */
+                'scheduledOverdueTemplate' => __('Scheduled for %s (overdue — will run on the next cron tick).', 'lrob-email-toolkit'),
                 'abortTitle'           => __('Abort send', 'lrob-email-toolkit'),
                 'abortConfirm'         => __('Abort', 'lrob-email-toolkit'),
                 'retryFailedTitle'     => __('Retry failed recipients', 'lrob-email-toolkit'),
@@ -157,6 +161,9 @@ final class HomePage
                 'retryFailedAction'    => __('Retry', 'lrob-email-toolkit'),
                 /* translators: %d: number of recipients re-queued */
                 'retryFailedDone'      => __('%d recipient(s) re-queued.', 'lrob-email-toolkit'),
+                'unscheduleTitle'      => __('Unschedule send', 'lrob-email-toolkit'),
+                'unscheduleConfirm'    => __('Drop this scheduled send back to draft? The date stays saved so you can re-commit later.', 'lrob-email-toolkit'),
+                'unscheduleAction'     => __('Unschedule', 'lrob-email-toolkit'),
             ],
         ]);
     }

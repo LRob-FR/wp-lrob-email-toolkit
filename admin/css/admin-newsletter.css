@@ -701,6 +701,15 @@
     border-color: var(--lrob-etk-color-danger, #b32d2e) !important;
 }
 
+/* Unschedule replaces the Schedule primary button when a newsletter is
+ * already committed-and-future. Red outline to signal "this undoes a
+ * commitment" without being as alarming as the Abort styling (which
+ * kills an in-progress send). */
+.lrob-etk-nl-send-unschedule {
+    color: var(--lrob-etk-color-danger, #b32d2e) !important;
+    border-color: var(--lrob-etk-color-danger, #b32d2e) !important;
+}
+
 /* Full-width setting row (e.g. the newsletter-footer HTML textarea).
  * Overrides the default two-column label|input grid; label sits on
  * top, the input spans the row underneath. */
@@ -746,14 +755,22 @@
     container-type: inline-size;
 }
 
-/* Title label sits above the subject input; small uppercase caption
- * like the .lrob-etk-field label pattern (admin-components). */
+/* Title label + status badge share a row above the subject input, so the
+ * input stays full-width and the status pill sits in the top-right
+ * corner of the card header. */
 .lrob-etk-nl-card-title-wrap {
     flex: 1 1 200px;
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
+}
+
+.lrob-etk-nl-card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 }
 
 .lrob-etk-nl-card-title-label {

@@ -46,6 +46,30 @@ lint_php() {
     ok "all clean"
 }
 
+# Syntax-only JS check via `node --check`. Catches typos / unclosed
+# braces / bad arrows; doesn't lint style. Skipped (with a warn) when
+# node isn't on the path so the build still works on PHP-only setups.
+lint_js() {
+    step "lint js"
+    if ! command -v node >/dev/null 2>&1; then
+        warn "node not found — skipping JS syntax check"
+        return 0
+    fi
+    local errors=0
+    local checked=0
+    while IFS= read -r -d '' f; do
+        if ! node --check "$f" 2>/dev/null; then
+            fail "${f#$SCRIPT_DIR/}"
+            node --check "$f" || true
+            errors=$((errors + 1))
+        fi
+        checked=$((checked + 1))
+    done < <(find "$SCRIPT_DIR" -type f -name "*.js" \
+        ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/.git/*" ! -path "*/releases/*" -print0)
+    [ $errors -gt 0 ] && { fail "$errors file(s) failed JS lint"; exit 1; }
+    ok "$checked file(s) clean"
+}
+
 # Find .lrob-etk-* CSS classes never referenced in PHP/JS/JSON. Heuristic:
 #   1. Extract every .lrob-etk-* class token from admin/css/*.css.
 #   2. For each, look for a literal-string occurrence in src/admin/assets.
@@ -220,6 +244,7 @@ main() {
     VERSION=$(get_version)
     step "version $VERSION"
     lint_php
+    lint_js
     scan_dead_css
     generate_pot
     merge_translations

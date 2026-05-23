@@ -156,11 +156,21 @@ final class NewslettersPage
         $is_locked = $is_sending || $is_paused || $is_terminal;
         $open_pct = $sent > 0 ? (int) round(($opens_unique * 100) / $sent) : 0;
         ?>
-        <article class="lrob-etk-identity-card lrob-etk-nl-card" data-newsletter-id="<?php echo $post_id; ?>" id="newsletter-<?php echo $post_id; ?>">
+        <article class="lrob-etk-identity-card lrob-etk-nl-card"
+                 data-newsletter-id="<?php echo $post_id; ?>"
+                 data-status="<?php echo esc_attr($status); ?>"
+                 id="newsletter-<?php echo $post_id; ?>">
             <div class="lrob-etk-card-form">
                 <header class="lrob-etk-card-form-head">
                     <div class="lrob-etk-nl-card-title-wrap">
-                        <span class="lrob-etk-nl-card-title-label"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></span>
+                        <div class="lrob-etk-nl-card-title-row">
+                            <span class="lrob-etk-nl-card-title-label"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></span>
+                            <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($status); ?>"
+                                  data-send-status
+                                  <?php echo $is_draft ? 'hidden' : ''; ?>>
+                                <?php echo esc_html(self::translate_status($status)); ?>
+                            </span>
+                        </div>
                         <input type="text"
                                name="title"
                                class="lrob-etk-title-input lrob-etk-nl-field"
@@ -170,11 +180,6 @@ final class NewslettersPage
                                autocomplete="off"
                                <?php disabled($is_locked); ?>>
                     </div>
-                    <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($status); ?>"
-                          data-send-status
-                          <?php echo $is_draft ? 'hidden' : ''; ?>>
-                        <?php echo esc_html(self::translate_status($status)); ?>
-                    </span>
                     <span class="lrob-etk-card-status" aria-live="polite"></span>
                 </header>
 
@@ -428,17 +433,21 @@ final class NewslettersPage
                         <?php esc_html_e('Test', 'lrob-email-toolkit'); ?>
                     </button>
                     <?php
-                    // Overdue + already-committed schedules need a "Send now"
-                    // affordance, not a "Schedule" relabel — the schedule
-                    // commit has already happened, the cron just hasn't
-                    // fired (sites without working pseudo-cron / system cron
-                    // hit this). Treat it as immediate-send for label +
-                    // confirmation purposes.
+                    // Three button states share the primary CTA slot:
+                    //  - committed + future schedule → "Unschedule" (red);
+                    //    clicking flips scheduled → draft.
+                    //  - committed + overdue → "Send now"; clicking
+                    //    materializes immediately (manual override for
+                    //    sites without working pseudo-cron).
+                    //  - draft → "Schedule" (when a date is set) or
+                    //    "Send now" (no date), both via the existing
+                    //    immediate / commit-schedule paths.
                     $sched_ts_for_btn = $scheduled_at !== '' ? strtotime($scheduled_at . ' UTC') : false;
                     $is_overdue_scheduled = $status === NewsletterRepository::STATUS_SCHEDULED
                         && $sched_ts_for_btn !== false
                         && $sched_ts_for_btn <= time();
-                    $has_schedule = ($scheduled_local !== '') && !$is_overdue_scheduled;
+                    $is_committed_scheduled = $status === NewsletterRepository::STATUS_SCHEDULED && !$is_overdue_scheduled;
+                    $has_schedule = ($scheduled_local !== '') && !$is_overdue_scheduled && !$is_committed_scheduled;
                     $shown_title = $title !== '' ? $title : __('(untitled)', 'lrob-email-toolkit');
                     /* translators: %s: newsletter title in confirmation prompt */
                     $confirm_send = sprintf(__('Send "%s" to every targeted recipient? This cannot be undone once it starts.', 'lrob-email-toolkit'), $shown_title);
@@ -448,17 +457,26 @@ final class NewslettersPage
                         ? __('Schedule', 'lrob-email-toolkit')
                         : __('Send now', 'lrob-email-toolkit');
                     ?>
-                    <button type="button"
-                            class="button button-primary"
-                            data-send-now
-                            data-label-send="<?php echo esc_attr__('Send now', 'lrob-email-toolkit'); ?>"
-                            data-label-schedule="<?php echo esc_attr__('Schedule', 'lrob-email-toolkit'); ?>"
-                            data-confirm-send="<?php echo esc_attr($confirm_send); ?>"
-                            data-confirm-schedule="<?php echo esc_attr($confirm_schedule); ?>"
-                            <?php echo ($is_terminal || $is_sending || $is_paused) ? 'disabled' : ''; ?>>
-                        <span class="dashicons <?php echo $has_schedule ? 'dashicons-calendar-alt' : 'dashicons-email-alt'; ?>" aria-hidden="true" data-send-icon></span>
-                        <span data-send-label><?php echo esc_html($send_label); ?></span>
-                    </button>
+                    <?php if ($is_committed_scheduled) : ?>
+                        <button type="button"
+                                class="button lrob-etk-nl-send-unschedule"
+                                data-send-unschedule>
+                            <span class="dashicons dashicons-calendar" aria-hidden="true"></span>
+                            <?php esc_html_e('Unschedule', 'lrob-email-toolkit'); ?>
+                        </button>
+                    <?php else : ?>
+                        <button type="button"
+                                class="button button-primary"
+                                data-send-now
+                                data-label-send="<?php echo esc_attr__('Send now', 'lrob-email-toolkit'); ?>"
+                                data-label-schedule="<?php echo esc_attr__('Schedule', 'lrob-email-toolkit'); ?>"
+                                data-confirm-send="<?php echo esc_attr($confirm_send); ?>"
+                                data-confirm-schedule="<?php echo esc_attr($confirm_schedule); ?>"
+                                <?php echo ($is_terminal || $is_sending || $is_paused) ? 'disabled' : ''; ?>>
+                            <span class="dashicons <?php echo $has_schedule ? 'dashicons-calendar-alt' : 'dashicons-email-alt'; ?>" aria-hidden="true" data-send-icon></span>
+                            <span data-send-label><?php echo esc_html($send_label); ?></span>
+                        </button>
+                    <?php endif; ?>
                     <button type="button" class="button" data-send-pause <?php echo $is_sending ? '' : 'hidden'; ?>>
                         <?php esc_html_e('Pause', 'lrob-email-toolkit'); ?>
                     </button>

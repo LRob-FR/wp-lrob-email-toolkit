@@ -202,7 +202,7 @@
     var testModalNewsletterId = 0;
 
     document.addEventListener('click', function (e) {
-        var trigger = e.target.closest('[data-send-now], [data-send-pause], [data-send-resume], [data-send-abort], [data-send-retry-failed], [data-test-send], [data-card-preview], [data-card-recipients], [data-card-delete], [data-card-test]');
+        var trigger = e.target.closest('[data-send-now], [data-send-pause], [data-send-resume], [data-send-abort], [data-send-retry-failed], [data-send-unschedule], [data-test-send], [data-card-preview], [data-card-recipients], [data-card-delete], [data-card-test]');
         if (!trigger) return;
         // [data-test-send] (Send-test button INSIDE the modal) uses
         // testModalNewsletterId, not a card ancestor.
@@ -462,6 +462,28 @@
             return;
         }
 
+        if (trigger.hasAttribute('data-send-unschedule')) {
+            etkConfirm({
+                title: I18N.unscheduleTitle || 'Unschedule send',
+                body: I18N.unscheduleConfirm || '',
+                confirmLabel: I18N.unscheduleAction || 'Unschedule'
+            }).then(function (ok) {
+                if (!ok) return;
+                trigger.disabled = true;
+                post(ACTIONS.uncommitSchedule, { newsletter_id: newsletterId }).then(function (resp) {
+                    trigger.disabled = false;
+                    if (resp && resp.success) {
+                        // Reload so the card re-renders with the new
+                        // status badge + button states.
+                        window.location.reload();
+                    } else {
+                        window.alert((resp && resp.data && resp.data.message) || I18N.tickFailed);
+                    }
+                });
+            });
+            return;
+        }
+
         if (trigger.hasAttribute('data-send-retry-failed')) {
             var failedCount = parseInt(trigger.getAttribute('data-failed-count') || '0', 10) || 0;
             etkConfirm({
@@ -620,23 +642,42 @@
         if (isNaN(when.getTime())) return;
         var now = new Date();
         var deltaMin = Math.round((when.getTime() - now.getTime()) / 60000);
-        var relative;
-        if (deltaMin <= 0) {
-            relative = (I18N.scheduledOverdue || 'in the past (will send on next click)');
-            msg.className = 'lrob-etk-nl-card-status-msg is-warn';
-        } else if (deltaMin < 60) {
-            relative = deltaMin + ' ' + (deltaMin === 1 ? (I18N.minuteSingular || 'minute') : (I18N.minutes || 'minutes'));
+        var absolute = when.toLocaleString();
+        var status = (card.getAttribute('data-status') || 'draft');
+
+        // Draft + date set: the commit hasn't happened yet. Mirror the
+        // server-rendered "Schedule set for X — click Schedule to commit."
+        // so changing the date in-flight stays consistent with the page-
+        // load render.
+        if (status === 'draft') {
+            var draftTpl = I18N.scheduleSetTemplate || 'Schedule set for %s — click Schedule to commit.';
             msg.className = 'lrob-etk-nl-card-status-msg is-info';
+            msg.textContent = draftTpl.replace('%s', absolute);
+            msg.removeAttribute('hidden');
+            return;
+        }
+
+        // Scheduled (committed): live relative-time render. Past dates
+        // get the "overdue — cron tick" message; future dates show the
+        // countdown.
+        if (deltaMin <= 0) {
+            var overdueTpl = I18N.scheduledOverdueTemplate || 'Scheduled for %s (overdue — will run on the next cron tick).';
+            msg.className = 'lrob-etk-nl-card-status-msg is-warn';
+            msg.textContent = overdueTpl.replace('%s', absolute);
+            msg.removeAttribute('hidden');
+            return;
+        }
+        var relative;
+        if (deltaMin < 60) {
+            relative = deltaMin + ' ' + (deltaMin === 1 ? (I18N.minuteSingular || 'minute') : (I18N.minutes || 'minutes'));
         } else if (deltaMin < 60 * 24) {
             var h = Math.round(deltaMin / 60);
             relative = h + ' ' + (h === 1 ? (I18N.hourSingular || 'hour') : (I18N.hours || 'hours'));
-            msg.className = 'lrob-etk-nl-card-status-msg is-info';
         } else {
             var d = Math.round(deltaMin / (60 * 24));
             relative = d + ' ' + (d === 1 ? (I18N.daySingular || 'day') : (I18N.days || 'days'));
-            msg.className = 'lrob-etk-nl-card-status-msg is-info';
         }
-        var absolute = when.toLocaleString();
+        msg.className = 'lrob-etk-nl-card-status-msg is-info';
         var template = I18N.scheduledTemplate || 'Scheduled to send in %1$s — %2$s';
         msg.textContent = template.replace('%1$s', relative).replace('%2$s', absolute);
         msg.removeAttribute('hidden');

@@ -55,6 +55,8 @@ final class SendAjaxController
 
     public const ACTION_COMMIT_SCHEDULE = 'lrob_etk_nl_commit_schedule';
 
+    public const ACTION_UNCOMMIT_SCHEDULE = 'lrob_etk_nl_uncommit_schedule';
+
     public const ACTION_PREVIEW = 'lrob_etk_nl_preview';
 
     public const ACTION_RECIPIENTS_PREVIEW = 'lrob_etk_nl_recipients_preview';
@@ -80,6 +82,7 @@ final class SendAjaxController
         add_action('wp_ajax_' . self::ACTION_ABORT,     [$this, 'handle_abort']);
         add_action('wp_ajax_' . self::ACTION_RETRY_FAILED, [$this, 'handle_retry_failed']);
         add_action('wp_ajax_' . self::ACTION_COMMIT_SCHEDULE, [$this, 'handle_commit_schedule']);
+        add_action('wp_ajax_' . self::ACTION_UNCOMMIT_SCHEDULE, [$this, 'handle_uncommit_schedule']);
         add_action('wp_ajax_' . self::ACTION_PREVIEW,   [$this, 'handle_preview']);
         add_action('wp_ajax_' . self::ACTION_RECIPIENTS_PREVIEW, [$this, 'handle_recipients_preview']);
     }
@@ -381,6 +384,27 @@ final class SendAjaxController
             'scheduled_at'  => $scheduled_at,
         ]);
         wp_send_json_success(['status' => NewsletterRepository::STATUS_SCHEDULED]);
+    }
+
+    /**
+     * Uncommit-schedule: flip `scheduled` back to `draft`, leaving the
+     * date stored. The admin can re-commit later (or clear the date /
+     * untick the schedule box to drop the date entirely).
+     */
+    public function handle_uncommit_schedule(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $row = $this->newsletters->find_by_post_id($newsletter_id);
+        $status = (string) ($row['status'] ?? '');
+        if ($status !== NewsletterRepository::STATUS_SCHEDULED) {
+            wp_send_json_error([
+                'message' => __('Only a scheduled newsletter can be unscheduled.', 'lrob-email-toolkit'),
+            ], 400);
+        }
+        $this->newsletters->update_status($newsletter_id, NewsletterRepository::STATUS_DRAFT);
+        Events::dispatch('newsletter.unscheduled', ['newsletter_id' => $newsletter_id]);
+        wp_send_json_success(['status' => NewsletterRepository::STATUS_DRAFT]);
     }
 
     /**
