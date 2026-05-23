@@ -233,6 +233,10 @@ final class NewsletterRepository
                     c.sent_count,
                     c.failed_count,
                     c.skipped_count,
+                    c.opens_count,
+                    c.opens_unique,
+                    c.clicks_count,
+                    c.clicks_unique,
                     c.started_at,
                     c.completed_at,
                     c.last_tick_at

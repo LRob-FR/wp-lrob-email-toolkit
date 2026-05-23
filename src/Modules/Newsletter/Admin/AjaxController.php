@@ -103,6 +103,9 @@ final class AjaxController
         NewsletterFooter::OPTION_INTRO,
         NewsletterFooter::OPTION_PREFS_LABEL,
         NewsletterFooter::OPTION_UNSUB_LABEL,
+        'lrob_etk_nl_cold_threshold',
+        'lrob_etk_nl_engagement_counts_opens',
+        'lrob_etk_nl_tracking_retention_days',
     ];
 
     private const WHITELIST_META_KEYS = [
@@ -189,6 +192,24 @@ final class AjaxController
                 // touched). Renderer composes the styled markup; the
                 // admin never types angle brackets.
                 $value = sanitize_text_field(trim((string) $raw));
+                break;
+            case 'lrob_etk_nl_cold_threshold':
+                // Send-count past which a recipient is "cold". 1 = "any
+                // send without engagement makes them cold" (way too
+                // aggressive); 50 covers a year of weekly sends for the
+                // ceiling.
+                $value = max(1, min(50, (int) $raw));
+                break;
+            case 'lrob_etk_nl_engagement_counts_opens':
+                // Boolean. Default false (Apple MPP image-prefetching
+                // poisons the open signal — clicks are the reliable
+                // engagement proxy).
+                $value = $raw === '1' || $raw === 'true' || $raw === 'on' ? 1 : 0;
+                break;
+            case 'lrob_etk_nl_tracking_retention_days':
+                // 0 disables pruning. Cap at 10 years (3650) — anything
+                // longer is just hoarding rows for no benefit.
+                $value = max(0, min(3650, (int) $raw));
                 break;
             default:
                 wp_send_json_error(['message' => __('Unsupported setting.', 'lrob-email-toolkit')], 400);

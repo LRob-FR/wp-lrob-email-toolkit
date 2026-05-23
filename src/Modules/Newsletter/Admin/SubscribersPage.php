@@ -28,11 +28,15 @@ final class SubscribersPage
         ''             => 'All',
         'pending'      => 'Pending',
         'confirmed'    => 'Confirmed',
+        'cold'         => 'Cold',
         'unsubscribed' => 'Unsubscribed',
         'refused'      => 'Refused',
         'bounced'      => 'Bounced',
         'trashed'      => 'Trashed',
     ];
+
+    /** Default cold threshold — overridable via lrob_etk_nl_cold_threshold option. */
+    private const DEFAULT_COLD_THRESHOLD = 5;
 
     public function __construct(private SubscriberRepository $subscribers)
     {
@@ -48,9 +52,17 @@ final class SubscribersPage
         $paged = max(1, (int) ($_GET['paged'] ?? 1));
         $offset = ($paged - 1) * self::PAGE_SIZE;
 
+        $cold_threshold = max(1, (int) get_option('lrob_etk_nl_cold_threshold', self::DEFAULT_COLD_THRESHOLD));
+
         $counts = $this->subscribers->counts_by_status();
-        $total = $this->subscribers->count_with_filters($current_status, $search);
-        $rows = $this->subscribers->list_with_filters($current_status, $search, self::PAGE_SIZE, $offset);
+        $counts['cold'] = $this->subscribers->count_cold($cold_threshold);
+        if ($current_status === 'cold') {
+            $total = $counts['cold'];
+            $rows = $this->subscribers->list_cold($cold_threshold, self::PAGE_SIZE, $offset);
+        } else {
+            $total = $this->subscribers->count_with_filters($current_status, $search);
+            $rows = $this->subscribers->list_with_filters($current_status, $search, self::PAGE_SIZE, $offset);
+        }
         $max_page = max(1, (int) ceil($total / self::PAGE_SIZE));
 
         $base_url = add_query_arg(['page' => PageController::SLUG, 'view' => HomePage::VIEW_SUBSCRIBERS], admin_url('admin.php'));
@@ -115,6 +127,23 @@ final class SubscribersPage
                     </button>
                 <?php endif; ?>
             </form>
+
+            <?php if ($current_status === 'cold') : ?>
+                <p class="lrob-etk-nl-trash-note">
+                    <?php
+                    echo esc_html(sprintf(
+                        /* translators: %d: cold threshold (sends without engagement) */
+                        _n(
+                            'Recipients whose last engagement (click, or open when enabled) was %d send or more ago. Adjust the threshold + open-counts-as-engagement in Settings.',
+                            'Recipients whose last engagement (click, or open when enabled) was %d sends or more ago. Adjust the threshold + open-counts-as-engagement in Settings.',
+                            $cold_threshold,
+                            'lrob-email-toolkit'
+                        ),
+                        $cold_threshold
+                    ));
+                    ?>
+                </p>
+            <?php endif; ?>
 
             <?php if ($current_status === 'trashed') : ?>
                 <?php $purge_days = (int) get_option(TrashCron::OPTION_DAYS, 0); ?>
@@ -303,6 +332,7 @@ final class SubscribersPage
             ''             => __('All', 'lrob-email-toolkit'),
             'pending'      => __('Pending', 'lrob-email-toolkit'),
             'confirmed'    => __('Confirmed', 'lrob-email-toolkit'),
+            'cold'         => __('Cold', 'lrob-email-toolkit'),
             'unsubscribed' => __('Unsubscribed', 'lrob-email-toolkit'),
             'refused'      => __('Refused', 'lrob-email-toolkit'),
             'bounced'      => __('Bounced', 'lrob-email-toolkit'),

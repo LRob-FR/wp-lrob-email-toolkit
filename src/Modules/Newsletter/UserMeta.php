@@ -36,6 +36,25 @@ final class UserMeta
 
     public const SOURCE            = 'lrob_etk_nl_source';
 
+    /**
+     * Lifetime engagement keys mirroring the subscribers-table columns
+     * (Schema v8). Materializer bumps total_sent + sends_since_engagement
+     * + last_sent_at on every send; tracking endpoints bump total_opened/
+     * total_clicked + last_engagement_at (and reset sends_since_engagement
+     * to 0 on click, or on open when engagement_counts_opens is on).
+     */
+    public const TOTAL_SENT             = 'lrob_etk_nl_total_sent';
+
+    public const TOTAL_OPENED           = 'lrob_etk_nl_total_opened';
+
+    public const TOTAL_CLICKED          = 'lrob_etk_nl_total_clicked';
+
+    public const SENDS_SINCE_ENGAGEMENT = 'lrob_etk_nl_sends_since_engagement';
+
+    public const LAST_SENT_AT           = 'lrob_etk_nl_last_sent_at';
+
+    public const LAST_ENGAGEMENT_AT     = 'lrob_etk_nl_last_engagement_at';
+
     public const STATUS_ACTIVE  = 'active';
 
     public const STATUS_BOUNCED = 'bounced';

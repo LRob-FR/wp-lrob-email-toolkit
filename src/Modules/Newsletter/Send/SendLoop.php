@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Send;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Schema;
+use LRob\EmailToolkit\Modules\Newsletter\Tracking\Pipeline as TrackingPipeline;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
 
@@ -49,8 +50,10 @@ final class SendLoop
 
     public const PAUSE_REASON_SMTP_UNHEALTHY = 'smtp_unhealthy';
 
-    public function __construct(private NewsletterRepository $newsletters)
-    {
+    public function __construct(
+        private NewsletterRepository $newsletters,
+        private ?TrackingPipeline $tracking = null,
+    ) {
     }
 
     /**
@@ -100,6 +103,14 @@ final class SendLoop
 
             $tokens = NewsletterRenderer::tokens_for_recipient($email, $name, $prefs_token);
             $body = NewsletterRenderer::render($newsletter_id, $tokens);
+            if ($body !== '' && $this->tracking !== null) {
+                $body = $this->tracking->rewrite(
+                    $body,
+                    $newsletter_id,
+                    (string) $row['recipient_kind'],
+                    (int) $row['recipient_id']
+                );
+            }
             if ($body === '' || !is_email($email)) {
                 // Bad recipient data is the recipient's problem, not SMTP's.
                 // Mark it failed but don't count it toward the breaker —

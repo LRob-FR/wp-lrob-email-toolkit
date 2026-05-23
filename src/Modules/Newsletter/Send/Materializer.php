@@ -40,6 +40,7 @@ final class Materializer
     public function __construct(
         private NewsletterRepository $newsletters,
         private CategoryRepository $categories,
+        private ?\LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository $subscribers = null,
     ) {
     }
 
@@ -69,6 +70,12 @@ final class Materializer
 
         $recipients = $this->resolve_recipients($target_kind, $list_id, $category_slug);
         $total = $this->insert_recipients($newsletter_id, $recipients);
+
+        // Sender-side lifetime stat bump per recipient. We do this *after*
+        // the chunked inserts succeed so a failed materialize doesn't
+        // inflate counters. Cheap: total_sent + sends_since_engagement +
+        // last_sent_at on the subscriber row OR matching user_meta keys.
+        $this->bump_send_lifetime($recipients);
 
         global $wpdb;
         $wpdb->update(
@@ -278,6 +285,39 @@ final class Materializer
             }
         }
         return $inserted;
+    }
+
+    /**
+     * Sender-side lifetime stats. Subscribers go through SubscriberRepo;
+     * WP users get matching user_meta updates. Skips silently when no
+     * SubscriberRepository was injected (back-compat for ad-hoc callers).
+     *
+     * @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients
+     */
+    private function bump_send_lifetime(array $recipients): void
+    {
+        if ($recipients === []) {
+            return;
+        }
+        $now = current_time('mysql', true);
+        foreach ($recipients as $r) {
+            $kind = (string) $r['kind'];
+            $rid  = (int) $r['id'];
+            if ($rid <= 0) {
+                continue;
+            }
+            if ($kind === UserMeta::KIND_SUBSCRIBER && $this->subscribers !== null) {
+                $this->subscribers->bump_send_stats($rid);
+                continue;
+            }
+            if ($kind === UserMeta::KIND_USER) {
+                $current_sent  = (int) get_user_meta($rid, UserMeta::TOTAL_SENT, true);
+                $current_cold  = (int) get_user_meta($rid, UserMeta::SENDS_SINCE_ENGAGEMENT, true);
+                update_user_meta($rid, UserMeta::TOTAL_SENT, $current_sent + 1);
+                update_user_meta($rid, UserMeta::SENDS_SINCE_ENGAGEMENT, $current_cold + 1);
+                update_user_meta($rid, UserMeta::LAST_SENT_AT, $now);
+            }
+        }
     }
 
     /**

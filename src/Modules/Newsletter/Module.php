@@ -26,6 +26,11 @@ use LRob\EmailToolkit\Modules\Newsletter\Send\Materializer;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendCron;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendLoop;
+use LRob\EmailToolkit\Modules\Newsletter\Tracking\AssetRepository as TrackingAssetRepository;
+use LRob\EmailToolkit\Modules\Newsletter\Tracking\LinkRepository as TrackingLinkRepository;
+use LRob\EmailToolkit\Modules\Newsletter\Tracking\Pipeline as TrackingPipeline;
+use LRob\EmailToolkit\Modules\Newsletter\Tracking\RestController as TrackingRestController;
+use LRob\EmailToolkit\Modules\Newsletter\Tracking\RetentionCron as TrackingRetentionCron;
 
 /**
  * Newsletter module — newsletters to WordPress users and email-only
@@ -100,10 +105,17 @@ final class Module extends AbstractModule
      *   7 — adds `pause_reason varchar(50) DEFAULT NULL` to the
      *       newsletters companion table for the SMTP circuit-breaker
      *       (step 7c). Additive — dbDelta handles it via plain install().
+     *   8 — step 9 (tracking): adds the two side tables (newsletter_assets
+     *       + newsletter_links) and six lifetime-engagement columns on
+     *       subscribers (total_sent / total_opened / total_clicked /
+     *       sends_since_engagement / last_sent_at / last_engagement_at)
+     *       plus a cold_subscribers index. Additive — dbDelta + idempotent
+     *       install() path. WP-user equivalents live in user_meta keys
+     *       declared on UserMeta.
      */
     public function db_version_int(): int
     {
-        return 7;
+        return 8;
     }
 
     public function install(): void
@@ -134,6 +146,12 @@ final class Module extends AbstractModule
         // whose last_tick_at is stale (>2 min) so a closed-browser
         // mid-send doesn't strand a batch.
         SendCron::schedule();
+
+        // Daily prune of tracking_events older than the retention window
+        // (lrob_etk_nl_tracking_retention_days, default 365). Companion-
+        // row aggregate counters are kept forever; only per-event detail
+        // ages out.
+        TrackingRetentionCron::schedule();
     }
 
     /**
@@ -309,6 +327,7 @@ final class Module extends AbstractModule
         ReminderCron::unschedule();
         TrashCron::unschedule();
         SendCron::unschedule();
+        TrackingRetentionCron::unschedule();
         Schema::drop();
     }
 
@@ -322,6 +341,7 @@ final class Module extends AbstractModule
         ReminderCron::unschedule();
         TrashCron::unschedule();
         SendCron::unschedule();
+        TrackingRetentionCron::unschedule();
         parent::disable();
     }
 
@@ -436,10 +456,25 @@ final class Module extends AbstractModule
 
             // Send pipeline AJAX endpoints + 1-minute safety-net
             // cron. Per-domain throttle + CSS inliner stay deferred.
-            $materializer = new Materializer($newsletters, $categories);
-            $send_loop = new SendLoop($newsletters);
+            //
+            // Tracking pipeline (step 9): rewriters + side-table repos
+            // + the public REST endpoints that handle open/click events.
+            // The Pipeline is passed into SendLoop so every outbound
+            // body gets rewritten per-recipient; the RestController
+            // handles inbound /track/img + /track/click requests.
+            $tracking_assets = new TrackingAssetRepository();
+            $tracking_links  = new TrackingLinkRepository();
+            $tracking        = new TrackingPipeline($tracking_assets, $tracking_links);
+            $materializer = new Materializer($newsletters, $categories, $subscribers);
+            $send_loop = new SendLoop($newsletters, $tracking);
             (new SendAjaxController($materializer, $send_loop, $newsletters, $lists))->register();
             (new SendCron($newsletters, $materializer, $send_loop))->register();
+            (new TrackingRestController($newsletters, $subscribers, $tracking_assets, $tracking_links))->register();
+
+            // Daily retention cron: prune tracking_events older than
+            // lrob_etk_nl_tracking_retention_days. Reads the option at
+            // tick time so toggling Settings takes effect on the next run.
+            (new TrackingRetentionCron())->register();
         }
 
         if (is_admin()) {

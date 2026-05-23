@@ -404,6 +404,98 @@ final class SubscriberRepository
     }
 
     /**
+     * Sender-side lifetime stat bump, called from the Materializer per
+     * recipient row at send time. Increments total_sent +
+     * sends_since_engagement, stamps last_sent_at. Idempotent in the sense
+     * that it's safe to call twice — counters just rise; the cold filter
+     * tolerates both.
+     */
+    public function bump_send_stats(int $id): void
+    {
+        if ($id <= 0) {
+            return;
+        }
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $wpdb->query($wpdb->prepare(
+            "UPDATE `$table`
+                SET total_sent = total_sent + 1,
+                    sends_since_engagement = sends_since_engagement + 1,
+                    last_sent_at = %s
+              WHERE id = %d",
+            current_time('mysql', true),
+            $id
+        ));
+    }
+
+    /**
+     * Engagement bump from the tracking endpoint. Either flag (opened /
+     * clicked) increments its lifetime counter; both update
+     * last_engagement_at. `reset_cold` decides whether
+     * sends_since_engagement zeroes — controlled by the caller (always
+     * resets on click, opens only when the admin trusts open signals
+     * enough to ignore Apple MPP inflation).
+     */
+    public function bump_engagement(int $id, bool $opened, bool $clicked, bool $reset_cold): void
+    {
+        if ($id <= 0 || (!$opened && !$clicked)) {
+            return;
+        }
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $sets = [];
+        if ($opened) {
+            $sets[] = 'total_opened = total_opened + 1';
+        }
+        if ($clicked) {
+            $sets[] = 'total_clicked = total_clicked + 1';
+        }
+        $sets[] = $wpdb->prepare('last_engagement_at = %s', current_time('mysql', true));
+        if ($reset_cold) {
+            $sets[] = 'sends_since_engagement = 0';
+        }
+        $wpdb->query($wpdb->prepare(
+            "UPDATE `$table` SET " . implode(', ', $sets) . " WHERE id = %d",
+            $id
+        ));
+    }
+
+    /**
+     * Cold-subscribers query — anyone whose sends_since_engagement has
+     * climbed past the configured threshold without an engagement reset.
+     * Caller paginates with limit + offset.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function list_cold(int $threshold, int $limit = 50, int $offset = 0): array
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $threshold = max(1, $threshold);
+        return (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM `$table`
+              WHERE status = 'confirmed' AND sends_since_engagement >= %d
+              ORDER BY sends_since_engagement DESC, last_sent_at DESC
+              LIMIT %d OFFSET %d",
+            $threshold,
+            $limit,
+            $offset
+        ), ARRAY_A);
+    }
+
+    public function count_cold(int $threshold): int
+    {
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $threshold = max(1, $threshold);
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM `$table`
+              WHERE status = 'confirmed' AND sends_since_engagement >= %d",
+            $threshold
+        ));
+    }
+
+    /**
      * @return array{0:string,1:array<int,mixed>} `[$where_sql,$args]`
      */
     private static function build_where(string $status, string $search): array

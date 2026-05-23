@@ -48,6 +48,10 @@ final class Schema
 
     public const TABLE_TRACKING_EVENTS       = 'lrob_etk_nl_tracking_events';
 
+    public const TABLE_NEWSLETTER_ASSETS     = 'lrob_etk_nl_newsletter_assets';
+
+    public const TABLE_NEWSLETTER_LINKS      = 'lrob_etk_nl_newsletter_links';
+
     public static function subscribers_table(): string
     {
         global $wpdb;
@@ -90,6 +94,18 @@ final class Schema
         return $wpdb->prefix . self::TABLE_TRACKING_EVENTS;
     }
 
+    public static function newsletter_assets_table(): string
+    {
+        global $wpdb;
+        return $wpdb->prefix . self::TABLE_NEWSLETTER_ASSETS;
+    }
+
+    public static function newsletter_links_table(): string
+    {
+        global $wpdb;
+        return $wpdb->prefix . self::TABLE_NEWSLETTER_LINKS;
+    }
+
     /**
      * Idempotent. Versioning is owned by AbstractModule::maybe_migrate via
      * the shared `lrob_etk_newsletter_db_version` option — Schema itself
@@ -108,6 +124,8 @@ final class Schema
         $newsletters           = self::newsletters_table();
         $newsletter_recipients = self::newsletter_recipients_table();
         $tracking_events       = self::tracking_events_table();
+        $newsletter_assets     = self::newsletter_assets_table();
+        $newsletter_links      = self::newsletter_links_table();
 
         // status enum: pending | confirmed | unsubscribed | refused | bounced | trashed
         // (varchar instead of MySQL ENUM — dbDelta + ENUM is flaky).
@@ -115,6 +133,17 @@ final class Schema
         // reminder_count + last_reminder_at drive the pending-followup
         // cron: stops after the configurable max + spaces messages out
         // by the configured interval.
+        // Lifetime engagement columns (added schema v8):
+        //   total_sent/_opened/_clicked — cumulative counters bumped at
+        //     send-materialise time and tracking-event time.
+        //   last_sent_at — UTC mysql, set when a recipient row materialises.
+        //   last_engagement_at — UTC mysql, set when the recipient opens
+        //     (if engagement_counts_opens=true) or clicks (always).
+        //   sends_since_engagement — increments on every materialise,
+        //     resets to 0 on engagement. Cold-detection compares this to
+        //     `lrob_etk_nl_cold_threshold`.
+        // Mirror keys exist on WP-user user_meta (UserMeta::*) so a
+        // unified cold-list query covers both populations.
         $sql_subscribers = "CREATE TABLE $subscribers (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             email varchar(190) NOT NULL,
@@ -132,12 +161,19 @@ final class Schema
             created_at datetime NOT NULL,
             trashed_at datetime DEFAULT NULL,
             trashed_reason varchar(190) NOT NULL DEFAULT '',
+            total_sent int unsigned NOT NULL DEFAULT 0,
+            total_opened int unsigned NOT NULL DEFAULT 0,
+            total_clicked int unsigned NOT NULL DEFAULT 0,
+            sends_since_engagement smallint unsigned NOT NULL DEFAULT 0,
+            last_sent_at datetime DEFAULT NULL,
+            last_engagement_at datetime DEFAULT NULL,
             PRIMARY KEY  (id),
             UNIQUE KEY email (email),
             KEY status (status),
             KEY created_at (created_at),
             KEY prefs_token (prefs_token),
-            KEY pending_followup (status, last_reminder_at)
+            KEY pending_followup (status, last_reminder_at),
+            KEY cold_subscribers (status, sends_since_engagement)
         ) $charset_collate;";
 
         // rule_json: JSON filter expression (see newsletter.md "Rule grammar")
@@ -257,6 +293,44 @@ final class Schema
             KEY recipient (recipient_kind, recipient_id)
         ) $charset_collate;";
 
+        // Side-table per newsletter: every distinct media URL appearing
+        // in the rendered body, keyed by (newsletter_id, asset_id). The
+        // tracking endpoint resolves the asset_id back to the URL to
+        // redirect to. purpose='open_pixel' is the synthetic 1x1 GIF
+        // appended when the body had no <img>; everything else is
+        // 'content'. UNIQUE on (newsletter_id, url) so re-rendering the
+        // same body finds the same asset_id (idempotent registration).
+        $sql_newsletter_assets = "CREATE TABLE $newsletter_assets (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            newsletter_id bigint(20) unsigned NOT NULL,
+            asset_id int unsigned NOT NULL,
+            url varchar(2048) NOT NULL,
+            purpose varchar(20) NOT NULL DEFAULT 'content',
+            url_hash char(40) NOT NULL,
+            created_at datetime NOT NULL,
+            PRIMARY KEY  (id),
+            UNIQUE KEY newsletter_asset (newsletter_id, asset_id),
+            UNIQUE KEY newsletter_url (newsletter_id, url_hash)
+        ) $charset_collate;";
+
+        // Side-table per newsletter: every distinct <a href> appearing
+        // in the rendered body. label_snippet stores a short preview of
+        // the anchor's text so admins can recognise links in tracking
+        // reports. UNIQUE on (newsletter_id, url) for the same idempotent-
+        // rewrite reason.
+        $sql_newsletter_links = "CREATE TABLE $newsletter_links (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            newsletter_id bigint(20) unsigned NOT NULL,
+            link_id int unsigned NOT NULL,
+            url varchar(2048) NOT NULL,
+            label_snippet varchar(190) NOT NULL DEFAULT '',
+            url_hash char(40) NOT NULL,
+            created_at datetime NOT NULL,
+            PRIMARY KEY  (id),
+            UNIQUE KEY newsletter_link (newsletter_id, link_id),
+            UNIQUE KEY newsletter_url (newsletter_id, url_hash)
+        ) $charset_collate;";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql_subscribers);
         dbDelta($sql_lists);
@@ -265,6 +339,8 @@ final class Schema
         dbDelta($sql_newsletters);
         dbDelta($sql_newsletter_recipients);
         dbDelta($sql_tracking_events);
+        dbDelta($sql_newsletter_assets);
+        dbDelta($sql_newsletter_links);
     }
 
     public static function drop(): void
@@ -278,6 +354,8 @@ final class Schema
             self::newsletters_table(),
             self::newsletter_recipients_table(),
             self::tracking_events_table(),
+            self::newsletter_assets_table(),
+            self::newsletter_links_table(),
         ];
         foreach ($tables as $table) {
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

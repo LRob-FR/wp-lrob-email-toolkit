@@ -42,7 +42,84 @@ final class SettingsPage
             <?php self::render_reminder_schedule_section(true); ?>
             <?php self::render_trash_retention_section(); ?>
             <?php self::render_newsletter_footer_section(); ?>
+            <?php self::render_tracking_section(); ?>
         </section>
+        <?php
+    }
+
+    /**
+     * Tracking + cold-detection controls (step 9). Three options:
+     *
+     *  - cold_threshold: how many sends without engagement before a
+     *    confirmed subscriber surfaces on the Cold sub-tab. Default 5
+     *    — roughly five weekly newsletters with zero engagement is a
+     *    fair "they're gone" signal without false-positives on a
+     *    monthly schedule.
+     *  - engagement_counts_opens: whether open events reset the cold
+     *    counter alongside clicks. Default off — Apple MPP server-side
+     *    image prefetch inflates open rates to ~100% for Apple Mail
+     *    users, so clicks are the reliable proxy for "actually
+     *    engaged". Power users with non-Apple-heavy audiences can flip
+     *    this on.
+     *  - tracking_retention_days: prune tracking_events older than
+     *    this. Companion-row aggregate counters and per-subscriber
+     *    lifetime stats are kept forever; only per-event detail ages
+     *    out. Default 365.
+     */
+    public static function render_tracking_section(): void
+    {
+        $cold_threshold = (int) get_option('lrob_etk_nl_cold_threshold', 5);
+        $counts_opens   = (bool) get_option('lrob_etk_nl_engagement_counts_opens', false);
+        $retention      = (int) get_option('lrob_etk_nl_tracking_retention_days', 365);
+        ?>
+        <article class="lrob-etk-nl-settings-group">
+            <h3 class="lrob-etk-nl-settings-group-title"><?php esc_html_e('Tracking + cold detection', 'lrob-email-toolkit'); ?></h3>
+            <p class="lrob-etk-nl-settings-group-intro">
+                <?php esc_html_e('Open + click events are recorded per recipient and aggregated into per-newsletter and per-subscriber lifetime stats. Tune cold-subscriber detection here.', 'lrob-email-toolkit'); ?>
+            </p>
+
+            <div class="lrob-etk-nl-settings-row">
+                <label for="lrob-etk-nl-setting-cold-threshold">
+                    <?php esc_html_e('Cold threshold (sends without engagement)', 'lrob-email-toolkit'); ?>
+                </label>
+                <input type="number"
+                       id="lrob-etk-nl-setting-cold-threshold"
+                       class="lrob-etk-nl-field"
+                       data-key="setting-cold-threshold"
+                       data-option-key="lrob_etk_nl_cold_threshold"
+                       value="<?php echo esc_attr((string) $cold_threshold); ?>"
+                       min="1" max="50" step="1">
+                <p class="description"><?php esc_html_e('A confirmed subscriber shows up on the Cold sub-tab after this many sends without engaging. Default: 5.', 'lrob-email-toolkit'); ?></p>
+            </div>
+
+            <div class="lrob-etk-nl-settings-row">
+                <label for="lrob-etk-nl-setting-engagement-counts-opens">
+                    <input type="checkbox"
+                           id="lrob-etk-nl-setting-engagement-counts-opens"
+                           class="lrob-etk-nl-field"
+                           data-key="setting-engagement-counts-opens"
+                           data-option-key="lrob_etk_nl_engagement_counts_opens"
+                           value="1"
+                           <?php checked($counts_opens); ?>>
+                    <?php esc_html_e('Count opens as engagement (in addition to clicks)', 'lrob-email-toolkit'); ?>
+                </label>
+                <p class="description"><?php esc_html_e('Off by default — Apple Mail loads images server-side, which inflates open rates and would mislabel reading recipients as "engaged". Turn on if your audience is mostly non-Apple.', 'lrob-email-toolkit'); ?></p>
+            </div>
+
+            <div class="lrob-etk-nl-settings-row">
+                <label for="lrob-etk-nl-setting-tracking-retention">
+                    <?php esc_html_e('Tracking event retention (days)', 'lrob-email-toolkit'); ?>
+                </label>
+                <input type="number"
+                       id="lrob-etk-nl-setting-tracking-retention"
+                       class="lrob-etk-nl-field"
+                       data-key="setting-tracking-retention"
+                       data-option-key="lrob_etk_nl_tracking_retention_days"
+                       value="<?php echo esc_attr((string) $retention); ?>"
+                       min="0" max="3650" step="1">
+                <p class="description"><?php esc_html_e('Detailed event rows older than this are pruned by a daily cron. Per-newsletter and per-subscriber aggregate counters are kept forever. 0 disables pruning.', 'lrob-email-toolkit'); ?></p>
+            </div>
+        </article>
         <?php
     }
 
