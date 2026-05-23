@@ -13,6 +13,7 @@ use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
+use LRob\EmailToolkit\Modules\Newsletter\Send\SendCron;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendLoop;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository as SMTPIdentityRepository;
 
@@ -92,8 +93,118 @@ final class NewslettersPage
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+            <?php $this->render_cron_diagnostic(); ?>
         </section>
         <?php $this->render_shared_modals(); ?>
+        <?php
+    }
+
+    /**
+     * Footer panel surfacing WP-Cron health. The Newsletter send
+     * pipeline depends on `SendCron` ticking every minute, which on
+     * default WP installs relies on pseudo-cron — a non-blocking HTTP
+     * loopback to wp-cron.php fired on each page view. Many self-hosted
+     * setups (loopback HTTP blocked, low traffic, DISABLE_WP_CRON set,
+     * slow servers) break that silently; without this panel the admin
+     * only finds out when a scheduled newsletter is overdue.
+     *
+     * Three health levels:
+     *   ok    — last tick within 2 minutes, next tick scheduled in the future.
+     *   warn  — last tick 2–5 min ago, OR next tick is overdue but recent.
+     *   error — never ticked, last tick >5 min ago, or next tick is not scheduled.
+     */
+    private function render_cron_diagnostic(): void
+    {
+        $next_tick   = wp_next_scheduled(SendCron::CRON_HOOK);
+        $last_tick_s = (string) get_option(SendCron::OPTION_LAST_TICK, '');
+        $last_tick   = $last_tick_s !== '' ? strtotime($last_tick_s . ' UTC') : 0;
+        $now         = time();
+        $disabled    = defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
+        $alt_used    = defined('ALTERNATE_WP_CRON') && ALTERNATE_WP_CRON;
+
+        // Health verdict + level.
+        if ($next_tick === false) {
+            $level = 'error';
+            $verdict = __('The send-tick cron event is not scheduled. Disable and re-enable the Newsletter module to register it again.', 'lrob-email-toolkit');
+        } elseif ($disabled && $last_tick === 0) {
+            $level = 'error';
+            $verdict = __('DISABLE_WP_CRON is set and nothing has triggered the tick yet. You need an external trigger (system cron or a service hitting wp-cron.php).', 'lrob-email-toolkit');
+        } elseif ($last_tick === 0) {
+            $level = 'warn';
+            $verdict = __('The cron is scheduled but has not run yet. Wait a couple of minutes or load any front-end page to fire pseudo-cron.', 'lrob-email-toolkit');
+        } elseif (($now - $last_tick) > 300) {
+            $level = 'error';
+            $verdict = __('Cron has not fired in more than 5 minutes. Scheduled newsletters and crash-recovery ticks will NOT run automatically. Set up a system cron (every minute) hitting wp-cron.php, or use a service like cron-job.org.', 'lrob-email-toolkit');
+        } elseif (($now - $last_tick) > 120) {
+            $level = 'warn';
+            $verdict = __('Cron is firing but slowly — sends may stall during low-traffic periods. Consider a system cron for reliability.', 'lrob-email-toolkit');
+        } else {
+            $level = 'ok';
+            $verdict = __('Cron is healthy.', 'lrob-email-toolkit');
+        }
+
+        $date_fmt = get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i:s');
+        ?>
+        <section class="lrob-etk-nl-cron-diagnostic is-<?php echo esc_attr($level); ?>">
+            <header class="lrob-etk-nl-cron-diagnostic-head">
+                <span class="lrob-etk-nl-cron-badge"><?php
+                    echo esc_html(match ($level) {
+                        'ok'    => __('Cron healthy', 'lrob-email-toolkit'),
+                        'warn'  => __('Cron slow', 'lrob-email-toolkit'),
+                        'error' => __('Cron stalled', 'lrob-email-toolkit'),
+                        default => $level,
+                    });
+                ?></span>
+                <h3 class="lrob-etk-section-title"><?php esc_html_e('WP-Cron health', 'lrob-email-toolkit'); ?></h3>
+            </header>
+            <dl class="lrob-etk-nl-cron-diagnostic-grid">
+                <dt><?php esc_html_e('Last observed tick', 'lrob-email-toolkit'); ?></dt>
+                <dd>
+                    <?php if ($last_tick > 0) : ?>
+                        <?php
+                        printf(
+                            /* translators: 1: relative time (e.g. "30 seconds"), 2: absolute datetime */
+                            esc_html__('%1$s ago — %2$s', 'lrob-email-toolkit'),
+                            esc_html(human_time_diff($last_tick, $now)),
+                            esc_html((string) wp_date($date_fmt, $last_tick))
+                        );
+                        ?>
+                    <?php else : ?>
+                        <?php esc_html_e('never', 'lrob-email-toolkit'); ?>
+                    <?php endif; ?>
+                </dd>
+                <dt><?php esc_html_e('Next scheduled tick', 'lrob-email-toolkit'); ?></dt>
+                <dd>
+                    <?php if ($next_tick === false) : ?>
+                        <?php esc_html_e('not scheduled', 'lrob-email-toolkit'); ?>
+                    <?php elseif ($next_tick > $now) : ?>
+                        <?php
+                        printf(
+                            /* translators: 1: relative time (e.g. "30 seconds"), 2: absolute datetime */
+                            esc_html__('in %1$s — %2$s', 'lrob-email-toolkit'),
+                            esc_html(human_time_diff($now, $next_tick)),
+                            esc_html((string) wp_date($date_fmt, $next_tick))
+                        );
+                        ?>
+                    <?php else : ?>
+                        <?php
+                        printf(
+                            /* translators: %s: how long the tick has been overdue (e.g. "2 minutes") */
+                            esc_html__('overdue by %s', 'lrob-email-toolkit'),
+                            esc_html(human_time_diff($next_tick, $now))
+                        );
+                        ?>
+                    <?php endif; ?>
+                </dd>
+                <dt><?php esc_html_e('DISABLE_WP_CRON', 'lrob-email-toolkit'); ?></dt>
+                <dd><?php echo $disabled ? esc_html__('yes — pseudo-cron is off, you need an external trigger', 'lrob-email-toolkit') : esc_html__('no — pseudo-cron runs on page hits', 'lrob-email-toolkit'); ?></dd>
+                <?php if ($alt_used) : ?>
+                    <dt><?php esc_html_e('ALTERNATE_WP_CRON', 'lrob-email-toolkit'); ?></dt>
+                    <dd><?php esc_html_e('yes', 'lrob-email-toolkit'); ?></dd>
+                <?php endif; ?>
+            </dl>
+            <p class="lrob-etk-nl-cron-diagnostic-verdict"><?php echo esc_html($verdict); ?></p>
+        </section>
         <?php
     }
 
@@ -568,18 +679,40 @@ final class NewslettersPage
                                 $sched_pretty
                             );
                         } else {
-                            // Overdue and committed. With WP pseudo-cron the
-                            // tick fires on the next admin / front-end hit;
-                            // the tick-on-page-load failsafe at the top of
-                            // this view also nudges it. Sites without
-                            // either need an external cron hitting
-                            // wp-cron.php.
+                            // Overdue and committed. Show *when* the next
+                            // cron tick is scheduled — if that's also in
+                            // the past, pseudo-cron is stalled (no
+                            // traffic / loopback HTTP failing / etc.) and
+                            // the admin should know to either click
+                            // "Send now" (the button morphs to that
+                            // label in the overdue case) or fix the
+                            // cron pipeline.
+                            $next_tick = wp_next_scheduled(\LRob\EmailToolkit\Modules\Newsletter\Send\SendCron::CRON_HOOK);
+                            if ($next_tick === false) {
+                                $cron_info = __('the cron tick is not scheduled — re-enable the Newsletter module to fix', 'lrob-email-toolkit');
+                            } elseif ($next_tick > time()) {
+                                $cron_info = sprintf(
+                                    /* translators: %s: relative time until next cron tick (e.g. "30 seconds") */
+                                    __('next cron tick in %s', 'lrob-email-toolkit'),
+                                    human_time_diff(time(), $next_tick)
+                                );
+                            } else {
+                                $cron_info = sprintf(
+                                    /* translators: %s: how long ago the cron should have run (e.g. "5 minutes") */
+                                    __('cron stalled — the tick was due %s ago, pseudo-cron isn\'t firing on this site', 'lrob-email-toolkit'),
+                                    human_time_diff($next_tick, time())
+                                );
+                                $status_msg_class = 'is-error';
+                            }
                             $status_msg = sprintf(
-                                /* translators: %s: absolute datetime */
-                                __('Scheduled for %s (overdue — will run on the next cron tick).', 'lrob-email-toolkit'),
-                                $sched_pretty
+                                /* translators: %1$s: absolute datetime of the scheduled send, %2$s: cron-tick info */
+                                __('Scheduled for %1$s (overdue — %2$s).', 'lrob-email-toolkit'),
+                                $sched_pretty,
+                                $cron_info
                             );
-                            $status_msg_class = 'is-warn';
+                            if (!isset($status_msg_class) || $status_msg_class === 'is-info') {
+                                $status_msg_class = 'is-warn';
+                            }
                         }
                     }
                 }

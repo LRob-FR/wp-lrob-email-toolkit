@@ -39,6 +39,14 @@ final class SendCron
 
     public const CRON_INTERVAL_KEY = 'lrob_etk_nl_minute';
 
+    /**
+     * Timestamp (UTC mysql format) of the last completed handle_tick run.
+     * Surfaced by the cron-health diagnostic panel on the Newsletters
+     * admin view so admins can tell at a glance whether pseudo-cron is
+     * actually firing on their site.
+     */
+    public const OPTION_LAST_TICK = 'lrob_etk_nl_last_cron_tick';
+
     private const STALE_THRESHOLD_SECONDS = 120;
 
     private const MAX_NEWSLETTERS_PER_TICK = 5;
@@ -98,6 +106,11 @@ final class SendCron
      */
     public function handle_tick(): void
     {
+        // Stamp BEFORE the work so even a partial / fatal-erroring tick
+        // still proves the cron is firing; the diagnostic panel needs
+        // "did pseudo-cron fire" more than "did the tick finish".
+        update_option(self::OPTION_LAST_TICK, current_time('mysql', true), false);
+
         $remaining_budget = self::MAX_NEWSLETTERS_PER_TICK;
 
         // 1. Promote scheduled newsletters whose time has arrived.

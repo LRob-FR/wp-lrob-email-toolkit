@@ -1051,6 +1051,75 @@
     border-left: 3px solid #b32d2e;
 }
 
+/* WP-Cron health panel at the bottom of the Newsletters view. Tone-coded
+ * border + badge; the body is plain text so the admin can read it
+ * without parsing colour cues. */
+.lrob-etk-nl-cron-diagnostic {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border: 1px solid var(--etk-line, #dcdcde);
+    border-left-width: 4px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.lrob-etk-nl-cron-diagnostic.is-ok    { border-left-color: #2e8b3e; }
+.lrob-etk-nl-cron-diagnostic.is-warn  { border-left-color: #b87800; }
+.lrob-etk-nl-cron-diagnostic.is-error { border-left-color: #b32d2e; }
+
+.lrob-etk-nl-cron-diagnostic-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.5rem;
+}
+
+.lrob-etk-nl-cron-diagnostic-head .lrob-etk-section-title {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.lrob-etk-nl-cron-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.is-ok    .lrob-etk-nl-cron-badge { background: #e1f6e6; color: #155724; }
+.is-warn  .lrob-etk-nl-cron-badge { background: #fef9ec; color: #5c4400; }
+.is-error .lrob-etk-nl-cron-badge { background: #fae6e6; color: #8a1d1f; }
+
+.lrob-etk-nl-cron-diagnostic-grid {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 0.8rem;
+    margin: 0 0 0.6rem;
+}
+
+.lrob-etk-nl-cron-diagnostic-grid dt {
+    font-weight: 600;
+    color: var(--lrob-etk-color-muted, #6b7280);
+}
+
+.lrob-etk-nl-cron-diagnostic-grid dd {
+    margin: 0;
+    color: var(--etk-fg, #1d2327);
+}
+
+.lrob-etk-nl-cron-diagnostic-verdict {
+    margin: 0;
+    color: var(--etk-fg, #1d2327);
+}
+
+.is-error .lrob-etk-nl-cron-diagnostic-verdict { color: #991b1b; }
+.is-warn  .lrob-etk-nl-cron-diagnostic-verdict { color: #5c4400; }
+
 /* Quick-link next to a field label ("Edit categories →", "Manage
  * identities →"). Sits to the right of the label text, small + muted
  * to stay out of the way until the admin looks for it. */
