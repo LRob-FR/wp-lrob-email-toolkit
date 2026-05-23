@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-22T23:59:21+00:00\n"
+"POT-Creation-Date: 2026-05-23T00:05:03+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -3271,7 +3271,7 @@ msgstr ""
 "votre dossier IMAP Envoyés."
 
 #. translators: %s: number of log entries (already formatted with i18n thousands separator).
-#: src/Modules/Logging/Module.php:74
+#: src/Modules/Logging/Module.php:101
 msgid "%s log entry"
 msgid_plural "%s log entries"
 msgstr[0] "%s entrée de journal"

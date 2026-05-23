@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-23T00:00:41+00:00\n"
+"POT-Creation-Date: 2026-05-23T00:05:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -3002,7 +3002,7 @@ msgid "Log every outgoing email and optionally archive a copy to your IMAP Sent 
 msgstr ""
 
 #. translators: %s: number of log entries (already formatted with i18n thousands separator).
-#: src/Modules/Logging/Module.php:74
+#: src/Modules/Logging/Module.php:101
 msgid "%s log entry"
 msgid_plural "%s log entries"
 msgstr[0] ""
