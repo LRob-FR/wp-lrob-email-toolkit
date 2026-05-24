@@ -1,0 +1,108 @@
+# Todo — backlog, priority-ordered
+
+What's not done yet. Three tiers + a "maybe / deferred" pile. Within each tier, no strict order — pick what's most useful when you're picking.
+
+For **what's shipped**, see [completed.md](./completed.md).
+For **how to build / conventions**, see [CLAUDE.md](./CLAUDE.md).
+
+---
+
+## ⚡ Priority — sooner is better
+
+These are foundational or carry strategic weight. Do them before chasing more features.
+
+- **UI uniformization + theme system.** The admin surfaces have drifted across modules — title formats, debug-panel placement, link colors, card spacing vary. Two layers: **(a)** consolidate every page through the same chrome (`<header class="lrob-etk-page-header">`, same module-toggle position, same diagnostic-panel pattern, same empty-state typography); **(b)** every color/border/radius/shadow becomes a CSS custom property, so theme = CSS-variable swap. Three first-class themes: **Light** (default), **Dark** (high-contrast WP-style), **LRob** (mostly-dark, branded palette matching lrob.fr). Settings radio: Auto / Light / Dark / LRob, **Auto** follows `prefers-color-scheme`. Future themes plug in via a filter. Pairs with the dark-mode email preview backlog (same tokens).
+- **Statistics overhaul — Newsletter view + Email Toolkit dashboard.** Essential, currently missing. Three surfaces: **(a) Newsletter → Statistics view**: sortable list by date/open-rate/click-rate, trend charts (sends-per-month, avg rates over time), per-list + per-category rollups (transient-cached 5min), per-newsletter drill-down (per-asset opens, per-link clicks, per-domain breakdown, recipient event timeline), per-subscriber detail. **(b) Global Email Toolkit dashboard tiles**: last-N-days global sends/opens/clicks, latest newsletter's headline numbers, cold-count, active-sends, contact-form submissions, SMTP failures. Tiles link to module detail views. **(c) Per-card stats expansion**: open-vs-sent gauge, CTR, unsubscribe rate, time-to-first-open, top-3 clicked links inline. Recipients drawer per-row gets opens/clicks columns. **No charting library** — vanilla SVG or HTML/CSS bars.
+- **International phone field — country-code picker with flag.** Today the `phone` field is plain `<input type="tel">`. Replace with composite: country picker (flag emoji + dial code, e.g. 🇫🇷 +33) + local number. Store full E.164. Default country from WP locale. No external library — bundle static JSON of ~250 countries, flag emojis ride for free in Unicode. Custom Combobox-style picker with type-to-search. Server-side validation (digits-only, E.164 caps at 15 digits).
+
+---
+
+## Essential — next milestones
+
+The features that would let this plugin replace Mailchimp / Brevo / SendInBlue for serious users.
+
+- **Drip / automation workflows (Marketing automation module).** Visual journey builder: Subscribe → wait 1 day → email A → if opened, email B; if not, email C. Per-subscriber state in `wp_lrob_etk_nl_automation_state`. Cron pulls due steps. Triggers off existing events (`newsletter.subscriber.confirmed`, `email.sent`, `contact_form.submitted`, plus WC events when that integration lands). Biggest single competitive gap.
+- **Drag-and-drop email builder (in-house editor).** Extend `admin/js/form-fields-editor.js` into an email content editor. New block types: paragraph / heading / image / button / separator / spacer / columns. Rich text inside text blocks (bold/italic/links via Selection API, no execCommand). Token-insert dropdown. `wp.media` for images. PHP renderer emits email-safe HTML (table wrappers, inline styles). **A/B path**: ship side-by-side with Gutenberg via a settings toggle; if it doesn't work for the body, the in-house editor still pays off for the newsletter footer. Keep Gutenberg for system email templates.
+- **Subscriber custom fields + tags.** Admin defines custom subscriber fields (city, company, signup_source, last_purchase_date, …). Tags = arbitrary strings (`vip`, `purchased-2024-q1`). List rule grammar extends to filter on both. Automation can add/remove tags. Unlocks real segmentation; the missing killer feature.
+- **Bounce handling.** Hard/soft bounce parsing. Two paths: **(1) IMAP polling** — admin configures the bounce-mailbox creds, cron polls every 5min, parses NDR notifications, classifies hard (mailbox-not-found, domain-not-found) vs soft (mailbox-full, deferred). **(2) SMTP webhook** — providers like Mailgun/Postmark/SendGrid push events to `/lrob-etk/v1/bounces`. Hard → auto-unsubscribe + add to suppression list. Soft → increment `bounce_count`, unsubscribe after N consecutive. IMAP path also revives the deferred *IMAP save-to-sent* feature.
+- **Suppression list.** Global "do not email" scoped to the whole site. Sources: hard bounces (auto), complaints (FBL), manual additions, optional unsubscribe escalation. Pre-send filter drops suppressed emails regardless of list membership. Admin sub-tab in Subscribers admin. New table `wp_lrob_etk_nl_suppression (email, reason, added_at, source)`.
+- **GDPR toolkit.** EU compliance suite. **(1)** Data export: JSON of everything we hold about an email (subscriber row + memberships + recipient rows + tracking events + submissions). **(2)** Delete request: hard-delete + anonymisation marker so aggregate stats survive. **(3)** Consent log: every subscribe action logs IP (anonymised), timestamp, source, checkbox state, the consent label *text at signup time* (so wording changes don't invalidate prior consents). **(4)** Retention controls per data category. **(5)** Privacy-policy integration.
+- **WooCommerce integration.** Most WP users have a store. **(1)** Abandoned-cart emails. **(2)** Post-purchase follow-ups (review request). **(3)** Order-receipt template customization (pairs with the "Customize WordPress default emails" item). **(4)** Customer segmentation in list rules (`customer_total_spent > 100`, `last_order_date < 6 months`, `bought_product = X`). HPOS-aware. **(5)** Repeat-customer / VIP / win-back auto-tags via automation.
+- **"View online" link for newsletters.** Public web page rendering each sent newsletter (typical *View this email in your browser →* link at the top of the body). URL `/?lrob-etk-nl-view=<token>` with HMAC-signed `(newsletter_id, recipient_kind, recipient_id)` so the page can personalize. **Deleted-newsletter behaviour**: trashed = still renders (recoverable); permanently-deleted = `410 Gone` with friendly message. Permanent-delete confirmation modal warns *"View-online links in already-sent emails will stop working."*
+- **Customize WordPress default emails.** Sibling of the mutes feature. Admin rewrites subject + body + (optionally) from-name for WP-core emails (auto-update notice, new-user welcomes, password-reset, password-change, email-change, comment-moderation). Per-source "use WP default / use custom" toggle. Token vocabulary per source (`{{user_name}}`, `{{site_name}}`, `{{login_url}}`, etc.). Storage: CPT `lrob_etk_etpl` with `purpose` meta = the WP-source slug. Lives in the same admin surface as the mutes (probably a new top-level "Outbound" module).
+- **Outbound-email blocklist + WP-system-email mutes.** Sibling of customize-WP-emails. **(1)** Global kill-switch ("Block all outgoing") for staging/dev sites — short-circuits `wp_mail` chain, optionally logs the would-have-been-sent. **(2)** Per-source toggles for noisy WP-core emails. UI in the same surface as customize-WP-emails.
+
+---
+
+## Nice to have
+
+Real features, well worth doing, but the plugin isn't materially worse without them yet.
+
+### Newsletter polish
+- **A/B testing.** Subject-line A/B first: two variants, send to N% of list, wait W hours, pick winner by open rate, send to remaining %. Content A/B is v2.
+- **Welcome series + post-subscribe automation.** Focused first slice of the broader automation module. Per-list admin defines a sequence ("send template X after N hours, then Y after M days"). Triggers on `newsletter.subscriber.confirmed`.
+- **Auto-resend to non-openers.** Per-newsletter toggle: re-send to recipients whose `opens = 0` after N days with a new subject. Counts as a separate newsletter for stats.
+- **Archive sent newsletters.** "Archive" action on terminal newsletters moves them to an Archived sub-tab so the active list doesn't accumulate. Auto-archive after N days post-send as a nice-to-have on top.
+- **Newsletter templates (separate CPT).** Premade locked templates ("monthly digest", "single-article", "event invite") + admin-created saved templates. "+ New newsletter" gets a picker (Blank / Template / Duplicate existing). Premade live in code (seed data), admin-created use `lrob_etk_nl_tpl` CPT.
+- **Newsletter default settings page.** "Newsletter defaults" surface for inherited values (default identity, default category, default tracking toggles).
+- **Newsletter list polish follow-ups.** Per-newsletter detail report (per-asset / per-link breakdown), bulk-unsubscribe action on the Cold tab, optional auto-cleanup cron (auto-unsubscribe past threshold).
+- **Send-in-progress live progress bar polish.** Smoother live updates, ETA estimate, per-batch flash. AJAX ↔ Cron handoff: when admin opens a card showing `sending`, JS starts a poll loop until terminal — no manual refresh needed.
+
+### Email content & delivery
+- **RSS-to-newsletter.** Per-list/per-category admin configures feed URL + cadence + template. Cron builds a digest from new entries. **Custom intervals**: daily / weekly / monthly / yearly recap (yearly = "2025 in posts"). Two modes per feed: auto-send or draft-for-review (default: draft).
+- **Time-zone-aware send scheduling.** "Send at 9am in each recipient's local time" instead of fixed UTC. Recipient TZ captured at subscribe time from browser. Materializer partitions by TZ. Optional "working hours only" cap.
+- **Mobile + dark-mode email preview.** Preview modal grows a toolbar: viewport (Desktop/Tablet/Phone) + color-scheme (Light/Dark) toggles applied to the iframe root.
+- **Calendar invite (.ics) attachment.** Per-newsletter "Include calendar invite" checkbox. Admin fills event details, .ics ships with every send. ~30 lines of PHP, no library.
+- **Spam-score check before send.** Local heuristics (CAPS%, exclamation density, spam-trigger words, image-to-text ratio). Score 0–100; warn on schedule confirmation when ≥ threshold. Optional mail-tester.com integration.
+- **AI subject-line + preview-text suggestions.** Opt-in to admin's own Anthropic/OpenAI/OpenRouter key (AES-encrypted). "✨ Suggest" button on the card. Pure additive.
+- **Per-identity (per-provider) hourly send cap.** Sender-side limit imposed by the SMTP provider ("this Mailjet plan allows 2000/h"). New `hourly_send_cap` int column on SMTP identity. SendLoop consults before claiming next batch; skips tick when cap reached. Distinct from the per-recipient-domain throttle (which protects inboxes from spam-flagging).
+- **Per-domain throttle for newsletter sends.** Deferred from step 7b polish. Protects inboxes from spam-flagging by rate-limiting *to* known-strict ISPs (laposte.net 30/h, etc.).
+
+### Form features
+- **Form logic — Google-Forms-style conditionals + branching.** Conditional field visibility (show/hide field N based on field M's value), branching/skip-logic on multi-page forms ("if answered No, jump to end"), richer validation (regex / min-max / length / custom error), matrix/grid fields (radio-grid, checkbox-grid), pre-fill from URL params (`?lrob_etk_cf_prefill[email]=...`), CSV export + summary view of submissions. Reused for Newsletter sign-up + Drawing registration forms. Out of scope: quiz mode with auto-grading.
+- **Multi-page contact forms.** Form-builder gains page breaks. Frontend renders one page at a time with Next/Previous, validates per page, submits at end. State in hidden inputs. No server-side draft persistence v1.
+- **File-upload field type (inbound).** Visitors upload documents. Per-field config (extensions, max MB, max count). Server-side MIME-sniff + executable rejection regardless of admin config. Storage: `wp-content/uploads/lrob-etk-cf/<form-slug>/<submission-id>/`, surfaced as download chips on submission detail. Random subdirs, retention cron. Captcha + honeypot already guard.
+- **Outbound attachments.** Separate concept from inbound uploads. Attach files to outgoing emails (auto-response, newsletter, drawing winner, contact form reply). **Two source paths**: forward uploaded files from the same submission, or static admin-uploaded attachments. **Critical**: total mail size cap (default ~10MB). Over the cap → auto-fall-back to "save to server + link in email" with signed time-limited URLs.
+- **Contact Form reply composer.** Deferred from submissions-inbox work. Per-form "reply identity" + ad-hoc Reply-To override in composer. `replied_at` + reply count tracked on `cf_submissions`.
+- **Contact form visual customization.** Per-form colours, roundness, hover/focus glow, button animations, submit-success celebration. Named templates ("sober", "fancy"). See memory `project_contact_form_visual_polish`.
+- **Multi-recipient contact forms.** See memory `project_contact_form_conditional_recipients` — route to different recipient based on a dropdown field.
+- **Responsive preview modes for the form-card preview.** Desktop / Tablet / Phone toggles constraining card width.
+
+### New modules
+- **Draw / raffle module.** Visitors register via a form; admin (or scheduled trigger) picks N winners at random; winners get an automated email. Participants can opt into a shared Newsletter list. Per-draw config: entry window, max winners, one-per-email / one-per-WP-user. Cryptographic randomness seeded once + stored for auditability.
+- **Integrations module.** Outbound webhooks: Slack / Discord / Matrix / n8n + generic. Built on the `lrob_etk_event` action that already ships from v0.0.1 — devs can hook events today via WordPress actions, no module needed.
+- **Cross-feature captcha enrichment.** More providers (Cloudflare Turnstile, Google reCAPTCHA) — drop into `Providers/`, auto-discovered. More in-house challenges (image-letter, simple logic, proof-of-work using local browser compute) — drop into `Challenges/`, also auto-discovered.
+
+### Cross-cutting polish
+- **Per-context SMTP identity routing.** Admin assigns identities to email categories (WooCommerce, admin notifications, contact forms, etc.) on the SMTP settings page. `MailRouter` matches from headers / hook context.
+- **Subscribe-to-comments.** Visitor-facing. Per-thread token, list-unsubscribe header. Integrates with SMTP routing + captcha + logging.
+- **Email export.** Bulk CSV (possibly mbox/EML). Reuse `LogRepository` filtered query helpers. Stream the response.
+- **Email reading in a modal with prev/next navigation.** Full-screen-ish modal with ←/→ keys cycling. Keep `LogsPage` row→detail addressable by index.
+- **Captcha admin live preview.** Settings page needs live previews of each challenge + per-challenge config blocks when more providers land. See memory `project_captcha_admin_preview_pending`.
+
+---
+
+## Maybe / deferred
+
+Useful in theory; not committed to. Revisit on demand.
+
+- **SMS marketing.** Way later, post-1.0. Provider abstraction (Twilio / Vonage / OVHcloud / etc.), per-recipient phone (the international-phone-field is a prerequisite), separate opt-in flag, cost-aware throttle (SMS costs real money), SMS-template CPT alongside newsletters. Regulatory minefield (10DLC US, GDPR EU, ARCEP FR, opt-in proof storage). Won't ship until email is feature-complete.
+- **IMAP "Save to Sent" archive.** Originally next-up after Captcha, demoted to optional. Useful for self-hosted IMAP setups but heavy: credential handling + cron dispatch + failure-mode complexity for a niche feature. If revisited: extends Logging, identities grow IMAP credential fields (same AES-256-GCM model), async dispatch via WP-Cron. Likely lands as a side-effect of bounce-handling-via-IMAP above.
+- **SMTP identity uniqueness on host+username.** Future schema change; one mailbox = one identity, but per-identity From override still allowed. See memory `project_smtp_identity_uniqueness`.
+- **Custom field editor as Gutenberg replacement.** Replace Gutenberg with the in-page drag-and-drop field editor across the plugin. See memory `project_contact_form_field_editor`.
+- **Homemade anti-bot question pool.** Beyond Math + Image, build a small library (image-letter, simple logic, etc.). Form picks one at random per submission. Each self-contained (no external API).
+- **Newsletter front-end UI components.** Re-evaluate if subscribers want richer self-serve UIs (browse archives, preference center beyond current).
+- **AbuseIPDB IP reputation check** at form-submit time. See memory `project_contact_form_backlog`.
+
+---
+
+## Regression preventers (do not re-break)
+
+These aren't features — they're things that were broken once and fixed; the code now depends on the fix.
+
+- **Resender** (`Modules/Logging/Resender::resend()`) creates a new log row for retries, leaves the original untouched. Earlier code marked the original as `retried` and undercounted sends. Don't reintroduce a status flip. `build_headers()` runs every stored header component through `strip_crlf()` — keep this.
+- **From / transport resolution**: SMTP identity rows store `from_email` / `from_name` that may be empty (= fall back at send time). `Identity::effective_from_email()` returns `smtp_username` if empty; `effective_from_name()` returns site title. Per-identity `transport` (`smtp` | `mail`) honored by `MailRouter` and `TestSender`. New per-identity behavior follows the same `effective_*` accessor pattern.
+- **Attachments in logs**: `logs.attachments` is JSON `[{"name", "path"}]`. `LogEntry::normalize_attachments()` upgrades legacy string-only entries — keep as long as old rows can exist. Resend re-attaches files whose `path` still resolves; reports `attachments_dropped` for the rest.
+- **Captcha fail-closed on misconfiguration**: `CaptchaService::verify()` returns `[false, message]` on `STATE_BROKEN` (deleted identity, inactive identity, AUTH_KEY rotated). Distinguish `STATE_NONE` (admin opted out → fail open) from `STATE_BROKEN` (misconfig → fail closed). `Captcha\Module::render_broken_routes_notice()` surfaces broken routes to admins.
+- **Service-module migrate trap** (Captcha is the type case): always-enabled modules record `db_version=1` on every existing site *before* the module had install logic. Bumping target to 2 makes `maybe_migrate()` take the `migrate()` branch — schema never gets created. Fix: always override `migrate()` to forward to `install()` (idempotent). If recovering from an already-shipped broken bump, bump the target one more notch so stuck sites re-take the migrate path. See memory `project_service_module_migrate_trap`.
+- **Injection safety from stored email content** — the touchy one. Once mail-receive lands, `logs.body_html` / `subject` / `from_name` / headers / filenames are attacker-controllable. Admin UI must escape on output; `body_html` must render in a sandboxed iframe (never inject into admin DOM); resend/forward/reply paths re-sanitise (don't reuse stored HTML raw); CSV export must prefix `= + - @ \t \r` cells with `'` to neuter spreadsheet formula injection.

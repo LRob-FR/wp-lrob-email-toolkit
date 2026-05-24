@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-24T13:02:39+00:00\n"
+"POT-Creation-Date: 2026-05-24T17:41:50+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -76,7 +76,7 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1258
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1284
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1332
-#: src/Modules/Newsletter/Module.php:533
+#: src/Modules/Newsletter/Module.php:528
 #: src/Modules/Newsletter/Send/SendAjaxController.php:679
 #: src/Modules/SMTP/Admin/AjaxController.php:365
 #: src/Modules/SMTP/Admin/PageController.php:50
@@ -716,7 +716,7 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1263
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1288
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1337
-#: src/Modules/Newsletter/Module.php:537
+#: src/Modules/Newsletter/Module.php:532
 msgid "Security check failed. Please retry."
 msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 
@@ -1649,7 +1649,7 @@ msgstr "Formulaire source introuvable."
 #: src/Modules/ContactForm/Admin/AjaxController.php:214
 #: src/Modules/Newsletter/Admin/AjaxController.php:409
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1345
-#: src/Modules/Newsletter/Module.php:548
+#: src/Modules/Newsletter/Module.php:543
 msgid "%s (copy)"
 msgstr "%s (copie)"
 
@@ -3005,7 +3005,7 @@ msgstr "Renvoyé"
 #: src/Modules/Newsletter/Admin/HomePage.php:202
 #: src/Modules/Newsletter/Admin/PageController.php:37
 #: src/Modules/Newsletter/Admin/PageController.php:38
-#: src/Modules/Newsletter/Module.php:62
+#: src/Modules/Newsletter/Module.php:57
 #: src/Modules/Newsletter/NewsletterCPT.php:101
 msgid "Newsletter"
 msgstr "Newsletter"
@@ -4948,7 +4948,7 @@ msgstr "Modèles de démarrage"
 msgid "Collect the subscriber's name too for friendlier emails."
 msgstr "Collectez aussi le nom de l'abonné pour des emails plus personnalisés."
 
-#: src/Modules/Newsletter/Module.php:67
+#: src/Modules/Newsletter/Module.php:62
 msgid ""
 "Send newsletters to your WordPress users and email-only subscribers, with "
 "rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send "
@@ -4959,25 +4959,25 @@ msgstr ""
 "pipeline d'envoi AJAX+Cron rythmé."
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
-#: src/Modules/Newsletter/Module.php:361
+#: src/Modules/Newsletter/Module.php:356
 msgid "%s subscriber"
 msgid_plural "%s subscribers"
 msgstr[0] "S'inscrire"
 msgstr[1] "S'inscrire"
 
-#: src/Modules/Newsletter/Module.php:541
+#: src/Modules/Newsletter/Module.php:536
 msgid "Unknown onboarding email purpose."
 msgstr "Modèle inconnu."
 
-#: src/Modules/Newsletter/Module.php:564
+#: src/Modules/Newsletter/Module.php:559
 msgid "Could not create the template draft."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Module.php:597
+#: src/Modules/Newsletter/Module.php:592
 msgid "Newsletter: SMTP module not enabled"
 msgstr "Newsletter : module SMTP non activé"
 
-#: src/Modules/Newsletter/Module.php:598
+#: src/Modules/Newsletter/Module.php:593
 msgid ""
 "Subscribe forms and the Newsletter admin work, but newsletter sending is "
 "disabled until you enable the SMTP module — Newsletter routes every send "
@@ -4987,11 +4987,11 @@ msgstr ""
 "l'envoi de newsletters reste désactivé tant que le module SMTP n'est pas "
 "activé — chaque envoi de newsletter passe par une identité SMTP."
 
-#: src/Modules/Newsletter/Module.php:600
+#: src/Modules/Newsletter/Module.php:595
 msgid "Open SMTP settings"
 msgstr "Réglages par défaut"
 
-#: src/Modules/Newsletter/Module.php:621
+#: src/Modules/Newsletter/Module.php:616
 msgid "General"
 msgstr "Général"
 

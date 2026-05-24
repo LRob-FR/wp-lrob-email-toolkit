@@ -34,8 +34,8 @@ final class UserHooks
      *  - Matched subscriber row → promote (carry over confirmed_at,
      *    category_opt_outs, bounce_count, prefs_token, source) and delete
      *    the subscriber row.
-     *  - No match → seed a confirmed-by-default WP user. The "all WP users
-     *    default-opt-in across all roles" policy is locked in newsletter.md.
+     *  - No match → seed a confirmed-by-default WP user. All WP users are
+     *    default-opt-in across all roles.
      */
     public function on_user_register(int $user_id): void
     {
@@ -135,9 +135,8 @@ final class UserHooks
 
     /**
      * Seed the lrob_etk_nl_* user_meta keys for a brand-new WP user with no
-     * prior subscriber row. Default = opted in to everything (the policy
-     * locked in newsletter.md). Per-category opt-out is up to the user via
-     * their preferences page.
+     * prior subscriber row. Default = opted in to everything. Per-category
+     * opt-out is up to the user via their preferences page.
      */
     private function seed_user_defaults(int $user_id): void
     {

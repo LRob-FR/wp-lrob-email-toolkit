@@ -34,14 +34,9 @@ use LRob\EmailToolkit\Modules\Newsletter\Tracking\RetentionCron as TrackingReten
 
 /**
  * Newsletter module — newsletters to WordPress users and email-only
- * subscribers, with rule-based + manual lists, category-scoped opt-outs,
- * Gutenberg-composed emails, AJAX+Cron send pipeline, and tracking.
- *
- * Full design spec at repo-root `newsletter.md`. v0.3.0 ships across
- * multiple iterations; steps 0–7 + step 7b core + the cards refactor +
- * the Campaign → Newsletter vocabulary rename (schema v6) are live.
- * Tracking (step 9), bounce handling, import/export, and the dashboard
- * polish are the remaining slices.
+ * subscribers, with manual lists, category-scoped opt-outs, Gutenberg-
+ * composed emails, AJAX+Cron send pipeline, and HMAC-signed tracking.
+ * Status + remaining work tracked in repo-root completed.md / todo.md.
  */
 final class Module extends AbstractModule
 {

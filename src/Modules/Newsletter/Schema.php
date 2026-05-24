@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
 /**
- * Newsletter module schema. Seven tables — see newsletter.md for the full
- * shape rationale; this file is the canonical SQL source of truth.
+ * Newsletter module schema. Nine tables (as of v0.3.2). This file is
+ * the canonical SQL source of truth.
  *
  *  - subscribers ........ email-only recipients (no WP account). WP users
  *                         are recipients via user_meta, never duplicated
@@ -176,9 +176,9 @@ final class Schema
             KEY cold_subscribers (status, sends_since_engagement)
         ) $charset_collate;";
 
-        // rule_json: JSON filter expression (see newsletter.md "Rule grammar")
-        // when the list is rule-based or hybrid; empty string for manual-only
-        // lists.
+        // rule_json: JSON filter expression when the list is rule-based or
+        // hybrid; empty string for manual-only lists. Rule grammar is TBD —
+        // see todo.md "subscriber custom fields + tags".
         $sql_lists = "CREATE TABLE $lists (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             name varchar(190) NOT NULL,

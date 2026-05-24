@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
 /**
- * CRUD + membership helpers for newsletter lists. Lists are the
- * unified manual / rule-based subscriber groupings described in
- * newsletter.md. Step 4a ships manual lists only — rule_json stays
- * empty for everything created through the admin UI. Rule editor +
- * rule evaluator land with the send pipeline when targeting actually
- * matters (newsletters ship later).
+ * CRUD + membership helpers for newsletter lists. Lists are unified
+ * manual / rule-based subscriber groupings. Ships with manual lists
+ * only — rule_json stays empty for everything created through the
+ * admin UI. Rule editor + rule evaluator land later (see todo.md
+ * "subscriber custom fields + tags" + "WooCommerce integration"
+ * which both extend the rule grammar).
  *
  * Memberships live in wp_lrob_etk_nl_list_members keyed by
  * (list_id, recipient_kind, recipient_id). UserHooks::on_deleted_user
