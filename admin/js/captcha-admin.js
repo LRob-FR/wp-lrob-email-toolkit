@@ -3,7 +3,6 @@
 
     if (!window.lrobEtkCaptcha) return;
     var CFG = window.lrobEtkCaptcha;
-    var ROUTE_OPTIONS = readRouteOptions();
     var saveTimers = new WeakMap();
     var loadedProviderScripts = {}; // providerSlug → true once script tag injected
 
@@ -13,7 +12,24 @@
         wireAddButton();
         wireIdentityCards(document);
         wireRoutingSelects();
+        wireSetDefault();
         renderAllPreviews();
+    }
+
+    function wireSetDefault() {
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest && e.target.closest('.lrob-etk-set-default');
+            if (!btn) return;
+            var route = btn.getAttribute('data-set-default-route');
+            if (!route) return;
+            var data = new FormData();
+            data.append('action', CFG.actions.setDefault);
+            data.append('_nonce', CFG.nonce);
+            data.append('route', route);
+            request(data).then(function (res) {
+                if (res && res.success) window.location.reload();
+            });
+        });
     }
 
     // --- Add captcha button ---
@@ -236,19 +252,11 @@
             if (discard) discard.setAttribute('hidden', '');
             var pickField = form.querySelector('[data-provider-pick-field]');
             if (pickField) pickField.parentNode.removeChild(pickField);
-            addIdentityToRouteOptions({
-                providerSlug: card.dataset.provider,
-                route: res.data.route_key,
-                label: form.querySelector('input[name="label"]').value || '',
-                isActive: form.querySelector('input[name="is_active"]').checked,
-            });
-            rebuildRoutingSelects();
+            window.location.reload();
+            return;
         } else {
-            updateIdentityInRouteOptions(parseInt(card.dataset.identityId, 10), {
-                label: form.querySelector('input[name="label"]').value || '',
-                isActive: form.querySelector('input[name="is_active"]').checked,
-            });
-            rebuildRoutingSelects();
+            window.location.reload();
+            return;
         }
         // Update the derived slug chip + the data-site-key attribute so
         // the preview renders against the freshly-saved credentials.
@@ -305,12 +313,7 @@
         data.append('id', String(id));
 
         request(data).then(function (res) {
-            if (res.success) {
-                removeIdentityFromRouteOptions(id);
-                card.parentNode && card.parentNode.removeChild(card);
-                rebuildRoutingSelects();
-                maybeShowEmpty();
-            }
+            if (res.success) window.location.reload();
         });
     }
 
@@ -400,10 +403,15 @@
         });
     }
 
-    // --- Routing selects ---
     function wireRoutingSelects() {
-        document.querySelectorAll('[data-routing-key]').forEach(function (select) {
-            select.addEventListener('change', saveRouting);
+        document.querySelectorAll('.lrob-etk-captcha-routing-row').forEach(function (row) {
+            row.addEventListener('change', function (e) {
+                if (!e.target.classList || !e.target.classList.contains('lrob-etk-combo-value')) return;
+                if (row.dataset.routingKey === 'default') {
+                    refreshInheritLabels();
+                }
+                saveRouting();
+            });
         });
     }
 
@@ -411,92 +419,54 @@
         var data = new FormData();
         data.append('action', CFG.actions.saveRouting);
         data.append('_nonce', CFG.nonce);
-        document.querySelectorAll('[data-routing-key]').forEach(function (select) {
-            data.append('routing[' + select.dataset.routingKey + ']', select.value);
+        document.querySelectorAll('.lrob-etk-captcha-routing-row[data-routing-key]').forEach(function (row) {
+            var hidden = row.querySelector('.lrob-etk-combo-value');
+            data.append('routing[' + row.dataset.routingKey + ']', hidden ? hidden.value : 'none');
         });
-        request(data).catch(function () { /* silent — change re-fires next interaction */ });
+        request(data).catch(function () {});
     }
 
-    // --- Routing options model + select rebuild ---
-    function readRouteOptions() {
-        var wrap = document.querySelector('.lrob-etk-captcha-page');
-        if (!wrap || !wrap.dataset.routeOptions) return null;
-        try {
-            return JSON.parse(wrap.dataset.routeOptions);
-        } catch (e) {
-            return null;
+    function refreshInheritLabels() {
+        var defaultRow = document.querySelector('.lrob-etk-captcha-routing-row[data-routing-key="default"]');
+        if (!defaultRow) return;
+        var defaultCombo = defaultRow.querySelector('.lrob-etk-combo');
+        var bare = defaultCombo ? labelFromCombo(defaultCombo) : '';
+        var template = CFG.i18n.inheritLabelTemplate || 'Inherit default (%s)';
+        var emptyLabel = CFG.i18n.inheritLabelEmpty || 'Inherit default';
+        var newLabel = bare !== '' ? template.replace('%s', bare) : emptyLabel;
+        document.querySelectorAll('.lrob-etk-captcha-routing-row[data-routing-key]').forEach(function (row) {
+            if (row.dataset.routingKey === 'default') return;
+            var combo = row.querySelector('.lrob-etk-combo');
+            if (combo) updateInheritOptionLabel(combo, newLabel);
+        });
+    }
+
+    function labelFromCombo(combo) {
+        var input = combo.querySelector('.lrob-etk-combo-input');
+        if (input && input.value) return input.value;
+        var hidden = combo.querySelector('.lrob-etk-combo-value');
+        if (!hidden) return '';
+        var options;
+        try { options = JSON.parse(combo.getAttribute('data-options') || '[]'); } catch (e) { return ''; }
+        var hit = options.find(function (o) { return String(o.value) === String(hidden.value); });
+        return hit ? hit.label : '';
+    }
+
+    function updateInheritOptionLabel(combo, newLabel) {
+        var options;
+        try { options = JSON.parse(combo.getAttribute('data-options') || '[]'); } catch (e) { return; }
+        var changed = false;
+        options.forEach(function (opt) {
+            if (opt.value === 'inherit') { opt.label = newLabel; changed = true; }
+        });
+        if (!changed) return;
+        combo.setAttribute('data-options', JSON.stringify(options));
+        var input = combo.querySelector('.lrob-etk-combo-input');
+        var hidden = combo.querySelector('.lrob-etk-combo-value');
+        if (input && hidden && hidden.value === 'inherit') {
+            input.setAttribute('placeholder', newLabel);
         }
-    }
-
-    function addIdentityToRouteOptions(args) {
-        if (!ROUTE_OPTIONS) return;
-        var group = ROUTE_OPTIONS.providers.find(function (g) { return g.slug === args.providerSlug; });
-        if (!group) return;
-        group.identities.push({ route: args.route, label: args.label, is_active: args.isActive });
-    }
-
-    function updateIdentityInRouteOptions(id, args) {
-        if (!ROUTE_OPTIONS) return;
-        var token = 'identity:' + id;
-        ROUTE_OPTIONS.providers.forEach(function (group) {
-            group.identities.forEach(function (ident) {
-                if (ident.route === token) {
-                    if (args.label !== undefined) ident.label = args.label;
-                    if (args.isActive !== undefined) ident.is_active = args.isActive;
-                }
-            });
-        });
-    }
-
-    function removeIdentityFromRouteOptions(id) {
-        if (!ROUTE_OPTIONS) return;
-        var token = 'identity:' + id;
-        ROUTE_OPTIONS.providers.forEach(function (group) {
-            group.identities = group.identities.filter(function (i) { return i.route !== token; });
-        });
-    }
-
-    function rebuildRoutingSelects() {
-        if (!ROUTE_OPTIONS) return;
-        document.querySelectorAll('[data-routing-key]').forEach(function (select) {
-            var current = select.value;
-            var key = select.dataset.routingKey;
-            var includeInherit = key !== 'default';
-            select.innerHTML = buildRouteOptionsHtml(includeInherit);
-            select.value = current;
-            if (select.value !== current) {
-                select.value = includeInherit ? ROUTE_OPTIONS.inherit : ROUTE_OPTIONS.none;
-                saveRouting();
-            }
-        });
-    }
-
-    function buildRouteOptionsHtml(includeInherit) {
-        var parts = [];
-        if (includeInherit) {
-            parts.push('<option value="' + escAttr(ROUTE_OPTIONS.inherit) + '">' + escText(ROUTE_OPTIONS.inheritLabel) + '</option>');
-        }
-        parts.push('<option value="' + escAttr(ROUTE_OPTIONS.none) + '">' + escText(ROUTE_OPTIONS.noneLabel) + '</option>');
-        if (ROUTE_OPTIONS.homemade.length) {
-            parts.push('<optgroup label="' + escAttr(ROUTE_OPTIONS.homemadeLabel) + '">');
-            ROUTE_OPTIONS.homemade.forEach(function (h) {
-                parts.push('<option value="' + escAttr(h.route) + '">' + escText(h.label) + '</option>');
-            });
-            parts.push('</optgroup>');
-        }
-        ROUTE_OPTIONS.providers.forEach(function (group) {
-            parts.push('<optgroup label="' + escAttr(group.label) + '">');
-            if (group.identities.length === 0) {
-                parts.push('<option value="" disabled>' + escText(ROUTE_OPTIONS.configureFirst.replace('%s', group.label)) + '</option>');
-            } else {
-                group.identities.forEach(function (id) {
-                    var label = id.label + (id.is_active ? '' : ' ' + ROUTE_OPTIONS.inactiveSuffix);
-                    parts.push('<option value="' + escAttr(id.route) + '"' + (id.is_active ? '' : ' disabled') + '>' + escText(label) + '</option>');
-                });
-            }
-            parts.push('</optgroup>');
-        });
-        return parts.join('');
+        combo.setAttribute('data-default-placeholder', newLabel);
     }
 
     // --- Utilities ---

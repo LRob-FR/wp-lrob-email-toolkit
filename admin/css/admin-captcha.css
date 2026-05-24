@@ -35,7 +35,10 @@
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
 }
-.lrob-etk-captcha-builtins .dashicons {
+.lrob-etk-captcha-builtins li > div:first-of-type {
+    flex: 1;
+}
+.lrob-etk-captcha-builtins .dashicons-yes-alt {
     color: var(--etk-success);
     flex-shrink: 0;
     margin-top: 2px;
@@ -275,22 +278,17 @@
     font-weight: 500;
     font-size: 13px;
 }
-.lrob-etk-captcha-routing-row select {
+.lrob-etk-captcha-routing-row .lrob-etk-combo {
     width: 100%;
-    max-width: 100%;
 }
 .lrob-etk-captcha-routing-default {
     background: var(--etk-soft);
     border-color: var(--etk-line-strong);
 }
-.lrob-etk-captcha-routing-default label {
+.lrob-etk-captcha-routing-default .lrob-etk-captcha-routing-context-label {
     font-weight: 600;
 }
 
-/* Disabled options ("Configure hCaptcha first") rendered in red. */
-.lrob-etk-captcha-routing-row select option:disabled {
-    color: var(--etk-danger);
-}
 
 /* hCaptcha widget is 303×78px (normal) and the iframe doesn't shrink to
  * fit narrow columns. Reserve its natural width and allow horizontal

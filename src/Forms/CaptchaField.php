@@ -164,15 +164,12 @@ final class CaptchaField implements FieldTypeInterface
             return $html;
         }
 
-        $homemade = $service->homemade_challenges();
-        if ($homemade !== []) {
-            $html .= '<optgroup label="' . esc_attr__('Built-in challenges', 'lrob-email-toolkit') . '">';
-            foreach ($homemade as $slug => $challenge) {
-                $route = Routing::homemade($slug);
-                $html .= '<option value="' . esc_attr($route) . '"' . selected($stored, $route, false) . '>'
-                       . esc_html($challenge->label()) . '</option>';
-            }
-            $html .= '</optgroup>';
+        $builtin_prefix = __('Built-in', 'lrob-email-toolkit');
+        foreach ($service->homemade_challenges() as $slug => $challenge) {
+            $route = Routing::homemade($slug);
+            $label = sprintf('%s: %s', $builtin_prefix, (string) $challenge->label());
+            $html .= '<option value="' . esc_attr($route) . '"' . selected($stored, $route, false) . '>'
+                   . esc_html($label) . '</option>';
         }
 
         $providers = $service->hosted_providers();
@@ -183,7 +180,6 @@ final class CaptchaField implements FieldTypeInterface
             }
             foreach ($providers as $provider_slug => $provider) {
                 $rows = $by_provider[$provider_slug] ?? [];
-                $html .= '<optgroup label="' . esc_attr($provider->label()) . '">';
                 if ($rows === []) {
                     $html .= '<option value="" disabled>'
                            . esc_html(sprintf(
@@ -192,20 +188,20 @@ final class CaptchaField implements FieldTypeInterface
                                $provider->label()
                            ))
                            . '</option>';
-                } else {
-                    foreach ($rows as $identity) {
-                        $route = Routing::identity((int) $identity->id);
-                        $label = $identity->label !== '' ? $identity->label : $provider->label();
-                        $disabled = $identity->is_active ? '' : ' disabled';
-                        if (!$identity->is_active) {
-                            $label .= ' ' . __('(inactive)', 'lrob-email-toolkit');
-                        }
-                        $html .= '<option value="' . esc_attr($route) . '"'
-                               . selected($stored, $route, false) . $disabled . '>'
-                               . esc_html($label) . '</option>';
-                    }
+                    continue;
                 }
-                $html .= '</optgroup>';
+                foreach ($rows as $identity) {
+                    $route = Routing::identity((int) $identity->id);
+                    $name = $identity->label !== '' ? $identity->label : (string) $provider->label();
+                    $label = sprintf('%s: %s', $provider->label(), $name);
+                    if (!$identity->is_active) {
+                        $label .= ' ' . __('(inactive)', 'lrob-email-toolkit');
+                    }
+                    $disabled = $identity->is_active ? '' : ' disabled';
+                    $html .= '<option value="' . esc_attr($route) . '"'
+                           . selected($stored, $route, false) . $disabled . '>'
+                           . esc_html($label) . '</option>';
+                }
             }
         }
 
@@ -309,12 +305,12 @@ final class CaptchaField implements FieldTypeInterface
             return ['entries' => $entries];
         }
 
+        $builtin_prefix = __('Built-in', 'lrob-email-toolkit');
         foreach ($service->homemade_challenges() as $slug => $challenge) {
             $entries[] = [
-                'route'    => Routing::homemade($slug),
-                'label'    => $challenge->label(),
-                'preview'  => $challenge->render(['context' => 'preview']),
-                'optgroup' => __('Built-in challenges', 'lrob-email-toolkit'),
+                'route'   => Routing::homemade($slug),
+                'label'   => sprintf('%s: %s', $builtin_prefix, (string) $challenge->label()),
+                'preview' => $challenge->render(['context' => 'preview']),
             ];
         }
 
@@ -335,13 +331,13 @@ final class CaptchaField implements FieldTypeInterface
                             $provider->label()
                         ),
                         'preview'  => $none_preview,
-                        'optgroup' => $provider->label(),
                         'disabled' => true,
                     ];
                     continue;
                 }
                 foreach ($rows as $identity) {
-                    $label = $identity->label !== '' ? $identity->label : $provider->label();
+                    $name = $identity->label !== '' ? $identity->label : (string) $provider->label();
+                    $label = sprintf('%s: %s', $provider->label(), $name);
                     if (!$identity->is_active) {
                         $label .= ' ' . __('(inactive)', 'lrob-email-toolkit');
                     }
@@ -361,7 +357,6 @@ final class CaptchaField implements FieldTypeInterface
                         'route'    => Routing::identity((int) $identity->id),
                         'label'    => $label,
                         'preview'  => $preview,
-                        'optgroup' => $provider->label(),
                         'disabled' => !$identity->is_active,
                     ];
                 }

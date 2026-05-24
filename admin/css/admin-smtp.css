@@ -294,37 +294,3 @@
     font-size: 11px;
 }
 
-/* ---------- Default-identity badge + set-default action ---------- */
-
-.lrob-etk-card-footer-default {
-    display: flex;
-    align-items: center;
-}
-
-.lrob-etk-set-default,
-.lrob-etk-default-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-}
-.lrob-etk-set-default {
-    color: var(--etk-muted);
-    text-decoration: none;
-}
-.lrob-etk-set-default:hover {
-    color: var(--etk-accent);
-}
-.lrob-etk-default-badge {
-    color: #735900;
-    font-weight: 500;
-}
-.lrob-etk-default-badge .dashicons {
-    color: var(--etk-warning);
-}
-.lrob-etk-set-default .dashicons,
-.lrob-etk-default-badge .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-}

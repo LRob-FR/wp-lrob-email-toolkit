@@ -376,6 +376,7 @@ final class NewslettersPage
         $failed = (int) ($row['failed_count'] ?? 0);
         $total = (int) ($row['total_recipients'] ?? 0);
         $opens_unique = (int) ($row['opens_unique'] ?? 0);
+        $clicks_unique = (int) ($row['clicks_unique'] ?? 0);
         $created = (string) ($row['post_date_gmt'] ?? '');
 
         $preview_text  = (string) get_post_meta($post_id, NewsletterCPT::META_PREVIEW_TEXT, true);
@@ -412,6 +413,7 @@ final class NewslettersPage
         ], true);
         $is_locked = $is_sending || $is_paused || $is_terminal || $is_trashed;
         $open_pct = $sent > 0 ? (int) round(($opens_unique * 100) / $sent) : 0;
+        $click_pct = $sent > 0 ? (int) round(($clicks_unique * 100) / $sent) : 0;
         // Synthetic "trash" status drives the badge label + the
         // `data-status` selector the card-poller uses. The companion
         // row's real status is preserved in $status for restore-time
@@ -627,6 +629,20 @@ final class NewslettersPage
                                                 );
                                             } else {
                                                 esc_html_e('opens', 'lrob-email-toolkit');
+                                            }
+                                            ?>
+                                        </li>
+                                        <li>
+                                            <strong><?php echo esc_html(number_format_i18n($clicks_unique)); ?></strong>
+                                            <?php
+                                            if ($sent > 0 && $clicks_unique > 0) {
+                                                printf(
+                                                    /* translators: %d: click-through rate as integer percent */
+                                                    esc_html__('clicks (%d%%)', 'lrob-email-toolkit'),
+                                                    $click_pct
+                                                );
+                                            } else {
+                                                esc_html_e('clicks', 'lrob-email-toolkit');
                                             }
                                             ?>
                                         </li>

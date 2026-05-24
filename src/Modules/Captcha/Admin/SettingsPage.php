@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha\Admin;
 
+use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Identity;
 use LRob\EmailToolkit\Modules\Captcha\Providers\ProviderInterface;
@@ -48,7 +49,7 @@ final class SettingsPage
         $this->stats_breakdown = (new StatsRepository())->breakdown_by_route(30);
 
         ?>
-        <div class="wrap lrob-etk lrob-etk-captcha-page" data-route-options='<?php echo esc_attr((string) wp_json_encode($this->route_options_for_js($homemade, $providers, $identities))); ?>'>
+        <div class="wrap lrob-etk lrob-etk-captcha-page">
             <header class="lrob-etk-page-header">
                 <h1 class="lrob-etk-page-title"><?php esc_html_e('Captcha', 'lrob-email-toolkit'); ?></h1>
                 <?php if ($providers !== []) : ?>
@@ -90,6 +91,7 @@ final class SettingsPage
         if ($homemade === []) {
             return;
         }
+        $default_route = Routing::default_route();
         ?>
         <section class="lrob-etk-captcha-section">
             <h2 class="lrob-etk-section-title"><?php esc_html_e('Built-in challenges', 'lrob-email-toolkit'); ?></h2>
@@ -97,6 +99,7 @@ final class SettingsPage
                 <?php foreach ($homemade as $slug => $challenge) :
                     $route = Routing::homemade($slug);
                     $stats = $this->stats_breakdown[$route] ?? null;
+                    $is_default = $default_route === $route;
                     ?>
                     <li>
                         <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
@@ -109,11 +112,35 @@ final class SettingsPage
                                 </p>
                             <?php endif; ?>
                         </div>
+                        <div class="lrob-etk-card-footer-default">
+                            <?php self::render_default_marker($route, $is_default); ?>
+                        </div>
                     </li>
                 <?php endforeach; ?>
             </ul>
         </section>
         <?php
+    }
+
+    private static function render_default_marker(string $route, bool $is_default): void
+    {
+        if ($is_default) :
+            ?>
+            <span class="lrob-etk-default-badge">
+                <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
+                <?php esc_html_e('Default', 'lrob-email-toolkit'); ?>
+            </span>
+            <?php
+        else :
+            ?>
+            <button type="button"
+                    class="lrob-etk-set-default"
+                    data-set-default-route="<?php echo esc_attr($route); ?>">
+                <span class="dashicons dashicons-star-empty" aria-hidden="true"></span>
+                <?php esc_html_e('Set as default', 'lrob-email-toolkit'); ?>
+            </button>
+            <?php
+        endif;
     }
 
     /**
@@ -313,7 +340,14 @@ final class SettingsPage
                 </div>
 
                 <footer class="lrob-etk-card-footer">
-                    <div class="lrob-etk-card-footer-default"></div>
+                    <div class="lrob-etk-card-footer-default">
+                        <?php
+                        if (!$is_new && $identity !== null && $identity->is_active) {
+                            $route = Routing::identity((int) $identity->id);
+                            self::render_default_marker($route, Routing::default_route() === $route);
+                        }
+                        ?>
+                    </div>
                     <div class="lrob-etk-card-footer-actions">
                         <button type="button" class="button button-primary lrob-etk-card-create" data-action="create" <?php echo $is_new ? '' : 'hidden'; ?>>
                             <?php esc_html_e('Create', 'lrob-email-toolkit'); ?>
@@ -535,32 +569,36 @@ final class SettingsPage
     /** @param array<string, string> $map */
     private function render_routing_section(string $default_route, array $map): void
     {
+        $default_label = $this->resolve_route_label($default_route);
         ?>
         <section class="lrob-etk-captcha-section lrob-etk-captcha-routing">
-            <h2 class="lrob-etk-section-title"><?php esc_html_e('Routing', 'lrob-email-toolkit'); ?></h2>
+            <h2 class="lrob-etk-section-title"><?php esc_html_e('Captcha assignments', 'lrob-email-toolkit'); ?></h2>
             <p class="description" style="max-width: 720px;">
-                <?php esc_html_e('Pick the default challenge for the whole site, then optionally override it for specific use cases.', 'lrob-email-toolkit'); ?>
+                <?php esc_html_e('Pick the default challenge for the whole site, then pick a per-context override below — leave a context on "None" to skip the captcha there.', 'lrob-email-toolkit'); ?>
             </p>
 
             <div class="lrob-etk-captcha-routing-grid">
-                <div class="lrob-etk-captcha-routing-row lrob-etk-captcha-routing-default">
-                    <label for="lrob-etk-captcha-default"><?php esc_html_e('Default challenge', 'lrob-email-toolkit'); ?></label>
-                    <select id="lrob-etk-captcha-default" data-routing-key="<?php echo esc_attr(Routing::KEY_DEFAULT); ?>">
-                        <?php $this->render_route_options($default_route, false); ?>
-                    </select>
+                <?php
+                $default_options = $this->route_options_for_combobox(false, false, '');
+                ?>
+                <div class="lrob-etk-captcha-routing-row lrob-etk-captcha-routing-default"
+                     data-routing-key="<?php echo esc_attr(Routing::KEY_DEFAULT); ?>">
+                    <span class="lrob-etk-captcha-routing-context-label">
+                        <?php esc_html_e('Default challenge for the whole site', 'lrob-email-toolkit'); ?>
+                    </span>
+                    <?php Combobox::render_fixed_select('lrob_etk_captcha_route__' . Routing::KEY_DEFAULT, $default_route, $default_options, '', ''); ?>
                 </div>
 
                 <?php foreach (Routing::known_contexts() as $context) :
-                    $current = isset($map[$context]) ? $map[$context] : Routing::ROUTE_INHERIT;
+                    $current = $map[$context] ?? Routing::ROUTE_NONE;
+                    $options = $this->route_options_for_combobox(true, true, $default_label);
                     ?>
-                    <div class="lrob-etk-captcha-routing-row">
-                        <label for="lrob-etk-captcha-ctx-<?php echo esc_attr($context); ?>">
+                    <div class="lrob-etk-captcha-routing-row"
+                         data-routing-key="<?php echo esc_attr($context); ?>">
+                        <span class="lrob-etk-captcha-routing-context-label">
                             <?php echo esc_html(Routing::context_label($context)); ?>
-                        </label>
-                        <select id="lrob-etk-captcha-ctx-<?php echo esc_attr($context); ?>"
-                                data-routing-key="<?php echo esc_attr($context); ?>">
-                            <?php $this->render_route_options($current, true); ?>
-                        </select>
+                        </span>
+                        <?php Combobox::render_fixed_select('lrob_etk_captcha_route__' . $context, $current, $options, Routing::ROUTE_INHERIT, ''); ?>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -569,74 +607,81 @@ final class SettingsPage
     }
 
     /**
-     * Render <option>s for a routing dropdown. `inherit` only appears in
-     * per-context selects (not in the default). Routes pointing at hosted
-     * providers with no configured identity get rendered as disabled
-     * "configure first" options so the admin sees they exist but knows
-     * they need setup.
+     * Combobox option list for the routing pickers.
+     *
+     * @return array<int, array{value:string, label:string}>
      */
-    private function render_route_options(string $selected, bool $include_inherit): void
+    private function route_options_for_combobox(bool $include_inherit, bool $include_none, string $default_label): array
     {
+        $options = [];
         if ($include_inherit) {
-            ?>
-            <option value="<?php echo esc_attr(Routing::ROUTE_INHERIT); ?>" <?php selected($selected, Routing::ROUTE_INHERIT); ?>>
-                <?php esc_html_e('Inherit default', 'lrob-email-toolkit'); ?>
-            </option>
-            <?php
+            $inherit_label = $default_label !== ''
+                ? sprintf(
+                    /* translators: %s: human-readable label of the currently-default challenge (e.g. "Math challenge", "hCaptcha: Production") */
+                    __('Inherit default (%s)', 'lrob-email-toolkit'),
+                    $default_label
+                )
+                : __('Inherit default', 'lrob-email-toolkit');
+            $options[] = ['value' => Routing::ROUTE_INHERIT, 'label' => $inherit_label];
         }
-
-        ?>
-        <option value="<?php echo esc_attr(Routing::ROUTE_NONE); ?>" <?php selected($selected, Routing::ROUTE_NONE); ?>>
-            <?php esc_html_e('— None (not recommended) —', 'lrob-email-toolkit'); ?>
-        </option>
-        <?php
-
-        $homemade = $this->service->homemade_challenges();
-        if ($homemade !== []) {
-            ?>
-            <optgroup label="<?php esc_attr_e('Built-in challenges', 'lrob-email-toolkit'); ?>">
-                <?php foreach ($homemade as $slug => $challenge) :
-                    $route = Routing::homemade($slug);
-                    ?>
-                    <option value="<?php echo esc_attr($route); ?>" <?php selected($selected, $route); ?>>
-                        <?php echo esc_html($challenge->label()); ?>
-                    </option>
-                <?php endforeach; ?>
-            </optgroup>
-            <?php
+        if ($include_none) {
+            $options[] = ['value' => Routing::ROUTE_NONE, 'label' => __('None — no captcha here', 'lrob-email-toolkit')];
         }
-
+        $builtin_prefix = __('Built-in', 'lrob-email-toolkit');
+        foreach ($this->service->homemade_challenges() as $slug => $challenge) {
+            $options[] = [
+                'value' => Routing::homemade($slug),
+                'label' => sprintf('%s: %s', $builtin_prefix, (string) $challenge->label()),
+            ];
+        }
         $providers = $this->service->hosted_providers();
-        $identities_by_provider = $this->identities_grouped();
+        $by_provider = $this->identities_grouped();
         foreach ($providers as $slug => $provider) {
-            $rows = isset($identities_by_provider[$slug]) ? $identities_by_provider[$slug] : [];
-            ?>
-            <optgroup label="<?php echo esc_attr($provider->label()); ?>">
-                <?php if ($rows === []) : ?>
-                    <option value="" disabled>
-                        <?php
-                        /* translators: %s: provider label (e.g. hCaptcha) */
-                        printf(esc_html__('— Configure %s first —', 'lrob-email-toolkit'), esc_html($provider->label())); ?>
-                    </option>
-                <?php else :
-                    foreach ($rows as $identity) :
-                        $route = Routing::identity((int) $identity->id);
-                        $label = $identity->label !== '' ? $identity->label : $provider->label();
-                        ?>
-                        <option value="<?php echo esc_attr($route); ?>"
-                                <?php selected($selected, $route); ?>
-                                <?php disabled(!$identity->is_active); ?>>
-                            <?php echo esc_html($label);
-                            if (!$identity->is_active) {
-                                echo ' ' . esc_html__('(inactive)', 'lrob-email-toolkit');
-                            } ?>
-                        </option>
-                        <?php
-                    endforeach;
-                endif; ?>
-            </optgroup>
-            <?php
+            $rows = $by_provider[$slug] ?? [];
+            foreach ($rows as $identity) {
+                if (!$identity->is_active) {
+                    continue;
+                }
+                $name = $identity->label !== '' ? $identity->label : (string) $provider->label();
+                $options[] = [
+                    'value' => Routing::identity((int) $identity->id),
+                    'label' => sprintf('%s: %s', $provider->label(), $name),
+                ];
+            }
         }
+        return $options;
+    }
+
+    /**
+     * Resolve a route key to a human-readable label, used by the
+     * "Inherit default (X)" hint so admins see what they're inheriting.
+     * Returns an empty string for 'none' / 'inherit' / unresolvable routes.
+     */
+    private function resolve_route_label(string $route): string
+    {
+        if ($route === Routing::ROUTE_NONE || $route === Routing::ROUTE_INHERIT) {
+            return '';
+        }
+        $parsed = Routing::parse($route);
+        if ($parsed['kind'] === Routing::KIND_HOMEMADE) {
+            $homemade = $this->service->homemade_challenges();
+            $slug = $parsed['value'];
+            return isset($homemade[$slug]) ? (string) $homemade[$slug]->label() : '';
+        }
+        if ($parsed['kind'] === Routing::KIND_IDENTITY) {
+            $id = (int) $parsed['value'];
+            $providers = $this->service->hosted_providers();
+            foreach ($this->service->identity_repository()->all() as $identity) {
+                if ((int) $identity->id !== $id) {
+                    continue;
+                }
+                $provider = $providers[$identity->provider_slug] ?? null;
+                $type = $provider !== null ? (string) $provider->label() : $identity->provider_slug;
+                $name = $identity->label !== '' ? $identity->label : $type;
+                return sprintf('%s: %s', $type, $name);
+            }
+        }
+        return '';
     }
 
     /** @return array<string, array<int, Identity>> */
@@ -647,55 +692,6 @@ final class SettingsPage
             $grouped[$identity->provider_slug][] = $identity;
         }
         return $grouped;
-    }
-
-    /**
-     * Compact JSON dropped into the page wrapper's data-route-options so the
-     * JS can rebuild the routing selects after an identity is created/
-     * deleted without a full page reload.
-     *
-     * @param array<string, \LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface> $homemade
-     * @param array<string, ProviderInterface> $providers
-     * @param array<int, Identity>             $identities
-     * @return array<string, mixed>
-     */
-    private function route_options_for_js(array $homemade, array $providers, array $identities): array
-    {
-        $homemade_list = [];
-        foreach ($homemade as $slug => $challenge) {
-            $homemade_list[] = ['route' => Routing::homemade($slug), 'label' => $challenge->label()];
-        }
-        $provider_groups = [];
-        foreach ($providers as $slug => $provider) {
-            $provider_groups[] = ['slug' => $slug, 'label' => $provider->label(), 'identities' => []];
-        }
-        $by_slug = [];
-        foreach ($provider_groups as $i => $group) {
-            $by_slug[$group['slug']] = $i;
-        }
-        foreach ($identities as $identity) {
-            if (!isset($by_slug[$identity->provider_slug])) {
-                continue;
-            }
-            $idx = $by_slug[$identity->provider_slug];
-            $provider_groups[$idx]['identities'][] = [
-                'route'     => Routing::identity((int) $identity->id),
-                'label'     => $identity->label !== '' ? $identity->label : $providers[$identity->provider_slug]->label(),
-                'is_active' => $identity->is_active,
-            ];
-        }
-        return [
-            'inheritLabel'   => __('Inherit default', 'lrob-email-toolkit'),
-            'noneLabel'      => __('— None (not recommended) —', 'lrob-email-toolkit'),
-            'inactiveSuffix' => __('(inactive)', 'lrob-email-toolkit'),
-            /* translators: %s: provider label (e.g. hCaptcha) */
-            'configureFirst' => __('— Configure %s first —', 'lrob-email-toolkit'),
-            'homemadeLabel'  => __('Built-in challenges', 'lrob-email-toolkit'),
-            'homemade'       => $homemade_list,
-            'providers'      => array_values($provider_groups),
-            'inherit'        => Routing::ROUTE_INHERIT,
-            'none'           => Routing::ROUTE_NONE,
-        ];
     }
 
     private function print_inline_js(): void
@@ -722,7 +718,8 @@ final class SettingsPage
                 saveIdentity:   <?php echo wp_json_encode(AjaxController::ACTION_SAVE_IDENTITY); ?>,
                 deleteIdentity: <?php echo wp_json_encode(AjaxController::ACTION_DELETE_IDENTITY); ?>,
                 saveRouting:    <?php echo wp_json_encode(AjaxController::ACTION_SAVE_ROUTING); ?>,
-                testIdentity:   <?php echo wp_json_encode(AjaxController::ACTION_TEST_IDENTITY); ?>
+                testIdentity:   <?php echo wp_json_encode(AjaxController::ACTION_TEST_IDENTITY); ?>,
+                setDefault:     <?php echo wp_json_encode(AjaxController::ACTION_SET_DEFAULT); ?>
             },
             providerScripts: <?php echo wp_json_encode($provider_scripts); ?>,
             i18n: {
@@ -734,7 +731,10 @@ final class SettingsPage
                 previewUnsaved:  <?php echo wp_json_encode(__('Save your credentials to load the captcha widget here.', 'lrob-email-toolkit')); ?>,
                 testing:         <?php echo wp_json_encode(__('Verifying…', 'lrob-email-toolkit')); ?>,
                 testWorks:       <?php echo wp_json_encode(__('✓ Captcha works', 'lrob-email-toolkit')); ?>,
-                testFailed:      <?php echo wp_json_encode(__('✗ Verification failed', 'lrob-email-toolkit')); ?>
+                testFailed:      <?php echo wp_json_encode(__('✗ Verification failed', 'lrob-email-toolkit')); ?>,
+                /* translators: %s: human-readable label of the currently-default challenge (e.g. "Math challenge", "hCaptcha: Production") */
+                inheritLabelTemplate: <?php echo wp_json_encode(__('Inherit default (%s)', 'lrob-email-toolkit')); ?>,
+                inheritLabelEmpty:    <?php echo wp_json_encode(__('Inherit default (none — site-wide default is off)', 'lrob-email-toolkit')); ?>
             }
         };
         <?php

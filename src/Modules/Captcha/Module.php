@@ -116,6 +116,8 @@ final class Module extends AbstractModule
             // to the admin before they get a support ticket.
             add_action('admin_notices', [$this, 'render_broken_routes_notice']);
         }
+
+        (new WpHooks($service))->register();
     }
 
     /**
@@ -250,9 +252,20 @@ final class Module extends AbstractModule
             ? Routing::homemade('math')
             : Routing::homemade($legacy_active);
 
+        // Form contexts inherit the site default so freshly-created
+        // contact forms / newsletter subscribe forms get captcha out of
+        // the box. WP-form contexts (comments / lost-password /
+        // registration) start as 'none' so adding the WpHooks doesn't
+        // surprise the admin — they opt in explicitly per context.
+        $inherit_contexts = [
+            Routing::CONTEXT_CONTACT_FORM,
+            Routing::CONTEXT_NEWSLETTER,
+        ];
         $map = [Routing::KEY_DEFAULT => $default];
         foreach (Routing::known_contexts() as $context) {
-            $map[$context] = Routing::ROUTE_INHERIT;
+            $map[$context] = in_array($context, $inherit_contexts, true)
+                ? Routing::ROUTE_INHERIT
+                : Routing::ROUTE_NONE;
         }
         update_option(Routing::OPTION_CONTEXT_MAP, $map);
     }

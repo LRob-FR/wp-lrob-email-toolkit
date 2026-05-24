@@ -31,6 +31,8 @@ final class AjaxController
 
     public const ACTION_TEST_IDENTITY   = 'lrob_etk_captcha_test_identity';
 
+    public const ACTION_SET_DEFAULT     = 'lrob_etk_captcha_set_default';
+
     public function __construct(
         private CaptchaService $service,
         private IdentityRepository $identities,
@@ -43,6 +45,7 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_DELETE_IDENTITY, [$this, 'ajax_delete_identity']);
         add_action('wp_ajax_' . self::ACTION_SAVE_ROUTING,    [$this, 'ajax_save_routing']);
         add_action('wp_ajax_' . self::ACTION_TEST_IDENTITY,   [$this, 'ajax_test_identity']);
+        add_action('wp_ajax_' . self::ACTION_SET_DEFAULT,     [$this, 'ajax_set_default']);
     }
 
     /**
@@ -272,11 +275,16 @@ final class AjaxController
      */
     private function sanitize_route(string $route, string $key): string
     {
+        $is_default = $key === Routing::KEY_DEFAULT;
+        // The default row must always resolve to a real challenge: the
+        // UI doesn't offer "none" or "inherit" there, and a forged POST
+        // setting the default to either of those would silently turn
+        // captcha off site-wide. Force the math fallback.
         if ($route === Routing::ROUTE_NONE) {
-            return Routing::ROUTE_NONE;
+            return $is_default ? $this->default_fallback() : Routing::ROUTE_NONE;
         }
         if ($route === Routing::ROUTE_INHERIT) {
-            return $key === Routing::KEY_DEFAULT ? Routing::ROUTE_NONE : Routing::ROUTE_INHERIT;
+            return $is_default ? $this->default_fallback() : Routing::ROUTE_INHERIT;
         }
         $parsed = Routing::parse($route);
         if ($parsed['kind'] === Routing::KIND_HOMEMADE) {
@@ -291,9 +299,29 @@ final class AjaxController
                 return Routing::identity($id);
             }
         }
-        // Anything else (empty, malformed, unknown slug) gets normalised:
-        // per-context falls back to inherit; default falls back to none.
-        return $key === Routing::KEY_DEFAULT ? Routing::ROUTE_NONE : Routing::ROUTE_INHERIT;
+        return $is_default ? $this->default_fallback() : Routing::ROUTE_INHERIT;
+    }
+
+    public function ajax_set_default(): void
+    {
+        $this->guard();
+        $route = isset($_POST['route']) ? sanitize_text_field(wp_unslash((string) $_POST['route'])) : '';
+        $sanitized = $this->sanitize_route($route, Routing::KEY_DEFAULT);
+        if ($sanitized === Routing::ROUTE_NONE) {
+            wp_send_json_error(['message' => __('Invalid challenge.', 'lrob-email-toolkit')]);
+        }
+        Routing::set_default($sanitized);
+        wp_send_json_success(['route' => $sanitized]);
+    }
+
+    private function default_fallback(): string
+    {
+        $homemade = $this->service->homemade_challenges();
+        if (isset($homemade['math'])) {
+            return Routing::homemade('math');
+        }
+        $first = array_key_first($homemade);
+        return $first !== null ? Routing::homemade($first) : Routing::ROUTE_NONE;
     }
 
     private function guard(): void

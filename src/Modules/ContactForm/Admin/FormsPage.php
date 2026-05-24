@@ -826,10 +826,11 @@ final class FormsPage
             ['value' => CPT::CHALLENGE_NONE, 'label' => __('None', 'lrob-email-toolkit')],
         ];
         if ($captcha_service !== null) {
+            $builtin_prefix = __('Built-in', 'lrob-email-toolkit');
             foreach ($captcha_service->homemade_challenges() as $slug => $challenge) {
                 $challenge_options[] = [
                     'value' => \LRob\EmailToolkit\Modules\Captcha\Routing::homemade($slug),
-                    'label' => $challenge->label(),
+                    'label' => sprintf('%s: %s', $builtin_prefix, (string) $challenge->label()),
                 ];
             }
             $by_provider = [];
@@ -842,10 +843,10 @@ final class FormsPage
                     if (!$identity->is_active) {
                         continue;
                     }
-                    $label = $identity->label !== '' ? $identity->label : $provider->label();
+                    $name = $identity->label !== '' ? $identity->label : (string) $provider->label();
                     $challenge_options[] = [
                         'value' => \LRob\EmailToolkit\Modules\Captcha\Routing::identity((int) $identity->id),
-                        'label' => $provider->label() . ' · ' . $label,
+                        'label' => sprintf('%s: %s', $provider->label(), $name),
                     ];
                 }
             }
