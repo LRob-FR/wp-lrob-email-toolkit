@@ -721,6 +721,13 @@ final class SettingsPage
                 testIdentity:   <?php echo wp_json_encode(AjaxController::ACTION_TEST_IDENTITY); ?>,
                 setDefault:     <?php echo wp_json_encode(AjaxController::ACTION_SET_DEFAULT); ?>
             },
+            // Per-action nonces for destructive endpoints (defense in
+            // depth on top of the module nonce + capability gate).
+            actionNonces: {
+                deleteIdentity: <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_DELETE_IDENTITY)); ?>,
+                saveRouting:    <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_SAVE_ROUTING)); ?>,
+                setDefault:     <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_SET_DEFAULT)); ?>
+            },
             providerScripts: <?php echo wp_json_encode($provider_scripts); ?>,
             i18n: {
                 saving:          <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,

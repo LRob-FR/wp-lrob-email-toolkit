@@ -470,7 +470,24 @@
     }
 
     // --- Utilities ---
+    // Reverse map of action string → per-action nonce for destructive
+    // operations (delete identity, save routing, set default). When
+    // request() sees one of these as the FormData's `action`, it appends
+    // `_action_nonce` automatically — callers don't have to know.
+    var actionNonceMap = (function () {
+        var map = {};
+        var nonces = CFG.actionNonces || {};
+        Object.keys(nonces).forEach(function (key) {
+            if (CFG.actions[key]) map[CFG.actions[key]] = nonces[key];
+        });
+        return map;
+    })();
+
     function request(formData) {
+        var action = formData.get('action');
+        if (action && actionNonceMap[action]) {
+            formData.append('_action_nonce', actionNonceMap[action]);
+        }
         return fetch(CFG.ajaxUrl, {
             method: 'POST',
             credentials: 'same-origin',

@@ -162,9 +162,11 @@ final class AjaxController
             $errors['reply_to_email'] = __('Reply-to is not a valid email address.', 'lrob-email-toolkit');
         }
 
-        $force_from = !empty($_POST['force_from']);
+        $override_mode = Identity::normalize_override_mode(
+            isset($_POST['override_mode']) ? wp_unslash((string) $_POST['override_mode']) : Identity::OVERRIDE_WHEN_DEFAULT
+        );
         $is_default = !empty($_POST['is_default']);
-        $is_active = !isset($_POST['is_active']) || !empty($_POST['is_active']);
+        $is_active = !empty($_POST['is_active']);
 
         if ($errors !== []) {
             wp_send_json_error(['fields' => $errors, 'message' => __('Please fix the highlighted fields.', 'lrob-email-toolkit')]);
@@ -186,7 +188,7 @@ final class AjaxController
             smtp_username: $smtp_username,
             smtp_password_encrypted: $existing_ciphertext,
             smtp_auth: $smtp_auth,
-            force_from: $force_from,
+            override_mode: $override_mode,
             reply_to_email: $reply_to_email,
             is_default: $is_default,
             is_active: $is_active,
@@ -209,6 +211,7 @@ final class AjaxController
     public function ajax_delete(): void
     {
         $this->guard();
+        $this->guard_action(self::ACTION_DELETE);
         $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
         if ($id <= 0) {
             wp_send_json_error(['message' => __('Invalid identity.', 'lrob-email-toolkit')]);
@@ -220,6 +223,7 @@ final class AjaxController
     public function ajax_set_default(): void
     {
         $this->guard();
+        $this->guard_action(self::ACTION_SET_DEFAULT);
         $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
         if ($id <= 0) {
             wp_send_json_error(['message' => __('Invalid identity.', 'lrob-email-toolkit')]);
@@ -276,7 +280,7 @@ final class AjaxController
             smtp_username: $smtp_username,
             smtp_password_encrypted: $ciphertext,
             smtp_auth: $smtp_auth,
-            force_from: false,
+            override_mode: Identity::OVERRIDE_NEVER,
             reply_to_email: null,
             is_default: false,
             is_active: true,
@@ -340,6 +344,7 @@ final class AjaxController
     public function ajax_save_routing(): void
     {
         $this->guard();
+        $this->guard_action(self::ACTION_SAVE_ROUTING);
 
         $submitted = isset($_POST['routing']) && is_array($_POST['routing'])
             ? wp_unslash($_POST['routing'])
@@ -357,6 +362,21 @@ final class AjaxController
         $this->routing->save($clean);
 
         wp_send_json_success(['message' => __('Routing rules saved.', 'lrob-email-toolkit')]);
+    }
+
+    /**
+     * Verify a per-action nonce. Layered on top of the module-wide
+     * `_nonce` check that guard() performs — destructive endpoints
+     * (delete identity, set default, save routing) require this
+     * additional gate so a nonce stolen from a non-destructive form
+     * can't be replayed against them.
+     */
+    private function guard_action(string $action): void
+    {
+        $nonce = isset($_POST['_action_nonce']) ? (string) $_POST['_action_nonce'] : '';
+        if (!wp_verify_nonce($nonce, $action)) {
+            wp_send_json_error(['message' => __('Security check failed. Please reload and retry.', 'lrob-email-toolkit')], 403);
+        }
     }
 
     private function guard(): void

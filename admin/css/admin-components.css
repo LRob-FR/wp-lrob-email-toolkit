@@ -172,17 +172,6 @@
     box-shadow: 0 0 0 2px var(--etk-accent);
 }
 
-.lrob-etk-toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 10px;
-}
-.lrob-etk-switch-label {
-    font-weight: 500;
-    color: var(--etk-fg);
-}
-
 /* ---------- Modal ---------- */
 
 body.lrob-etk-modal-open {
@@ -880,6 +869,7 @@ body.lrob-etk-modal-open {
     opacity: 0;
     transition: max-width 0.3s ease, padding 0.3s ease, opacity 0.25s ease;
 }
+.lrob-etk-card-status.is-dirty,
 .lrob-etk-card-status.is-saving,
 .lrob-etk-card-status.is-saved,
 .lrob-etk-card-status.is-failed {
@@ -889,6 +879,11 @@ body.lrob-etk-modal-open {
     max-width: 200px;
     padding: 2px 8px;
     opacity: 1;
+}
+.lrob-etk-card-status.is-dirty {
+    background: var(--etk-soft);
+    color: var(--etk-muted);
+    font-style: italic;
 }
 .lrob-etk-card-status.is-saving {
     background: var(--etk-soft);

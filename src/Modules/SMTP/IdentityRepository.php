@@ -111,13 +111,13 @@ final class IdentityRepository
             'smtp_username'           => $identity->smtp_username,
             'smtp_password_encrypted' => $ciphertext,
             'smtp_auth'               => $identity->smtp_auth ? 1 : 0,
-            'force_from'              => $identity->force_from ? 1 : 0,
+            'override_mode'           => $identity->override_mode,
             'reply_to_email'          => $identity->reply_to_email,
             'is_default'              => $identity->is_default ? 1 : 0,
             'is_active'               => $identity->is_active ? 1 : 0,
             'updated_at'              => $now,
         ];
-        $formats = ['%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%s'];
+        $formats = ['%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%s'];
 
         if ($identity->id === null) {
             $data['created_at'] = $now;

@@ -14,11 +14,6 @@ final class Schema
 {
     public const TABLE = 'lrob_etk_identities';
 
-    /** Schema version. Bump on any column change so install() can migrate. */
-    private const SCHEMA_VERSION = '2';
-
-    private const VERSION_OPTION = 'lrob_etk_smtp_db_version';
-
     public static function table_name(): string
     {
         global $wpdb;
@@ -28,11 +23,6 @@ final class Schema
     public static function install(): void
     {
         global $wpdb;
-
-        $installed = get_option(self::VERSION_OPTION);
-        if ($installed === self::SCHEMA_VERSION) {
-            return;
-        }
 
         $table = self::table_name();
         $charset_collate = $wpdb->get_charset_collate();
@@ -51,7 +41,7 @@ final class Schema
             smtp_username varchar(190) NOT NULL DEFAULT '',
             smtp_password_encrypted text NOT NULL,
             smtp_auth tinyint(1) NOT NULL DEFAULT 1,
-            force_from tinyint(1) NOT NULL DEFAULT 1,
+            override_mode varchar(20) NOT NULL DEFAULT 'when_default',
             reply_to_email varchar(190) DEFAULT NULL,
             is_default tinyint(1) NOT NULL DEFAULT 0,
             is_active tinyint(1) NOT NULL DEFAULT 1,
@@ -66,7 +56,19 @@ final class Schema
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 
-        update_option(self::VERSION_OPTION, self::SCHEMA_VERSION);
+        // v2 → v3 migration: replace the force_from bool with a 3-state
+        // override_mode column. dbDelta added override_mode above but
+        // won't drop force_from; do that explicitly + carry old values
+        // across. Idempotent — the column-exists check makes re-runs safe.
+        $has_force_from = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'force_from'",
+            $table
+        ));
+        if ($has_force_from > 0) {
+            $wpdb->query("UPDATE `$table` SET override_mode = CASE force_from WHEN 1 THEN 'always' ELSE 'never' END");
+            $wpdb->query("ALTER TABLE `$table` DROP COLUMN force_from");
+        }
     }
 
     public static function drop(): void
@@ -74,6 +76,5 @@ final class Schema
         global $wpdb;
         $table = self::table_name();
         $wpdb->query("DROP TABLE IF EXISTS `$table`");
-        delete_option(self::VERSION_OPTION);
     }
 }

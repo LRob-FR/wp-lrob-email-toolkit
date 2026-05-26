@@ -99,7 +99,8 @@ final class ConstantOverrides
     {
         return match ($field) {
             'smtp_port'               => (int) $value,
-            'smtp_auth', 'force_from' => (bool) $value,
+            'smtp_auth'               => (bool) $value,
+            'override_mode'           => Identity::normalize_override_mode($value),
             'smtp_password_encrypted' => Encryption::encrypt((string) $value),
             default                   => (string) $value,
         };

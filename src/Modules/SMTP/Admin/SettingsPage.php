@@ -122,7 +122,7 @@ final class SettingsPage
             'smtp_encryption' => $identity?->smtp_encryption ?? Identity::ENCRYPTION_SSL,
             'smtp_username'   => $identity?->smtp_username ?? '',
             'smtp_auth'       => $identity ? $identity->smtp_auth : true,
-            'force_from'      => $identity ? $identity->force_from : true,
+            'override_mode'   => $identity ? $identity->override_mode : Identity::OVERRIDE_WHEN_DEFAULT,
             'reply_to_email'  => $identity?->reply_to_email ?? '',
             'is_default'      => $identity?->is_default ?? false,
             'is_active'       => $identity ? $identity->is_active : true,
@@ -341,13 +341,24 @@ final class SettingsPage
                 <?php Tooltip::render(__('The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used.', 'lrob-email-toolkit')); ?>
             </h3>
 
-            <div class="lrob-etk-toggle-row lrob-etk-force-row">
-                <label class="lrob-etk-switch">
-                    <input type="checkbox" name="force_from" class="lrob-etk-field-force-from" value="1" <?php checked($f['force_from']); ?>>
-                    <span class="lrob-etk-switch-track"></span>
+            <div class="lrob-etk-field lrob-etk-override-row">
+                <label>
+                    <?php esc_html_e('Override other apps\' sender', 'lrob-email-toolkit'); ?>
+                    <?php Tooltip::render(__('Decides how aggressively this identity wins against a From address set by another plugin (WooCommerce, contact forms, etc.). "Only when none is set" leaves explicit choices alone but kicks in on emails that didn\'t pick a sender themselves.', 'lrob-email-toolkit')); ?>
                 </label>
-                <span class="lrob-etk-switch-label"><?php esc_html_e('Force "From" on every outgoing email', 'lrob-email-toolkit'); ?></span>
-                <?php Tooltip::render(__('When on, overrides the From address even when other plugins try to set their own.', 'lrob-email-toolkit')); ?>
+                <?php
+                \LRob\EmailToolkit\Admin\Combobox::render_fixed_select(
+                    'override_mode',
+                    $f['override_mode'],
+                    [
+                        ['value' => Identity::OVERRIDE_ALWAYS,       'label' => __('Always override', 'lrob-email-toolkit')],
+                        ['value' => Identity::OVERRIDE_WHEN_DEFAULT, 'label' => __('Only when no sender is set', 'lrob-email-toolkit')],
+                        ['value' => Identity::OVERRIDE_NEVER,        'label' => __('Never override', 'lrob-email-toolkit')],
+                    ],
+                    '',
+                    ''
+                );
+                ?>
             </div>
 
             <div class="lrob-etk-from-grid">
@@ -545,7 +556,7 @@ final class SettingsPage
                 'smtp_encryption' => $identity->smtp_encryption,
                 'smtp_username'   => $identity->smtp_username,
                 'smtp_auth'       => $identity->smtp_auth,
-                'force_from'      => $identity->force_from,
+                'override_mode'   => $identity->override_mode,
                 'reply_to_email'  => $identity->reply_to_email,
                 'is_default'      => $identity->is_default,
                 'is_active'       => $identity->is_active,
@@ -565,6 +576,13 @@ final class SettingsPage
                 checkHost:   <?php echo wp_json_encode(AjaxController::ACTION_CHECK_HOST); ?>,
                 lookupMx:    <?php echo wp_json_encode(AjaxController::ACTION_LOOKUP_MX); ?>
             },
+            // Per-action nonces for destructive operations. Defense in
+            // depth on top of the module-wide nonce + capability gate.
+            actionNonces: {
+                delete:      <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_DELETE)); ?>,
+                setDefault:  <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_SET_DEFAULT)); ?>,
+                saveRouting: <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_SAVE_ROUTING)); ?>
+            },
             identities: <?php echo wp_json_encode($data); ?>,
             siteTitle: <?php echo wp_json_encode(get_bloginfo('name')); ?>,
             i18n: {
@@ -572,6 +590,7 @@ final class SettingsPage
                     /* translators: %s: the SMTP identity's display name */
                     echo wp_json_encode(__('Delete the identity "%s"?', 'lrob-email-toolkit'));
                 ?>,
+                dirty:            <?php echo wp_json_encode(__('Unsaved changes', 'lrob-email-toolkit')); ?>,
                 saving:           <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
                 saved:            <?php echo wp_json_encode(__('Saved', 'lrob-email-toolkit')); ?>,
                 saveFailed:       <?php echo wp_json_encode(__('Save failed', 'lrob-email-toolkit')); ?>,
@@ -606,10 +625,23 @@ final class SettingsPage
         return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').substring(0, 50);
     }
 
+    // Reverse-map of action string → per-action nonce, populated once
+    // from S.actions + S.actionNonces. Sent as `_action_nonce` alongside
+    // the module nonce on destructive operations.
+    var actionNonceMap = (function () {
+        var map = {};
+        var nonces = S.actionNonces || {};
+        Object.keys(nonces).forEach(function (key) {
+            if (S.actions[key]) map[S.actions[key]] = nonces[key];
+        });
+        return map;
+    })();
+
     function ajax(action, params) {
         var fd = new FormData();
         fd.append('action', action);
         fd.append('_nonce', S.nonce);
+        if (actionNonceMap[action]) fd.append('_action_nonce', actionNonceMap[action]);
         Object.keys(params || {}).forEach(function (k) {
             var v = params[k];
             if (v === undefined || v === null) return;
@@ -787,8 +819,9 @@ final class SettingsPage
         card._lastMxDomain = domain;
         ajax(S.actions.lookupMx, { domain: domain }).then(function (resp) {
             if (resp.success && resp.data.hosts && resp.data.hosts.length > 0) {
+                // Stash for the host combobox's populate() — picked up next
+                // time the admin opens the dropdown (see suggestionsFor).
                 card._mxHost = resp.data.hosts[0];
-                updateHostSuggestions(card);
             }
         });
     }
@@ -869,23 +902,57 @@ final class SettingsPage
         $$('input[type="radio"], input[type="checkbox"]', card).forEach(function (input) {
             input.addEventListener('change', function () { queueSave(card, 0); });
         });
+        // Combobox dispatches a bubbling `change` on its hidden
+        // .lrob-etk-combo-value when the admin picks an option; pick it
+        // up so override_mode (and any future Combobox-driven field)
+        // auto-saves like a native input.
+        $$('.lrob-etk-combo-value', card).forEach(function (input) {
+            input.addEventListener('change', function () { queueSave(card, 0); });
+        });
     }
 
+    // Auto-save state machine. Each card carries:
+    //   _saveState        — idle | dirty | saving | saved | failed
+    //   _saveTimer        — pending debounce timeout id
+    //   _saveInFlight     — Promise of the in-flight save (or null)
+    //   _dirtyDuringFlight— bool set when input fires while a save is mid-air
+    //
+    // Race semantics: at most one fetch in flight; edits made during a save
+    // flip the dirty-during-flight flag, and a fresh save is re-scheduled
+    // as soon as the current one settles. flushSave() returns the in-flight
+    // Promise so callers (close, navigate-away) can await a clean settle.
     function queueSave(card, delay) {
         if (card.getAttribute('data-state') === 'new') return;
+        if (card._saveInFlight) {
+            card._dirtyDuringFlight = true;
+            setStatus(card, 'dirty', S.i18n.dirty);
+            return;
+        }
         if (card._saveTimer) clearTimeout(card._saveTimer);
-        card._saveTimer = setTimeout(function () { saveCard(card); }, delay || 0);
+        setStatus(card, 'dirty', S.i18n.dirty);
+        // Null the timer id from inside the callback so flushSave() (called
+        // on blur) doesn't see a stale positive integer and re-fire saveCard
+        // after the debounce already triggered it.
+        card._saveTimer = setTimeout(function () {
+            card._saveTimer = null;
+            saveCard(card);
+        }, delay || 0);
     }
 
     function flushSave(card) {
         if (card._saveTimer) {
             clearTimeout(card._saveTimer);
             card._saveTimer = null;
-            saveCard(card);
+            return saveCard(card);
         }
+        return card._saveInFlight || Promise.resolve();
     }
 
     function saveCard(card) {
+        if (card._saveInFlight) {
+            card._dirtyDuringFlight = true;
+            return card._saveInFlight;
+        }
         var fd = new FormData(card.querySelector('.lrob-etk-card-form'));
         fd.append('action', S.actions.save);
         fd.append('_nonce', S.nonce);
@@ -898,7 +965,7 @@ final class SettingsPage
         setStatus(card, 'saving', S.i18n.saving);
         var errBox = card.querySelector('.lrob-etk-card-error'); errBox.hidden = true;
 
-        return fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+        card._saveInFlight = fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
             .then(function (r) { return r.json(); })
             .then(function (resp) {
                 if (resp.success) {
@@ -926,7 +993,18 @@ final class SettingsPage
                 setStatus(card, 'failed', S.i18n.saveFailed);
                 errBox.hidden = false;
                 errBox.textContent = S.i18n.unknownError;
+            })
+            .then(function () {
+                card._saveInFlight = null;
+                // Edits piled up while the save was in flight — re-fire now
+                // so the latest values land. No queue: one extra save handles
+                // however many keystrokes happened during the round-trip.
+                if (card._dirtyDuringFlight) {
+                    card._dirtyDuringFlight = false;
+                    queueSave(card, 0);
+                }
             });
+        return card._saveInFlight;
     }
 
     // ---------------- Card actions ----------------
@@ -938,7 +1016,9 @@ final class SettingsPage
         var action = btn.getAttribute('data-action');
 
         if (action === 'create') {
-            card.setAttribute('data-state', 'existing-pending');
+            // Keep data-state='new' until saveCard's success branch flips
+            // it. The post-save reload check reads data-state to decide
+            // whether this was a fresh row that needs a page refresh.
             saveCard(card);
         } else if (action === 'discard') {
             card.parentNode.removeChild(card);

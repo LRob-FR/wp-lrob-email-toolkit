@@ -207,6 +207,7 @@ final class AjaxController
     public function ajax_delete_identity(): void
     {
         $this->guard();
+        $this->guard_action(self::ACTION_DELETE_IDENTITY);
 
         $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
         if ($id <= 0) {
@@ -242,6 +243,7 @@ final class AjaxController
     public function ajax_save_routing(): void
     {
         $this->guard();
+        $this->guard_action(self::ACTION_SAVE_ROUTING);
 
         $submitted = isset($_POST['routing']) && is_array($_POST['routing'])
             ? wp_unslash($_POST['routing'])
@@ -305,6 +307,7 @@ final class AjaxController
     public function ajax_set_default(): void
     {
         $this->guard();
+        $this->guard_action(self::ACTION_SET_DEFAULT);
         $route = isset($_POST['route']) ? sanitize_text_field(wp_unslash((string) $_POST['route'])) : '';
         $sanitized = $this->sanitize_route($route, Routing::KEY_DEFAULT);
         if ($sanitized === Routing::ROUTE_NONE) {
@@ -330,6 +333,20 @@ final class AjaxController
             wp_send_json_error(['message' => __('Insufficient permissions.', 'lrob-email-toolkit')], 403);
         }
         check_ajax_referer(self::NONCE_ACTION, '_nonce');
+    }
+
+    /**
+     * Extra per-action nonce check for destructive endpoints (delete
+     * identity, save routing, set default). Layered on top of guard()'s
+     * module-wide nonce so a nonce stolen from a non-destructive form
+     * can't be replayed against them.
+     */
+    private function guard_action(string $action): void
+    {
+        $nonce = isset($_POST['_action_nonce']) ? (string) $_POST['_action_nonce'] : '';
+        if (!wp_verify_nonce($nonce, $action)) {
+            wp_send_json_error(['message' => __('Security check failed. Please reload and retry.', 'lrob-email-toolkit')], 403);
+        }
     }
 
     private function post_str(string $key, string $default = ''): string

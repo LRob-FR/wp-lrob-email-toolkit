@@ -269,10 +269,11 @@
     margin: 8px 0 24px;
 }
 
-/* ---------- From section: Force row + 3-col grid ---------- */
+/* ---------- From section: Override row + 3-col grid ---------- */
 
-.lrob-etk-from-section .lrob-etk-force-row {
+.lrob-etk-from-section .lrob-etk-override-row {
     margin: 0 0 12px;
+    max-width: 360px;
 }
 .lrob-etk-from-grid {
     display: grid;

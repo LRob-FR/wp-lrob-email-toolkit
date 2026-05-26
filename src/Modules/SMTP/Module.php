@@ -47,6 +47,25 @@ final class Module extends AbstractModule
         return '0.0.1';
     }
 
+    /**
+     * Schema version. AbstractModule's maybe_migrate writes this to the
+     * `lrob_etk_smtp_db_version` option — same option Schema used to
+     * track internally. Without this override, maybe_migrate would
+     * silently overwrite Schema's '2' / '3' string with int(1) and
+     * skip future migrations.
+     */
+    public function db_version_int(): int
+    {
+        return 3;
+    }
+
+    /** Forward every migration to install() — Schema::install handles each transition idempotently. */
+    public function migrate(int $from_version, int $to_version): void
+    {
+        unset($from_version, $to_version);
+        $this->install();
+    }
+
     public function install(): void
     {
         Schema::install();

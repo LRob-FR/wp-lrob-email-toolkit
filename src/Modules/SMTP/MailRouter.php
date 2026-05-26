@@ -30,6 +30,13 @@ final class MailRouter
     /** When set, overrides routing for the very next wp_mail() resolution. */
     private ?string $forced_identity_slug = null;
 
+    /**
+     * Set by the `wp_mail` filter before the per-call filters run — tells
+     * us whether the caller passed an explicit `From:` header. Drives
+     * OVERRIDE_WHEN_DEFAULT behaviour. Reset on each wp_mail invocation.
+     */
+    private bool $caller_set_from = false;
+
     public function __construct(
         private IdentityRepository $identities,
         private RoutingRules $routing,
@@ -40,6 +47,11 @@ final class MailRouter
 
     public function register(): void
     {
+        // wp_mail filter fires first and gives us $args['headers'] —
+        // sniff for a caller-set `From:` header so OVERRIDE_WHEN_DEFAULT
+        // can decide whether to step in. Filter is invoked even when the
+        // caller passes no headers; we just store false then.
+        add_filter('wp_mail', [$this, 'capture_caller_from'], 1);
         add_action('phpmailer_init', [$this, 'configure_mailer'], 9);
         add_filter('wp_mail_from', [$this, 'override_from_email'], 9);
         add_filter('wp_mail_from_name', [$this, 'override_from_name'], 9);
@@ -87,7 +99,12 @@ final class MailRouter
                 $mailer->Password = $identity->decrypted_password();
             }
             $mailer->SMTPSecure = $identity->smtp_encryption;
-            $mailer->setFrom($identity->effective_from_email(), $identity->effective_from_name(), false);
+            // Same override-mode gate as the wp_mail_from filter pair below.
+            // Without this, configure_mailer's setFrom would stomp anything
+            // the caller set, regardless of the override_mode the admin chose.
+            if ($this->should_override_sender($identity)) {
+                $mailer->setFrom($identity->effective_from_email(), $identity->effective_from_name(), false);
+            }
 
             if ($identity->reply_to_email !== null && $identity->reply_to_email !== '') {
                 $mailer->addReplyTo($identity->reply_to_email);
@@ -108,7 +125,7 @@ final class MailRouter
     public function override_from_email(string $email): string
     {
         $identity = $this->resolve_identity();
-        if ($identity instanceof Identity && $identity->force_from) {
+        if ($identity instanceof Identity && $this->should_override_sender($identity)) {
             $resolved = $identity->effective_from_email();
             if ($resolved !== '') {
                 return $resolved;
@@ -120,7 +137,7 @@ final class MailRouter
     public function override_from_name(string $name): string
     {
         $identity = $this->resolve_identity();
-        if ($identity instanceof Identity && $identity->force_from) {
+        if ($identity instanceof Identity && $this->should_override_sender($identity)) {
             $resolved = $identity->effective_from_name();
             if ($resolved !== '') {
                 return $resolved;
@@ -220,5 +237,52 @@ final class MailRouter
     {
         $this->current_identity = null;
         $this->current_resolved = false;
+        $this->caller_set_from = false;
+    }
+
+    /**
+     * Walk the wp_mail $args['headers'] looking for a `From:` line. Lets
+     * OVERRIDE_WHEN_DEFAULT distinguish "caller wanted a specific sender"
+     * from "caller didn't care, WordPress filled in wordpress@hostname".
+     *
+     * @param array<string, mixed> $args
+     * @return array<string, mixed>
+     */
+    public function capture_caller_from(array $args): array
+    {
+        $headers = $args['headers'] ?? '';
+        if (is_string($headers)) {
+            $headers = $headers === '' ? [] : explode("\n", str_replace("\r\n", "\n", $headers));
+        }
+        $this->caller_set_from = false;
+        if (is_array($headers)) {
+            foreach ($headers as $line) {
+                if (is_string($line) && stripos(ltrim($line), 'from:') === 0) {
+                    $this->caller_set_from = true;
+                    break;
+                }
+            }
+        }
+        return $args;
+    }
+
+    /**
+     * Per-identity override gate. Three modes:
+     *  - never        — keep the caller's value (or WP default).
+     *  - when_default — keep the caller's value only if they explicitly
+     *                   set one; otherwise step in.
+     *  - always       — step in unconditionally.
+     */
+    private function should_override_sender(Identity $identity): bool
+    {
+        $mode = $identity->override_mode;
+        if ($mode === Identity::OVERRIDE_NEVER) {
+            return false;
+        }
+        if ($mode === Identity::OVERRIDE_ALWAYS) {
+            return true;
+        }
+        // OVERRIDE_WHEN_DEFAULT — only step in when the caller didn't.
+        return !$this->caller_set_from;
     }
 }

@@ -27,6 +27,24 @@ final class Identity
 
     public const TRANSPORT_MAIL = 'mail';
 
+    /**
+     * Override-mode tiers. Decides how aggressively this identity wins
+     * against a third-party-set From / Reply-To / sender.
+     *  - OVERRIDE_NEVER         — never override; let the caller's value pass.
+     *  - OVERRIDE_WHEN_DEFAULT  — override only when the caller didn't set a
+     *                             From: header explicitly. WordPress's
+     *                             auto-generated `wordpress@hostname` counts
+     *                             as "no caller-set From", so this is the
+     *                             pragmatic middle ground.
+     *  - OVERRIDE_ALWAYS        — always override (matches the legacy
+     *                             force_from=true behaviour).
+     */
+    public const OVERRIDE_NEVER         = 'never';
+
+    public const OVERRIDE_WHEN_DEFAULT  = 'when_default';
+
+    public const OVERRIDE_ALWAYS        = 'always';
+
     public function __construct(
         public readonly ?int $id,
         public readonly string $slug,
@@ -40,13 +58,28 @@ final class Identity
         public readonly string $smtp_username,
         public readonly string $smtp_password_encrypted,
         public readonly bool $smtp_auth,
-        public readonly bool $force_from,
+        public readonly string $override_mode,
         public readonly ?string $reply_to_email,
         public readonly bool $is_default,
         public readonly bool $is_active,
         public readonly ?\DateTimeImmutable $created_at = null,
         public readonly ?\DateTimeImmutable $updated_at = null,
     ) {
+    }
+
+    /** True when this identity overrides third-party senders at all. Back-compat shim. */
+    public function force_from(): bool
+    {
+        return $this->override_mode !== self::OVERRIDE_NEVER;
+    }
+
+    /** Returns one of the OVERRIDE_* constants, coerced if the row stored an unknown value. */
+    public static function normalize_override_mode(mixed $value): string
+    {
+        $value = is_string($value) ? $value : '';
+        return in_array($value, [self::OVERRIDE_NEVER, self::OVERRIDE_WHEN_DEFAULT, self::OVERRIDE_ALWAYS], true)
+            ? $value
+            : self::OVERRIDE_ALWAYS;
     }
 
     /** True when this identity uses PHP's native mail() transport (no SMTP server). */
@@ -79,7 +112,11 @@ final class Identity
             smtp_username: (string) ($row['smtp_username'] ?? ''),
             smtp_password_encrypted: (string) ($row['smtp_password_encrypted'] ?? ''),
             smtp_auth: !empty($row['smtp_auth']),
-            force_from: !empty($row['force_from']),
+            // Pre-v3 rows store force_from (tinyint); v3+ rows store override_mode.
+            // Accept either so old in-memory rows / serialized backups still load.
+            override_mode: isset($row['override_mode'])
+                ? self::normalize_override_mode($row['override_mode'])
+                : (!empty($row['force_from']) ? self::OVERRIDE_ALWAYS : self::OVERRIDE_NEVER),
             reply_to_email: isset($row['reply_to_email']) && $row['reply_to_email'] !== ''
                 ? (string) $row['reply_to_email']
                 : null,
@@ -169,7 +206,7 @@ final class Identity
             smtp_username: $merged['smtp_username'],
             smtp_password_encrypted: $merged['smtp_password_encrypted'],
             smtp_auth: $merged['smtp_auth'],
-            force_from: $merged['force_from'],
+            override_mode: $merged['override_mode'],
             reply_to_email: $merged['reply_to_email'],
             is_default: $merged['is_default'],
             is_active: $merged['is_active'],
@@ -194,7 +231,7 @@ final class Identity
             'smtp_username'           => $this->smtp_username,
             'smtp_password_encrypted' => $this->smtp_password_encrypted,
             'smtp_auth'               => $this->smtp_auth,
-            'force_from'              => $this->force_from,
+            'override_mode'           => $this->override_mode,
             'reply_to_email'          => $this->reply_to_email,
             'is_default'              => $this->is_default,
             'is_active'               => $this->is_active,
