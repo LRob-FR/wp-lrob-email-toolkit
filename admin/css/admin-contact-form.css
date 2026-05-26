@@ -1921,3 +1921,11 @@
     flex-wrap: wrap;
     gap: 8px;
 }
+
+/* Country default + auto-detect chips are only meaningful when the
+ * country-code picker is enabled — hide them otherwise so the strip
+ * doesn't carry orphaned settings. */
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:not([data-attr-country_picker="1"]) [data-inline-chip="country_default"],
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell:not([data-attr-country_picker="1"]) [data-inline-chip="country_auto_detect"] {
+    display: none;
+}

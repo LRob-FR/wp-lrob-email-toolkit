@@ -19,7 +19,18 @@
     --lrob-etk-cf-border:      var(--wp--preset--color--tertiary, #cbd5e1);
     --lrob-etk-cf-border-focus: var(--lrob-etk-cf-accent);
     --lrob-etk-cf-bg:          var(--wp--preset--color--base, #fff);
-    --lrob-etk-cf-fg:          var(--wp--preset--color--contrast, #0f172a);
+    /* Form root text (labels, helpers): inherit so the form follows
+     * whichever section it's dropped into. `--wp--preset--color--contrast`
+     * is a single FSE-wide value (not context-aware), so on a dark
+     * group/section it'd still resolve to the global contrast and clash. */
+    --lrob-etk-cf-fg:          inherit;
+    /* Input chrome text (tel/email/number/select/textarea + the phone
+     * picker): inputs carry their own --lrob-etk-cf-bg (typically light),
+     * so their text MUST be readable against that — not the page bg.
+     * `--wp--preset--color--contrast` is the right hook here: it's the
+     * theme's "text-on-light-content" choice. The "contrast" form preset
+     * overrides this for explicit high-contrast wanted. */
+    --lrob-etk-cf-input-fg:    var(--wp--preset--color--contrast, #0f172a);
     --lrob-etk-cf-muted:       #64748b;
     --lrob-etk-form-error:       #b91c1c;
     --lrob-etk-form-error-bg:    #fef2f2;
@@ -119,7 +130,7 @@
     appearance: none;
     -webkit-appearance: none;
     font: inherit;
-    color: inherit;
+    color: var(--lrob-etk-cf-input-fg);
     background: var(--lrob-etk-cf-bg);
     border: 1px solid var(--lrob-etk-cf-border);
     border-radius: var(--lrob-etk-cf-radius);
@@ -421,3 +432,129 @@
 .lrob-etk-form .lrob-etk-form-captcha-align.is-align-left   { align-items: flex-start; }
 .lrob-etk-form .lrob-etk-form-captcha-align.is-align-center { align-items: center; }
 .lrob-etk-form .lrob-etk-form-captcha-align.is-align-right  { align-items: flex-end; }
+
+/* --- Phone field: country code picker ------------------------------
+ * Composite widget: trigger button (flag + dial code + caret) glued to a
+ * tel input via a single rounded border. The whole assembly behaves like
+ * one form control. Opens a dropdown menu of countries with a search-as-
+ * you-type filter. Enabled when the field has data-country-picker on. */
+.lrob-etk-form .lrob-etk-form-phone {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    background: var(--lrob-etk-cf-bg);
+    color: var(--lrob-etk-cf-input-fg);
+    border: 1px solid var(--lrob-etk-cf-border);
+    border-radius: var(--lrob-etk-cf-radius);
+    overflow: visible; /* menu must spill out */
+    transition: border-color var(--lrob-etk-cf-trans), box-shadow var(--lrob-etk-cf-trans);
+}
+.lrob-etk-form .lrob-etk-form-phone:focus-within {
+    border-color: var(--lrob-etk-cf-border-focus);
+    box-shadow: var(--lrob-etk-cf-shadow-focus);
+}
+.lrob-etk-form .lrob-etk-form-phone-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 10px;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--lrob-etk-cf-border);
+    border-radius: var(--lrob-etk-cf-radius) 0 0 var(--lrob-etk-cf-radius);
+    cursor: pointer;
+    font: inherit;
+    color: var(--lrob-etk-cf-input-fg);
+    line-height: 1;
+}
+.lrob-etk-form .lrob-etk-form-phone-trigger:hover { background: color-mix(in srgb, currentColor 6%, transparent); }
+.lrob-etk-form .lrob-etk-form-phone-flag {
+    font-size: 18px;
+    line-height: 1;
+    /* Force-disable WP's emoji-img replacement on flags so the picker
+     * shows the OS-native flag glyph (not a low-res Twemoji PNG). */
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+.lrob-etk-form .lrob-etk-form-phone-dial {
+    font-size: 13px;
+    opacity: 0.8;
+}
+.lrob-etk-form .lrob-etk-form-phone-caret {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+}
+.lrob-etk-form .lrob-etk-form-phone input[type="tel"] {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+    padding: 8px 10px;
+    min-width: 0;
+    background: transparent;
+    color: var(--lrob-etk-cf-input-fg);
+    border-radius: 0 var(--lrob-etk-cf-radius) var(--lrob-etk-cf-radius) 0;
+}
+.lrob-etk-form .lrob-etk-form-phone-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 280px;
+    max-width: 360px;
+    max-height: 320px;
+    background: var(--lrob-etk-cf-bg);
+    color: var(--lrob-etk-cf-input-fg);
+    border: 1px solid var(--lrob-etk-cf-border);
+    border-radius: var(--lrob-etk-cf-radius);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+}
+.lrob-etk-form .lrob-etk-form-phone-menu[hidden] { display: none; }
+.lrob-etk-form .lrob-etk-form-phone-search {
+    border: 0;
+    border-bottom: 1px solid var(--lrob-etk-cf-border);
+    border-radius: var(--lrob-etk-cf-radius) var(--lrob-etk-cf-radius) 0 0;
+    padding: 8px 10px;
+    outline: 0;
+    font: inherit;
+    color: var(--lrob-etk-cf-input-fg);
+    background: transparent;
+    width: 100%;
+    box-sizing: border-box;
+}
+.lrob-etk-form .lrob-etk-form-phone-list {
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    flex: 1;
+}
+.lrob-etk-form .lrob-etk-form-phone-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+.lrob-etk-form .lrob-etk-form-phone-list li:hover,
+.lrob-etk-form .lrob-etk-form-phone-list li:focus {
+    background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.lrob-etk-form .lrob-etk-form-phone-list-flag {
+    font-size: 18px;
+    line-height: 1;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+.lrob-etk-form .lrob-etk-form-phone-list-name {
+    flex: 1;
+    color: var(--lrob-etk-cf-input-fg);
+}
+.lrob-etk-form .lrob-etk-form-phone-list-dial {
+    opacity: 0.65;
+    font-size: 12px;
+}

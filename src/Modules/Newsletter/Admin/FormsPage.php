@@ -7,10 +7,12 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 use LRob\EmailToolkit\Admin\Assets as SharedAssets;
 use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
+use LRob\EmailToolkit\Forms\CountryData;
 use LRob\EmailToolkit\Forms\FormEditorRenderer;
 use LRob\EmailToolkit\Forms\StylePresets;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
+use LRob\EmailToolkit\Modules\ContactForm\Frontend as ContactFormFrontend;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 use LRob\EmailToolkit\Modules\Newsletter\FormRepository;
 use LRob\EmailToolkit\Modules\Newsletter\FormTemplateRegistry;
@@ -69,6 +71,12 @@ final class FormsPage
             SharedAssets::asset_version_for('assets/css/contact-form.css')
         );
 
+        // Frontend form JS — gives the editor preview the phone country
+        // picker hydration (`window.lrobEtkPhone.attach`) and the country
+        // list (`window.lrobEtkForm.countries`). Submit handler is a no-op
+        // on the editor's <div> wrapper.
+        ContactFormFrontend::enqueue_assets();
+
         // Shared form-builder WYSIWYG editor — mounted on every card.
         // Depends on the hub-wide newsletter-admin.js for auto-save
         // status indicator flashing.
@@ -85,6 +93,7 @@ final class FormsPage
             'fieldTypes'         => self::field_types(),
             'captchaKey'         => FormCPT::META_CAPTCHA_ROUTE,
             'captchaOptions'     => SharedCaptchaField::build_editor_options(CaptchaRouting::CONTEXT_NEWSLETTER, $captcha_service),
+            'countries'          => CountryData::all_translated(),
             'placeholderPresets' => [],
             'i18n'               => self::editor_i18n(),
             'save'               => [
@@ -542,6 +551,11 @@ final class FormsPage
             'undo'              => __('Undo', 'lrob-email-toolkit'),
             'redo'              => __('Redo', 'lrob-email-toolkit'),
             'fieldLabel'        => __('Field', 'lrob-email-toolkit'),
+            'pattern'           => __('Regex pattern', 'lrob-email-toolkit'),
+            'countryPicker'     => __('Country code picker', 'lrob-email-toolkit'),
+            'defaultCountry'    => __('Default', 'lrob-email-toolkit'),
+            'autoDetectCountry' => __('Auto-detect from browser', 'lrob-email-toolkit'),
+            'autoFromLocale'    => __('Auto (locale)', 'lrob-email-toolkit'),
         ];
     }
 }

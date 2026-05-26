@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
+use LRob\EmailToolkit\Forms\CountryData;
+
 /**
  * Registers the frontend form CSS/JS. They are *registered* on
  * `wp_enqueue_scripts` but only actually *enqueued* by EmbedRenderer
@@ -44,13 +46,15 @@ final class Frontend
         );
 
         wp_localize_script(self::HANDLE_JS, 'lrobEtkForm', [
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'i18n'    => [
-                'sending'      => __('Sending…', 'lrob-email-toolkit'),
-                'unknownError' => __('Something went wrong. Please try again.', 'lrob-email-toolkit'),
-                'success'      => __('Thanks! Your message has been sent.', 'lrob-email-toolkit'),
-                'invalidEmail' => __('Please enter a valid email address.', 'lrob-email-toolkit'),
-                'required'     => __('This field is required.', 'lrob-email-toolkit'),
+            'ajaxUrl'   => admin_url('admin-ajax.php'),
+            'countries' => CountryData::all_translated(),
+            'i18n'      => [
+                'sending'       => __('Sending…', 'lrob-email-toolkit'),
+                'unknownError'  => __('Something went wrong. Please try again.', 'lrob-email-toolkit'),
+                'success'       => __('Thanks! Your message has been sent.', 'lrob-email-toolkit'),
+                'invalidEmail'  => __('Please enter a valid email address.', 'lrob-email-toolkit'),
+                'required'      => __('This field is required.', 'lrob-email-toolkit'),
+                'searchCountry' => __('Search country…', 'lrob-email-toolkit'),
             ],
         ]);
     }

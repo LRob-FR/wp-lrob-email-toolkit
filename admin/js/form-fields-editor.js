@@ -1180,6 +1180,21 @@
                 + '</span>'
                 + '</label>';
         }
+        function countryDefaultChipHtml(shell) {
+            var current = shell.getAttribute('data-attr-country_default') || '';
+            var label = EDITOR_I18N.defaultCountry || 'Default country';
+            return '<label class="lrob-etk-form-inline-chip" data-inline-chip="country_default">'
+                + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
+                + '<span class="lrob-etk-combo lrob-etk-form-inline-combo" data-country-combo>'
+                + '<input type="text" class="lrob-etk-combo-input" readonly autocomplete="off" placeholder="' + esc(EDITOR_I18N.autoFromLocale || 'Auto (from site locale)') + '">'
+                + '<input type="hidden" class="lrob-etk-combo-value" data-inline-prop="country_default" value="' + escAttr(current) + '">'
+                + '<button type="button" class="lrob-etk-combo-toggle" tabindex="-1" aria-label="' + esc(EDITOR_I18N.defaultCountry || 'Default country') + '">'
+                + '<span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>'
+                + '</button>'
+                + '<ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>'
+                + '</span>'
+                + '</label>';
+        }
         function typeSpecificInlineHtml(shell, type) {
             switch (type) {
                 case 'textarea':
@@ -1193,7 +1208,10 @@
                          + textChipHtml(shell, 'max',  EDITOR_I18N.max  || 'Max')
                          + textChipHtml(shell, 'step', EDITOR_I18N.step || 'Step');
                 case 'phone':
-                    return textChipHtml(shell, 'pattern', EDITOR_I18N.pattern || 'Regex pattern');
+                    return checkChipHtml(shell, 'country_picker', EDITOR_I18N.countryPicker || 'Country code picker')
+                         + countryDefaultChipHtml(shell)
+                         + checkChipHtml(shell, 'country_auto_detect', EDITOR_I18N.autoDetectCountry || 'Auto-detect from browser')
+                         + textChipHtml(shell, 'pattern', EDITOR_I18N.pattern || 'Regex pattern');
                 case 'date':
                     return textChipHtml(shell, 'min', EDITOR_I18N.min || 'Min')
                          + textChipHtml(shell, 'max', EDITOR_I18N.max || 'Max');
@@ -1226,6 +1244,41 @@
             // path (initial sync, new field, undo/redo). The controller
             // guards itself against double-binding via combo.__etkBound.
             bindPlaceholderCombo(shell);
+            bindCountryCombo(shell);
+        }
+        function bindCountryCombo(shell) {
+            var combo = shell.querySelector('.lrob-etk-form-inline-settings [data-country-combo]');
+            if (!combo || !window.lrobEtkControls || !window.lrobEtkControls.attachCombobox) return;
+            var countries = EDITOR_DATA.countries || [];
+            var autoLabel = EDITOR_I18N.autoFromLocale || 'Auto (from site locale)';
+            var options = [{ value: '', label: autoLabel }].concat(countries.map(function (c) {
+                return { value: c.iso, label: c.flag + ' ' + c.name + ' (+' + c.dial + ')' };
+            }));
+            window.lrobEtkControls.attachCombobox(combo, {
+                mode: 'select',
+                populate: function () { return options; },
+                getValue: function () {
+                    var h = combo.querySelector('.lrob-etk-combo-value');
+                    return h ? h.value : '';
+                },
+                setValue: function (value, label) {
+                    var input = combo.querySelector('.lrob-etk-combo-input');
+                    var hidden = combo.querySelector('.lrob-etk-combo-value');
+                    if (input) input.value = label || '';
+                    if (hidden) hidden.value = value;
+                    shell.setAttribute('data-attr-country_default', value);
+                    applyPhonePreview(shell);
+                    commitAndSave();
+                },
+            });
+            // Initial display sync: pick the label matching the stored value.
+            var stored = shell.getAttribute('data-attr-country_default') || '';
+            var match = null;
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].value === stored) { match = options[i]; break; }
+            }
+            var inputEl = combo.querySelector('.lrob-etk-combo-input');
+            if (inputEl) inputEl.value = match ? match.label : autoLabel;
         }
         function bindPlaceholderCombo(shell) {
             var combo = shell.querySelector('.lrob-etk-form-inline-settings [data-inline-combo]');
@@ -1296,6 +1349,9 @@
             if (key === 'multiple' || key === 'placeholder') {
                 applyOptionsToPreview(shell);
             }
+            if (key === 'country_picker' || key === 'country_auto_detect') {
+                applyPhonePreview(shell);
+            }
             queueSave();
         });
         // Segmented controls (submit alignment): click flips the active button.
@@ -1351,6 +1407,63 @@
          * below the select control. The select stays in the DOM so the
          * preview reads visually correct.
          */
+        // Swap the phone field's control between plain <input type="tel"> and
+        // the composite country picker so the editor preview matches what the
+        // visitor will see. Triggered whenever country_picker /
+        // country_default / country_auto_detect change.
+        function applyPhonePreview(shell) {
+            if (shell.getAttribute('data-field-type') !== 'phone') return;
+            var fieldWrap = shell.querySelector(':scope > .lrob-etk-form-field');
+            if (!fieldWrap) return;
+            var existing = fieldWrap.querySelector(':scope > .lrob-etk-form-phone, :scope > input[type="tel"]');
+            if (!existing) return;
+            var id = existing.id || existing.querySelector('input[type="tel"]') && existing.querySelector('input[type="tel"]').id || '';
+            var name = existing.name || existing.querySelector('input[type="tel"]') && existing.querySelector('input[type="tel"]').name || '';
+            var pickerOn = shell.getAttribute('data-attr-country_picker') === '1';
+            var newHtml = pickerOn ? buildPhonePickerHtml(shell, id, name) : '<input type="tel" id="' + escAttr(id) + '" name="' + escAttr(name) + '" autocomplete="tel" inputmode="tel">';
+            existing.outerHTML = newHtml;
+            if (pickerOn && window.lrobEtkPhone && window.lrobEtkPhone.attach) {
+                window.lrobEtkPhone.attach(fieldWrap.querySelector(':scope > .lrob-etk-form-phone'));
+            }
+        }
+        function buildPhonePickerHtml(shell, id, name) {
+            var autoDetect = shell.getAttribute('data-attr-country_auto_detect') === '1';
+            var adminDefault = shell.getAttribute('data-attr-country_default') || '';
+            var entry = resolvePhoneCountry(adminDefault);
+            var dial = entry ? entry.dial : '';
+            var flag = entry ? entry.flag : "🌐"; // 🌐
+            var country = entry ? entry.iso : '';
+            // The hidden country input mirrors the tel input's name with a
+            // `_country` suffix inside the same bracketed name pair.
+            var countryName = name ? name.replace(/(\]?)$/, function (_, tail) { return '_country' + tail; }) : '';
+            return '<div class="lrob-etk-form-phone" data-country-picker'
+                + (autoDetect ? ' data-auto-detect="1"' : '')
+                + ' data-default-country="' + escAttr(country) + '"'
+                + ' data-dial="' + escAttr(dial) + '"'
+                + ' data-input-id="' + escAttr(id) + '">'
+                +   '<button type="button" class="lrob-etk-form-phone-trigger" data-phone-trigger aria-haspopup="listbox" aria-expanded="false">'
+                +     '<span class="lrob-etk-form-phone-flag" data-phone-flag>' + flag + '</span>'
+                +     '<span class="lrob-etk-form-phone-dial" data-phone-dial>' + (dial ? '+' + esc(dial) : '+') + '</span>'
+                +     '<span class="lrob-etk-form-phone-caret dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>'
+                +   '</button>'
+                +   '<input type="hidden" name="' + escAttr(countryName) + '" value="' + escAttr(country) + '" data-phone-country>'
+                +   '<input type="tel" id="' + escAttr(id) + '" name="' + escAttr(name) + '" autocomplete="tel-national" inputmode="tel" data-phone-number>'
+                + '</div>';
+        }
+        // Look up a country in EDITOR_DATA.countries. Empty argument or
+        // unknown code triggers the locale fallback chain on the server side
+        // at render time — in the editor preview we just pretend the
+        // resolved value is whatever the admin picked (or the first entry,
+        // if blank).
+        function resolvePhoneCountry(iso) {
+            var list = EDITOR_DATA.countries || [];
+            if (iso) {
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i].iso === iso) return list[i];
+                }
+            }
+            return list.length > 0 ? list[0] : null;
+        }
         function applyOptionsToPreview(shell) {
             var type = shell.getAttribute('data-field-type') || '';
             if (type !== 'select' && type !== 'radio' && type !== 'checkbox') return;
@@ -1844,6 +1957,12 @@
                     f[k] = (k === 'maxLength' || k === 'rows') ? (parseInt(v, 10) || 0) : v;
                 }
             });
+            if (type === 'phone') {
+                if (shell.getAttribute('data-attr-country_picker') === '1') f.country_picker = true;
+                var cdef = shell.getAttribute('data-attr-country_default');
+                if (cdef) f.country_default = cdef;
+                if (shell.getAttribute('data-attr-country_auto_detect') === '1') f.country_auto_detect = true;
+            }
             if (type === 'select' || type === 'radio' || type === 'checkbox') {
                 var optionsAttr = shell.getAttribute('data-attr-options');
                 if (optionsAttr) {
@@ -1967,6 +2086,18 @@
                 shell.setAttribute('data-attr-multiple',
                     shell.querySelector('.lrob-etk-form-field--checkbox-single, .lrob-etk-form-checkbox-inline') ? '0' : '1'
                 );
+            }
+            if (type === 'phone') {
+                var phoneEl = shell.querySelector('.lrob-etk-form-phone');
+                if (phoneEl) {
+                    shell.setAttribute('data-attr-country_picker', '1');
+                    if (!shell.hasAttribute('data-attr-country_default')) {
+                        shell.setAttribute('data-attr-country_default', phoneEl.getAttribute('data-default-country') || '');
+                    }
+                    if (phoneEl.hasAttribute('data-auto-detect')) {
+                        shell.setAttribute('data-attr-country_auto_detect', '1');
+                    }
+                }
             }
 
             // Replace the PHP-rendered options markup with the editable

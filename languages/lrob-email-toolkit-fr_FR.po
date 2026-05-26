@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-26T17:15:32+00:00\n"
+"POT-Creation-Date: 2026-05-26T18:12:14+00:00\n"
 "PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
 "Last-Translator: LRob <contact@lrob.fr>\n"
 "Language-Team: LRob <contact@lrob.fr>\n"
@@ -61,8 +61,8 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/ContactForm/Admin/AjaxController.php:113
 #: src/Modules/ContactForm/Admin/AjaxController.php:183
 #: src/Modules/ContactForm/Admin/AjaxController.php:248
-#: src/Modules/ContactForm/Admin/FormsPage.php:396
-#: src/Modules/ContactForm/Admin/FormsPage.php:1589
+#: src/Modules/ContactForm/Admin/FormsPage.php:410
+#: src/Modules/ContactForm/Admin/FormsPage.php:1603
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:49
 #: src/Modules/Logging/Admin/AjaxController.php:163
 #: src/Modules/Logging/Admin/PageController.php:62
@@ -279,14 +279,14 @@ msgid "Send test email"
 msgstr "Envoyer un email de test"
 
 #: src/Admin/DashboardPage.php:529
-#: src/Modules/ContactForm/Admin/FormsPage.php:472
-#: src/Modules/ContactForm/Admin/FormsPage.php:1083
-#: src/Modules/ContactForm/Admin/FormsPage.php:1293
-#: src/Modules/ContactForm/Admin/FormsPage.php:1491
+#: src/Modules/ContactForm/Admin/FormsPage.php:486
+#: src/Modules/ContactForm/Admin/FormsPage.php:1097
+#: src/Modules/ContactForm/Admin/FormsPage.php:1307
+#: src/Modules/ContactForm/Admin/FormsPage.php:1505
 #: src/Modules/Logging/Admin/LogsPage.php:429
 #: src/Modules/Logging/Admin/LogsPage.php:462
-#: src/Modules/Newsletter/Admin/FormsPage.php:393
-#: src/Modules/Newsletter/Admin/FormsPage.php:431
+#: src/Modules/Newsletter/Admin/FormsPage.php:402
+#: src/Modules/Newsletter/Admin/FormsPage.php:440
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:991
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1049
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1064
@@ -311,14 +311,14 @@ msgstr "Destinataire"
 
 #. translators: %s: current user's email address
 #: src/Admin/DashboardPage.php:552
-#: src/Modules/ContactForm/Admin/FormsPage.php:280
+#: src/Modules/ContactForm/Admin/FormsPage.php:294
 #: src/Modules/SMTP/Admin/SettingsPage.php:492
 msgid "Me (%s)"
 msgstr "Moi (%s)"
 
 #. translators: %s: site admin email address
 #: src/Admin/DashboardPage.php:557
-#: src/Modules/ContactForm/Admin/FormsPage.php:268
+#: src/Modules/ContactForm/Admin/FormsPage.php:282
 #: src/Modules/SMTP/Admin/SettingsPage.php:494
 msgid "Site admin (%s)"
 msgstr "Administrateur du site (%s)"
@@ -332,10 +332,10 @@ msgid "Custom recipient"
 msgstr "Destinataire personnalisé"
 
 #: src/Admin/DashboardPage.php:570
-#: src/Modules/ContactForm/Admin/FormsPage.php:484
+#: src/Modules/ContactForm/Admin/FormsPage.php:498
 #: src/Modules/Logging/Admin/LogsPage.php:445
 #: src/Modules/Logging/Admin/LogsPage.php:489
-#: src/Modules/Newsletter/Admin/FormsPage.php:440
+#: src/Modules/Newsletter/Admin/FormsPage.php:449
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1036
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1101
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1131
@@ -386,7 +386,7 @@ msgstr "Aucun email journalisé pour le moment."
 
 #: src/Admin/DashboardPage.php:666 src/Admin/DashboardPage.php:785
 #: src/Forms/Fields/DateField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1220
+#: src/Modules/ContactForm/Admin/FormsPage.php:1234
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:264
 #: src/Modules/Logging/Admin/LogsPage.php:302
 #: src/Modules/Logging/Admin/LogViewPage.php:76
@@ -446,7 +446,7 @@ msgid "View submission"
 msgstr "Nouvelle soumission"
 
 #: src/Admin/DashboardPage.php:712
-#: src/Modules/ContactForm/Admin/FormsPage.php:604
+#: src/Modules/ContactForm/Admin/FormsPage.php:618
 msgid "View all submissions"
 msgstr "Nouvelle soumission"
 
@@ -466,7 +466,7 @@ msgid "Blocked"
 msgstr "cadenas"
 
 #: src/Admin/DashboardPage.php:743
-#: src/Modules/ContactForm/Admin/FormsPage.php:611
+#: src/Modules/ContactForm/Admin/FormsPage.php:625
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:168
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:698
 msgid "Delivered"
@@ -533,7 +533,7 @@ msgstr "Voir l'entrée du journal"
 msgid "View all logs"
 msgstr "Voir tous les journaux"
 
-#: src/Admin/DashboardPage.php:860 src/Modules/ContactForm/Frontend.php:49
+#: src/Admin/DashboardPage.php:860 src/Modules/ContactForm/Frontend.php:52
 #: src/Modules/SMTP/Admin/SettingsPage.php:598
 msgid "Sending…"
 msgstr "Envoi…"
@@ -707,7 +707,7 @@ msgid "Uninstall behaviour saved."
 msgstr "Comportement de désinstallation enregistré."
 
 #: src/Admin/DataPage.php:303 src/Modules/AbstractModule.php:144
-#: src/Modules/ContactForm/Admin/FormsPage.php:1594
+#: src/Modules/ContactForm/Admin/FormsPage.php:1608
 #: src/Modules/Logging/Admin/PageController.php:178
 #: src/Modules/Newsletter/Admin/AjaxController.php:618
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1149
@@ -768,14 +768,14 @@ msgstr ""
 "indépendamment."
 
 #: src/Forms/CaptchaField.php:47
-#: src/Modules/ContactForm/Admin/FormsPage.php:168
+#: src/Modules/ContactForm/Admin/FormsPage.php:182
 msgid "Anti-spam challenge"
 msgstr "Défi anti-spam"
 
 #. translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers
 #: src/Forms/CaptchaField.php:127 src/Forms/CaptchaField.php:289
-#: src/Modules/ContactForm/Admin/FormsPage.php:1207
-#: src/Modules/Newsletter/Admin/FormsPage.php:317
+#: src/Modules/ContactForm/Admin/FormsPage.php:1221
+#: src/Modules/Newsletter/Admin/FormsPage.php:326
 #: admin/js/contact-form-editor.js:44
 msgid "Default (%s)"
 msgstr "Par défaut (%s)"
@@ -783,8 +783,10 @@ msgstr "Par défaut (%s)"
 #: src/Forms/CaptchaField.php:130 src/Forms/CaptchaField.php:280
 #: src/Forms/StylePresets.php:29 src/Modules/Captcha/Admin/SettingsPage.php:131
 #: src/Modules/Captcha/Admin/SettingsPage.php:502
-#: src/Modules/ContactForm/Admin/FormsPage.php:169
+#: src/Modules/ContactForm/Admin/FormsPage.php:165
+#: src/Modules/ContactForm/Admin/FormsPage.php:183
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:91
+#: src/Modules/Newsletter/Admin/FormsPage.php:556
 #: src/Modules/Newsletter/Admin/HomePage.php:345
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
@@ -796,15 +798,15 @@ msgstr "Anti-spam :"
 
 #: src/Forms/CaptchaField.php:160 src/Forms/CaptchaField.php:219
 #: src/Forms/CaptchaField.php:302
-#: src/Modules/ContactForm/Admin/FormsPage.php:823
-#: src/Modules/ContactForm/Admin/FormsPage.php:826
+#: src/Modules/ContactForm/Admin/FormsPage.php:837
+#: src/Modules/ContactForm/Admin/FormsPage.php:840
 #: src/Modules/SMTP/Admin/SettingsPage.php:314
 msgid "None"
 msgstr "Aucun"
 
 #: src/Forms/CaptchaField.php:167 src/Forms/CaptchaField.php:308
 #: src/Modules/Captcha/Admin/SettingsPage.php:630
-#: src/Modules/ContactForm/Admin/FormsPage.php:829
+#: src/Modules/ContactForm/Admin/FormsPage.php:843
 msgid "Built-in"
 msgstr "Intégré"
 
@@ -833,65 +835,1042 @@ msgstr "Aucun défi enregistré."
 msgid "Default (none)"
 msgstr "Par défaut (aucun)"
 
+#: src/Forms/CountryData.php:36
+msgid "Andorra"
+msgstr ""
+
+#: src/Forms/CountryData.php:37
+msgid "United Arab Emirates"
+msgstr ""
+
+#: src/Forms/CountryData.php:38
+msgid "Afghanistan"
+msgstr ""
+
+#: src/Forms/CountryData.php:39
+msgid "Antigua and Barbuda"
+msgstr ""
+
+#: src/Forms/CountryData.php:40
+msgid "Anguilla"
+msgstr ""
+
+#: src/Forms/CountryData.php:41
+msgid "Albania"
+msgstr ""
+
+#: src/Forms/CountryData.php:42
+msgid "Armenia"
+msgstr ""
+
+#: src/Forms/CountryData.php:43
+msgid "Angola"
+msgstr ""
+
+#: src/Forms/CountryData.php:44
+msgid "Argentina"
+msgstr ""
+
+#: src/Forms/CountryData.php:45
+msgid "American Samoa"
+msgstr ""
+
+#: src/Forms/CountryData.php:46
+msgid "Austria"
+msgstr ""
+
+#: src/Forms/CountryData.php:47
+msgid "Australia"
+msgstr ""
+
+#: src/Forms/CountryData.php:48
+msgid "Aruba"
+msgstr ""
+
+#: src/Forms/CountryData.php:49
+msgid "Åland Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:50
+msgid "Azerbaijan"
+msgstr ""
+
+#: src/Forms/CountryData.php:51
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+#: src/Forms/CountryData.php:52
+msgid "Barbados"
+msgstr ""
+
+#: src/Forms/CountryData.php:53
+msgid "Bangladesh"
+msgstr ""
+
+#: src/Forms/CountryData.php:54
+msgid "Belgium"
+msgstr ""
+
+#: src/Forms/CountryData.php:55
+msgid "Burkina Faso"
+msgstr ""
+
+#: src/Forms/CountryData.php:56
+msgid "Bulgaria"
+msgstr ""
+
+#: src/Forms/CountryData.php:57
+msgid "Bahrain"
+msgstr ""
+
+#: src/Forms/CountryData.php:58
+msgid "Burundi"
+msgstr ""
+
+#: src/Forms/CountryData.php:59
+msgid "Benin"
+msgstr ""
+
+#: src/Forms/CountryData.php:60
+msgid "Saint Barthélemy"
+msgstr ""
+
+#: src/Forms/CountryData.php:61
+msgid "Bermuda"
+msgstr ""
+
+#: src/Forms/CountryData.php:62
+msgid "Brunei"
+msgstr ""
+
+#: src/Forms/CountryData.php:63
+msgid "Bolivia"
+msgstr ""
+
+#: src/Forms/CountryData.php:64
+msgid "Caribbean Netherlands"
+msgstr ""
+
+#: src/Forms/CountryData.php:65
+msgid "Brazil"
+msgstr ""
+
+#: src/Forms/CountryData.php:66
+msgid "Bahamas"
+msgstr ""
+
+#: src/Forms/CountryData.php:67
+msgid "Bhutan"
+msgstr ""
+
+#: src/Forms/CountryData.php:68
+msgid "Botswana"
+msgstr ""
+
+#: src/Forms/CountryData.php:69
+msgid "Belarus"
+msgstr ""
+
+#: src/Forms/CountryData.php:70
+msgid "Belize"
+msgstr ""
+
+#: src/Forms/CountryData.php:71
+msgid "Canada"
+msgstr ""
+
+#: src/Forms/CountryData.php:72
+msgid "Cocos (Keeling) Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:73
+msgid "Congo (DRC)"
+msgstr ""
+
+#: src/Forms/CountryData.php:74
+msgid "Central African Republic"
+msgstr ""
+
+#: src/Forms/CountryData.php:75
+msgid "Congo (Republic)"
+msgstr ""
+
+#: src/Forms/CountryData.php:76
+msgid "Switzerland"
+msgstr ""
+
+#: src/Forms/CountryData.php:77
+msgid "Côte d’Ivoire"
+msgstr ""
+
+#: src/Forms/CountryData.php:78
+msgid "Cook Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:79
+msgid "Chile"
+msgstr ""
+
+#: src/Forms/CountryData.php:80
+msgid "Cameroon"
+msgstr ""
+
+#: src/Forms/CountryData.php:81
+msgid "China"
+msgstr ""
+
+#: src/Forms/CountryData.php:82
+msgid "Colombia"
+msgstr ""
+
+#: src/Forms/CountryData.php:83
+msgid "Costa Rica"
+msgstr ""
+
+#: src/Forms/CountryData.php:84
+msgid "Cuba"
+msgstr ""
+
+#: src/Forms/CountryData.php:85
+msgid "Cape Verde"
+msgstr ""
+
+#: src/Forms/CountryData.php:86
+msgid "Curaçao"
+msgstr ""
+
+#: src/Forms/CountryData.php:87
+msgid "Christmas Island"
+msgstr ""
+
+#: src/Forms/CountryData.php:88
+msgid "Cyprus"
+msgstr ""
+
+#: src/Forms/CountryData.php:89
+msgid "Czech Republic"
+msgstr ""
+
+#: src/Forms/CountryData.php:90
+msgid "Germany"
+msgstr ""
+
+#: src/Forms/CountryData.php:91
+msgid "Djibouti"
+msgstr ""
+
+#: src/Forms/CountryData.php:92
+msgid "Denmark"
+msgstr ""
+
+#: src/Forms/CountryData.php:93
+msgid "Dominica"
+msgstr ""
+
+#: src/Forms/CountryData.php:94
+msgid "Dominican Republic"
+msgstr ""
+
+#: src/Forms/CountryData.php:95
+msgid "Algeria"
+msgstr ""
+
+#: src/Forms/CountryData.php:96
+msgid "Ecuador"
+msgstr ""
+
+#: src/Forms/CountryData.php:97
+msgid "Estonia"
+msgstr ""
+
+#: src/Forms/CountryData.php:98
+msgid "Egypt"
+msgstr ""
+
+#: src/Forms/CountryData.php:99
+msgid "Western Sahara"
+msgstr ""
+
+#: src/Forms/CountryData.php:100
+msgid "Eritrea"
+msgstr ""
+
+#: src/Forms/CountryData.php:101
+msgid "Spain"
+msgstr ""
+
+#: src/Forms/CountryData.php:102
+msgid "Ethiopia"
+msgstr ""
+
+#: src/Forms/CountryData.php:103
+msgid "Finland"
+msgstr ""
+
+#: src/Forms/CountryData.php:104
+msgid "Fiji"
+msgstr ""
+
+#: src/Forms/CountryData.php:105
+msgid "Falkland Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:106
+msgid "Micronesia"
+msgstr ""
+
+#: src/Forms/CountryData.php:107
+msgid "Faroe Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:108
+#, fuzzy
+msgid "France"
+msgstr "Annuler"
+
+#: src/Forms/CountryData.php:109
+msgid "Gabon"
+msgstr ""
+
+#: src/Forms/CountryData.php:110
+msgid "United Kingdom"
+msgstr ""
+
+#: src/Forms/CountryData.php:111
+msgid "Grenada"
+msgstr ""
+
+#: src/Forms/CountryData.php:112
+msgid "Georgia"
+msgstr ""
+
+#: src/Forms/CountryData.php:113
+msgid "French Guiana"
+msgstr ""
+
+#: src/Forms/CountryData.php:114
+msgid "Guernsey"
+msgstr ""
+
+#: src/Forms/CountryData.php:115
+msgid "Ghana"
+msgstr ""
+
+#: src/Forms/CountryData.php:116
+msgid "Gibraltar"
+msgstr ""
+
+#: src/Forms/CountryData.php:117
+msgid "Greenland"
+msgstr ""
+
+#: src/Forms/CountryData.php:118
+msgid "Gambia"
+msgstr ""
+
+#: src/Forms/CountryData.php:119
+msgid "Guinea"
+msgstr ""
+
+#: src/Forms/CountryData.php:120
+msgid "Guadeloupe"
+msgstr ""
+
+#: src/Forms/CountryData.php:121
+msgid "Equatorial Guinea"
+msgstr ""
+
+#: src/Forms/CountryData.php:122
+msgid "Greece"
+msgstr ""
+
+#: src/Forms/CountryData.php:123
+msgid "Guatemala"
+msgstr ""
+
+#: src/Forms/CountryData.php:124
+msgid "Guam"
+msgstr ""
+
+#: src/Forms/CountryData.php:125
+msgid "Guinea-Bissau"
+msgstr ""
+
+#: src/Forms/CountryData.php:126
+msgid "Guyana"
+msgstr ""
+
+#: src/Forms/CountryData.php:127
+msgid "Hong Kong"
+msgstr ""
+
+#: src/Forms/CountryData.php:128
+msgid "Honduras"
+msgstr ""
+
+#: src/Forms/CountryData.php:129
+msgid "Croatia"
+msgstr ""
+
+#: src/Forms/CountryData.php:130
+msgid "Haiti"
+msgstr ""
+
+#: src/Forms/CountryData.php:131
+msgid "Hungary"
+msgstr ""
+
+#: src/Forms/CountryData.php:132
+msgid "Indonesia"
+msgstr ""
+
+#: src/Forms/CountryData.php:133
+msgid "Ireland"
+msgstr ""
+
+#: src/Forms/CountryData.php:134
+msgid "Israel"
+msgstr ""
+
+#: src/Forms/CountryData.php:135
+msgid "Isle of Man"
+msgstr ""
+
+#: src/Forms/CountryData.php:136
+msgid "India"
+msgstr ""
+
+#: src/Forms/CountryData.php:137
+msgid "British Indian Ocean Territory"
+msgstr ""
+
+#: src/Forms/CountryData.php:138
+msgid "Iraq"
+msgstr ""
+
+#: src/Forms/CountryData.php:139
+msgid "Iran"
+msgstr ""
+
+#: src/Forms/CountryData.php:140
+msgid "Iceland"
+msgstr ""
+
+#: src/Forms/CountryData.php:141
+msgid "Italy"
+msgstr ""
+
+#: src/Forms/CountryData.php:142
+msgid "Jersey"
+msgstr ""
+
+#: src/Forms/CountryData.php:143
+msgid "Jamaica"
+msgstr ""
+
+#: src/Forms/CountryData.php:144
+msgid "Jordan"
+msgstr ""
+
+#: src/Forms/CountryData.php:145
+msgid "Japan"
+msgstr ""
+
+#: src/Forms/CountryData.php:146
+msgid "Kenya"
+msgstr ""
+
+#: src/Forms/CountryData.php:147
+msgid "Kyrgyzstan"
+msgstr ""
+
+#: src/Forms/CountryData.php:148
+msgid "Cambodia"
+msgstr ""
+
+#: src/Forms/CountryData.php:149
+msgid "Kiribati"
+msgstr ""
+
+#: src/Forms/CountryData.php:150
+msgid "Comoros"
+msgstr ""
+
+#: src/Forms/CountryData.php:151
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+#: src/Forms/CountryData.php:152
+msgid "North Korea"
+msgstr ""
+
+#: src/Forms/CountryData.php:153
+msgid "South Korea"
+msgstr ""
+
+#: src/Forms/CountryData.php:154
+msgid "Kuwait"
+msgstr ""
+
+#: src/Forms/CountryData.php:155
+msgid "Cayman Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:156
+msgid "Kazakhstan"
+msgstr ""
+
+#: src/Forms/CountryData.php:157
+msgid "Laos"
+msgstr ""
+
+#: src/Forms/CountryData.php:158
+msgid "Lebanon"
+msgstr ""
+
+#: src/Forms/CountryData.php:159
+msgid "Saint Lucia"
+msgstr ""
+
+#: src/Forms/CountryData.php:160
+msgid "Liechtenstein"
+msgstr ""
+
+#: src/Forms/CountryData.php:161
+msgid "Sri Lanka"
+msgstr ""
+
+#: src/Forms/CountryData.php:162
+msgid "Liberia"
+msgstr ""
+
+#: src/Forms/CountryData.php:163
+msgid "Lesotho"
+msgstr ""
+
+#: src/Forms/CountryData.php:164
+msgid "Lithuania"
+msgstr ""
+
+#: src/Forms/CountryData.php:165
+msgid "Luxembourg"
+msgstr ""
+
+#: src/Forms/CountryData.php:166
+msgid "Latvia"
+msgstr ""
+
+#: src/Forms/CountryData.php:167
+msgid "Libya"
+msgstr ""
+
+#: src/Forms/CountryData.php:168
+msgid "Morocco"
+msgstr ""
+
+#: src/Forms/CountryData.php:169
+msgid "Monaco"
+msgstr ""
+
+#: src/Forms/CountryData.php:170
+msgid "Moldova"
+msgstr ""
+
+#: src/Forms/CountryData.php:171
+msgid "Montenegro"
+msgstr ""
+
+#: src/Forms/CountryData.php:172
+msgid "Saint Martin (French part)"
+msgstr ""
+
+#: src/Forms/CountryData.php:173
+msgid "Madagascar"
+msgstr ""
+
+#: src/Forms/CountryData.php:174
+msgid "Marshall Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:175
+msgid "North Macedonia"
+msgstr ""
+
+#: src/Forms/CountryData.php:176
+msgid "Mali"
+msgstr ""
+
+#: src/Forms/CountryData.php:177
+msgid "Myanmar"
+msgstr ""
+
+#: src/Forms/CountryData.php:178
+msgid "Mongolia"
+msgstr ""
+
+#: src/Forms/CountryData.php:179
+msgid "Macao"
+msgstr ""
+
+#: src/Forms/CountryData.php:180
+msgid "Northern Mariana Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:181
+msgid "Martinique"
+msgstr ""
+
+#: src/Forms/CountryData.php:182
+msgid "Mauritania"
+msgstr ""
+
+#: src/Forms/CountryData.php:183
+msgid "Montserrat"
+msgstr ""
+
+#: src/Forms/CountryData.php:184
+msgid "Malta"
+msgstr ""
+
+#: src/Forms/CountryData.php:185
+msgid "Mauritius"
+msgstr ""
+
+#: src/Forms/CountryData.php:186
+msgid "Maldives"
+msgstr ""
+
+#: src/Forms/CountryData.php:187
+msgid "Malawi"
+msgstr ""
+
+#: src/Forms/CountryData.php:188
+msgid "Mexico"
+msgstr ""
+
+#: src/Forms/CountryData.php:189
+msgid "Malaysia"
+msgstr ""
+
+#: src/Forms/CountryData.php:190
+msgid "Mozambique"
+msgstr ""
+
+#: src/Forms/CountryData.php:191
+msgid "Namibia"
+msgstr ""
+
+#: src/Forms/CountryData.php:192
+#, fuzzy
+msgid "New Caledonia"
+msgstr "Nom de la nouvelle catégorie"
+
+#: src/Forms/CountryData.php:193
+msgid "Niger"
+msgstr ""
+
+#: src/Forms/CountryData.php:194
+msgid "Norfolk Island"
+msgstr ""
+
+#: src/Forms/CountryData.php:195
+msgid "Nigeria"
+msgstr ""
+
+#: src/Forms/CountryData.php:196
+msgid "Nicaragua"
+msgstr ""
+
+#: src/Forms/CountryData.php:197
+msgid "Netherlands"
+msgstr ""
+
+#: src/Forms/CountryData.php:198
+msgid "Norway"
+msgstr ""
+
+#: src/Forms/CountryData.php:199
+msgid "Nepal"
+msgstr ""
+
+#: src/Forms/CountryData.php:200
+msgid "Nauru"
+msgstr ""
+
+#: src/Forms/CountryData.php:201
+msgid "Niue"
+msgstr ""
+
+#: src/Forms/CountryData.php:202
+msgid "New Zealand"
+msgstr ""
+
+#: src/Forms/CountryData.php:203
+msgid "Oman"
+msgstr ""
+
+#: src/Forms/CountryData.php:204
+msgid "Panama"
+msgstr ""
+
+#: src/Forms/CountryData.php:205
+msgid "Peru"
+msgstr ""
+
+#: src/Forms/CountryData.php:206
+msgid "French Polynesia"
+msgstr ""
+
+#: src/Forms/CountryData.php:207
+msgid "Papua New Guinea"
+msgstr ""
+
+#: src/Forms/CountryData.php:208
+msgid "Philippines"
+msgstr ""
+
+#: src/Forms/CountryData.php:209
+msgid "Pakistan"
+msgstr ""
+
+#: src/Forms/CountryData.php:210
+msgid "Poland"
+msgstr ""
+
+#: src/Forms/CountryData.php:211
+msgid "Saint Pierre and Miquelon"
+msgstr ""
+
+#: src/Forms/CountryData.php:212
+msgid "Puerto Rico"
+msgstr ""
+
+#: src/Forms/CountryData.php:213
+msgid "Palestine"
+msgstr ""
+
+#: src/Forms/CountryData.php:214
+#, fuzzy
+msgid "Portugal"
+msgstr "Port"
+
+#: src/Forms/CountryData.php:215
+msgid "Palau"
+msgstr ""
+
+#: src/Forms/CountryData.php:216
+msgid "Paraguay"
+msgstr ""
+
+#: src/Forms/CountryData.php:217
+msgid "Qatar"
+msgstr ""
+
+#: src/Forms/CountryData.php:218
+msgid "Réunion"
+msgstr ""
+
+#: src/Forms/CountryData.php:219
+msgid "Romania"
+msgstr ""
+
+#: src/Forms/CountryData.php:220
+msgid "Serbia"
+msgstr ""
+
+#: src/Forms/CountryData.php:221
+msgid "Russia"
+msgstr ""
+
+#: src/Forms/CountryData.php:222
+msgid "Rwanda"
+msgstr ""
+
+#: src/Forms/CountryData.php:223
+msgid "Saudi Arabia"
+msgstr ""
+
+#: src/Forms/CountryData.php:224
+msgid "Solomon Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:225
+msgid "Seychelles"
+msgstr ""
+
+#: src/Forms/CountryData.php:226
+msgid "Sudan"
+msgstr ""
+
+#: src/Forms/CountryData.php:227
+msgid "Sweden"
+msgstr ""
+
+#: src/Forms/CountryData.php:228
+msgid "Singapore"
+msgstr ""
+
+#: src/Forms/CountryData.php:229
+msgid "Saint Helena"
+msgstr ""
+
+#: src/Forms/CountryData.php:230
+msgid "Slovenia"
+msgstr ""
+
+#: src/Forms/CountryData.php:231
+msgid "Svalbard and Jan Mayen"
+msgstr ""
+
+#: src/Forms/CountryData.php:232
+msgid "Slovakia"
+msgstr ""
+
+#: src/Forms/CountryData.php:233
+msgid "Sierra Leone"
+msgstr ""
+
+#: src/Forms/CountryData.php:234
+msgid "San Marino"
+msgstr ""
+
+#: src/Forms/CountryData.php:235
+msgid "Senegal"
+msgstr ""
+
+#: src/Forms/CountryData.php:236
+msgid "Somalia"
+msgstr ""
+
+#: src/Forms/CountryData.php:237
+#, fuzzy
+msgid "Suriname"
+msgstr "Votre nom"
+
+#: src/Forms/CountryData.php:238
+msgid "South Sudan"
+msgstr ""
+
+#: src/Forms/CountryData.php:239
+msgid "São Tomé and Príncipe"
+msgstr ""
+
+#: src/Forms/CountryData.php:240
+msgid "El Salvador"
+msgstr ""
+
+#: src/Forms/CountryData.php:241
+msgid "Sint Maarten"
+msgstr ""
+
+#: src/Forms/CountryData.php:242
+msgid "Syria"
+msgstr ""
+
+#: src/Forms/CountryData.php:243
+msgid "Eswatini"
+msgstr ""
+
+#: src/Forms/CountryData.php:244
+msgid "Turks and Caicos Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:245
+msgid "Chad"
+msgstr ""
+
+#: src/Forms/CountryData.php:246
+msgid "Togo"
+msgstr ""
+
+#: src/Forms/CountryData.php:247
+msgid "Thailand"
+msgstr ""
+
+#: src/Forms/CountryData.php:248
+msgid "Tajikistan"
+msgstr ""
+
+#: src/Forms/CountryData.php:249
+msgid "Tokelau"
+msgstr ""
+
+#: src/Forms/CountryData.php:250
+msgid "Timor-Leste"
+msgstr ""
+
+#: src/Forms/CountryData.php:251
+msgid "Turkmenistan"
+msgstr ""
+
+#: src/Forms/CountryData.php:252
+msgid "Tunisia"
+msgstr ""
+
+#: src/Forms/CountryData.php:253
+msgid "Tonga"
+msgstr ""
+
+#: src/Forms/CountryData.php:254
+msgid "Turkey"
+msgstr ""
+
+#: src/Forms/CountryData.php:255
+msgid "Trinidad and Tobago"
+msgstr ""
+
+#: src/Forms/CountryData.php:256
+msgid "Tuvalu"
+msgstr ""
+
+#: src/Forms/CountryData.php:257
+msgid "Taiwan"
+msgstr ""
+
+#: src/Forms/CountryData.php:258
+msgid "Tanzania"
+msgstr ""
+
+#: src/Forms/CountryData.php:259
+msgid "Ukraine"
+msgstr ""
+
+#: src/Forms/CountryData.php:260
+msgid "Uganda"
+msgstr ""
+
+#: src/Forms/CountryData.php:261
+msgid "United States"
+msgstr ""
+
+#: src/Forms/CountryData.php:262
+msgid "Uruguay"
+msgstr ""
+
+#: src/Forms/CountryData.php:263
+msgid "Uzbekistan"
+msgstr ""
+
+#: src/Forms/CountryData.php:264
+msgid "Vatican City"
+msgstr ""
+
+#: src/Forms/CountryData.php:265
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+#: src/Forms/CountryData.php:266
+msgid "Venezuela"
+msgstr ""
+
+#: src/Forms/CountryData.php:267
+msgid "British Virgin Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:268
+msgid "U.S. Virgin Islands"
+msgstr ""
+
+#: src/Forms/CountryData.php:269
+msgid "Vietnam"
+msgstr ""
+
+#: src/Forms/CountryData.php:270
+msgid "Vanuatu"
+msgstr ""
+
+#: src/Forms/CountryData.php:271
+msgid "Wallis and Futuna"
+msgstr ""
+
+#: src/Forms/CountryData.php:272
+msgid "Samoa"
+msgstr ""
+
+#: src/Forms/CountryData.php:273
+msgid "Yemen"
+msgstr ""
+
+#: src/Forms/CountryData.php:274
+msgid "Mayotte"
+msgstr ""
+
+#: src/Forms/CountryData.php:275
+msgid "South Africa"
+msgstr ""
+
+#: src/Forms/CountryData.php:276
+msgid "Zambia"
+msgstr ""
+
+#: src/Forms/CountryData.php:277
+msgid "Zimbabwe"
+msgstr ""
+
 #: src/Forms/FieldRenderHelpers.php:157 src/Forms/FieldRenderHelpers.php:345
-#: src/Modules/ContactForm/Admin/FormsPage.php:164
-#: src/Modules/Newsletter/Admin/FormsPage.php:541
+#: src/Modules/ContactForm/Admin/FormsPage.php:178
+#: src/Modules/Newsletter/Admin/FormsPage.php:550
 #: src/Modules/Newsletter/Fields/CategoryPicker.php:99
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr "(libellé du champ)"
 
 #: src/Forms/FieldRenderHelpers.php:191
-#: src/Modules/ContactForm/Admin/FormsPage.php:146
-#: src/Modules/Newsletter/Admin/FormsPage.php:531
+#: src/Modules/ContactForm/Admin/FormsPage.php:156
+#: src/Modules/Newsletter/Admin/FormsPage.php:540
 msgid "Required"
 msgstr "Obligatoire"
 
 #: src/Forms/FieldRenderHelpers.php:199
-#: src/Modules/ContactForm/Admin/FormsPage.php:163
-#: src/Modules/Newsletter/Admin/FormsPage.php:540
+#: src/Modules/ContactForm/Admin/FormsPage.php:177
+#: src/Modules/Newsletter/Admin/FormsPage.php:549
 msgid "(optional helper text)"
 msgstr "(texte d'aide facultatif)"
 
 #: src/Forms/Fields/CheckboxField.php:20
-#: src/Modules/ContactForm/Admin/FormsPage.php:1223
+#: src/Modules/ContactForm/Admin/FormsPage.php:1237
 msgid "Checkbox"
 msgstr "Case à cocher"
 
 #: src/Forms/Fields/EmailField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:956
-#: src/Modules/ContactForm/Admin/FormsPage.php:1216
-#: src/Modules/ContactForm/Admin/FormsPage.php:1361
+#: src/Modules/ContactForm/Admin/FormsPage.php:970
+#: src/Modules/ContactForm/Admin/FormsPage.php:1230
+#: src/Modules/ContactForm/Admin/FormsPage.php:1375
 #: src/Modules/ContactForm/TemplateRegistry.php:121
-#: src/Modules/Newsletter/Admin/FormsPage.php:515
+#: src/Modules/Newsletter/Admin/FormsPage.php:524
 #: src/Modules/Newsletter/Admin/HomePage.php:177
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:184
 msgid "Email"
 msgstr "Email"
 
 #: src/Forms/Fields/NumberField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1218
+#: src/Modules/ContactForm/Admin/FormsPage.php:1232
 msgid "Number"
 msgstr "Nombre"
 
-#: src/Forms/Fields/PhoneField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1219
+#: src/Forms/Fields/PhoneField.php:21
+#: src/Modules/ContactForm/Admin/FormsPage.php:1233
 #: src/Modules/ContactForm/TemplateRegistry.php:102
 #: src/Modules/ContactForm/TemplateRegistry.php:122
 msgid "Phone"
 msgstr "Téléphone"
+
+#: src/Forms/Fields/PhoneField.php:102
+#, fuzzy
+msgid "Choose country code"
+msgstr "Choisissez vos listes"
 
 #: src/Forms/Fields/RadioField.php:19
 msgid "Radio buttons"
 msgstr "Boutons radio"
 
 #: src/Forms/Fields/SelectField.php:20
-#: src/Modules/ContactForm/Admin/FormsPage.php:1221
+#: src/Modules/ContactForm/Admin/FormsPage.php:1235
 msgid "Dropdown"
 msgstr "Liste déroulante"
 
 #: src/Forms/Fields/SubmitField.php:20
-#: src/Modules/Newsletter/Admin/FormsPage.php:519
+#: src/Modules/Newsletter/Admin/FormsPage.php:528
 msgid "Submit button"
 msgstr "Envoyé le"
 
@@ -900,7 +1879,7 @@ msgid "Multi-line text"
 msgstr "Texte multi-ligne"
 
 #: src/Forms/Fields/TextField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1215
+#: src/Modules/ContactForm/Admin/FormsPage.php:1229
 msgid "Text"
 msgstr "Texte"
 
@@ -925,8 +1904,8 @@ msgid "Add a field here"
 msgstr "Ajouter un champ ici"
 
 #: src/Forms/FormEditorRenderer.php:162
-#: src/Modules/ContactForm/Admin/FormsPage.php:167
-#: src/Modules/Newsletter/Admin/FormsPage.php:544
+#: src/Modules/ContactForm/Admin/FormsPage.php:181
+#: src/Modules/Newsletter/Admin/FormsPage.php:553
 msgid "Field"
 msgstr "Champ"
 
@@ -1094,8 +2073,8 @@ msgid "Captcha activity over the last 30 days"
 msgstr "Activité du captcha sur les 30 derniers jours"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:193
-#: src/Modules/ContactForm/Admin/FormsPage.php:523
-#: src/Modules/ContactForm/Admin/FormsPage.php:932
+#: src/Modules/ContactForm/Admin/FormsPage.php:537
+#: src/Modules/ContactForm/Admin/FormsPage.php:946
 msgid "blocked"
 msgstr "cadenas"
 
@@ -1138,14 +2117,14 @@ msgid "Discard"
 msgstr "Abandonner"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:359
-#: src/Modules/ContactForm/Admin/FormsPage.php:540
-#: src/Modules/ContactForm/Admin/FormsPage.php:1060
+#: src/Modules/ContactForm/Admin/FormsPage.php:554
+#: src/Modules/ContactForm/Admin/FormsPage.php:1074
 #: src/Modules/Logging/Admin/LogsPage.php:282
 #: src/Modules/Logging/Admin/LogsPage.php:370
 #: src/Modules/Logging/Admin/LogViewPage.php:249
 #: src/Modules/Newsletter/Admin/CategoriesPage.php:87
-#: src/Modules/Newsletter/Admin/FormsPage.php:285
-#: src/Modules/Newsletter/Admin/FormsPage.php:443
+#: src/Modules/Newsletter/Admin/FormsPage.php:294
+#: src/Modules/Newsletter/Admin/FormsPage.php:452
 #: src/Modules/Newsletter/Admin/ListsPage.php:78
 #: src/Modules/SMTP/Admin/SettingsPage.php:200
 msgid "Delete"
@@ -1262,7 +2241,7 @@ msgid "None — no captcha here"
 msgstr "Aucun — pas de captcha ici"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:733
-#: src/Modules/ContactForm/Admin/FormsPage.php:88
+#: src/Modules/ContactForm/Admin/FormsPage.php:97
 #: src/Modules/Logging/Admin/LogsPage.php:522
 #: src/Modules/Newsletter/Admin/HomePage.php:95
 #: src/Modules/SMTP/Admin/SettingsPage.php:594
@@ -1270,14 +2249,14 @@ msgid "Saving…"
 msgstr "Enregistrement…"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:734
-#: src/Modules/ContactForm/Admin/FormsPage.php:89
+#: src/Modules/ContactForm/Admin/FormsPage.php:98
 #: src/Modules/Newsletter/Admin/HomePage.php:96
 #: src/Modules/SMTP/Admin/SettingsPage.php:595
 msgid "Saved"
 msgstr "Enregistré"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:735
-#: src/Modules/ContactForm/Admin/FormsPage.php:90
+#: src/Modules/ContactForm/Admin/FormsPage.php:99
 #: src/Modules/Newsletter/Admin/HomePage.php:97
 #: src/Modules/SMTP/Admin/SettingsPage.php:596
 msgid "Save failed"
@@ -1667,180 +2646,197 @@ msgstr "Formulaire sans titre"
 msgid "Could not create form."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:91
-#: src/Modules/ContactForm/Admin/FormsPage.php:350
+#: src/Modules/ContactForm/Admin/FormsPage.php:100
+#: src/Modules/ContactForm/Admin/FormsPage.php:364
 msgid "Add recipient"
 msgstr "Ajouter un destinataire"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:92
-#: src/Modules/ContactForm/Admin/FormsPage.php:342
+#: src/Modules/ContactForm/Admin/FormsPage.php:101
+#: src/Modules/ContactForm/Admin/FormsPage.php:356
 msgid "Remove this recipient"
 msgstr "Retirer ce destinataire"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:93
-#: src/Modules/ContactForm/Admin/FormsPage.php:339
+#: src/Modules/ContactForm/Admin/FormsPage.php:102
+#: src/Modules/ContactForm/Admin/FormsPage.php:353
 msgid "Pick a known email"
 msgstr "Choisir un email connu"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:94
-#: src/Modules/ContactForm/Admin/FormsPage.php:1313
+#: src/Modules/ContactForm/Admin/FormsPage.php:103
+#: src/Modules/ContactForm/Admin/FormsPage.php:1327
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1015
 msgid "email@example.com"
 msgstr "email@example.com"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:142
-#: src/Modules/Newsletter/Admin/FormsPage.php:527
+#: src/Modules/ContactForm/Admin/FormsPage.php:152
+#: src/Modules/Newsletter/Admin/FormsPage.php:536
 msgid "Add field"
 msgstr "Ajouter un champ"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:143
-#: src/Modules/Newsletter/Admin/FormsPage.php:528
+#: src/Modules/ContactForm/Admin/FormsPage.php:153
+#: src/Modules/Newsletter/Admin/FormsPage.php:537
 msgid "Field options"
 msgstr "Options du champ"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:144
-#: src/Modules/Newsletter/Admin/FormsPage.php:529
+#: src/Modules/ContactForm/Admin/FormsPage.php:154
+#: src/Modules/Newsletter/Admin/FormsPage.php:538
 msgid "Field slug"
 msgstr "Slug du champ"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:145
-#: src/Modules/Newsletter/Admin/FormsPage.php:530
+#: src/Modules/ContactForm/Admin/FormsPage.php:155
+#: src/Modules/Newsletter/Admin/FormsPage.php:539
 msgid "Helper text"
 msgstr "Texte d'aide"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:147
-#: src/Modules/Newsletter/Admin/FormsPage.php:532
+#: src/Modules/ContactForm/Admin/FormsPage.php:157
+#: src/Modules/Newsletter/Admin/FormsPage.php:541
 msgid "Placeholder"
 msgstr "Texte indicatif"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:148
-#: src/Modules/Newsletter/Admin/FormsPage.php:533
+#: src/Modules/ContactForm/Admin/FormsPage.php:158
+#: src/Modules/Newsletter/Admin/FormsPage.php:542
 msgid "Max length"
 msgstr "Longueur max."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:149
+#: src/Modules/ContactForm/Admin/FormsPage.php:159
 msgid "Rows"
 msgstr "Lignes"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:150
+#: src/Modules/ContactForm/Admin/FormsPage.php:160
 msgid "Min"
 msgstr "Min"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:151
+#: src/Modules/ContactForm/Admin/FormsPage.php:161
 msgid "Max"
 msgstr "Max"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:152
+#: src/Modules/ContactForm/Admin/FormsPage.php:162
 msgid "Step"
 msgstr "Pas"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:153
+#: src/Modules/ContactForm/Admin/FormsPage.php:163
+#: src/Modules/Newsletter/Admin/FormsPage.php:554
 msgid "Regex pattern"
 msgstr "Motif regex"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:154
+#: src/Modules/ContactForm/Admin/FormsPage.php:164
+#: src/Modules/Newsletter/Admin/FormsPage.php:555
+#, fuzzy
+msgid "Country code picker"
+msgstr "Sélecteur de catégorie"
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:166
+#: src/Modules/Newsletter/Admin/FormsPage.php:557
+msgid "Auto-detect from browser"
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:167
+#: src/Modules/Newsletter/Admin/FormsPage.php:558
+msgid "Auto (locale)"
+msgstr ""
+
+#: src/Modules/ContactForm/Admin/FormsPage.php:168
 msgid "Options"
 msgstr "Options"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:155
+#: src/Modules/ContactForm/Admin/FormsPage.php:169
 msgid "Add option"
 msgstr "Ajouter une option"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:156
+#: src/Modules/ContactForm/Admin/FormsPage.php:170
 msgid "Multiple choices"
 msgstr "Choix multiples"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:157
-#: src/Modules/Newsletter/Admin/FormsPage.php:534
+#: src/Modules/ContactForm/Admin/FormsPage.php:171
+#: src/Modules/Newsletter/Admin/FormsPage.php:543
 msgid "Alignment"
 msgstr "Alignement"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:158
-#: src/Modules/Newsletter/Admin/FormsPage.php:535
+#: src/Modules/ContactForm/Admin/FormsPage.php:172
+#: src/Modules/Newsletter/Admin/FormsPage.php:544
 msgid "Left"
 msgstr "Gauche"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:159
-#: src/Modules/Newsletter/Admin/FormsPage.php:536
+#: src/Modules/ContactForm/Admin/FormsPage.php:173
+#: src/Modules/Newsletter/Admin/FormsPage.php:545
 msgid "Center"
 msgstr "Centre"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:160
-#: src/Modules/Newsletter/Admin/FormsPage.php:537
+#: src/Modules/ContactForm/Admin/FormsPage.php:174
+#: src/Modules/Newsletter/Admin/FormsPage.php:546
 msgid "Right"
 msgstr "Droite"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:161
-#: src/Modules/Newsletter/Admin/FormsPage.php:538
+#: src/Modules/ContactForm/Admin/FormsPage.php:175
+#: src/Modules/Newsletter/Admin/FormsPage.php:547
 msgid "Full width"
 msgstr "Pleine largeur"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:162
-#: src/Modules/Newsletter/Admin/FormsPage.php:539
+#: src/Modules/ContactForm/Admin/FormsPage.php:176
+#: src/Modules/Newsletter/Admin/FormsPage.php:548
 msgid "Toggle required"
 msgstr "Basculer obligatoire"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:165
-#: src/Modules/ContactForm/Admin/FormsPage.php:1153
-#: src/Modules/Newsletter/Admin/FormsPage.php:346
-#: src/Modules/Newsletter/Admin/FormsPage.php:542
+#: src/Modules/ContactForm/Admin/FormsPage.php:179
+#: src/Modules/ContactForm/Admin/FormsPage.php:1167
+#: src/Modules/Newsletter/Admin/FormsPage.php:355
+#: src/Modules/Newsletter/Admin/FormsPage.php:551
 msgid "Undo"
 msgstr "Annuler"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:166
-#: src/Modules/ContactForm/Admin/FormsPage.php:1161
-#: src/Modules/Newsletter/Admin/FormsPage.php:354
-#: src/Modules/Newsletter/Admin/FormsPage.php:543
+#: src/Modules/ContactForm/Admin/FormsPage.php:180
+#: src/Modules/ContactForm/Admin/FormsPage.php:1175
+#: src/Modules/Newsletter/Admin/FormsPage.php:363
+#: src/Modules/Newsletter/Admin/FormsPage.php:552
 msgid "Redo"
 msgstr "Rétablir"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:170
+#: src/Modules/ContactForm/Admin/FormsPage.php:184
 msgid "None — no anti-spam challenge"
 msgstr "Aucun — pas de défi anti-spam"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:171
+#: src/Modules/ContactForm/Admin/FormsPage.php:185
 msgid "Uses the form's default challenge (set in Advanced settings)."
 msgstr ""
 "Utilise le défi par défaut du formulaire (défini dans les Réglages avancés)."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:172
+#: src/Modules/ContactForm/Admin/FormsPage.php:186
 msgid "No anti-spam challenge will be shown to visitors."
 msgstr "Aucun défi anti-spam ne sera affiché aux visiteurs."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:173
+#: src/Modules/ContactForm/Admin/FormsPage.php:187
 msgid "Option"
 msgstr "Option"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:174
+#: src/Modules/ContactForm/Admin/FormsPage.php:188
 msgid "Remove option"
 msgstr "Retirer l'option"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:175
+#: src/Modules/ContactForm/Admin/FormsPage.php:189
 msgid "Use as default"
 msgstr "Définir par défaut"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:176
+#: src/Modules/ContactForm/Admin/FormsPage.php:190
 msgid "Remove as default"
 msgstr "Retirer comme défaut"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:177
+#: src/Modules/ContactForm/Admin/FormsPage.php:191
 msgid "Placeholder text"
 msgstr "Texte indicatif"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:178
+#: src/Modules/ContactForm/Admin/FormsPage.php:192
 msgid "Single checkbox — no options needed."
 msgstr "Case à cocher unique — aucune option nécessaire."
 
 #. translators: 1: admin display name, 2: admin email
-#: src/Modules/ContactForm/Admin/FormsPage.php:299
+#: src/Modules/ContactForm/Admin/FormsPage.php:313
 msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:342
+#: src/Modules/ContactForm/Admin/FormsPage.php:356
 msgid "Remove"
 msgstr "Retirer"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:412
+#: src/Modules/ContactForm/Admin/FormsPage.php:426
 #: src/Modules/ContactForm/Admin/PageController.php:59
 #: src/Modules/ContactForm/Admin/PageController.php:60
 #: src/Modules/ContactForm/CPT.php:98 src/Modules/ContactForm/CPT.php:108
@@ -1848,97 +2844,97 @@ msgstr "Retirer"
 msgid "Contact Forms"
 msgstr "Formulaires de contact"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:418
+#: src/Modules/ContactForm/Admin/FormsPage.php:432
 msgid "View submissions"
 msgstr "Nouvelle soumission"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:422
+#: src/Modules/ContactForm/Admin/FormsPage.php:436
 msgid "Storage"
 msgstr "Stockage"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:426
+#: src/Modules/ContactForm/Admin/FormsPage.php:440
 msgid "Default settings"
 msgstr "Réglages par défaut"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:430
+#: src/Modules/ContactForm/Admin/FormsPage.php:444
 msgid "New form"
 msgstr "Nouveau formulaire"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:444
+#: src/Modules/ContactForm/Admin/FormsPage.php:458
 msgid "Enable the Contact Form module to start building forms."
 msgstr ""
 "Activez le module Formulaire de contact pour commencer à créer des "
 "formulaires."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:479
+#: src/Modules/ContactForm/Admin/FormsPage.php:493
 msgid "This form has no submissions yet. Deleting is final."
 msgstr "Ce formulaire n'a aucune soumission. La suppression est définitive."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:487
+#: src/Modules/ContactForm/Admin/FormsPage.php:501
 msgid "Delete form only"
 msgstr "Supprimer le champ"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:490
+#: src/Modules/ContactForm/Admin/FormsPage.php:504
 msgid "Delete form + submissions"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
 #. translators: %s: contact form title
-#: src/Modules/ContactForm/Admin/FormsPage.php:515
+#: src/Modules/ContactForm/Admin/FormsPage.php:529
 msgid "Delete contact form \"%s\"?"
 msgstr "Envoyé depuis le formulaire de contact « %s »"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:521
-#: src/Modules/ContactForm/Admin/FormsPage.php:522
-#: src/Modules/ContactForm/Admin/FormsPage.php:926
+#: src/Modules/ContactForm/Admin/FormsPage.php:535
+#: src/Modules/ContactForm/Admin/FormsPage.php:536
+#: src/Modules/ContactForm/Admin/FormsPage.php:940
 msgid "received"
 msgid_plural "received"
 msgstr[0] "reçue"
 msgstr[1] "reçues"
 
 #. translators: %1$d total submissions, %2$s breakdown
-#: src/Modules/ContactForm/Admin/FormsPage.php:526
+#: src/Modules/ContactForm/Admin/FormsPage.php:540
 msgid "This form has %1$d submissions (%2$s). What should happen to them?"
 msgstr "Ce formulaire a %1$d soumissions (%2$s). Que voulez-vous en faire ?"
 
 #. translators: %d: number of submissions
-#: src/Modules/ContactForm/Admin/FormsPage.php:534
+#: src/Modules/ContactForm/Admin/FormsPage.php:548
 msgid "Delete form + %d submissions"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:602
+#: src/Modules/ContactForm/Admin/FormsPage.php:616
 msgid "Submissions"
 msgstr "soumission"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:615
+#: src/Modules/ContactForm/Admin/FormsPage.php:629
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:174
 msgid "Spam blocked"
 msgstr "Spam bloqué"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:620
+#: src/Modules/ContactForm/Admin/FormsPage.php:634
 msgid "Failed to send"
 msgstr "email envoyé"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:625
+#: src/Modules/ContactForm/Admin/FormsPage.php:639
 msgid "Total (all time)"
 msgstr "Total (depuis le début)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:643
+#: src/Modules/ContactForm/Admin/FormsPage.php:657
 msgid "Defaults saved."
 msgstr "Valeurs par défaut enregistrées."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:645
+#: src/Modules/ContactForm/Admin/FormsPage.php:659
 msgid "Form deleted."
 msgstr "Formulaire supprimé."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:656
+#: src/Modules/ContactForm/Admin/FormsPage.php:670
 msgid "Your contact forms"
 msgstr "Vos formulaires de contact"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:661
+#: src/Modules/ContactForm/Admin/FormsPage.php:675
 msgid "Create my first contact form"
 msgstr "Créer mon premier formulaire de contact"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:663
+#: src/Modules/ContactForm/Admin/FormsPage.php:677
 msgid ""
 "Pick a starter template or build from scratch. Stacked anti-spam is on by "
 "default."
@@ -1946,78 +2942,78 @@ msgstr ""
 "Choisissez un modèle de démarrage ou créez le vôtre. L'anti-spam multi-"
 "couches est activé par défaut."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:666
+#: src/Modules/ContactForm/Admin/FormsPage.php:680
 msgid "Create a contact form"
 msgstr "Créer un formulaire de contact"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:741
+#: src/Modules/ContactForm/Admin/FormsPage.php:755
 msgid "Default — SMTP routing"
 msgstr "Par défaut — routage SMTP"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:756
-#: src/Modules/ContactForm/Admin/FormsPage.php:857
-#: src/Modules/ContactForm/Admin/FormsPage.php:1278
+#: src/Modules/ContactForm/Admin/FormsPage.php:770
+#: src/Modules/ContactForm/Admin/FormsPage.php:871
+#: src/Modules/ContactForm/Admin/FormsPage.php:1292
 msgid "None — no Reply-To header"
 msgstr "Aucun — pas d'en-tête Reply-To"
 
 #. translators: %s: form field slug used as the auto-default.
-#: src/Modules/ContactForm/Admin/FormsPage.php:762
+#: src/Modules/ContactForm/Admin/FormsPage.php:776
 msgid "Auto (%s — first email field)"
 msgstr "Auto (%s — premier champ email)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:766
+#: src/Modules/ContactForm/Admin/FormsPage.php:780
 msgid "No email field yet"
 msgstr "Aucun champ email pour le moment"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:771
-#: src/Modules/ContactForm/Admin/FormsPage.php:1285
+#: src/Modules/ContactForm/Admin/FormsPage.php:785
+#: src/Modules/ContactForm/Admin/FormsPage.php:1299
 msgid "[Site] New submission from {title}"
 msgstr "[Site] Nouvelle soumission depuis {title}"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:777
-#: src/Modules/ContactForm/Admin/FormsPage.php:1286
-#: src/Modules/ContactForm/Frontend.php:51
+#: src/Modules/ContactForm/Admin/FormsPage.php:791
+#: src/Modules/ContactForm/Admin/FormsPage.php:1300
+#: src/Modules/ContactForm/Frontend.php:54
 #: src/Modules/ContactForm/Settings.php:185
 msgid "Thanks! Your message has been sent."
 msgstr "Merci ! Votre message a bien été envoyé."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:794
-#: src/Modules/ContactForm/Admin/FormsPage.php:799
-#: src/Modules/ContactForm/Admin/FormsPage.php:804
-#: src/Modules/ContactForm/Admin/FormsPage.php:809
-#: src/Modules/ContactForm/Admin/FormsPage.php:1261
-#: src/Modules/ContactForm/Admin/FormsPage.php:1478
+#: src/Modules/ContactForm/Admin/FormsPage.php:808
+#: src/Modules/ContactForm/Admin/FormsPage.php:813
+#: src/Modules/ContactForm/Admin/FormsPage.php:818
+#: src/Modules/ContactForm/Admin/FormsPage.php:823
+#: src/Modules/ContactForm/Admin/FormsPage.php:1275
+#: src/Modules/ContactForm/Admin/FormsPage.php:1492
 msgid "On"
 msgstr "Activé"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:795
-#: src/Modules/ContactForm/Admin/FormsPage.php:800
-#: src/Modules/ContactForm/Admin/FormsPage.php:805
-#: src/Modules/ContactForm/Admin/FormsPage.php:810
-#: src/Modules/ContactForm/Admin/FormsPage.php:1262
-#: src/Modules/ContactForm/Admin/FormsPage.php:1479
+#: src/Modules/ContactForm/Admin/FormsPage.php:809
+#: src/Modules/ContactForm/Admin/FormsPage.php:814
+#: src/Modules/ContactForm/Admin/FormsPage.php:819
+#: src/Modules/ContactForm/Admin/FormsPage.php:824
+#: src/Modules/ContactForm/Admin/FormsPage.php:1276
+#: src/Modules/ContactForm/Admin/FormsPage.php:1493
 msgid "Off"
 msgstr "Désactivé"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:882
-#: src/Modules/Newsletter/Admin/FormsPage.php:208
+#: src/Modules/ContactForm/Admin/FormsPage.php:896
+#: src/Modules/Newsletter/Admin/FormsPage.php:217
 msgid "Form name"
 msgstr "Nom du formulaire"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:885
-#: src/Modules/Newsletter/Admin/FormsPage.php:211
+#: src/Modules/ContactForm/Admin/FormsPage.php:899
+#: src/Modules/Newsletter/Admin/FormsPage.php:220
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1428
 msgid "Draft"
 msgstr "Brouillon"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:892
-#: src/Modules/ContactForm/Admin/FormsPage.php:1310
+#: src/Modules/ContactForm/Admin/FormsPage.php:906
+#: src/Modules/ContactForm/Admin/FormsPage.php:1324
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:599
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1063
 msgid "Recipients"
 msgstr "Destinataires"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:896
+#: src/Modules/ContactForm/Admin/FormsPage.php:910
 msgid ""
 "No recipient is set anywhere — submissions will only be saved on this site, "
 "no email will be sent. Add at least one recipient below, or set a global "
@@ -2027,40 +3023,40 @@ msgstr ""
 "uniquement enregistrées sur ce site, aucun email ne sera envoyé. Ajoutez au "
 "moins un destinataire ci-dessous, ou définissez un défaut global."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:902
-#: src/Modules/ContactForm/Admin/FormsPage.php:1318
+#: src/Modules/ContactForm/Admin/FormsPage.php:916
+#: src/Modules/ContactForm/Admin/FormsPage.php:1332
 msgid "SMTP identity"
 msgstr "Identité SMTP"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:908
-#: src/Modules/ContactForm/Admin/FormsPage.php:1324
-#: src/Modules/Newsletter/Admin/FormsPage.php:250
+#: src/Modules/ContactForm/Admin/FormsPage.php:922
+#: src/Modules/ContactForm/Admin/FormsPage.php:1338
+#: src/Modules/Newsletter/Admin/FormsPage.php:259
 #: admin/js/contact-form-editor.js:106
 msgid "Style"
 msgstr "Style"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:910
-#: src/Modules/ContactForm/Admin/FormsPage.php:1327
-#: src/Modules/Newsletter/Admin/FormsPage.php:252
+#: src/Modules/ContactForm/Admin/FormsPage.php:924
+#: src/Modules/ContactForm/Admin/FormsPage.php:1341
+#: src/Modules/Newsletter/Admin/FormsPage.php:261
 #: admin/js/contact-form-editor.js:108
 msgid "Preset"
 msgstr "Préréglage"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:942
+#: src/Modules/ContactForm/Admin/FormsPage.php:956
 msgid "Advanced settings"
 msgstr "Réglages avancés"
 
 #. translators: %s: localized creation date
-#: src/Modules/ContactForm/Admin/FormsPage.php:947
+#: src/Modules/ContactForm/Admin/FormsPage.php:961
 msgid "Since %s"
 msgstr "Depuis le %s"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:960
-#: src/Modules/ContactForm/Admin/FormsPage.php:1365
+#: src/Modules/ContactForm/Admin/FormsPage.php:974
+#: src/Modules/ContactForm/Admin/FormsPage.php:1379
 msgid "Reply-To field"
 msgstr "Champ Reply-To"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:961
+#: src/Modules/ContactForm/Admin/FormsPage.php:975
 msgid ""
 "Which form field's email address is set as the Reply-To header on the "
 "notification. Pick \"None\" if you don't want a Reply-To header — some mail "
@@ -2071,12 +3067,12 @@ msgstr ""
 "To — certains fournisseurs de messagerie signalent comme spam un Reply-To "
 "différent de l'adresse d'expédition."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:967
-#: src/Modules/ContactForm/Admin/FormsPage.php:1372
+#: src/Modules/ContactForm/Admin/FormsPage.php:981
+#: src/Modules/ContactForm/Admin/FormsPage.php:1386
 msgid "Subject template"
 msgstr "Modèle de sujet"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:968
+#: src/Modules/ContactForm/Admin/FormsPage.php:982
 msgid ""
 "Subject line of the notification email. Tokens like {title} are replaced "
 "with form values. Open the dropdown to insert the default."
@@ -2085,13 +3081,13 @@ msgstr ""
 "remplacés par les valeurs du formulaire. Ouvrez le menu déroulant pour "
 "insérer la valeur par défaut."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:979
-#: src/Modules/ContactForm/Admin/FormsPage.php:1384
-#: src/Modules/Newsletter/Admin/FormsPage.php:262
+#: src/Modules/ContactForm/Admin/FormsPage.php:993
+#: src/Modules/ContactForm/Admin/FormsPage.php:1398
+#: src/Modules/Newsletter/Admin/FormsPage.php:271
 msgid "Success message"
 msgstr "Message de succès"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:980
+#: src/Modules/ContactForm/Admin/FormsPage.php:994
 msgid ""
 "Message shown to the visitor after a successful submission. Open the "
 "dropdown to insert the default."
@@ -2099,17 +3095,17 @@ msgstr ""
 "Message affiché au visiteur après une soumission réussie. Ouvrez le menu "
 "déroulant pour insérer la valeur par défaut."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:993
-#: src/Modules/ContactForm/Admin/FormsPage.php:1398
+#: src/Modules/ContactForm/Admin/FormsPage.php:1007
+#: src/Modules/ContactForm/Admin/FormsPage.php:1412
 msgid "Anti-spam"
 msgstr "Anti-spam"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:997
-#: src/Modules/ContactForm/Admin/FormsPage.php:1402
+#: src/Modules/ContactForm/Admin/FormsPage.php:1011
+#: src/Modules/ContactForm/Admin/FormsPage.php:1416
 msgid "Honeypot"
 msgstr "Honeypot"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:998
+#: src/Modules/ContactForm/Admin/FormsPage.php:1012
 msgid ""
 "A hidden field invisible to humans. If anything fills it, the submission is "
 "silently treated as spam. Effective against most automated bots; no impact "
@@ -2119,12 +3115,12 @@ msgstr ""
 "soumission est silencieusement traitée comme du spam. Efficace contre la "
 "plupart des bots automatisés ; aucun impact sur les vrais visiteurs."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1004
-#: src/Modules/ContactForm/Admin/FormsPage.php:1409
+#: src/Modules/ContactForm/Admin/FormsPage.php:1018
+#: src/Modules/ContactForm/Admin/FormsPage.php:1423
 msgid "Challenge"
 msgstr "Défi"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1005
+#: src/Modules/ContactForm/Admin/FormsPage.php:1019
 msgid ""
 "Anti-bot prompt visitors see (e.g. a tiny math question). Configured "
 "globally in the Captcha settings page; override here per form if needed."
@@ -2133,12 +3129,12 @@ msgstr ""
 "mathématique). Configurée globalement sur la page de réglages Captcha ; "
 "remplaçable ici par formulaire si besoin."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1011
-#: src/Modules/ContactForm/Admin/FormsPage.php:1510
+#: src/Modules/ContactForm/Admin/FormsPage.php:1025
+#: src/Modules/ContactForm/Admin/FormsPage.php:1524
 msgid "Save submissions"
 msgstr "soumission"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1012
+#: src/Modules/ContactForm/Admin/FormsPage.php:1026
 msgid ""
 "Archive received submissions to the database. When off, the notification "
 "email still goes out but no row is written and this form drops out of the "
@@ -2148,12 +3144,12 @@ msgstr ""
 "de notification est toujours envoyé mais aucune ligne n'est écrite et ce "
 "formulaire disparaît de la boîte de réception."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1018
-#: src/Modules/ContactForm/Admin/FormsPage.php:1426
+#: src/Modules/ContactForm/Admin/FormsPage.php:1032
+#: src/Modules/ContactForm/Admin/FormsPage.php:1440
 msgid "Throttling"
 msgstr "Limitation"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1019
+#: src/Modules/ContactForm/Admin/FormsPage.php:1033
 msgid ""
 "Server-side rate limit per submitter (identified by IP hash). Blocks the "
 "same address from re-submitting more than Max times within Window minutes."
@@ -2161,90 +3157,90 @@ msgstr ""
 "Limite de débit côté serveur par expéditeur (identifié par hachage d'IP). "
 "Empêche la même adresse de soumettre plus de Max fois dans Fenêtre minutes."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1023
-#: src/Modules/ContactForm/Admin/FormsPage.php:1431
+#: src/Modules/ContactForm/Admin/FormsPage.php:1037
+#: src/Modules/ContactForm/Admin/FormsPage.php:1445
 msgid "Max per IP"
 msgstr "Max par IP"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1033
-#: src/Modules/ContactForm/Admin/FormsPage.php:1440
+#: src/Modules/ContactForm/Admin/FormsPage.php:1047
+#: src/Modules/ContactForm/Admin/FormsPage.php:1454
 msgid "Window (min)"
 msgstr "Fenêtre (min)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1054
-#: src/Modules/ContactForm/Admin/FormsPage.php:1110
-#: src/Modules/Newsletter/Admin/FormsPage.php:279
+#: src/Modules/ContactForm/Admin/FormsPage.php:1068
+#: src/Modules/ContactForm/Admin/FormsPage.php:1124
+#: src/Modules/Newsletter/Admin/FormsPage.php:288
 msgid "(no title)"
 msgstr "(sans titre)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1082
+#: src/Modules/ContactForm/Admin/FormsPage.php:1096
 msgid "Start a new contact form"
 msgstr "Démarrer un nouveau formulaire de contact"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1089
-#: src/Modules/Newsletter/Admin/FormsPage.php:399
+#: src/Modules/ContactForm/Admin/FormsPage.php:1103
+#: src/Modules/Newsletter/Admin/FormsPage.php:408
 msgid "Starter templates"
 msgstr "Modèles de démarrage"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1092
-#: src/Modules/Newsletter/Admin/FormsPage.php:402
+#: src/Modules/ContactForm/Admin/FormsPage.php:1106
+#: src/Modules/Newsletter/Admin/FormsPage.php:411
 msgid "Blank form"
 msgstr "Formulaire vide"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1093
+#: src/Modules/ContactForm/Admin/FormsPage.php:1107
 msgid "Start with no fields and build from scratch."
 msgstr "Commencez sans aucun champ et construisez votre formulaire."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1106
+#: src/Modules/ContactForm/Admin/FormsPage.php:1120
 msgid "From your existing forms"
 msgstr "Depuis vos formulaires existants"
 
 #. translators: %s: submission count
-#: src/Modules/ContactForm/Admin/FormsPage.php:1114
+#: src/Modules/ContactForm/Admin/FormsPage.php:1128
 msgid "Clone this form (%s submissions so far)"
 msgstr "Cloner ce formulaire (%s soumissions jusqu'à présent)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1144
-#: src/Modules/ContactForm/Admin/FormsPage.php:1145
-#: src/Modules/Newsletter/Admin/FormsPage.php:337
-#: src/Modules/Newsletter/Admin/FormsPage.php:338
+#: src/Modules/ContactForm/Admin/FormsPage.php:1158
+#: src/Modules/ContactForm/Admin/FormsPage.php:1159
+#: src/Modules/Newsletter/Admin/FormsPage.php:346
+#: src/Modules/Newsletter/Admin/FormsPage.php:347
 msgid "Add a field"
 msgstr "Ajouter un champ"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1152
-#: src/Modules/Newsletter/Admin/FormsPage.php:345
+#: src/Modules/ContactForm/Admin/FormsPage.php:1166
+#: src/Modules/Newsletter/Admin/FormsPage.php:354
 msgid "Undo (Ctrl+Z)"
 msgstr "Annuler (Ctrl+Z)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1160
-#: src/Modules/Newsletter/Admin/FormsPage.php:353
+#: src/Modules/ContactForm/Admin/FormsPage.php:1174
+#: src/Modules/Newsletter/Admin/FormsPage.php:362
 msgid "Redo (Ctrl+Shift+Z)"
 msgstr "Rétablir (Ctrl+Maj+Z)"
 
 #. translators: %s: current default value, shown as "Default — X" in placeholders and Default-identity labels
-#: src/Modules/ContactForm/Admin/FormsPage.php:1194
+#: src/Modules/ContactForm/Admin/FormsPage.php:1208
 #: src/Modules/SMTP/Admin/SettingsPage.php:376
 #: src/Modules/SMTP/Admin/SettingsPage.php:397
 msgid "Default — %s"
 msgstr "Par défaut — %s"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1217
+#: src/Modules/ContactForm/Admin/FormsPage.php:1231
 msgid "Long text"
 msgstr "Texte long"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1222
+#: src/Modules/ContactForm/Admin/FormsPage.php:1236
 msgid "Radio"
 msgstr "Bouton radio"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1251
+#: src/Modules/ContactForm/Admin/FormsPage.php:1265
 msgid "SMTP routing decides"
 msgstr "Le routage SMTP décide"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1292
+#: src/Modules/ContactForm/Admin/FormsPage.php:1306
 msgid "Default settings for new forms"
 msgstr "Réglages par défaut pour les nouveaux formulaires"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1299
+#: src/Modules/ContactForm/Admin/FormsPage.php:1313
 msgid ""
 "Apply to every form unless overridden in the form's settings. Changes save "
 "automatically."
@@ -2252,23 +3248,23 @@ msgstr ""
 "S'applique à chaque formulaire sauf si remplacé dans les réglages du "
 "formulaire. Les modifications sont enregistrées automatiquement."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1331
+#: src/Modules/ContactForm/Admin/FormsPage.php:1345
 msgid "Accent color"
 msgstr "Couleur d'accentuation"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1336
+#: src/Modules/ContactForm/Admin/FormsPage.php:1350
 msgid "Inherit from theme"
 msgstr "Hériter du thème"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1339
+#: src/Modules/ContactForm/Admin/FormsPage.php:1353
 msgid "Corner roundness"
 msgstr "Arrondi des coins"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1347
+#: src/Modules/ContactForm/Admin/FormsPage.php:1361
 msgid "Font size"
 msgstr "Taille de police"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1366
+#: src/Modules/ContactForm/Admin/FormsPage.php:1380
 msgid ""
 "Slug of an email field on the form whose value becomes the Reply-To header. "
 "Forms override this individually."
@@ -2276,7 +3272,7 @@ msgstr ""
 "Slug d'un champ email du formulaire dont la valeur devient l'en-tête Reply-"
 "To. Les formulaires remplacent ce réglage individuellement."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1373
+#: src/Modules/ContactForm/Admin/FormsPage.php:1387
 msgid ""
 "Subject line of the notification email. Tokens like {title} are replaced "
 "with form values."
@@ -2284,11 +3280,11 @@ msgstr ""
 "Ligne d'objet de l'email de notification. Les jetons comme {title} sont "
 "remplacés par les valeurs du formulaire."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1385
+#: src/Modules/ContactForm/Admin/FormsPage.php:1399
 msgid "Message shown to the visitor after a successful submission."
 msgstr "Message affiché au visiteur après une soumission réussie."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1403
+#: src/Modules/ContactForm/Admin/FormsPage.php:1417
 msgid ""
 "A hidden field invisible to humans. If anything fills it, the submission is "
 "silently treated as spam."
@@ -2297,7 +3293,7 @@ msgstr ""
 "soumission est silencieusement traitée comme du spam."
 
 #. translators: %s: URL to the Captcha settings page
-#: src/Modules/ContactForm/Admin/FormsPage.php:1416
+#: src/Modules/ContactForm/Admin/FormsPage.php:1430
 msgid ""
 "Configured on the <a href=\"%s\">Captcha settings page</a> under \"Contact "
 "forms\". Each form can still override this default."
@@ -2306,7 +3302,7 @@ msgstr ""
 "« Formulaires de contact ». Chaque formulaire peut toujours remplacer ce "
 "défaut."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1427
+#: src/Modules/ContactForm/Admin/FormsPage.php:1441
 msgid ""
 "Server-side rate limit per submitter (IP hash). Blocks more than Max "
 "submissions within Window minutes."
@@ -2314,19 +3310,19 @@ msgstr ""
 "Limite de débit côté serveur par expéditeur (hachage d'IP). Bloque plus de "
 "Max soumissions dans Fenêtre minutes."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1482
+#: src/Modules/ContactForm/Admin/FormsPage.php:1496
 msgid "Hash only (recommended)"
 msgstr "— Aucun (non recommandé) —"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1483
+#: src/Modules/ContactForm/Admin/FormsPage.php:1497
 msgid "Store raw IP"
 msgstr "Stocker l'IP brute"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1490
+#: src/Modules/ContactForm/Admin/FormsPage.php:1504
 msgid "Submissions storage"
 msgstr "soumission"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1497
+#: src/Modules/ContactForm/Admin/FormsPage.php:1511
 msgid ""
 "What gets kept when a form is submitted, for how long, and how IPs are "
 "recorded. Changes save automatically."
@@ -2335,7 +3331,7 @@ msgstr ""
 "comment les IP sont enregistrées. Les modifications sont enregistrées "
 "automatiquement."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1511
+#: src/Modules/ContactForm/Admin/FormsPage.php:1525
 msgid ""
 "Archive every received submission in the database (browsable in the "
 "Submissions inbox). Turn off if you only want the notification email and no "
@@ -2345,11 +3341,11 @@ msgstr ""
 "réception). Désactivez si vous ne voulez que l'e-mail de notification sans "
 "piste d'audit — le captcha et le honeypot restent actifs."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1517
+#: src/Modules/ContactForm/Admin/FormsPage.php:1531
 msgid "IP storage"
 msgstr "Stockage des IP"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1518
+#: src/Modules/ContactForm/Admin/FormsPage.php:1532
 msgid ""
 "Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes "
 "abuse investigation easier but requires a lawful basis in some "
@@ -2361,11 +3357,11 @@ msgstr ""
 "certaines juridictions. Les formulaires de contact sont actuellement le seul "
 "endroit où la boîte à outils capture une IP client."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1524
+#: src/Modules/ContactForm/Admin/FormsPage.php:1538
 msgid "Keep delivered for (days)"
 msgstr "Conservation des livrés (jours)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1525
+#: src/Modules/ContactForm/Admin/FormsPage.php:1539
 msgid ""
 "Submissions whose notification was sent. 0 = keep forever. Daily cron purges "
 "older rows."
@@ -2373,11 +3369,11 @@ msgstr ""
 "Soumissions dont la notification a été envoyée. 0 = conservation indéfinie. "
 "Un cron quotidien purge les lignes plus anciennes."
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1537
+#: src/Modules/ContactForm/Admin/FormsPage.php:1551
 msgid "Keep spam for (days)"
 msgstr "Conservation du spam (jours)"
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1538
+#: src/Modules/ContactForm/Admin/FormsPage.php:1552
 msgid ""
 "Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and "
 "stored rows are mostly useful for short-term forensics. 0 = keep forever."
@@ -2606,21 +3602,26 @@ msgstr "Aucun formulaire de contact sélectionné."
 msgid "Contact form not found or not published."
 msgstr "Formulaire de contact introuvable ou non publié."
 
-#: src/Modules/ContactForm/Frontend.php:50
+#: src/Modules/ContactForm/Frontend.php:53
 msgid "Something went wrong. Please try again."
 msgstr "Une erreur est survenue. Veuillez réessayer."
 
-#: src/Modules/ContactForm/Frontend.php:52
+#: src/Modules/ContactForm/Frontend.php:55
 #: src/Modules/ContactForm/SubmitHandler.php:307
 #: src/Modules/Newsletter/SubmitHandler.php:121
 #: src/Modules/Newsletter/SubmitHandler.php:122
 msgid "Please enter a valid email address."
 msgstr "Veuillez saisir une adresse email valide."
 
-#: src/Modules/ContactForm/Frontend.php:53
+#: src/Modules/ContactForm/Frontend.php:56
 #: src/Modules/ContactForm/SubmitHandler.php:297
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
+
+#: src/Modules/ContactForm/Frontend.php:57
+#, fuzzy
+msgid "Search country…"
+msgstr "Rechercher par email ou nom…"
 
 #: src/Modules/ContactForm/Module.php:55
 msgid ""
@@ -3437,19 +4438,19 @@ msgstr ""
 "Supprimer la catégorie « %s » ? Les désabonnements existants pour cette "
 "catégorie seront ignorés à partir de maintenant."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:121
+#: src/Modules/Newsletter/Admin/FormsPage.php:130
 msgid "Subscribe forms"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:124
+#: src/Modules/Newsletter/Admin/FormsPage.php:133
 msgid "New subscribe form"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:133
+#: src/Modules/Newsletter/Admin/FormsPage.php:142
 msgid "Create your first subscribe form"
 msgstr "Créer mon premier formulaire de contact"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:135
+#: src/Modules/Newsletter/Admin/FormsPage.php:144
 msgid ""
 "Subscribe forms collect new email-only subscribers, with double-opt-in "
 "confirmation handled automatically."
@@ -3457,54 +4458,54 @@ msgstr ""
 "Les formulaires d'inscription collectent de nouveaux abonnés par email, avec "
 "confirmation en double opt-in gérée automatiquement."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:138
+#: src/Modules/Newsletter/Admin/FormsPage.php:147
 msgid "Create a subscribe form"
 msgstr "Créer mon premier formulaire de contact"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:188
-#: src/Modules/Newsletter/Admin/FormsPage.php:308
+#: src/Modules/Newsletter/Admin/FormsPage.php:197
+#: src/Modules/Newsletter/Admin/FormsPage.php:317
 #: src/Modules/Newsletter/Admin/HomePage.php:342
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:732
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:910
 msgid "(untitled)"
 msgstr "(sans titre)"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:218
+#: src/Modules/Newsletter/Admin/FormsPage.php:227
 msgid "Confirmation email template"
 msgstr "Échec de la connexion."
 
 #. translators: %1$s: opening <a> tag, %2$s: closing </a> tag, around "Onboarding view".
-#: src/Modules/Newsletter/Admin/FormsPage.php:230
+#: src/Modules/Newsletter/Admin/FormsPage.php:239
 msgid "Edit confirmation emails in the %1$sOnboarding view%2$s."
 msgstr "Modifiez les emails de confirmation dans la %1$svue Onboarding%2$s."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:239
+#: src/Modules/Newsletter/Admin/FormsPage.php:248
 msgid "Default list"
 msgstr "Emails par défaut"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:244
+#: src/Modules/Newsletter/Admin/FormsPage.php:253
 msgid "No automatic list — coming soon"
 msgstr "Aucune liste automatique — bientôt disponible"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:267
+#: src/Modules/Newsletter/Admin/FormsPage.php:276
 #: src/Modules/Newsletter/SubmitHandler.php:533
 msgid "Thanks! Check your inbox to confirm your subscription."
 msgstr ""
 "Merci ! Consultez votre boîte de réception pour confirmer votre inscription."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:303
+#: src/Modules/Newsletter/Admin/FormsPage.php:312
 msgid "Default — no template available"
 msgstr "Emails par défaut"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:392
+#: src/Modules/Newsletter/Admin/FormsPage.php:401
 msgid "Start a new subscribe form"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:403
+#: src/Modules/Newsletter/Admin/FormsPage.php:412
 msgid "Start empty and add the fields you want."
 msgstr "Démarrez vide et ajoutez les champs souhaités."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:436
+#: src/Modules/Newsletter/Admin/FormsPage.php:445
 msgid ""
 "This will permanently delete the subscribe form. Existing subscribers are "
 "not affected."
@@ -3513,20 +4514,20 @@ msgstr ""
 "existants ne sont pas affectés."
 
 #. translators: %s: subscribe form title
-#: src/Modules/Newsletter/Admin/FormsPage.php:461
+#: src/Modules/Newsletter/Admin/FormsPage.php:470
 msgid "Delete subscribe form \"%s\"?"
 msgstr "Envoyé depuis le formulaire de contact « %s »"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:516
+#: src/Modules/Newsletter/Admin/FormsPage.php:525
 msgid "Text (name, etc.)"
 msgstr "Texte (nom, etc.)"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:517
+#: src/Modules/Newsletter/Admin/FormsPage.php:526
 #: src/Modules/Newsletter/Fields/ListPicker.php:35
 msgid "List picker"
 msgstr "Sélecteur de liste"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:518
+#: src/Modules/Newsletter/Admin/FormsPage.php:527
 #: src/Modules/Newsletter/Fields/CategoryPicker.php:36
 msgid "Category picker"
 msgstr "Sélecteur de catégorie"

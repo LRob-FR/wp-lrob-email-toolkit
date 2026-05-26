@@ -4,6 +4,8 @@ Guidance for Claude Code sessions working in this repository.
 
 **Project status & history → [completed.md](./completed.md). Backlog → [todo.md](./todo.md).** Read those when planning new work or claiming something's shipped.
 
+**Keep these two files in sync as you work.** Whenever a feature lands or a backlog item gains/loses scope, update `todo.md` and `completed.md` in the same change — don't defer to "later". Stale entries (e.g. *working tree; pending release* on something already shipped, or a backlog bullet for something now in `completed.md`) are bugs in the docs.
+
 ## Project
 
 WordPress plugin **LRob - Email Toolkit** (slug `lrob-email-toolkit`). Modular all-in-one email plugin. Each module (SMTP, Logging, Contact Form, Captcha, Newsletter, future Integrations) is independently activatable. Requires PHP 8.1+ and WordPress 6.0+.

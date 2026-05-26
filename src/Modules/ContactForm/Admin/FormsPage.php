@@ -9,11 +9,13 @@ use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Admin\ModuleToggle;
 use LRob\EmailToolkit\Admin\Tooltip;
 use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
+use LRob\EmailToolkit\Forms\CountryData;
 use LRob\EmailToolkit\Forms\FormEditorRenderer;
 use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Forms\StylePresets;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
+use LRob\EmailToolkit\Modules\ContactForm\Frontend as FormFrontend;
 use LRob\EmailToolkit\Modules\ContactForm\Module as ContactFormModule;
 use LRob\EmailToolkit\Modules\ContactForm\Settings;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
@@ -68,6 +70,13 @@ final class FormsPage
             [],
             self::asset_version('assets/css/contact-form.css')
         );
+
+        // The frontend form JS exposes `window.lrobEtkPhone.attach()` and
+        // `window.lrobEtkForm.countries`, both required to hydrate the
+        // editor preview's phone country picker. Its submit handler binds
+        // to .lrob-etk-form but the editor wraps fields in a <div>, so the
+        // bound listener is a no-op here.
+        FormFrontend::enqueue_assets();
 
         // The shared combobox (lrob-etk-controls) is enqueued plugin-wide
         // via Admin\Assets, so we only need our auto-save script here.
@@ -131,6 +140,7 @@ final class FormsPage
             'fieldTypes'     => self::field_types(),
             'captchaKey'     => CPT::META_CHALLENGE_KIND,
             'captchaOptions' => $captcha_options,
+            'countries'      => CountryData::all_translated(),
             // Save plumbing for the shared editor JS. Falls back to
             // lrobEtkCfAdmin if absent (legacy / cached pages).
             'save' => [
@@ -151,6 +161,10 @@ final class FormsPage
                 'max'          => __('Max', 'lrob-email-toolkit'),
                 'step'         => __('Step', 'lrob-email-toolkit'),
                 'pattern'      => __('Regex pattern', 'lrob-email-toolkit'),
+                'countryPicker'      => __('Country code picker', 'lrob-email-toolkit'),
+                'defaultCountry'     => __('Default', 'lrob-email-toolkit'),
+                'autoDetectCountry'  => __('Auto-detect from browser', 'lrob-email-toolkit'),
+                'autoFromLocale'     => __('Auto (locale)', 'lrob-email-toolkit'),
                 'options'      => __('Options', 'lrob-email-toolkit'),
                 'addOption'    => __('Add option', 'lrob-email-toolkit'),
                 'multiple'     => __('Multiple choices', 'lrob-email-toolkit'),
