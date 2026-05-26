@@ -77,8 +77,6 @@ Real features, well worth doing, but the plugin isn't materially worse without t
 - **Cross-feature captcha enrichment.** More providers (Cloudflare Turnstile, Google reCAPTCHA) — drop into `Providers/`, auto-discovered. More in-house challenges (image-letter, simple logic, proof-of-work using local browser compute) — drop into `Challenges/`, also auto-discovered.
 
 ### Cross-cutting polish
-- **Per-action nonces on destructive endpoints** (defense in depth). Currently each module uses one nonce shared across all its AJAX actions (per-module pattern, well within WP conventions — see CLAUDE.md). Tighter granularity for *destructive* actions (delete identity, set default, save routing in both SMTP and Captcha) would be defense in depth at low cost (~50 lines): each endpoint creates its own nonce, JS sends both module + action nonce, handler verifies the action nonce in addition to the existing module gate. Not a security fix — the existing pattern is defensible — just a nice-to-have for cap-stripped low-privilege admin scenarios (which we don't currently have, since every endpoint is `manage_lrob_etk`-gated).
-
 - **Per-context SMTP identity routing.** Admin assigns identities to email categories (WooCommerce, admin notifications, contact forms, etc.) on the SMTP settings page. `MailRouter` matches from headers / hook context.
 - **Subscribe-to-comments.** Visitor-facing. Per-thread token, list-unsubscribe header. Integrates with SMTP routing + captcha + logging.
 - **Email export.** Bulk CSV (possibly mbox/EML). Reuse `LogRepository` filtered query helpers. Stream the response.
