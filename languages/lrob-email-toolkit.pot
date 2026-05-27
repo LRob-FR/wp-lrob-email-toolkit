@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-27T20:34:48+00:00\n"
+"POT-Creation-Date: 2026-05-27T21:06:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -299,8 +299,8 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1643
 #: src/Modules/Logging/Admin/LogsPage.php:488
 #: src/Modules/Logging/Admin/LogsPage.php:586
-#: src/Modules/Newsletter/Admin/FormsPage.php:616
-#: src/Modules/Newsletter/Admin/FormsPage.php:654
+#: src/Modules/Newsletter/Admin/FormsPage.php:617
+#: src/Modules/Newsletter/Admin/FormsPage.php:655
 #: src/Modules/Newsletter/Admin/HomePage.php:327
 #: src/Modules/Newsletter/Admin/ListsPage.php:38
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1082
@@ -357,7 +357,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:108
 #: src/Modules/ContactForm/Admin/FormsPage.php:578
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:826
-#: src/Modules/Newsletter/Admin/FormsPage.php:663
+#: src/Modules/Newsletter/Admin/FormsPage.php:664
 #: src/Modules/Newsletter/Admin/ListsPage.php:820
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1127
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1223
@@ -801,7 +801,7 @@ msgstr ""
 #: src/Forms/CaptchaField.php:127
 #: src/Forms/CaptchaField.php:289
 #: src/Modules/ContactForm/Admin/FormsPage.php:1314
-#: src/Modules/Newsletter/Admin/FormsPage.php:516
+#: src/Modules/Newsletter/Admin/FormsPage.php:517
 #: admin/js/contact-form-editor.js:44
 msgid "Default (%s)"
 msgstr ""
@@ -813,7 +813,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:498
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/ContactForm/Admin/FormsPage.php:256
-#: src/Modules/Newsletter/Admin/FormsPage.php:840
+#: src/Modules/Newsletter/Admin/FormsPage.php:841
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr ""
@@ -1837,20 +1837,20 @@ msgstr ""
 #: src/Forms/FieldRenderHelpers.php:168
 #: src/Forms/FieldRenderHelpers.php:356
 #: src/Modules/ContactForm/Admin/FormsPage.php:251
-#: src/Modules/Newsletter/Admin/FormsPage.php:834
+#: src/Modules/Newsletter/Admin/FormsPage.php:835
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:202
 #: src/Modules/ContactForm/Admin/FormsPage.php:211
-#: src/Modules/Newsletter/Admin/FormsPage.php:824
+#: src/Modules/Newsletter/Admin/FormsPage.php:825
 msgid "Required"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:210
 #: src/Modules/ContactForm/Admin/FormsPage.php:250
-#: src/Modules/Newsletter/Admin/FormsPage.php:833
+#: src/Modules/Newsletter/Admin/FormsPage.php:834
 msgid "(optional helper text)"
 msgstr ""
 
@@ -1864,7 +1864,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1323
 #: src/Modules/ContactForm/Admin/FormsPage.php:1506
 #: src/Modules/ContactForm/TemplateRegistry.php:121
-#: src/Modules/Newsletter/Admin/FormsPage.php:738
+#: src/Modules/Newsletter/Admin/FormsPage.php:739
 #: src/Modules/Newsletter/Admin/HomePage.php:197
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:36
 #: src/Modules/Newsletter/FormTemplateRegistry.php:114
@@ -1891,7 +1891,6 @@ msgid "Choose a file"
 msgstr ""
 
 #. translators: 1: max size per file MB, 2: comma-separated extension list
-#. translators: 1: max MB per file, 2: extension list joined by commas (e.g. .pdf, .jpg)
 #: src/Forms/Fields/FileUploadField.php:127
 #: src/Modules/ContactForm/Admin/FormsPage.php:239
 msgid "Max %1$d MB per file — %2$s"
@@ -1915,9 +1914,9 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1326
 #: src/Modules/ContactForm/TemplateRegistry.php:102
 #: src/Modules/ContactForm/TemplateRegistry.php:122
-#: src/Modules/Newsletter/Admin/FormsPage.php:740
-#: src/Modules/Newsletter/Admin/FormsPage.php:777
-#: src/Modules/Newsletter/Admin/FormsPage.php:779
+#: src/Modules/Newsletter/Admin/FormsPage.php:741
+#: src/Modules/Newsletter/Admin/FormsPage.php:778
+#: src/Modules/Newsletter/Admin/FormsPage.php:780
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:40
 #: src/Modules/Newsletter/FormTemplateRegistry.php:117
 #: src/Modules/Newsletter/FormTemplateRegistry.php:136
@@ -1940,7 +1939,7 @@ msgid "Dropdown"
 msgstr ""
 
 #: src/Forms/Fields/SubmitField.php:20
-#: src/Modules/Newsletter/Admin/FormsPage.php:744
+#: src/Modules/Newsletter/Admin/FormsPage.php:745
 msgid "Submit button"
 msgstr ""
 
@@ -1973,7 +1972,7 @@ msgstr ""
 
 #: src/Forms/FormEditorRenderer.php:167
 #: src/Modules/ContactForm/Admin/FormsPage.php:254
-#: src/Modules/Newsletter/Admin/FormsPage.php:837
+#: src/Modules/Newsletter/Admin/FormsPage.php:838
 msgid "Field"
 msgstr ""
 
@@ -2215,8 +2214,8 @@ msgstr ""
 #: src/Modules/Logging/Admin/LogsPage.php:589
 #: src/Modules/Logging/Admin/LogViewPage.php:263
 #: src/Modules/Logging/Admin/LogViewPage.php:273
-#: src/Modules/Newsletter/Admin/FormsPage.php:318
-#: src/Modules/Newsletter/Admin/FormsPage.php:666
+#: src/Modules/Newsletter/Admin/FormsPage.php:319
+#: src/Modules/Newsletter/Admin/FormsPage.php:667
 #: src/Modules/Newsletter/Admin/ListsPage.php:819
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:342
 #: src/Modules/SMTP/Admin/SettingsPage.php:199
@@ -2784,32 +2783,32 @@ msgid "email@example.com"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:207
-#: src/Modules/Newsletter/Admin/FormsPage.php:820
+#: src/Modules/Newsletter/Admin/FormsPage.php:821
 msgid "Add field"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:208
-#: src/Modules/Newsletter/Admin/FormsPage.php:821
+#: src/Modules/Newsletter/Admin/FormsPage.php:822
 msgid "Field options"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:209
-#: src/Modules/Newsletter/Admin/FormsPage.php:822
+#: src/Modules/Newsletter/Admin/FormsPage.php:823
 msgid "Field slug"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:210
-#: src/Modules/Newsletter/Admin/FormsPage.php:823
+#: src/Modules/Newsletter/Admin/FormsPage.php:824
 msgid "Helper text"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:212
-#: src/Modules/Newsletter/Admin/FormsPage.php:825
+#: src/Modules/Newsletter/Admin/FormsPage.php:826
 msgid "Placeholder"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:213
-#: src/Modules/Newsletter/Admin/FormsPage.php:826
+#: src/Modules/Newsletter/Admin/FormsPage.php:827
 msgid "Max length"
 msgstr ""
 
@@ -2830,22 +2829,22 @@ msgid "Step"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:218
-#: src/Modules/Newsletter/Admin/FormsPage.php:838
+#: src/Modules/Newsletter/Admin/FormsPage.php:839
 msgid "Regex pattern"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:219
-#: src/Modules/Newsletter/Admin/FormsPage.php:839
+#: src/Modules/Newsletter/Admin/FormsPage.php:840
 msgid "Country code picker"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:221
-#: src/Modules/Newsletter/Admin/FormsPage.php:841
+#: src/Modules/Newsletter/Admin/FormsPage.php:842
 msgid "Auto-detect from browser"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:222
-#: src/Modules/Newsletter/Admin/FormsPage.php:842
+#: src/Modules/Newsletter/Admin/FormsPage.php:843
 msgid "Auto (locale)"
 msgstr ""
 
@@ -2909,47 +2908,47 @@ msgid "Add option"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:244
-#: src/Modules/Newsletter/Admin/FormsPage.php:827
+#: src/Modules/Newsletter/Admin/FormsPage.php:828
 msgid "Alignment"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:245
-#: src/Modules/Newsletter/Admin/FormsPage.php:828
+#: src/Modules/Newsletter/Admin/FormsPage.php:829
 msgid "Left"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:246
-#: src/Modules/Newsletter/Admin/FormsPage.php:829
+#: src/Modules/Newsletter/Admin/FormsPage.php:830
 msgid "Center"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:247
-#: src/Modules/Newsletter/Admin/FormsPage.php:830
+#: src/Modules/Newsletter/Admin/FormsPage.php:831
 msgid "Right"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:248
-#: src/Modules/Newsletter/Admin/FormsPage.php:831
+#: src/Modules/Newsletter/Admin/FormsPage.php:832
 msgid "Full width"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:249
-#: src/Modules/Newsletter/Admin/FormsPage.php:832
+#: src/Modules/Newsletter/Admin/FormsPage.php:833
 msgid "Toggle required"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:252
 #: src/Modules/ContactForm/Admin/FormsPage.php:1260
-#: src/Modules/Newsletter/Admin/FormsPage.php:545
-#: src/Modules/Newsletter/Admin/FormsPage.php:835
+#: src/Modules/Newsletter/Admin/FormsPage.php:546
+#: src/Modules/Newsletter/Admin/FormsPage.php:836
 #: src/Modules/Newsletter/Admin/HomePage.php:153
 msgid "Undo"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:253
 #: src/Modules/ContactForm/Admin/FormsPage.php:1268
-#: src/Modules/Newsletter/Admin/FormsPage.php:553
-#: src/Modules/Newsletter/Admin/FormsPage.php:836
+#: src/Modules/Newsletter/Admin/FormsPage.php:554
+#: src/Modules/Newsletter/Admin/FormsPage.php:837
 msgid "Redo"
 msgstr ""
 
@@ -3153,12 +3152,12 @@ msgid "Off"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:986
-#: src/Modules/Newsletter/Admin/FormsPage.php:236
+#: src/Modules/Newsletter/Admin/FormsPage.php:237
 msgid "Form name"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:989
-#: src/Modules/Newsletter/Admin/FormsPage.php:239
+#: src/Modules/Newsletter/Admin/FormsPage.php:240
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1573
 msgid "Draft"
 msgstr ""
@@ -3181,21 +3180,21 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1012
 #: src/Modules/ContactForm/Admin/FormsPage.php:1469
-#: src/Modules/Newsletter/Admin/FormsPage.php:283
+#: src/Modules/Newsletter/Admin/FormsPage.php:284
 #: admin/js/contact-form-editor.js:106
 msgid "Style"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1014
 #: src/Modules/ContactForm/Admin/FormsPage.php:1472
-#: src/Modules/Newsletter/Admin/FormsPage.php:285
+#: src/Modules/Newsletter/Admin/FormsPage.php:286
 #: admin/js/contact-form-editor.js:108
 msgid "Preset"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1024
 #: src/Modules/ContactForm/Admin/FormsPage.php:1529
-#: src/Modules/Newsletter/Admin/FormsPage.php:295
+#: src/Modules/Newsletter/Admin/FormsPage.php:296
 msgid "Success message"
 msgstr ""
 
@@ -3283,7 +3282,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1161
 #: src/Modules/ContactForm/Admin/FormsPage.php:1217
-#: src/Modules/Newsletter/Admin/FormsPage.php:312
+#: src/Modules/Newsletter/Admin/FormsPage.php:313
 msgid "(no title)"
 msgstr ""
 
@@ -3292,12 +3291,12 @@ msgid "Start a new contact form"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1196
-#: src/Modules/Newsletter/Admin/FormsPage.php:622
+#: src/Modules/Newsletter/Admin/FormsPage.php:623
 msgid "Starter templates"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1199
-#: src/Modules/Newsletter/Admin/FormsPage.php:625
+#: src/Modules/Newsletter/Admin/FormsPage.php:626
 msgid "Blank form"
 msgstr ""
 
@@ -3316,18 +3315,18 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1251
 #: src/Modules/ContactForm/Admin/FormsPage.php:1252
-#: src/Modules/Newsletter/Admin/FormsPage.php:536
 #: src/Modules/Newsletter/Admin/FormsPage.php:537
+#: src/Modules/Newsletter/Admin/FormsPage.php:538
 msgid "Add a field"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1259
-#: src/Modules/Newsletter/Admin/FormsPage.php:544
+#: src/Modules/Newsletter/Admin/FormsPage.php:545
 msgid "Undo (Ctrl+Z)"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1267
-#: src/Modules/Newsletter/Admin/FormsPage.php:552
+#: src/Modules/Newsletter/Admin/FormsPage.php:553
 msgid "Redo (Ctrl+Shift+Z)"
 msgstr ""
 
@@ -3599,8 +3598,9 @@ msgstr ""
 msgid "Contact Form Submissions"
 msgstr ""
 
+#. translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —".
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:131
-#: src/Modules/Newsletter/Admin/FormsPage.php:144
+#: src/Modules/Newsletter/Admin/FormsPage.php:145
 #: src/Modules/Newsletter/Admin/HomePage.php:263
 msgid "Forms"
 msgstr ""
@@ -4147,7 +4147,7 @@ msgid "Send message"
 msgstr ""
 
 #: src/Modules/ContactForm/TemplateRegistry.php:117
-#: src/Modules/Newsletter/Admin/FormsPage.php:771
+#: src/Modules/Newsletter/Admin/FormsPage.php:772
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:38
 #: src/Modules/Newsletter/FormTemplateRegistry.php:110
 #: src/Modules/Newsletter/FormTemplateRegistry.php:129
@@ -4157,7 +4157,7 @@ msgid "First name"
 msgstr ""
 
 #: src/Modules/ContactForm/TemplateRegistry.php:118
-#: src/Modules/Newsletter/Admin/FormsPage.php:772
+#: src/Modules/Newsletter/Admin/FormsPage.php:773
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:39
 #: src/Modules/Newsletter/FormTemplateRegistry.php:111
 #: src/Modules/Newsletter/FormTemplateRegistry.php:130
@@ -4765,7 +4765,8 @@ msgstr ""
 msgid "Newsletter form not found."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:144
+#. translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —".
+#: src/Modules/Newsletter/Admin/FormsPage.php:145
 #: src/Modules/Newsletter/Admin/HomePage.php:371
 #: src/Modules/Newsletter/Admin/HomePage.php:607
 #: src/Modules/Newsletter/Admin/ListsPage.php:98
@@ -4773,135 +4774,134 @@ msgstr ""
 msgid "Newsletters — %s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:146
+#: src/Modules/Newsletter/Admin/FormsPage.php:147
 msgid "New subscribe form"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:161
+#: src/Modules/Newsletter/Admin/FormsPage.php:162
 msgid "Create your first subscribe form"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:163
+#: src/Modules/Newsletter/Admin/FormsPage.php:164
 msgid "Subscribe forms collect new email-only subscribers, with double-opt-in confirmation handled automatically."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:166
+#: src/Modules/Newsletter/Admin/FormsPage.php:167
 msgid "Create a subscribe form"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:216
-#: src/Modules/Newsletter/Admin/FormsPage.php:507
+#: src/Modules/Newsletter/Admin/FormsPage.php:217
+#: src/Modules/Newsletter/Admin/FormsPage.php:508
 #: src/Modules/Newsletter/Admin/HomePage.php:454
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:823
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1001
 msgid "(untitled)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:246
+#: src/Modules/Newsletter/Admin/FormsPage.php:247
 msgid "Confirmation email template"
 msgstr ""
 
 #. translators: %1$s: opening <a> tag, %2$s: closing </a> tag, around "Onboarding view".
-#: src/Modules/Newsletter/Admin/FormsPage.php:258
+#: src/Modules/Newsletter/Admin/FormsPage.php:259
 msgid "Edit confirmation emails in the %1$sOnboarding view%2$s."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:268
+#: src/Modules/Newsletter/Admin/FormsPage.php:269
 msgid "Default lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:271
+#: src/Modules/Newsletter/Admin/FormsPage.php:272
 #: src/Modules/Newsletter/Admin/ListsPage.php:84
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:640
 msgid "Manage lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:272
+#: src/Modules/Newsletter/Admin/FormsPage.php:273
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:641
 msgid "Manage lists →"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:277
+#: src/Modules/Newsletter/Admin/FormsPage.php:278
 msgid "Confirmed subscribers from this form are added to every list picked here. Leave empty to skip auto-assignment."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:300
+#: src/Modules/Newsletter/Admin/FormsPage.php:301
 #: src/Modules/Newsletter/SubmitHandler.php:535
 msgid "Thanks! Check your inbox to confirm your subscription."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:413
-#: src/Modules/Newsletter/Admin/FormsPage.php:424
+#: src/Modules/Newsletter/Admin/FormsPage.php:414
+#: src/Modules/Newsletter/Admin/FormsPage.php:425
 msgid "no automatic list"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:454
+#: src/Modules/Newsletter/Admin/FormsPage.php:455
 #: src/Modules/Newsletter/Admin/ListsPage.php:231
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:702
 msgid "Built-in list — cannot be renamed or deleted."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:455
+#: src/Modules/Newsletter/Admin/FormsPage.php:456
 #: src/Modules/Newsletter/Admin/ListsPage.php:232
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:703
 msgid "System"
 msgstr ""
 
-#. translators: %s: number of opted-out users.
 #. translators: %s: number of opted-out users (already formatted).
-#: src/Modules/Newsletter/Admin/FormsPage.php:469
+#: src/Modules/Newsletter/Admin/FormsPage.php:470
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:718
 msgid "−%s opt-out"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:485
+#: src/Modules/Newsletter/Admin/FormsPage.php:486
 #: src/Modules/Newsletter/Admin/ListsPage.php:165
 #: src/Modules/Newsletter/Admin/ListsPage.php:852
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:735
 msgid "Subscribers lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:486
+#: src/Modules/Newsletter/Admin/FormsPage.php:487
 #: src/Modules/Newsletter/Admin/ListsPage.php:166
 #: src/Modules/Newsletter/Admin/ListsPage.php:851
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:736
 msgid "WP users lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:502
+#: src/Modules/Newsletter/Admin/FormsPage.php:503
 msgid "Default — no template available"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:567
+#: src/Modules/Newsletter/Admin/FormsPage.php:568
 msgid "Quick add (pre-mapped)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:579
+#: src/Modules/Newsletter/Admin/FormsPage.php:580
 msgid "Generic fields"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:615
+#: src/Modules/Newsletter/Admin/FormsPage.php:616
 msgid "Start a new subscribe form"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:626
+#: src/Modules/Newsletter/Admin/FormsPage.php:627
 msgid "Start empty and add the fields you want."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:659
+#: src/Modules/Newsletter/Admin/FormsPage.php:660
 msgid "This will permanently delete the subscribe form. Existing subscribers are not affected."
 msgstr ""
 
 #. translators: %s: subscribe form title
-#: src/Modules/Newsletter/Admin/FormsPage.php:684
+#: src/Modules/Newsletter/Admin/FormsPage.php:685
 msgid "Delete subscribe form \"%s\"?"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:739
+#: src/Modules/Newsletter/Admin/FormsPage.php:740
 msgid "Text (name, etc.)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:741
+#: src/Modules/Newsletter/Admin/FormsPage.php:742
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:41
 #: src/Modules/Newsletter/Fields/GenderField.php:35
 #: src/Modules/Newsletter/Fields/GenderField.php:57
@@ -4911,69 +4911,69 @@ msgstr ""
 msgid "Gender"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:742
+#: src/Modules/Newsletter/Admin/FormsPage.php:743
 msgid "Dropdown (select)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:743
+#: src/Modules/Newsletter/Admin/FormsPage.php:744
 #: src/Modules/Newsletter/Fields/ListPicker.php:35
 msgid "List picker"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:762
-#: src/Modules/Newsletter/Admin/FormsPage.php:764
+#: src/Modules/Newsletter/Admin/FormsPage.php:763
+#: src/Modules/Newsletter/Admin/FormsPage.php:765
 #: src/Modules/Newsletter/SubscriberFields.php:53
 msgid "Full name"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:769
+#: src/Modules/Newsletter/Admin/FormsPage.php:770
 msgid "First + Last name"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:784
+#: src/Modules/Newsletter/Admin/FormsPage.php:785
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1326
 #: src/Modules/Newsletter/PrefsRenderer.php:151
 msgid "Postal address"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:786
+#: src/Modules/Newsletter/Admin/FormsPage.php:787
 #: src/Modules/Newsletter/FormTemplateRegistry.php:140
 #: src/Modules/Newsletter/PrefsRenderer.php:153
 #: src/Modules/Newsletter/SubscriberFields.php:57
 msgid "Street address"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:787
+#: src/Modules/Newsletter/Admin/FormsPage.php:788
 #: src/Modules/Newsletter/FormTemplateRegistry.php:143
 #: src/Modules/Newsletter/PrefsRenderer.php:157
 #: src/Modules/Newsletter/SubscriberFields.php:58
 msgid "Address line 2"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:788
+#: src/Modules/Newsletter/Admin/FormsPage.php:789
 #: src/Modules/Newsletter/FormTemplateRegistry.php:146
 #: src/Modules/Newsletter/PrefsRenderer.php:162
 #: src/Modules/Newsletter/SubscriberFields.php:59
 msgid "Postcode"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:789
+#: src/Modules/Newsletter/Admin/FormsPage.php:790
 #: src/Modules/Newsletter/FormTemplateRegistry.php:147
 #: src/Modules/Newsletter/PrefsRenderer.php:166
 #: src/Modules/Newsletter/SubscriberFields.php:60
 msgid "City"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:790
+#: src/Modules/Newsletter/Admin/FormsPage.php:791
 #: src/Modules/Newsletter/FormTemplateRegistry.php:150
 msgid "Country"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:843
+#: src/Modules/Newsletter/Admin/FormsPage.php:844
 msgid "Maps to"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:844
+#: src/Modules/Newsletter/Admin/FormsPage.php:845
 msgid "— (none)"
 msgstr ""
 
@@ -6314,6 +6314,7 @@ msgstr ""
 msgid "Pick a CSV file"
 msgstr ""
 
+#. translators: %s: comma-separated list of supported CSV column names
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1064
 msgid "Accepts a CSV with an \"email\" column (required) plus any of: %s. Header row auto-detected; commas, semicolons, and tabs all supported as separators."
 msgstr ""

@@ -1,22 +1,9 @@
-# French (France) translation of LRob - Email Toolkit
-# Copyright (C) 2026 LRob
-# This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LRob - Email Toolkit 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-27T20:34:48+00:00\n"
-"PO-Revision-Date: 2026-05-20T13:16:12+00:00\n"
-"Last-Translator: LRob <contact@lrob.fr>\n"
-"Language-Team: LRob <contact@lrob.fr>\n"
-"Language: fr_FR\n"
-"MIME-Version: 1.0\n"
+"POT-Creation-Date: 2026-05-27T21:06:19+00:00\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: WP-CLI 2.4.0\n"
-"X-Domain: lrob-email-toolkit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #. Plugin Name of the plugin
 msgid "LRob - Email Toolkit"
@@ -310,8 +297,8 @@ msgstr "Envoyer un email de test"
 #: src/Modules/ContactForm/Admin/FormsPage.php:1643
 #: src/Modules/Logging/Admin/LogsPage.php:488
 #: src/Modules/Logging/Admin/LogsPage.php:586
-#: src/Modules/Newsletter/Admin/FormsPage.php:616
-#: src/Modules/Newsletter/Admin/FormsPage.php:654
+#: src/Modules/Newsletter/Admin/FormsPage.php:617
+#: src/Modules/Newsletter/Admin/FormsPage.php:655
 #: src/Modules/Newsletter/Admin/HomePage.php:327
 #: src/Modules/Newsletter/Admin/ListsPage.php:38
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1082
@@ -366,7 +353,7 @@ msgstr "Destinataire personnalisé"
 #: src/Modules/ContactForm/Admin/FormsPage.php:108
 #: src/Modules/ContactForm/Admin/FormsPage.php:578
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:826
-#: src/Modules/Newsletter/Admin/FormsPage.php:663
+#: src/Modules/Newsletter/Admin/FormsPage.php:664
 #: src/Modules/Newsletter/Admin/ListsPage.php:820
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1127
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1223
@@ -802,7 +789,7 @@ msgstr "Activer"
 
 #: src/Admin/RetentionToggle.php:43
 msgid "Auto-delete after"
-msgstr ""
+msgstr "Suppression auto après"
 
 #: src/Admin/RetentionToggle.php:61 src/Modules/Logging/Admin/LogsPage.php:533
 #: src/Modules/Newsletter/Admin/HomePage.php:169
@@ -832,7 +819,7 @@ msgstr "Défi anti-spam"
 #. translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers
 #: src/Forms/CaptchaField.php:127 src/Forms/CaptchaField.php:289
 #: src/Modules/ContactForm/Admin/FormsPage.php:1314
-#: src/Modules/Newsletter/Admin/FormsPage.php:516
+#: src/Modules/Newsletter/Admin/FormsPage.php:517
 #: admin/js/contact-form-editor.js:44
 msgid "Default (%s)"
 msgstr "Par défaut (%s)"
@@ -842,7 +829,7 @@ msgstr "Par défaut (%s)"
 #: src/Modules/Captcha/Admin/SettingsPage.php:498
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/ContactForm/Admin/FormsPage.php:256
-#: src/Modules/Newsletter/Admin/FormsPage.php:840
+#: src/Modules/Newsletter/Admin/FormsPage.php:841
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr "Par défaut"
@@ -892,992 +879,988 @@ msgstr "Par défaut (aucun)"
 
 #: src/Forms/CountryData.php:36
 msgid "Andorra"
-msgstr ""
+msgstr "Andorre"
 
 #: src/Forms/CountryData.php:37
 msgid "United Arab Emirates"
-msgstr ""
+msgstr "Émirats arabes unis"
 
 #: src/Forms/CountryData.php:38
 msgid "Afghanistan"
-msgstr ""
+msgstr "Afghanistan"
 
 #: src/Forms/CountryData.php:39
 msgid "Antigua and Barbuda"
-msgstr ""
+msgstr "Antigua-et-Barbuda"
 
 #: src/Forms/CountryData.php:40
 msgid "Anguilla"
-msgstr ""
+msgstr "Anguilla"
 
 #: src/Forms/CountryData.php:41
 msgid "Albania"
-msgstr ""
+msgstr "Albanie"
 
 #: src/Forms/CountryData.php:42
 msgid "Armenia"
-msgstr ""
+msgstr "Arménie"
 
 #: src/Forms/CountryData.php:43
 msgid "Angola"
-msgstr ""
+msgstr "Angola"
 
 #: src/Forms/CountryData.php:44
 msgid "Argentina"
-msgstr ""
+msgstr "Argentine"
 
 #: src/Forms/CountryData.php:45
 msgid "American Samoa"
-msgstr ""
+msgstr "Samoa américaines"
 
 #: src/Forms/CountryData.php:46
 msgid "Austria"
-msgstr ""
+msgstr "Autriche"
 
 #: src/Forms/CountryData.php:47
 msgid "Australia"
-msgstr ""
+msgstr "Australie"
 
 #: src/Forms/CountryData.php:48
 msgid "Aruba"
-msgstr ""
+msgstr "Aruba"
 
 #: src/Forms/CountryData.php:49
 msgid "Åland Islands"
-msgstr ""
+msgstr "Îles Åland"
 
 #: src/Forms/CountryData.php:50
 msgid "Azerbaijan"
-msgstr ""
+msgstr "Azerbaïdjan"
 
 #: src/Forms/CountryData.php:51
 msgid "Bosnia and Herzegovina"
-msgstr ""
+msgstr "Bosnie-Herzégovine"
 
 #: src/Forms/CountryData.php:52
 msgid "Barbados"
-msgstr ""
+msgstr "Barbade"
 
 #: src/Forms/CountryData.php:53
 msgid "Bangladesh"
-msgstr ""
+msgstr "Bangladesh"
 
 #: src/Forms/CountryData.php:54
 msgid "Belgium"
-msgstr ""
+msgstr "Belgique"
 
 #: src/Forms/CountryData.php:55
 msgid "Burkina Faso"
-msgstr ""
+msgstr "Burkina Faso"
 
 #: src/Forms/CountryData.php:56
 msgid "Bulgaria"
-msgstr ""
+msgstr "Bulgarie"
 
 #: src/Forms/CountryData.php:57
 msgid "Bahrain"
-msgstr ""
+msgstr "Bahreïn"
 
 #: src/Forms/CountryData.php:58
 msgid "Burundi"
-msgstr ""
+msgstr "Burundi"
 
 #: src/Forms/CountryData.php:59
 msgid "Benin"
-msgstr ""
+msgstr "Bénin"
 
 #: src/Forms/CountryData.php:60
 msgid "Saint Barthélemy"
-msgstr ""
+msgstr "Saint-Barthélemy"
 
 #: src/Forms/CountryData.php:61
 msgid "Bermuda"
-msgstr ""
+msgstr "Bermudes"
 
 #: src/Forms/CountryData.php:62
 msgid "Brunei"
-msgstr ""
+msgstr "Brunei"
 
 #: src/Forms/CountryData.php:63
 msgid "Bolivia"
-msgstr ""
+msgstr "Bolivie"
 
 #: src/Forms/CountryData.php:64
 msgid "Caribbean Netherlands"
-msgstr ""
+msgstr "Pays-Bas caribéens"
 
 #: src/Forms/CountryData.php:65
 msgid "Brazil"
-msgstr ""
+msgstr "Brésil"
 
 #: src/Forms/CountryData.php:66
 msgid "Bahamas"
-msgstr ""
+msgstr "Bahamas"
 
 #: src/Forms/CountryData.php:67
 msgid "Bhutan"
-msgstr ""
+msgstr "Bhoutan"
 
 #: src/Forms/CountryData.php:68
 msgid "Botswana"
-msgstr ""
+msgstr "Botswana"
 
 #: src/Forms/CountryData.php:69
 msgid "Belarus"
-msgstr ""
+msgstr "Biélorussie"
 
 #: src/Forms/CountryData.php:70
 msgid "Belize"
-msgstr ""
+msgstr "Belize"
 
 #: src/Forms/CountryData.php:71
 msgid "Canada"
-msgstr ""
+msgstr "Canada"
 
 #: src/Forms/CountryData.php:72
 msgid "Cocos (Keeling) Islands"
-msgstr ""
+msgstr "Îles Cocos (Keeling)"
 
 #: src/Forms/CountryData.php:73
 msgid "Congo (DRC)"
-msgstr ""
+msgstr "Congo (RDC)"
 
 #: src/Forms/CountryData.php:74
 msgid "Central African Republic"
-msgstr ""
+msgstr "République centrafricaine"
 
 #: src/Forms/CountryData.php:75
 msgid "Congo (Republic)"
-msgstr ""
+msgstr "Congo (République)"
 
 #: src/Forms/CountryData.php:76
 msgid "Switzerland"
-msgstr ""
+msgstr "Suisse"
 
 #: src/Forms/CountryData.php:77
 msgid "Côte d’Ivoire"
-msgstr ""
+msgstr "Côte d'Ivoire"
 
 #: src/Forms/CountryData.php:78
 msgid "Cook Islands"
-msgstr ""
+msgstr "Îles Cook"
 
 #: src/Forms/CountryData.php:79
 msgid "Chile"
-msgstr ""
+msgstr "Chili"
 
 #: src/Forms/CountryData.php:80
 msgid "Cameroon"
-msgstr ""
+msgstr "Cameroun"
 
 #: src/Forms/CountryData.php:81
 msgid "China"
-msgstr ""
+msgstr "Chine"
 
 #: src/Forms/CountryData.php:82
 msgid "Colombia"
-msgstr ""
+msgstr "Colombie"
 
 #: src/Forms/CountryData.php:83
 msgid "Costa Rica"
-msgstr ""
+msgstr "Costa Rica"
 
 #: src/Forms/CountryData.php:84
 msgid "Cuba"
-msgstr ""
+msgstr "Cuba"
 
 #: src/Forms/CountryData.php:85
 msgid "Cape Verde"
-msgstr ""
+msgstr "Cap-Vert"
 
 #: src/Forms/CountryData.php:86
 msgid "Curaçao"
-msgstr ""
+msgstr "Curaçao"
 
 #: src/Forms/CountryData.php:87
 msgid "Christmas Island"
-msgstr ""
+msgstr "Île Christmas"
 
 #: src/Forms/CountryData.php:88
 msgid "Cyprus"
-msgstr ""
+msgstr "Chypre"
 
 #: src/Forms/CountryData.php:89
 msgid "Czech Republic"
-msgstr ""
+msgstr "République tchèque"
 
 #: src/Forms/CountryData.php:90
 msgid "Germany"
-msgstr ""
+msgstr "Allemagne"
 
 #: src/Forms/CountryData.php:91
 msgid "Djibouti"
-msgstr ""
+msgstr "Djibouti"
 
 #: src/Forms/CountryData.php:92
 msgid "Denmark"
-msgstr ""
+msgstr "Danemark"
 
 #: src/Forms/CountryData.php:93
 msgid "Dominica"
-msgstr ""
+msgstr "Dominique"
 
 #: src/Forms/CountryData.php:94
 msgid "Dominican Republic"
-msgstr ""
+msgstr "République dominicaine"
 
 #: src/Forms/CountryData.php:95
 msgid "Algeria"
-msgstr ""
+msgstr "Algérie"
 
 #: src/Forms/CountryData.php:96
 msgid "Ecuador"
-msgstr ""
+msgstr "Équateur"
 
 #: src/Forms/CountryData.php:97
 msgid "Estonia"
-msgstr ""
+msgstr "Estonie"
 
 #: src/Forms/CountryData.php:98
 msgid "Egypt"
-msgstr ""
+msgstr "Égypte"
 
 #: src/Forms/CountryData.php:99
 msgid "Western Sahara"
-msgstr ""
+msgstr "Sahara occidental"
 
 #: src/Forms/CountryData.php:100
 msgid "Eritrea"
-msgstr ""
+msgstr "Érythrée"
 
 #: src/Forms/CountryData.php:101
 msgid "Spain"
-msgstr ""
+msgstr "Espagne"
 
 #: src/Forms/CountryData.php:102
 msgid "Ethiopia"
-msgstr ""
+msgstr "Éthiopie"
 
 #: src/Forms/CountryData.php:103
 msgid "Finland"
-msgstr ""
+msgstr "Finlande"
 
 #: src/Forms/CountryData.php:104
 msgid "Fiji"
-msgstr ""
+msgstr "Fidji"
 
 #: src/Forms/CountryData.php:105
 msgid "Falkland Islands"
-msgstr ""
+msgstr "Îles Malouines"
 
 #: src/Forms/CountryData.php:106
 msgid "Micronesia"
-msgstr ""
+msgstr "Micronésie"
 
 #: src/Forms/CountryData.php:107
 msgid "Faroe Islands"
-msgstr ""
+msgstr "Îles Féroé"
 
 #: src/Forms/CountryData.php:108
-#, fuzzy
 msgid "France"
-msgstr "Annuler"
+msgstr "France"
 
 #: src/Forms/CountryData.php:109
 msgid "Gabon"
-msgstr ""
+msgstr "Gabon"
 
 #: src/Forms/CountryData.php:110
 msgid "United Kingdom"
-msgstr ""
+msgstr "Royaume-Uni"
 
 #: src/Forms/CountryData.php:111
 msgid "Grenada"
-msgstr ""
+msgstr "Grenade"
 
 #: src/Forms/CountryData.php:112
 msgid "Georgia"
-msgstr ""
+msgstr "Géorgie"
 
 #: src/Forms/CountryData.php:113
 msgid "French Guiana"
-msgstr ""
+msgstr "Guyane française"
 
 #: src/Forms/CountryData.php:114
 msgid "Guernsey"
-msgstr ""
+msgstr "Guernesey"
 
 #: src/Forms/CountryData.php:115
 msgid "Ghana"
-msgstr ""
+msgstr "Ghana"
 
 #: src/Forms/CountryData.php:116
 msgid "Gibraltar"
-msgstr ""
+msgstr "Gibraltar"
 
 #: src/Forms/CountryData.php:117
 msgid "Greenland"
-msgstr ""
+msgstr "Groenland"
 
 #: src/Forms/CountryData.php:118
 msgid "Gambia"
-msgstr ""
+msgstr "Gambie"
 
 #: src/Forms/CountryData.php:119
 msgid "Guinea"
-msgstr ""
+msgstr "Guinée"
 
 #: src/Forms/CountryData.php:120
 msgid "Guadeloupe"
-msgstr ""
+msgstr "Guadeloupe"
 
 #: src/Forms/CountryData.php:121
 msgid "Equatorial Guinea"
-msgstr ""
+msgstr "Guinée équatoriale"
 
 #: src/Forms/CountryData.php:122
 msgid "Greece"
-msgstr ""
+msgstr "Grèce"
 
 #: src/Forms/CountryData.php:123
 msgid "Guatemala"
-msgstr ""
+msgstr "Guatemala"
 
 #: src/Forms/CountryData.php:124
 msgid "Guam"
-msgstr ""
+msgstr "Guam"
 
 #: src/Forms/CountryData.php:125
 msgid "Guinea-Bissau"
-msgstr ""
+msgstr "Guinée-Bissau"
 
 #: src/Forms/CountryData.php:126
 msgid "Guyana"
-msgstr ""
+msgstr "Guyana"
 
 #: src/Forms/CountryData.php:127
 msgid "Hong Kong"
-msgstr ""
+msgstr "Hong Kong"
 
 #: src/Forms/CountryData.php:128
 msgid "Honduras"
-msgstr ""
+msgstr "Honduras"
 
 #: src/Forms/CountryData.php:129
 msgid "Croatia"
-msgstr ""
+msgstr "Croatie"
 
 #: src/Forms/CountryData.php:130
 msgid "Haiti"
-msgstr ""
+msgstr "Haïti"
 
 #: src/Forms/CountryData.php:131
 msgid "Hungary"
-msgstr ""
+msgstr "Hongrie"
 
 #: src/Forms/CountryData.php:132
 msgid "Indonesia"
-msgstr ""
+msgstr "Indonésie"
 
 #: src/Forms/CountryData.php:133
 msgid "Ireland"
-msgstr ""
+msgstr "Irlande"
 
 #: src/Forms/CountryData.php:134
 msgid "Israel"
-msgstr ""
+msgstr "Israël"
 
 #: src/Forms/CountryData.php:135
 msgid "Isle of Man"
-msgstr ""
+msgstr "Île de Man"
 
 #: src/Forms/CountryData.php:136
 msgid "India"
-msgstr ""
+msgstr "Inde"
 
 #: src/Forms/CountryData.php:137
 msgid "British Indian Ocean Territory"
-msgstr ""
+msgstr "Territoire britannique de l'océan Indien"
 
 #: src/Forms/CountryData.php:138
 msgid "Iraq"
-msgstr ""
+msgstr "Irak"
 
 #: src/Forms/CountryData.php:139
 msgid "Iran"
-msgstr ""
+msgstr "Iran"
 
 #: src/Forms/CountryData.php:140
 msgid "Iceland"
-msgstr ""
+msgstr "Islande"
 
 #: src/Forms/CountryData.php:141
 msgid "Italy"
-msgstr ""
+msgstr "Italie"
 
 #: src/Forms/CountryData.php:142
 msgid "Jersey"
-msgstr ""
+msgstr "Jersey"
 
 #: src/Forms/CountryData.php:143
 msgid "Jamaica"
-msgstr ""
+msgstr "Jamaïque"
 
 #: src/Forms/CountryData.php:144
 msgid "Jordan"
-msgstr ""
+msgstr "Jordanie"
 
 #: src/Forms/CountryData.php:145
 msgid "Japan"
-msgstr ""
+msgstr "Japon"
 
 #: src/Forms/CountryData.php:146
 msgid "Kenya"
-msgstr ""
+msgstr "Kenya"
 
 #: src/Forms/CountryData.php:147
 msgid "Kyrgyzstan"
-msgstr ""
+msgstr "Kirghizistan"
 
 #: src/Forms/CountryData.php:148
 msgid "Cambodia"
-msgstr ""
+msgstr "Cambodge"
 
 #: src/Forms/CountryData.php:149
 msgid "Kiribati"
-msgstr ""
+msgstr "Kiribati"
 
 #: src/Forms/CountryData.php:150
 msgid "Comoros"
-msgstr ""
+msgstr "Comores"
 
 #: src/Forms/CountryData.php:151
 msgid "Saint Kitts and Nevis"
-msgstr ""
+msgstr "Saint-Kitts-et-Nevis"
 
 #: src/Forms/CountryData.php:152
 msgid "North Korea"
-msgstr ""
+msgstr "Corée du Nord"
 
 #: src/Forms/CountryData.php:153
 msgid "South Korea"
-msgstr ""
+msgstr "Corée du Sud"
 
 #: src/Forms/CountryData.php:154
 msgid "Kuwait"
-msgstr ""
+msgstr "Koweït"
 
 #: src/Forms/CountryData.php:155
 msgid "Cayman Islands"
-msgstr ""
+msgstr "Îles Caïmans"
 
 #: src/Forms/CountryData.php:156
 msgid "Kazakhstan"
-msgstr ""
+msgstr "Kazakhstan"
 
 #: src/Forms/CountryData.php:157
 msgid "Laos"
-msgstr ""
+msgstr "Laos"
 
 #: src/Forms/CountryData.php:158
 msgid "Lebanon"
-msgstr ""
+msgstr "Liban"
 
 #: src/Forms/CountryData.php:159
 msgid "Saint Lucia"
-msgstr ""
+msgstr "Sainte-Lucie"
 
 #: src/Forms/CountryData.php:160
 msgid "Liechtenstein"
-msgstr ""
+msgstr "Liechtenstein"
 
 #: src/Forms/CountryData.php:161
 msgid "Sri Lanka"
-msgstr ""
+msgstr "Sri Lanka"
 
 #: src/Forms/CountryData.php:162
 msgid "Liberia"
-msgstr ""
+msgstr "Liberia"
 
 #: src/Forms/CountryData.php:163
 msgid "Lesotho"
-msgstr ""
+msgstr "Lesotho"
 
 #: src/Forms/CountryData.php:164
 msgid "Lithuania"
-msgstr ""
+msgstr "Lituanie"
 
 #: src/Forms/CountryData.php:165
 msgid "Luxembourg"
-msgstr ""
+msgstr "Luxembourg"
 
 #: src/Forms/CountryData.php:166
 msgid "Latvia"
-msgstr ""
+msgstr "Lettonie"
 
 #: src/Forms/CountryData.php:167
 msgid "Libya"
-msgstr ""
+msgstr "Libye"
 
 #: src/Forms/CountryData.php:168
 msgid "Morocco"
-msgstr ""
+msgstr "Maroc"
 
 #: src/Forms/CountryData.php:169
 msgid "Monaco"
-msgstr ""
+msgstr "Monaco"
 
 #: src/Forms/CountryData.php:170
 msgid "Moldova"
-msgstr ""
+msgstr "Moldavie"
 
 #: src/Forms/CountryData.php:171
 msgid "Montenegro"
-msgstr ""
+msgstr "Monténégro"
 
 #: src/Forms/CountryData.php:172
 msgid "Saint Martin (French part)"
-msgstr ""
+msgstr "Saint-Martin (partie française)"
 
 #: src/Forms/CountryData.php:173
 msgid "Madagascar"
-msgstr ""
+msgstr "Madagascar"
 
 #: src/Forms/CountryData.php:174
 msgid "Marshall Islands"
-msgstr ""
+msgstr "Îles Marshall"
 
 #: src/Forms/CountryData.php:175
 msgid "North Macedonia"
-msgstr ""
+msgstr "Macédoine du Nord"
 
 #: src/Forms/CountryData.php:176
 msgid "Mali"
-msgstr ""
+msgstr "Mali"
 
 #: src/Forms/CountryData.php:177
 msgid "Myanmar"
-msgstr ""
+msgstr "Birmanie"
 
 #: src/Forms/CountryData.php:178
 msgid "Mongolia"
-msgstr ""
+msgstr "Mongolie"
 
 #: src/Forms/CountryData.php:179
 msgid "Macao"
-msgstr ""
+msgstr "Macao"
 
 #: src/Forms/CountryData.php:180
 msgid "Northern Mariana Islands"
-msgstr ""
+msgstr "Îles Mariannes du Nord"
 
 #: src/Forms/CountryData.php:181
 msgid "Martinique"
-msgstr ""
+msgstr "Martinique"
 
 #: src/Forms/CountryData.php:182
 msgid "Mauritania"
-msgstr ""
+msgstr "Mauritanie"
 
 #: src/Forms/CountryData.php:183
 msgid "Montserrat"
-msgstr ""
+msgstr "Montserrat"
 
 #: src/Forms/CountryData.php:184
 msgid "Malta"
-msgstr ""
+msgstr "Malte"
 
 #: src/Forms/CountryData.php:185
 msgid "Mauritius"
-msgstr ""
+msgstr "Maurice"
 
 #: src/Forms/CountryData.php:186
 msgid "Maldives"
-msgstr ""
+msgstr "Maldives"
 
 #: src/Forms/CountryData.php:187
 msgid "Malawi"
-msgstr ""
+msgstr "Malawi"
 
 #: src/Forms/CountryData.php:188
 msgid "Mexico"
-msgstr ""
+msgstr "Mexique"
 
 #: src/Forms/CountryData.php:189
 msgid "Malaysia"
-msgstr ""
+msgstr "Malaisie"
 
 #: src/Forms/CountryData.php:190
 msgid "Mozambique"
-msgstr ""
+msgstr "Mozambique"
 
 #: src/Forms/CountryData.php:191
 msgid "Namibia"
-msgstr ""
+msgstr "Namibie"
 
 #: src/Forms/CountryData.php:192
-#, fuzzy
 msgid "New Caledonia"
-msgstr "Nom de la nouvelle catégorie"
+msgstr "Nouvelle-Calédonie"
 
 #: src/Forms/CountryData.php:193
 msgid "Niger"
-msgstr ""
+msgstr "Niger"
 
 #: src/Forms/CountryData.php:194
 msgid "Norfolk Island"
-msgstr ""
+msgstr "Île Norfolk"
 
 #: src/Forms/CountryData.php:195
 msgid "Nigeria"
-msgstr ""
+msgstr "Nigeria"
 
 #: src/Forms/CountryData.php:196
 msgid "Nicaragua"
-msgstr ""
+msgstr "Nicaragua"
 
 #: src/Forms/CountryData.php:197
 msgid "Netherlands"
-msgstr ""
+msgstr "Pays-Bas"
 
 #: src/Forms/CountryData.php:198
 msgid "Norway"
-msgstr ""
+msgstr "Norvège"
 
 #: src/Forms/CountryData.php:199
 msgid "Nepal"
-msgstr ""
+msgstr "Népal"
 
 #: src/Forms/CountryData.php:200
 msgid "Nauru"
-msgstr ""
+msgstr "Nauru"
 
 #: src/Forms/CountryData.php:201
 msgid "Niue"
-msgstr ""
+msgstr "Niue"
 
 #: src/Forms/CountryData.php:202
 msgid "New Zealand"
-msgstr ""
+msgstr "Nouvelle-Zélande"
 
 #: src/Forms/CountryData.php:203
 msgid "Oman"
-msgstr ""
+msgstr "Oman"
 
 #: src/Forms/CountryData.php:204
 msgid "Panama"
-msgstr ""
+msgstr "Panama"
 
 #: src/Forms/CountryData.php:205
 msgid "Peru"
-msgstr ""
+msgstr "Pérou"
 
 #: src/Forms/CountryData.php:206
 msgid "French Polynesia"
-msgstr ""
+msgstr "Polynésie française"
 
 #: src/Forms/CountryData.php:207
 msgid "Papua New Guinea"
-msgstr ""
+msgstr "Papouasie-Nouvelle-Guinée"
 
 #: src/Forms/CountryData.php:208
 msgid "Philippines"
-msgstr ""
+msgstr "Philippines"
 
 #: src/Forms/CountryData.php:209
 msgid "Pakistan"
-msgstr ""
+msgstr "Pakistan"
 
 #: src/Forms/CountryData.php:210
 msgid "Poland"
-msgstr ""
+msgstr "Pologne"
 
 #: src/Forms/CountryData.php:211
 msgid "Saint Pierre and Miquelon"
-msgstr ""
+msgstr "Saint-Pierre-et-Miquelon"
 
 #: src/Forms/CountryData.php:212
 msgid "Puerto Rico"
-msgstr ""
+msgstr "Porto Rico"
 
 #: src/Forms/CountryData.php:213
 msgid "Palestine"
-msgstr ""
+msgstr "Palestine"
 
 #: src/Forms/CountryData.php:214
-#, fuzzy
 msgid "Portugal"
-msgstr "Port"
+msgstr "Portugal"
 
 #: src/Forms/CountryData.php:215
 msgid "Palau"
-msgstr ""
+msgstr "Palaos"
 
 #: src/Forms/CountryData.php:216
 msgid "Paraguay"
-msgstr ""
+msgstr "Paraguay"
 
 #: src/Forms/CountryData.php:217
 msgid "Qatar"
-msgstr ""
+msgstr "Qatar"
 
 #: src/Forms/CountryData.php:218
 msgid "Réunion"
-msgstr ""
+msgstr "La Réunion"
 
 #: src/Forms/CountryData.php:219
 msgid "Romania"
-msgstr ""
+msgstr "Roumanie"
 
 #: src/Forms/CountryData.php:220
 msgid "Serbia"
-msgstr ""
+msgstr "Serbie"
 
 #: src/Forms/CountryData.php:221
 msgid "Russia"
-msgstr ""
+msgstr "Russie"
 
 #: src/Forms/CountryData.php:222
 msgid "Rwanda"
-msgstr ""
+msgstr "Rwanda"
 
 #: src/Forms/CountryData.php:223
 msgid "Saudi Arabia"
-msgstr ""
+msgstr "Arabie saoudite"
 
 #: src/Forms/CountryData.php:224
 msgid "Solomon Islands"
-msgstr ""
+msgstr "Îles Salomon"
 
 #: src/Forms/CountryData.php:225
 msgid "Seychelles"
-msgstr ""
+msgstr "Seychelles"
 
 #: src/Forms/CountryData.php:226
 msgid "Sudan"
-msgstr ""
+msgstr "Soudan"
 
 #: src/Forms/CountryData.php:227
 msgid "Sweden"
-msgstr ""
+msgstr "Suède"
 
 #: src/Forms/CountryData.php:228
 msgid "Singapore"
-msgstr ""
+msgstr "Singapour"
 
 #: src/Forms/CountryData.php:229
 msgid "Saint Helena"
-msgstr ""
+msgstr "Sainte-Hélène"
 
 #: src/Forms/CountryData.php:230
 msgid "Slovenia"
-msgstr ""
+msgstr "Slovénie"
 
 #: src/Forms/CountryData.php:231
 msgid "Svalbard and Jan Mayen"
-msgstr ""
+msgstr "Svalbard et Jan Mayen"
 
 #: src/Forms/CountryData.php:232
 msgid "Slovakia"
-msgstr ""
+msgstr "Slovaquie"
 
 #: src/Forms/CountryData.php:233
 msgid "Sierra Leone"
-msgstr ""
+msgstr "Sierra Leone"
 
 #: src/Forms/CountryData.php:234
 msgid "San Marino"
-msgstr ""
+msgstr "Saint-Marin"
 
 #: src/Forms/CountryData.php:235
 msgid "Senegal"
-msgstr ""
+msgstr "Sénégal"
 
 #: src/Forms/CountryData.php:236
 msgid "Somalia"
-msgstr ""
+msgstr "Somalie"
 
 #: src/Forms/CountryData.php:237
-#, fuzzy
 msgid "Suriname"
-msgstr "Votre nom"
+msgstr "Suriname"
 
 #: src/Forms/CountryData.php:238
 msgid "South Sudan"
-msgstr ""
+msgstr "Soudan du Sud"
 
 #: src/Forms/CountryData.php:239
 msgid "São Tomé and Príncipe"
-msgstr ""
+msgstr "São Tomé-et-Príncipe"
 
 #: src/Forms/CountryData.php:240
 msgid "El Salvador"
-msgstr ""
+msgstr "Salvador"
 
 #: src/Forms/CountryData.php:241
 msgid "Sint Maarten"
-msgstr ""
+msgstr "Saint-Martin (partie néerlandaise)"
 
 #: src/Forms/CountryData.php:242
 msgid "Syria"
-msgstr ""
+msgstr "Syrie"
 
 #: src/Forms/CountryData.php:243
 msgid "Eswatini"
-msgstr ""
+msgstr "Eswatini"
 
 #: src/Forms/CountryData.php:244
 msgid "Turks and Caicos Islands"
-msgstr ""
+msgstr "Îles Turques-et-Caïques"
 
 #: src/Forms/CountryData.php:245
 msgid "Chad"
-msgstr ""
+msgstr "Tchad"
 
 #: src/Forms/CountryData.php:246
 msgid "Togo"
-msgstr ""
+msgstr "Togo"
 
 #: src/Forms/CountryData.php:247
 msgid "Thailand"
-msgstr ""
+msgstr "Thaïlande"
 
 #: src/Forms/CountryData.php:248
 msgid "Tajikistan"
-msgstr ""
+msgstr "Tadjikistan"
 
 #: src/Forms/CountryData.php:249
 msgid "Tokelau"
-msgstr ""
+msgstr "Tokelau"
 
 #: src/Forms/CountryData.php:250
 msgid "Timor-Leste"
-msgstr ""
+msgstr "Timor oriental"
 
 #: src/Forms/CountryData.php:251
 msgid "Turkmenistan"
-msgstr ""
+msgstr "Turkménistan"
 
 #: src/Forms/CountryData.php:252
 msgid "Tunisia"
-msgstr ""
+msgstr "Tunisie"
 
 #: src/Forms/CountryData.php:253
 msgid "Tonga"
-msgstr ""
+msgstr "Tonga"
 
 #: src/Forms/CountryData.php:254
 msgid "Turkey"
-msgstr ""
+msgstr "Turquie"
 
 #: src/Forms/CountryData.php:255
 msgid "Trinidad and Tobago"
-msgstr ""
+msgstr "Trinité-et-Tobago"
 
 #: src/Forms/CountryData.php:256
 msgid "Tuvalu"
-msgstr ""
+msgstr "Tuvalu"
 
 #: src/Forms/CountryData.php:257
 msgid "Taiwan"
-msgstr ""
+msgstr "Taïwan"
 
 #: src/Forms/CountryData.php:258
 msgid "Tanzania"
-msgstr ""
+msgstr "Tanzanie"
 
 #: src/Forms/CountryData.php:259
 msgid "Ukraine"
-msgstr ""
+msgstr "Ukraine"
 
 #: src/Forms/CountryData.php:260
 msgid "Uganda"
-msgstr ""
+msgstr "Ouganda"
 
 #: src/Forms/CountryData.php:261
 msgid "United States"
-msgstr ""
+msgstr "États-Unis"
 
 #: src/Forms/CountryData.php:262
 msgid "Uruguay"
-msgstr ""
+msgstr "Uruguay"
 
 #: src/Forms/CountryData.php:263
 msgid "Uzbekistan"
-msgstr ""
+msgstr "Ouzbékistan"
 
 #: src/Forms/CountryData.php:264
 msgid "Vatican City"
-msgstr ""
+msgstr "Vatican"
 
 #: src/Forms/CountryData.php:265
 msgid "Saint Vincent and the Grenadines"
-msgstr ""
+msgstr "Saint-Vincent-et-les-Grenadines"
 
 #: src/Forms/CountryData.php:266
 msgid "Venezuela"
-msgstr ""
+msgstr "Venezuela"
 
 #: src/Forms/CountryData.php:267
 msgid "British Virgin Islands"
-msgstr ""
+msgstr "Îles Vierges britanniques"
 
 #: src/Forms/CountryData.php:268
 msgid "U.S. Virgin Islands"
-msgstr ""
+msgstr "Îles Vierges des États-Unis"
 
 #: src/Forms/CountryData.php:269
 msgid "Vietnam"
-msgstr ""
+msgstr "Vietnam"
 
 #: src/Forms/CountryData.php:270
 msgid "Vanuatu"
-msgstr ""
+msgstr "Vanuatu"
 
 #: src/Forms/CountryData.php:271
 msgid "Wallis and Futuna"
-msgstr ""
+msgstr "Wallis-et-Futuna"
 
 #: src/Forms/CountryData.php:272
 msgid "Samoa"
-msgstr ""
+msgstr "Samoa"
 
 #: src/Forms/CountryData.php:273
 msgid "Yemen"
-msgstr ""
+msgstr "Yémen"
 
 #: src/Forms/CountryData.php:274
 msgid "Mayotte"
-msgstr ""
+msgstr "Mayotte"
 
 #: src/Forms/CountryData.php:275
 msgid "South Africa"
-msgstr ""
+msgstr "Afrique du Sud"
 
 #: src/Forms/CountryData.php:276
 msgid "Zambia"
-msgstr ""
+msgstr "Zambie"
 
 #: src/Forms/CountryData.php:277
 msgid "Zimbabwe"
-msgstr ""
+msgstr "Zimbabwe"
 
 #: src/Forms/FieldRenderHelpers.php:168 src/Forms/FieldRenderHelpers.php:356
 #: src/Modules/ContactForm/Admin/FormsPage.php:251
-#: src/Modules/Newsletter/Admin/FormsPage.php:834
+#: src/Modules/Newsletter/Admin/FormsPage.php:835
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr "(libellé du champ)"
 
 #: src/Forms/FieldRenderHelpers.php:202
 #: src/Modules/ContactForm/Admin/FormsPage.php:211
-#: src/Modules/Newsletter/Admin/FormsPage.php:824
+#: src/Modules/Newsletter/Admin/FormsPage.php:825
 msgid "Required"
 msgstr "Obligatoire"
 
 #: src/Forms/FieldRenderHelpers.php:210
 #: src/Modules/ContactForm/Admin/FormsPage.php:250
-#: src/Modules/Newsletter/Admin/FormsPage.php:833
+#: src/Modules/Newsletter/Admin/FormsPage.php:834
 msgid "(optional helper text)"
 msgstr "(texte d'aide facultatif)"
 
@@ -1891,7 +1874,7 @@ msgstr "Case à cocher"
 #: src/Modules/ContactForm/Admin/FormsPage.php:1323
 #: src/Modules/ContactForm/Admin/FormsPage.php:1506
 #: src/Modules/ContactForm/TemplateRegistry.php:121
-#: src/Modules/Newsletter/Admin/FormsPage.php:738
+#: src/Modules/Newsletter/Admin/FormsPage.php:739
 #: src/Modules/Newsletter/Admin/HomePage.php:197
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:36
 #: src/Modules/Newsletter/FormTemplateRegistry.php:114
@@ -1903,38 +1886,39 @@ msgstr "Email"
 #: src/Forms/Fields/FileUploadField.php:23
 #: src/Modules/ContactForm/Admin/FormsPage.php:1331
 msgid "File upload"
-msgstr ""
+msgstr "Upload de fichier"
 
 #. translators: %d: max number of files allowed
 #: src/Forms/Fields/FileUploadField.php:112
 msgid "Choose a file (max %d)"
 msgid_plural "Choose files (max %d)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Choisir un fichier (max %d)"
+msgstr[1] "Choisir des fichiers (max %d)"
 
 #: src/Forms/Fields/FileUploadField.php:115
 #: src/Modules/ContactForm/Admin/FormsPage.php:235
-#, fuzzy
 msgid "Choose a file"
-msgstr "Effacer les filtres"
+msgstr "Choisir un fichier"
 
 #. translators: 1: max size per file MB, 2: comma-separated extension list
-#. translators: 1: max MB per file, 2: extension list joined by commas (e.g. .pdf, .jpg)
 #: src/Forms/Fields/FileUploadField.php:127
 #: src/Modules/ContactForm/Admin/FormsPage.php:239
 msgid "Max %1$d MB per file — %2$s"
-msgstr ""
+msgstr "Max %1$d Mo par fichier — %2$s"
 
 #: src/Forms/Fields/FileUploadField.php:129
 #: src/Modules/ContactForm/Admin/FormsPage.php:240
 msgid "no file type restriction"
-msgstr ""
+msgstr "aucune restriction de type de fichier"
 
 #: src/Forms/Fields/FileUploadField.php:135
 msgid ""
 "“Save submissions” is off — files from this field will be attached to the "
 "notification email instead of being stored on the server."
 msgstr ""
+"« Enregistrer les soumissions » est désactivé — les fichiers de ce champ "
+"seront joints à l'email de notification au lieu d'être stockés sur le "
+"serveur."
 
 #: src/Forms/Fields/NumberField.php:19
 #: src/Modules/ContactForm/Admin/FormsPage.php:1325
@@ -1945,9 +1929,9 @@ msgstr "Nombre"
 #: src/Modules/ContactForm/Admin/FormsPage.php:1326
 #: src/Modules/ContactForm/TemplateRegistry.php:102
 #: src/Modules/ContactForm/TemplateRegistry.php:122
-#: src/Modules/Newsletter/Admin/FormsPage.php:740
-#: src/Modules/Newsletter/Admin/FormsPage.php:777
-#: src/Modules/Newsletter/Admin/FormsPage.php:779
+#: src/Modules/Newsletter/Admin/FormsPage.php:741
+#: src/Modules/Newsletter/Admin/FormsPage.php:778
+#: src/Modules/Newsletter/Admin/FormsPage.php:780
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:40
 #: src/Modules/Newsletter/FormTemplateRegistry.php:117
 #: src/Modules/Newsletter/FormTemplateRegistry.php:136
@@ -1957,9 +1941,8 @@ msgid "Phone"
 msgstr "Téléphone"
 
 #: src/Forms/Fields/PhoneField.php:102
-#, fuzzy
 msgid "Choose country code"
-msgstr "Choisissez vos listes"
+msgstr "Choisir l'indicatif"
 
 #: src/Forms/Fields/RadioField.php:19
 msgid "Radio buttons"
@@ -1971,7 +1954,7 @@ msgid "Dropdown"
 msgstr "Liste déroulante"
 
 #: src/Forms/Fields/SubmitField.php:20
-#: src/Modules/Newsletter/Admin/FormsPage.php:744
+#: src/Modules/Newsletter/Admin/FormsPage.php:745
 msgid "Submit button"
 msgstr "Envoyé le"
 
@@ -2006,7 +1989,7 @@ msgstr "Ajouter un champ ici"
 
 #: src/Forms/FormEditorRenderer.php:167
 #: src/Modules/ContactForm/Admin/FormsPage.php:254
-#: src/Modules/Newsletter/Admin/FormsPage.php:837
+#: src/Modules/Newsletter/Admin/FormsPage.php:838
 msgid "Field"
 msgstr "Champ"
 
@@ -2052,37 +2035,35 @@ msgstr "Contrasté"
 
 #: src/Forms/Upload/UploadPolicy.php:111
 msgid "Images"
-msgstr ""
+msgstr "Images"
 
 #: src/Forms/Upload/UploadPolicy.php:112
 msgid "Documents & spreadsheets"
-msgstr ""
+msgstr "Documents et tableurs"
 
 #: src/Forms/Upload/UploadPolicy.php:113
 msgid "PDF only"
-msgstr ""
+msgstr "PDF uniquement"
 
 #: src/Forms/Upload/UploadPolicy.php:114
 msgid "vCard"
-msgstr ""
+msgstr "vCard"
 
 #: src/Forms/Upload/UploadPolicy.php:115
 msgid "Videos"
-msgstr ""
+msgstr "Vidéos"
 
 #: src/Forms/Upload/UploadPolicy.php:116
-#, fuzzy
 msgid "Audio"
-msgstr "Audience"
+msgstr "Audio"
 
 #: src/Forms/Upload/UploadPolicy.php:117
 msgid "Archives"
-msgstr ""
+msgstr "Archives"
 
 #: src/Forms/Upload/UploadPolicy.php:118
-#, fuzzy
 msgid "Custom (advanced)"
-msgstr "En-têtes personnalisés"
+msgstr "Personnalisé (avancé)"
 
 #: src/Modules/Captcha/Admin/AjaxController.php:64
 msgid "Solve the captcha first to run a test."
@@ -2149,9 +2130,8 @@ msgstr "Défi invalide."
 
 #: src/Modules/Captcha/Admin/AjaxController.php:348
 #: src/Modules/SMTP/Admin/AjaxController.php:378
-#, fuzzy
 msgid "Security check failed. Please reload and retry."
-msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
+msgstr "Vérification de sécurité échouée. Rechargez et réessayez."
 
 #: src/Modules/Captcha/Admin/PageController.php:40
 #: src/Modules/Captcha/Admin/PageController.php:41
@@ -2165,9 +2145,8 @@ msgstr "Captcha"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:57
 #: src/Modules/SMTP/Admin/SettingsPage.php:44
-#, fuzzy
 msgid "New identity"
-msgstr "%d identité"
+msgstr "Nouvelle identité"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:93
 msgid "Built-in challenges"
@@ -2251,8 +2230,8 @@ msgstr "Abandonner"
 #: src/Modules/Logging/Admin/LogsPage.php:589
 #: src/Modules/Logging/Admin/LogViewPage.php:263
 #: src/Modules/Logging/Admin/LogViewPage.php:273
-#: src/Modules/Newsletter/Admin/FormsPage.php:318
-#: src/Modules/Newsletter/Admin/FormsPage.php:666
+#: src/Modules/Newsletter/Admin/FormsPage.php:319
+#: src/Modules/Newsletter/Admin/FormsPage.php:667
 #: src/Modules/Newsletter/Admin/ListsPage.php:819
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:342
 #: src/Modules/SMTP/Admin/SettingsPage.php:199
@@ -2756,66 +2735,62 @@ msgstr "Impossible de créer le formulaire."
 
 #. translators: %d: count of selected submissions
 #: src/Modules/ContactForm/Admin/FormsPage.php:99
-#, fuzzy
 msgid "Mark the %d selected submissions as spam?"
-msgstr "soumission"
+msgstr "Marquer les %d soumissions sélectionnées comme spam ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:100
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:775
-#, fuzzy
 msgid "Mark this submission as spam?"
-msgstr "soumission"
+msgstr "Marquer cette soumission comme spam ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:101
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:778
 msgid "Yes, mark as spam"
-msgstr ""
+msgstr "Oui, marquer comme spam"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:102
 msgid ""
 "Spam-marked submissions stay in the inbox under the Spam filter — you can "
 "restore them at any time."
 msgstr ""
+"Les soumissions marquées comme spam restent dans la boîte de réception sous "
+"le filtre Spam — vous pouvez les restaurer à tout moment."
 
 #. translators: %d: count of selected submissions
 #: src/Modules/ContactForm/Admin/FormsPage.php:104
-#, fuzzy
 msgid "Permanently delete the %d selected submissions?"
-msgstr ""
-"Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
+msgstr "Supprimer définitivement les %d soumissions sélectionnées ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:105
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:774
-#, fuzzy
 msgid "Delete this submission?"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "Supprimer cette soumission ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:106
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:777
-#, fuzzy
 msgid "Yes, delete permanently"
-msgstr "Supprimer le champ"
+msgstr "Oui, supprimer définitivement"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:107
 msgid ""
 "This is irreversible. Field data and any attached files will be permanently "
 "removed."
 msgstr ""
+"Cette action est irréversible. Les données du champ et tous les fichiers "
+"joints seront définitivement supprimés."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:110
-#, fuzzy
 msgid "Select at least one submission first."
-msgstr "Sélectionnez au moins une entrée."
+msgstr "Sélectionnez d'abord au moins une soumission."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:111
-#, fuzzy
 msgid "Choose a bulk action first."
-msgstr "Choisissez d'abord une action."
+msgstr "Choisissez d'abord une action groupée."
 
 #. translators: %d: count of selected submissions
 #: src/Modules/ContactForm/Admin/FormsPage.php:113
 msgid "%d selected"
-msgstr ""
+msgstr "%d sélectionné(s)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:114
 #: src/Modules/ContactForm/Frontend.php:53
@@ -2843,9 +2818,8 @@ msgstr "Suivant"
 #: src/Modules/ContactForm/Admin/FormsPage.php:117
 #: src/Modules/Logging/Admin/LogsPage.php:587
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:339
-#, fuzzy
 msgid "Loading…"
-msgstr "Chargement des formulaires disponibles…"
+msgstr "Chargement…"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:118
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:341
@@ -2853,14 +2827,14 @@ msgstr "Chargement des formulaires disponibles…"
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:600
 #: src/Modules/ContactForm/SubmitHandler.php:770
 msgid "Mark as spam"
-msgstr ""
+msgstr "Marquer comme spam"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:119
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:342
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:472
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:595
 msgid "Restore from spam"
-msgstr ""
+msgstr "Restaurer du spam"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:150
 #: src/Modules/ContactForm/Admin/FormsPage.php:439
@@ -2884,32 +2858,32 @@ msgid "email@example.com"
 msgstr "email@example.com"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:207
-#: src/Modules/Newsletter/Admin/FormsPage.php:820
+#: src/Modules/Newsletter/Admin/FormsPage.php:821
 msgid "Add field"
 msgstr "Ajouter un champ"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:208
-#: src/Modules/Newsletter/Admin/FormsPage.php:821
+#: src/Modules/Newsletter/Admin/FormsPage.php:822
 msgid "Field options"
 msgstr "Options du champ"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:209
-#: src/Modules/Newsletter/Admin/FormsPage.php:822
+#: src/Modules/Newsletter/Admin/FormsPage.php:823
 msgid "Field slug"
 msgstr "Slug du champ"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:210
-#: src/Modules/Newsletter/Admin/FormsPage.php:823
+#: src/Modules/Newsletter/Admin/FormsPage.php:824
 msgid "Helper text"
 msgstr "Texte d'aide"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:212
-#: src/Modules/Newsletter/Admin/FormsPage.php:825
+#: src/Modules/Newsletter/Admin/FormsPage.php:826
 msgid "Placeholder"
 msgstr "Texte indicatif"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:213
-#: src/Modules/Newsletter/Admin/FormsPage.php:826
+#: src/Modules/Newsletter/Admin/FormsPage.php:827
 msgid "Max length"
 msgstr "Longueur max."
 
@@ -2930,25 +2904,24 @@ msgid "Step"
 msgstr "Pas"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:218
-#: src/Modules/Newsletter/Admin/FormsPage.php:838
+#: src/Modules/Newsletter/Admin/FormsPage.php:839
 msgid "Regex pattern"
 msgstr "Motif regex"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:219
-#: src/Modules/Newsletter/Admin/FormsPage.php:839
-#, fuzzy
+#: src/Modules/Newsletter/Admin/FormsPage.php:840
 msgid "Country code picker"
-msgstr "Sélecteur de catégorie"
+msgstr "Sélecteur d'indicatif"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:221
-#: src/Modules/Newsletter/Admin/FormsPage.php:841
+#: src/Modules/Newsletter/Admin/FormsPage.php:842
 msgid "Auto-detect from browser"
-msgstr ""
+msgstr "Détection auto via le navigateur"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:222
-#: src/Modules/Newsletter/Admin/FormsPage.php:842
+#: src/Modules/Newsletter/Admin/FormsPage.php:843
 msgid "Auto (locale)"
-msgstr ""
+msgstr "Auto (locale)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:223
 #: src/Modules/ContactForm/Admin/FormsPage.php:243
@@ -2956,55 +2929,50 @@ msgid "Multiple choices"
 msgstr "Choix multiples"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:224
-#, fuzzy
 msgid "Multiple files"
-msgstr "Choix multiples"
+msgstr "Plusieurs fichiers"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:225
-#, fuzzy
 msgid "Max files"
-msgstr "Effacer les filtres"
+msgstr "Fichiers max"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:226
-#, fuzzy
 msgid "Max MB per file"
-msgstr "Max par IP"
+msgstr "Mo max par fichier"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:227
 msgid "Max MB total"
-msgstr ""
+msgstr "Mo max total"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:228
 msgid "Types"
-msgstr ""
+msgstr "Types"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:229
 msgid "Custom (e.g. pdf, jpg)"
-msgstr ""
+msgstr "Personnalisé (ex. pdf, jpg)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:230
 msgid "Strip image metadata"
-msgstr ""
+msgstr "Retirer les métadonnées d'image"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:231
 msgid "I understand the risks (allow scripts / executables)"
-msgstr ""
+msgstr "Je comprends les risques (autoriser scripts / exécutables)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:232
-#, fuzzy
 msgid "Delivery"
-msgstr "tous délivrés"
+msgstr "Livraison"
 
 #. translators: %d: max number of MB the host server allows per upload (computed live).
 #: src/Modules/ContactForm/Admin/FormsPage.php:234
 msgid "(server max %d MB)"
-msgstr ""
+msgstr "(max serveur %d Mo)"
 
 #. translators: %d: max number of files the field allows.
 #: src/Modules/ContactForm/Admin/FormsPage.php:237
-#, fuzzy
 msgid "Choose files (max %d)"
-msgstr "Effacer les filtres"
+msgstr "Choisir des fichiers (max %d)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:241
 msgid "Options"
@@ -3015,47 +2983,47 @@ msgid "Add option"
 msgstr "Ajouter une option"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:244
-#: src/Modules/Newsletter/Admin/FormsPage.php:827
+#: src/Modules/Newsletter/Admin/FormsPage.php:828
 msgid "Alignment"
 msgstr "Alignement"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:245
-#: src/Modules/Newsletter/Admin/FormsPage.php:828
+#: src/Modules/Newsletter/Admin/FormsPage.php:829
 msgid "Left"
 msgstr "Gauche"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:246
-#: src/Modules/Newsletter/Admin/FormsPage.php:829
+#: src/Modules/Newsletter/Admin/FormsPage.php:830
 msgid "Center"
 msgstr "Centre"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:247
-#: src/Modules/Newsletter/Admin/FormsPage.php:830
+#: src/Modules/Newsletter/Admin/FormsPage.php:831
 msgid "Right"
 msgstr "Droite"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:248
-#: src/Modules/Newsletter/Admin/FormsPage.php:831
+#: src/Modules/Newsletter/Admin/FormsPage.php:832
 msgid "Full width"
 msgstr "Pleine largeur"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:249
-#: src/Modules/Newsletter/Admin/FormsPage.php:832
+#: src/Modules/Newsletter/Admin/FormsPage.php:833
 msgid "Toggle required"
 msgstr "Basculer obligatoire"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:252
 #: src/Modules/ContactForm/Admin/FormsPage.php:1260
-#: src/Modules/Newsletter/Admin/FormsPage.php:545
-#: src/Modules/Newsletter/Admin/FormsPage.php:835
+#: src/Modules/Newsletter/Admin/FormsPage.php:546
+#: src/Modules/Newsletter/Admin/FormsPage.php:836
 #: src/Modules/Newsletter/Admin/HomePage.php:153
 msgid "Undo"
 msgstr "Annuler"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:253
 #: src/Modules/ContactForm/Admin/FormsPage.php:1268
-#: src/Modules/Newsletter/Admin/FormsPage.php:553
-#: src/Modules/Newsletter/Admin/FormsPage.php:836
+#: src/Modules/Newsletter/Admin/FormsPage.php:554
+#: src/Modules/Newsletter/Admin/FormsPage.php:837
 msgid "Redo"
 msgstr "Rétablir"
 
@@ -3115,14 +3083,12 @@ msgid "Contact Forms"
 msgstr "Formulaires de contact"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:504
-#, fuzzy
 msgid "New form"
 msgstr "Nouveau formulaire"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:510
-#, fuzzy
 msgid "Defaults"
-msgstr "Par défaut"
+msgstr "Défauts"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:516
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:124
@@ -3267,12 +3233,12 @@ msgid "Off"
 msgstr "Désactivé"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:986
-#: src/Modules/Newsletter/Admin/FormsPage.php:236
+#: src/Modules/Newsletter/Admin/FormsPage.php:237
 msgid "Form name"
 msgstr "Nom du formulaire"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:989
-#: src/Modules/Newsletter/Admin/FormsPage.php:239
+#: src/Modules/Newsletter/Admin/FormsPage.php:240
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1573
 msgid "Draft"
 msgstr "Brouillon"
@@ -3301,26 +3267,25 @@ msgstr "Identité SMTP"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1012
 #: src/Modules/ContactForm/Admin/FormsPage.php:1469
-#: src/Modules/Newsletter/Admin/FormsPage.php:283
+#: src/Modules/Newsletter/Admin/FormsPage.php:284
 #: admin/js/contact-form-editor.js:106
 msgid "Style"
 msgstr "Style"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1014
 #: src/Modules/ContactForm/Admin/FormsPage.php:1472
-#: src/Modules/Newsletter/Admin/FormsPage.php:285
+#: src/Modules/Newsletter/Admin/FormsPage.php:286
 #: admin/js/contact-form-editor.js:108
 msgid "Preset"
 msgstr "Préréglage"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1024
 #: src/Modules/ContactForm/Admin/FormsPage.php:1529
-#: src/Modules/Newsletter/Admin/FormsPage.php:295
+#: src/Modules/Newsletter/Admin/FormsPage.php:296
 msgid "Success message"
 msgstr "Message de succès"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1025
-#, fuzzy
 msgid ""
 "Shown to the visitor right after they submit the form. Open the dropdown to "
 "insert the site-language default."
@@ -3441,7 +3406,7 @@ msgstr "Fenêtre (min)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1161
 #: src/Modules/ContactForm/Admin/FormsPage.php:1217
-#: src/Modules/Newsletter/Admin/FormsPage.php:312
+#: src/Modules/Newsletter/Admin/FormsPage.php:313
 msgid "(no title)"
 msgstr "(sans titre)"
 
@@ -3450,12 +3415,12 @@ msgid "Start a new contact form"
 msgstr "Démarrer un nouveau formulaire de contact"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1196
-#: src/Modules/Newsletter/Admin/FormsPage.php:622
+#: src/Modules/Newsletter/Admin/FormsPage.php:623
 msgid "Starter templates"
 msgstr "Modèles de démarrage"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1199
-#: src/Modules/Newsletter/Admin/FormsPage.php:625
+#: src/Modules/Newsletter/Admin/FormsPage.php:626
 msgid "Blank form"
 msgstr "Formulaire vide"
 
@@ -3474,18 +3439,18 @@ msgstr "Cloner ce formulaire (%s soumissions jusqu'à présent)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1251
 #: src/Modules/ContactForm/Admin/FormsPage.php:1252
-#: src/Modules/Newsletter/Admin/FormsPage.php:536
 #: src/Modules/Newsletter/Admin/FormsPage.php:537
+#: src/Modules/Newsletter/Admin/FormsPage.php:538
 msgid "Add a field"
 msgstr "Ajouter un champ"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1259
-#: src/Modules/Newsletter/Admin/FormsPage.php:544
+#: src/Modules/Newsletter/Admin/FormsPage.php:545
 msgid "Undo (Ctrl+Z)"
 msgstr "Annuler (Ctrl+Z)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1267
-#: src/Modules/Newsletter/Admin/FormsPage.php:552
+#: src/Modules/Newsletter/Admin/FormsPage.php:553
 msgid "Redo (Ctrl+Shift+Z)"
 msgstr "Rétablir (Ctrl+Maj+Z)"
 
@@ -3505,18 +3470,16 @@ msgid "Radio"
 msgstr "Bouton radio"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1349
-#, fuzzy
 msgid "Save on web server"
-msgstr "— Aucun (non recommandé) —"
+msgstr "Enregistrer sur le serveur web"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1350
-#, fuzzy
 msgid "Attach to email"
-msgstr "Échec de la connexion."
+msgstr "Joindre à l'email"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1351
 msgid "Both — save + attach"
-msgstr ""
+msgstr "Les deux — enregistrer + joindre"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1396
 msgid "SMTP routing decides"
@@ -3619,7 +3582,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1659
 msgid "Archive policy"
-msgstr ""
+msgstr "Politique d'archivage"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1664
 msgid ""
@@ -3627,13 +3590,15 @@ msgid ""
 "is archived (captcha + honeypot still run). All other settings below are "
 "inert."
 msgstr ""
+"Interrupteur principal. Quand désactivé, l'email de notification est "
+"toujours envoyé mais rien n'est archivé (captcha + honeypot restent actifs). "
+"Tous les réglages ci-dessous sont alors inertes."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1670
 msgid "IP storage"
 msgstr "Stockage des IP"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1671
-#, fuzzy
 msgid ""
 "Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes "
 "abuse investigation easier but requires a lawful basis in some jurisdictions."
@@ -3645,80 +3610,90 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1677
 msgid "Spam recording"
-msgstr ""
+msgstr "Enregistrement des spams"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1678
 msgid ""
 "Even when archiving is on, you can skip these bot-blocked rows so the inbox "
 "stays clean."
 msgstr ""
+"Même quand l'archivage est activé, vous pouvez ignorer ces lignes bloquées "
+"par les anti-bots pour garder une boîte de réception propre."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1682
 msgid "Save honeypot / time-trap"
-msgstr ""
+msgstr "Enregistrer honeypot / piège temporel"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1683
 msgid "Almost always bots — keep off unless you're debugging your forms."
 msgstr ""
+"Presque toujours des bots — laissez désactivé sauf pour déboguer vos "
+"formulaires."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1689
-#, fuzzy
 msgid "Save captcha-failed"
-msgstr "soumission"
+msgstr "Enregistrer les captchas échoués"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1690
 msgid ""
 "Captcha can fail for legitimate users (typos, slow connections). Keep on so "
 "you can recover their messages."
 msgstr ""
+"Le captcha peut échouer pour des utilisateurs légitimes (fautes de frappe, "
+"connexions lentes). Gardez activé pour pouvoir récupérer leurs messages."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1696
-#, fuzzy
 msgid "Automatic retention"
-msgstr "Rétention"
+msgstr "Rétention automatique"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1697
 msgid ""
 "Older rows are deleted daily by a cron event. Each bucket has its own toggle "
 "— turn it on only for rows you want auto-pruned."
 msgstr ""
+"Les anciennes lignes sont supprimées quotidiennement par un cron. Chaque "
+"catégorie a son propre interrupteur — activez-le uniquement pour les lignes "
+"que vous voulez purger automatiquement."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1720
 msgid ""
 "Failed sends often hold useful debug info (rejected mailboxes, SMTP errors). "
 "Auto-deleting them is usually undesirable."
 msgstr ""
+"Les envois échoués contiennent souvent des infos de debug utiles (boîtes "
+"refusées, erreurs SMTP). Les supprimer automatiquement est généralement "
+"déconseillé."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1730
 #: src/Modules/ContactForm/Admin/FormsPage.php:1753
 msgid "Spam"
-msgstr ""
+msgstr "Spam"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1740
 #: src/Modules/Logging/Admin/LogsPage.php:527
 msgid "Manual cleanup"
-msgstr ""
+msgstr "Nettoyage manuel"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1741
 msgid ""
 "One-shot deletion. Pick an age + the statuses to include, then run. Works on "
 "existing rows even when archiving is off."
 msgstr ""
+"Suppression ponctuelle. Choisissez un âge + les statuts à inclure, puis "
+"lancez. Fonctionne sur les lignes existantes même si l'archivage est "
+"désactivé."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1744
-#, fuzzy
 msgid "Delete submissions older than"
-msgstr "Supprimer les journaux plus anciens que"
+msgstr "Supprimer les soumissions plus anciennes que"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1746
-#, fuzzy
 msgid "days, in:"
-msgstr "jours"
+msgstr "jours, dans :"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1758
-#, fuzzy
 msgid "Delete matching submissions"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "Supprimer les soumissions correspondantes"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1781
 #: src/Modules/Logging/Admin/LogsPage.php:579
@@ -3726,13 +3701,11 @@ msgid "Working…"
 msgstr "Traitement…"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1782
-#, fuzzy
 msgid "Tick at least one status."
-msgstr "Sélectionnez au moins une entrée."
+msgstr "Cochez au moins un statut."
 
 #. translators: %d: number of days
 #: src/Modules/ContactForm/Admin/FormsPage.php:1785
-#, fuzzy
 msgid ""
 "Delete every submission older than %d days in the selected statuses? This "
 "cannot be undone."
@@ -3740,52 +3713,43 @@ msgstr ""
 "Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:62
-#, fuzzy
 msgid "Day count must be at least 1."
-msgstr "La valeur doit être au moins %s."
+msgstr "Le nombre de jours doit être au moins 1."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:73
-#, fuzzy
 msgid "Select at least one status to purge."
-msgstr "Sélectionnez au moins une entrée."
+msgstr "Sélectionnez au moins un statut à purger."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:80
-#, fuzzy
 msgid "Invalid age."
-msgstr "Défi invalide."
+msgstr "Âge invalide."
 
 #. translators: %d: number of submissions purged
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:96
-#, fuzzy
 msgid "%d submission purged."
 msgid_plural "%d submissions purged."
 msgstr[0] "%s soumission"
 msgstr[1] "%s soumissions"
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:114
-#, fuzzy
 msgid "Missing submission id."
-msgstr "Structure manquante."
+msgstr "ID de soumission manquant."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:118
-#, fuzzy
 msgid "Submission not found."
-msgstr "Formulaire introuvable."
+msgstr "Soumission introuvable."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:157
-#, fuzzy
 msgid "No submissions selected."
-msgstr "Soumission du commentaire bloquée"
+msgstr "Aucune soumission sélectionnée."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:160
 #: src/Modules/Newsletter/Admin/AjaxController.php:1022
-#, fuzzy
 msgid "Unknown bulk action."
-msgstr "Réglage inconnu."
+msgstr "Action groupée inconnue."
 
 #. translators: %d: number of submissions marked as spam
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:191
-#, fuzzy
 msgid "%d submission marked as spam."
 msgid_plural "%d submissions marked as spam."
 msgstr[0] "soumission"
@@ -3793,7 +3757,6 @@ msgstr[1] "soumission"
 
 #. translators: %d: number of submissions restored from spam
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:196
-#, fuzzy
 msgid "%d submission restored."
 msgid_plural "%d submissions restored."
 msgstr[0] "%s soumission"
@@ -3801,7 +3764,6 @@ msgstr[1] "%s soumissions"
 
 #. translators: %d: number of submissions deleted
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:201
-#, fuzzy
 msgid "%d submission deleted."
 msgid_plural "%d submissions deleted."
 msgstr[0] "%s soumission"
@@ -3810,30 +3772,29 @@ msgstr[1] "%s soumissions"
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:104
 msgid "Submission #%d marked as spam."
-msgstr ""
+msgstr "Soumission n°%d marquée comme spam."
 
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:107
-#, fuzzy
 msgid "Submission #%d restored from spam."
-msgstr "Supprimer le champ"
+msgstr "Soumission n°%d restaurée du spam."
 
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:110
-#, fuzzy
 msgid "Submission #%d deleted permanently."
-msgstr "Supprimer le champ"
+msgstr "Soumission n°%d supprimée définitivement."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:117
 msgid "That submission no longer exists. It may have been deleted already."
-msgstr ""
+msgstr "Cette soumission n'existe plus. Elle a peut-être déjà été supprimée."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:121
 msgid "Contact Form Submissions"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
+#. translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —".
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:131
-#: src/Modules/Newsletter/Admin/FormsPage.php:144
+#: src/Modules/Newsletter/Admin/FormsPage.php:145
 #: src/Modules/Newsletter/Admin/HomePage.php:263
 msgid "Forms"
 msgstr "Formulaire"
@@ -3895,9 +3856,8 @@ msgstr "Réinitialiser"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:340
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:267
-#, fuzzy
 msgid "Bulk actions"
-msgstr "Action groupée…"
+msgstr "Actions groupées"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:343
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:480
@@ -3923,13 +3883,12 @@ msgstr "Affichage de %1$d–%2$d sur %3$d"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:383
 msgid "Select all"
-msgstr ""
+msgstr "Tout sélectionner"
 
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:427
-#, fuzzy
 msgid "Select submission #%d"
-msgstr "soumission"
+msgstr "Sélectionner la soumission n°%d"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:467
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:589
@@ -3941,9 +3900,8 @@ msgid "View outbound email log"
 msgstr "Voir tous les journaux"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:480
-#, fuzzy
 msgid "Delete submission"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "Supprimer la soumission"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:507
 msgid "Submissions pagination"
@@ -4029,32 +3987,37 @@ msgstr "Voir l'entrée du journal"
 #. translators: 1: form title, 2: submission id, 3: submitted-at datetime
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:798
 msgid "Submission to \"%1$s\" — #%2$d, received %3$s."
-msgstr ""
+msgstr "Soumission à « %1$s » — n°%2$d, reçue le %3$s."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:812
 msgid "This is irreversible."
-msgstr ""
+msgstr "Cette action est irréversible."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:813
 msgid "Field data and any attached files will be permanently removed."
 msgstr ""
+"Les données du champ et tous les fichiers joints seront définitivement "
+"supprimés."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:817
 msgid ""
 "Marking as spam keeps the row in the inbox under the Spam filter. You can "
 "move it back at any time."
 msgstr ""
+"Marquer comme spam garde la ligne dans la boîte de réception sous le filtre "
+"Spam. Vous pouvez la déplacer à tout moment."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:880
-#, fuzzy
 msgid "Attached files"
-msgstr "Pièces jointes"
+msgstr "Fichiers joints"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:883
 msgid ""
 "Files come from visitor submissions. Open with care — no malware scan is "
 "performed."
 msgstr ""
+"Les fichiers proviennent de soumissions visiteur. Ouvrez avec précaution — "
+"aucun scan antivirus n'est effectué."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:972
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:984
@@ -4067,9 +4030,8 @@ msgid "(empty)"
 msgstr "(vide)"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:1090
-#, fuzzy
 msgid "Blocked (time-trap)"
-msgstr "Ajouter un captcha"
+msgstr "Bloqué (piège temporel)"
 
 #: src/Modules/ContactForm/CPT.php:100 src/Modules/ContactForm/Module.php:53
 #: admin/js/contact-form-editor.js:169 admin/js/contact-form-editor.js:198
@@ -4129,25 +4091,24 @@ msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
 #: src/Modules/ContactForm/Frontend.php:57
-#, fuzzy
 msgid "Search country…"
-msgstr "Rechercher par email ou nom…"
+msgstr "Rechercher un pays…"
 
 #: src/Modules/ContactForm/Frontend.php:58
 msgid "Too many files"
-msgstr ""
+msgstr "Trop de fichiers"
 
 #: src/Modules/ContactForm/Frontend.php:59
 msgid "File too large"
-msgstr ""
+msgstr "Fichier trop volumineux"
 
 #: src/Modules/ContactForm/Frontend.php:60
 msgid "Type not allowed"
-msgstr ""
+msgstr "Type non autorisé"
 
 #: src/Modules/ContactForm/Frontend.php:61
 msgid "Combined size exceeds the limit"
-msgstr ""
+msgstr "Taille totale dépassée"
 
 #: src/Modules/ContactForm/Module.php:58
 msgid ""
@@ -4241,7 +4202,7 @@ msgstr "Formulaire de contact"
 
 #: src/Modules/ContactForm/SubmitHandler.php:722
 msgid "(attached to this email)"
-msgstr ""
+msgstr "(joint à cet email)"
 
 #. translators: %s: form title
 #: src/Modules/ContactForm/SubmitHandler.php:747
@@ -4254,87 +4215,83 @@ msgstr "Sans titre"
 
 #: src/Modules/ContactForm/SubmitHandler.php:769
 msgid "View in admin"
-msgstr ""
+msgstr "Voir dans l'admin"
 
 #: src/Modules/ContactForm/SubmitHandler.php:777
 msgid "New submission"
 msgstr "Nouvelle soumission"
 
 #: src/Modules/ContactForm/SubmitHandler.php:933
-#, fuzzy
 msgid "Please attach a file."
-msgstr "Veuillez saisir un nombre."
+msgstr "Veuillez joindre un fichier."
 
 #. translators: %d: max files allowed
 #: src/Modules/ContactForm/SubmitHandler.php:940
 msgid "At most %d file is allowed."
 msgid_plural "At most %d files are allowed."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Au plus %d fichier est autorisé."
+msgstr[1] "Au plus %d fichiers sont autorisés."
 
 #: src/Modules/ContactForm/SubmitHandler.php:954
 #: src/Modules/ContactForm/SubmitHandler.php:1235
-#, fuzzy
 msgid "Upload failed, please try again."
-msgstr "Échec du contrôle anti-spam."
+msgstr "Échec de l'upload, veuillez réessayer."
 
 #. translators: 1: filename, 2: max MB
 #: src/Modules/ContactForm/SubmitHandler.php:960
 msgid "\"%1$s\" exceeds the %2$d MB per-file limit."
-msgstr ""
+msgstr "« %1$s » dépasse la limite de %2$d Mo par fichier."
 
 #. translators: 1: filename, 2: server max formatted (e.g. 8 MB)
 #: src/Modules/ContactForm/SubmitHandler.php:969
 msgid "\"%1$s\" exceeds the server upload limit (%2$s)."
-msgstr ""
+msgstr "« %1$s » dépasse la limite d'upload serveur (%2$s)."
 
 #. translators: %s: filename
 #: src/Modules/ContactForm/SubmitHandler.php:980
 msgid "\"%s\" has no recognisable file extension."
-msgstr ""
+msgstr "« %s » n'a pas d'extension de fichier reconnaissable."
 
 #. translators: %s: filename
 #: src/Modules/ContactForm/SubmitHandler.php:988
 msgid "\"%s\" is a file type that cannot be uploaded."
-msgstr ""
+msgstr "« %s » est un type de fichier qui ne peut pas être uploadé."
 
 #. translators: 1: filename, 2: comma-separated allowed extensions
 #: src/Modules/ContactForm/SubmitHandler.php:996
 msgid "\"%1$s\" is not an allowed file type. Allowed: %2$s"
-msgstr ""
+msgstr "« %1$s » n'est pas un type de fichier autorisé. Autorisés : %2$s"
 
 #. translators: %s: filename
 #: src/Modules/ContactForm/SubmitHandler.php:1012
 msgid "\"%s\" looks tampered (extension doesn't match its content)."
-msgstr ""
+msgstr "« %s » semble altéré (l'extension ne correspond pas au contenu)."
 
 #. translators: %s: filename
 #: src/Modules/ContactForm/SubmitHandler.php:1021
 msgid "\"%s\" cannot be verified as a safe file type."
-msgstr ""
+msgstr "« %s » ne peut pas être vérifié comme type de fichier sûr."
 
 #. translators: %d: total max MB across all files in the field
 #: src/Modules/ContactForm/SubmitHandler.php:1041
 msgid "The combined upload exceeds the %d MB limit for this field."
-msgstr ""
+msgstr "L'upload combiné dépasse la limite de %d Mo pour ce champ."
 
 #: src/Modules/ContactForm/SubmitHandler.php:1225
-#, fuzzy
 msgid "That file is too large for the server."
-msgstr "Impossible de créer le formulaire."
+msgstr "Ce fichier est trop volumineux pour le serveur."
 
 #: src/Modules/ContactForm/SubmitHandler.php:1227
 msgid "Upload was interrupted, please try again."
-msgstr ""
+msgstr "L'upload a été interrompu, veuillez réessayer."
 
 #: src/Modules/ContactForm/SubmitHandler.php:1229
 msgid "No file was uploaded."
-msgstr ""
+msgstr "Aucun fichier n'a été uploadé."
 
 #: src/Modules/ContactForm/SubmitHandler.php:1233
-#, fuzzy
 msgid "The server could not save your upload, please try again later."
-msgstr "Impossible d'enregistrer votre abonnement. Veuillez réessayer."
+msgstr "Le serveur n'a pas pu enregistrer votre upload, réessayez plus tard."
 
 #: src/Modules/ContactForm/TemplateRegistry.php:65
 msgid "Simple contact"
@@ -4407,7 +4364,7 @@ msgid "Send message"
 msgstr "Envoyer le message"
 
 #: src/Modules/ContactForm/TemplateRegistry.php:117
-#: src/Modules/Newsletter/Admin/FormsPage.php:771
+#: src/Modules/Newsletter/Admin/FormsPage.php:772
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:38
 #: src/Modules/Newsletter/FormTemplateRegistry.php:110
 #: src/Modules/Newsletter/FormTemplateRegistry.php:129
@@ -4417,7 +4374,7 @@ msgid "First name"
 msgstr "Prénom"
 
 #: src/Modules/ContactForm/TemplateRegistry.php:118
-#: src/Modules/Newsletter/Admin/FormsPage.php:772
+#: src/Modules/Newsletter/Admin/FormsPage.php:773
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:39
 #: src/Modules/Newsletter/FormTemplateRegistry.php:111
 #: src/Modules/Newsletter/FormTemplateRegistry.php:130
@@ -4531,14 +4488,12 @@ msgid "Send RSVP"
 msgstr "Envoyer l'inscription"
 
 #: src/Modules/Logging/Admin/AjaxController.php:64
-#, fuzzy
 msgid "Missing log id."
-msgstr "Structure manquante."
+msgstr "ID de journal manquant."
 
 #: src/Modules/Logging/Admin/AjaxController.php:68
-#, fuzzy
 msgid "Log entry not found."
-msgstr "Entrée du journal introuvable"
+msgstr "Entrée de journal introuvable."
 
 #: src/Modules/Logging/Admin/AjaxController.php:132
 #: src/Modules/Logging/Admin/AjaxController.php:201
@@ -4683,15 +4638,16 @@ msgid "No emails logged yet."
 msgstr "Aucun email journalisé pour le moment."
 
 #: src/Modules/Logging/Admin/LogsPage.php:487
-#, fuzzy
 msgid "Email logs storage"
-msgstr "soumission"
+msgstr "Stockage des journaux d'emails"
 
 #: src/Modules/Logging/Admin/LogsPage.php:494
 msgid ""
 "Automatic retention, display preferences, and one-shot manual cleanup. "
 "Settings save automatically."
 msgstr ""
+"Rétention automatique, préférences d'affichage, et nettoyage manuel "
+"ponctuel. Les réglages sont enregistrés automatiquement."
 
 #: src/Modules/Logging/Admin/LogsPage.php:504
 msgid "Retention"
@@ -4701,10 +4657,12 @@ msgstr "Rétention"
 msgid ""
 "Daily cron prunes older log entries. Turn off to keep every entry forever."
 msgstr ""
+"Un cron quotidien purge les anciennes entrées de journal. Désactivez pour "
+"tout garder indéfiniment."
 
 #: src/Modules/Logging/Admin/LogsPage.php:515
 msgid "Display"
-msgstr ""
+msgstr "Affichage"
 
 #: src/Modules/Logging/Admin/LogsPage.php:517
 msgid "Entries per page"
@@ -4712,7 +4670,7 @@ msgstr "Entrées par page"
 
 #: src/Modules/Logging/Admin/LogsPage.php:528
 msgid "One-shot deletion, independent from the retention cron above."
-msgstr ""
+msgstr "Suppression ponctuelle, indépendante du cron de rétention ci-dessus."
 
 #: src/Modules/Logging/Admin/LogsPage.php:531
 msgid "Delete logs older than"
@@ -4738,10 +4696,10 @@ msgstr "Renvoyer cet email maintenant ?"
 
 #. translators: %d: number of days
 #: src/Modules/Logging/Admin/LogsPage.php:574
-#, fuzzy
 msgid "Delete every log entry older than %d days? This cannot be undone."
 msgstr ""
-"Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
+"Supprimer toutes les entrées de journal plus anciennes que %d jours ? Cette "
+"action est irréversible."
 
 #: src/Modules/Logging/Admin/LogsPage.php:576
 msgid "Select at least one entry."
@@ -4848,9 +4806,8 @@ msgid "Plain-text body"
 msgstr "Corps en texte brut"
 
 #: src/Modules/Logging/Admin/LogViewPage.php:262
-#, fuzzy
 msgid "Delete?"
-msgstr "Supprimer"
+msgstr "Supprimer ?"
 
 #: src/Modules/Logging/Admin/PageController.php:89
 msgid ""
@@ -4903,7 +4860,7 @@ msgstr "Le libellé est requis."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:283
 msgid "Pick a rule provider for the WP users list."
-msgstr ""
+msgstr "Choisissez un fournisseur de règle pour la liste d'utilisateurs WP."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:289
 msgid "Could not create the list (the slug may collide with an existing one)."
@@ -4915,7 +4872,7 @@ msgstr "Structure manquante."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:321
 msgid "Built-in lists can't be renamed."
-msgstr ""
+msgstr "Les listes système ne peuvent pas être renommées."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:325
 msgid "Could not rename the list."
@@ -4927,34 +4884,36 @@ msgstr "Impossible de créer le formulaire."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:353
 msgid "Missing or invalid visibility value."
-msgstr ""
+msgstr "Valeur de visibilité manquante ou invalide."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:357
 msgid "Could not change this list's visibility (system lists are admin-only)."
 msgstr ""
+"Impossible de changer la visibilité de cette liste (les listes système sont "
+"réservées à l'admin)."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:373
 #: src/Modules/Newsletter/Admin/AjaxController.php:838
 #: src/Modules/Newsletter/Admin/AjaxController.php:893
-#, fuzzy
 msgid "Missing list id."
-msgstr "Structure manquante."
+msgstr "ID de liste manquant."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:378
 msgid "Built-in lists have a fixed rule."
-msgstr ""
+msgstr "Les listes système ont une règle fixe."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:386
 msgid ""
 "This list has no rule provider — it's a Subscribers list, not a WP users "
 "list."
 msgstr ""
+"Cette liste n'a pas de fournisseur de règle — c'est une liste d'abonnés, pas "
+"une liste d'utilisateurs WP."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:390
 #: src/Modules/Newsletter/Admin/AjaxController.php:791
-#, fuzzy
 msgid "Unknown rule provider."
-msgstr "Fournisseur de captcha inconnu."
+msgstr "Fournisseur de règle inconnu."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:422
 msgid "Invalid structure payload."
@@ -4991,54 +4950,45 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:624
 #: src/Modules/Newsletter/Admin/AjaxController.php:1083
-#, fuzzy
 msgid "Subscriber not found."
-msgstr "Formulaire source introuvable."
+msgstr "Abonné introuvable."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:655
-#, fuzzy
 msgid "Missing template id."
-msgstr "Structure manquante."
+msgstr "ID de template manquant."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:659
-#, fuzzy
 msgid "Could not update the default template."
-msgstr "Impossible de créer le formulaire."
+msgstr "Impossible de mettre à jour le template par défaut."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:877
-#, fuzzy
 msgid "Missing list/user id."
-msgstr "Structure manquante."
+msgstr "ID de liste ou d'utilisateur manquant."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1019
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:343
-#, fuzzy
 msgid "Select at least one subscriber."
-msgstr "Sélectionnez au moins une entrée."
+msgstr "Sélectionnez au moins un abonné."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1081
 msgid "That email already belongs to another subscriber."
-msgstr ""
+msgstr "Cet email appartient déjà à un autre abonné."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1082
-#, fuzzy
 msgid "Invalid value."
-msgstr "Défi invalide."
+msgstr "Valeur invalide."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1085
-#, fuzzy
 msgid "Could not update."
-msgstr "Impossible de créer le formulaire."
+msgstr "Mise à jour impossible."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1095
-#, fuzzy
 msgid "Missing subscriber or list id."
-msgstr "Structure manquante."
+msgstr "ID d'abonné ou de liste manquant."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1100
-#, fuzzy
 msgid "Subscriber or list not found."
-msgstr "Formulaire source introuvable."
+msgstr "Abonné ou liste introuvable."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1123
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1314
@@ -5068,24 +5018,24 @@ msgstr "Formulaire source introuvable."
 msgid "Newsletter form not found."
 msgstr "Formulaire source introuvable."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:144
+#. translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —".
+#: src/Modules/Newsletter/Admin/FormsPage.php:145
 #: src/Modules/Newsletter/Admin/HomePage.php:371
 #: src/Modules/Newsletter/Admin/HomePage.php:607
 #: src/Modules/Newsletter/Admin/ListsPage.php:98
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:141
-#, fuzzy
 msgid "Newsletters — %s"
-msgstr "Newsletter"
+msgstr "Newsletters — %s"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:146
+#: src/Modules/Newsletter/Admin/FormsPage.php:147
 msgid "New subscribe form"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:161
+#: src/Modules/Newsletter/Admin/FormsPage.php:162
 msgid "Create your first subscribe form"
 msgstr "Créer mon premier formulaire de contact"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:163
+#: src/Modules/Newsletter/Admin/FormsPage.php:164
 msgid ""
 "Subscribe forms collect new email-only subscribers, with double-opt-in "
 "confirmation handled automatically."
@@ -5093,120 +5043,114 @@ msgstr ""
 "Les formulaires d'inscription collectent de nouveaux abonnés par email, avec "
 "confirmation en double opt-in gérée automatiquement."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:166
+#: src/Modules/Newsletter/Admin/FormsPage.php:167
 msgid "Create a subscribe form"
 msgstr "Créer mon premier formulaire de contact"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:216
-#: src/Modules/Newsletter/Admin/FormsPage.php:507
+#: src/Modules/Newsletter/Admin/FormsPage.php:217
+#: src/Modules/Newsletter/Admin/FormsPage.php:508
 #: src/Modules/Newsletter/Admin/HomePage.php:454
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:823
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1001
 msgid "(untitled)"
 msgstr "(sans titre)"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:246
+#: src/Modules/Newsletter/Admin/FormsPage.php:247
 msgid "Confirmation email template"
 msgstr "Échec de la connexion."
 
 #. translators: %1$s: opening <a> tag, %2$s: closing </a> tag, around "Onboarding view".
-#: src/Modules/Newsletter/Admin/FormsPage.php:258
+#: src/Modules/Newsletter/Admin/FormsPage.php:259
 msgid "Edit confirmation emails in the %1$sOnboarding view%2$s."
 msgstr "Modifiez les emails de confirmation dans la %1$svue Onboarding%2$s."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:268
-#, fuzzy
+#: src/Modules/Newsletter/Admin/FormsPage.php:269
 msgid "Default lists"
-msgstr "Emails par défaut"
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:271
-#: src/Modules/Newsletter/Admin/ListsPage.php:84
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:640
-#, fuzzy
-msgid "Manage lists"
-msgstr "Gérer les données de l'extension"
+msgstr "Listes par défaut"
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:272
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:641
-#, fuzzy
-msgid "Manage lists →"
-msgstr "Gérer les données de l'extension"
+#: src/Modules/Newsletter/Admin/ListsPage.php:84
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:640
+msgid "Manage lists"
+msgstr "Gérer les listes"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:277
+#: src/Modules/Newsletter/Admin/FormsPage.php:273
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:641
+msgid "Manage lists →"
+msgstr "Gérer les listes →"
+
+#: src/Modules/Newsletter/Admin/FormsPage.php:278
 msgid ""
 "Confirmed subscribers from this form are added to every list picked here. "
 "Leave empty to skip auto-assignment."
 msgstr ""
+"Les abonnés confirmés via ce formulaire sont ajoutés à toutes les listes "
+"sélectionnées ici. Laissez vide pour ne pas attribuer automatiquement."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:300
+#: src/Modules/Newsletter/Admin/FormsPage.php:301
 #: src/Modules/Newsletter/SubmitHandler.php:535
 msgid "Thanks! Check your inbox to confirm your subscription."
 msgstr ""
 "Merci ! Consultez votre boîte de réception pour confirmer votre inscription."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:413
-#: src/Modules/Newsletter/Admin/FormsPage.php:424
-#, fuzzy
+#: src/Modules/Newsletter/Admin/FormsPage.php:414
+#: src/Modules/Newsletter/Admin/FormsPage.php:425
 msgid "no automatic list"
-msgstr "Utiliser le mode automatique (utilise le titre du site)"
+msgstr "aucune liste automatique"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:454
+#: src/Modules/Newsletter/Admin/FormsPage.php:455
 #: src/Modules/Newsletter/Admin/ListsPage.php:231
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:702
 msgid "Built-in list — cannot be renamed or deleted."
-msgstr ""
+msgstr "Liste système — ne peut être ni renommée ni supprimée."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:455
+#: src/Modules/Newsletter/Admin/FormsPage.php:456
 #: src/Modules/Newsletter/Admin/ListsPage.php:232
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:703
 msgid "System"
-msgstr ""
+msgstr "Système"
 
-#. translators: %s: number of opted-out users.
 #. translators: %s: number of opted-out users (already formatted).
-#: src/Modules/Newsletter/Admin/FormsPage.php:469
+#: src/Modules/Newsletter/Admin/FormsPage.php:470
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:718
 msgid "−%s opt-out"
-msgstr ""
+msgstr "−%s opt-out"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:485
+#: src/Modules/Newsletter/Admin/FormsPage.php:486
 #: src/Modules/Newsletter/Admin/ListsPage.php:165
 #: src/Modules/Newsletter/Admin/ListsPage.php:852
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:735
-#, fuzzy
 msgid "Subscribers lists"
-msgstr "S'inscrire"
+msgstr "Listes d'abonnés"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:486
+#: src/Modules/Newsletter/Admin/FormsPage.php:487
 #: src/Modules/Newsletter/Admin/ListsPage.php:166
 #: src/Modules/Newsletter/Admin/ListsPage.php:851
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:736
-#, fuzzy
 msgid "WP users lists"
-msgstr "S'inscrire"
+msgstr "Listes d'utilisateurs WP"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:502
+#: src/Modules/Newsletter/Admin/FormsPage.php:503
 msgid "Default — no template available"
 msgstr "Emails par défaut"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:567
+#: src/Modules/Newsletter/Admin/FormsPage.php:568
 msgid "Quick add (pre-mapped)"
-msgstr ""
+msgstr "Ajout rapide (pré-mappé)"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:579
-#, fuzzy
+#: src/Modules/Newsletter/Admin/FormsPage.php:580
 msgid "Generic fields"
-msgstr "Supprimer le champ"
+msgstr "Champs génériques"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:615
+#: src/Modules/Newsletter/Admin/FormsPage.php:616
 msgid "Start a new subscribe form"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:626
+#: src/Modules/Newsletter/Admin/FormsPage.php:627
 msgid "Start empty and add the fields you want."
 msgstr "Démarrez vide et ajoutez les champs souhaités."
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:659
+#: src/Modules/Newsletter/Admin/FormsPage.php:660
 msgid ""
 "This will permanently delete the subscribe form. Existing subscribers are "
 "not affected."
@@ -5215,15 +5159,15 @@ msgstr ""
 "existants ne sont pas affectés."
 
 #. translators: %s: subscribe form title
-#: src/Modules/Newsletter/Admin/FormsPage.php:684
+#: src/Modules/Newsletter/Admin/FormsPage.php:685
 msgid "Delete subscribe form \"%s\"?"
 msgstr "Envoyé depuis le formulaire de contact « %s »"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:739
+#: src/Modules/Newsletter/Admin/FormsPage.php:740
 msgid "Text (name, etc.)"
 msgstr "Texte (nom, etc.)"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:741
+#: src/Modules/Newsletter/Admin/FormsPage.php:742
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:41
 #: src/Modules/Newsletter/Fields/GenderField.php:35
 #: src/Modules/Newsletter/Fields/GenderField.php:57
@@ -5231,78 +5175,73 @@ msgstr "Texte (nom, etc.)"
 #: src/Modules/Newsletter/PrefsRenderer.php:138
 #: src/Modules/Newsletter/SubscriberFields.php:63
 msgid "Gender"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:742
-#, fuzzy
-msgid "Dropdown (select)"
-msgstr "Liste déroulante"
+msgstr "Genre"
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:743
+msgid "Dropdown (select)"
+msgstr "Liste déroulante (select)"
+
+#: src/Modules/Newsletter/Admin/FormsPage.php:744
 #: src/Modules/Newsletter/Fields/ListPicker.php:35
 msgid "List picker"
 msgstr "Sélecteur de liste"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:762
-#: src/Modules/Newsletter/Admin/FormsPage.php:764
+#: src/Modules/Newsletter/Admin/FormsPage.php:763
+#: src/Modules/Newsletter/Admin/FormsPage.php:765
 #: src/Modules/Newsletter/SubscriberFields.php:53
-#, fuzzy
 msgid "Full name"
-msgstr "Nom du formulaire"
+msgstr "Nom complet"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:769
-#, fuzzy
+#: src/Modules/Newsletter/Admin/FormsPage.php:770
 msgid "First + Last name"
-msgstr "Prénom"
+msgstr "Prénom + Nom"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:784
+#: src/Modules/Newsletter/Admin/FormsPage.php:785
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1326
 #: src/Modules/Newsletter/PrefsRenderer.php:151
-#, fuzzy
 msgid "Postal address"
-msgstr "Adresse IP"
+msgstr "Adresse postale"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:786
+#: src/Modules/Newsletter/Admin/FormsPage.php:787
 #: src/Modules/Newsletter/FormTemplateRegistry.php:140
 #: src/Modules/Newsletter/PrefsRenderer.php:153
 #: src/Modules/Newsletter/SubscriberFields.php:57
-#, fuzzy
 msgid "Street address"
-msgstr "Adresse IP"
+msgstr "Adresse"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:787
+#: src/Modules/Newsletter/Admin/FormsPage.php:788
 #: src/Modules/Newsletter/FormTemplateRegistry.php:143
 #: src/Modules/Newsletter/PrefsRenderer.php:157
 #: src/Modules/Newsletter/SubscriberFields.php:58
 msgid "Address line 2"
-msgstr ""
+msgstr "Complément d'adresse"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:788
+#: src/Modules/Newsletter/Admin/FormsPage.php:789
 #: src/Modules/Newsletter/FormTemplateRegistry.php:146
 #: src/Modules/Newsletter/PrefsRenderer.php:162
 #: src/Modules/Newsletter/SubscriberFields.php:59
 msgid "Postcode"
-msgstr ""
+msgstr "Code postal"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:789
+#: src/Modules/Newsletter/Admin/FormsPage.php:790
 #: src/Modules/Newsletter/FormTemplateRegistry.php:147
 #: src/Modules/Newsletter/PrefsRenderer.php:166
 #: src/Modules/Newsletter/SubscriberFields.php:60
 msgid "City"
-msgstr ""
+msgstr "Ville"
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:790
+#: src/Modules/Newsletter/Admin/FormsPage.php:791
 #: src/Modules/Newsletter/FormTemplateRegistry.php:150
 msgid "Country"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:843
-msgid "Maps to"
-msgstr ""
+msgstr "Pays"
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:844
+msgid "Maps to"
+msgstr "Mappe vers"
+
+#: src/Modules/Newsletter/Admin/FormsPage.php:845
 msgid "— (none)"
-msgstr ""
+msgstr "— (aucun)"
 
 #. translators: %1$d: sent count, %2$d: failed count
 #: src/Modules/Newsletter/Admin/HomePage.php:119
@@ -5333,53 +5272,52 @@ msgstr "Destinataires"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:146
 msgid "opted out"
-msgstr ""
+msgstr "désinscrit"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:147
-#, fuzzy
 msgid "Bypass"
-msgstr "réussis"
+msgstr "Outrepasser"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:148
 msgid ""
 "⚠ Opt-outs bypassed — this newsletter will reach recipients who explicitly "
 "opted out. Only use for legitimate operational / legal communications."
 msgstr ""
+"⚠ Opt-outs ignorés — cette newsletter atteindra des destinataires qui se "
+"sont explicitement désinscrits. À utiliser uniquement pour des "
+"communications opérationnelles ou légales légitimes."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:149
-#, fuzzy
 msgid "Send anyway"
-msgstr "Envoyer le test"
+msgstr "Envoyer quand même"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:150
 msgid "force include"
-msgstr ""
+msgstr "inclusion forcée"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:151
 msgid "Exclude"
-msgstr ""
+msgstr "Exclure"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:152
 msgid "force exclude"
-msgstr ""
+msgstr "exclusion forcée"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:154
-#, fuzzy
 msgid "will send"
-msgstr "email envoyé"
+msgstr "à envoyer"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:155
-#, fuzzy
 msgid "skipped"
-msgstr "Ignoré"
+msgstr "ignoré"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:157
 msgid "Opted-in"
-msgstr ""
+msgstr "Inscrits"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:158
 msgid "Opted-out"
-msgstr ""
+msgstr "Désinscrits"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:159
 msgid "subscribers"
@@ -5539,7 +5477,6 @@ msgid "Newsletters"
 msgstr "Newsletter"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:231
-#, fuzzy
 msgid ""
 "Enable the Newsletters module to start managing newsletters and subscribers."
 msgstr "Activez le module Newsletter pour gérer vos newsletters et abonnés."
@@ -5560,17 +5497,15 @@ msgid "Import"
 msgstr "Import"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:267
-#, fuzzy
 msgid "Newsletter sections"
-msgstr "Inscription à la newsletter"
+msgstr "Sections newsletter"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:312
 #: src/Modules/Newsletter/Admin/HomePage.php:326
 #: src/Modules/Newsletter/Admin/HomePage.php:371
 #: src/Modules/Newsletter/Admin/HomePage.php:376
-#, fuzzy
 msgid "Subscription emails"
-msgstr "Par défaut — utilise l'identifiant de boîte mail"
+msgstr "Emails d'inscription"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:381
 msgid ""
@@ -5578,52 +5513,58 @@ msgid ""
 "purpose has one active template — the rest are alternates you can swap in. "
 "Click the title to edit in the block editor."
 msgstr ""
+"Emails système envoyés automatiquement pendant le parcours d'inscription du "
+"visiteur. Chaque usage a un template actif — les autres sont des "
+"alternatives que vous pouvez activer. Cliquez sur le titre pour éditer dans "
+"l'éditeur de blocs."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:386
 msgid "Sent when someone signs up — contains the click-to-confirm link."
-msgstr ""
+msgstr "Envoyé quand quelqu'un s'inscrit — contient le lien de confirmation."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:387
 msgid ""
 "Sent on a schedule to subscribers who signed up but haven't clicked the "
 "confirmation link yet."
 msgstr ""
+"Envoyé selon une cadence aux abonnés qui se sont inscrits mais n'ont pas "
+"encore cliqué sur le lien de confirmation."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:388
 msgid ""
 "Sent after a subscriber declines confirmation, acknowledging the choice."
-msgstr ""
+msgstr "Envoyé quand un abonné refuse la confirmation, pour acter son choix."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:422
 msgid ""
 "No template configured for this purpose. Visitors who reach this step would "
 "get nothing."
 msgstr ""
+"Aucun template configuré pour cet usage. Les visiteurs qui atteignent cette "
+"étape ne recevraient rien."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:426
-#, fuzzy
 msgid "Create from default"
-msgstr "Définir par défaut"
+msgstr "Créer depuis le défaut"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:440
 #: src/Modules/Newsletter/Admin/HomePage.php:499
 msgid "This is the active template — actually sent."
-msgstr ""
+msgstr "C'est le template actif — celui réellement envoyé."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:448
 #: src/Modules/Newsletter/Admin/HomePage.php:500
 msgid "Make this the active template for this purpose."
-msgstr ""
+msgstr "Faire de ce template le template actif pour cet usage."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:450
 #: src/Modules/Newsletter/Admin/HomePage.php:498
-#, fuzzy
 msgid "Make active"
-msgstr "Inactif"
+msgstr "Activer"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:457
 msgid "Valid"
-msgstr ""
+msgstr "Valide"
 
 #. translators: %d: number of validation issues.
 #: src/Modules/Newsletter/Admin/HomePage.php:462
@@ -5633,21 +5574,16 @@ msgstr[0] "%d problème"
 msgstr[1] "%d problèmes"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:471
-#, fuzzy
 msgid "Create a new draft pre-filled with the seeded default content."
-msgstr ""
-"Démarrez un nouveau brouillon pré-rempli avec le contenu par défaut pour cet "
-"usage."
+msgstr "Créer un nouveau brouillon pré-rempli avec le contenu par défaut."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:473
-#, fuzzy
 msgid "New variant"
-msgstr "%d identité"
+msgstr "Nouvelle variante"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:495
-#, fuzzy
 msgid "Could not change the active template."
-msgstr "Impossible de créer le formulaire."
+msgstr "Impossible de changer le template actif."
 
 #: src/Modules/Newsletter/Admin/HomePage.php:577
 msgid "Email-only subscribers"
@@ -5658,19 +5594,16 @@ msgid "WP users (potential recipients)"
 msgstr "Utilisateurs WP (destinataires potentiels)"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:585
-#, fuzzy
 msgid "Newsletters in preparation"
-msgstr "Aucun formulaire de contact dans la corbeille."
+msgstr "Newsletters en préparation"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:589
-#, fuzzy
 msgid "Newsletters sent"
-msgstr "Newsletter"
+msgstr "Newsletters envoyées"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:593
-#, fuzzy
 msgid "Subscribe forms"
-msgstr "S'inscrire"
+msgstr "Formulaires d'inscription"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:615
 msgid ""
@@ -5681,9 +5614,8 @@ msgstr ""
 "dans une prochaine version."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:37
-#, fuzzy
 msgid "Manage subscriber lists"
-msgstr "S'inscrire"
+msgstr "Gérer les listes d'abonnés"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:98
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:46
@@ -5692,7 +5624,6 @@ msgid "Lists"
 msgstr "Listes"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:109
-#, fuzzy
 msgid ""
 "Group subscribers so you can target specific audiences when sending. A "
 "\"Subscribers list\" collects members who joined explicitly (via subscribe "
@@ -5712,9 +5643,8 @@ msgstr "Prénom"
 
 #. translators: %s: rule provider label (WP users / WP role / WC subscribers / …)
 #: src/Modules/Newsletter/Admin/ListsPage.php:129
-#, fuzzy
 msgid "WP users — %s"
-msgstr "S'inscrire"
+msgstr "Utilisateurs WP — %s"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:137
 msgid "Add list"
@@ -5731,18 +5661,19 @@ msgid ""
 "Manually-added members. Rule matches resolve at send time and aren't counted "
 "here."
 msgstr ""
+"Membres ajoutés manuellement. Les correspondances de règle sont résolues à "
+"l'envoi et ne sont pas comptées ici."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:247
-#, fuzzy
 msgid "Subscribers on this list."
-msgstr "S'inscrire"
+msgstr "Abonnés présents dans cette liste."
 
 #. translators: %s: number of members on this list (already formatted)
 #: src/Modules/Newsletter/Admin/ListsPage.php:250
 msgid "%s member"
 msgid_plural "%s members"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s membre"
+msgstr[1] "%s membres"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:261
 #: src/Modules/Newsletter/Admin/ListsPage.php:465
@@ -5750,6 +5681,8 @@ msgid ""
 "Public — subscribers can join or leave this list themselves from the "
 "preferences page. Click to make private."
 msgstr ""
+"Publique — les abonnés peuvent rejoindre ou quitter cette liste eux-mêmes "
+"depuis leur page de préférences. Cliquez pour la rendre privée."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:262
 #: src/Modules/Newsletter/Admin/ListsPage.php:466
@@ -5757,109 +5690,102 @@ msgid ""
 "Private — admin-managed. Subscribers don't see this list on the preferences "
 "page. Click to make public."
 msgstr ""
+"Privée — gérée par l'administrateur. Les abonnés ne voient pas cette liste "
+"sur leur page de préférences. Cliquez pour la rendre publique."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:266
 #: src/Modules/Newsletter/Admin/ListsPage.php:463
 msgid "Public"
-msgstr ""
+msgstr "Publique"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:267
 #: src/Modules/Newsletter/Admin/ListsPage.php:464
 msgid "Private"
-msgstr ""
+msgstr "Privée"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:276
 #: src/Modules/Newsletter/Admin/ListsPage.php:277
-#, fuzzy
 msgid "Set rules"
-msgstr "Échec"
+msgstr "Définir les règles"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:286
 #: src/Modules/Newsletter/Admin/ListsPage.php:287
 #: src/Modules/Newsletter/Admin/ListsPage.php:416
-#, fuzzy
 msgid "Manage exclusions"
-msgstr "Gérer les données de l'extension"
+msgstr "Gérer les exclusions"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:297
 #: src/Modules/Newsletter/Admin/ListsPage.php:298
-#, fuzzy
 msgid "Delete list"
-msgstr "Emails par défaut"
+msgstr "Supprimer la liste"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:344
-#, fuzzy
 msgid "Search a product by name or SKU…"
-msgstr "Rechercher par email ou nom…"
+msgstr "Rechercher un produit par nom ou SKU…"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:371
 msgid ""
 "This option is no longer available on this site — uncheck or save to drop it."
 msgstr ""
+"Cette option n'est plus disponible sur ce site — décochez ou enregistrez "
+"pour la supprimer."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:379
-#, fuzzy
 msgid "(missing)"
-msgstr "soumission"
+msgstr "(manquant)"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:409
-#, fuzzy
 msgid "Preview matches"
-msgstr "Précédent"
+msgstr "Aperçu des correspondances"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:423
 msgid "Excluded users"
-msgstr ""
+msgstr "Utilisateurs exclus"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:424
 msgid ""
 "These WP users are skipped even when the rule matches them. Type to search "
 "by name or email."
 msgstr ""
+"Ces utilisateurs WP sont ignorés même si la règle leur correspond. Tapez "
+"pour rechercher par nom ou email."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:430
-#, fuzzy
 msgid "Search a WP user…"
-msgstr "Rechercher par email ou nom…"
+msgstr "Rechercher un utilisateur WP…"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:508
-#, fuzzy
 msgid "No matches."
-msgstr "Précédent"
+msgstr "Aucun résultat."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:509
 #: src/Modules/Newsletter/Admin/ListsPage.php:925
-#, fuzzy
 msgid "Searching…"
-msgstr "Enregistrement…"
+msgstr "Recherche…"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:510
-#, fuzzy
 msgid "Resolving…"
-msgstr "Renvoi en cours…"
+msgstr "Résolution…"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:511
-#, fuzzy
 msgid "No users match this rule."
-msgstr "Aucun abonné ne correspond à cette recherche."
+msgstr "Aucun utilisateur ne correspond à cette règle."
 
 #. translators: %d: total number of users matched by the rule
 #: src/Modules/Newsletter/Admin/ListsPage.php:514
 msgid "%d user(s) match — showing"
-msgstr ""
+msgstr "%d utilisateur(s) trouvé(s) — affichage"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:516
 msgid "Load more"
-msgstr ""
+msgstr "Charger plus"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:814
-#, fuzzy
 msgid "Could not save the rule."
-msgstr "Impossible de créer le formulaire."
+msgstr "Impossible d'enregistrer la règle."
 
 #. translators: %s: list name
 #: src/Modules/Newsletter/Admin/ListsPage.php:817
-#, fuzzy
 msgid ""
 "Delete the \"%s\" list? Subscribers stay on the system but lose their "
 "membership."
@@ -5869,27 +5795,23 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:821
 msgid "Added"
-msgstr ""
+msgstr "Ajouté"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:822
-#, fuzzy
 msgid "Could not delete"
-msgstr "Impossible de créer le formulaire."
+msgstr "Suppression impossible"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:923
-#, fuzzy
 msgid "No exclusions yet."
-msgstr "Soumission du commentaire bloquée"
+msgstr "Aucune exclusion pour l'instant."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:924
-#, fuzzy
 msgid "Remove from exclusions"
-msgstr "Retirer l'option"
+msgstr "Retirer des exclusions"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:926
-#, fuzzy
 msgid "No users match."
-msgstr "Aucun abonné ne correspond à cette recherche."
+msgstr "Aucun utilisateur ne correspond."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:101
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:121
@@ -5948,16 +5870,13 @@ msgid "Trash is empty."
 msgstr "La corbeille est vide."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:212
-#, fuzzy
 msgid "No newsletters in preparation yet."
-msgstr "Aucun formulaire de contact dans la corbeille."
+msgstr "Aucune newsletter en préparation pour l'instant."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:213
-#, fuzzy
 msgid "No newsletters yet. Start one to send to your subscribers."
 msgstr ""
-"Aucune liste pour le moment. Ajoutez-en une ci-dessus pour regrouper vos "
-"abonnés."
+"Aucune newsletter pour l'instant. Démarrez-en une pour envoyer à vos abonnés."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:260
 msgid ""
@@ -6217,22 +6136,23 @@ msgstr "clics"
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:655
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:669
 msgid "no list picked — pick one to send"
-msgstr ""
+msgstr "aucune liste sélectionnée — choisissez-en une pour envoyer"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:665
 msgid "(opt-outs bypassed)"
-msgstr ""
+msgstr "(opt-outs ignorés)"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:714
 msgid ""
 "Matching users who opted out — not sent unless you bypass opt-outs for this "
 "newsletter."
 msgstr ""
+"Utilisateurs correspondants qui se sont désinscrits — non envoyé sauf si "
+"vous outrepassez les opt-outs pour cette newsletter."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:724
-#, fuzzy
 msgid "Opted-in members reachable in this list."
-msgstr "S'inscrire"
+msgstr "Membres inscrits joignables dans cette liste."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:749
 msgid "Schedule send for later"
@@ -6429,36 +6349,32 @@ msgid "Email preview"
 msgstr "Modèles de démarrage"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1140
-#, fuzzy
 msgid "Viewport size"
-msgstr "Taille de police"
+msgstr "Taille d'affichage"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1141
 msgid "Desktop"
-msgstr ""
+msgstr "Bureau"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1141
 msgid "Desktop preview"
-msgstr ""
+msgstr "Aperçu bureau"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1144
-#, fuzzy
 msgid "Tablet"
-msgstr "Activer"
+msgstr "Tablette"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1144
-#, fuzzy
 msgid "Tablet preview"
-msgstr "Modèles de démarrage"
+msgstr "Aperçu tablette"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1147
 msgid "Mobile"
-msgstr ""
+msgstr "Mobile"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1147
-#, fuzzy
 msgid "Mobile preview"
-msgstr "Modèles de démarrage"
+msgstr "Aperçu mobile"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1195
 msgid "Recipient status filter"
@@ -6674,11 +6590,12 @@ msgid ""
 "Daily cron nudges visitors who signed up but haven't confirmed their email "
 "yet."
 msgstr ""
+"Un cron quotidien relance les visiteurs qui se sont inscrits mais n'ont pas "
+"encore confirmé leur email."
 
 #: src/Modules/Newsletter/Admin/SettingsPage.php:291
-#, fuzzy
 msgid "Manage on the Subscribers page →"
-msgstr "Gérer sur la page Onboarding →"
+msgstr "Gérer depuis la page Abonnés →"
 
 #: src/Modules/Newsletter/Admin/SettingsPage.php:299
 msgid "Maximum reminders to send"
@@ -6686,7 +6603,7 @@ msgstr "email envoyé"
 
 #: src/Modules/Newsletter/Admin/SettingsPage.php:308
 msgid "After this many nudges without a click, the subscriber is left alone."
-msgstr ""
+msgstr "Après ce nombre de relances sans clic, l'abonné est laissé tranquille."
 
 #: src/Modules/Newsletter/Admin/SettingsPage.php:313
 msgid "Send first reminder after (days)"
@@ -6709,27 +6626,24 @@ msgstr "Délai entre les rappels suivants. Par défaut : 7."
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1396
 #: src/Modules/Newsletter/SubscriberFields.php:64
 msgid "Language"
-msgstr ""
+msgstr "Langue"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:44
 msgid "Created"
 msgstr "Créer"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:47
-#, fuzzy
 msgid "Opens"
-msgstr "ouvertures"
+msgstr "Ouvertures"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:48
-#, fuzzy
 msgid "Clicks"
-msgstr "clics"
+msgstr "Clics"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:49
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1401
-#, fuzzy
 msgid "Sends"
-msgstr "Envoyer"
+msgstr "Envois"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:50
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1386
@@ -6765,9 +6679,8 @@ msgstr "Impossible de créer le formulaire."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:143
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1031
-#, fuzzy
 msgid "Add subscribers"
-msgstr "S'inscrire"
+msgstr "Ajouter des abonnés"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:153
 msgid ""
@@ -6841,91 +6754,82 @@ msgstr "Aucun abonné avec ce statut."
 #. translators: %d: count of selected subscribers
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:254
 msgid "Select all (%d on this page)"
-msgstr ""
+msgstr "Tout sélectionner (%d sur cette page)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:261
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:262
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:973
 msgid "Columns"
-msgstr ""
+msgstr "Colonnes"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:269
-#, fuzzy
 msgid "Restore from trash"
-msgstr "Déplacer dans la corbeille"
+msgstr "Restaurer depuis la corbeille"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:330
-#, fuzzy
 msgid "Trash this subscriber?"
-msgstr "S'inscrire"
+msgstr "Mettre cet abonné à la corbeille ?"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:332
-#, fuzzy
 msgid "Delete permanently?"
-msgstr "Supprimer le champ"
+msgstr "Supprimer définitivement ?"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:334
-#, fuzzy
 msgid "Empty trash?"
-msgstr "Vider la corbeille"
+msgstr "Vider la corbeille ?"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:344
-#, fuzzy
 msgid "Pick a bulk action first."
-msgstr "Choisissez d'abord une action."
+msgstr "Choisissez d'abord une action groupée."
 
 #. translators: %d: count of selected subscribers
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:347
-#, fuzzy
 msgid "Move %d subscribers to trash?"
-msgstr "Déplacer dans la corbeille"
+msgstr "Mettre %d abonnés à la corbeille ?"
 
 #. translators: %d: count of selected (already trashed) subscribers
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:351
-#, fuzzy
 msgid "Permanently delete %d trashed subscribers? This cannot be undone."
 msgstr ""
-"Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
+"Supprimer définitivement %d abonnés en corbeille ? Cette action est "
+"irréversible."
 
 #. translators: %d: count of selected trashed subscribers to restore
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:355
-#, fuzzy
 msgid "Restore %d subscribers from trash?"
-msgstr "Déplacer dans la corbeille"
+msgstr "Restaurer %d abonnés depuis la corbeille ?"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:891
-#, fuzzy
 msgid "1 subscriber detected"
-msgstr "Déplacer dans la corbeille"
+msgstr "1 abonné détecté"
 
 #. translators: %d: number of subscribers parsed from paste/CSV
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:894
-#, fuzzy
 msgid "%d subscribers detected"
-msgstr "S'inscrire"
+msgstr "%d abonnés détectés"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:911
-#, fuzzy
 msgid "Importing…"
-msgstr "Traitement…"
+msgstr "Import en cours…"
 
 #. translators: 1: new rows, 2: existing rows updated, 3: rows skipped (bad/missing email)
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:937
 msgid "Done — added %1$d, updated %2$d, skipped %3$d."
-msgstr ""
+msgstr "Terminé — %1$d ajouté(s), %2$d mis à jour, %3$d ignoré(s)."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:980
 msgid "Pick which columns appear in the Subscribers table. Saved per-admin."
 msgstr ""
+"Choisissez les colonnes affichées dans le tableau des abonnés. Sauvegardé "
+"par administrateur."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1000
-#, fuzzy
 msgid "Reset to defaults"
-msgstr "Définir par défaut"
+msgstr "Réinitialiser aux défauts"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1002
 msgid "Done"
-msgstr ""
+msgstr "Terminé"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1038
 msgid ""
@@ -6933,142 +6837,133 @@ msgid ""
 "existing row (status is preserved unless they were trashed/refused/"
 "unsubscribed, in which case they get re-enabled)."
 msgstr ""
+"Ajouter des abonnés en masse. Les adresses email existantes fusionnent avec "
+"la ligne existante (le statut est conservé sauf s'ils étaient en corbeille/"
+"refusés/désinscrits, auquel cas ils sont réactivés)."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1042
 msgid "Paste"
-msgstr ""
+msgstr "Coller"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1043
 msgid "CSV upload"
-msgstr ""
+msgstr "Upload CSV"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1047
 msgid "One per line — email only, or \"email, name\"."
-msgstr ""
+msgstr "Un par ligne — email seul, ou « email, nom »."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1057
-#, fuzzy
 msgid "Pick a CSV file"
-msgstr "Choisir un email connu"
+msgstr "Choisir un fichier CSV"
 
+#. translators: %s: comma-separated list of supported CSV column names
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1064
 msgid ""
 "Accepts a CSV with an \"email\" column (required) plus any of: %s. Header "
 "row auto-detected; commas, semicolons, and tabs all supported as separators."
 msgstr ""
+"Accepte un CSV avec une colonne « email » (requise) et toute combinaison "
+"de : %s. La ligne d'en-tête est détectée automatiquement ; virgules, points-"
+"virgules et tabulations sont supportés comme séparateurs."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1074
 msgid "Initial status"
-msgstr ""
+msgstr "Statut initial"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1077
 msgid "Pending — they'll get the confirmation email"
-msgstr ""
+msgstr "En attente — ils recevront l'email de confirmation"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1081
 msgid "Confirmed — they've already opted in elsewhere"
-msgstr ""
+msgstr "Confirmé — ils ont déjà donné leur accord ailleurs"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1087
-#, fuzzy
 msgid "Add to lists (optional)"
-msgstr "(facultatif)"
+msgstr "Ajouter aux listes (optionnel)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1136
-#, fuzzy
 msgid "(no email)"
-msgstr "Votre email"
+msgstr "(aucun email)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1213
-#, fuzzy
 msgid "View / edit"
-msgstr "Voir l'entrée du journal"
+msgstr "Voir / modifier"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1214
-#, fuzzy
 msgid "View subscriber details"
-msgstr "Déplacer dans la corbeille"
+msgstr "Voir les détails de l'abonné"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1224
-#, fuzzy
 msgid "Restore subscriber"
-msgstr "S'inscrire"
+msgstr "Restaurer l'abonné"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1233
-#, fuzzy
 msgid "Delete subscriber permanently"
-msgstr "Supprimer le champ"
+msgstr "Supprimer l'abonné définitivement"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1243
-#, fuzzy
 msgid "Move subscriber to trash"
-msgstr "Déplacer dans la corbeille"
+msgstr "Mettre l'abonné à la corbeille"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1266
-#, fuzzy
 msgid "(unknown subscriber)"
-msgstr "S'inscrire"
+msgstr "(abonné inconnu)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1316
-#, fuzzy
 msgid "Names"
-msgstr "Nom"
+msgstr "Noms"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1321
-#, fuzzy
 msgid "Contact"
-msgstr "Contrasté"
+msgstr "Contact"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1352
 msgid "— (not set)"
-msgstr ""
+msgstr "— (non défini)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1381
-#, fuzzy
 msgid "Subscribed"
-msgstr "S'inscrire"
+msgstr "Abonné"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1405
-#, fuzzy
 msgid "Opens / Clicks"
-msgstr "Ouvrir un ticket"
+msgstr "Ouvertures / Clics"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1410
 msgid "Sends since engagement"
-msgstr ""
+msgstr "Envois depuis le dernier engagement"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1419
 msgid "No lists yet — open Manage lists from the header to create one."
 msgstr ""
+"Aucune liste pour l'instant — ouvrez Gérer les listes depuis l'en-tête pour "
+"en créer une."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1442
-#, fuzzy
 msgid "Details"
-msgstr "Emails par défaut"
+msgstr "Détails"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1444
-#, fuzzy
 msgid "Bounce count"
-msgstr "Bounce"
+msgstr "Nombre de rebonds"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1446
-#, fuzzy
 msgid "Reminders sent"
-msgstr "Renvoyer l'email"
+msgstr "Relances envoyées"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1451
-#, fuzzy
 msgid "Last send"
-msgstr "Dernière année"
+msgstr "Dernier envoi"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1455
-#, fuzzy
 msgid "Last engagement"
-msgstr "Nom"
+msgstr "Dernier engagement"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1465
 msgid "Prefs token"
-msgstr ""
+msgstr "Jeton de préférences"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1482
 msgid "Cold"
@@ -7163,7 +7058,7 @@ msgstr ""
 #. translators: %s: site name.
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:41
 msgid "Confirm your new email address for %s"
-msgstr ""
+msgstr "Confirmez votre nouvelle adresse email pour %s"
 
 #. translators: %1$s: site name, %2$s: previous email, %3$s: new email.
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:48
@@ -7171,38 +7066,49 @@ msgid ""
 "We received a request to move your %1$s subscription from %2$s to this "
 "address."
 msgstr ""
+"Nous avons reçu une demande de déplacement de votre inscription %1$s de %2$s "
+"vers cette adresse."
 
 #. translators: %s: confirmation URL.
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:55
 msgid "Confirm the change: %s"
-msgstr ""
+msgstr "Confirmer le changement : %s"
 
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:58
 msgid ""
 "The link expires in 24 hours. If you didn't request this, just ignore this "
 "email — nothing changes until you click."
 msgstr ""
+"Le lien expire dans 24 heures. Si vous n'êtes pas à l'origine de cette "
+"demande, ignorez simplement cet email — rien ne change tant que vous ne "
+"cliquez pas."
 
 #. translators: %s: site name.
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:70
 msgid "Email change requested for your %s subscription"
-msgstr ""
+msgstr "Changement d'email demandé pour votre inscription %s"
 
 #. translators: %1$s: site name, %2$s: new email address.
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:76
 msgid "Someone (hopefully you) asked to move your %1$s subscription to %2$s."
 msgstr ""
+"Quelqu'un (vous, on l'espère) a demandé à déplacer votre inscription %1$s "
+"vers %2$s."
 
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:80
 msgid ""
 "Nothing has changed yet — the new address has 24 hours to confirm the move."
 msgstr ""
+"Rien n'a changé pour l'instant — la nouvelle adresse a 24 heures pour "
+"confirmer le déplacement."
 
 #: src/Modules/Newsletter/EmailChangeDispatcher.php:81
 msgid ""
 "If you didn't make this request, no action is needed — your subscription "
 "stays linked to this address."
 msgstr ""
+"Si vous n'êtes pas à l'origine de cette demande, aucune action n'est "
+"nécessaire — votre inscription reste liée à cette adresse."
 
 #: src/Modules/Newsletter/EmbedRenderer.php:36
 msgid "No newsletter form selected."
@@ -7224,7 +7130,7 @@ msgstr "S'inscrire"
 #: src/Modules/Newsletter/FormTemplateRegistry.php:169
 #: src/Modules/Newsletter/PrefsRenderer.php:140
 msgid "—"
-msgstr ""
+msgstr "—"
 
 #: src/Modules/Newsletter/Fields/ListPicker.php:52
 msgid "Choose your lists"
@@ -7289,121 +7195,119 @@ msgid "Collect the subscriber's name too for friendlier emails."
 msgstr "Collectez aussi le nom de l'abonné pour des emails plus personnalisés."
 
 #: src/Modules/Newsletter/FormTemplateRegistry.php:67
-#, fuzzy
 msgid "Contact basics"
-msgstr "Formulaires de contact"
+msgstr "Contact basique"
 
 #: src/Modules/Newsletter/FormTemplateRegistry.php:68
 msgid ""
 "First + last name, email, phone — enough to reach the subscriber on every "
 "channel."
 msgstr ""
+"Prénom + nom, email, téléphone — suffisant pour atteindre l'abonné sur tous "
+"les canaux."
 
 #: src/Modules/Newsletter/FormTemplateRegistry.php:72
-#, fuzzy
 msgid "Full profile"
-msgstr "Choix multiples"
+msgstr "Profil complet"
 
 #: src/Modules/Newsletter/FormTemplateRegistry.php:73
 msgid ""
 "Every profile field: name, gender, phone, postal address. Heavier but feeds "
 "segmentation rules."
 msgstr ""
+"Chaque champ de profil : nom, genre, téléphone, adresse postale. Plus lourd "
+"mais alimente les règles de segmentation."
 
 #: src/Modules/Newsletter/ListRepository.php:58
-#, fuzzy
 msgid "Subscribers list"
-msgstr "S'inscrire"
+msgstr "Liste d'abonnés"
 
 #: src/Modules/Newsletter/ListRepository.php:59
-#, fuzzy
 msgid "WP users list"
-msgstr "S'inscrire"
+msgstr "Liste d'utilisateurs WP"
 
 #: src/Modules/Newsletter/ListRepository.php:60
 #: src/Modules/Newsletter/Module.php:920
-#, fuzzy
 msgid "All subscribers"
-msgstr "S'inscrire"
+msgstr "Tous les abonnés"
 
 #: src/Modules/Newsletter/Lists/WcCustomersRule.php:27
-#, fuzzy
 msgid "WC customers"
-msgstr "En-têtes personnalisés"
+msgstr "Clients WC"
 
 #: src/Modules/Newsletter/Lists/WcCustomersRule.php:33
 msgid "Requires WooCommerce (not active right now)."
-msgstr ""
+msgstr "Nécessite WooCommerce (non active actuellement)."
 
 #: src/Modules/Newsletter/Lists/WcCustomersRule.php:35
 msgid ""
 "Every WP user with the WooCommerce customer role — i.e. anyone who placed an "
 "order."
 msgstr ""
+"Chaque utilisateur WP ayant le rôle WooCommerce « customer » — c'est-à-dire "
+"toute personne ayant passé une commande."
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:34
-#, fuzzy
 msgid "WooCommerce subscribers"
-msgstr "S'inscrire"
+msgstr "Abonnés WooCommerce"
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:40
 msgid "Requires the WooCommerce Subscriptions plugin (not active right now)."
 msgstr ""
+"Nécessite l'extension WooCommerce Subscriptions (non active actuellement)."
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:42
 msgid ""
 "Match WP users holding a WooCommerce Subscription in any of the selected "
 "statuses (and optionally a specific product)."
 msgstr ""
+"Cible les utilisateurs WP ayant un abonnement WooCommerce dans l'un des "
+"statuts sélectionnés (et optionnellement un produit spécifique)."
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:50
-#, fuzzy
 msgid "Subscription statuses"
-msgstr "Par défaut — utilise l'identifiant de boîte mail"
+msgstr "Statuts d'inscription"
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:55
 msgid "On hold"
-msgstr ""
+msgstr "En attente"
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:56
 msgid "Pending cancellation"
-msgstr ""
+msgstr "Annulation en attente"
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:57
-#, fuzzy
 msgid "Expired"
-msgstr "Lien expiré"
+msgstr "Expiré"
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:58
-#, fuzzy
 msgid "Cancelled"
-msgstr "Annuler"
+msgstr "Annulé"
 
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:64
 msgid "Products (blank = any)"
-msgstr ""
+msgstr "Produits (vide = tous)"
 
 #: src/Modules/Newsletter/Lists/WpAllUsersRule.php:28
-#, fuzzy
 msgid "WordPress members (all)"
-msgstr "Utilisateurs WordPress uniquement"
+msgstr "Membres WordPress (tous)"
 
 #: src/Modules/Newsletter/Lists/WpAllUsersRule.php:33
 msgid "Match every WordPress user on this site, regardless of role."
 msgstr ""
+"Cible tous les utilisateurs WordPress de ce site, quel que soit leur rôle."
 
 #: src/Modules/Newsletter/Lists/WpUserRoleRule.php:23
-#, fuzzy
 msgid "WordPress role"
-msgstr "Utilisateurs WordPress uniquement"
+msgstr "Rôle WordPress"
 
 #: src/Modules/Newsletter/Lists/WpUserRoleRule.php:28
 msgid "Match every WP user that carries any of the selected roles."
-msgstr ""
+msgstr "Cible tous les utilisateurs WP ayant l'un des rôles sélectionnés."
 
 #: src/Modules/Newsletter/Lists/WpUserRoleRule.php:43
 msgid "Roles"
-msgstr ""
+msgstr "Rôles"
 
 #: src/Modules/Newsletter/Module.php:63
 msgid ""
@@ -7450,17 +7354,15 @@ msgstr "Réglages par défaut"
 
 #: src/Modules/Newsletter/Module.php:925
 msgid "All WP members"
-msgstr ""
+msgstr "Tous les membres WP"
 
 #: src/Modules/Newsletter/Module.php:933
-#, fuzzy
 msgid "All WC customers"
-msgstr "En-têtes personnalisés"
+msgstr "Tous les clients WC"
 
 #: src/Modules/Newsletter/Module.php:941
-#, fuzzy
 msgid "Active WC subscribers"
-msgstr "S'inscrire"
+msgstr "Abonnés WC actifs"
 
 #: src/Modules/Newsletter/NewsletterCPT.php:134
 msgid "Add new newsletter"
@@ -7517,37 +7419,41 @@ msgid "Log in"
 msgstr "Réglages des journaux"
 
 #: src/Modules/Newsletter/PrefsHandler.php:84
-#, fuzzy
 msgid "Email confirmed"
-msgstr "Déjà confirmé"
+msgstr "Email confirmé"
 
 #: src/Modules/Newsletter/PrefsHandler.php:85
 msgid ""
 "Your email address has been updated. You can keep using the previous "
 "preferences link or request a fresh one from any of our emails."
 msgstr ""
+"Votre adresse email a été mise à jour. Vous pouvez continuer à utiliser le "
+"lien de préférences précédent ou en demander un nouveau depuis n'importe "
+"quel email."
 
 #: src/Modules/Newsletter/PrefsHandler.php:91
 msgid ""
 "This confirmation link is older than 24 hours. Go back to your preferences "
 "page and request the change again."
 msgstr ""
+"Ce lien de confirmation a plus de 24 heures. Retournez sur votre page de "
+"préférences et redemandez le changement."
 
 #: src/Modules/Newsletter/PrefsHandler.php:96
-#, fuzzy
 msgid "Address no longer available"
-msgstr "Classe du fournisseur non disponible."
+msgstr "Adresse plus disponible"
 
 #: src/Modules/Newsletter/PrefsHandler.php:97
 msgid ""
 "That email is already linked to another subscription. Pick a different "
 "address from your preferences page."
 msgstr ""
+"Cet email est déjà lié à une autre inscription. Choisissez une autre adresse "
+"depuis votre page de préférences."
 
 #: src/Modules/Newsletter/PrefsHandler.php:103
-#, fuzzy
 msgid "This email-change link is no longer valid."
-msgstr "Ce lien n'est plus valide."
+msgstr "Ce lien de changement d'email n'est plus valide."
 
 #: src/Modules/Newsletter/PrefsHandler.php:119
 msgid ""
@@ -7592,39 +7498,40 @@ msgstr "Ce lien de désabonnement n'est plus valide."
 
 #: src/Modules/Newsletter/PrefsHandler.php:328
 msgid "That address doesn't look valid. Please double-check and try again."
-msgstr ""
+msgstr "Cette adresse ne semble pas valide. Vérifiez et réessayez."
 
 #: src/Modules/Newsletter/PrefsHandler.php:329
 msgid "That's already your email — nothing to change."
-msgstr ""
+msgstr "C'est déjà votre email — rien à changer."
 
 #: src/Modules/Newsletter/PrefsHandler.php:330
 msgid "Another subscription already uses that address. Pick a different one."
 msgstr ""
+"Une autre inscription utilise déjà cette adresse. Choisissez-en une autre."
 
 #: src/Modules/Newsletter/PrefsHandler.php:331
-#, fuzzy
 msgid "We couldn't stage the change. Please try again."
-msgstr "Échec du contrôle anti-spam."
+msgstr "Impossible d'enregistrer le changement. Veuillez réessayer."
 
 #: src/Modules/Newsletter/PrefsHandler.php:333
 msgid "Email change rejected"
-msgstr ""
+msgstr "Changement d'email rejeté"
 
 #: src/Modules/Newsletter/PrefsHandler.php:344
-#, fuzzy
 msgid "Confirmation email failed"
-msgstr "Échec de la connexion."
+msgstr "Échec d'envoi de l'email de confirmation"
 
 #: src/Modules/Newsletter/PrefsHandler.php:345
 msgid ""
 "We staged the change but couldn't send the confirmation email to the new "
 "address. Please contact the site admin."
 msgstr ""
+"Le changement a été enregistré mais nous n'avons pas pu envoyer l'email de "
+"confirmation à la nouvelle adresse. Contactez l'administrateur du site."
 
 #: src/Modules/Newsletter/PrefsHandler.php:356
 msgid "Check your new inbox"
-msgstr ""
+msgstr "Vérifiez votre nouvelle boîte de réception"
 
 #. translators: %s: new email address awaiting confirmation.
 #: src/Modules/Newsletter/PrefsHandler.php:359
@@ -7632,6 +7539,8 @@ msgid ""
 "We sent a confirmation link to %s. The change kicks in once you click it "
 "(24h to confirm). The previous address has been notified."
 msgstr ""
+"Nous avons envoyé un lien de confirmation à %s. Le changement prend effet "
+"quand vous cliquez (24h pour confirmer). L'ancienne adresse a été notifiée."
 
 #: src/Modules/Newsletter/PrefsHandler.php:414
 msgid "Email preferences"
@@ -7658,13 +7567,11 @@ msgid "Receive newsletter emails"
 msgstr "Voir le formulaire de contact"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:60
-#, fuzzy
 msgid "Yes, send me newsletter emails for the lists I select below."
 msgstr ""
-"Oui, envoyez-moi les newsletters des catégories sélectionnées ci-dessous."
+"Oui, envoyez-moi les newsletters des listes que je sélectionne ci-dessous."
 
 #: src/Modules/Newsletter/PrefsRenderer.php:63
-#, fuzzy
 msgid ""
 "Turning this off stops every newsletter. Transactional emails (password "
 "resets, order notifications, …) keep coming — to stop those too, delete your "
@@ -7674,50 +7581,46 @@ msgstr ""
 "complètement, supprimez votre compte WordPress depuis votre page de profil."
 
 #: src/Modules/Newsletter/PrefsRenderer.php:69
-#, fuzzy
 msgid "Mailing lists"
-msgstr "Gérer les données de l'extension"
+msgstr "Listes d'envoi"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:71
-#, fuzzy
 msgid "Tick the lists you want to receive emails from."
-msgstr "Cochez les types d'emails que vous souhaitez recevoir."
+msgstr "Cochez les listes dont vous voulez recevoir les emails."
 
 #: src/Modules/Newsletter/PrefsRenderer.php:74
-#, fuzzy
 msgid "No lists are open for self-subscription yet."
-msgstr "Aucun formulaire de contact pour le moment."
+msgstr "Aucune liste n'est ouverte à l'auto-inscription pour l'instant."
 
 #: src/Modules/Newsletter/PrefsRenderer.php:120
-#, fuzzy
 msgid "Your details"
-msgstr "Votre email"
+msgstr "Vos coordonnées"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:122
 msgid ""
 "Edit your profile. Empty fields stay empty — none of these are required."
 msgstr ""
+"Modifiez votre profil. Les champs vides restent vides — aucun n'est "
+"obligatoire."
 
 #: src/Modules/Newsletter/PrefsRenderer.php:170
 #: src/Modules/Newsletter/SubscriberFields.php:61
 msgid "State / region"
-msgstr ""
+msgstr "État / région"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:174
 #: src/Modules/Newsletter/SubscriberFields.php:62
 msgid "Country (ISO-2)"
-msgstr ""
+msgstr "Pays (ISO-2)"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:198
-#, fuzzy
 msgid "Email address"
-msgstr "Adresse IP"
+msgstr "Adresse email"
 
 #. translators: %s: subscriber's current email address.
 #: src/Modules/Newsletter/PrefsRenderer.php:203
-#, fuzzy
 msgid "Current address: %s"
-msgstr "Adresse IP"
+msgstr "Adresse actuelle : %s"
 
 #. translators: %s: new email address awaiting confirmation.
 #: src/Modules/Newsletter/PrefsRenderer.php:213
@@ -7725,31 +7628,32 @@ msgid ""
 "Pending change to %s — check that inbox for the confirmation link (valid "
 "24h)."
 msgstr ""
+"Changement en attente vers %s — vérifiez cette boîte de réception pour le "
+"lien de confirmation (valable 24h)."
 
 #: src/Modules/Newsletter/PrefsRenderer.php:219
 msgid "Cancel pending change"
-msgstr ""
+msgstr "Annuler le changement en attente"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:223
-#, fuzzy
 msgid "New email"
-msgstr "Email de test"
+msgstr "Nouvel email"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:224
-#, fuzzy
 msgid "you@example.com"
-msgstr "email@example.com"
+msgstr "vous@exemple.com"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:227
-#, fuzzy
 msgid "Change email"
-msgstr "Email de test"
+msgstr "Changer d'email"
 
 #: src/Modules/Newsletter/PrefsRenderer.php:230
 msgid ""
 "We'll send a confirmation link to the new address. The change kicks in once "
 "you click it."
 msgstr ""
+"Nous enverrons un lien de confirmation à la nouvelle adresse. Le changement "
+"prend effet quand vous cliquez."
 
 #. translators: %s: recipient email address.
 #: src/Modules/Newsletter/PrefsRenderer.php:261
@@ -7794,7 +7698,6 @@ msgid "Newsletter preferences"
 msgstr "Newsletter"
 
 #: src/Modules/Newsletter/ProfileSection.php:43
-#, fuzzy
 msgid ""
 "Pick which mailing lists you're on. To stop receiving everything, uncheck "
 "\"Receive newsletter emails\" below."
@@ -7821,9 +7724,8 @@ msgid "Unsubscribe"
 msgstr "S'inscrire"
 
 #: src/Modules/Newsletter/Send/SendAjaxController.php:117
-#, fuzzy
 msgid "Bad force-override payload."
-msgstr "JSON de structure invalide."
+msgstr "Charge utile de surcharge invalide."
 
 #: src/Modules/Newsletter/Send/SendAjaxController.php:159
 msgid "Could not render this newsletter."
@@ -7887,20 +7789,19 @@ msgstr "Impossible d'enregistrer votre abonnement. Veuillez réessayer."
 
 #: src/Modules/Newsletter/SubscriberFields.php:72
 msgid "Female"
-msgstr ""
+msgstr "Femme"
 
 #: src/Modules/Newsletter/SubscriberFields.php:73
 msgid "Male"
-msgstr ""
+msgstr "Homme"
 
 #: src/Modules/Newsletter/SubscriberFields.php:74
 msgid "Other"
-msgstr ""
+msgstr "Autre"
 
 #: src/Modules/Newsletter/SubscriberFields.php:75
-#, fuzzy
 msgid "Prefer not to say"
-msgstr "Préférences pour %s"
+msgstr "Préfère ne pas répondre"
 
 #: src/Modules/Newsletter/TemplateCPT.php:93
 msgid "Available tokens"
@@ -8159,11 +8060,10 @@ msgstr ""
 "— Email Toolkit."
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:62
-#, fuzzy
 msgid "No SMTP identities yet — click \"New identity\" to start."
 msgstr ""
-"Aucune identité SMTP pour le moment — cliquez sur « Ajouter une identité » "
-"pour commencer."
+"Aucune identité SMTP pour l'instant — cliquez sur « Nouvelle identité » pour "
+"commencer."
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:136
 msgid "Send via"
@@ -8284,7 +8184,7 @@ msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:345
 msgid "Override other apps' sender"
-msgstr ""
+msgstr "Remplacer l'expéditeur des autres extensions"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:346
 msgid ""
@@ -8293,19 +8193,22 @@ msgid ""
 "leaves explicit choices alone but kicks in on emails that didn't pick a "
 "sender themselves."
 msgstr ""
+"Détermine à quel point cette identité prend le pas sur une adresse "
+"d'expéditeur définie par un autre plugin (WooCommerce, formulaires de "
+"contact, etc.). « Seulement quand aucun n'est défini » respecte les choix "
+"explicites mais intervient pour les emails qui n'ont pas choisi d'expéditeur."
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:353
-#, fuzzy
 msgid "Always override"
-msgstr "Toujours actif"
+msgstr "Toujours remplacer"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:354
 msgid "Only when no sender is set"
-msgstr ""
+msgstr "Seulement quand aucun expéditeur n'est défini"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:355
 msgid "Never override"
-msgstr ""
+msgstr "Ne jamais remplacer"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:366
 msgid "From email"
@@ -8375,9 +8278,8 @@ msgid "Delete the identity \"%s\"?"
 msgstr "Supprimer l'identité « %s » ?"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:592
-#, fuzzy
 msgid "Unsaved changes"
-msgstr "Défi invalide."
+msgstr "Modifications non enregistrées"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:596
 msgid "Testing…"

@@ -141,6 +141,7 @@ final class FormsPage
         $confirmation_templates = $this->templates->list_by_purpose(TemplateCPT::PURPOSE_CONFIRMATION);
         $resolved_default_template_id = $this->templates->default_id_for_purpose(TemplateCPT::PURPOSE_CONFIRMATION);
         PageHeader::render([
+            /* translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —". */
             'title'   => sprintf(__('Newsletters — %s', 'lrob-email-toolkit'), __('Forms', 'lrob-email-toolkit')),
             'primary' => [
                 'label' => __('New subscribe form', 'lrob-email-toolkit'),
@@ -465,7 +466,7 @@ final class FormsPage
                                             <?php if ($oo > 0) : ?>
                                                 <span class="lrob-etk-nl-audience-item-optout">
                                                     <?php printf(
-                                                        /* translators: %s: number of opted-out users. */
+                                                        /* translators: %s: number of opted-out users (already formatted). */
                                                         esc_html__('−%s opt-out', 'lrob-email-toolkit'),
                                                         esc_html(number_format_i18n($oo))
                                                     ); ?>

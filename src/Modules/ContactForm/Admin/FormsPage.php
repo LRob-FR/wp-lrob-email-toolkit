@@ -235,7 +235,7 @@ final class FormsPage
                 'chooseFile'         => __('Choose a file', 'lrob-email-toolkit'),
                 /* translators: %d: max number of files the field allows. */
                 'chooseFilesMulti'   => __('Choose files (max %d)', 'lrob-email-toolkit'),
-                /* translators: 1: max MB per file, 2: extension list joined by commas (e.g. .pdf, .jpg) */
+                /* translators: 1: max size per file MB, 2: comma-separated extension list */
                 'uploadHintTpl'      => __('Max %1$d MB per file — %2$s', 'lrob-email-toolkit'),
                 'uploadHintNoLimit'  => __('no file type restriction', 'lrob-email-toolkit'),
                 'options'      => __('Options', 'lrob-email-toolkit'),

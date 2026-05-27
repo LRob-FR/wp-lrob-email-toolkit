@@ -1059,8 +1059,8 @@ final class SubscribersPage
                         </label>
                         <p class="description">
                             <?php
-                            /* translators: comma-separated list of supported CSV column names */
                             echo esc_html(sprintf(
+                                /* translators: %s: comma-separated list of supported CSV column names */
                                 __('Accepts a CSV with an "email" column (required) plus any of: %s. Header row auto-detected; commas, semicolons, and tabs all supported as separators.', 'lrob-email-toolkit'),
                                 implode(', ', \LRob\EmailToolkit\Modules\Newsletter\SubscriberFields::PROFILE_COLUMNS)
                             ));
