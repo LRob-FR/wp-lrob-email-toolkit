@@ -235,6 +235,28 @@ add_filter('lrob_etk_nl_list_rule_providers', function (array $providers) {
 
 `config_fields()` returns generic field descriptors (`text` / `select` / `multiselect` / `checkbox`); the list-modal admin UI renders them automatically — no UI work to register a new provider. `sanitize_config()` is the trust boundary (the server never trusts the raw POST shape) and `resolve_user_ids()` is what the send-time Materializer calls to compute the auto-membership set. Manual memberships are unioned in by `Materializer::fetch_opted_in_users`.
 
+## Shared admin JS helpers (audience picker)
+
+`admin/js/etk-audience-picker.js` is the dropdown-of-grouped-checkboxes picker reused by the newsletter card's audience field AND by the form-card's default-list field. Parameterised purely via data attrs on the `[data-audience-picker]` shell:
+
+| Attr | Purpose |
+|---|---|
+| `data-audience-action` | `wp_ajax` action name to POST to |
+| `data-audience-key` | meta key the server should write under |
+| `data-audience-id-param` | POST param name for the entity ID (e.g. `newsletter_id`, `form_id`) |
+| `data-audience-id` | entity ID value |
+| `data-audience-nonce` | nonce string for the configured action |
+| `data-audience-ajax-url` | usually `admin-ajax.php` URL |
+| `data-audience-empty-label` | summary text when no list is picked |
+| `data-audience-saved-event` | (optional) `CustomEvent` name to dispatch on save success |
+| `data-audience-saved-id-key` | (optional) detail key under which the entity ID is published — listeners read it (newsletter-cards.js looks for `newsletterId`) |
+
+DOM contract: a `[data-audience-toggle]` button, a `[data-audience-menu]` (hidden by default), and one or more `<input type="checkbox" data-audience-list="<id>">` inside the menu. The shared module owns open/close, outside-click + Escape, summary updates, persistence. Save value shape is comma-separated IDs in the `value` POST param — server unpacks however the meta wants.
+
+Server-side: each consumer's save handler validates its own eligibility rules. Form's `default_list_ids` enforces `kind=subscribers AND is_system=0` (admin-created subscribers lists only — rule-based / computed lists make no sense as form defaults). Newsletter's `target_list_ids` accepts everything (system / users-kind / subscribers-kind all valid send targets).
+
+**Multi-instance opener**: every per-card "Manage lists →" trigger uses the class `.lrob-etk-nl-open-lists-modal` (not an `id`), with a delegated click handler in `ListsPage::render_modal`. Avoids the duplicate-ID trap when multiple cards live on the same page (`bindHeader` is ID-based and only binds the first match).
+
 ## Mandates carried by memory
 
 These are enforced project-wide; the named memory file documents the why + how:
