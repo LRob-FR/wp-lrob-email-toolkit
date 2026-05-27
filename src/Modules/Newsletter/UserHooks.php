@@ -32,8 +32,7 @@ final class UserHooks
     /**
      * Fires after wp_insert_user. Two paths:
      *  - Matched subscriber row → promote (carry over confirmed_at,
-     *    category_opt_outs, bounce_count, prefs_token, source) and delete
-     *    the subscriber row.
+     *    bounce_count, prefs_token, source) and delete the subscriber row.
      *  - No match → seed a confirmed-by-default WP user. All WP users are
      *    default-opt-in across all roles.
      */
@@ -100,7 +99,6 @@ final class UserHooks
 
         update_user_meta($user_id, UserMeta::OPTED_IN, $opted_in ? '1' : '0');
         update_user_meta($user_id, UserMeta::STATUS, $opted_in ? UserMeta::STATUS_ACTIVE : UserMeta::STATUS_BOUNCED);
-        update_user_meta($user_id, UserMeta::CATEGORY_OPT_OUTS, (string) ($subscriber['category_opt_outs'] ?? ''));
         update_user_meta($user_id, UserMeta::BOUNCE_COUNT, (int) ($subscriber['bounce_count'] ?? 0));
         update_user_meta($user_id, UserMeta::PREFS_TOKEN, (string) ($subscriber['prefs_token'] ?? UserMeta::generate_prefs_token()));
         if ($confirmed_at !== null) {

@@ -74,17 +74,16 @@ final class SubscriberRepository
         global $wpdb;
         $now = current_time('mysql', true);
         $ok = $wpdb->insert(Schema::subscribers_table(), [
-            'email'             => $email,
-            'name'              => $name,
-            'language'          => $language,
-            'status'            => 'pending',
-            'previous_status'   => '',
-            'category_opt_outs' => '[]',
-            'prefs_token'       => UserMeta::generate_prefs_token(),
-            'source'            => $source,
-            'bounce_count'      => 0,
-            'created_at'        => $now,
-        ], ['%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s']);
+            'email'           => $email,
+            'name'            => $name,
+            'language'        => $language,
+            'status'          => 'pending',
+            'previous_status' => '',
+            'prefs_token'     => UserMeta::generate_prefs_token(),
+            'source'          => $source,
+            'bounce_count'    => 0,
+            'created_at'      => $now,
+        ], ['%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s']);
         if ($ok === false) {
             return 0;
         }
@@ -221,19 +220,6 @@ final class SubscriberRepository
             ARRAY_A
         );
         return is_array($row) ? $row : null;
-    }
-
-    /** Replace the subscribers.category_opt_outs JSON column. */
-    public function set_category_opt_outs(int $id, array $opt_out_slugs): void
-    {
-        global $wpdb;
-        $wpdb->update(
-            Schema::subscribers_table(),
-            ['category_opt_outs' => (string) wp_json_encode(array_values($opt_out_slugs))],
-            ['id' => $id],
-            ['%s'],
-            ['%d']
-        );
     }
 
     /**

@@ -75,6 +75,7 @@ final class ListsPage
     public function render(?HomePage $hub = null, bool $embedded = false): void
     {
         $rows = $this->lists->list_all();
+        $counts = $this->lists->member_counts();
         $nonce = wp_create_nonce(AjaxController::NONCE_ACTION);
         $ajax_url = admin_url('admin-ajax.php');
         if (!$embedded) {
@@ -128,12 +129,21 @@ final class ListsPage
                     <?php esc_html_e('No lists yet. Add one above to start grouping subscribers.', 'lrob-email-toolkit'); ?>
                 </p>
             <?php else :
+                // "All subscribers" pseudo-kind displays under the
+                // Subscribers section — admins think of it as the
+                // catch-all subscribers list, not a separate species.
                 $grouped = [
                     ListRepository::KIND_SUBSCRIBERS => [],
                     ListRepository::KIND_USERS       => [],
                 ];
                 foreach ($rows as $row) {
                     $k = ListRepository::kind_of($row);
+                    if ($k === ListRepository::KIND_ALL_SUBSCRIBERS) {
+                        $k = ListRepository::KIND_SUBSCRIBERS;
+                    }
+                    if (!isset($grouped[$k])) {
+                        $grouped[$k] = [];
+                    }
                     $grouped[$k][] = $row;
                 }
                 $section_headers = [
@@ -147,7 +157,7 @@ final class ListsPage
                     <section class="lrob-etk-nl-resource-section is-kind-<?php echo esc_attr($kind_key); ?>">
                         <h3 class="lrob-etk-nl-resource-section-title"><?php echo esc_html($section_headers[$kind_key]); ?></h3>
                         <ul class="lrob-etk-nl-resource-list" data-resource-list-kind="<?php echo esc_attr($kind_key); ?>">
-                            <?php foreach ($group_rows as $row) : self::render_row($row); endforeach; ?>
+                            <?php foreach ($group_rows as $row) : self::render_row($row, (int) ($counts[(int) ($row['id'] ?? 0)] ?? 0)); endforeach; ?>
                         </ul>
                     </section>
                 <?php endforeach; ?>
@@ -165,7 +175,7 @@ final class ListsPage
      *
      * @param array<string, mixed> $row
      */
-    public static function render_row(array $row): void
+    public static function render_row(array $row, int $member_count = 0): void
     {
         $providers = RuleRegistry::all();
         $id = (int) ($row['id'] ?? 0);
@@ -177,9 +187,16 @@ final class ListsPage
         $rule = ListRepository::decode_rule((string) ($row['rule_json'] ?? ''));
         $rule_provider_slug = $rule['provider'] ?? '';
         $rule_config = $rule['config'] ?? [];
+        $visibility = ListRepository::visibility_of($row);
+        $is_public = ($visibility === ListRepository::VISIBILITY_PUBLIC);
+        // Visibility chip only meaningful on user-editable subscribers
+        // lists (system + users-kind don't accept self-toggle from
+        // subscribers anyway).
+        $show_visibility = !$is_system && $kind === ListRepository::KIND_SUBSCRIBERS;
         ?>
         <li class="lrob-etk-nl-resource-row<?php echo $rule_provider_slug !== '' ? ' has-rule' : ''; ?> is-kind-<?php echo esc_attr($kind); ?><?php echo $is_system ? ' is-system' : ''; ?>"
-            data-resource-row data-resource-id="<?php echo $id; ?>" data-list-kind="<?php echo esc_attr($kind); ?>">
+            data-resource-row data-resource-id="<?php echo $id; ?>" data-list-kind="<?php echo esc_attr($kind); ?>"
+            data-list-visibility="<?php echo esc_attr($visibility); ?>">
                             <div class="lrob-etk-nl-resource-row-main">
                                 <input type="text"
                                        class="lrob-etk-nl-resource-name lrob-etk-nl-field"
@@ -199,6 +216,41 @@ final class ListsPage
                                           title="<?php esc_attr_e('Built-in list — cannot be renamed or deleted.', 'lrob-email-toolkit'); ?>">
                                         <?php esc_html_e('System', 'lrob-email-toolkit'); ?>
                                     </span>
+                                <?php endif; ?>
+                                <?php
+                                // Member-count badge. For all_subscribers + subscribers
+                                // lists the count is exact (membership rows). For users
+                                // lists it's the manual-membership count only —
+                                // rule-matched users aren't materialised until send time
+                                // so a "live" rule-resolved count would need a per-row
+                                // Materializer dry-run (too expensive for an index view).
+                                if (!$is_users_kind || $member_count > 0) :
+                                    ?>
+                                    <span class="lrob-etk-nl-list-count-badge"
+                                          title="<?php echo $is_users_kind
+                                              ? esc_attr__('Manually-added members. Rule matches resolve at send time and aren\'t counted here.', 'lrob-email-toolkit')
+                                              : esc_attr__('Subscribers on this list.', 'lrob-email-toolkit'); ?>">
+                                        <?php echo esc_html(sprintf(
+                                            /* translators: %s: number of members on this list (already formatted) */
+                                            _n('%s member', '%s members', $member_count, 'lrob-email-toolkit'),
+                                            number_format_i18n($member_count)
+                                        )); ?>
+                                    </span>
+                                <?php endif; ?>
+                                <?php if ($show_visibility) : ?>
+                                    <button type="button"
+                                            class="lrob-etk-nl-list-visibility-chip<?php echo $is_public ? ' is-public' : ' is-private'; ?>"
+                                            data-list-visibility-toggle="<?php echo $id; ?>"
+                                            data-current="<?php echo esc_attr($visibility); ?>"
+                                            title="<?php echo $is_public
+                                                ? esc_attr__('Public — subscribers can join or leave this list themselves from the preferences page. Click to make private.', 'lrob-email-toolkit')
+                                                : esc_attr__('Private — admin-managed. Subscribers don\'t see this list on the preferences page. Click to make public.', 'lrob-email-toolkit');
+                                            ?>">
+                                        <span class="dashicons dashicons-<?php echo $is_public ? 'visibility' : 'hidden'; ?>" aria-hidden="true"></span>
+                                        <?php echo $is_public
+                                            ? esc_html__('Public', 'lrob-email-toolkit')
+                                            : esc_html__('Private', 'lrob-email-toolkit'); ?>
+                                    </button>
                                 <?php endif; ?>
                                 <span class="lrob-etk-nl-resource-row-actions">
                                     <?php if ($is_users_kind && !$is_system) : ?>
@@ -392,6 +444,50 @@ final class ListsPage
             var actionDelete = <?php echo wp_json_encode(AjaxController::ACTION_LIST_DELETE); ?>;
             var actionRuleSave = <?php echo wp_json_encode(AjaxController::ACTION_LIST_RULE_SAVE); ?>;
             var actionRulePreview = <?php echo wp_json_encode(AjaxController::ACTION_LIST_RULE_PREVIEW); ?>;
+            var actionVisibilitySet = <?php echo wp_json_encode(AjaxController::ACTION_LIST_VISIBILITY_SET); ?>;
+            var i18nLabelPublic  = <?php echo wp_json_encode(__('Public', 'lrob-email-toolkit')); ?>;
+            var i18nLabelPrivate = <?php echo wp_json_encode(__('Private', 'lrob-email-toolkit')); ?>;
+            var i18nTipPublic    = <?php echo wp_json_encode(__('Public — subscribers can join or leave this list themselves from the preferences page. Click to make private.', 'lrob-email-toolkit')); ?>;
+            var i18nTipPrivate   = <?php echo wp_json_encode(__('Private — admin-managed. Subscribers don\'t see this list on the preferences page. Click to make public.', 'lrob-email-toolkit')); ?>;
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest && e.target.closest('[data-list-visibility-toggle]');
+                if (!btn) return;
+                e.preventDefault();
+                var current = btn.getAttribute('data-current') || 'private';
+                var next = current === 'public' ? 'private' : 'public';
+                var id = btn.getAttribute('data-list-visibility-toggle');
+                btn.disabled = true;
+                var fd = new FormData();
+                fd.append('action', actionVisibilitySet);
+                fd.append('_nonce', nonce);
+                fd.append('id', id);
+                fd.append('visibility', next);
+                fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                    .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+                    .then(function (resp) {
+                        btn.disabled = false;
+                        if (!resp || !resp.success) return;
+                        var isPub = (next === 'public');
+                        btn.setAttribute('data-current', next);
+                        btn.classList.toggle('is-public', isPub);
+                        btn.classList.toggle('is-private', !isPub);
+                        btn.setAttribute('title', isPub ? i18nTipPublic : i18nTipPrivate);
+                        var icon = btn.querySelector('.dashicons');
+                        if (icon) {
+                            icon.classList.remove('dashicons-visibility', 'dashicons-hidden');
+                            icon.classList.add(isPub ? 'dashicons-visibility' : 'dashicons-hidden');
+                        }
+                        var labelNode = btn.childNodes[btn.childNodes.length - 1];
+                        if (labelNode && labelNode.nodeType === 3) {
+                            labelNode.nodeValue = ' ' + (isPub ? i18nLabelPublic : i18nLabelPrivate);
+                        } else {
+                            btn.appendChild(document.createTextNode(' ' + (isPub ? i18nLabelPublic : i18nLabelPrivate)));
+                        }
+                        var row = btn.closest('[data-list-visibility]');
+                        if (row) row.setAttribute('data-list-visibility', next);
+                    });
+            });
             var actionWcProductSearch = <?php echo wp_json_encode(AjaxController::ACTION_WC_PRODUCT_SEARCH); ?>;
             var i18nWcRemove = <?php echo wp_json_encode(__('Remove', 'lrob-email-toolkit')); ?>;
             var i18nWcEmpty  = <?php echo wp_json_encode(__('No matches.', 'lrob-email-toolkit')); ?>;

@@ -6,8 +6,8 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 
 /**
  * User-meta key registry + small helpers for WP-user-side newsletter state.
- * WP users are first-class recipients — their opt-in flag, per-category
- * opt-outs, bounce counter, prefs token, etc. live as `lrob_etk_nl_*`
+ * WP users are first-class recipients — their opt-in flag, bounce
+ * counter, prefs token, etc. live as `lrob_etk_nl_*`
  * user_meta and travel with the user (deleting the user takes the whole
  * state with them, no cleanup needed on this side).
  *
@@ -25,8 +25,6 @@ final class UserMeta
     public const OPTED_IN          = 'lrob_etk_nl_opted_in';
 
     public const STATUS            = 'lrob_etk_nl_status';
-
-    public const CATEGORY_OPT_OUTS = 'lrob_etk_nl_category_opt_outs';
 
     public const BOUNCE_COUNT      = 'lrob_etk_nl_bounce_count';
 

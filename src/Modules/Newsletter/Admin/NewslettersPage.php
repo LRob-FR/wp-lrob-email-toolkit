@@ -9,7 +9,6 @@ use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Admin\Tooltip;
 use LRob\EmailToolkit\Container;
-use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
@@ -55,7 +54,6 @@ final class NewslettersPage
 
     public function __construct(
         private NewsletterRepository $newsletters,
-        private CategoryRepository $categories,
         private ListRepository $lists,
         private Container $container,
     ) {
@@ -91,7 +89,6 @@ final class NewslettersPage
         $tab = $this->current_tab();
         $rows = $this->newsletters->list_all(50, 0, $tab);
         $counts = $this->newsletters->counts_by_tab();
-        $categories = $this->categories->list_all();
         $lists = $this->lists->list_all();
         $identities = $this->available_identities();
         $create_url = wp_nonce_url(
@@ -105,7 +102,7 @@ final class NewslettersPage
                 'icon'  => 'dashicons-plus-alt2',
                 'href'  => $create_url,
             ],
-            'tools' => [CategoriesPage::categories_tool(), HomePage::settings_tool()],
+            'tools' => [HomePage::settings_tool()],
         ]);
         if ($hub) $hub->render_section_tabs(HomePage::VIEW_NEWSLETTERS);
         ?>
@@ -128,7 +125,7 @@ final class NewslettersPage
             <?php else : ?>
                 <div class="lrob-etk-nl-newsletter-cards">
                     <?php foreach ($rows as $row) : ?>
-                        <?php $this->render_card($row, $categories, $lists, $identities, $tab); ?>
+                        <?php $this->render_card($row, $lists, $identities, $tab); ?>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
@@ -379,11 +376,10 @@ final class NewslettersPage
      * trigger modals (rendered once per page below the cards loop).
      *
      * @param array<string, mixed> $row
-     * @param array<int, array<string, mixed>> $categories
      * @param array<int, array<string, mixed>> $lists
      * @param array<int, array{id:int, label:string}> $identities
      */
-    private function render_card(array $row, array $categories, array $lists, array $identities, string $tab): void
+    private function render_card(array $row, array $lists, array $identities, string $tab): void
     {
         $post_id = (int) ($row['post_id'] ?? 0);
         $title = (string) ($row['post_title'] ?? '');
@@ -401,7 +397,6 @@ final class NewslettersPage
         $from_name     = (string) get_post_meta($post_id, NewsletterCPT::META_FROM_NAME_OVERRIDE, true);
         $reply_to      = (string) get_post_meta($post_id, NewsletterCPT::META_REPLY_TO_OVERRIDE, true);
         $identity_id   = (int) get_post_meta($post_id, NewsletterCPT::META_SMTP_IDENTITY, true);
-        $category_id   = (int) get_post_meta($post_id, NewsletterCPT::META_CATEGORY_ID, true);
         $target_raw    = (string) get_post_meta($post_id, NewsletterCPT::META_TARGET_SPEC, true);
         $target        = $target_raw !== '' ? (array) json_decode($target_raw, true) : [];
         $target_kind   = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
@@ -502,22 +497,10 @@ final class NewslettersPage
                 foreach ($identities as $opt) {
                     $identity_options[] = ['value' => (string) $opt['id'], 'label' => (string) $opt['label']];
                 }
-                $category_options = [];
-                if ($categories === []) {
-                    $category_options[] = ['value' => '0', 'label' => __('(no categories defined)', 'lrob-email-toolkit')];
-                } else {
-                    foreach ($categories as $cat) {
-                        $category_options[] = ['value' => (string) ($cat['id'] ?? 0), 'label' => (string) ($cat['name'] ?? '')];
-                    }
-                }
-
-                // Quick-link URLs to the management screens for each
-                // resource — admins jump to the right place to add a
-                // missing identity / category without losing context.
+                // Quick-link URL to the SMTP management screen — admin
+                // jumps there to add a missing identity without losing
+                // context.
                 $smtp_admin_url = admin_url('admin.php?page=lrob-etk-smtp');
-                // Categories live in a modal opened from the Newsletters
-                // page header — link uses the same #lrob-etk-nl-categories-btn
-                // anchor so a JS click handler can pop the modal directly.
                 ?>
                 <fieldset class="lrob-etk-nl-card-settings" <?php disabled($is_locked); ?>>
                     <div class="lrob-etk-field">
@@ -535,130 +518,79 @@ final class NewslettersPage
                                placeholder="<?php esc_attr_e('Inbox preview snippet (~90 chars visible)', 'lrob-email-toolkit'); ?>">
                     </div>
 
-                    <div class="lrob-etk-modal-columns">
-                        <div class="lrob-etk-field">
-                            <label>
-                                <?php esc_html_e('Category', 'lrob-email-toolkit'); ?>
-                                <?php
-                                Tooltip::render(
-                                    __('Recipients can opt out of specific categories (e.g. product news, weekly digest). This newsletter only reaches recipients who haven\'t opted out of the picked category.', 'lrob-email-toolkit')
-                                );
-                                ?>
-                                <button type="button" class="lrob-etk-nl-field-link"
-                                        onclick="document.getElementById('lrob-etk-nl-categories-btn').click()">
-                                    <?php esc_html_e('Manage categories', 'lrob-email-toolkit'); ?>
-                                </button>
-                            </label>
+                    <div class="lrob-etk-field">
+                        <label>
+                            <?php esc_html_e('Sender identity', 'lrob-email-toolkit'); ?>
                             <?php
-                            Combobox::render_fixed_select(
-                                NewsletterCPT::META_CATEGORY_ID,
-                                (string) $category_id,
-                                $category_options,
-                                '0',
-                                'lrob-etk-nl-field'
+                            Tooltip::render(
+                                __('The mailbox this newsletter goes out from. From-name, From-email, and Reply-to are all controlled by the picked identity — to change any of those, edit the identity itself rather than per-newsletter.', 'lrob-email-toolkit')
                             );
                             ?>
-                        </div>
-                        <div class="lrob-etk-field">
-                            <label>
-                                <?php esc_html_e('Sender identity', 'lrob-email-toolkit'); ?>
-                                <?php
-                                Tooltip::render(
-                                    __('The mailbox this newsletter goes out from. From-name, From-email, and Reply-to are all controlled by the picked identity — to change any of those, edit the identity itself rather than per-newsletter.', 'lrob-email-toolkit')
-                                );
-                                ?>
-                                <a href="<?php echo esc_url($smtp_admin_url); ?>" class="lrob-etk-nl-field-link">
-                                    <?php esc_html_e('Manage identities →', 'lrob-email-toolkit'); ?>
-                                </a>
-                            </label>
-                            <?php
-                            Combobox::render_fixed_select(
-                                NewsletterCPT::META_SMTP_IDENTITY,
-                                (string) $identity_id,
-                                $identity_options,
-                                '0',
-                                'lrob-etk-nl-field'
-                            );
-                            ?>
-                        </div>
+                            <a href="<?php echo esc_url($smtp_admin_url); ?>" class="lrob-etk-nl-field-link">
+                                <?php esc_html_e('Manage identities →', 'lrob-email-toolkit'); ?>
+                            </a>
+                        </label>
+                        <?php
+                        Combobox::render_fixed_select(
+                            NewsletterCPT::META_SMTP_IDENTITY,
+                            (string) $identity_id,
+                            $identity_options,
+                            '0',
+                            'lrob-etk-nl-field'
+                        );
+                        ?>
                     </div>
 
-                    <div class="lrob-etk-modal-columns lrob-etk-nl-card-audience-row">
-                        <div class="lrob-etk-field">
-                            <label>
-                                <?php esc_html_e('Audience', 'lrob-email-toolkit'); ?>
-                                <button type="button"
-                                        class="lrob-etk-nl-card-manage-lists"
-                                        id="lrob-etk-nl-lists-btn"
-                                        title="<?php esc_attr_e('Manage lists', 'lrob-email-toolkit'); ?>">
-                                    <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
-                                    <?php esc_html_e('Manage lists', 'lrob-email-toolkit'); ?>
-                                </button>
-                            </label>
-                            <?php
-                            // Build the per-list lookup for the picker.
-                            $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : [];
-                            $target_list_ids = isset($target['list_ids']) && is_array($target['list_ids'])
-                                ? array_values(array_unique(array_map('intval', $target['list_ids'])))
-                                : [];
-                            // Back-compat: single legacy list_id rolls into list_ids[].
-                            if ($target_list_ids === [] && $target_kind === NewsletterCPT::TARGET_KIND_LIST && $target_list_id > 0) {
-                                $target_list_ids = [$target_list_id];
-                            }
-                            $by_id = [];
-                            foreach ($lists as $l) { $by_id[(int) ($l['id'] ?? 0)] = $l; }
-                            ?>
-                            <div class="lrob-etk-nl-card-audience-picker"
-                                 data-audience-picker
-                                 data-newsletter-id="<?php echo (int) $post_id; ?>">
-                                <ul class="lrob-etk-nl-card-audience-chips" data-audience-chips>
-                                    <?php foreach ($target_list_ids as $lid) :
-                                        if (!isset($by_id[$lid])) continue;
-                                        $row = $by_id[$lid];
-                                        ?>
-                                        <li class="lrob-etk-nl-card-audience-chip" data-audience-chip-id="<?php echo (int) $lid; ?>">
-                                            <span><?php echo esc_html((string) ($row['name'] ?? '')); ?></span>
-                                            <button type="button"
-                                                    class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger"
-                                                    data-audience-chip-remove
-                                                    aria-label="<?php esc_attr_e('Remove from audience', 'lrob-email-toolkit'); ?>">
-                                                <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-                                            </button>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                                <select class="lrob-etk-nl-card-audience-add" data-audience-add>
-                                    <option value=""><?php esc_html_e('+ Add a list…', 'lrob-email-toolkit'); ?></option>
-                                    <?php
-                                    $system_lists = array_filter($lists, static fn ($l) => (int) ($l['is_system'] ?? 0) === 1);
-                                    $user_lists   = array_filter($lists, static fn ($l) => (int) ($l['is_system'] ?? 0) !== 1);
-                                    foreach ([$system_lists, $user_lists] as $group) :
-                                        foreach ($group as $list) :
-                                            $lid = (int) ($list['id'] ?? 0);
-                                            if ($lid <= 0) continue;
-                                            ?>
-                                            <option value="<?php echo $lid; ?>"
-                                                    <?php echo in_array($lid, $target_list_ids, true) ? 'disabled' : ''; ?>>
-                                                <?php echo esc_html((string) ($list['name'] ?? '')); ?>
-                                            </option>
-                                        <?php endforeach;
-                                    endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
+                    <?php
+                    // Recipient block — picker for editable cards,
+                    // stats-only for terminal ones. Audience + Recipients
+                    // collapsed into a single field (the picker IS the
+                    // audience definition; the count is the result).
+                    $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : [];
+                    $target_list_ids = isset($target['list_ids']) && is_array($target['list_ids'])
+                        ? array_values(array_unique(array_map('intval', $target['list_ids'])))
+                        : [];
+                    // Back-compat: single legacy list_id rolls into list_ids[].
+                    if ($target_list_ids === [] && $target_kind === NewsletterCPT::TARGET_KIND_LIST && $target_list_id > 0) {
+                        $target_list_ids = [$target_list_id];
+                    }
+                    $list_counts = $this->lists->member_counts();
+                    $by_id = [];
+                    foreach ($lists as $l) { $by_id[(int) ($l['id'] ?? 0)] = $l; }
+                    // Provider registry (for the badge label on rule-
+                    // based users-kind lists, matching the Lists modal).
+                    $rule_providers = \LRob\EmailToolkit\Modules\Newsletter\Lists\RuleRegistry::all();
+                    // Group lists by kind, system rows pushed to the
+                    // end of each group (consistent with the Lists
+                    // modal ordering goal).
+                    $subs_lists = [];
+                    $user_lists = [];
+                    $subs_system = [];
+                    $user_system = [];
+                    foreach ($lists as $list) {
+                        $k = ListRepository::kind_of($list);
+                        $is_sys = ListRepository::is_system($list);
+                        if ($k === ListRepository::KIND_ALL_SUBSCRIBERS || $k === ListRepository::KIND_SUBSCRIBERS) {
+                            $is_sys ? $subs_system[] = $list : $subs_lists[] = $list;
+                        } elseif ($k === ListRepository::KIND_USERS) {
+                            $is_sys ? $user_system[] = $list : $user_lists[] = $list;
+                        }
+                    }
+                    $subs_lists = array_merge($subs_lists, $subs_system);
+                    $user_lists = array_merge($user_lists, $user_system);
+                    ?>
+                    <?php if ($is_terminal) : ?>
                         <div class="lrob-etk-field lrob-etk-nl-card-recipients">
-                            <label>
-                                <?php echo $is_terminal ? esc_html__('Stats', 'lrob-email-toolkit') : esc_html__('Recipients', 'lrob-email-toolkit'); ?>
-                            </label>
+                            <label><?php esc_html_e('Stats', 'lrob-email-toolkit'); ?></label>
                             <div class="lrob-etk-nl-card-recipients-body">
                                 <div class="lrob-etk-nl-card-recipients-head">
-                                    <span class="lrob-etk-nl-card-recipients-count" data-recipients-count><?php echo $is_terminal ? esc_html(number_format_i18n($total)) : '—'; ?></span>
+                                    <span class="lrob-etk-nl-card-recipients-count" data-recipients-count><?php echo esc_html(number_format_i18n($total)); ?></span>
                                     <span class="lrob-etk-nl-card-recipients-label"><?php esc_html_e('targeted', 'lrob-email-toolkit'); ?></span>
                                     <a href="#" class="lrob-etk-nl-card-recipients-show" data-card-recipients role="button">
                                         <?php esc_html_e('Show list', 'lrob-email-toolkit'); ?>
                                     </a>
                                 </div>
-                                <?php if ($is_terminal && $total > 0) : ?>
+                                <?php if ($total > 0) : ?>
                                     <ul class="lrob-etk-nl-card-recipients-stats">
                                         <li>
                                             <strong><?php echo esc_html(number_format_i18n($sent)); ?></strong>
@@ -672,8 +604,7 @@ final class NewslettersPage
                                         <?php endif; ?>
                                         <li>
                                             <strong><?php echo esc_html(number_format_i18n($opens_unique)); ?></strong>
-                                            <?php
-                                            if ($sent > 0 && $opens_unique > 0) {
+                                            <?php if ($sent > 0 && $opens_unique > 0) {
                                                 printf(
                                                     /* translators: %d: open rate as integer percent */
                                                     esc_html__('opens (%d%%)', 'lrob-email-toolkit'),
@@ -681,13 +612,11 @@ final class NewslettersPage
                                                 );
                                             } else {
                                                 esc_html_e('opens', 'lrob-email-toolkit');
-                                            }
-                                            ?>
+                                            } ?>
                                         </li>
                                         <li>
                                             <strong><?php echo esc_html(number_format_i18n($clicks_unique)); ?></strong>
-                                            <?php
-                                            if ($sent > 0 && $clicks_unique > 0) {
+                                            <?php if ($sent > 0 && $clicks_unique > 0) {
                                                 printf(
                                                     /* translators: %d: click-through rate as integer percent */
                                                     esc_html__('clicks (%d%%)', 'lrob-email-toolkit'),
@@ -695,14 +624,99 @@ final class NewslettersPage
                                                 );
                                             } else {
                                                 esc_html_e('clicks', 'lrob-email-toolkit');
-                                            }
-                                            ?>
+                                            } ?>
                                         </li>
                                     </ul>
                                 <?php endif; ?>
                             </div>
                         </div>
-                    </div>
+                    <?php else : ?>
+                        <div class="lrob-etk-field">
+                            <label>
+                                <?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?>
+                                <button type="button"
+                                        id="lrob-etk-nl-lists-btn"
+                                        class="lrob-etk-nl-field-link"
+                                        title="<?php esc_attr_e('Manage lists', 'lrob-email-toolkit'); ?>">
+                                    <?php esc_html_e('Manage lists →', 'lrob-email-toolkit'); ?>
+                                </button>
+                            </label>
+                            <div class="lrob-etk-nl-audience"
+                                 data-audience-picker
+                                 data-newsletter-id="<?php echo (int) $post_id; ?>">
+                                <button type="button"
+                                        class="lrob-etk-nl-audience-trigger"
+                                        data-audience-toggle
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    <span class="lrob-etk-nl-audience-summary">
+                                        <strong data-recipients-count>—</strong>
+                                        <span class="lrob-etk-nl-audience-summary-label"><?php esc_html_e('recipients', 'lrob-email-toolkit'); ?></span>
+                                        <em data-audience-lists-summary class="lrob-etk-nl-audience-summary-lists">
+                                            <?php
+                                            if ($target_list_ids === []) {
+                                                esc_html_e('no list picked — pick one to send', 'lrob-email-toolkit');
+                                            } else {
+                                                echo esc_html(self::summarize_picked_lists($target_list_ids, $by_id));
+                                            }
+                                            ?>
+                                        </em>
+                                    </span>
+                                    <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                                </button>
+                                <div class="lrob-etk-nl-audience-menu" data-audience-menu hidden role="menu">
+                                    <?php
+                                    $render_section = function (string $title, array $section_lists) use ($list_counts, $target_list_ids, $rule_providers): void {
+                                        if ($section_lists === []) return;
+                                        ?>
+                                        <div class="lrob-etk-nl-audience-section">
+                                            <h4 class="lrob-etk-nl-audience-section-title"><?php echo esc_html($title); ?></h4>
+                                            <ul class="lrob-etk-nl-audience-list">
+                                                <?php foreach ($section_lists as $list) :
+                                                    $lid = (int) ($list['id'] ?? 0);
+                                                    if ($lid <= 0) continue;
+                                                    $cnt = (int) ($list_counts[$lid] ?? 0);
+                                                    $checked = in_array($lid, $target_list_ids, true);
+                                                    $is_sys = ListRepository::is_system($list);
+                                                    $rule = ListRepository::decode_rule((string) ($list['rule_json'] ?? ''));
+                                                    $provider_slug = $rule['provider'] ?? '';
+                                                    ?>
+                                                    <li class="lrob-etk-nl-audience-item">
+                                                        <label>
+                                                            <input type="checkbox" data-audience-list="<?php echo $lid; ?>" <?php checked($checked); ?>>
+                                                            <span class="lrob-etk-nl-audience-item-name"><?php echo esc_html((string) ($list['name'] ?? '')); ?></span>
+                                                            <?php if ($is_sys) : ?>
+                                                                <span class="lrob-etk-nl-list-system-badge"
+                                                                      title="<?php esc_attr_e('Built-in list — cannot be renamed or deleted.', 'lrob-email-toolkit'); ?>">
+                                                                    <?php esc_html_e('System', 'lrob-email-toolkit'); ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                            <?php if ($provider_slug !== '' && isset($rule_providers[$provider_slug])) : ?>
+                                                                <span class="lrob-etk-nl-list-provider-badge"
+                                                                      title="<?php echo esc_attr($rule_providers[$provider_slug]->label()); ?>">
+                                                                    <?php echo esc_html($rule_providers[$provider_slug]->label()); ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                            <span class="lrob-etk-nl-audience-item-count" title="<?php esc_attr_e('Members in this list', 'lrob-email-toolkit'); ?>">
+                                                                <?php echo esc_html(number_format_i18n($cnt)); ?>
+                                                            </span>
+                                                        </label>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <?php
+                                    };
+                                    $render_section(__('Subscribers lists', 'lrob-email-toolkit'), $subs_lists);
+                                    $render_section(__('WP users lists', 'lrob-email-toolkit'), $user_lists);
+                                    ?>
+                                </div>
+                                <a href="#" class="lrob-etk-nl-card-recipients-show" data-card-recipients role="button">
+                                    <?php esc_html_e('Show list', 'lrob-email-toolkit'); ?>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="lrob-etk-nl-card-schedule" data-schedule-block>
                         <label class="lrob-etk-nl-card-check">
@@ -1119,27 +1133,48 @@ final class NewslettersPage
             </div>
         </div>
         <script>
-        // Multi-list audience picker: add chips on select, remove on
-        // click ✕, persist the full list_ids[] as a comma-separated
-        // string via the `target_list_ids` pseudo-key.
+        // Multi-list audience picker — a dropdown of grouped checkboxes
+        // (Subscribers / WP users), each with a per-list member count.
+        // Toggle persists immediately via `target_list_ids` pseudo-key;
+        // the recipient count auto-refreshes via the lrob-etk-nl-saved
+        // event (see newsletter-cards.js refreshRecipientCount).
         (function () {
             if (window.__lrobEtkNlAudiencePickerBound) return;
             window.__lrobEtkNlAudiencePickerBound = true;
 
-            function readChipIds(picker) {
+            var i18nNoLists  = <?php echo wp_json_encode(__('no list picked — pick one to send', 'lrob-email-toolkit')); ?>;
+
+            function readPickedIds(picker) {
                 var ids = [];
-                picker.querySelectorAll('[data-audience-chip-id]').forEach(function (c) {
-                    var v = parseInt(c.getAttribute('data-audience-chip-id'), 10) || 0;
+                picker.querySelectorAll('[data-audience-list]:checked').forEach(function (cb) {
+                    var v = parseInt(cb.getAttribute('data-audience-list'), 10) || 0;
                     if (v > 0) ids.push(v);
                 });
                 return ids;
             }
 
+            function updateSummary(picker) {
+                var checked = picker.querySelectorAll('[data-audience-list]:checked');
+                var summaryEl = picker.querySelector('[data-audience-lists-summary]');
+                if (!summaryEl) return;
+                if (checked.length === 0) {
+                    summaryEl.textContent = i18nNoLists;
+                    return;
+                }
+                var names = [];
+                Array.prototype.forEach.call(checked, function (cb) {
+                    var label = cb.closest('label');
+                    if (!label) return;
+                    var nameEl = label.querySelector('.lrob-etk-nl-audience-item-name');
+                    if (nameEl) names.push(nameEl.textContent.trim());
+                });
+                summaryEl.textContent = names.join(', ');
+            }
+
             function persistAudience(picker) {
                 var nlId = picker.getAttribute('data-newsletter-id');
                 if (!nlId) return;
-                var ids = readChipIds(picker);
-                // Dispatch a save-status bubble so the modal header reflects.
+                var ids = readPickedIds(picker);
                 picker.dispatchEvent(new CustomEvent('lrob-etk:save-status', { bubbles: true, detail: { state: 'saving' } }));
                 var fd = new FormData();
                 fd.append('action', 'lrob_etk_nl_newsletter_save_meta');
@@ -1151,54 +1186,64 @@ final class NewslettersPage
                     .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
                     .then(function (resp) {
                         picker.dispatchEvent(new CustomEvent('lrob-etk:save-status', { bubbles: true, detail: { state: (resp && resp.success) ? 'saved' : 'error' } }));
-                        // Refresh the recipients count for this card.
                         document.dispatchEvent(new CustomEvent('lrob-etk-nl-saved', { detail: { newsletterId: nlId, key: 'target_list_ids' } }));
                     });
             }
 
-            document.addEventListener('change', function (e) {
-                var sel = e.target.closest && e.target.closest('[data-audience-add]');
-                if (!sel) return;
-                var lid = parseInt(sel.value, 10) || 0;
-                if (lid <= 0) return;
-                var picker = sel.closest('[data-audience-picker]');
-                if (!picker) return;
-                var chipsEl = picker.querySelector('[data-audience-chips]');
-                if (!chipsEl) return;
-                // Build the new chip — label comes from the picked <option>.
-                var label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : ('#' + lid);
-                var li = document.createElement('li');
-                li.className = 'lrob-etk-nl-card-audience-chip';
-                li.setAttribute('data-audience-chip-id', String(lid));
-                li.innerHTML = '<span></span>'
-                    + '<button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger" data-audience-chip-remove aria-label="Remove">'
-                    +   '<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>'
-                    + '</button>';
-                li.querySelector('span').textContent = label;
-                chipsEl.appendChild(li);
-                // Disable that option so it can't be re-picked.
-                Array.prototype.forEach.call(sel.options, function (opt) {
-                    if (parseInt(opt.value, 10) === lid) opt.disabled = true;
-                });
-                sel.value = '';
-                persistAudience(picker);
-            });
-
+            // Toggle the menu open/close on trigger click. Outside-click
+            // + Escape close it. Multiple pickers per page coexist
+            // because every handler is scoped to the trigger's picker.
             document.addEventListener('click', function (e) {
-                var rem = e.target.closest && e.target.closest('[data-audience-chip-remove]');
-                if (!rem) return;
-                var chip = rem.closest('[data-audience-chip-id]');
-                var picker = rem.closest('[data-audience-picker]');
-                if (!chip || !picker) return;
-                var lid = parseInt(chip.getAttribute('data-audience-chip-id'), 10) || 0;
-                chip.parentNode.removeChild(chip);
-                // Re-enable that option in the picker.
-                var sel = picker.querySelector('[data-audience-add]');
-                if (sel && lid > 0) {
-                    Array.prototype.forEach.call(sel.options, function (opt) {
-                        if (parseInt(opt.value, 10) === lid) opt.disabled = false;
+                var trigger = e.target.closest && e.target.closest('[data-audience-toggle]');
+                if (trigger) {
+                    var picker = trigger.closest('[data-audience-picker]');
+                    if (!picker) return;
+                    var menu = picker.querySelector('[data-audience-menu]');
+                    if (!menu) return;
+                    var open = menu.hasAttribute('hidden');
+                    // Close every other audience menu first.
+                    document.querySelectorAll('[data-audience-menu]').forEach(function (m) {
+                        if (m !== menu) m.setAttribute('hidden', '');
+                    });
+                    document.querySelectorAll('[data-audience-toggle]').forEach(function (t) {
+                        if (t !== trigger) t.setAttribute('aria-expanded', 'false');
+                    });
+                    if (open) {
+                        menu.removeAttribute('hidden');
+                        trigger.setAttribute('aria-expanded', 'true');
+                    } else {
+                        menu.setAttribute('hidden', '');
+                        trigger.setAttribute('aria-expanded', 'false');
+                    }
+                    return;
+                }
+                // Outside-click close.
+                if (!e.target.closest('[data-audience-menu]')) {
+                    document.querySelectorAll('[data-audience-menu]').forEach(function (m) {
+                        m.setAttribute('hidden', '');
+                    });
+                    document.querySelectorAll('[data-audience-toggle]').forEach(function (t) {
+                        t.setAttribute('aria-expanded', 'false');
                     });
                 }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape') return;
+                document.querySelectorAll('[data-audience-menu]').forEach(function (m) {
+                    m.setAttribute('hidden', '');
+                });
+                document.querySelectorAll('[data-audience-toggle]').forEach(function (t) {
+                    t.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            document.addEventListener('change', function (e) {
+                var cb = e.target.closest && e.target.closest('[data-audience-list]');
+                if (!cb) return;
+                var picker = cb.closest('[data-audience-picker]');
+                if (!picker) return;
+                updateSummary(picker);
                 persistAudience(picker);
             });
         })();
@@ -1591,6 +1636,26 @@ final class NewslettersPage
             ];
         }
         return $out;
+    }
+
+    /**
+     * Comma-joined names for the audience trigger when one or more
+     * lists are picked. CSS `text-overflow: ellipsis` gracefully
+     * truncates the rendered text when too many lists overflow the
+     * trigger width.
+     *
+     * @param array<int, int>                       $picked
+     * @param array<int, array<string, mixed>>      $by_id
+     */
+    private static function summarize_picked_lists(array $picked, array $by_id): string
+    {
+        $names = [];
+        foreach ($picked as $lid) {
+            if (isset($by_id[$lid])) {
+                $names[] = (string) ($by_id[$lid]['name'] ?? '');
+            }
+        }
+        return implode(', ', $names);
     }
 
     private static function translate_status(string $status): string

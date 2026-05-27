@@ -57,7 +57,6 @@ final class HomePage
         private SubscriberRepository $subscribers,
         private TemplateRepository $templates,
         private FormsPage $forms_page,
-        private CategoriesPage $categories_page,
         private ListsPage $lists_page,
         private SettingsPage $settings_page,
         private SubscribersPage $subscribers_page,
@@ -214,7 +213,6 @@ final class HomePage
                 <?php $this->render_view($view); ?>
                 <?php SettingsPage::render_modal(); ?>
                 <?php $this->lists_page->render_modal(); ?>
-                <?php $this->categories_page->render_modal(); ?>
                 <?php $this->render_subscription_emails_modal(); ?>
             <?php endif; ?>
         </div>
@@ -281,9 +279,8 @@ final class HomePage
     }
 
     /** Embedded passthroughs — sub-pages call these to render absorbed
-     *  sections (Categories inside Newsletters, Lists + Onboarding inside
-     *  Subscribers). Embedded mode skips the inner PageHeader + section-tabs. */
-    public function render_categories_embedded(): void { $this->categories_page->render($this, true); }
+     *  sections (Lists + Onboarding inside Subscribers). Embedded mode
+     *  skips the inner PageHeader + section-tabs. */
     public function render_lists_embedded(): void      { $this->lists_page->render($this, true); }
     public function render_onboarding_embedded(): void { $this->render_onboarding(true); }
 

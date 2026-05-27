@@ -45,7 +45,6 @@ final class PrefsBlock
     public function __construct(
         private SubscriberRepository $subscribers,
         private ListRepository $lists,
-        private CategoryRepository $categories,
     ) {
     }
 
@@ -193,14 +192,8 @@ final class PrefsBlock
      */
     private function build_state_for_user(int $user_id, string $email): array
     {
-        $opt_outs_json = (string) get_user_meta($user_id, UserMeta::CATEGORY_OPT_OUTS, true);
-        $opt_outs = $opt_outs_json !== '' ? (array) json_decode($opt_outs_json, true) : [];
-        $opt_outs = array_values(array_filter(array_map('strval', $opt_outs), static fn ($s) => $s !== ''));
-
         $opted_in = (string) get_user_meta($user_id, UserMeta::OPTED_IN, true) === '1';
-
-        $categories = $this->categories->list_all();
-        $lists = $this->lists->list_all();
+        $lists = $this->lists->list_public_for_subscribers();
         $member_ids = $this->lists->memberships_for_recipient(UserMeta::KIND_USER, $user_id);
 
         return [
@@ -208,14 +201,13 @@ final class PrefsBlock
             'id'              => $user_id,
             'email'           => $email,
             'opted_in'        => $opted_in,
-            'opt_outs'        => $opt_outs,
             'list_member_ids' => $member_ids,
-            'categories'      => array_map(
-                static fn (array $c) => ['slug' => (string) ($c['slug'] ?? ''), 'name' => (string) ($c['name'] ?? '')],
-                $categories
-            ),
             'lists'           => array_map(
-                static fn (array $l) => ['id' => (int) ($l['id'] ?? 0), 'name' => (string) ($l['name'] ?? '')],
+                static fn (array $l) => [
+                    'id'          => (int) ($l['id'] ?? 0),
+                    'name'        => (string) ($l['name'] ?? ''),
+                    'description' => (string) ($l['description'] ?? ''),
+                ],
                 $lists
             ),
         ];

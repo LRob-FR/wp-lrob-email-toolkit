@@ -604,14 +604,14 @@
      * Refresh the recipients count + send-button state whenever a
      * setting that affects either gets persisted.
      */
-    var AUDIENCE_KEYS = ['target_kind', 'target_list_id'];
+    var AUDIENCE_KEYS = ['target_kind', 'target_list_id', 'target_list_ids', 'target_audience'];
     document.addEventListener('lrob-etk-nl-saved', function (e) {
         if (!e.detail || !e.detail.newsletterId) return;
         var key = e.detail.key || '';
         var card = document.querySelector('[data-newsletter-id="' + e.detail.newsletterId + '"]');
         if (!card) return;
-        // Audience / category change → refresh recipient count.
-        if (AUDIENCE_KEYS.indexOf(key) !== -1 || key.indexOf('category') !== -1) {
+        // Audience change → refresh recipient count.
+        if (AUDIENCE_KEYS.indexOf(key) !== -1) {
             refreshRecipientCount(card);
         }
         // Schedule change → swap button label + status message.

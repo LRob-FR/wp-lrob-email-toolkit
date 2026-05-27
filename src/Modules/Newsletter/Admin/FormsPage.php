@@ -564,8 +564,9 @@ final class FormsPage
         return [
             'email'            => __('Email', 'lrob-email-toolkit'),
             'text'             => __('Text (name, etc.)', 'lrob-email-toolkit'),
+            'phone'            => __('Phone', 'lrob-email-toolkit'),
+            'select'           => __('Dropdown (select)', 'lrob-email-toolkit'),
             'list_picker'      => __('List picker', 'lrob-email-toolkit'),
-            'category_picker'  => __('Category picker', 'lrob-email-toolkit'),
             'submit'           => __('Submit button', 'lrob-email-toolkit'),
         ];
     }

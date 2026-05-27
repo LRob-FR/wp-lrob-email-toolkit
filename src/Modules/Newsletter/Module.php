@@ -7,12 +7,13 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
 use LRob\EmailToolkit\Forms\FieldTypeRegistry;
 use LRob\EmailToolkit\Forms\Fields\EmailField;
+use LRob\EmailToolkit\Forms\Fields\PhoneField;
+use LRob\EmailToolkit\Forms\Fields\SelectField;
 use LRob\EmailToolkit\Forms\Fields\SubmitField;
 use LRob\EmailToolkit\Forms\Fields\TextField;
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\AjaxController;
-use LRob\EmailToolkit\Modules\Newsletter\Admin\CategoriesPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\HomePage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\ListsPage;
@@ -20,7 +21,6 @@ use LRob\EmailToolkit\Modules\Newsletter\Admin\NewslettersPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SettingsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SubscribersPage;
-use LRob\EmailToolkit\Modules\Newsletter\Fields\CategoryPicker;
 use LRob\EmailToolkit\Modules\Newsletter\Fields\ListPicker;
 use LRob\EmailToolkit\Modules\Newsletter\Send\Materializer;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
@@ -125,16 +125,26 @@ final class Module extends AbstractModule
      *       System lists can't be deleted from the UI; rule config is
      *       fixed and the trash icon is suppressed. Newsletter audience
      *       picker offers them alongside admin-created lists.
+     *  12 — Categories merged into Lists. Adds `lists.visibility`
+     *       ('private' | 'public'). Each existing category becomes a
+     *       public subscribers-kind list; subscribers who hadn't opted
+     *       out get an explicit list_members row. Newsletters with
+     *       META_CATEGORY_ID rewritten to META_TARGET_SPEC = {kind:
+     *       'lists', list_ids: [<migrated_list_id>]}.
+     *  13 — Destructive cleanup of v12's safety net. Drops the
+     *       `wp_lrob_etk_nl_categories` table, the
+     *       `subscribers.category_opt_outs` column, the
+     *       `lrob_etk_nl_category_opt_outs` user_meta key. v12
+     *       migrated all the data; v13 closes the door.
      */
     public function db_version_int(): int
     {
-        return 11;
+        return 13;
     }
 
     public function install(): void
     {
         Schema::install();
-        self::seed_default_category();
         self::seed_system_lists();
 
         // Template seeding deferred via a pending-flag option. install()
@@ -188,6 +198,12 @@ final class Module extends AbstractModule
         $this->install();
         if ($from_version < 10) {
             self::backfill_list_kinds();
+        }
+        if ($from_version < 12) {
+            self::migrate_categories_to_lists();
+        }
+        if ($from_version < 13) {
+            self::drop_legacy_category_artifacts();
         }
         if ($from_version < 3) {
             self::repair_broken_default_templates();
@@ -305,6 +321,260 @@ final class Module extends AbstractModule
         $wpdb->query("UPDATE `$lists` SET kind = 'users' WHERE rule_json <> '' AND kind = 'subscribers'");
     }
 
+    /**
+     * Schema v12 backfill: turn every Category row into a public
+     * Subscribers-kind list, and materialise list_members rows for
+     * every recipient who hadn't opted out of that category. Then
+     * rewrite each newsletter's META_TARGET_SPEC to point at the
+     * migrated list instead of META_CATEGORY_ID.
+     *
+     * Idempotent via a one-time option flag — partial migrations
+     * (e.g. a fatal mid-loop) re-run cleanly because list creation +
+     * member insertion both go through INSERT IGNORE on UNIQUE keys,
+     * and target_spec is rewritten only when it doesn't already
+     * point to the migrated list.
+     *
+     * Categories table + subscribers.category_opt_outs + user_meta
+     * CATEGORY_OPT_OUTS all stay in place for one version as a
+     * safety net — read paths stop consulting them this version.
+     */
+    private static function migrate_categories_to_lists(): void
+    {
+        $option = 'lrob_etk_nl_categories_merged_into_lists';
+        if (get_option($option) === '1') {
+            return;
+        }
+
+        global $wpdb;
+        // Inline literal — Schema::categories_table() retires in v13.
+        $cats_table = $wpdb->prefix . 'lrob_etk_nl_categories';
+        $lists_table = Schema::lists_table();
+        $subs_table = Schema::subscribers_table();
+        $members_table = Schema::list_members_table();
+
+        // Suppress the wpdb error log when the table doesn't exist (fresh
+        // install upgrading directly to v13 — no categories ever created).
+        $prev_suppress = $wpdb->suppress_errors(true);
+        $table_exists = (string) $wpdb->get_var($wpdb->prepare(
+            "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s LIMIT 1",
+            $cats_table
+        ));
+        if ($table_exists === '') {
+            $wpdb->suppress_errors($prev_suppress);
+            update_option($option, '1', false);
+            return;
+        }
+        $wpdb->suppress_errors($prev_suppress);
+
+        // Bail cleanly when the categories table doesn't exist
+        // (fresh install — install() already ran via the migrate
+        // flow but the legacy table wasn't seeded into).
+        $cats = (array) $wpdb->get_results("SELECT * FROM `$cats_table` ORDER BY id ASC", ARRAY_A);
+        if ($cats === []) {
+            update_option($option, '1', false);
+            return;
+        }
+
+        $now = current_time('mysql', true);
+        $slug_to_list_id = [];
+
+        foreach ($cats as $cat) {
+            $cat_slug = (string) ($cat['slug'] ?? '');
+            $cat_name = (string) ($cat['name'] ?? $cat_slug);
+            if ($cat_slug === '') {
+                continue;
+            }
+
+            // Use the original category slug as-is for the new list.
+            // Schema collision risk: very low — categories never shared
+            // slugs with lists pre-v12 (different tables, no overlap).
+            // If a clash exists, append '-list' to disambiguate.
+            $target_slug = $cat_slug;
+            $existing_list = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM `$lists_table` WHERE slug = %s LIMIT 1",
+                $target_slug
+            ));
+            if ($existing_list > 0) {
+                // Already migrated in a previous run — reuse it.
+                $slug_to_list_id[$cat_slug] = $existing_list;
+                continue;
+            }
+
+            $wpdb->insert($lists_table, [
+                'name'        => $cat_name,
+                'slug'        => $target_slug,
+                'kind'        => 'subscribers',
+                'is_system'   => 0,
+                'visibility'  => 'public',
+                'description' => (string) ($cat['description'] ?? ''),
+                'rule_json'   => '',
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ], ['%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s']);
+            $new_id = (int) $wpdb->insert_id;
+            if ($new_id > 0) {
+                $slug_to_list_id[$cat_slug] = $new_id;
+            }
+        }
+
+        // Subscriber side: walk subscribers, for each whose
+        // category_opt_outs JSON DOES NOT contain a category's slug,
+        // INSERT IGNORE into list_members. Status filter: every
+        // status except 'trashed' (preserve memberships for unsubs
+        // so they show up if they restore).
+        $subscribers = (array) $wpdb->get_results(
+            "SELECT id, category_opt_outs FROM `$subs_table` WHERE status != 'trashed'",
+            ARRAY_A
+        );
+        foreach ($subscribers as $sub) {
+            $sid = (int) $sub['id'];
+            $opt_outs = self::decode_opt_outs((string) ($sub['category_opt_outs'] ?? ''));
+            foreach ($slug_to_list_id as $slug => $list_id) {
+                if (in_array($slug, $opt_outs, true)) {
+                    continue;
+                }
+                $wpdb->query($wpdb->prepare(
+                    "INSERT IGNORE INTO `$members_table` (list_id, recipient_kind, recipient_id, added_at) VALUES (%d, %s, %d, %s)",
+                    $list_id,
+                    'subscriber',
+                    $sid,
+                    $now
+                ));
+            }
+        }
+
+        // WP-user side: only users with an explicit OPTED_IN='1' meta
+        // flag get migrated (the others are eligible but uninstantiated).
+        // Materialising every WP user as a list_member would inflate the
+        // table; the Materializer already treats absent OPTED_IN as
+        // "eligible" via the OR NOT EXISTS clause on system lists.
+        $opted_in_users = get_users([
+            'meta_key'   => UserMeta::OPTED_IN,
+            'meta_value' => '1',
+            'fields'     => ['ID'],
+            'number'     => -1,
+        ]);
+        foreach (is_array($opted_in_users) ? $opted_in_users : [] as $u) {
+            $uid = (int) $u->ID;
+            $opt_outs_json = (string) get_user_meta($uid, UserMeta::CATEGORY_OPT_OUTS, true);
+            $opt_outs = self::decode_opt_outs($opt_outs_json);
+            foreach ($slug_to_list_id as $slug => $list_id) {
+                if (in_array($slug, $opt_outs, true)) {
+                    continue;
+                }
+                $wpdb->query($wpdb->prepare(
+                    "INSERT IGNORE INTO `$members_table` (list_id, recipient_kind, recipient_id, added_at) VALUES (%d, %s, %d, %s)",
+                    $list_id,
+                    'user',
+                    $uid,
+                    $now
+                ));
+            }
+        }
+
+        // Newsletter side: rewrite META_TARGET_SPEC for every
+        // newsletter that had a META_CATEGORY_ID. Walks postmeta
+        // directly to keep the query count bounded — one SELECT,
+        // one UPDATE per affected newsletter.
+        $newsletter_meta = (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT post_id, meta_value FROM {$wpdb->postmeta}
+              WHERE meta_key = %s AND meta_value <> '' AND meta_value <> '0'",
+            NewsletterCPT::META_CATEGORY_ID
+        ), ARRAY_A);
+        $cat_id_to_slug = [];
+        foreach ($cats as $cat) {
+            $cat_id_to_slug[(int) ($cat['id'] ?? 0)] = (string) ($cat['slug'] ?? '');
+        }
+        foreach ($newsletter_meta as $row) {
+            $post_id = (int) ($row['post_id'] ?? 0);
+            $cat_id = (int) ($row['meta_value'] ?? 0);
+            if ($post_id <= 0 || $cat_id <= 0) {
+                continue;
+            }
+            $slug = $cat_id_to_slug[$cat_id] ?? '';
+            $list_id = $slug !== '' ? ($slug_to_list_id[$slug] ?? 0) : 0;
+            if ($list_id <= 0) {
+                continue;
+            }
+            // Read current target_spec — only rewrite when it's
+            // 'all' / empty / single-list-to-the-same-id, so we
+            // don't clobber a multi-list audience already set up.
+            $current_raw = (string) get_post_meta($post_id, NewsletterCPT::META_TARGET_SPEC, true);
+            $current = $current_raw !== '' ? (array) json_decode($current_raw, true) : [];
+            $current_kind = (string) ($current['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
+            if (!in_array($current_kind, [
+                NewsletterCPT::TARGET_KIND_ALL,
+                NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS,
+                NewsletterCPT::TARGET_KIND_ALL_USERS,
+            ], true)) {
+                continue;
+            }
+            update_post_meta($post_id, NewsletterCPT::META_TARGET_SPEC, (string) wp_json_encode([
+                'kind'     => NewsletterCPT::TARGET_KIND_LISTS,
+                'list_ids' => [$list_id],
+            ]));
+        }
+
+        update_option($option, '1', false);
+    }
+
+    /**
+     * Schema v13: close the door on the categories safety net that v12
+     * left in place. v12 migrated every category into a list + every
+     * non-opt-out into a list_members row, so the legacy artifacts are
+     * pure dead weight at this point. Drops:
+     *   - `wp_lrob_etk_nl_categories` table
+     *   - `subscribers.category_opt_outs` column
+     *   - all `lrob_etk_nl_category_opt_outs` user_meta rows
+     *
+     * Each step is guarded so re-running is safe. Migration MUST run
+     * after migrate_categories_to_lists in the same upgrade pass.
+     */
+    private static function drop_legacy_category_artifacts(): void
+    {
+        global $wpdb;
+        $cats_table = $wpdb->prefix . 'lrob_etk_nl_categories';
+        $subs_table = Schema::subscribers_table();
+
+        // Drop the categories table. IF EXISTS is supported on both
+        // MySQL + MariaDB so no information_schema dance required.
+        $prev_suppress = $wpdb->suppress_errors(true);
+        $wpdb->query("DROP TABLE IF EXISTS `$cats_table`");
+
+        // Drop the category_opt_outs column. ALTER … DROP COLUMN doesn't
+        // accept IF EXISTS on MySQL 5.7; check information_schema first.
+        $has_column = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = %s
+                AND COLUMN_NAME = 'category_opt_outs'",
+            $subs_table
+        ));
+        if ($has_column > 0) {
+            $wpdb->query("ALTER TABLE `$subs_table` DROP COLUMN `category_opt_outs`");
+        }
+        $wpdb->suppress_errors($prev_suppress);
+
+        // Delete every lrob_etk_nl_category_opt_outs user_meta row in
+        // one DELETE. delete_metadata('user', 0, $key, '', true) deletes
+        // for all users when $delete_all is true — but only when $value
+        // is empty AND $object_id is 0. Use raw DELETE for clarity.
+        $wpdb->delete($wpdb->usermeta, ['meta_key' => 'lrob_etk_nl_category_opt_outs'], ['%s']);
+    }
+
+    /** Defensive opt-outs JSON decode — tolerates malformed payloads. @return array<int, string> */
+    private static function decode_opt_outs(string $json): array
+    {
+        if ($json === '') {
+            return [];
+        }
+        $arr = json_decode($json, true);
+        if (!is_array($arr)) {
+            return [];
+        }
+        return array_values(array_filter(array_map('strval', $arr), static fn ($s) => $s !== ''));
+    }
+
     private static function repair_broken_default_templates(): void
     {
         global $wpdb;
@@ -398,13 +668,11 @@ final class Module extends AbstractModule
         $subscribers = new SubscriberRepository();
         $templates = new TemplateRepository();
         $forms = new FormRepository();
-        $categories = new CategoryRepository();
         $lists = new ListRepository();
         $newsletters = new NewsletterRepository();
         $this->container->set(SubscriberRepository::class, $subscribers);
         $this->container->set(TemplateRepository::class, $templates);
         $this->container->set(FormRepository::class, $forms);
-        $this->container->set(CategoryRepository::class, $categories);
         $this->container->set(ListRepository::class, $lists);
         $this->container->set(NewsletterRepository::class, $newsletters);
 
@@ -429,6 +697,8 @@ final class Module extends AbstractModule
         if ($registry instanceof FieldTypeRegistry) {
             $registry->register(FormCPT::POST_TYPE, new EmailField());
             $registry->register(FormCPT::POST_TYPE, new TextField());
+            $registry->register(FormCPT::POST_TYPE, new PhoneField());
+            $registry->register(FormCPT::POST_TYPE, new SelectField());
             $registry->register(FormCPT::POST_TYPE, new SubmitField());
             // Shared captcha field, configured for the newsletter_subscribe
             // Captcha routing context + the per-form override meta key.
@@ -437,9 +707,6 @@ final class Module extends AbstractModule
                 FormCPT::POST_TYPE,
                 new SharedCaptchaField(CaptchaRouting::CONTEXT_NEWSLETTER, FormCPT::META_CAPTCHA_ROUTE)
             );
-            // Newsletter-specific picker fields. Categories + lists
-            // are newsletter concepts so these are module-local.
-            $registry->register(FormCPT::POST_TYPE, new CategoryPicker());
             $registry->register(FormCPT::POST_TYPE, new ListPicker());
         }
 
@@ -461,7 +728,7 @@ final class Module extends AbstractModule
             // them on demand when a form actually renders.
             (new Frontend())->register();
             (new Blocks())->register();
-            (new SubmitHandler($subscribers, $lists, $categories))->register();
+            (new SubmitHandler($subscribers, $lists))->register();
             (new ConfirmationHandler($subscribers))->register();
 
             // Preferences page + one-click unsubscribe + WP profile
@@ -471,9 +738,9 @@ final class Module extends AbstractModule
             // PrefsBlock registers a Gutenberg block + shortcode that
             // embeds the same prefs UI on any public page (typically a
             // `/newsletter-preferences/` page linked from the menu).
-            (new PrefsHandler($subscribers, $lists, $categories))->register();
-            (new ProfileSection($categories, $lists))->register();
-            (new PrefsBlock($subscribers, $lists, $categories))->register();
+            (new PrefsHandler($subscribers, $lists))->register();
+            (new ProfileSection($lists))->register();
+            (new PrefsBlock($subscribers, $lists))->register();
 
             // Daily reminder cron for pending subscribers — the
             // schedule itself lives on install / disable transitions.
@@ -495,7 +762,7 @@ final class Module extends AbstractModule
             $tracking_assets = new TrackingAssetRepository();
             $tracking_links  = new TrackingLinkRepository();
             $tracking        = new TrackingPipeline($tracking_assets, $tracking_links);
-            $materializer = new Materializer($newsletters, $categories, $subscribers);
+            $materializer = new Materializer($newsletters, $subscribers);
             $send_loop = new SendLoop($newsletters, $tracking);
             (new SendAjaxController($materializer, $send_loop, $newsletters, $lists))->register();
             (new SendCron($newsletters, $materializer, $send_loop))->register();
@@ -511,13 +778,12 @@ final class Module extends AbstractModule
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
             (new TemplateValidator())->register();
             $forms_page = new FormsPage($forms, $templates);
-            $categories_page = new CategoriesPage($categories);
             $lists_page = new ListsPage($lists);
             $settings_page = new SettingsPage();
             $subscribers_page = new SubscribersPage($subscribers);
-            $newsletters_page = new NewslettersPage($newsletters, $categories, $lists, $this->container);
+            $newsletters_page = new NewslettersPage($newsletters, $lists, $this->container);
             $newsletters_page->register();
-            $home = new HomePage($this, $subscribers, $templates, $forms_page, $categories_page, $lists_page, $settings_page, $subscribers_page, $newsletters_page);
+            $home = new HomePage($this, $subscribers, $templates, $forms_page, $lists_page, $settings_page, $subscribers_page, $newsletters_page);
             (new PageController($this, $home))->register();
             (new AjaxController())->register();
             add_action('admin_init', [$this, 'handle_new_from_default']);
@@ -632,31 +898,6 @@ final class Module extends AbstractModule
     }
 
     /**
-     * Seed a `general` category so single-category sites don't have to
-     * think about categories at all — every newsletter sent before the admin
-     * touches the Categories screen lands on this default. Idempotent: if
-     * any category already exists (legacy import, restore) we leave the
-     * table alone.
-     */
-    private static function seed_default_category(): void
-    {
-        global $wpdb;
-        $table = Schema::categories_table();
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $count = (int) $wpdb->get_var("SELECT COUNT(*) FROM `$table`");
-        if ($count > 0) {
-            return;
-        }
-        $wpdb->insert($table, [
-            'name'        => __('General', 'lrob-email-toolkit'),
-            'slug'        => 'general',
-            'description' => '',
-            'sort_order'  => 0,
-            'created_at'  => current_time('mysql', true),
-        ], ['%s', '%s', '%s', '%d', '%s']);
-    }
-
-    /**
      * Seed the built-in `is_system=1` users-kind lists. Idempotent —
      * each entry is keyed by slug (UNIQUE), so re-running just upserts
      * the rule_json + name in case the seed shape changed across
@@ -705,12 +946,13 @@ final class Module extends AbstractModule
             ));
             if ($existing > 0) {
                 $wpdb->update($table, [
-                    'name'      => $row['name'],
-                    'rule_json' => $row['rule_json'],
-                    'kind'      => $row['kind'],
-                    'is_system' => 1,
-                    'updated_at'=> $now,
-                ], ['id' => $existing], ['%s', '%s', '%s', '%d', '%s'], ['%d']);
+                    'name'       => $row['name'],
+                    'rule_json'  => $row['rule_json'],
+                    'kind'       => $row['kind'],
+                    'is_system'  => 1,
+                    'visibility' => 'private',
+                    'updated_at' => $now,
+                ], ['id' => $existing], ['%s', '%s', '%s', '%d', '%s', '%s'], ['%d']);
                 continue;
             }
             $wpdb->insert($table, [
@@ -718,11 +960,12 @@ final class Module extends AbstractModule
                 'slug'        => $slug,
                 'kind'        => $row['kind'],
                 'is_system'   => 1,
+                'visibility'  => 'private',
                 'description' => '',
                 'rule_json'   => $row['rule_json'],
                 'created_at'  => $now,
                 'updated_at'  => $now,
-            ], ['%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s']);
+            ], ['%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s']);
         }
     }
 }

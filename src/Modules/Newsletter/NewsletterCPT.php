@@ -45,7 +45,7 @@ final class NewsletterCPT
 
     public const META_CATEGORY_ID        = '_lrob_etk_nl_category_id';
 
-    /** JSON shape: `{kind: 'list'|'all_users'|'all_subscribers'|'all', list_id?: int}` */
+    /** JSON shape: `{kind: 'lists'|'list'|'all_users'|'all_subscribers'|'all', list_id?: int, list_ids?: int[]}` */
     public const META_TARGET_SPEC        = '_lrob_etk_nl_target_spec';
 
     public const META_SCHEDULED_AT       = '_lrob_etk_nl_scheduled_at';
@@ -215,12 +215,18 @@ final class NewsletterCPT
                     NewsletterCPT::TARGET_KIND_ALL_USERS,
                     NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS,
                     NewsletterCPT::TARGET_KIND_LIST,
+                    NewsletterCPT::TARGET_KIND_LISTS,
                 ], true)) {
                     return '';
                 }
                 $out = ['kind' => $kind];
                 if ($kind === NewsletterCPT::TARGET_KIND_LIST) {
                     $out['list_id'] = isset($decoded['list_id']) ? (int) $decoded['list_id'] : 0;
+                } elseif ($kind === NewsletterCPT::TARGET_KIND_LISTS) {
+                    $ids = isset($decoded['list_ids']) && is_array($decoded['list_ids'])
+                        ? array_values(array_unique(array_filter(array_map('intval', $decoded['list_ids']), static fn ($n) => $n > 0)))
+                        : [];
+                    $out['list_ids'] = $ids;
                 }
                 return (string) wp_json_encode($out);
             },

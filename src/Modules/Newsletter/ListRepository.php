@@ -19,15 +19,37 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  */
 final class ListRepository
 {
+    private const COUNTS_CACHE_KEY = 'lrob_etk_nl_list_counts';
+
     public const KIND_SUBSCRIBERS      = 'subscribers';
     public const KIND_USERS            = 'users';
     /** Pseudo-kind: virtual list resolving to every confirmed subscriber. System-only. */
     public const KIND_ALL_SUBSCRIBERS  = 'all_subscribers';
 
+    public const VISIBILITY_PRIVATE = 'private';
+    public const VISIBILITY_PUBLIC  = 'public';
+
     /** @return array<int, string> Valid kind slugs (extensible-by-filter later). */
     public static function valid_kinds(): array
     {
         return [self::KIND_SUBSCRIBERS, self::KIND_USERS, self::KIND_ALL_SUBSCRIBERS];
+    }
+
+    /** @return array<int, string> Valid visibility values. */
+    public static function valid_visibilities(): array
+    {
+        return [self::VISIBILITY_PRIVATE, self::VISIBILITY_PUBLIC];
+    }
+
+    public static function visibility_of(array $row): string
+    {
+        $v = (string) ($row['visibility'] ?? self::VISIBILITY_PRIVATE);
+        return in_array($v, self::valid_visibilities(), true) ? $v : self::VISIBILITY_PRIVATE;
+    }
+
+    public static function is_public(array $row): bool
+    {
+        return self::visibility_of($row) === self::VISIBILITY_PUBLIC;
     }
 
     public static function kind_label(string $kind): string
@@ -70,6 +92,79 @@ final class ListRepository
         $table = Schema::lists_table();
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         return (int) $wpdb->get_var("SELECT COUNT(*) FROM `$table`");
+    }
+
+    /**
+     * Per-list member counts. Returns `list_id => count` for every
+     * list. Three branches:
+     *   - subscribers-kind: explicit `list_members` rows (one query).
+     *   - all_subscribers pseudo-kind: confirmed-subscriber total.
+     *   - users-kind: manual list_members rows UNION rule-resolved
+     *     IDs, deduped. Rule resolution can be expensive on big lists
+     *     (e.g. WooCommerce) — counts are transient-cached 5 min.
+     *
+     * @return array<int, int>
+     */
+    public function member_counts(): array
+    {
+        $cached = get_transient(self::COUNTS_CACHE_KEY);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        global $wpdb;
+        $members = Schema::list_members_table();
+        $manual_rows = $wpdb->get_results(
+            "SELECT list_id, recipient_id FROM `$members`",
+            ARRAY_A
+        );
+        $manual_by_list = [];
+        foreach (is_array($manual_rows) ? $manual_rows : [] as $r) {
+            $lid = (int) ($r['list_id'] ?? 0);
+            $rid = (int) ($r['recipient_id'] ?? 0);
+            if ($lid > 0 && $rid > 0) {
+                $manual_by_list[$lid][$rid] = true;
+            }
+        }
+
+        $subs = Schema::subscribers_table();
+        $confirmed = (int) $wpdb->get_var("SELECT COUNT(*) FROM `$subs` WHERE status = 'confirmed'");
+
+        $out = [];
+        foreach ($this->list_all() as $row) {
+            $lid = (int) ($row['id'] ?? 0);
+            if ($lid <= 0) {
+                continue;
+            }
+            $kind = self::kind_of($row);
+            if ($kind === self::KIND_ALL_SUBSCRIBERS) {
+                $out[$lid] = $confirmed;
+                continue;
+            }
+            if ($kind === self::KIND_USERS) {
+                // Rule-resolved IDs union manual additions, deduped.
+                $rule_ids = $this->resolve_rule_user_ids($lid);
+                $manual_ids = array_keys($manual_by_list[$lid] ?? []);
+                $out[$lid] = count(array_unique(array_merge($rule_ids, $manual_ids)));
+                continue;
+            }
+            // subscribers-kind: manual memberships only.
+            $out[$lid] = count($manual_by_list[$lid] ?? []);
+        }
+
+        set_transient(self::COUNTS_CACHE_KEY, $out, 5 * MINUTE_IN_SECONDS);
+        return $out;
+    }
+
+    /**
+     * Drop the per-list count cache. Called from every mutator that
+     * could change a list's membership — add/remove member, rule edits,
+     * delete, exclusions. Subscriber-side status flips (confirm /
+     * unsubscribe / trash) bust it too via SubscriberRepository.
+     */
+    public static function flush_counts_cache(): void
+    {
+        delete_transient(self::COUNTS_CACHE_KEY);
     }
 
     /** @return array<int, int> list_id values the given (kind, id) recipient belongs to. */
@@ -124,7 +219,7 @@ final class ListRepository
         return $out;
     }
 
-    public function insert(string $name, string $description = '', string $slug = '', string $kind = self::KIND_SUBSCRIBERS): int
+    public function insert(string $name, string $description = '', string $slug = '', string $kind = self::KIND_SUBSCRIBERS, string $visibility = self::VISIBILITY_PRIVATE): int
     {
         global $wpdb;
         $name = trim($name);
@@ -133,6 +228,9 @@ final class ListRepository
         }
         if (!in_array($kind, self::valid_kinds(), true)) {
             $kind = self::KIND_SUBSCRIBERS;
+        }
+        if (!in_array($visibility, self::valid_visibilities(), true)) {
+            $visibility = self::VISIBILITY_PRIVATE;
         }
         $slug = $slug !== '' ? sanitize_title($slug) : $this->generate_unique_slug($name);
         if ($slug === '' || $this->slug_exists($slug)) {
@@ -143,12 +241,68 @@ final class ListRepository
             'name'        => $name,
             'slug'        => $slug,
             'kind'        => $kind,
+            'visibility'  => $visibility,
             'description' => $description,
             'rule_json'   => '',
             'created_at'  => $now,
             'updated_at'  => $now,
-        ], ['%s', '%s', '%s', '%s', '%s', '%s', '%s']);
-        return $ok !== false ? (int) $wpdb->insert_id : 0;
+        ], ['%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s']);
+        if ($ok !== false) {
+            self::flush_counts_cache();
+            return (int) $wpdb->insert_id;
+        }
+        return 0;
+    }
+
+    /**
+     * Flip a list's visibility. Refuses system lists (admin-only by
+     * design). Returns false on no-op / refusal.
+     */
+    public function set_visibility(int $id, string $visibility): bool
+    {
+        if (!in_array($visibility, self::valid_visibilities(), true)) {
+            return false;
+        }
+        $row = $this->find($id);
+        if ($row === null || self::is_system($row)) {
+            return false;
+        }
+        global $wpdb;
+        $count = $wpdb->update(
+            Schema::lists_table(),
+            ['visibility' => $visibility, 'updated_at' => current_time('mysql', true)],
+            ['id' => $id],
+            ['%s', '%s'],
+            ['%d']
+        );
+        return $count !== false;
+    }
+
+    /**
+     * Public-facing list catalogue for the subscriber prefs page.
+     * Excludes system lists (computed; not subscriber-toggleable) and
+     * users-kind lists (rule-driven; same rationale). Returns
+     * subscribers-kind lists explicitly marked visibility=public.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function list_public_for_subscribers(): array
+    {
+        global $wpdb;
+        $table = Schema::lists_table();
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM `$table`
+                  WHERE is_system = 0
+                    AND kind = %s
+                    AND visibility = %s
+                  ORDER BY name ASC",
+                self::KIND_SUBSCRIBERS,
+                self::VISIBILITY_PUBLIC
+            ),
+            ARRAY_A
+        );
+        return is_array($rows) ? $rows : [];
     }
 
     /**
@@ -167,6 +321,9 @@ final class ListRepository
             ['%s', '%s'],
             ['%d']
         );
+        if ($count !== false) {
+            self::flush_counts_cache();
+        }
         return $count !== false;
     }
 
@@ -267,7 +424,11 @@ final class ListRepository
         $wpdb->delete(Schema::list_members_table(),    ['list_id' => $id], ['%d']);
         $wpdb->delete(Schema::list_exclusions_table(), ['list_id' => $id], ['%d']);
         $count = $wpdb->delete(Schema::lists_table(), ['id' => $id], ['%d']);
-        return $count !== false && $count > 0;
+        if ($count !== false && $count > 0) {
+            self::flush_counts_cache();
+            return true;
+        }
+        return false;
     }
 
     public static function is_system(array $row): bool
@@ -294,6 +455,7 @@ final class ListRepository
             $recipient_id,
             current_time('mysql', true)
         ));
+        self::flush_counts_cache();
     }
 
     /** Detach a recipient from a list. */
@@ -309,6 +471,7 @@ final class ListRepository
             ],
             ['%d', '%s', '%d']
         );
+        self::flush_counts_cache();
     }
 
     /** Drop all of a (kind, id) recipient's memberships — used at subscriber-deletion time. */
@@ -327,6 +490,7 @@ final class ListRepository
         if ($recipient_kind === 'user') {
             $wpdb->delete(Schema::list_exclusions_table(), ['user_id' => $recipient_id], ['%d']);
         }
+        self::flush_counts_cache();
     }
 
     /**

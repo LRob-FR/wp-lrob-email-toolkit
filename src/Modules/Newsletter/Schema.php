@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
 /**
- * Newsletter module schema. Nine tables (as of v0.3.2). This file is
- * the canonical SQL source of truth.
+ * Newsletter module schema. This file is the canonical SQL source of truth.
  *
  *  - subscribers ........ email-only recipients (no WP account). WP users
  *                         are recipients via user_meta, never duplicated
  *                         in this table.
  *  - lists .............. unified manual + rule-based groupings.
  *  - list_members ....... explicit junction (list_id, recipient).
- *  - categories ......... email categories, required per newsletter. "General"
- *                         is seeded on install.
+ *  - list_exclusions .... per-list "never send" pinned WP users.
  *  - newsletters ........ companion table keyed by newsletter post_id; holds
  *                         hot runtime counters (status, sent_count,
  *                         opens_count, …) off the postmeta hot path.
@@ -41,8 +39,6 @@ final class Schema
     public const TABLE_LIST_MEMBERS          = 'lrob_etk_nl_list_members';
 
     public const TABLE_LIST_EXCLUSIONS       = 'lrob_etk_nl_list_exclusions';
-
-    public const TABLE_CATEGORIES            = 'lrob_etk_nl_categories';
 
     public const TABLE_NEWSLETTERS           = 'lrob_etk_nl_newsletters';
 
@@ -76,12 +72,6 @@ final class Schema
     {
         global $wpdb;
         return $wpdb->prefix . self::TABLE_LIST_EXCLUSIONS;
-    }
-
-    public static function categories_table(): string
-    {
-        global $wpdb;
-        return $wpdb->prefix . self::TABLE_CATEGORIES;
     }
 
     public static function newsletters_table(): string
@@ -129,7 +119,6 @@ final class Schema
         $lists                 = self::lists_table();
         $list_members          = self::list_members_table();
         $list_exclusions       = self::list_exclusions_table();
-        $categories            = self::categories_table();
         $newsletters           = self::newsletters_table();
         $newsletter_recipients = self::newsletter_recipients_table();
         $tracking_events       = self::tracking_events_table();
@@ -138,7 +127,6 @@ final class Schema
 
         // status enum: pending | confirmed | unsubscribed | refused | bounced | trashed
         // (varchar instead of MySQL ENUM — dbDelta + ENUM is flaky).
-        // category_opt_outs is JSON-encoded array of category slugs.
         // reminder_count + last_reminder_at drive the pending-followup
         // cron: stops after the configurable max + spaces messages out
         // by the configured interval.
@@ -170,7 +158,6 @@ final class Schema
             language varchar(20) NOT NULL DEFAULT '',
             status varchar(20) NOT NULL DEFAULT 'pending',
             previous_status varchar(20) NOT NULL DEFAULT '',
-            category_opt_outs longtext NOT NULL,
             prefs_token varchar(64) NOT NULL,
             source varchar(50) NOT NULL DEFAULT '',
             bounce_count smallint unsigned NOT NULL DEFAULT 0,
@@ -203,19 +190,25 @@ final class Schema
         //   semantically distinct.
         // rule_json: JSON `{provider, config}` describing the filter rule
         //   on users lists. Empty for subscribers lists.
+        // visibility: 'private' | 'public'. Private = admin-managed,
+        //   hidden from subscribers. Public = surfaced on the prefs page
+        //   so subscribers can self-join/leave. System lists ignore this
+        //   (computed sets aren't subscriber-toggleable). Schema v12.
         $sql_lists = "CREATE TABLE $lists (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             name varchar(190) NOT NULL,
             slug varchar(190) NOT NULL,
             kind varchar(20) NOT NULL DEFAULT 'subscribers',
             is_system tinyint(1) NOT NULL DEFAULT 0,
+            visibility varchar(10) NOT NULL DEFAULT 'private',
             description text NOT NULL,
             rule_json longtext NOT NULL,
             created_at datetime NOT NULL,
             updated_at datetime NOT NULL,
             PRIMARY KEY  (id),
             UNIQUE KEY slug (slug),
-            KEY kind (kind)
+            KEY kind (kind),
+            KEY visibility (visibility)
         ) $charset_collate;";
 
         // recipient_kind: 'user' | 'subscriber'. recipient_id is wp_users.ID
@@ -247,17 +240,6 @@ final class Schema
             PRIMARY KEY  (id),
             UNIQUE KEY list_user (list_id, user_id),
             KEY user_lookup (user_id)
-        ) $charset_collate;";
-
-        $sql_categories = "CREATE TABLE $categories (
-            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            name varchar(190) NOT NULL,
-            slug varchar(190) NOT NULL,
-            description text NOT NULL,
-            sort_order smallint NOT NULL DEFAULT 0,
-            created_at datetime NOT NULL,
-            PRIMARY KEY  (id),
-            UNIQUE KEY slug (slug)
         ) $charset_collate;";
 
         // Keyed by post_id (1:1 with the lrob_etk_newsletter CPT post).
@@ -379,7 +361,6 @@ final class Schema
         dbDelta($sql_lists);
         dbDelta($sql_list_members);
         dbDelta($sql_list_exclusions);
-        dbDelta($sql_categories);
         dbDelta($sql_newsletters);
         dbDelta($sql_newsletter_recipients);
         dbDelta($sql_tracking_events);
@@ -394,12 +375,14 @@ final class Schema
             self::subscribers_table(),
             self::lists_table(),
             self::list_members_table(),
-            self::categories_table(),
+            self::list_exclusions_table(),
             self::newsletters_table(),
             self::newsletter_recipients_table(),
             self::tracking_events_table(),
             self::newsletter_assets_table(),
             self::newsletter_links_table(),
+            // Legacy table from pre-v13; harmless if absent.
+            $wpdb->prefix . 'lrob_etk_nl_categories',
         ];
         foreach ($tables as $table) {
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-27T16:02:21+00:00\n"
+"POT-Creation-Date: 2026-05-27T18:37:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -38,7 +38,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:729
 #: src/Modules/ContactForm/Admin/FormsPage.php:147
 #: src/Modules/Logging/Admin/LogsPage.php:580
-#: src/Modules/Newsletter/Admin/HomePage.php:95
+#: src/Modules/Newsletter/Admin/HomePage.php:94
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:607
 #: src/Modules/SMTP/Admin/SettingsPage.php:593
 msgid "Saving…"
@@ -48,7 +48,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:730
 #: src/Modules/ContactForm/Admin/FormsPage.php:148
 #: src/Modules/Logging/Admin/LogsPage.php:581
-#: src/Modules/Newsletter/Admin/HomePage.php:96
+#: src/Modules/Newsletter/Admin/HomePage.php:95
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:619
 #: src/Modules/SMTP/Admin/SettingsPage.php:594
 msgid "Saved"
@@ -58,7 +58,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:731
 #: src/Modules/ContactForm/Admin/FormsPage.php:149
 #: src/Modules/Logging/Admin/LogsPage.php:582
-#: src/Modules/Newsletter/Admin/HomePage.php:97
+#: src/Modules/Newsletter/Admin/HomePage.php:96
 #: src/Modules/SMTP/Admin/SettingsPage.php:595
 msgid "Save failed"
 msgstr ""
@@ -91,16 +91,16 @@ msgstr ""
 #: src/Modules/Logging/Admin/AjaxController.php:226
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
-#: src/Modules/Newsletter/Admin/AjaxController.php:1289
-#: src/Modules/Newsletter/Admin/AjaxController.php:1311
-#: src/Modules/Newsletter/Admin/HomePage.php:193
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1313
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1351
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1394
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1429
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1455
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1503
-#: src/Modules/Newsletter/Module.php:563
+#: src/Modules/Newsletter/Admin/AjaxController.php:1266
+#: src/Modules/Newsletter/Admin/AjaxController.php:1288
+#: src/Modules/Newsletter/Admin/HomePage.php:192
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1358
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1396
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1439
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1474
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1500
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1548
+#: src/Modules/Newsletter/Module.php:829
 #: src/Modules/Newsletter/Send/SendAjaxController.php:679
 #: src/Modules/SMTP/Admin/AjaxController.php:385
 #: src/Modules/SMTP/Admin/PageController.php:50
@@ -172,8 +172,8 @@ msgstr[1] ""
 
 #: src/Admin/DashboardPage.php:328
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:1118
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:478
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:670
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:473
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:602
 msgid "failed"
 msgid_plural "failed"
 msgstr[0] ""
@@ -224,7 +224,7 @@ msgid "Modules"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:410
-#: src/Modules/Newsletter/Admin/HomePage.php:587
+#: src/Modules/Newsletter/Admin/HomePage.php:584
 msgid "Coming soon"
 msgstr ""
 
@@ -287,7 +287,7 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:523
 #: src/Admin/DashboardPage.php:525
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1042
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1056
 msgid "Send test email"
 msgstr ""
 
@@ -299,16 +299,15 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1643
 #: src/Modules/Logging/Admin/LogsPage.php:488
 #: src/Modules/Logging/Admin/LogsPage.php:586
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:42
 #: src/Modules/Newsletter/Admin/FormsPage.php:443
 #: src/Modules/Newsletter/Admin/FormsPage.php:481
-#: src/Modules/Newsletter/Admin/HomePage.php:309
+#: src/Modules/Newsletter/Admin/HomePage.php:306
 #: src/Modules/Newsletter/Admin/ListsPage.php:38
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1043
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1112
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1232
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1261
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1283
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1057
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1126
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1277
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1306
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1328
 #: src/Modules/Newsletter/Admin/SettingsPage.php:40
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:338
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:974
@@ -358,12 +357,11 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:108
 #: src/Modules/ContactForm/Admin/FormsPage.php:578
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:826
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:163
 #: src/Modules/Newsletter/Admin/FormsPage.php:490
-#: src/Modules/Newsletter/Admin/ListsPage.php:709
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1088
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1269
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1299
+#: src/Modules/Newsletter/Admin/ListsPage.php:805
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1102
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1314
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1344
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1106
 #: src/Modules/SMTP/Admin/SettingsPage.php:507
 msgid "Cancel"
@@ -432,7 +430,7 @@ msgstr ""
 #: src/Modules/Logging/Admin/LogsPage.php:232
 #: src/Modules/Logging/Admin/LogsPage.php:345
 #: src/Modules/Logging/Admin/LogViewPage.php:104
-#: src/Modules/Newsletter/Admin/HomePage.php:178
+#: src/Modules/Newsletter/Admin/HomePage.php:177
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:43
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1375
 msgid "Status"
@@ -448,7 +446,7 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:666
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:389
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:759
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:773
 msgid "Preview"
 msgstr ""
 
@@ -529,8 +527,8 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:1100
 #: src/Modules/Logging/Admin/LogsPage.php:239
 #: src/Modules/Logging/Admin/LogsPage.php:936
-#: src/Modules/Newsletter/Admin/HomePage.php:174
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1604
+#: src/Modules/Newsletter/Admin/HomePage.php:173
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1669
 msgid "Failed"
 msgstr ""
 
@@ -554,7 +552,7 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:785
 #: src/Modules/Logging/Admin/LogsPage.php:348
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:449
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:444
 msgid "Subject"
 msgstr ""
 
@@ -600,9 +598,9 @@ msgstr ""
 #: src/Admin/DashboardPage.php:860
 #: src/Modules/Logging/Admin/LogsPage.php:236
 #: src/Modules/Logging/Admin/LogsPage.php:935
-#: src/Modules/Newsletter/Admin/HomePage.php:173
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:161
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1603
+#: src/Modules/Newsletter/Admin/HomePage.php:172
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:158
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1668
 msgid "Sent"
 msgstr ""
 
@@ -728,20 +726,20 @@ msgstr ""
 #: src/Modules/AbstractModule.php:144
 #: src/Modules/ContactForm/Admin/FormsPage.php:1906
 #: src/Modules/Logging/Admin/PageController.php:178
-#: src/Modules/Newsletter/Admin/AjaxController.php:1294
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1317
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1356
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1399
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1434
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1459
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1508
-#: src/Modules/Newsletter/Module.php:567
+#: src/Modules/Newsletter/Admin/AjaxController.php:1271
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1362
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1401
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1444
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1479
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1504
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1553
+#: src/Modules/Newsletter/Module.php:833
 msgid "Security check failed. Please retry."
 msgstr ""
 
 #: src/Admin/Menu.php:54
 #: src/Admin/Menu.php:55
-#: src/Modules/Newsletter/Admin/HomePage.php:241
+#: src/Modules/Newsletter/Admin/HomePage.php:239
 msgid "Dashboard"
 msgstr ""
 
@@ -750,8 +748,8 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:286
 #: src/Modules/Captcha/Admin/SettingsPage.php:288
 #: src/Modules/Captcha/Admin/SettingsPage.php:450
-#: src/Modules/Newsletter/Admin/HomePage.php:424
-#: src/Modules/Newsletter/Admin/HomePage.php:479
+#: src/Modules/Newsletter/Admin/HomePage.php:421
+#: src/Modules/Newsletter/Admin/HomePage.php:476
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:53
 #: src/Modules/SMTP/Admin/SettingsPage.php:156
 #: src/Modules/SMTP/Admin/SettingsPage.php:158
@@ -782,7 +780,7 @@ msgstr ""
 
 #: src/Admin/RetentionToggle.php:61
 #: src/Modules/Logging/Admin/LogsPage.php:533
-#: src/Modules/Newsletter/Admin/HomePage.php:149
+#: src/Modules/Newsletter/Admin/HomePage.php:148
 msgid "days"
 msgstr ""
 
@@ -815,8 +813,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:498
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/ContactForm/Admin/FormsPage.php:256
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:141
-#: src/Modules/Newsletter/Admin/FormsPage.php:682
+#: src/Modules/Newsletter/Admin/FormsPage.php:683
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr ""
@@ -1840,21 +1837,20 @@ msgstr ""
 #: src/Forms/FieldRenderHelpers.php:168
 #: src/Forms/FieldRenderHelpers.php:356
 #: src/Modules/ContactForm/Admin/FormsPage.php:251
-#: src/Modules/Newsletter/Admin/FormsPage.php:676
-#: src/Modules/Newsletter/Fields/CategoryPicker.php:99
+#: src/Modules/Newsletter/Admin/FormsPage.php:677
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:202
 #: src/Modules/ContactForm/Admin/FormsPage.php:211
-#: src/Modules/Newsletter/Admin/FormsPage.php:666
+#: src/Modules/Newsletter/Admin/FormsPage.php:667
 msgid "Required"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:210
 #: src/Modules/ContactForm/Admin/FormsPage.php:250
-#: src/Modules/Newsletter/Admin/FormsPage.php:675
+#: src/Modules/Newsletter/Admin/FormsPage.php:676
 msgid "(optional helper text)"
 msgstr ""
 
@@ -1869,8 +1865,10 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1506
 #: src/Modules/ContactForm/TemplateRegistry.php:121
 #: src/Modules/Newsletter/Admin/FormsPage.php:565
-#: src/Modules/Newsletter/Admin/HomePage.php:177
+#: src/Modules/Newsletter/Admin/HomePage.php:176
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:36
+#: src/Modules/Newsletter/FormTemplateRegistry.php:114
+#: src/Modules/Newsletter/FormTemplateRegistry.php:133
 #: src/Modules/Newsletter/SubscriberFields.php:52
 msgid "Email"
 msgstr ""
@@ -1917,9 +1915,12 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1326
 #: src/Modules/ContactForm/TemplateRegistry.php:102
 #: src/Modules/ContactForm/TemplateRegistry.php:122
-#: src/Modules/Newsletter/Admin/FormsPage.php:602
-#: src/Modules/Newsletter/Admin/FormsPage.php:604
+#: src/Modules/Newsletter/Admin/FormsPage.php:567
+#: src/Modules/Newsletter/Admin/FormsPage.php:603
+#: src/Modules/Newsletter/Admin/FormsPage.php:605
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:40
+#: src/Modules/Newsletter/FormTemplateRegistry.php:117
+#: src/Modules/Newsletter/FormTemplateRegistry.php:136
 #: src/Modules/Newsletter/SubscriberFields.php:56
 msgid "Phone"
 msgstr ""
@@ -1938,7 +1939,7 @@ msgid "Dropdown"
 msgstr ""
 
 #: src/Forms/Fields/SubmitField.php:20
-#: src/Modules/Newsletter/Admin/FormsPage.php:569
+#: src/Modules/Newsletter/Admin/FormsPage.php:570
 msgid "Submit button"
 msgstr ""
 
@@ -1971,7 +1972,7 @@ msgstr ""
 
 #: src/Forms/FormEditorRenderer.php:167
 #: src/Modules/ContactForm/Admin/FormsPage.php:254
-#: src/Modules/Newsletter/Admin/FormsPage.php:679
+#: src/Modules/Newsletter/Admin/FormsPage.php:680
 msgid "Field"
 msgstr ""
 
@@ -2183,7 +2184,7 @@ msgid "Provider"
 msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:331
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:765
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:779
 msgid "Test"
 msgstr ""
 
@@ -2213,11 +2214,9 @@ msgstr ""
 #: src/Modules/Logging/Admin/LogsPage.php:589
 #: src/Modules/Logging/Admin/LogViewPage.php:263
 #: src/Modules/Logging/Admin/LogViewPage.php:273
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:137
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:162
 #: src/Modules/Newsletter/Admin/FormsPage.php:311
 #: src/Modules/Newsletter/Admin/FormsPage.php:493
-#: src/Modules/Newsletter/Admin/ListsPage.php:708
+#: src/Modules/Newsletter/Admin/ListsPage.php:804
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:342
 #: src/Modules/SMTP/Admin/SettingsPage.php:199
 msgid "Delete"
@@ -2615,7 +2614,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:123
 #: src/Modules/ContactForm/Admin/AjaxController.php:192
 #: src/Modules/ContactForm/Admin/AjaxController.php:257
-#: src/Modules/Newsletter/Admin/AjaxController.php:1319
+#: src/Modules/Newsletter/Admin/AjaxController.php:1296
 #: src/Modules/Newsletter/Send/SendAjaxController.php:683
 msgid "Security check failed. Please reload the page."
 msgstr ""
@@ -2623,7 +2622,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:103
 #: src/Modules/ContactForm/Admin/AjaxController.php:141
 #: src/Modules/Logging/Admin/AjaxController.php:123
-#: src/Modules/Newsletter/Admin/AjaxController.php:212
+#: src/Modules/Newsletter/Admin/AjaxController.php:204
 msgid "Unknown setting."
 msgstr ""
 
@@ -2642,20 +2641,20 @@ msgid "Invalid structure JSON."
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:203
-#: src/Modules/Newsletter/Admin/AjaxController.php:519
+#: src/Modules/Newsletter/Admin/AjaxController.php:492
 msgid "Unknown template."
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:213
-#: src/Modules/Newsletter/Admin/AjaxController.php:529
+#: src/Modules/Newsletter/Admin/AjaxController.php:502
 msgid "Source form not found."
 msgstr ""
 
 #. translators: %s: original item title being cloned (form, newsletter, template, etc.)
 #: src/Modules/ContactForm/Admin/AjaxController.php:218
-#: src/Modules/Newsletter/Admin/AjaxController.php:534
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1516
-#: src/Modules/Newsletter/Module.php:578
+#: src/Modules/Newsletter/Admin/AjaxController.php:507
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1561
+#: src/Modules/Newsletter/Module.php:844
 msgid "%s (copy)"
 msgstr ""
 
@@ -2727,7 +2726,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:499
 #: src/Modules/Logging/Admin/LogsPage.php:431
 #: src/Modules/Logging/Admin/LogsPage.php:584
-#: src/Modules/Newsletter/Admin/HomePage.php:184
+#: src/Modules/Newsletter/Admin/HomePage.php:183
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:336
 msgid "Previous"
 msgstr ""
@@ -2736,7 +2735,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:500
 #: src/Modules/Logging/Admin/LogsPage.php:432
 #: src/Modules/Logging/Admin/LogsPage.php:585
-#: src/Modules/Newsletter/Admin/HomePage.php:185
+#: src/Modules/Newsletter/Admin/HomePage.php:184
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:337
 msgid "Next"
 msgstr ""
@@ -2779,37 +2778,37 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:153
 #: src/Modules/ContactForm/Admin/FormsPage.php:1458
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1067
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1081
 msgid "email@example.com"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:207
-#: src/Modules/Newsletter/Admin/FormsPage.php:662
+#: src/Modules/Newsletter/Admin/FormsPage.php:663
 msgid "Add field"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:208
-#: src/Modules/Newsletter/Admin/FormsPage.php:663
+#: src/Modules/Newsletter/Admin/FormsPage.php:664
 msgid "Field options"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:209
-#: src/Modules/Newsletter/Admin/FormsPage.php:664
+#: src/Modules/Newsletter/Admin/FormsPage.php:665
 msgid "Field slug"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:210
-#: src/Modules/Newsletter/Admin/FormsPage.php:665
+#: src/Modules/Newsletter/Admin/FormsPage.php:666
 msgid "Helper text"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:212
-#: src/Modules/Newsletter/Admin/FormsPage.php:667
+#: src/Modules/Newsletter/Admin/FormsPage.php:668
 msgid "Placeholder"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:213
-#: src/Modules/Newsletter/Admin/FormsPage.php:668
+#: src/Modules/Newsletter/Admin/FormsPage.php:669
 msgid "Max length"
 msgstr ""
 
@@ -2830,22 +2829,22 @@ msgid "Step"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:218
-#: src/Modules/Newsletter/Admin/FormsPage.php:680
+#: src/Modules/Newsletter/Admin/FormsPage.php:681
 msgid "Regex pattern"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:219
-#: src/Modules/Newsletter/Admin/FormsPage.php:681
+#: src/Modules/Newsletter/Admin/FormsPage.php:682
 msgid "Country code picker"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:221
-#: src/Modules/Newsletter/Admin/FormsPage.php:683
+#: src/Modules/Newsletter/Admin/FormsPage.php:684
 msgid "Auto-detect from browser"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:222
-#: src/Modules/Newsletter/Admin/FormsPage.php:684
+#: src/Modules/Newsletter/Admin/FormsPage.php:685
 msgid "Auto (locale)"
 msgstr ""
 
@@ -2909,46 +2908,46 @@ msgid "Add option"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:244
-#: src/Modules/Newsletter/Admin/FormsPage.php:669
+#: src/Modules/Newsletter/Admin/FormsPage.php:670
 msgid "Alignment"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:245
-#: src/Modules/Newsletter/Admin/FormsPage.php:670
+#: src/Modules/Newsletter/Admin/FormsPage.php:671
 msgid "Left"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:246
-#: src/Modules/Newsletter/Admin/FormsPage.php:671
+#: src/Modules/Newsletter/Admin/FormsPage.php:672
 msgid "Center"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:247
-#: src/Modules/Newsletter/Admin/FormsPage.php:672
+#: src/Modules/Newsletter/Admin/FormsPage.php:673
 msgid "Right"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:248
-#: src/Modules/Newsletter/Admin/FormsPage.php:673
+#: src/Modules/Newsletter/Admin/FormsPage.php:674
 msgid "Full width"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:249
-#: src/Modules/Newsletter/Admin/FormsPage.php:674
+#: src/Modules/Newsletter/Admin/FormsPage.php:675
 msgid "Toggle required"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:252
 #: src/Modules/ContactForm/Admin/FormsPage.php:1260
 #: src/Modules/Newsletter/Admin/FormsPage.php:372
-#: src/Modules/Newsletter/Admin/FormsPage.php:677
+#: src/Modules/Newsletter/Admin/FormsPage.php:678
 msgid "Undo"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:253
 #: src/Modules/ContactForm/Admin/FormsPage.php:1268
 #: src/Modules/Newsletter/Admin/FormsPage.php:380
-#: src/Modules/Newsletter/Admin/FormsPage.php:678
+#: src/Modules/Newsletter/Admin/FormsPage.php:679
 msgid "Redo"
 msgstr ""
 
@@ -2994,7 +2993,7 @@ msgid "%1$s (%2$s)"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:431
-#: src/Modules/Newsletter/Admin/ListsPage.php:396
+#: src/Modules/Newsletter/Admin/ListsPage.php:492
 msgid "Remove"
 msgstr ""
 
@@ -3158,14 +3157,14 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:989
 #: src/Modules/Newsletter/Admin/FormsPage.php:237
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1599
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1664
 msgid "Draft"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:996
 #: src/Modules/ContactForm/Admin/FormsPage.php:1455
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:651
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1231
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:636
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1276
 msgid "Recipients"
 msgstr ""
 
@@ -3550,7 +3549,7 @@ msgid "No submissions selected."
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:160
-#: src/Modules/Newsletter/Admin/AjaxController.php:1006
+#: src/Modules/Newsletter/Admin/AjaxController.php:979
 msgid "Unknown bulk action."
 msgstr ""
 
@@ -3600,7 +3599,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:131
 #: src/Modules/Newsletter/Admin/FormsPage.php:142
-#: src/Modules/Newsletter/Admin/HomePage.php:244
+#: src/Modules/Newsletter/Admin/HomePage.php:242
 msgid "Forms"
 msgstr ""
 
@@ -3611,8 +3610,8 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:272
 #: src/Modules/Logging/Admin/LogsPage.php:234
 #: src/Modules/Logging/Admin/LogsPage.php:253
-#: src/Modules/Newsletter/Admin/HomePage.php:171
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:159
+#: src/Modules/Newsletter/Admin/HomePage.php:170
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:156
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1479
 msgid "All"
 msgstr ""
@@ -3626,7 +3625,7 @@ msgid "Passed"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:299
-#: src/Modules/Newsletter/Admin/HomePage.php:175
+#: src/Modules/Newsletter/Admin/HomePage.php:174
 msgid "Skipped"
 msgstr ""
 
@@ -3665,9 +3664,9 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:343
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:480
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:984
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1281
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1302
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:998
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1326
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1347
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:270
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1232
 msgid "Delete permanently"
@@ -3873,8 +3872,8 @@ msgstr ""
 
 #: src/Modules/ContactForm/Frontend.php:55
 #: src/Modules/ContactForm/SubmitHandler.php:409
+#: src/Modules/Newsletter/SubmitHandler.php:120
 #: src/Modules/Newsletter/SubmitHandler.php:121
-#: src/Modules/Newsletter/SubmitHandler.php:122
 msgid "Please enter a valid email address."
 msgstr ""
 
@@ -3922,7 +3921,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/ContactForm/SubmitHandler.php:58
-#: src/Modules/Newsletter/SubmitHandler.php:69
+#: src/Modules/Newsletter/SubmitHandler.php:68
 msgid "This form has expired. Please reload the page and try again."
 msgstr ""
 
@@ -4122,7 +4121,7 @@ msgstr ""
 #: src/Modules/ContactForm/TemplateRegistry.php:98
 #: src/Modules/ContactForm/TemplateRegistry.php:173
 #: src/Modules/ContactForm/TemplateRegistry.php:202
-#: src/Modules/Newsletter/FormTemplateRegistry.php:87
+#: src/Modules/Newsletter/FormTemplateRegistry.php:97
 msgid "Your name"
 msgstr ""
 
@@ -4130,8 +4129,8 @@ msgstr ""
 #: src/Modules/ContactForm/TemplateRegistry.php:138
 #: src/Modules/ContactForm/TemplateRegistry.php:174
 #: src/Modules/ContactForm/TemplateRegistry.php:203
-#: src/Modules/Newsletter/FormTemplateRegistry.php:75
-#: src/Modules/Newsletter/FormTemplateRegistry.php:88
+#: src/Modules/Newsletter/FormTemplateRegistry.php:85
+#: src/Modules/Newsletter/FormTemplateRegistry.php:98
 msgid "Your email"
 msgstr ""
 
@@ -4145,15 +4144,19 @@ msgid "Send message"
 msgstr ""
 
 #: src/Modules/ContactForm/TemplateRegistry.php:117
-#: src/Modules/Newsletter/Admin/FormsPage.php:596
+#: src/Modules/Newsletter/Admin/FormsPage.php:597
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:38
+#: src/Modules/Newsletter/FormTemplateRegistry.php:110
+#: src/Modules/Newsletter/FormTemplateRegistry.php:129
 #: src/Modules/Newsletter/SubscriberFields.php:54
 msgid "First name"
 msgstr ""
 
 #: src/Modules/ContactForm/TemplateRegistry.php:118
-#: src/Modules/Newsletter/Admin/FormsPage.php:597
+#: src/Modules/Newsletter/Admin/FormsPage.php:598
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:39
+#: src/Modules/Newsletter/FormTemplateRegistry.php:111
+#: src/Modules/Newsletter/FormTemplateRegistry.php:130
 #: src/Modules/Newsletter/SubscriberFields.php:55
 msgid "Last name"
 msgstr ""
@@ -4339,7 +4342,7 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:242
 #: src/Modules/Logging/Admin/LogsPage.php:937
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1601
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1666
 msgid "Sending"
 msgstr ""
 
@@ -4358,7 +4361,7 @@ msgid "Hide newsletter sends"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:267
-#: src/Modules/Newsletter/Admin/ListsPage.php:406
+#: src/Modules/Newsletter/Admin/ListsPage.php:502
 msgid "Show all"
 msgstr ""
 
@@ -4497,7 +4500,7 @@ msgid "Send failed:"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogViewPage.php:102
-#: src/Modules/Newsletter/Admin/HomePage.php:179
+#: src/Modules/Newsletter/Admin/HomePage.php:178
 msgid "Sent at"
 msgstr ""
 
@@ -4598,231 +4601,171 @@ msgid_plural "%s log entries"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:265
-#: src/Modules/Newsletter/Admin/AjaxController.php:494
+#: src/Modules/Newsletter/Admin/AjaxController.php:257
+#: src/Modules/Newsletter/Admin/AjaxController.php:467
 msgid "Unsupported setting."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:277
-msgid "Category name is required."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/AjaxController.php:281
-msgid "Could not create the category (the slug may collide with an existing one)."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/AjaxController.php:292
-msgid "Missing category id or name."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/AjaxController.php:296
-msgid "Could not rename the category."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/AjaxController.php:307
-msgid "Could not delete the category (the default \"general\" category is protected)."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/AjaxController.php:319
+#: src/Modules/Newsletter/Admin/AjaxController.php:271
 msgid "List name is required."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:324
+#: src/Modules/Newsletter/Admin/AjaxController.php:276
 msgid "Pick a rule provider for the WP users list."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:330
+#: src/Modules/Newsletter/Admin/AjaxController.php:282
 msgid "Could not create the list (the slug may collide with an existing one)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:357
+#: src/Modules/Newsletter/Admin/AjaxController.php:309
 msgid "Missing list id or name."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:362
+#: src/Modules/Newsletter/Admin/AjaxController.php:314
 msgid "Built-in lists can't be renamed."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:366
+#: src/Modules/Newsletter/Admin/AjaxController.php:318
 msgid "Could not rename the list."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:377
+#: src/Modules/Newsletter/Admin/AjaxController.php:329
 msgid "Could not delete the list."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:393
-#: src/Modules/Newsletter/Admin/AjaxController.php:822
-#: src/Modules/Newsletter/Admin/AjaxController.php:877
+#: src/Modules/Newsletter/Admin/AjaxController.php:346
+msgid "Missing or invalid visibility value."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:350
+msgid "Could not change this list's visibility (system lists are admin-only)."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:366
+#: src/Modules/Newsletter/Admin/AjaxController.php:795
+#: src/Modules/Newsletter/Admin/AjaxController.php:850
 msgid "Missing list id."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:398
+#: src/Modules/Newsletter/Admin/AjaxController.php:371
 msgid "Built-in lists have a fixed rule."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:406
+#: src/Modules/Newsletter/Admin/AjaxController.php:379
 msgid "This list has no rule provider — it's a Subscribers list, not a WP users list."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:410
-#: src/Modules/Newsletter/Admin/AjaxController.php:775
+#: src/Modules/Newsletter/Admin/AjaxController.php:383
+#: src/Modules/Newsletter/Admin/AjaxController.php:748
 msgid "Unknown rule provider."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:442
+#: src/Modules/Newsletter/Admin/AjaxController.php:415
 msgid "Invalid structure payload."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:474
+#: src/Modules/Newsletter/Admin/AjaxController.php:447
 msgid "Unknown setting key."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:539
+#: src/Modules/Newsletter/Admin/AjaxController.php:512
 msgid "Untitled subscribe form"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:553
+#: src/Modules/Newsletter/Admin/AjaxController.php:526
 msgid "Could not create the subscribe form."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:564
-#: src/Modules/Newsletter/Admin/AjaxController.php:604
+#: src/Modules/Newsletter/Admin/AjaxController.php:537
+#: src/Modules/Newsletter/Admin/AjaxController.php:577
 msgid "Missing subscriber id."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:576
+#: src/Modules/Newsletter/Admin/AjaxController.php:549
 msgid "Could not restore — the subscriber may no longer be in trash."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:587
+#: src/Modules/Newsletter/Admin/AjaxController.php:560
 msgid "Only trashed subscribers can be permanently deleted. Move the row to trash first."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:608
-#: src/Modules/Newsletter/Admin/AjaxController.php:1067
+#: src/Modules/Newsletter/Admin/AjaxController.php:581
+#: src/Modules/Newsletter/Admin/AjaxController.php:1040
 msgid "Subscriber not found."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:639
+#: src/Modules/Newsletter/Admin/AjaxController.php:612
 msgid "Missing template id."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:643
+#: src/Modules/Newsletter/Admin/AjaxController.php:616
 msgid "Could not update the default template."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:861
+#: src/Modules/Newsletter/Admin/AjaxController.php:834
 msgid "Missing list/user id."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1003
+#: src/Modules/Newsletter/Admin/AjaxController.php:976
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:343
 msgid "Select at least one subscriber."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1065
+#: src/Modules/Newsletter/Admin/AjaxController.php:1038
 msgid "That email already belongs to another subscriber."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1066
+#: src/Modules/Newsletter/Admin/AjaxController.php:1039
 msgid "Invalid value."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1069
+#: src/Modules/Newsletter/Admin/AjaxController.php:1042
 msgid "Could not update."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1079
+#: src/Modules/Newsletter/Admin/AjaxController.php:1052
 msgid "Missing subscriber or list id."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1084
+#: src/Modules/Newsletter/Admin/AjaxController.php:1057
 msgid "Subscriber or list not found."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1107
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1360
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1403
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1438
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1512
+#: src/Modules/Newsletter/Admin/AjaxController.php:1080
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1405
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1448
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1483
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1557
 #: src/Modules/Newsletter/Send/SendAjaxController.php:221
 #: src/Modules/Newsletter/Send/SendAjaxController.php:243
 #: src/Modules/Newsletter/Send/SendAjaxController.php:560
 msgid "Newsletter not found."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1117
+#: src/Modules/Newsletter/Admin/AjaxController.php:1090
 msgid "Unknown newsletter setting key."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1252
+#: src/Modules/Newsletter/Admin/AjaxController.php:1229
 msgid "Unsupported newsletter setting."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1298
-#: src/Modules/Newsletter/SubmitHandler.php:76
+#: src/Modules/Newsletter/Admin/AjaxController.php:1275
+#: src/Modules/Newsletter/SubmitHandler.php:75
 msgid "Subscribe form not found."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1327
+#: src/Modules/Newsletter/Admin/AjaxController.php:1304
 msgid "Newsletter form not found."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:41
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:73
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:549
-msgid "Manage categories"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:86
 #: src/Modules/Newsletter/Admin/FormsPage.php:142
-#: src/Modules/Newsletter/Admin/HomePage.php:353
-#: src/Modules/Newsletter/Admin/HomePage.php:589
-#: src/Modules/Newsletter/Admin/ListsPage.php:82
+#: src/Modules/Newsletter/Admin/HomePage.php:350
+#: src/Modules/Newsletter/Admin/HomePage.php:586
+#: src/Modules/Newsletter/Admin/ListsPage.php:83
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:141
 msgid "Newsletters — %s"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:86
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:91
-#: src/Modules/Newsletter/Fields/CategoryPicker.php:56
-msgid "Categories"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:96
-msgid "Every newsletter is tagged with a category. Subscribers can opt out of categories individually — useful for separating product updates from promotions, for example."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:102
-msgid "New category name"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:106
-msgid "Add category"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:113
-msgid "No categories yet. The default \"General\" category is auto-created when the module is enabled."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:140
-msgid "The default category cannot be deleted."
-msgstr ""
-
-#. translators: %s: category name
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:160
-msgid "Delete the \"%s\" category? Existing subscriber opt-outs for it will be silently ignored from now on."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:164
-#: src/Modules/Newsletter/Admin/ListsPage.php:710
-msgid "Added"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/CategoriesPage.php:165
-#: src/Modules/Newsletter/Admin/ListsPage.php:711
-msgid "Could not delete"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:144
@@ -4843,9 +4786,9 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:214
 #: src/Modules/Newsletter/Admin/FormsPage.php:334
-#: src/Modules/Newsletter/Admin/HomePage.php:436
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:784
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:962
+#: src/Modules/Newsletter/Admin/HomePage.php:433
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:798
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:976
 msgid "(untitled)"
 msgstr ""
 
@@ -4867,7 +4810,7 @@ msgid "No automatic list — coming soon"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:293
-#: src/Modules/Newsletter/SubmitHandler.php:602
+#: src/Modules/Newsletter/SubmitHandler.php:511
 msgid "Thanks! Check your inbox to confirm your subscription."
 msgstr ""
 
@@ -4904,256 +4847,266 @@ msgstr ""
 msgid "Text (name, etc.)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:567
+#: src/Modules/Newsletter/Admin/FormsPage.php:568
+msgid "Dropdown (select)"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/FormsPage.php:569
 #: src/Modules/Newsletter/Fields/ListPicker.php:35
 msgid "List picker"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:568
-#: src/Modules/Newsletter/Fields/CategoryPicker.php:36
-msgid "Category picker"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:587
-#: src/Modules/Newsletter/Admin/FormsPage.php:589
+#: src/Modules/Newsletter/Admin/FormsPage.php:588
+#: src/Modules/Newsletter/Admin/FormsPage.php:590
 #: src/Modules/Newsletter/SubscriberFields.php:53
 msgid "Full name"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:594
+#: src/Modules/Newsletter/Admin/FormsPage.php:595
 msgid "First + Last name"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:609
-#: src/Modules/Newsletter/Admin/FormsPage.php:613
+#: src/Modules/Newsletter/Admin/FormsPage.php:610
+#: src/Modules/Newsletter/Admin/FormsPage.php:614
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:41
+#: src/Modules/Newsletter/FormTemplateRegistry.php:137
 #: src/Modules/Newsletter/SubscriberFields.php:63
 msgid "Gender"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:616
+#: src/Modules/Newsletter/Admin/FormsPage.php:617
+#: src/Modules/Newsletter/FormTemplateRegistry.php:141
 #: src/Modules/Newsletter/SubscriberFields.php:72
 msgid "Female"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:617
+#: src/Modules/Newsletter/Admin/FormsPage.php:618
+#: src/Modules/Newsletter/FormTemplateRegistry.php:142
 #: src/Modules/Newsletter/SubscriberFields.php:73
 msgid "Male"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:618
+#: src/Modules/Newsletter/Admin/FormsPage.php:619
+#: src/Modules/Newsletter/FormTemplateRegistry.php:143
 #: src/Modules/Newsletter/SubscriberFields.php:74
 msgid "Other"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:619
+#: src/Modules/Newsletter/Admin/FormsPage.php:620
+#: src/Modules/Newsletter/FormTemplateRegistry.php:144
 #: src/Modules/Newsletter/SubscriberFields.php:75
 msgid "Prefer not to say"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:626
+#: src/Modules/Newsletter/Admin/FormsPage.php:627
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1326
 msgid "Postal address"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:628
+#: src/Modules/Newsletter/Admin/FormsPage.php:629
+#: src/Modules/Newsletter/FormTemplateRegistry.php:149
 #: src/Modules/Newsletter/SubscriberFields.php:57
 msgid "Street address"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:629
+#: src/Modules/Newsletter/Admin/FormsPage.php:630
+#: src/Modules/Newsletter/FormTemplateRegistry.php:152
 #: src/Modules/Newsletter/SubscriberFields.php:58
 msgid "Address line 2"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:630
+#: src/Modules/Newsletter/Admin/FormsPage.php:631
+#: src/Modules/Newsletter/FormTemplateRegistry.php:155
 #: src/Modules/Newsletter/SubscriberFields.php:59
 msgid "Postcode"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:631
+#: src/Modules/Newsletter/Admin/FormsPage.php:632
+#: src/Modules/Newsletter/FormTemplateRegistry.php:156
 #: src/Modules/Newsletter/SubscriberFields.php:60
 msgid "City"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:632
+#: src/Modules/Newsletter/Admin/FormsPage.php:633
+#: src/Modules/Newsletter/FormTemplateRegistry.php:159
 msgid "Country"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:685
+#: src/Modules/Newsletter/Admin/FormsPage.php:686
 msgid "Maps to"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:686
+#: src/Modules/Newsletter/Admin/FormsPage.php:687
 msgid "— (none)"
 msgstr ""
 
 #. translators: %1$d: sent count, %2$d: failed count
-#: src/Modules/Newsletter/Admin/HomePage.php:113
+#: src/Modules/Newsletter/Admin/HomePage.php:112
 msgid "Test done: %1$d sent, %2$d failed."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:114
+#: src/Modules/Newsletter/Admin/HomePage.php:113
 msgid "Test send failed."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:115
+#: src/Modules/Newsletter/Admin/HomePage.php:114
 msgid "Send tick failed. Stopped."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:136
+#: src/Modules/Newsletter/Admin/HomePage.php:135
 msgid "Could not load the preview."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:137
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1250
+#: src/Modules/Newsletter/Admin/HomePage.php:136
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1295
 msgid "Computing recipient set…"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:138
+#: src/Modules/Newsletter/Admin/HomePage.php:137
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:654
 msgid "recipients"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:139
+#: src/Modules/Newsletter/Admin/HomePage.php:138
 msgid "subscribers"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:140
+#: src/Modules/Newsletter/Admin/HomePage.php:139
 msgid "WordPress users"
 msgstr ""
 
 #. translators: %d: sample size
-#: src/Modules/Newsletter/Admin/HomePage.php:142
+#: src/Modules/Newsletter/Admin/HomePage.php:141
 msgid "Sample (first %d):"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:143
+#: src/Modules/Newsletter/Admin/HomePage.php:142
 msgid "frozen at send time"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:144
+#: src/Modules/Newsletter/Admin/HomePage.php:143
 msgid "View in Logs →"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:145
+#: src/Modules/Newsletter/Admin/HomePage.php:144
 msgid "minutes"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:146
+#: src/Modules/Newsletter/Admin/HomePage.php:145
 msgid "minute"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:147
+#: src/Modules/Newsletter/Admin/HomePage.php:146
 msgid "hours"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:148
+#: src/Modules/Newsletter/Admin/HomePage.php:147
 msgid "hour"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:150
+#: src/Modules/Newsletter/Admin/HomePage.php:149
 msgid "day"
 msgstr ""
 
 #. translators: %1$s: relative time span (e.g. "2 days"), %2$s: absolute datetime
-#: src/Modules/Newsletter/Admin/HomePage.php:152
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:900
+#: src/Modules/Newsletter/Admin/HomePage.php:151
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:914
 msgid "Scheduled to send in %1$s — %2$s"
 msgstr ""
 
 #. translators: %s: absolute datetime
-#: src/Modules/Newsletter/Admin/HomePage.php:154
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:893
+#: src/Modules/Newsletter/Admin/HomePage.php:153
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:907
 msgid "Schedule set for %s — click Schedule to commit."
 msgstr ""
 
 #. translators: %s: absolute datetime
-#: src/Modules/Newsletter/Admin/HomePage.php:156
+#: src/Modules/Newsletter/Admin/HomePage.php:155
 msgid "Scheduled for %s (overdue — will run on the next cron tick)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:157
+#: src/Modules/Newsletter/Admin/HomePage.php:156
 msgid "Abort send"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:158
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:824
+#: src/Modules/Newsletter/Admin/HomePage.php:157
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:838
 msgid "Abort"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:159
+#: src/Modules/Newsletter/Admin/HomePage.php:158
 msgid "Retry failed recipients"
 msgstr ""
 
 #. translators: %d: number of failed recipients to re-queue
-#: src/Modules/Newsletter/Admin/HomePage.php:161
+#: src/Modules/Newsletter/Admin/HomePage.php:160
 msgid "Re-queue %d failed recipient(s) for another send attempt? Make sure SMTP is healthy first."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:162
+#: src/Modules/Newsletter/Admin/HomePage.php:161
 msgid "Retry"
 msgstr ""
 
 #. translators: %d: number of recipients re-queued
-#: src/Modules/Newsletter/Admin/HomePage.php:164
+#: src/Modules/Newsletter/Admin/HomePage.php:163
 msgid "%d recipient(s) re-queued."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:165
+#: src/Modules/Newsletter/Admin/HomePage.php:164
 msgid "Unschedule send"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:166
+#: src/Modules/Newsletter/Admin/HomePage.php:165
 msgid "Drop this scheduled send back to draft? The date stays saved so you can re-commit later."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:167
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:798
+#: src/Modules/Newsletter/Admin/HomePage.php:166
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:812
 msgid "Unschedule"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:168
+#: src/Modules/Newsletter/Admin/HomePage.php:167
 msgid "seconds"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:169
+#: src/Modules/Newsletter/Admin/HomePage.php:168
 msgid "second"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:170
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:300
+#: src/Modules/Newsletter/Admin/HomePage.php:169
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:297
 msgid "Refresh"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:172
+#: src/Modules/Newsletter/Admin/HomePage.php:171
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1480
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1494
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:54
 msgid "Pending"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:176
-#: src/Modules/Newsletter/Admin/ListsPage.php:103
+#: src/Modules/Newsletter/Admin/HomePage.php:175
+#: src/Modules/Newsletter/Admin/ListsPage.php:104
 msgid "Kind"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:180
+#: src/Modules/Newsletter/Admin/HomePage.php:179
 msgid "Logs"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:181
+#: src/Modules/Newsletter/Admin/HomePage.php:180
 msgid "No recipients match this filter."
 msgstr ""
 
 #. translators: %1$s: range start (e.g. "1"), %2$s: range end (e.g. "50"), %3$s: total recipients
-#: src/Modules/Newsletter/Admin/HomePage.php:183
+#: src/Modules/Newsletter/Admin/HomePage.php:182
 msgid "Showing %1$s–%2$s of %3$s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:207
-#: src/Modules/Newsletter/Admin/HomePage.php:242
-#: src/Modules/Newsletter/Admin/HomePage.php:549
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:102
+#: src/Modules/Newsletter/Admin/HomePage.php:206
+#: src/Modules/Newsletter/Admin/HomePage.php:240
+#: src/Modules/Newsletter/Admin/HomePage.php:546
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:99
 #: src/Modules/Newsletter/Admin/PageController.php:37
 #: src/Modules/Newsletter/Admin/PageController.php:38
 #: src/Modules/Newsletter/Module.php:57
@@ -5163,119 +5116,119 @@ msgstr ""
 msgid "Newsletters"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:211
+#: src/Modules/Newsletter/Admin/HomePage.php:210
 msgid "Enable the Newsletters module to start managing newsletters and subscribers."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:228
+#: src/Modules/Newsletter/Admin/HomePage.php:226
 msgid "Settings"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:243
+#: src/Modules/Newsletter/Admin/HomePage.php:241
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:141
 msgid "Subscribers"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:245
-#: src/Modules/Newsletter/Admin/HomePage.php:585
+#: src/Modules/Newsletter/Admin/HomePage.php:243
+#: src/Modules/Newsletter/Admin/HomePage.php:582
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1108
 msgid "Import"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:248
+#: src/Modules/Newsletter/Admin/HomePage.php:246
 msgid "Newsletter sections"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:294
-#: src/Modules/Newsletter/Admin/HomePage.php:308
-#: src/Modules/Newsletter/Admin/HomePage.php:353
-#: src/Modules/Newsletter/Admin/HomePage.php:358
+#: src/Modules/Newsletter/Admin/HomePage.php:291
+#: src/Modules/Newsletter/Admin/HomePage.php:305
+#: src/Modules/Newsletter/Admin/HomePage.php:350
+#: src/Modules/Newsletter/Admin/HomePage.php:355
 msgid "Subscription emails"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:363
+#: src/Modules/Newsletter/Admin/HomePage.php:360
 msgid "System emails fired automatically as a visitor moves through signup. Each purpose has one active template — the rest are alternates you can swap in. Click the title to edit in the block editor."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:368
+#: src/Modules/Newsletter/Admin/HomePage.php:365
 msgid "Sent when someone signs up — contains the click-to-confirm link."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:369
+#: src/Modules/Newsletter/Admin/HomePage.php:366
 msgid "Sent on a schedule to subscribers who signed up but haven't clicked the confirmation link yet."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:370
+#: src/Modules/Newsletter/Admin/HomePage.php:367
 msgid "Sent after a subscriber declines confirmation, acknowledging the choice."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:404
+#: src/Modules/Newsletter/Admin/HomePage.php:401
 msgid "No template configured for this purpose. Visitors who reach this step would get nothing."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:408
+#: src/Modules/Newsletter/Admin/HomePage.php:405
 msgid "Create from default"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:422
-#: src/Modules/Newsletter/Admin/HomePage.php:481
+#: src/Modules/Newsletter/Admin/HomePage.php:419
+#: src/Modules/Newsletter/Admin/HomePage.php:478
 msgid "This is the active template — actually sent."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:430
-#: src/Modules/Newsletter/Admin/HomePage.php:482
+#: src/Modules/Newsletter/Admin/HomePage.php:427
+#: src/Modules/Newsletter/Admin/HomePage.php:479
 msgid "Make this the active template for this purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:432
-#: src/Modules/Newsletter/Admin/HomePage.php:480
+#: src/Modules/Newsletter/Admin/HomePage.php:429
+#: src/Modules/Newsletter/Admin/HomePage.php:477
 msgid "Make active"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:439
+#: src/Modules/Newsletter/Admin/HomePage.php:436
 msgid "Valid"
 msgstr ""
 
 #. translators: %d: number of validation issues.
-#: src/Modules/Newsletter/Admin/HomePage.php:444
+#: src/Modules/Newsletter/Admin/HomePage.php:441
 msgid "%d issue"
 msgid_plural "%d issues"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:453
+#: src/Modules/Newsletter/Admin/HomePage.php:450
 msgid "Create a new draft pre-filled with the seeded default content."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:455
+#: src/Modules/Newsletter/Admin/HomePage.php:452
 msgid "New variant"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:477
+#: src/Modules/Newsletter/Admin/HomePage.php:474
 msgid "Could not change the active template."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:559
+#: src/Modules/Newsletter/Admin/HomePage.php:556
 msgid "Email-only subscribers"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:563
+#: src/Modules/Newsletter/Admin/HomePage.php:560
 msgid "WP users (potential recipients)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:567
+#: src/Modules/Newsletter/Admin/HomePage.php:564
 msgid "Newsletters in preparation"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:571
+#: src/Modules/Newsletter/Admin/HomePage.php:568
 msgid "Newsletters sent"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:575
+#: src/Modules/Newsletter/Admin/HomePage.php:572
 msgid "Subscribe forms"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/HomePage.php:597
+#: src/Modules/Newsletter/Admin/HomePage.php:594
 msgid "This section is part of the Newsletter module rollout and will land in a coming release."
 msgstr ""
 
@@ -5284,679 +5237,715 @@ msgid "Manage subscriber lists"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:69
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:593
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:595
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:640
 msgid "Manage lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:82
+#: src/Modules/Newsletter/Admin/ListsPage.php:83
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:46
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1417
 msgid "Lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:93
+#: src/Modules/Newsletter/Admin/ListsPage.php:94
 msgid "Group subscribers so you can target specific audiences when sending. A \"Subscribers list\" collects members who joined explicitly (via subscribe forms, contact forms, admin actions, …). A rule-based list auto-includes every WP user matching a filter — set up via the \"Rule\" button on each row. The two modes can stack: a list can both collect explicit members AND auto-include rule matches."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:100
+#: src/Modules/Newsletter/Admin/ListsPage.php:101
 msgid "New list name"
 msgstr ""
 
 #. translators: %s: rule provider label (WP users / WP role / WC subscribers / …)
-#: src/Modules/Newsletter/Admin/ListsPage.php:113
+#: src/Modules/Newsletter/Admin/ListsPage.php:114
 msgid "WP users — %s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:121
+#: src/Modules/Newsletter/Admin/ListsPage.php:122
 msgid "Add list"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:128
+#: src/Modules/Newsletter/Admin/ListsPage.php:129
 msgid "No lists yet. Add one above to start grouping subscribers."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:140
-#: src/Modules/Newsletter/Admin/ListsPage.php:741
+#: src/Modules/Newsletter/Admin/ListsPage.php:150
+#: src/Modules/Newsletter/Admin/ListsPage.php:837
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:710
 msgid "Subscribers lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:141
-#: src/Modules/Newsletter/Admin/ListsPage.php:740
+#: src/Modules/Newsletter/Admin/ListsPage.php:151
+#: src/Modules/Newsletter/Admin/ListsPage.php:836
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:711
 msgid "WP users lists"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:199
+#: src/Modules/Newsletter/Admin/ListsPage.php:216
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:690
 msgid "Built-in list — cannot be renamed or deleted."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:200
+#: src/Modules/Newsletter/Admin/ListsPage.php:217
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:691
 msgid "System"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:209
-#: src/Modules/Newsletter/Admin/ListsPage.php:210
+#: src/Modules/Newsletter/Admin/ListsPage.php:231
+msgid "Manually-added members. Rule matches resolve at send time and aren't counted here."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:232
+msgid "Subscribers on this list."
+msgstr ""
+
+#. translators: %s: number of members on this list (already formatted)
+#: src/Modules/Newsletter/Admin/ListsPage.php:235
+msgid "%s member"
+msgid_plural "%s members"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:246
+#: src/Modules/Newsletter/Admin/ListsPage.php:450
+msgid "Public — subscribers can join or leave this list themselves from the preferences page. Click to make private."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:247
+#: src/Modules/Newsletter/Admin/ListsPage.php:451
+msgid "Private — admin-managed. Subscribers don't see this list on the preferences page. Click to make public."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:251
+#: src/Modules/Newsletter/Admin/ListsPage.php:448
+msgid "Public"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:252
+#: src/Modules/Newsletter/Admin/ListsPage.php:449
+msgid "Private"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:261
+#: src/Modules/Newsletter/Admin/ListsPage.php:262
 msgid "Set rules"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:219
-#: src/Modules/Newsletter/Admin/ListsPage.php:220
-#: src/Modules/Newsletter/Admin/ListsPage.php:349
+#: src/Modules/Newsletter/Admin/ListsPage.php:271
+#: src/Modules/Newsletter/Admin/ListsPage.php:272
+#: src/Modules/Newsletter/Admin/ListsPage.php:401
 msgid "Manage exclusions"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:230
-#: src/Modules/Newsletter/Admin/ListsPage.php:231
+#: src/Modules/Newsletter/Admin/ListsPage.php:282
+#: src/Modules/Newsletter/Admin/ListsPage.php:283
 msgid "Delete list"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:277
+#: src/Modules/Newsletter/Admin/ListsPage.php:329
 msgid "Search a product by name or SKU…"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:304
+#: src/Modules/Newsletter/Admin/ListsPage.php:356
 msgid "This option is no longer available on this site — uncheck or save to drop it."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:312
+#: src/Modules/Newsletter/Admin/ListsPage.php:364
 msgid "(missing)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:342
+#: src/Modules/Newsletter/Admin/ListsPage.php:394
 msgid "Preview matches"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:356
+#: src/Modules/Newsletter/Admin/ListsPage.php:408
 msgid "Excluded users"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:357
+#: src/Modules/Newsletter/Admin/ListsPage.php:409
 msgid "These WP users are skipped even when the rule matches them. Type to search by name or email."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:363
+#: src/Modules/Newsletter/Admin/ListsPage.php:415
 msgid "Search a WP user…"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:397
+#: src/Modules/Newsletter/Admin/ListsPage.php:493
 msgid "No matches."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:398
-#: src/Modules/Newsletter/Admin/ListsPage.php:814
+#: src/Modules/Newsletter/Admin/ListsPage.php:494
+#: src/Modules/Newsletter/Admin/ListsPage.php:910
 msgid "Searching…"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:399
+#: src/Modules/Newsletter/Admin/ListsPage.php:495
 msgid "Resolving…"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:400
+#: src/Modules/Newsletter/Admin/ListsPage.php:496
 msgid "No users match this rule."
 msgstr ""
 
 #. translators: %d: total number of users matched by the rule
-#: src/Modules/Newsletter/Admin/ListsPage.php:403
+#: src/Modules/Newsletter/Admin/ListsPage.php:499
 msgid "%d user(s) match — showing"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:405
+#: src/Modules/Newsletter/Admin/ListsPage.php:501
 msgid "Load more"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:703
+#: src/Modules/Newsletter/Admin/ListsPage.php:799
 msgid "Could not save the rule."
 msgstr ""
 
 #. translators: %s: list name
-#: src/Modules/Newsletter/Admin/ListsPage.php:706
+#: src/Modules/Newsletter/Admin/ListsPage.php:802
 msgid "Delete the \"%s\" list? Subscribers stay on the system but lose their membership."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:812
+#: src/Modules/Newsletter/Admin/ListsPage.php:806
+msgid "Added"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:807
+msgid "Could not delete"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:908
 msgid "No exclusions yet."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:813
+#: src/Modules/Newsletter/Admin/ListsPage.php:909
 msgid "Remove from exclusions"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:815
+#: src/Modules/Newsletter/Admin/ListsPage.php:911
 msgid "No users match."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:104
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:124
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:101
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:121
 #: src/Modules/Newsletter/NewsletterCPT.php:108
 msgid "New newsletter"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:160
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:157
 msgid "In preparation"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:162
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1013
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1020
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:159
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1027
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1034
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:340
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1242
 msgid "Trash"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:165
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:162
 msgid "Newsletter filter"
 msgstr ""
 
 #. translators: %d: count of newsletters in this tab
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:177
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:174
 msgid "%d item(s)"
 msgstr ""
 
 #. translators: %d: number of trashed newsletters about to be permanently deleted
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:194
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:191
 msgid "Permanently delete %d trashed newsletter? This cannot be undone."
 msgid_plural "Permanently delete all %d trashed newsletters? This cannot be undone."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:202
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:199
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:191
 msgid "Empty trash"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:213
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:210
 msgid "No sent newsletters yet. Drafts and scheduled sends live in the \"In preparation\" tab."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:214
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:211
 msgid "Trash is empty."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:215
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:212
 msgid "No newsletters in preparation yet."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:216
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:213
 msgid "No newsletters yet. Start one to send to your subscribers."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:263
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:260
 msgid "The send-tick cron event is not scheduled. Disable and re-enable the Newsletter module to register it again."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:266
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:263
 msgid "DISABLE_WP_CRON is set and nothing has triggered the tick yet. You need an external trigger (system cron or a service hitting wp-cron.php)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:269
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:266
 msgid "The cron is scheduled but has not run yet. Wait a couple of minutes or load any front-end page to fire pseudo-cron."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:272
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:269
 msgid "Cron has not fired in more than 5 minutes. Scheduled newsletters and crash-recovery ticks will NOT run automatically. Set up a system cron (every minute) hitting wp-cron.php, or use a service like cron-job.org."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:275
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:272
 msgid "Cron is firing but slowly — sends may stall during low-traffic periods. Consider a system cron for reliability."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:278
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:275
 msgid "Cron is healthy."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:287
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:284
 msgid "Cron healthy"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:288
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:285
 msgid "Cron slow"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:289
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:286
 msgid "Cron stalled"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:294
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:291
 msgid "WP-Cron health"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:295
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:292
 msgid "A cron is a task that runs on a schedule — every minute, every hour, etc. WordPress uses one to fire off scheduled work like sending queued newsletters, cleaning up trash, or running maintenance. By default it's triggered by visitors loading any page on your site (called \"pseudo-cron\"); a real server cron is more reliable, especially during quiet hours."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:298
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:295
 msgid "Re-fetch cron health + every card state."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:302
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:299
 msgid "Poll the server every 10 seconds. Off by default — turn it on while diagnosing or watching a send."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:304
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:301
 msgid "Auto-refresh"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:308
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:305
 msgid "Last observed tick"
 msgstr ""
 
 #. translators: 1: relative time span (e.g. "30 seconds"), 2: absolute datetime
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:314
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:311
 msgid "%1$s ago — %2$s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:320
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:317
 msgid "never"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:323
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:320
 msgid "Next scheduled tick"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:326
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:323
 msgid "not scheduled"
 msgstr ""
 
 #. translators: 1: relative time span (e.g. "30 seconds"), 2: absolute datetime
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:331
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:328
 msgid "in %1$s — %2$s"
 msgstr ""
 
 #. translators: %s: relative time span (how long the tick has been overdue)
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:340
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:337
 msgid "overdue by %s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:346
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:343
 msgid "DISABLE_WP_CRON"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:347
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:344
 msgid "yes — pseudo-cron is off, you need an external trigger"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:347
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:344
 msgid "no — pseudo-cron runs on page hits"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:349
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:346
 msgid "ALTERNATE_WP_CRON"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:350
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:347
 msgid "yes"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:356
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:353
 msgid "Tip:"
 msgstr ""
 
 #. translators: %s: <a href="…">LRob</a> link to lrob.fr
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:361
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:358
 msgid "You can use %s to switch to a server cron instead."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:366
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:363
 msgid "Server crons run every minute regardless of traffic — more reliable for scheduled sends on low-traffic sites, and no per-page loopback HTTP request. LRob configures this in a click (or assists at no extra cost) and ships with 2000 mails/h enabled by default (more on demand)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:461
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:456
 msgid "Subject — used as both the title and the email's subject line"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:477
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:665
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:472
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:597
 msgid "sent"
 msgstr ""
 
 #. translators: %s: label of the SMTP identity used when no override is picked
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:494
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:489
 msgid "Automatic (%s)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:497
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:492
 msgid "Automatic (no default configured)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:507
-msgid "(no categories defined)"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:525
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:508
 msgid "Short description (preview text)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:528
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:511
 msgid "The snippet shown next to the subject in the recipient's inbox. Most email clients show the first ~90 characters. Used to entice the recipient to open — write a teaser, not a recap. Some clients show none of this; treat it as a bonus, not a guaranteed surface."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:535
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:518
 msgid "Inbox preview snippet (~90 chars visible)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:541
-msgid "Category"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:544
-msgid "Recipients can opt out of specific categories (e.g. product news, weekly digest). This newsletter only reaches recipients who haven't opted out of the picked category."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:564
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:523
 msgid "Sender identity"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:567
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:526
 msgid "The mailbox this newsletter goes out from. From-name, From-email, and Reply-to are all controlled by the picked identity — to change any of those, edit the identity itself rather than per-newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:571
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:530
 msgid "Manage identities →"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:589
-msgid "Audience"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:624
-msgid "Remove from audience"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:631
-msgid "+ Add a list…"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:651
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:584
 msgid "Stats"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:656
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:588
 msgid "targeted"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:658
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:590
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:715
 msgid "Show list"
 msgstr ""
 
 #. translators: %d: open rate as integer percent
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:679
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:610
 msgid "opens (%d%%)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:683
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:614
 msgid "opens"
 msgstr ""
 
 #. translators: %d: click-through rate as integer percent
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:693
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:622
 msgid "clicks (%d%%)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:697
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:626
 msgid "clicks"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:710
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:641
+msgid "Manage lists →"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:658
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1145
+msgid "no list picked — pick one to send"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:700
+msgid "Members in this list"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:724
 msgid "Schedule send for later"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:713
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:727
 msgid "Send at"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:725
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:739
 msgid "Track opens"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:731
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:745
 msgid "Track clicks"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:737
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:751
 msgid "Log every send"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:746
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:760
 msgid "Restore this newsletter to edit its content."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:747
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:761
 msgid "Content is locked once the newsletter has been sent or is being sent. Duplicate to start a new one."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:749
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:754
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:763
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:768
 msgid "Content"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:763
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:777
 msgid "Test sends are disabled once the newsletter is sending or done. Duplicate to start a new one."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:763
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:777
 msgid "Restore this newsletter to send tests."
 msgstr ""
 
 #. translators: %s: newsletter title in confirmation prompt
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:786
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:800
 msgid "Send \"%s\" to every targeted recipient? This cannot be undone once it starts."
 msgstr ""
 
 #. translators: %s: newsletter title in confirmation prompt
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:788
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:802
 msgid "Schedule \"%s\" to be sent at the configured time? You can still edit or cancel it before sending starts."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:790
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:805
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:804
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:819
 msgid "Schedule"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:791
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:804
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:805
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:818
 msgid "Send now"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:814
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:828
 msgid "Pause"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:817
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:831
 msgid "Resume"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:822
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:836
 msgid "Abort this newsletter? Pending recipients will be skipped."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:836
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:850
 msgid "Re-queue every failed recipient for another send attempt."
 msgstr ""
 
 #. translators: %d: number of failed recipients
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:839
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:853
 msgid "Retry failed (%d)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:848
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:862
 msgid "SMTP looks unhealthy — sending paused."
 msgstr ""
 
 #. translators: %d: consecutive-failure threshold
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:853
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:867
 msgid "We hit %d consecutive failed sends in a row. Fix your SMTP identity, then click Resume — the next tick will re-test and either continue or pause again."
 msgstr ""
 
 #. translators: %1$s: relative time span (e.g. "5 hours"), %2$s: absolute datetime
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:869
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:883
 msgid "Sent %1$s ago, on %2$s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:876
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:890
 msgid "This send failed. Duplicate and retry if needed."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:879
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:893
 msgid "This send was aborted."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:921
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:935
 msgid "the cron tick is not scheduled — re-enable the Newsletter module to fix"
 msgstr ""
 
 #. translators: %s: relative time span until next cron tick (e.g. "30 seconds")
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:925
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:939
 msgid "next cron tick in %s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:929
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:943
 msgid "cron tick firing imminently"
 msgstr ""
 
 #. translators: %s: relative time span (how long ago the cron should have run)
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:933
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:947
 msgid "cron stalled — the tick was due %s ago, pseudo-cron isn't firing on this site"
 msgstr ""
 
 #. translators: %1$s: absolute datetime of the scheduled send, %2$s: cron-tick info
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:940
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:954
 msgid "Scheduled for %1$s (overdue — %2$s)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:976
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:990
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:341
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1223
 msgid "Restore"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1004
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1018
 msgid "Duplicate"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1019
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1033
 msgid "Abort the send first, then this can be moved to trash."
 msgstr ""
 
 #. translators: %s: current admin email
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1054
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1068
 msgid "Send to me (%s)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1063
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1077
 msgid "Send to a specific address"
 msgstr ""
 
 #. translators: %s: configured test list name
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1078
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1092
 msgid "Send to test list (%s)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1090
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1104
 #: src/Modules/SMTP/Admin/SettingsPage.php:509
 #: src/Modules/SMTP/Admin/SettingsPage.php:607
 msgid "Send test"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1100
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1114
 msgid "Email preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1101
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1115
 msgid "Viewport size"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1102
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1116
 msgid "Desktop"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1102
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1116
 msgid "Desktop preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1105
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1119
 msgid "Tablet"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1105
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1119
 msgid "Tablet preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1108
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1122
 msgid "Mobile"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1108
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1122
 msgid "Mobile preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1241
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1286
 msgid "Recipient status filter"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1245
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1290
 msgid "Search email or name…"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1246
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1291
 msgid "Search recipients"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1280
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1301
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1325
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1346
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:268
 msgid "Move to trash"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1289
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1334
 msgid "Move this newsletter to trash?"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1290
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1335
 msgid "Permanently delete this newsletter?"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1294
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1339
 msgid "You can restore it from the Trash tab. Already-sent recipients are not affected."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1295
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1340
 msgid "This cannot be undone. Already-sent recipients are not affected."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1322
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1519
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1367
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1564
 msgid "Untitled newsletter"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1326
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1371
 msgid "Could not create the newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1369
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1414
 msgid "This newsletter is currently sending. Abort the send before trashing it."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1441
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1486
 msgid "Move this newsletter to trash before permanently deleting it."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1529
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1574
 msgid "Could not duplicate the newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1600
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1665
 msgid "Scheduled"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1602
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1667
 msgid "Paused"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1605
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1670
 msgid "Aborted"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1606
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1671
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1459
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1486
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1499
@@ -6373,7 +6362,7 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1483
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1496
-#: src/Modules/Newsletter/PrefsHandler.php:120
+#: src/Modules/Newsletter/PrefsHandler.php:119
 msgid "Unsubscribed"
 msgstr ""
 
@@ -6395,8 +6384,8 @@ msgstr ""
 #: src/Modules/Newsletter/ConfirmationHandler.php:55
 #: src/Modules/Newsletter/ConfirmationHandler.php:62
 #: src/Modules/Newsletter/ConfirmationHandler.php:92
-#: src/Modules/Newsletter/PrefsHandler.php:76
-#: src/Modules/Newsletter/PrefsHandler.php:204
+#: src/Modules/Newsletter/PrefsHandler.php:75
+#: src/Modules/Newsletter/PrefsHandler.php:195
 msgid "Link expired"
 msgstr ""
 
@@ -6454,13 +6443,11 @@ msgid "Newsletter form not found or not published."
 msgstr ""
 
 #: src/Modules/Newsletter/EmbedRenderer.php:70
-#: src/Modules/Newsletter/FormTemplateRegistry.php:77
-#: src/Modules/Newsletter/FormTemplateRegistry.php:90
+#: src/Modules/Newsletter/FormTemplateRegistry.php:87
+#: src/Modules/Newsletter/FormTemplateRegistry.php:100
+#: src/Modules/Newsletter/FormTemplateRegistry.php:119
+#: src/Modules/Newsletter/FormTemplateRegistry.php:164
 msgid "Subscribe"
-msgstr ""
-
-#: src/Modules/Newsletter/Fields/CategoryPicker.php:67
-msgid "No categories available."
 msgstr ""
 
 #: src/Modules/Newsletter/Fields/ListPicker.php:52
@@ -6525,16 +6512,37 @@ msgstr ""
 msgid "Collect the subscriber's name too for friendlier emails."
 msgstr ""
 
-#: src/Modules/Newsletter/ListRepository.php:36
+#: src/Modules/Newsletter/FormTemplateRegistry.php:67
+msgid "Contact basics"
+msgstr ""
+
+#: src/Modules/Newsletter/FormTemplateRegistry.php:68
+msgid "First + last name, email, phone — enough to reach the subscriber on every channel."
+msgstr ""
+
+#: src/Modules/Newsletter/FormTemplateRegistry.php:72
+msgid "Full profile"
+msgstr ""
+
+#: src/Modules/Newsletter/FormTemplateRegistry.php:73
+msgid "Every profile field: name, gender, phone, postal address. Heavier but feeds segmentation rules."
+msgstr ""
+
+#: src/Modules/Newsletter/FormTemplateRegistry.php:140
+#: src/Modules/Newsletter/FormTemplateRegistry.php:178
+msgid "—"
+msgstr ""
+
+#: src/Modules/Newsletter/ListRepository.php:58
 msgid "Subscribers list"
 msgstr ""
 
-#: src/Modules/Newsletter/ListRepository.php:37
+#: src/Modules/Newsletter/ListRepository.php:59
 msgid "WP users list"
 msgstr ""
 
-#: src/Modules/Newsletter/ListRepository.php:38
-#: src/Modules/Newsletter/Module.php:672
+#: src/Modules/Newsletter/ListRepository.php:60
+#: src/Modules/Newsletter/Module.php:913
 msgid "All subscribers"
 msgstr ""
 
@@ -6611,45 +6619,41 @@ msgid "Send newsletters to your WordPress users and email-only subscribers, with
 msgstr ""
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
-#: src/Modules/Newsletter/Module.php:391
+#: src/Modules/Newsletter/Module.php:661
 msgid "%s subscriber"
 msgid_plural "%s subscribers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Module.php:571
+#: src/Modules/Newsletter/Module.php:837
 msgid "Unknown onboarding email purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:594
+#: src/Modules/Newsletter/Module.php:860
 msgid "Could not create the template draft."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:627
+#: src/Modules/Newsletter/Module.php:893
 msgid "Newsletter: SMTP module not enabled"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:628
+#: src/Modules/Newsletter/Module.php:894
 msgid "Subscribe forms and the Newsletter admin work, but newsletter sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:630
+#: src/Modules/Newsletter/Module.php:896
 msgid "Open SMTP settings"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:651
-msgid "General"
-msgstr ""
-
-#: src/Modules/Newsletter/Module.php:677
+#: src/Modules/Newsletter/Module.php:918
 msgid "All WP members"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:685
+#: src/Modules/Newsletter/Module.php:926
 msgid "All WC customers"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:693
+#: src/Modules/Newsletter/Module.php:934
 msgid "Active WC subscribers"
 msgstr ""
 
@@ -6677,145 +6681,137 @@ msgstr ""
 msgid "No newsletters in trash."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsBlock.php:140
+#: src/Modules/Newsletter/PrefsBlock.php:139
 msgid "Your preferences have been saved."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsBlock.php:155
+#: src/Modules/Newsletter/PrefsBlock.php:154
 msgid "To manage your email preferences, use the link at the bottom of any of our emails."
 msgstr ""
 
 #. translators: %s: link to the login/registration page.
-#: src/Modules/Newsletter/PrefsBlock.php:162
+#: src/Modules/Newsletter/PrefsBlock.php:161
 msgid "You can also %s to manage them here."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsBlock.php:164
+#: src/Modules/Newsletter/PrefsBlock.php:163
 msgid "log in or create an account"
 msgstr ""
 
 #. translators: %s: link to the login page.
-#: src/Modules/Newsletter/PrefsBlock.php:174
+#: src/Modules/Newsletter/PrefsBlock.php:173
 msgid "Already have an account? %s to manage them here."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsBlock.php:176
+#: src/Modules/Newsletter/PrefsBlock.php:175
 msgid "Log in"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:77
+#: src/Modules/Newsletter/PrefsHandler.php:76
 msgid "This preferences link is no longer valid. If you're still subscribed, request a fresh link from any of our emails."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:99
+#: src/Modules/Newsletter/PrefsHandler.php:98
 msgid "Security check failed"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:100
+#: src/Modules/Newsletter/PrefsHandler.php:99
 msgid "The form expired before we could save it. Please reload the page and try again."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:121
+#: src/Modules/Newsletter/PrefsHandler.php:120
 msgid "You've been unsubscribed. Sorry to see you go — you can come back any time by signing up again."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:152
+#: src/Modules/Newsletter/PrefsHandler.php:151
 msgid "Forgotten"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:153
+#: src/Modules/Newsletter/PrefsHandler.php:152
 msgid "We've removed your record. We won't contact you again. Sorry for the noise."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:205
+#: src/Modules/Newsletter/PrefsHandler.php:196
 msgid "This unsubscribe link is no longer valid."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:278
+#: src/Modules/Newsletter/PrefsHandler.php:279
 msgid "Email preferences"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:303
+#: src/Modules/Newsletter/PrefsHandler.php:304
 msgid "Your email preferences"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:305
+#: src/Modules/Newsletter/PrefsHandler.php:306
 msgid "Saved — your preferences have been updated."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsHandler.php:309
+#: src/Modules/Newsletter/PrefsHandler.php:310
 msgid "Use the form below to fine-tune what you receive — or unsubscribe entirely at the bottom."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:53
+#: src/Modules/Newsletter/PrefsRenderer.php:49
 msgid "Receive newsletter emails"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:56
-msgid "Yes, send me newsletter emails for the categories I select below."
+#: src/Modules/Newsletter/PrefsRenderer.php:52
+msgid "Yes, send me newsletter emails for the lists I select below."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:59
-msgid "Turning this off stops every category. To leave entirely, delete your WordPress account from your profile page."
+#: src/Modules/Newsletter/PrefsRenderer.php:55
+msgid "Turning this off stops every newsletter. To leave entirely, delete your WordPress account from your profile page."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:65
-msgid "Email categories"
+#: src/Modules/Newsletter/PrefsRenderer.php:61
+msgid "Mailing lists"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:67
-msgid "Tick the kinds of emails you want to receive."
+#: src/Modules/Newsletter/PrefsRenderer.php:63
+msgid "Tick the lists you want to receive emails from."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:70
-msgid "No categories defined yet."
-msgstr ""
-
-#: src/Modules/Newsletter/PrefsRenderer.php:94
-msgid "Subscriber lists"
-msgstr ""
-
-#: src/Modules/Newsletter/PrefsRenderer.php:96
-msgid "No lists to choose from yet."
+#: src/Modules/Newsletter/PrefsRenderer.php:66
+msgid "No lists are open for self-subscription yet."
 msgstr ""
 
 #. translators: %s: recipient email address.
-#: src/Modules/Newsletter/PrefsRenderer.php:146
+#: src/Modules/Newsletter/PrefsRenderer.php:120
 msgid "Preferences for %s"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:154
+#: src/Modules/Newsletter/PrefsRenderer.php:128
 msgid "Save preferences"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:160
+#: src/Modules/Newsletter/PrefsRenderer.php:134
 msgid "Leave entirely"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:162
+#: src/Modules/Newsletter/PrefsRenderer.php:136
 msgid "Unsubscribing soft-removes you — your row stays so admins can see what happened. \"Forget me entirely\" hard-deletes you and you can re-subscribe later as a brand-new visitor."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:166
+#: src/Modules/Newsletter/PrefsRenderer.php:140
 msgid "Unsubscribe from everything"
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:169
+#: src/Modules/Newsletter/PrefsRenderer.php:143
 msgid "Permanently delete your subscription? This cannot be undone."
 msgstr ""
 
-#: src/Modules/Newsletter/PrefsRenderer.php:170
+#: src/Modules/Newsletter/PrefsRenderer.php:144
 msgid "Forget me entirely"
 msgstr ""
 
-#: src/Modules/Newsletter/ProfileSection.php:42
+#: src/Modules/Newsletter/ProfileSection.php:41
 #: admin/js/newsletter-prefs-block-editor.js:34
 #: admin/js/newsletter-prefs-block-editor.js:42
 msgid "Newsletter preferences"
 msgstr ""
 
-#: src/Modules/Newsletter/ProfileSection.php:44
-msgid "Pick which kinds of emails you want and which lists you're on. To stop receiving everything, uncheck \"Receive newsletter emails\" below."
+#: src/Modules/Newsletter/ProfileSection.php:43
+msgid "Pick which mailing lists you're on. To stop receiving everything, uncheck \"Receive newsletter emails\" below."
 msgstr ""
 
 #. translators: %s: site name.
@@ -6881,19 +6877,15 @@ msgstr ""
 msgid "No failed recipients to retry."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendCron.php:83
-msgid "Every minute (Newsletter)"
-msgstr ""
-
-#: src/Modules/Newsletter/SubmitHandler.php:111
+#: src/Modules/Newsletter/SubmitHandler.php:110
 msgid "Anti-spam check failed. Please try again."
 msgstr ""
 
-#: src/Modules/Newsletter/SubmitHandler.php:140
+#: src/Modules/Newsletter/SubmitHandler.php:134
 msgid "Welcome back! You're subscribed."
 msgstr ""
 
-#: src/Modules/Newsletter/SubmitHandler.php:173
+#: src/Modules/Newsletter/SubmitHandler.php:167
 msgid "Could not record your subscription. Please try again."
 msgstr ""
 

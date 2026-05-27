@@ -6,7 +6,6 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Forms\FormStructure;
-use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 use LRob\EmailToolkit\Modules\Newsletter\FormTemplateRegistry;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
@@ -46,12 +45,6 @@ final class AjaxController
 
     public const ACTION_DELETE_FORM    = 'lrob_etk_nl_form_delete';
 
-    public const ACTION_CATEGORY_CREATE = 'lrob_etk_nl_category_create';
-
-    public const ACTION_CATEGORY_RENAME = 'lrob_etk_nl_category_rename';
-
-    public const ACTION_CATEGORY_DELETE = 'lrob_etk_nl_category_delete';
-
     public const ACTION_LIST_CREATE     = 'lrob_etk_nl_list_create';
 
     public const ACTION_LIST_RENAME     = 'lrob_etk_nl_list_rename';
@@ -59,6 +52,8 @@ final class AjaxController
     public const ACTION_LIST_DELETE     = 'lrob_etk_nl_list_delete';
 
     public const ACTION_LIST_RULE_SAVE  = 'lrob_etk_nl_list_rule_save';
+
+    public const ACTION_LIST_VISIBILITY_SET = 'lrob_etk_nl_list_visibility_set';
 
     public const ACTION_LIST_RULE_PREVIEW = 'lrob_etk_nl_list_rule_preview';
 
@@ -106,7 +101,6 @@ final class AjaxController
         NewsletterCPT::META_FROM_NAME_OVERRIDE,
         NewsletterCPT::META_REPLY_TO_OVERRIDE,
         NewsletterCPT::META_SMTP_IDENTITY,
-        NewsletterCPT::META_CATEGORY_ID,
         // target_spec is composed from target_kind + target_list_id
         // posts — they arrive as separate keys but write the same meta.
         // Modern UI sends a single `target_audience` value of either
@@ -171,13 +165,11 @@ final class AjaxController
         // Categories + lists: simple CRUD over the admin-ajax route,
         // JSON responses. The admin pages submit via fetch and re-
         // render the affected row on success.
-        add_action('wp_ajax_' . self::ACTION_CATEGORY_CREATE, [$this, 'handle_category_create']);
-        add_action('wp_ajax_' . self::ACTION_CATEGORY_RENAME, [$this, 'handle_category_rename']);
-        add_action('wp_ajax_' . self::ACTION_CATEGORY_DELETE, [$this, 'handle_category_delete']);
         add_action('wp_ajax_' . self::ACTION_LIST_CREATE,     [$this, 'handle_list_create']);
         add_action('wp_ajax_' . self::ACTION_LIST_RENAME,     [$this, 'handle_list_rename']);
         add_action('wp_ajax_' . self::ACTION_LIST_DELETE,     [$this, 'handle_list_delete']);
         add_action('wp_ajax_' . self::ACTION_LIST_RULE_SAVE,    [$this, 'handle_list_rule_save']);
+        add_action('wp_ajax_' . self::ACTION_LIST_VISIBILITY_SET, [$this, 'handle_list_visibility_set']);
         add_action('wp_ajax_' . self::ACTION_LIST_RULE_PREVIEW,    [$this, 'handle_list_rule_preview']);
         add_action('wp_ajax_' . self::ACTION_LIST_EXCLUSION_ADD,   [$this, 'handle_list_exclusion_add']);
         add_action('wp_ajax_' . self::ACTION_LIST_EXCLUSION_REMOVE, [$this, 'handle_list_exclusion_remove']);
@@ -269,46 +261,6 @@ final class AjaxController
         wp_send_json_success(['value' => $value]);
     }
 
-    public function handle_category_create(): void
-    {
-        $this->guard();
-        $name = isset($_POST['name']) ? sanitize_text_field(wp_unslash((string) $_POST['name'])) : '';
-        if ($name === '') {
-            wp_send_json_error(['message' => __('Category name is required.', 'lrob-email-toolkit')], 400);
-        }
-        $id = (new CategoryRepository())->insert($name);
-        if ($id <= 0) {
-            wp_send_json_error(['message' => __('Could not create the category (the slug may collide with an existing one).', 'lrob-email-toolkit')], 409);
-        }
-        wp_send_json_success(['id' => $id, 'name' => $name]);
-    }
-
-    public function handle_category_rename(): void
-    {
-        $this->guard();
-        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
-        $name = isset($_POST['name']) ? sanitize_text_field(wp_unslash((string) $_POST['name'])) : '';
-        if ($id <= 0 || $name === '') {
-            wp_send_json_error(['message' => __('Missing category id or name.', 'lrob-email-toolkit')], 400);
-        }
-        $ok = (new CategoryRepository())->rename($id, $name);
-        if (!$ok) {
-            wp_send_json_error(['message' => __('Could not rename the category.', 'lrob-email-toolkit')], 500);
-        }
-        wp_send_json_success();
-    }
-
-    public function handle_category_delete(): void
-    {
-        $this->guard();
-        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
-        $ok = $id > 0 && (new CategoryRepository())->delete($id);
-        if (!$ok) {
-            wp_send_json_error(['message' => __('Could not delete the category (the default "general" category is protected).', 'lrob-email-toolkit')], 400);
-        }
-        wp_send_json_success();
-    }
-
     public function handle_list_create(): void
     {
         $this->guard();
@@ -377,6 +329,27 @@ final class AjaxController
             wp_send_json_error(['message' => __('Could not delete the list.', 'lrob-email-toolkit')], 500);
         }
         wp_send_json_success();
+    }
+
+    /**
+     * Flip a list's visibility (public / private). Private = admin-
+     * managed, hidden from subscribers. Public = surfaced on the
+     * preferences page where subscribers can self-join/leave.
+     * Refuses system lists at the repository layer.
+     */
+    public function handle_list_visibility_set(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $value = isset($_POST['visibility']) ? sanitize_key((string) wp_unslash((string) $_POST['visibility'])) : '';
+        if ($id <= 0 || !in_array($value, ListRepository::valid_visibilities(), true)) {
+            wp_send_json_error(['message' => __('Missing or invalid visibility value.', 'lrob-email-toolkit')], 400);
+        }
+        $ok = (new ListRepository())->set_visibility($id, $value);
+        if (!$ok) {
+            wp_send_json_error(['message' => __('Could not change this list\'s visibility (system lists are admin-only).', 'lrob-email-toolkit')], 400);
+        }
+        wp_send_json_success(['visibility' => $value]);
     }
 
     /**
@@ -1142,7 +1115,12 @@ final class AjaxController
             }
             $ids = array_values(array_unique($ids));
             if ($ids === []) {
-                update_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, (string) wp_json_encode(['kind' => NewsletterCPT::TARGET_KIND_ALL]));
+                // Empty selection = no recipients (forces a conscious
+                // pick before send). Default-everyone was confusing.
+                update_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, (string) wp_json_encode([
+                    'kind'     => NewsletterCPT::TARGET_KIND_LISTS,
+                    'list_ids' => [],
+                ]));
                 wp_send_json_success();
             }
             // Drop unknown IDs against the lists table.
@@ -1240,7 +1218,6 @@ final class AjaxController
                 update_post_meta($newsletter_id, $key, is_array($value) ? '' : sanitize_email((string) $value));
                 break;
             case NewsletterCPT::META_SMTP_IDENTITY:
-            case NewsletterCPT::META_CATEGORY_ID:
                 update_post_meta($newsletter_id, $key, is_array($value) ? 0 : (int) $value);
                 break;
             case NewsletterCPT::META_TRACK_OPENS:

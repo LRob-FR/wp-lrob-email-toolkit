@@ -6,7 +6,6 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Send;
 
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
-use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
@@ -22,8 +21,6 @@ use LRob\EmailToolkit\Support\Events;
  *   - WP users: lrob_etk_nl_opted_in = '1' AND status user_meta NOT in
  *     {bounced, refused, unsubscribed}.
  *   - Subscribers: status = 'confirmed'.
- *   - Both: the newsletter's category slug is NOT in the recipient's
- *     category_opt_outs JSON.
  *   - List target: only members of that list, intersected with the
  *     above filters.
  *
@@ -39,7 +36,6 @@ final class Materializer
 
     public function __construct(
         private NewsletterRepository $newsletters,
-        private CategoryRepository $categories,
         private ?\LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository $subscribers = null,
     ) {
     }
@@ -61,24 +57,23 @@ final class Materializer
         }
 
         $target_raw = (string) get_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, true);
-        $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => NewsletterCPT::TARGET_KIND_ALL];
-        $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
+        // No target meta = no recipients. Default-everyone was confusing;
+        // an admin who hasn't picked anything explicitly hasn't picked.
+        $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => NewsletterCPT::TARGET_KIND_LISTS, 'list_ids' => []];
+        $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_LISTS);
         $list_id = isset($target['list_id']) ? (int) $target['list_id'] : 0;
         $list_ids = isset($target['list_ids']) && is_array($target['list_ids'])
             ? array_values(array_filter(array_map('intval', $target['list_ids']), static fn ($n) => $n > 0))
             : [];
 
-        $category_id = (int) get_post_meta($newsletter_id, NewsletterCPT::META_CATEGORY_ID, true);
-        $category_slug = $this->category_slug($category_id);
-
         // Multi-list union: iterate list_ids[], collect every recipient,
         // dedupe by (kind, id). Single-list (legacy) goes through the
         // original code path.
-        if ($target_kind === NewsletterCPT::TARGET_KIND_LISTS && $list_ids !== []) {
+        if ($target_kind === NewsletterCPT::TARGET_KIND_LISTS) {
             $seen = [];
             $recipients = [];
             foreach ($list_ids as $lid) {
-                $rs = $this->resolve_recipients(NewsletterCPT::TARGET_KIND_LIST, $lid, $category_slug);
+                $rs = $this->resolve_recipients(NewsletterCPT::TARGET_KIND_LIST, $lid);
                 foreach ($rs as $r) {
                     $key = $r['kind'] . ':' . $r['id'];
                     if (isset($seen[$key])) continue;
@@ -87,8 +82,14 @@ final class Materializer
                 }
             }
         } else {
-            $recipients = $this->resolve_recipients($target_kind, $list_id, $category_slug);
+            $recipients = $this->resolve_recipients($target_kind, $list_id);
         }
+        // Email-level dedup: when the same email is both a WP user and
+        // a subscriber row, the WP user wins (they have a real identity,
+        // login, and a stable prefs token). Without this the recipient
+        // gets the newsletter twice. Two passes: first collect WP-user
+        // emails, then strip duplicate subscribers.
+        $recipients = self::dedupe_by_email($recipients);
         $total = $this->insert_recipients($newsletter_id, $recipients);
 
         // Sender-side lifetime stat bump per recipient. We do this *after*
@@ -125,7 +126,7 @@ final class Materializer
      *
      * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
      */
-    private function resolve_recipients(string $target_kind, int $list_id, string $category_slug): array
+    private function resolve_recipients(string $target_kind, int $list_id): array
     {
         global $wpdb;
         $subscribers_table = Schema::subscribers_table();
@@ -157,7 +158,7 @@ final class Materializer
         if ($want_subscribers) {
             if ($target_kind === NewsletterCPT::TARGET_KIND_LIST && !$is_all_subs_pseudo) {
                 $rows = $list_id > 0 ? (array) $wpdb->get_results($wpdb->prepare(
-                    "SELECT s.id, s.email, s.name, s.prefs_token, s.category_opt_outs
+                    "SELECT s.id, s.email, s.name, s.prefs_token
                        FROM `$subscribers_table` s
                        INNER JOIN `$list_members_table` lm
                          ON lm.recipient_kind = %s
@@ -169,16 +170,13 @@ final class Materializer
                 ), ARRAY_A) : [];
             } else {
                 $rows = (array) $wpdb->get_results(
-                    "SELECT id, email, name, prefs_token, category_opt_outs
+                    "SELECT id, email, name, prefs_token
                        FROM `$subscribers_table`
                       WHERE status = 'confirmed'",
                     ARRAY_A
                 );
             }
             foreach ($rows as $row) {
-                if (!self::category_allows((string) ($row['category_opt_outs'] ?? ''), $category_slug)) {
-                    continue;
-                }
                 $out[] = [
                     'kind'        => UserMeta::KIND_SUBSCRIBER,
                     'id'          => (int) $row['id'],
@@ -198,10 +196,6 @@ final class Materializer
             $users = $this->fetch_opted_in_users($target_kind, $list_id);
             foreach ($users as $u) {
                 $user_id = (int) $u['ID'];
-                $opt_outs_json = (string) get_user_meta($user_id, UserMeta::CATEGORY_OPT_OUTS, true);
-                if (!self::category_allows($opt_outs_json, $category_slug)) {
-                    continue;
-                }
                 $token = (string) get_user_meta($user_id, UserMeta::PREFS_TOKEN, true);
                 if ($token === '') {
                     $token = UserMeta::generate_prefs_token();
@@ -373,12 +367,29 @@ final class Materializer
             return ['total' => 0, 'by_kind' => [], 'sample' => []];
         }
         $target_raw = (string) get_post_meta($newsletter_id, NewsletterCPT::META_TARGET_SPEC, true);
-        $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => NewsletterCPT::TARGET_KIND_ALL];
-        $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
+        $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => NewsletterCPT::TARGET_KIND_LISTS, 'list_ids' => []];
+        $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_LISTS);
         $list_id = isset($target['list_id']) ? (int) $target['list_id'] : 0;
-        $category_id = (int) get_post_meta($newsletter_id, NewsletterCPT::META_CATEGORY_ID, true);
-        $category_slug = $this->category_slug($category_id);
-        $recipients = $this->resolve_recipients($target_kind, $list_id, $category_slug);
+        $list_ids = isset($target['list_ids']) && is_array($target['list_ids'])
+            ? array_values(array_filter(array_map('intval', $target['list_ids']), static fn ($n) => $n > 0))
+            : [];
+
+        if ($target_kind === NewsletterCPT::TARGET_KIND_LISTS) {
+            $seen = [];
+            $recipients = [];
+            foreach ($list_ids as $lid) {
+                $rs = $this->resolve_recipients(NewsletterCPT::TARGET_KIND_LIST, $lid);
+                foreach ($rs as $r) {
+                    $key = $r['kind'] . ':' . $r['id'];
+                    if (isset($seen[$key])) continue;
+                    $seen[$key] = true;
+                    $recipients[] = $r;
+                }
+            }
+        } else {
+            $recipients = $this->resolve_recipients($target_kind, $list_id);
+        }
+        $recipients = self::dedupe_by_email($recipients);
 
         $by_kind = [
             UserMeta::KIND_SUBSCRIBER => 0,
@@ -415,37 +426,6 @@ final class Materializer
         )) > 0;
     }
 
-    private function category_slug(int $category_id): string
-    {
-        if ($category_id <= 0) {
-            return '';
-        }
-        $cats = $this->categories->list_all();
-        foreach ($cats as $c) {
-            if ((int) ($c['id'] ?? 0) === $category_id) {
-                return (string) ($c['slug'] ?? '');
-            }
-        }
-        return '';
-    }
-
-    /**
-     * True when the recipient hasn't opted out of the newsletter's
-     * category. Empty category_slug = no category filter (newsletter
-     * doesn't have a category set) → always pass.
-     */
-    private static function category_allows(string $opt_outs_json, string $category_slug): bool
-    {
-        if ($category_slug === '') {
-            return true;
-        }
-        $arr = $opt_outs_json !== '' ? (array) json_decode($opt_outs_json, true) : [];
-        if (!is_array($arr)) {
-            return true;
-        }
-        return !in_array($category_slug, array_map('strval', $arr), true);
-    }
-
     /** Extract the domain portion of an email for the throttle column. */
     private static function domain_of(string $email): string
     {
@@ -454,5 +434,36 @@ final class Materializer
             return '';
         }
         return strtolower(substr($email, $at + 1));
+    }
+
+    /**
+     * Dedupe a recipient list by email — WP user rows beat subscriber
+     * rows for the same email. Same email registered both ways = sent
+     * once (to the WP user). Comparison is case-insensitive (emails
+     * are normalised lowercase here for the dedup key only; the
+     * stored email_snapshot keeps the original casing).
+     *
+     * @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients
+     * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
+     */
+    private static function dedupe_by_email(array $recipients): array
+    {
+        $by_email = [];
+        foreach ($recipients as $r) {
+            $key = strtolower(trim((string) ($r['email'] ?? '')));
+            if ($key === '') {
+                continue;
+            }
+            if (!isset($by_email[$key])) {
+                $by_email[$key] = $r;
+                continue;
+            }
+            // Collision — WP user wins; otherwise keep what we had.
+            if ($r['kind'] === UserMeta::KIND_USER
+                && $by_email[$key]['kind'] !== UserMeta::KIND_USER) {
+                $by_email[$key] = $r;
+            }
+        }
+        return array_values($by_email);
     }
 }

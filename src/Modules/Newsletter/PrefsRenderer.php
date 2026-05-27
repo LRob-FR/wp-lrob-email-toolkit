@@ -7,7 +7,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 /**
  * HTML renderer for the preferences UI. Two render modes:
  *
- *   - render_inputs() — bare form inputs (category + list checkboxes,
+ *   - render_inputs() — bare form inputs (public-list memberships +
  *     opt-in master toggle for WP users). No `<form>` wrapper, no
  *     submit button. Profile section embeds this inside profile.php's
  *     own form.
@@ -22,10 +22,8 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
  *     'id'             => int,                    // wp_user.ID or subscribers.id
  *     'email'          => string,                 // display only
  *     'opted_in'       => bool,                   // WP users only; subscriber = always true unless status=unsub
- *     'opt_outs'       => array<int, string>,     // category slugs the recipient HAS opted out of
  *     'list_member_ids'=> array<int, int>,        // list ids the recipient currently belongs to
- *     'categories'     => array<int, array{slug:string, name:string}>,
- *     'lists'          => array<int, array{id:int, name:string}>,
+ *     'lists'          => array<int, array{id:int, name:string, description:string}>,
  *   ]
  */
 final class PrefsRenderer
@@ -40,9 +38,7 @@ final class PrefsRenderer
     {
         $kind = (string) ($state['kind'] ?? '');
         $opted_in = (bool) ($state['opted_in'] ?? false);
-        $opt_outs = (array) ($state['opt_outs'] ?? []);
         $member_ids = array_map('intval', (array) ($state['list_member_ids'] ?? []));
-        $categories = (array) ($state['categories'] ?? []);
         $lists = (array) ($state['lists'] ?? []);
 
         ob_start();
@@ -53,53 +49,28 @@ final class PrefsRenderer
                     <legend><?php esc_html_e('Receive newsletter emails', 'lrob-email-toolkit'); ?></legend>
                     <label>
                         <input type="checkbox" name="lrob_etk_nl_opted_in" value="1" <?php checked($opted_in); ?>>
-                        <?php esc_html_e('Yes, send me newsletter emails for the categories I select below.', 'lrob-email-toolkit'); ?>
+                        <?php esc_html_e('Yes, send me newsletter emails for the lists I select below.', 'lrob-email-toolkit'); ?>
                     </label>
                     <p class="description">
-                        <?php esc_html_e('Turning this off stops every category. To leave entirely, delete your WordPress account from your profile page.', 'lrob-email-toolkit'); ?>
+                        <?php esc_html_e('Turning this off stops every newsletter. To leave entirely, delete your WordPress account from your profile page.', 'lrob-email-toolkit'); ?>
                     </p>
                 </fieldset>
             <?php endif; ?>
 
-            <fieldset class="lrob-etk-nl-prefs-categories">
-                <legend><?php esc_html_e('Email categories', 'lrob-email-toolkit'); ?></legend>
-                <p class="description">
-                    <?php esc_html_e('Tick the kinds of emails you want to receive.', 'lrob-email-toolkit'); ?>
-                </p>
-                <?php if ($categories === []) : ?>
-                    <p><em><?php esc_html_e('No categories defined yet.', 'lrob-email-toolkit'); ?></em></p>
-                <?php else : ?>
-                    <ul class="lrob-etk-nl-prefs-checklist">
-                        <?php foreach ($categories as $cat) : ?>
-                            <?php
-                            $slug = (string) ($cat['slug'] ?? '');
-                            $name = (string) ($cat['name'] ?? $slug);
-                            // Inverted logic: opt_outs contains the slugs
-                            // the recipient does NOT want. The checkbox
-                            // shows TICKED = wants, UNTICKED = opt-out.
-                            $wanted = !in_array($slug, $opt_outs, true);
-                            ?>
-                            <li>
-                                <label>
-                                    <input type="checkbox" name="lrob_etk_nl_categories[]" value="<?php echo esc_attr($slug); ?>" <?php checked($wanted); ?>>
-                                    <?php echo esc_html($name); ?>
-                                </label>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </fieldset>
-
             <fieldset class="lrob-etk-nl-prefs-lists">
-                <legend><?php esc_html_e('Subscriber lists', 'lrob-email-toolkit'); ?></legend>
+                <legend><?php esc_html_e('Mailing lists', 'lrob-email-toolkit'); ?></legend>
+                <p class="description">
+                    <?php esc_html_e('Tick the lists you want to receive emails from.', 'lrob-email-toolkit'); ?>
+                </p>
                 <?php if ($lists === []) : ?>
-                    <p><em><?php esc_html_e('No lists to choose from yet.', 'lrob-email-toolkit'); ?></em></p>
+                    <p><em><?php esc_html_e('No lists are open for self-subscription yet.', 'lrob-email-toolkit'); ?></em></p>
                 <?php else : ?>
                     <ul class="lrob-etk-nl-prefs-checklist">
                         <?php foreach ($lists as $list) : ?>
                             <?php
                             $id = (int) ($list['id'] ?? 0);
                             $name = (string) ($list['name'] ?? '');
+                            $description = (string) ($list['description'] ?? '');
                             if ($id <= 0 || $name === '') {
                                 continue;
                             }
@@ -108,7 +79,10 @@ final class PrefsRenderer
                             <li>
                                 <label>
                                     <input type="checkbox" name="lrob_etk_nl_lists[]" value="<?php echo $id; ?>" <?php checked($member); ?>>
-                                    <?php echo esc_html($name); ?>
+                                    <span><?php echo esc_html($name); ?></span>
+                                    <?php if ($description !== '') : ?>
+                                        <em class="lrob-etk-nl-prefs-list-desc"><?php echo esc_html($description); ?></em>
+                                    <?php endif; ?>
                                 </label>
                             </li>
                         <?php endforeach; ?>

@@ -21,7 +21,6 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 final class ProfileSection
 {
     public function __construct(
-        private CategoryRepository $categories,
         private ListRepository $lists,
     ) {
     }
@@ -41,7 +40,7 @@ final class ProfileSection
         ?>
         <h2 id="lrob-etk-nl-prefs"><?php esc_html_e('Newsletter preferences', 'lrob-email-toolkit'); ?></h2>
         <p class="description">
-            <?php esc_html_e('Pick which kinds of emails you want and which lists you\'re on. To stop receiving everything, uncheck "Receive newsletter emails" below.', 'lrob-email-toolkit'); ?>
+            <?php esc_html_e('Pick which mailing lists you\'re on. To stop receiving everything, uncheck "Receive newsletter emails" below.', 'lrob-email-toolkit'); ?>
         </p>
         <?php
         // Scoped styling that tames the default <fieldset>/<legend>
@@ -96,23 +95,22 @@ final class ProfileSection
         $opted_in = !empty($_POST['lrob_etk_nl_opted_in']);
         update_user_meta($user_id, UserMeta::OPTED_IN, $opted_in ? '1' : '0');
 
-        $chosen_categories = isset($_POST['lrob_etk_nl_categories']) && is_array($_POST['lrob_etk_nl_categories'])
-            ? array_map('sanitize_title', wp_unslash($_POST['lrob_etk_nl_categories']))
-            : [];
-        $all_slugs = array_keys($this->categories->slug_label_map());
-        $opt_outs = array_values(array_diff($all_slugs, $chosen_categories));
-        update_user_meta($user_id, UserMeta::CATEGORY_OPT_OUTS, (string) wp_json_encode($opt_outs));
-
         $chosen_lists = isset($_POST['lrob_etk_nl_lists']) && is_array($_POST['lrob_etk_nl_lists'])
             ? array_map('intval', wp_unslash($_POST['lrob_etk_nl_lists']))
             : [];
-        $current = $this->lists->memberships_for_recipient(UserMeta::KIND_USER, $user_id);
-        $to_add = array_diff($chosen_lists, $current);
-        $to_remove = array_diff($current, $chosen_lists);
+
+        // Clip to public-visible lists only — the profile-section picker
+        // only renders public lists, but the POST shape is user-supplied
+        // so we re-enforce server-side.
+        $public_lists = $this->lists->list_public_for_subscribers();
+        $public_ids = array_map(static fn ($l) => (int) $l['id'], $public_lists);
+        $chosen_lists = array_values(array_intersect($chosen_lists, $public_ids));
+
+        $current_all = $this->lists->memberships_for_recipient(UserMeta::KIND_USER, $user_id);
+        $current_public = array_values(array_intersect($current_all, $public_ids));
+        $to_add = array_diff($chosen_lists, $current_public);
+        $to_remove = array_diff($current_public, $chosen_lists);
         foreach ($to_add as $list_id) {
-            if ($this->lists->find((int) $list_id) === null) {
-                continue;
-            }
             $this->lists->add_member((int) $list_id, UserMeta::KIND_USER, $user_id);
         }
         foreach ($to_remove as $list_id) {
@@ -123,26 +121,22 @@ final class ProfileSection
     /** @return array<string, mixed> */
     private function build_state(int $user_id, string $email): array
     {
-        $opt_outs_json = (string) get_user_meta($user_id, UserMeta::CATEGORY_OPT_OUTS, true);
-        $opt_outs = $opt_outs_json !== ''
-            ? array_values(array_filter(array_map('strval', (array) json_decode($opt_outs_json, true)), static fn ($s) => $s !== ''))
-            : [];
         $opted_in = (string) get_user_meta($user_id, UserMeta::OPTED_IN, true) === '1';
+        $lists = $this->lists->list_public_for_subscribers();
 
         return [
             'kind'            => UserMeta::KIND_USER,
             'id'              => $user_id,
             'email'           => $email,
             'opted_in'        => $opted_in,
-            'opt_outs'        => $opt_outs,
             'list_member_ids' => $this->lists->memberships_for_recipient(UserMeta::KIND_USER, $user_id),
-            'categories'      => array_map(
-                static fn (array $c) => ['slug' => (string) ($c['slug'] ?? ''), 'name' => (string) ($c['name'] ?? '')],
-                $this->categories->list_all()
-            ),
             'lists'           => array_map(
-                static fn (array $l) => ['id' => (int) ($l['id'] ?? 0), 'name' => (string) ($l['name'] ?? '')],
-                $this->lists->list_all()
+                static fn (array $l) => [
+                    'id'          => (int) ($l['id'] ?? 0),
+                    'name'        => (string) ($l['name'] ?? ''),
+                    'description' => (string) ($l['description'] ?? ''),
+                ],
+                $lists
             ),
         ];
     }

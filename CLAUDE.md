@@ -200,7 +200,7 @@ Drop a class implementing `ProviderInterface` into `Providers/`. Required: `slug
 
 Captcha is a **service module** (`is_service_module() === true`, always-enabled), so `maybe_migrate()` runs every boot. AbstractModule's default `db_version_int() === 1` recorded version=1 on every existing site *before* the module had install logic. Bumping to 2 makes `maybe_migrate()` take the `migrate()` branch (not `install()`) — schema never gets created on upgrade sites. **Fix**: always override `migrate()` to forward to `install()` (idempotent). If recovering from an already-shipped broken bump, bump the target one more notch so stuck sites re-take the migrate path. See memory `project_service_module_migrate_trap`.
 
-## Newsletter list kinds + system lists
+## Newsletter list kinds + system lists + visibility
 
 `wp_lrob_etk_nl_lists.kind` is an enum-ish column with three values:
 
@@ -212,7 +212,13 @@ Captcha is a **service module** (`is_service_module() === true`, always-enabled)
 
 `lists.is_system = 1` marks the four built-in lists seeded on install/migrate (`Module::seed_system_lists`): **All subscribers**, **All WP members**, **All WC customers**, **Active WC subscribers**. System lists refuse rename / rule edits / delete via the AjaxController guards + `ListRepository::is_system`. They **do** accept exclusions (admin can pin out specific WP users).
 
-The Newsletter audience picker (`META_TARGET_SPEC`) supports `{kind: 'lists', list_ids: [1,2,3]}` for multi-list union. Materializer iterates list_ids, dedupes by (kind,id), and resolves each per its `list.kind`. Legacy `{kind: 'all'}` and friends keep working under the hood.
+`lists.visibility` ('private' | 'public') decides whether a list surfaces on the subscriber preferences page. **Private** (default) = admin-managed, hidden from subscribers. **Public** = subscribers self-join/leave from the prefs page. System lists hardcoded private (computed sets aren't subscriber-toggleable). `PrefsHandler::sync_public_list_memberships` + `ProfileSection::save` both clip the membership set to `visibility=public + kind=subscribers + is_system=0` server-side — POST tampering can't reach private lists.
+
+The Newsletter audience picker (`META_TARGET_SPEC`) supports `{kind: 'lists', list_ids: [1,2,3]}` for multi-list union. Materializer iterates list_ids, dedupes by (kind,id), and resolves each per its `list.kind`. Legacy `{kind: 'all'}` and friends keep working under the hood. The Materializer **no longer** filters recipients by `category_opt_outs` (categories merged into lists in v0.3.4 schema v12) — audience is purely list-membership-driven.
+
+### Categories → Lists migration (v0.3.4, schema v12 + v13)
+
+Categories were merged into Lists. v12 migrated every category to a public Subscribers-kind list + materialised list_members from `category_opt_outs`. v13 ran the destructive cleanup: dropped the `wp_lrob_etk_nl_categories` table, the `subscribers.category_opt_outs` column, and every `lrob_etk_nl_category_opt_outs` user_meta row. Both migrations chain on the same upgrade pass (v11 → v13 catches v12's data move + v13's drops in order). `CategoryRepository`, `CategoryPicker`, `seed_default_category()` all gone.
 
 ## Newsletter list rule providers — adding one
 

@@ -78,9 +78,13 @@ final class SendCron
     public static function register_interval(array $schedules): array
     {
         if (!isset($schedules[self::CRON_INTERVAL_KEY])) {
+            // Plain string — `cron_schedules` fires during plugins_loaded
+            // when wp_schedule_event runs (install / register paths),
+            // which is too early for __() per WP 6.7's textdomain rules.
+            // The label only surfaces in admin debug tools (WP Crontrol).
             $schedules[self::CRON_INTERVAL_KEY] = [
                 'interval' => 60,
-                'display'  => __('Every minute (Newsletter)', 'lrob-email-toolkit'),
+                'display'  => 'Every minute (Newsletter)',
             ];
         }
         return $schedules;
