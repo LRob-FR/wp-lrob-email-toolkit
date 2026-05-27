@@ -63,6 +63,8 @@ final class SendAjaxController
 
     public const ACTION_RECIPIENTS_PREVIEW = 'lrob_etk_nl_recipients_preview';
 
+    public const ACTION_FORCE_OVERRIDES_SAVE = 'lrob_etk_nl_force_overrides_save';
+
     public const OPTION_TEST_LIST_ID = 'lrob_etk_nl_test_list_id';
 
     public const HEADER_TEST = 'X-Lrob-Etk-Newsletter-Test';
@@ -88,6 +90,53 @@ final class SendAjaxController
         add_action('wp_ajax_' . self::ACTION_CARD_STATES, [$this, 'handle_card_states']);
         add_action('wp_ajax_' . self::ACTION_PREVIEW,   [$this, 'handle_preview']);
         add_action('wp_ajax_' . self::ACTION_RECIPIENTS_PREVIEW, [$this, 'handle_recipients_preview']);
+        add_action('wp_ajax_' . self::ACTION_FORCE_OVERRIDES_SAVE, [$this, 'handle_force_overrides_save']);
+    }
+
+    /**
+     * Persist per-recipient force-include / force-exclude overrides
+     * for a not-yet-materialized newsletter. POST shape:
+     *   action=force, kind=user|subscriber, id=<int>, mode=add|remove
+     * The endpoint reads the current array, merges/drops the entry,
+     * writes back via update_post_meta. NewsletterCPT's registered
+     * sanitize_callback validates the JSON on write.
+     */
+    public function handle_force_overrides_save(): void
+    {
+        $this->guard();
+        $newsletter_id = $this->require_post_id();
+        $list_key = isset($_POST['list']) ? sanitize_key((string) wp_unslash((string) $_POST['list'])) : '';
+        $kind = isset($_POST['kind']) ? sanitize_key((string) wp_unslash((string) $_POST['kind'])) : '';
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $mode = isset($_POST['mode']) ? sanitize_key((string) wp_unslash((string) $_POST['mode'])) : 'add';
+        if (!in_array($list_key, ['include', 'exclude'], true)
+            || !in_array($kind, [\LRob\EmailToolkit\Modules\Newsletter\UserMeta::KIND_SUBSCRIBER, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::KIND_USER], true)
+            || $id <= 0
+            || !in_array($mode, ['add', 'remove'], true)
+        ) {
+            wp_send_json_error(['message' => __('Bad force-override payload.', 'lrob-email-toolkit')], 400);
+        }
+        $meta_key = $list_key === 'include'
+            ? \LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT::META_FORCE_INCLUDE_IDS
+            : \LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT::META_FORCE_EXCLUDE_IDS;
+        $raw = (string) get_post_meta($newsletter_id, $meta_key, true);
+        $current = $raw !== '' ? (array) json_decode($raw, true) : [];
+        $next = [];
+        $seen_key = $kind . ':' . $id;
+        foreach (is_array($current) ? $current : [] as $entry) {
+            if (!is_array($entry)) continue;
+            $ek = isset($entry['kind']) ? (string) $entry['kind'] : '';
+            $eid = isset($entry['id']) ? (int) $entry['id'] : 0;
+            if ($ek === $kind && $eid === $id) {
+                continue; // dropped — re-added below if mode=add
+            }
+            $next[] = ['kind' => $ek, 'id' => $eid];
+        }
+        if ($mode === 'add') {
+            $next[] = ['kind' => $kind, 'id' => $id];
+        }
+        update_post_meta($newsletter_id, $meta_key, (string) wp_json_encode($next));
+        wp_send_json_success(['list' => $list_key, 'mode' => $mode, 'seen_key' => $seen_key]);
     }
 
     /**
@@ -155,11 +204,13 @@ final class SendAjaxController
         // dry-run is bounded to 50 rows by design.
         $preview = $this->materializer->preview_recipients($newsletter_id, $limit);
         wp_send_json_success([
-            'mode'         => 'preview',
-            'total'        => $preview['total'],
-            'by_kind'      => $preview['by_kind'],
-            'sample'       => $preview['sample'],
-            'sample_limit' => $limit,
+            'mode'           => 'preview',
+            'total'          => $preview['total'],
+            'by_kind'        => $preview['by_kind'],
+            'opted_out'      => $preview['opted_out'],
+            'ignore_optouts' => $preview['ignore_optouts'],
+            'sample'         => $preview['sample'],
+            'sample_limit'   => $limit,
         ]);
     }
 

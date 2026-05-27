@@ -173,11 +173,15 @@ final class Schema
             sends_since_engagement smallint unsigned NOT NULL DEFAULT 0,
             last_sent_at datetime DEFAULT NULL,
             last_engagement_at datetime DEFAULT NULL,
+            pending_email varchar(190) NOT NULL DEFAULT '',
+            pending_email_token varchar(64) NOT NULL DEFAULT '',
+            pending_email_requested_at datetime DEFAULT NULL,
             PRIMARY KEY  (id),
             UNIQUE KEY email (email),
             KEY status (status),
             KEY created_at (created_at),
             KEY prefs_token (prefs_token),
+            KEY pending_email_token (pending_email_token),
             KEY pending_followup (status, last_reminder_at),
             KEY cold_subscribers (status, sends_since_engagement)
         ) $charset_collate;";

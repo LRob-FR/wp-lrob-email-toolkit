@@ -56,6 +56,34 @@ final class NewsletterCPT
 
     public const META_LOG_ALL_SENDS      = '_lrob_etk_nl_log_all_sends';
 
+    /**
+     * Per-newsletter override of recipient opt-outs. When true, the
+     * Materializer ignores the OPTED_IN=0 user_meta filter + the
+     * 'unsubscribed' subscriber status when resolving recipients.
+     * Critical: only for operational/legal communications. The send
+     * confirm modal surfaces a count of opted-outs the send will
+     * reach when this is on.
+     */
+    public const META_IGNORE_OPTOUTS     = '_lrob_etk_nl_ignore_optouts';
+
+    /**
+     * Per-newsletter manual force-include list. JSON `[{kind, id},…]`
+     * where each entry references a (recipient_kind, recipient_id)
+     * the Materializer must include regardless of opt-out / status.
+     * Independent from META_IGNORE_OPTOUTS — the global toggle
+     * applies to the whole audience, this targets individuals.
+     */
+    public const META_FORCE_INCLUDE_IDS  = '_lrob_etk_nl_force_include_ids';
+
+    /**
+     * Per-newsletter manual force-exclude list. JSON `[{kind, id},…]`
+     * — the Materializer drops these recipients regardless of their
+     * opt-in state or list membership. Useful for excluding a known
+     * problematic address or someone who asked verbally to be left
+     * out of one specific send.
+     */
+    public const META_FORCE_EXCLUDE_IDS  = '_lrob_etk_nl_force_exclude_ids';
+
     public const TARGET_KIND_ALL              = 'all';
 
     public const TARGET_KIND_ALL_USERS        = 'all_users';
@@ -275,6 +303,66 @@ final class NewsletterCPT
             'auth_callback'     => $auth_callback,
             'show_in_rest'      => true,
         ]);
+        register_post_meta(self::POST_TYPE, self::META_IGNORE_OPTOUTS, [
+            'type'              => 'boolean',
+            'single'            => true,
+            'default'           => false,
+            'sanitize_callback' => static fn ($v) => !empty($v),
+            'auth_callback'     => $auth_callback,
+            'show_in_rest'      => true,
+        ]);
+        register_post_meta(self::POST_TYPE, self::META_FORCE_INCLUDE_IDS, [
+            'type'              => 'string',
+            'single'            => true,
+            'default'           => '',
+            'sanitize_callback' => [self::class, 'sanitize_recipient_id_set'],
+            'auth_callback'     => $auth_callback,
+            'show_in_rest'      => true,
+        ]);
+        register_post_meta(self::POST_TYPE, self::META_FORCE_EXCLUDE_IDS, [
+            'type'              => 'string',
+            'single'            => true,
+            'default'           => '',
+            'sanitize_callback' => [self::class, 'sanitize_recipient_id_set'],
+            'auth_callback'     => $auth_callback,
+            'show_in_rest'      => true,
+        ]);
+    }
+
+    /**
+     * Validates a `[{kind:'user'|'subscriber', id:int}, …]` JSON
+     * blob — drops malformed entries, normalises kind, casts id to
+     * int. Returns the canonical JSON or '' when nothing survives.
+     */
+    public static function sanitize_recipient_id_set(mixed $value): string
+    {
+        $raw = is_string($value) ? $value : '';
+        if ($raw === '') {
+            return '';
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return '';
+        }
+        $out = [];
+        $seen = [];
+        foreach ($decoded as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $kind = isset($entry['kind']) ? sanitize_key((string) $entry['kind']) : '';
+            $id   = isset($entry['id']) ? (int) $entry['id'] : 0;
+            if ($id <= 0 || !in_array($kind, ['user', 'subscriber'], true)) {
+                continue;
+            }
+            $key = $kind . ':' . $id;
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $out[] = ['kind' => $kind, 'id' => $id];
+        }
+        return $out === [] ? '' : (string) wp_json_encode($out);
     }
 
     /**

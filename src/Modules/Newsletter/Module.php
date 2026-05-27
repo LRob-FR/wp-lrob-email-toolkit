@@ -136,10 +136,15 @@ final class Module extends AbstractModule
      *       `subscribers.category_opt_outs` column, the
      *       `lrob_etk_nl_category_opt_outs` user_meta key. v12
      *       migrated all the data; v13 closes the door.
+     *  14 — Subscriber email-change confirmation flow. Adds three
+     *       columns on subscribers: `pending_email` (the requested
+     *       new address), `pending_email_token` (single-use secret
+     *       sent to the new address), `pending_email_requested_at`
+     *       (TTL anchor). Additive — dbDelta handles it.
      */
     public function db_version_int(): int
     {
-        return 13;
+        return 14;
     }
 
     public function install(): void

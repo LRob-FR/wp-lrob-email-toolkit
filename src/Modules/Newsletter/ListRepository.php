@@ -95,21 +95,44 @@ final class ListRepository
     }
 
     /**
+     * Single-query lookup of every WP user explicitly opted-out of
+     * newsletter sends (lrob_etk_nl_opted_in='0' user_meta). Used by
+     * `member_counts()` to subtract the opt-outs from rule-resolved
+     * users-kind list sizes, and by the Materializer / audience
+     * preview to flag per-recipient status. Scales linearly with the
+     * count of opt-out rows, not with the user total — single
+     * indexed usermeta lookup.
+     *
+     * @return array<int, int> Flat list of opted-out WP user IDs.
+     */
+    public function opted_out_user_ids(): array
+    {
+        global $wpdb;
+        $rows = $wpdb->get_col($wpdb->prepare(
+            "SELECT user_id FROM `{$wpdb->usermeta}`
+              WHERE meta_key = %s AND meta_value = '0'",
+            UserMeta::OPTED_IN
+        ));
+        return is_array($rows) ? array_map('intval', $rows) : [];
+    }
+
+    /**
      * Per-list member counts. Returns `list_id => count` for every
      * list. Three branches:
      *   - subscribers-kind: explicit `list_members` rows (one query).
      *   - all_subscribers pseudo-kind: confirmed-subscriber total.
      *   - users-kind: manual list_members rows UNION rule-resolved
-     *     IDs, deduped. Rule resolution can be expensive on big lists
-     *     (e.g. WooCommerce) — counts are transient-cached 5 min.
+     *     IDs, deduped, MINUS explicit opt-outs. Rule resolution can
+     *     be expensive on big lists (e.g. WooCommerce) — counts are
+     *     transient-cached 5 min.
      *
      * @return array<int, int>
      */
     public function member_counts(): array
     {
         $cached = get_transient(self::COUNTS_CACHE_KEY);
-        if (is_array($cached)) {
-            return $cached;
+        if (is_array($cached) && isset($cached['counts']) && is_array($cached['counts'])) {
+            return array_map('intval', $cached['counts']);
         }
 
         global $wpdb;
@@ -130,7 +153,14 @@ final class ListRepository
         $subs = Schema::subscribers_table();
         $confirmed = (int) $wpdb->get_var("SELECT COUNT(*) FROM `$subs` WHERE status = 'confirmed'");
 
+        // Opted-out lookup is the same set for every users-kind list;
+        // fetch once and reuse. Keep both the flat array (for fast
+        // membership tests) AND the flip (for isset() lookups inside
+        // the loop — handful of opt-outs typically, so fine memory-wise).
+        $opted_out = array_flip($this->opted_out_user_ids());
+
         $out = [];
+        $opted_out_per_list = [];
         foreach ($this->list_all() as $row) {
             $lid = (int) ($row['id'] ?? 0);
             if ($lid <= 0) {
@@ -145,15 +175,52 @@ final class ListRepository
                 // Rule-resolved IDs union manual additions, deduped.
                 $rule_ids = $this->resolve_rule_user_ids($lid);
                 $manual_ids = array_keys($manual_by_list[$lid] ?? []);
-                $out[$lid] = count(array_unique(array_merge($rule_ids, $manual_ids)));
+                $all_ids = array_unique(array_merge($rule_ids, $manual_ids));
+                // Split opted-in vs opted-out so the picker can
+                // surface both counts ("N recipients · −M opted out").
+                $opted_in = 0;
+                $opted_out_n = 0;
+                foreach ($all_ids as $uid) {
+                    if (isset($opted_out[(int) $uid])) {
+                        $opted_out_n++;
+                    } else {
+                        $opted_in++;
+                    }
+                }
+                $out[$lid] = $opted_in;
+                if ($opted_out_n > 0) {
+                    $opted_out_per_list[$lid] = $opted_out_n;
+                }
                 continue;
             }
             // subscribers-kind: manual memberships only.
             $out[$lid] = count($manual_by_list[$lid] ?? []);
         }
 
-        set_transient(self::COUNTS_CACHE_KEY, $out, 5 * MINUTE_IN_SECONDS);
+        $cache = ['counts' => $out, 'opted_out' => $opted_out_per_list];
+        set_transient(self::COUNTS_CACHE_KEY, $cache, 5 * MINUTE_IN_SECONDS);
         return $out;
+    }
+
+    /**
+     * Returns `list_id => N` for users-kind lists where at least N WP
+     * users matched-by-rule are explicitly opted-out. Surfaced next to
+     * the count in the audience picker so admins see why their
+     * "23-member list" only reaches 21 recipients. Reuses the same
+     * 5-min transient as `member_counts()`.
+     *
+     * @return array<int, int>
+     */
+    public function opted_out_counts_per_list(): array
+    {
+        // Prime the cache via member_counts (cheap; that's the cache
+        // writer).
+        $this->member_counts();
+        $cached = get_transient(self::COUNTS_CACHE_KEY);
+        if (is_array($cached) && isset($cached['opted_out']) && is_array($cached['opted_out'])) {
+            return array_map('intval', $cached['opted_out']);
+        }
+        return [];
     }
 
     /**

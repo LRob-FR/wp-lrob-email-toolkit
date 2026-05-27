@@ -1561,6 +1561,7 @@
     font-size: 0.85rem;
 }
 
+
 /* Audience picker — a single trigger button summarising the picked
  * lists + recipient count, opening an absolutely-positioned menu of
  * grouped checkbox rows (Subscribers / WP users sections matching
@@ -1612,6 +1613,24 @@
 .lrob-etk-nl-audience-summary-label {
     color: var(--etk-muted);
     font-size: 0.85rem;
+}
+
+.lrob-etk-nl-audience-summary-optout {
+    color: var(--etk-text-warning);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.lrob-etk-nl-audience-summary-optout[hidden] {
+    display: none;
+}
+
+.lrob-etk-nl-audience-summary-bypass {
+    color: var(--etk-text-danger);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+.lrob-etk-nl-audience-summary-bypass[hidden] {
+    display: none;
 }
 
 .lrob-etk-nl-audience-summary-lists {
@@ -1691,14 +1710,34 @@
     font-size: 13px;
 }
 
-.lrob-etk-nl-audience-item-count {
+/* Right-anchored count + opt-out wrapper. Keeps the count pinned
+ * to the rightmost slot regardless of how many badges precede it,
+ * so every row aligns its count column-wise across the dropdown. */
+.lrob-etk-nl-audience-item-counts {
     flex: 0 0 auto;
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.lrob-etk-nl-audience-item-count {
     padding: 2px 8px;
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
     font-size: 11px;
     font-weight: 500;
+}
+
+.lrob-etk-nl-audience-item-optout {
+    padding: 2px 8px;
+    background: var(--etk-warning-bg);
+    color: var(--etk-text-warning);
+    border-radius: var(--etk-radius-pill);
+    font-size: 11px;
+    font-weight: 500;
+    font-style: italic;
 }
 
 .lrob-etk-nl-card-recipients-body {
@@ -2221,6 +2260,139 @@ button.lrob-etk-nl-field-link {
     color: var(--etk-muted);
     font-size: 0.9em;
     margin: 0 0 0.5rem;
+}
+
+/* Second line of the preview header — opted-out count alongside
+ * an inline Bypass checkbox. The checkbox is muted by default;
+ * checking it surfaces the warning text below. */
+.lrob-etk-nl-recipients-optout-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.25rem 0;
+    color: var(--etk-text-warning);
+    font-size: 0.85em;
+    font-weight: 500;
+}
+.lrob-etk-nl-recipients-bypass-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--etk-muted);
+    font-size: 0.85em;
+    font-weight: 400;
+    cursor: pointer;
+}
+.lrob-etk-nl-recipients-bypass-warn {
+    color: var(--etk-text-danger);
+    font-size: 0.85em;
+    font-style: italic;
+    background: var(--etk-danger-bg);
+    padding: 6px 10px;
+    border-radius: var(--etk-radius-sm);
+    margin: 0.5rem 0;
+}
+
+/* Tabs row for the preview sample — All / Opted-in / Opted-out.
+ * Only rendered when opted-out > 0. Same visual idiom as the
+ * recipients-snapshot filter chips. */
+.lrob-etk-nl-recipients-tabs {
+    display: inline-flex;
+    gap: 0.3rem;
+    margin: 0.75rem 0 0.25rem;
+    border-bottom: 1px solid var(--etk-line);
+    padding-bottom: 4px;
+}
+.lrob-etk-nl-recipients-tab {
+    padding: 4px 10px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--etk-radius-sm);
+    cursor: pointer;
+    color: var(--etk-muted);
+    font-size: 0.85em;
+    transition: var(--etk-transition);
+}
+.lrob-etk-nl-recipients-tab:hover {
+    background: var(--etk-soft);
+}
+.lrob-etk-nl-recipients-tab.is-active {
+    background: var(--etk-accent-bg);
+    color: var(--etk-accent);
+    font-weight: 500;
+}
+.lrob-etk-nl-recipients-tab span {
+    opacity: 0.7;
+}
+
+/* Per-row status badges (opted_out / force_included / force_excluded). */
+.lrob-etk-nl-recipients-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: var(--etk-radius-pill);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    margin-left: 0.4rem;
+}
+.lrob-etk-nl-recipients-badge.is-opted-out {
+    background: var(--etk-warning-bg);
+    color: var(--etk-text-warning);
+}
+.lrob-etk-nl-recipients-badge.is-forced-in {
+    background: var(--etk-success-bg);
+    color: var(--etk-text-success);
+}
+.lrob-etk-nl-recipients-badge.is-forced-out {
+    background: var(--etk-danger-bg);
+    color: var(--etk-text-danger);
+}
+.lrob-etk-nl-recipients-badge.is-sent {
+    background: var(--etk-accent-bg);
+    color: var(--etk-accent);
+}
+.lrob-etk-nl-recipients-badge.is-skipped {
+    background: var(--etk-soft);
+    color: var(--etk-muted);
+}
+
+/* Per-row force-include / force-exclude action button. */
+.lrob-etk-nl-recipients-row-toggle {
+    margin-left: auto;
+    padding: 2px 8px;
+    background: transparent;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-sm);
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--etk-fg);
+    transition: var(--etk-transition);
+}
+.lrob-etk-nl-recipients-row-toggle:hover {
+    border-color: var(--etk-line-strong);
+    background: var(--etk-soft);
+}
+.lrob-etk-nl-recipients-row-toggle.is-quiet {
+    color: var(--etk-muted);
+}
+.lrob-etk-nl-recipients-row-toggle.is-on {
+    background: var(--etk-accent-bg);
+    color: var(--etk-accent);
+    border-color: var(--etk-accent);
+}
+
+.lrob-etk-nl-recipients-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+.lrob-etk-nl-recipients-preview-row.delivery-skipped {
+    opacity: 0.75;
+}
+.lrob-etk-nl-recipients-preview-row[hidden] {
+    display: none !important;
 }
 
 .lrob-etk-nl-recipients-sample-note {

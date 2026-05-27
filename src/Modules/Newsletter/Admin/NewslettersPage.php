@@ -555,6 +555,7 @@ final class NewslettersPage
                         $target_list_ids = [$target_list_id];
                     }
                     $list_counts = $this->lists->member_counts();
+                    $list_opted_out = $this->lists->opted_out_counts_per_list();
                     $by_id = [];
                     foreach ($lists as $l) { $by_id[(int) ($l['id'] ?? 0)] = $l; }
                     // Provider registry (for the badge label on rule-
@@ -652,6 +653,8 @@ final class NewslettersPage
                                     <span class="lrob-etk-nl-audience-summary">
                                         <strong data-recipients-count>—</strong>
                                         <span class="lrob-etk-nl-audience-summary-label"><?php esc_html_e('recipients', 'lrob-email-toolkit'); ?></span>
+                                        <span class="lrob-etk-nl-audience-summary-optout" data-recipients-optout hidden></span>
+                                        <span class="lrob-etk-nl-audience-summary-bypass" data-recipients-bypass hidden><?php esc_html_e('(opt-outs bypassed)', 'lrob-email-toolkit'); ?></span>
                                         <em data-audience-lists-summary class="lrob-etk-nl-audience-summary-lists">
                                             <?php
                                             if ($target_list_ids === []) {
@@ -666,7 +669,7 @@ final class NewslettersPage
                                 </button>
                                 <div class="lrob-etk-nl-audience-menu" data-audience-menu hidden role="menu">
                                     <?php
-                                    $render_section = function (string $title, array $section_lists) use ($list_counts, $target_list_ids, $rule_providers): void {
+                                    $render_section = function (string $title, array $section_lists) use ($list_counts, $list_opted_out, $target_list_ids, $rule_providers): void {
                                         if ($section_lists === []) return;
                                         ?>
                                         <div class="lrob-etk-nl-audience-section">
@@ -676,6 +679,7 @@ final class NewslettersPage
                                                     $lid = (int) ($list['id'] ?? 0);
                                                     if ($lid <= 0) continue;
                                                     $cnt = (int) ($list_counts[$lid] ?? 0);
+                                                    $opted_out = (int) ($list_opted_out[$lid] ?? 0);
                                                     $checked = in_array($lid, $target_list_ids, true);
                                                     $is_sys = ListRepository::is_system($list);
                                                     $rule = ListRepository::decode_rule((string) ($list['rule_json'] ?? ''));
@@ -697,8 +701,21 @@ final class NewslettersPage
                                                                     <?php echo esc_html($rule_providers[$provider_slug]->label()); ?>
                                                                 </span>
                                                             <?php endif; ?>
-                                                            <span class="lrob-etk-nl-audience-item-count" title="<?php esc_attr_e('Members in this list', 'lrob-email-toolkit'); ?>">
-                                                                <?php echo esc_html(number_format_i18n($cnt)); ?>
+                                                            <span class="lrob-etk-nl-audience-item-counts">
+                                                                <?php if ($opted_out > 0) : ?>
+                                                                    <span class="lrob-etk-nl-audience-item-optout" title="<?php esc_attr_e('Matching users who opted out — not sent unless you bypass opt-outs for this newsletter.', 'lrob-email-toolkit'); ?>">
+                                                                        <?php
+                                                                        printf(
+                                                                            /* translators: %s: number of opted-out users (already formatted). */
+                                                                            esc_html__('−%s opt-out', 'lrob-email-toolkit'),
+                                                                            esc_html(number_format_i18n($opted_out))
+                                                                        );
+                                                                        ?>
+                                                                    </span>
+                                                                <?php endif; ?>
+                                                                <span class="lrob-etk-nl-audience-item-count" title="<?php esc_attr_e('Opted-in members reachable in this list.', 'lrob-email-toolkit'); ?>">
+                                                                    <?php echo esc_html(number_format_i18n($cnt)); ?>
+                                                                </span>
                                                             </span>
                                                         </label>
                                                     </li>

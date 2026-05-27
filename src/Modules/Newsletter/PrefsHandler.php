@@ -34,6 +34,8 @@ final class PrefsHandler
 
     public const QUERY_UNSUB = 'lrob-etk-nl-unsub';
 
+    public const QUERY_CONFIRM_EMAIL = 'lrob-etk-nl-confirm-email';
+
     private const NONCE_ACTION_PREFS = 'lrob_etk_nl_prefs_save';
 
     public function __construct(
@@ -59,6 +61,47 @@ final class PrefsHandler
         if (isset($_GET[self::QUERY_UNSUB])) {
             $this->handle_unsub((string) wp_unslash((string) $_GET[self::QUERY_UNSUB]));
             return;
+        }
+        if (isset($_GET[self::QUERY_CONFIRM_EMAIL])) {
+            $this->handle_confirm_email((string) wp_unslash((string) $_GET[self::QUERY_CONFIRM_EMAIL]));
+            return;
+        }
+    }
+
+    /**
+     * Apply a pending email-change confirmation token. Four outcomes:
+     *   - ok          → flip email, dispatch the prefs page with a flash
+     *   - expired     → 24h elapsed; tell user to request again
+     *   - email_taken → race condition (rare); ask to pick another
+     *   - invalid     → unknown token; generic "link expired" page
+     */
+    private function handle_confirm_email(string $token): void
+    {
+        $outcome = $this->subscribers->confirm_pending_email_change($token);
+        switch ($outcome) {
+            case 'ok':
+                self::render_message(
+                    __('Email confirmed', 'lrob-email-toolkit'),
+                    __('Your email address has been updated. You can keep using the previous preferences link or request a fresh one from any of our emails.', 'lrob-email-toolkit')
+                );
+                break;
+            case 'expired':
+                self::render_message(
+                    __('Link expired', 'lrob-email-toolkit'),
+                    __('This confirmation link is older than 24 hours. Go back to your preferences page and request the change again.', 'lrob-email-toolkit')
+                );
+                break;
+            case 'email_taken':
+                self::render_message(
+                    __('Address no longer available', 'lrob-email-toolkit'),
+                    __('That email is already linked to another subscription. Pick a different address from your preferences page.', 'lrob-email-toolkit')
+                );
+                break;
+            default:
+                self::render_message(
+                    __('Link expired', 'lrob-email-toolkit'),
+                    __('This email-change link is no longer valid.', 'lrob-email-toolkit')
+                );
         }
     }
 
@@ -153,6 +196,43 @@ final class PrefsHandler
             );
         }
 
+        // Email-change paths (subscribers only). Request stages a new
+        // address + token + dispatches the dual-message confirmation;
+        // cancel drops the pending row. Both render their own status
+        // page and exit — never fall through to the list-sync save.
+        if ($kind === UserMeta::KIND_SUBSCRIBER && !empty($_POST['lrob_etk_nl_request_email_change'])) {
+            $this->handle_email_change_request($recipient);
+        }
+        if ($kind === UserMeta::KIND_SUBSCRIBER && !empty($_POST['lrob_etk_nl_cancel_email_change'])) {
+            $this->subscribers->cancel_pending_email_change($id);
+            $return_to = isset($_POST['_lrob_etk_nl_return_to']) ? (string) wp_unslash((string) $_POST['_lrob_etk_nl_return_to']) : '';
+            $redirect = $return_to !== ''
+                ? add_query_arg(['lrob_etk_nl_saved' => '1'], $return_to)
+                : add_query_arg([self::QUERY_PREFS => $token, 'saved' => '1'], home_url('/'));
+            wp_safe_redirect($redirect);
+            exit;
+        }
+
+        // Profile-field saves (subscribers only). The POST shape is
+        // `profile[<column>]=<value>` for every editable column. Every
+        // write goes through set_profile_field which whitelists against
+        // PROFILE_COLUMNS — POST tampering can't reach outside the
+        // profile schema. Email column is explicitly skipped here; the
+        // email-change confirm flow is the only way to flip it.
+        if ($kind === UserMeta::KIND_SUBSCRIBER && isset($_POST['profile']) && is_array($_POST['profile'])) {
+            $payload = wp_unslash($_POST['profile']);
+            foreach ($payload as $column => $value) {
+                $col = (string) $column;
+                if ($col === 'email') {
+                    continue;
+                }
+                if (!in_array($col, SubscriberFields::PROFILE_COLUMNS, true)) {
+                    continue;
+                }
+                $this->subscribers->set_profile_field($id, $col, (string) $value);
+            }
+        }
+
         // Regular "save preferences" path: sync public-list memberships.
         // Picker only exposes lists where visibility=public + kind=subscribers,
         // so toggles on private / system / users lists silently no-op.
@@ -228,6 +308,61 @@ final class PrefsHandler
     }
 
     /**
+     * Stage an email-change request from the subscriber's prefs page.
+     * Validates the new address, persists the pending state + token,
+     * fires the dual-message dispatcher (confirm to new, notice to old).
+     * Renders a self-contained status page on every outcome — never
+     * falls through to the list-sync save.
+     */
+    private function handle_email_change_request(array $recipient): void
+    {
+        $id = (int) $recipient['id'];
+        $old_email = (string) ($recipient['email'] ?? '');
+        $new_email = isset($_POST['lrob_etk_nl_new_email'])
+            ? sanitize_email((string) wp_unslash((string) $_POST['lrob_etk_nl_new_email']))
+            : '';
+
+        [$status, $token] = $this->subscribers->set_pending_email_change($id, $new_email);
+        if ($status !== 'ok') {
+            $msg = match ($status) {
+                'invalid'     => __('That address doesn\'t look valid. Please double-check and try again.', 'lrob-email-toolkit'),
+                'same'        => __('That\'s already your email — nothing to change.', 'lrob-email-toolkit'),
+                'email_taken' => __('Another subscription already uses that address. Pick a different one.', 'lrob-email-toolkit'),
+                default       => __('We couldn\'t stage the change. Please try again.', 'lrob-email-toolkit'),
+            };
+            self::render_message(__('Email change rejected', 'lrob-email-toolkit'), $msg);
+        }
+
+        $sent = (new EmailChangeDispatcher())->send($id, $old_email, $new_email, $token);
+        if (!$sent) {
+            // Token + pending row still exist; we just couldn't dispatch
+            // the confirmation. Tell the subscriber so they can ask the
+            // admin to resend rather than silently waiting on a missed
+            // email. The pending state stays in place so the admin can
+            // see it from their detail modal.
+            self::render_message(
+                __('Confirmation email failed', 'lrob-email-toolkit'),
+                __('We staged the change but couldn\'t send the confirmation email to the new address. Please contact the site admin.', 'lrob-email-toolkit')
+            );
+        }
+
+        Events::dispatch('newsletter.subscriber.email_change_requested', [
+            'subscriber_id' => $id,
+            'old_email'     => $old_email,
+            'new_email'     => $new_email,
+        ]);
+
+        self::render_message(
+            __('Check your new inbox', 'lrob-email-toolkit'),
+            sprintf(
+                /* translators: %s: new email address awaiting confirmation. */
+                __('We sent a confirmation link to %s. The change kicks in once you click it (24h to confirm). The previous address has been notified.', 'lrob-email-toolkit'),
+                $new_email
+            )
+        );
+    }
+
+    /**
      * Replace the recipient's PUBLIC list memberships with the chosen
      * set: add any new ones, remove any that were dropped. Private +
      * system + users-kind lists are scoped out — subscribers can only
@@ -281,8 +416,8 @@ final class PrefsHandler
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f6f7f7; margin: 0; padding: 2rem 1rem; color: #1d2327; }
         .lrob-etk-nl-prefs-page { max-width: 640px; margin: 3rem auto; background: #fff; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         .lrob-etk-nl-prefs-page h1 { margin: 0 0 1rem; font-size: 1.5rem; }
-        .lrob-etk-nl-prefs-page fieldset { border: 1px solid #dcdcde; border-radius: 6px; padding: 1rem 1.25rem; margin: 0 0 1.25rem; }
-        .lrob-etk-nl-prefs-page legend { font-weight: 600; padding: 0 0.5em; }
+        .lrob-etk-nl-prefs-page section[class^="lrob-etk-nl-prefs-"] { border: 1px solid #dcdcde; border-radius: 6px; padding: 1rem 1.25rem; margin: 0 0 1.25rem; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-section-title { font-size: 1rem; font-weight: 600; margin: 0 0 0.6rem; color: #1d2327; }
         .lrob-etk-nl-prefs-page ul.lrob-etk-nl-prefs-checklist { list-style: none; padding: 0; margin: 0.5rem 0; }
         .lrob-etk-nl-prefs-page ul.lrob-etk-nl-prefs-checklist li { padding: 0.25rem 0; }
         .lrob-etk-nl-prefs-page label { cursor: pointer; line-height: 1.5; }
@@ -290,6 +425,21 @@ final class PrefsHandler
         .lrob-etk-nl-prefs-page button { font-family: inherit; font-size: 0.95rem; padding: 0.55rem 1.1rem; border-radius: 5px; cursor: pointer; border: 1px solid #2271b1; background: #2271b1; color: #fff; }
         .lrob-etk-nl-prefs-page button.lrob-etk-nl-prefs-secondary { background: #fff; color: #1d2327; }
         .lrob-etk-nl-prefs-page button.lrob-etk-nl-prefs-destructive { border-color: #b32d2e; color: #b32d2e; }
+        .lrob-etk-nl-prefs-page input[type="text"],
+        .lrob-etk-nl-prefs-page input[type="email"],
+        .lrob-etk-nl-prefs-page input[type="tel"],
+        .lrob-etk-nl-prefs-page select { font-family: inherit; font-size: 0.95rem; padding: 0.4rem 0.55rem; border: 1px solid #c3c4c7; border-radius: 4px; background: #fff; width: 100%; box-sizing: border-box; }
+        .lrob-etk-nl-prefs-page input:focus, .lrob-etk-nl-prefs-page select:focus { outline: 2px solid #2271b1; outline-offset: -1px; border-color: #2271b1; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.6rem 0.8rem; margin-top: 0.4rem; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-profile-grid label { display: flex; flex-direction: column; gap: 0.25rem; cursor: text; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-profile-grid label > span { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-profile-address { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed #e5e7eb; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-profile-address-title { display: block; font-size: 0.8rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-profile-row { display: flex; flex-direction: column; gap: 0.25rem; cursor: text; margin: 0 0 0.5rem; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-profile-row > span { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-email-change-row { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.6rem; cursor: text; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-email-change-row > span { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
+        .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-email-pending { padding: 0.5rem 0.75rem; background: #fef9ec; border-left: 3px solid #facc15; border-radius: 4px; margin-bottom: 0.6rem; color: #5c4400; }
         .lrob-etk-nl-prefs-page details { margin-top: 1.5rem; padding: 0.75rem 1rem; background: #fef9ec; border-radius: 6px; }
         .lrob-etk-nl-prefs-page details summary { cursor: pointer; font-weight: 500; }
         .lrob-etk-nl-prefs-page .lrob-etk-nl-prefs-flash { background: #ecfdf5; border: 1px solid #34d399; color: #065f46; border-radius: 5px; padding: 0.6rem 0.9rem; margin-bottom: 1rem; }
@@ -341,12 +491,32 @@ final class PrefsHandler
         $lists = $this->lists->list_public_for_subscribers();
         $member_ids = $this->lists->memberships_for_recipient($kind, $id);
 
+        // Subscriber-only profile snapshot — populates the editable
+        // form fields on the prefs page. WP users edit their own
+        // profile via the WP profile page, so we skip this for them.
+        $profile = [];
+        $pending_email = '';
+        if ($kind === UserMeta::KIND_SUBSCRIBER) {
+            $row = $this->subscribers->find_by_id($id);
+            if (is_array($row)) {
+                foreach (SubscriberFields::PROFILE_COLUMNS as $col) {
+                    if ($col === 'email') {
+                        continue;
+                    }
+                    $profile[$col] = (string) ($row[$col] ?? '');
+                }
+                $pending_email = (string) ($row['pending_email'] ?? '');
+            }
+        }
+
         return [
             'kind'            => $kind,
             'id'              => $id,
             'email'           => $email,
             'opted_in'        => $opted_in,
             'list_member_ids' => $member_ids,
+            'profile'         => $profile,
+            'pending_email'   => $pending_email,
             'lists'           => array_map(
                 static fn (array $l) => [
                     'id'          => (int) ($l['id'] ?? 0),

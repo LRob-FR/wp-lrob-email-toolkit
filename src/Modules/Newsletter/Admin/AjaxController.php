@@ -113,6 +113,7 @@ final class AjaxController
         NewsletterCPT::META_TRACK_OPENS,
         NewsletterCPT::META_TRACK_CLICKS,
         NewsletterCPT::META_LOG_ALL_SENDS,
+        NewsletterCPT::META_IGNORE_OPTOUTS,
     ];
 
     /**
@@ -1223,6 +1224,7 @@ final class AjaxController
             case NewsletterCPT::META_TRACK_OPENS:
             case NewsletterCPT::META_TRACK_CLICKS:
             case NewsletterCPT::META_LOG_ALL_SENDS:
+            case NewsletterCPT::META_IGNORE_OPTOUTS:
                 update_post_meta($newsletter_id, $key, !empty($value) && $value !== '0');
                 break;
             default:

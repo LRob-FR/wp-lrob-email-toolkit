@@ -192,6 +192,150 @@ final class SubscriberRepository
         return 'ok';
     }
 
+    /**
+     * Stage an email-change request. Generates a single-use token, stores
+     * it alongside the requested new address + a timestamp. Caller is
+     * responsible for dispatching the confirmation message; this method
+     * only persists the request.
+     *
+     * Returns one of:
+     *   - 'ok'          — request persisted, token in second slot
+     *   - 'invalid'     — malformed email
+     *   - 'same'        — new email equals current
+     *   - 'email_taken' — another subscriber already owns the address
+     *   - 'noop'        — subscriber row not found
+     *
+     * Calling this with a different `$new_email` while a previous
+     * request is still pending overwrites it (the previous token becomes
+     * useless silently — the new request supersedes).
+     *
+     * @return array{0:string, 1:string} `[$status, $token]` (token empty unless status='ok')
+     */
+    public function set_pending_email_change(int $id, string $new_email): array
+    {
+        $row = $this->find_by_id($id);
+        if ($row === null) {
+            return ['noop', ''];
+        }
+        $new_email = sanitize_email($new_email);
+        if ($new_email === '' || !is_email($new_email)) {
+            return ['invalid', ''];
+        }
+        if (strcasecmp($new_email, (string) $row['email']) === 0) {
+            return ['same', ''];
+        }
+        $other = $this->find_by_email($new_email);
+        if ($other !== null && (int) $other['id'] !== $id) {
+            return ['email_taken', ''];
+        }
+        $token = UserMeta::generate_prefs_token();
+        global $wpdb;
+        $wpdb->update(
+            Schema::subscribers_table(),
+            [
+                'pending_email'              => $new_email,
+                'pending_email_token'        => $token,
+                'pending_email_requested_at' => current_time('mysql', true),
+            ],
+            ['id' => $id],
+            ['%s', '%s', '%s'],
+            ['%d']
+        );
+        return ['ok', $token];
+    }
+
+    /**
+     * Resolve a pending-email-change token to its subscriber row.
+     * Tolerant of expired tokens (caller decides what to do based on
+     * `pending_email_requested_at`); returns null only when no row
+     * carries the token.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function find_by_pending_email_token(string $token): ?array
+    {
+        if ($token === '') {
+            return null;
+        }
+        global $wpdb;
+        $table = Schema::subscribers_table();
+        $row = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM `$table` WHERE pending_email_token = %s LIMIT 1", $token),
+            ARRAY_A
+        );
+        return is_array($row) ? $row : null;
+    }
+
+    /**
+     * Apply a pending email-change: flip `email` to `pending_email`,
+     * clear the pending columns + token. Returns one of:
+     *   - 'ok'          — change applied
+     *   - 'expired'     — token TTL exceeded
+     *   - 'email_taken' — somebody else claimed the address in the meantime
+     *   - 'invalid'     — token didn't match any row, or no pending email
+     *
+     * `$ttl_seconds` caps how old `pending_email_requested_at` can be;
+     * default 24h.
+     */
+    public function confirm_pending_email_change(string $token, int $ttl_seconds = DAY_IN_SECONDS): string
+    {
+        $row = $this->find_by_pending_email_token($token);
+        if ($row === null) {
+            return 'invalid';
+        }
+        $new_email = (string) ($row['pending_email'] ?? '');
+        $requested_at = (string) ($row['pending_email_requested_at'] ?? '');
+        if ($new_email === '' || $requested_at === '') {
+            return 'invalid';
+        }
+        $age = time() - (int) strtotime($requested_at . ' UTC');
+        if ($age > $ttl_seconds) {
+            // Drop the stale request so the column isn't a lingering
+            // ghost for future requests.
+            $this->cancel_pending_email_change((int) $row['id']);
+            return 'expired';
+        }
+        // Re-check the email-taken race: someone may have grabbed the
+        // address between request + confirm. Excludes the subscriber's
+        // own row from the collision check.
+        $other = $this->find_by_email($new_email);
+        if ($other !== null && (int) $other['id'] !== (int) $row['id']) {
+            $this->cancel_pending_email_change((int) $row['id']);
+            return 'email_taken';
+        }
+        global $wpdb;
+        $wpdb->update(
+            Schema::subscribers_table(),
+            [
+                'email'                      => $new_email,
+                'pending_email'              => '',
+                'pending_email_token'        => '',
+                'pending_email_requested_at' => null,
+            ],
+            ['id' => (int) $row['id']],
+            ['%s', '%s', '%s', '%s'],
+            ['%d']
+        );
+        return 'ok';
+    }
+
+    /** Drop any pending email-change for a subscriber. Idempotent. */
+    public function cancel_pending_email_change(int $id): void
+    {
+        global $wpdb;
+        $wpdb->update(
+            Schema::subscribers_table(),
+            [
+                'pending_email'              => '',
+                'pending_email_token'        => '',
+                'pending_email_requested_at' => null,
+            ],
+            ['id' => $id],
+            ['%s', '%s', '%s'],
+            ['%d']
+        );
+    }
+
     public function find_by_id(int $id): ?array
     {
         global $wpdb;

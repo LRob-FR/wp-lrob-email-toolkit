@@ -306,13 +306,26 @@
         if (trigger.hasAttribute('data-send-now')) {
             var isSchedule = (trigger.querySelector('[data-send-label]') || {}).textContent
                 === (trigger.getAttribute('data-label-schedule') || '');
+            // Bypass warning — if the card has the ignore-optouts box
+            // ticked we surface it loud in the confirm modal. Caps the
+            // body text with a red banner the admin must acknowledge
+            // before sending; doesn't gate the action otherwise.
+            var bypassCb = card.querySelector('[data-key="_lrob_etk_nl_ignore_optouts"]');
+            var bypassOn = bypassCb && bypassCb.checked;
+            var bodyText = isSchedule
+                ? (trigger.getAttribute('data-confirm-schedule') || '')
+                : (trigger.getAttribute('data-confirm-send') || '');
+            if (bypassOn) {
+                bodyText = (I18N.recipientsBypassWarn ||
+                    '⚠ Opt-outs bypassed — this newsletter will reach recipients who explicitly opted out. Only proceed for legitimate operational / legal communications.')
+                    + '\n\n' + bodyText;
+            }
             etkConfirm({
                 title: isSchedule
                     ? (trigger.getAttribute('data-label-schedule') || 'Schedule')
                     : (trigger.getAttribute('data-label-send') || 'Send now'),
-                body: isSchedule
-                    ? (trigger.getAttribute('data-confirm-schedule') || '')
-                    : (trigger.getAttribute('data-confirm-send') || ''),
+                body: bodyText,
+                danger: bypassOn,
                 confirmLabel: isSchedule
                     ? (trigger.getAttribute('data-label-schedule') || 'Schedule')
                     : (trigger.getAttribute('data-label-send') || 'Send now')
@@ -633,12 +646,26 @@
         if (!countEl) return;
         var id = card.getAttribute('data-newsletter-id');
         if (!id) return;
+        var optoutEl = card.querySelector('[data-recipients-optout]');
+        var bypassEl = card.querySelector('[data-recipients-bypass]');
         post(ACTIONS.recipientsPreview, { newsletter_id: id }).then(function (resp) {
-            if (resp && resp.success && typeof resp.data.total !== 'undefined') {
-                countEl.textContent = resp.data.total;
-            } else {
+            if (!resp || !resp.success) {
                 countEl.textContent = '—';
+                if (optoutEl) optoutEl.hidden = true;
+                if (bypassEl) bypassEl.hidden = true;
+                return;
             }
+            var d = resp.data;
+            countEl.textContent = d.total || 0;
+            if (optoutEl) {
+                if (d.opted_out > 0 && !d.ignore_optouts) {
+                    optoutEl.textContent = '· −' + d.opted_out + ' ' + (I18N.recipientsOptedOut || 'opted out');
+                    optoutEl.hidden = false;
+                } else {
+                    optoutEl.hidden = true;
+                }
+            }
+            if (bypassEl) bypassEl.hidden = !d.ignore_optouts;
         });
     }
 
@@ -1189,35 +1216,138 @@
     }
 
     function renderPreview(body, d) {
-        // Pre-send dry-run path: no per-recipient row yet, so we list
-        // who *would* be targeted given the current settings — no
-        // filtering / pagination, capped to sample_limit.
+        // Pre-send dry-run path. Each sample row carries:
+        //   was_opted_out (bool) — user's stated preference
+        //   delivery     ('sent'|'skipped') — the outcome
+        //   force        ('none'|'include'|'exclude') — admin override
+        // Each user appears once. Tabs filter by was_opted_out.
         if (!body) return;
         var html = '';
+        var optedOut = d.opted_out || 0;
+        var ignore = !!d.ignore_optouts;
+        var sample = d.sample || [];
+
+        // Line 1: total recipients (always).
         html += '<div class="lrob-etk-nl-recipients-summary">' +
-            '<strong>' + (d.total || 0) + '</strong> ' + escHtml(I18N.recipientsTotal || 'recipients') +
-            '</div>';
+            '<strong>' + (d.total || 0) + '</strong> ' + escHtml(I18N.recipientsTotal || 'recipients');
+        html += '</div>';
+
         if (d.by_kind) {
             html += '<p class="lrob-etk-nl-recipients-bykind">' +
                 (d.by_kind.subscriber || 0) + ' ' + escHtml(I18N.recipientsSubscribers || 'subscribers') + ' · ' +
                 (d.by_kind.user || 0) + ' ' + escHtml(I18N.recipientsUsers || 'WordPress users') +
                 '</p>';
         }
-        if (d.sample && d.sample.length) {
+
+        // Line 2: opted-out count + inline Bypass checkbox. Only
+        // rendered when there ARE opt-outs (otherwise irrelevant).
+        if (optedOut > 0) {
+            html += '<div class="lrob-etk-nl-recipients-optout-row">' +
+                '<span class="lrob-etk-nl-recipients-optout-count">−' + optedOut + ' ' +
+                    escHtml(I18N.recipientsOptedOut || 'opted out') +
+                '</span>' +
+                '<label class="lrob-etk-nl-recipients-bypass-inline">' +
+                    '<input type="checkbox" data-recipients-ignore-optouts' + (ignore ? ' checked' : '') + '>' +
+                    '<span>' + escHtml(I18N.recipientsBypassShort || 'Bypass') + '</span>' +
+                '</label>' +
+                '</div>';
+            // Line 3: warning, only when bypass is actually checked.
+            if (ignore) {
+                html += '<p class="lrob-etk-nl-recipients-bypass-warn">' +
+                    escHtml(I18N.recipientsBypassWarn ||
+                        '⚠ Opt-outs bypassed — this newsletter will reach recipients who explicitly opted out. Only proceed for legitimate operational / legal communications.') +
+                    '</p>';
+            }
+        }
+
+        // Tabs — only when there ARE opt-outs in the matched audience.
+        // No opt-outs means filtering is pointless.
+        if (optedOut > 0) {
+            var optedIn = (d.total || 0) - optedOut + (ignore ? 0 : optedOut);
+            // optedIn is the audience minus opt-outs. We compute from
+            // the sample tagged data — the tab counts are derived
+            // client-side so they're always consistent with the rows.
+            var counts = {all: sample.length, opted_in: 0, opted_out: 0};
+            sample.forEach(function (r) {
+                if (r.was_opted_out) counts.opted_out++;
+                else counts.opted_in++;
+            });
+            html += '<div class="lrob-etk-nl-recipients-tabs" role="tablist">' +
+                '<button type="button" role="tab" class="lrob-etk-nl-recipients-tab is-active" data-recipients-preview-tab="all">' +
+                    escHtml(I18N.recipientsTabAll || 'All') + ' <span>(' + counts.all + ')</span>' +
+                '</button>' +
+                '<button type="button" role="tab" class="lrob-etk-nl-recipients-tab" data-recipients-preview-tab="opted_in">' +
+                    escHtml(I18N.recipientsTabOptedIn || 'Opted-in') + ' <span>(' + counts.opted_in + ')</span>' +
+                '</button>' +
+                '<button type="button" role="tab" class="lrob-etk-nl-recipients-tab" data-recipients-preview-tab="opted_out">' +
+                    escHtml(I18N.recipientsTabOptedOut || 'Opted-out') + ' <span>(' + counts.opted_out + ')</span>' +
+                '</button>' +
+                '</div>';
+        }
+
+        if (sample.length) {
             var sampleNote = (I18N.recipientsSample || 'Sample (first %d):')
-                .replace('%d', d.sample_limit || d.sample.length);
+                .replace('%d', d.sample_limit || sample.length);
             html += '<p class="lrob-etk-nl-recipients-sample-note">' + escHtml(sampleNote) + '</p>';
-            html += '<ul class="lrob-etk-nl-recipients-preview-list">';
-            d.sample.forEach(function (r) {
-                html += '<li>' +
-                    '<span class="lrob-etk-nl-recipients-kind">' + escHtml(r.kind || '') + '</span>' +
-                    '<span class="lrob-etk-nl-recipients-email-value"> ' + escHtml(r.email || '') + '</span>' +
-                    (r.name ? '<span class="lrob-etk-nl-recipients-name"> ' + escHtml(r.name) + '</span>' : '') +
-                    '</li>';
+            html += '<ul class="lrob-etk-nl-recipients-preview-list" data-recipients-preview-list>';
+            sample.forEach(function (r) {
+                html += renderPreviewRow(r);
             });
             html += '</ul>';
         }
         body.innerHTML = html;
+    }
+
+    function renderPreviewRow(r) {
+        var deliveryBadge = r.delivery === 'sent'
+            ? '<span class="lrob-etk-nl-recipients-badge is-sent">' + escHtml(I18N.recipientsWillSend || 'will send') + '</span>'
+            : '<span class="lrob-etk-nl-recipients-badge is-skipped">' + escHtml(I18N.recipientsSkipped || 'skipped') + '</span>';
+        var optoutBadge = r.was_opted_out
+            ? '<span class="lrob-etk-nl-recipients-badge is-opted-out">' + escHtml(I18N.recipientsOptedOut || 'opted out') + '</span>'
+            : '';
+        var forceBadge = '';
+        if (r.force === 'include') {
+            forceBadge = '<span class="lrob-etk-nl-recipients-badge is-forced-in">' + escHtml(I18N.recipientsForceIncluded || 'force include') + '</span>';
+        } else if (r.force === 'exclude') {
+            forceBadge = '<span class="lrob-etk-nl-recipients-badge is-forced-out">' + escHtml(I18N.recipientsForceExcluded || 'force exclude') + '</span>';
+        }
+
+        // Per-row action button — context-dependent.
+        var toggleHtml = '';
+        if (r.force === 'include') {
+            toggleHtml = '<button type="button" class="lrob-etk-nl-recipients-row-toggle is-on" ' +
+                'data-force-toggle="include" data-mode="remove" data-kind="' + escHtml(r.kind || '') + '" data-id="' + (r.id || 0) + '">' +
+                escHtml(I18N.recipientsUndoForce || 'Undo') +
+                '</button>';
+        } else if (r.force === 'exclude') {
+            toggleHtml = '<button type="button" class="lrob-etk-nl-recipients-row-toggle is-on" ' +
+                'data-force-toggle="exclude" data-mode="remove" data-kind="' + escHtml(r.kind || '') + '" data-id="' + (r.id || 0) + '">' +
+                escHtml(I18N.recipientsUndoForce || 'Undo') +
+                '</button>';
+        } else if (r.delivery === 'skipped') {
+            // Opted-out without override → offer "Send anyway".
+            toggleHtml = '<button type="button" class="lrob-etk-nl-recipients-row-toggle" ' +
+                'data-force-toggle="include" data-kind="' + escHtml(r.kind || '') + '" data-id="' + (r.id || 0) + '">' +
+                escHtml(I18N.recipientsForceInclude || 'Send anyway') +
+                '</button>';
+        } else {
+            // Default-sent → offer "Exclude".
+            toggleHtml = '<button type="button" class="lrob-etk-nl-recipients-row-toggle is-quiet" ' +
+                'data-force-toggle="exclude" data-kind="' + escHtml(r.kind || '') + '" data-id="' + (r.id || 0) + '">' +
+                escHtml(I18N.recipientsForceExclude || 'Exclude') +
+                '</button>';
+        }
+
+        return '<li class="lrob-etk-nl-recipients-preview-row delivery-' + (r.delivery || 'sent') + '" ' +
+            'data-row-optedout="' + (r.was_opted_out ? '1' : '0') + '">' +
+            '<span class="lrob-etk-nl-recipients-kind">' + escHtml(r.kind || '') + '</span>' +
+            '<span class="lrob-etk-nl-recipients-email-value"> ' + escHtml(r.email || '') + '</span>' +
+            (r.name ? '<span class="lrob-etk-nl-recipients-name"> ' + escHtml(r.name) + '</span>' : '') +
+            optoutBadge +
+            forceBadge +
+            deliveryBadge +
+            toggleHtml +
+            '</li>';
     }
 
     function formatSentAt(raw) {
@@ -1256,6 +1386,78 @@
                 else if (dir === 'prev') recipientsState.offset = Math.max(0, recipientsState.offset - recipientsState.limit);
                 loadRecipients();
             }
+            // Per-row force-include / force-exclude toggle in the
+            // pre-send preview. Click → AJAX persist → reload preview
+            // so the row's badge + the global count reflect the new
+            // state. Mode defaults to 'add' (button = "Send anyway" /
+            // "Exclude"); 'remove' for the undo state.
+            var forceBtn = e.target.closest('[data-force-toggle]');
+            if (forceBtn) {
+                e.preventDefault();
+                var list = forceBtn.getAttribute('data-force-toggle');
+                var kind = forceBtn.getAttribute('data-kind');
+                var id   = forceBtn.getAttribute('data-id');
+                var mode = forceBtn.getAttribute('data-mode') || 'add';
+                forceBtn.disabled = true;
+                post(ACTIONS.forceOverridesSave, {
+                    newsletter_id: recipientsState.newsletterId,
+                    list: list,
+                    kind: kind,
+                    id: id,
+                    mode: mode
+                }).then(function (resp) {
+                    forceBtn.disabled = false;
+                    if (resp && resp.success) {
+                        loadRecipients();
+                        // Card-level count refresh too — picker reads
+                        // the same data so it'll pick up the new total.
+                        var card = document.querySelector('[data-newsletter-id="' + recipientsState.newsletterId + '"]');
+                        if (card) refreshRecipientCount(card);
+                    }
+                });
+                return;
+            }
+            // Tab switch within the preview — pure client-side
+            // filtering on the was_opted_out flag carried by every
+            // sample row. Tabs only render when opt-outs exist.
+            var tabBtn = e.target.closest('[data-recipients-preview-tab]');
+            if (tabBtn) {
+                var tab = tabBtn.getAttribute('data-recipients-preview-tab');
+                modal.querySelectorAll('[data-recipients-preview-tab]').forEach(function (b) {
+                    b.classList.toggle('is-active', b === tabBtn);
+                });
+                var rows = modal.querySelectorAll('[data-recipients-preview-list] [data-row-optedout]');
+                rows.forEach(function (row) {
+                    var isOptedOut = row.getAttribute('data-row-optedout') === '1';
+                    var show = (tab === 'all')
+                        || (tab === 'opted_in' && !isOptedOut)
+                        || (tab === 'opted_out' && isOptedOut);
+                    row.hidden = !show;
+                });
+                return;
+            }
+        });
+        // Bypass checkbox in the preview header (rendered conditionally
+        // when opt-outs exist). Routes through the standard
+        // newsletter-meta save endpoint. Listening on 'change' rather
+        // than 'click' to fire after the checked state flips.
+        modal.addEventListener('change', function (e) {
+            var bypass = e.target.closest('[data-recipients-ignore-optouts]');
+            if (!bypass) return;
+            var value = bypass.checked ? '1' : '';
+            var fd = new FormData();
+            fd.append('action', 'lrob_etk_nl_newsletter_save_meta');
+            fd.append('_nonce', (window.lrobEtkNlAdmin && window.lrobEtkNlAdmin.nonce) || '');
+            fd.append('newsletter_id', recipientsState.newsletterId);
+            fd.append('key', '_lrob_etk_nl_ignore_optouts');
+            fd.append('value', value);
+            fetch((window.lrobEtkNlAdmin && window.lrobEtkNlAdmin.ajaxUrl) || '', { method: 'POST', credentials: 'same-origin', body: fd })
+                .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+                .then(function () {
+                    loadRecipients();
+                    var card = document.querySelector('[data-newsletter-id="' + recipientsState.newsletterId + '"]');
+                    if (card) refreshRecipientCount(card);
+                });
         });
         var searchInput = modal.querySelector('[data-recipients-search]');
         if (searchInput) {

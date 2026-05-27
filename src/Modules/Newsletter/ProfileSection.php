@@ -42,44 +42,6 @@ final class ProfileSection
         <p class="description">
             <?php esc_html_e('Pick which mailing lists you\'re on. To stop receiving everything, uncheck "Receive newsletter emails" below.', 'lrob-email-toolkit'); ?>
         </p>
-        <?php
-        // Scoped styling that tames the default <fieldset>/<legend>
-        // sizing inside profile.php — without this, the legends render
-        // 1.3-1.5× the body font (browser default) and visually dwarf
-        // the page's own <h2>. PrefsRenderer keeps its fieldset markup
-        // for semantic correctness; this overlays profile-appropriate
-        // sizing without touching the public prefs page.
-        ?>
-        <style>
-            .lrob-etk-nl-prefs-inputs fieldset {
-                border: 0;
-                padding: 0;
-                margin: 0 0 1.5em;
-            }
-            .lrob-etk-nl-prefs-inputs legend {
-                padding: 0;
-                margin: 0 0 0.5em;
-                font-size: 13px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.04em;
-                color: #3c434a;
-            }
-            .lrob-etk-nl-prefs-inputs ul.lrob-etk-nl-prefs-checklist {
-                list-style: none;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.25rem 1rem;
-            }
-            .lrob-etk-nl-prefs-inputs ul.lrob-etk-nl-prefs-checklist li {
-                margin: 0;
-            }
-            .lrob-etk-nl-prefs-inputs p.description {
-                margin: 0.25em 0 0.75em;
-            }
-        </style>
         <div class="lrob-etk-nl-prefs-profile-wrap"><?php echo PrefsRenderer::render_inputs($state); ?></div>
         <?php
     }
