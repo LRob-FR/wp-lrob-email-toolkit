@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Admin\Assets;
 use LRob\EmailToolkit\Admin\Combobox;
-use LRob\EmailToolkit\Admin\ModuleToggle;
+use LRob\EmailToolkit\Admin\PageHeader;
+use LRob\EmailToolkit\Admin\RetentionToggle;
 use LRob\EmailToolkit\Admin\Tooltip;
 use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
 use LRob\EmailToolkit\Forms\CountryData;
 use LRob\EmailToolkit\Forms\FormEditorRenderer;
 use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Forms\StylePresets;
+use LRob\EmailToolkit\Forms\Upload\UploadPolicy;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsAjax;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\Frontend as FormFrontend;
 use LRob\EmailToolkit\Modules\ContactForm\Module as ContactFormModule;
@@ -31,7 +35,7 @@ use LRob\EmailToolkit\Plugin;
  * header button, and tweak global defaults in the section below the list.
  *
  * Matches the SMTP page chrome: `.lrob-etk-page-header` with inline module
- * toggle, `.lrob-etk-identities` card grid for entities, and
+ * toggle, `.lrob-etk-card-grid` card grid for entities, and
  * `.lrob-etk-modal-columns` for multi-column settings — no full-width
  * stretches.
  */
@@ -70,6 +74,52 @@ final class FormsPage
             [],
             self::asset_version('assets/css/contact-form.css')
         );
+
+        // Inbox JS — live filter AJAX + bulk actions. Only relevant when
+        // the submissions view is showing, but it's cheap to register
+        // either way; the script guards itself by querying for the inbox
+        // root before binding anything. Depends on the plugin-wide
+        // list-filter helper enqueued by Admin\Assets.
+        wp_enqueue_script(
+            'lrob-etk-cf-submissions-inbox',
+            LROB_ETK_URL . 'admin/js/contact-form-submissions-inbox.js',
+            [Assets::HANDLE_LIST_FILTER_JS],
+            self::asset_version('admin/js/contact-form-submissions-inbox.js'),
+            true
+        );
+        wp_localize_script('lrob-etk-cf-submissions-inbox', 'lrobEtkCfInbox', [
+            'ajaxUrl'       => admin_url('admin-ajax.php'),
+            'nonce'         => wp_create_nonce(SubmissionsAjax::NONCE_ACTION),
+            'actionFilter'  => SubmissionsAjax::ACTION_FILTER,
+            'actionBulk'    => SubmissionsAjax::ACTION_BULK,
+            'actionDetail'  => SubmissionsAjax::ACTION_DETAIL,
+            'baseUrl'       => SubmissionsPage::base_url(),
+            'i18n'          => [
+                /* translators: %d: count of selected submissions */
+                'confirmSpam'      => __('Mark the %d selected submissions as spam?', 'lrob-email-toolkit'),
+                'confirmSpamOne'   => __('Mark this submission as spam?', 'lrob-email-toolkit'),
+                'confirmSpamBtn'   => __('Yes, mark as spam', 'lrob-email-toolkit'),
+                'spamReversible'   => __('Spam-marked submissions stay in the inbox under the Spam filter — you can restore them at any time.', 'lrob-email-toolkit'),
+                /* translators: %d: count of selected submissions */
+                'confirmDelete'    => __('Permanently delete the %d selected submissions?', 'lrob-email-toolkit'),
+                'confirmDeleteOne' => __('Delete this submission?', 'lrob-email-toolkit'),
+                'confirmDeleteBtn' => __('Yes, delete permanently', 'lrob-email-toolkit'),
+                'deleteIrrev'      => __('This is irreversible. Field data and any attached files will be permanently removed.', 'lrob-email-toolkit'),
+                'cancel'           => __('Cancel', 'lrob-email-toolkit'),
+                'close'            => __('Close', 'lrob-email-toolkit'),
+                'nothingPicked'    => __('Select at least one submission first.', 'lrob-email-toolkit'),
+                'selectAction'     => __('Choose a bulk action first.', 'lrob-email-toolkit'),
+                /* translators: %d: count of selected submissions */
+                'selectedCount'    => __('%d selected', 'lrob-email-toolkit'),
+                'error'            => __('Something went wrong. Please try again.', 'lrob-email-toolkit'),
+                'detailPrev'       => __('Previous', 'lrob-email-toolkit'),
+                'detailNext'       => __('Next', 'lrob-email-toolkit'),
+                'detailLoading'    => __('Loading…', 'lrob-email-toolkit'),
+                'detailMarkSpam'   => __('Mark as spam', 'lrob-email-toolkit'),
+                'detailRestore'    => __('Restore from spam', 'lrob-email-toolkit'),
+                'detailDelete'     => __('Delete', 'lrob-email-toolkit'),
+            ],
+        ]);
 
         // The frontend form JS exposes `window.lrobEtkPhone.attach()` and
         // `window.lrobEtkForm.countries`, both required to hydrate the
@@ -141,6 +191,11 @@ final class FormsPage
             'captchaKey'     => CPT::META_CHALLENGE_KIND,
             'captchaOptions' => $captcha_options,
             'countries'      => CountryData::all_translated(),
+            'uploadPresets'         => self::upload_preset_options(),
+            'uploadDeliveryOptions' => self::upload_delivery_options(),
+            'uploadTier1Extensions' => UploadPolicy::tier1_extensions(),
+            'uploadTier2Extensions' => UploadPolicy::tier2_extensions(),
+            'serverMaxUploadBytes'  => (int) wp_max_upload_size(),
             // Save plumbing for the shared editor JS. Falls back to
             // lrobEtkCfAdmin if absent (legacy / cached pages).
             'save' => [
@@ -165,6 +220,24 @@ final class FormsPage
                 'defaultCountry'     => __('Default', 'lrob-email-toolkit'),
                 'autoDetectCountry'  => __('Auto-detect from browser', 'lrob-email-toolkit'),
                 'autoFromLocale'     => __('Auto (locale)', 'lrob-email-toolkit'),
+                'multiple'           => __('Multiple choices', 'lrob-email-toolkit'),
+                'multipleFiles'      => __('Multiple files', 'lrob-email-toolkit'),
+                'maxCount'           => __('Max files', 'lrob-email-toolkit'),
+                'maxSizeMb'          => __('Max MB per file', 'lrob-email-toolkit'),
+                'totalSizeMb'        => __('Max MB total', 'lrob-email-toolkit'),
+                'acceptPreset'       => __('Types', 'lrob-email-toolkit'),
+                'acceptCustom'       => __('Custom (e.g. pdf, jpg)', 'lrob-email-toolkit'),
+                'stripExif'          => __('Strip image metadata', 'lrob-email-toolkit'),
+                'allowDangerous'     => __('I understand the risks (allow scripts / executables)', 'lrob-email-toolkit'),
+                'fileDelivery'       => __('Delivery', 'lrob-email-toolkit'),
+                /* translators: %d: max number of MB the host server allows per upload (computed live). */
+                'serverMaxHint'      => __('(server max %d MB)', 'lrob-email-toolkit'),
+                'chooseFile'         => __('Choose a file', 'lrob-email-toolkit'),
+                /* translators: %d: max number of files the field allows. */
+                'chooseFilesMulti'   => __('Choose files (max %d)', 'lrob-email-toolkit'),
+                /* translators: 1: max MB per file, 2: extension list joined by commas (e.g. .pdf, .jpg) */
+                'uploadHintTpl'      => __('Max %1$d MB per file — %2$s', 'lrob-email-toolkit'),
+                'uploadHintNoLimit'  => __('no file type restriction', 'lrob-email-toolkit'),
                 'options'      => __('Options', 'lrob-email-toolkit'),
                 'addOption'    => __('Add option', 'lrob-email-toolkit'),
                 'multiple'     => __('Multiple choices', 'lrob-email-toolkit'),
@@ -336,30 +409,32 @@ final class FormsPage
             $emails = [''];
         }
         ?>
-        <div class="lrob-etk-cf-recipients" data-recipient-input>
+        <div class="lrob-etk-recipient-list" data-recipient-input>
             <input type="hidden"
                    name="<?php echo esc_attr($key); ?>"
                    class="lrob-etk-cf-field"
                    data-key="<?php echo esc_attr($key); ?>"
                    value="<?php echo esc_attr($current_value); ?>">
-            <div class="lrob-etk-cf-recipients-rows" data-recipient-rows>
+            <div class="lrob-etk-recipient-list-rows" data-recipient-rows>
                 <?php foreach ($emails as $i => $email) : ?>
-                    <div class="lrob-etk-cf-recipient-row">
-                        <input type="email"
-                               class="lrob-etk-cf-recipient-input"
-                               value="<?php echo esc_attr((string) $email); ?>"
-                               placeholder="<?php echo esc_attr($placeholder); ?>"
-                               autocomplete="off">
-                        <button type="button" class="lrob-etk-cf-recipient-pick" aria-label="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>">
-                            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-                        </button>
-                        <button type="button" class="lrob-etk-cf-recipient-remove" aria-label="<?php esc_attr_e('Remove this recipient', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Remove', 'lrob-email-toolkit'); ?>">
+                    <div class="lrob-etk-recipient-row">
+                        <div class="lrob-etk-recipient-shell">
+                            <input type="email"
+                                   class="lrob-etk-recipient-input"
+                                   value="<?php echo esc_attr((string) $email); ?>"
+                                   placeholder="<?php echo esc_attr($placeholder); ?>"
+                                   autocomplete="off">
+                            <button type="button" class="lrob-etk-recipient-pick" aria-label="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>">
+                                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                        <button type="button" class="lrob-etk-recipient-remove" aria-label="<?php esc_attr_e('Remove this recipient', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Remove', 'lrob-email-toolkit'); ?>">
                             <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
                         </button>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="button button-small lrob-etk-cf-recipient-add" data-recipient-add>
+            <button type="button" class="button button-small lrob-etk-recipient-add" data-recipient-add>
                 <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
                 <?php esc_html_e('Add recipient', 'lrob-email-toolkit'); ?>
             </button>
@@ -422,30 +497,35 @@ final class FormsPage
         $enabled = $this->module->is_enabled();
         ?>
         <div class="wrap lrob-etk lrob-etk-cform-page">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('Contact Forms', 'lrob-email-toolkit'); ?></h1>
-                <?php ModuleToggle::render_inline($this->module); ?>
-                <?php if ($enabled) : ?>
-                    <div class="lrob-etk-page-header-actions">
-                        <a href="<?php echo esc_url(SubmissionsPage::base_url()); ?>" class="button">
-                            <span class="dashicons dashicons-feedback"></span>
-                            <?php esc_html_e('View submissions', 'lrob-email-toolkit'); ?>
-                        </a>
-                        <button type="button" class="button" id="lrob-etk-cf-storage-btn">
-                            <span class="dashicons dashicons-database"></span>
-                            <?php esc_html_e('Storage', 'lrob-email-toolkit'); ?>
-                        </button>
-                        <button type="button" class="button" id="lrob-etk-cf-defaults-btn" data-defaults-modal-open>
-                            <span class="dashicons dashicons-admin-generic"></span>
-                            <?php esc_html_e('Default settings', 'lrob-email-toolkit'); ?>
-                        </button>
-                        <button type="button" class="button button-primary" id="lrob-etk-cf-new-form-btn">
-                            <span class="dashicons dashicons-plus-alt2"></span>
-                            <?php esc_html_e('New form', 'lrob-email-toolkit'); ?>
-                        </button>
-                    </div>
-                <?php endif; ?>
-            </header>
+            <?php PageHeader::render([
+                'title'   => __('Contact Forms', 'lrob-email-toolkit'),
+                'module'  => $this->module,
+                'primary' => [
+                    'label' => __('New form', 'lrob-email-toolkit'),
+                    'icon'  => 'dashicons-plus-alt2',
+                    'id'    => 'lrob-etk-cf-new-form-btn',
+                ],
+                'tools'   => [
+                    [
+                        'label' => __('Defaults', 'lrob-email-toolkit'),
+                        'icon'  => 'dashicons-admin-generic',
+                        'id'    => 'lrob-etk-defaults-btn',
+                        'attrs' => ['data-defaults-modal-open' => null],
+                    ],
+                    [
+                        'label' => __('Storage', 'lrob-email-toolkit'),
+                        'icon'  => 'dashicons-database',
+                        'id'    => 'lrob-etk-cf-storage-btn',
+                    ],
+                ],
+                'nav'     => [
+                    [
+                        'label' => __('Submissions', 'lrob-email-toolkit'),
+                        'icon'  => 'dashicons-feedback',
+                        'href'  => SubmissionsPage::base_url(),
+                    ],
+                ],
+            ]); ?>
 
             <?php if ($enabled) : ?>
                 <?php self::render_new_form_picker(); ?>
@@ -488,12 +568,12 @@ final class FormsPage
                     </button>
                 </header>
                 <div class="lrob-etk-modal-body">
-                    <p class="lrob-etk-cf-delete-summary"></p>
-                    <p class="lrob-etk-cf-delete-warning lrob-etk-cf-delete-warning--no-subs">
+                    <p class="lrob-etk-delete-summary"></p>
+                    <p class="lrob-etk-delete-warning lrob-etk-delete-warning--no-subs">
                         <?php esc_html_e('This form has no submissions yet. Deleting is final.', 'lrob-email-toolkit'); ?>
                     </p>
                 </div>
-                <footer class="lrob-etk-modal-footer lrob-etk-cf-delete-footer">
+                <footer class="lrob-etk-modal-footer lrob-etk-delete-footer">
                     <button type="button" class="button" data-cf-delete-cancel>
                         <?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?>
                     </button>
@@ -511,8 +591,8 @@ final class FormsPage
             var modal = document.getElementById('lrob-etk-cf-delete-modal');
             if (!modal) return;
             var titleEl   = modal.querySelector('#lrob-etk-cf-delete-title');
-            var summary   = modal.querySelector('.lrob-etk-cf-delete-summary');
-            var noSubsMsg = modal.querySelector('.lrob-etk-cf-delete-warning--no-subs');
+            var summary   = modal.querySelector('.lrob-etk-delete-summary');
+            var noSubsMsg = modal.querySelector('.lrob-etk-delete-warning--no-subs');
             var orphanBtn = modal.querySelector('.lrob-etk-cf-delete-orphan');
             var cascadeBtn = modal.querySelector('.lrob-etk-cf-delete-cascade');
             var currentTrigger = null;
@@ -686,7 +766,7 @@ final class FormsPage
             $identities = self::active_identities();
             $globals = Settings::all();
             ?>
-            <div class="lrob-etk-identities lrob-etk-cf-forms-grid">
+            <div class="lrob-etk-card-grid lrob-etk-card-grid--wide">
                 <?php foreach ($forms as $form) : ?>
                     <?php $this->render_form_card($form, $identities, $globals); ?>
                 <?php endforeach; ?>
@@ -884,7 +964,17 @@ final class FormsPage
             $preset_options[] = ['value' => $value, 'label' => $label];
         }
         ?>
-        <article class="lrob-etk-identity-card lrob-etk-cf-form-card" data-form-id="<?php echo $form_id; ?>">
+        <?php
+        // Save-state attributes scoped to the card: CSS uses them to surface a
+        // warning under each file_upload field when "Save submissions" is off
+        // (uploads silently fall back to email-attachment mode at submit time).
+        $save_global_default = !empty($globals[Settings::KEY_SAVE_SUBMISSIONS]);
+        $save_effective_off = !Settings::effective_save_submissions($form_id);
+        ?>
+        <article class="lrob-etk-card lrob-etk-form-card"
+                 data-form-id="<?php echo $form_id; ?>"
+                 data-save-global-off="<?php echo $save_global_default ? '0' : '1'; ?>"
+                 data-save-effective-off="<?php echo $save_effective_off ? '1' : '0'; ?>">
             <form class="lrob-etk-card-form" novalidate onsubmit="return false">
                 <header class="lrob-etk-card-form-head">
                     <input
@@ -901,11 +991,11 @@ final class FormsPage
                     <span class="lrob-etk-card-status" aria-live="polite"></span>
                 </header>
 
-                <section class="lrob-etk-cf-essentials">
+                <section class="lrob-etk-form-essentials">
                     <div class="lrob-etk-field">
                         <label><?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?></label>
                         <?php if ($no_recipient_anywhere) : ?>
-                            <div class="lrob-etk-cf-warning" role="status">
+                            <div class="lrob-etk-banner-warning" role="status">
                                 <span class="dashicons dashicons-warning" aria-hidden="true"></span>
                                 <span><?php esc_html_e('No recipient is set anywhere — submissions will only be saved on this site, no email will be sent. Add at least one recipient below, or set a global default.', 'lrob-email-toolkit'); ?></span>
                             </div>
@@ -918,8 +1008,8 @@ final class FormsPage
                     </div>
                 </section>
 
-                <section class="lrob-etk-cf-style-group">
-                    <h3 class="lrob-etk-cf-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
+                <section class="lrob-etk-form-style-group">
+                    <h3 class="lrob-etk-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
                     <div class="lrob-etk-field">
                         <label><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
                         <?php self::render_combobox(CPT::META_STYLE_PRESET, $meta['style_preset'], $preset_options); ?>
@@ -950,12 +1040,12 @@ final class FormsPage
                     </a>
                 <?php endif; ?>
 
-                <details class="lrob-etk-cf-advanced">
-                    <summary class="lrob-etk-cf-advanced-summary">
-                        <span class="lrob-etk-cf-advanced-caret" aria-hidden="true">▸</span>
-                        <span class="lrob-etk-cf-advanced-label"><?php esc_html_e('Advanced settings', 'lrob-email-toolkit'); ?></span>
+                <details class="lrob-etk-form-advanced">
+                    <summary class="lrob-etk-advanced-summary">
+                        <span class="lrob-etk-advanced-caret" aria-hidden="true">▸</span>
+                        <span class="lrob-etk-advanced-label"><?php esc_html_e('Advanced settings', 'lrob-email-toolkit'); ?></span>
                         <?php if ($created_display !== '') : ?>
-                            <span class="lrob-etk-cf-advanced-meta">
+                            <span class="lrob-etk-advanced-meta">
                                 <?php
                                 /* translators: %s: localized creation date */
                                 printf(esc_html__('Since %s', 'lrob-email-toolkit'), esc_html($created_display));
@@ -963,7 +1053,7 @@ final class FormsPage
                             </span>
                         <?php endif; ?>
                     </summary>
-                    <div class="lrob-etk-cf-advanced-body">
+                    <div class="lrob-etk-advanced-body">
                         <div class="lrob-etk-modal-columns">
                             <section class="lrob-etk-form-column">
                                 <h3 class="lrob-etk-form-column-head">
@@ -1032,7 +1122,7 @@ final class FormsPage
                                     <span class="lrob-etk-form-column-title"><?php esc_html_e('Throttling', 'lrob-email-toolkit'); ?></span>
                                     <?php Tooltip::render(__('Server-side rate limit per submitter (identified by IP hash). Blocks the same address from re-submitting more than Max times within Window minutes.', 'lrob-email-toolkit')); ?>
                                 </h3>
-                                <div class="lrob-etk-cf-defaults-inline-pair">
+                                <div class="lrob-etk-defaults-inline-pair">
                                     <div>
                                         <label><?php esc_html_e('Max per IP', 'lrob-email-toolkit'); ?></label>
                                         <input type="text" inputmode="numeric" pattern="[0-9]*"
@@ -1149,18 +1239,18 @@ final class FormsPage
     private static function render_fields_editor(int $form_id): void
     {
         ?>
-        <section class="lrob-etk-cf-fields" data-form-id="<?php echo $form_id; ?>">
-            <div class="lrob-etk-cf-editor-toolbar">
-                <div class="lrob-etk-cf-editor-toolbar-actions">
+        <section class="lrob-etk-form-fields" data-form-id="<?php echo $form_id; ?>">
+            <div class="lrob-etk-form-editor-toolbar">
+                <div class="lrob-etk-form-editor-toolbar-actions">
                     <button type="button"
-                            class="lrob-etk-cf-editor-toolbar-btn lrob-etk-cf-editor-toolbar-btn--primary"
+                            class="lrob-etk-form-editor-toolbar-btn lrob-etk-form-editor-toolbar-btn--primary"
                             data-editor-action="add-field"
                             title="<?php esc_attr_e('Add a field', 'lrob-email-toolkit'); ?>"
                             aria-label="<?php esc_attr_e('Add a field', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
                     </button>
                     <button type="button"
-                            class="lrob-etk-cf-editor-toolbar-btn"
+                            class="lrob-etk-form-editor-toolbar-btn"
                             data-editor-action="undo"
                             disabled
                             title="<?php esc_attr_e('Undo (Ctrl+Z)', 'lrob-email-toolkit'); ?>"
@@ -1168,7 +1258,7 @@ final class FormsPage
                         <span class="dashicons dashicons-undo" aria-hidden="true"></span>
                     </button>
                     <button type="button"
-                            class="lrob-etk-cf-editor-toolbar-btn"
+                            class="lrob-etk-form-editor-toolbar-btn"
                             data-editor-action="redo"
                             disabled
                             title="<?php esc_attr_e('Redo (Ctrl+Shift+Z)', 'lrob-email-toolkit'); ?>"
@@ -1176,7 +1266,7 @@ final class FormsPage
                         <span class="dashicons dashicons-redo" aria-hidden="true"></span>
                     </button>
                 </div>
-                <span class="lrob-etk-cf-editor-status" aria-live="polite"></span>
+                <span class="lrob-etk-form-editor-status" aria-live="polite"></span>
             </div>
 
             <?php echo FormEditorRenderer::render($form_id, CPT::FIELD_NAME_PREFIX, CPT::FIELD_ID_PREFIX); ?>
@@ -1226,21 +1316,59 @@ final class FormsPage
     private static function field_types(): array
     {
         return [
-            'text'     => __('Text',         'lrob-email-toolkit'),
-            'email'    => __('Email',        'lrob-email-toolkit'),
-            'textarea' => __('Long text',    'lrob-email-toolkit'),
-            'number'   => __('Number',       'lrob-email-toolkit'),
-            'phone'    => __('Phone',        'lrob-email-toolkit'),
-            'date'     => __('Date',         'lrob-email-toolkit'),
-            'select'   => __('Dropdown',     'lrob-email-toolkit'),
-            'radio'    => __('Radio',        'lrob-email-toolkit'),
-            'checkbox' => __('Checkbox',     'lrob-email-toolkit'),
+            'text'        => __('Text',         'lrob-email-toolkit'),
+            'email'       => __('Email',        'lrob-email-toolkit'),
+            'textarea'    => __('Long text',    'lrob-email-toolkit'),
+            'number'      => __('Number',       'lrob-email-toolkit'),
+            'phone'       => __('Phone',        'lrob-email-toolkit'),
+            'date'        => __('Date',         'lrob-email-toolkit'),
+            'select'      => __('Dropdown',     'lrob-email-toolkit'),
+            'radio'       => __('Radio',        'lrob-email-toolkit'),
+            'checkbox'    => __('Checkbox',     'lrob-email-toolkit'),
+            'file_upload' => __('File upload',  'lrob-email-toolkit'),
         ];
     }
 
     private static function field_type_label(string $type): string
     {
         return self::field_types()[$type] ?? $type;
+    }
+
+    /**
+     * Localised delivery options for the file_upload field's delivery
+     * combobox. Same shape as upload_preset_options for symmetry.
+     *
+     * @return list<array{value:string, label:string}>
+     */
+    private static function upload_delivery_options(): array
+    {
+        return [
+            ['value' => UploadPolicy::DELIVERY_WEBSERVER,  'label' => __('Save on web server', 'lrob-email-toolkit')],
+            ['value' => UploadPolicy::DELIVERY_ATTACHMENT, 'label' => __('Attach to email',  'lrob-email-toolkit')],
+            ['value' => UploadPolicy::DELIVERY_BOTH,       'label' => __('Both — save + attach', 'lrob-email-toolkit')],
+        ];
+    }
+
+    /**
+     * Localised preset list passed to the form-builder editor JS for the
+     * file_upload field's accept-preset combobox. Each entry carries the
+     * preset slug, its translated label, and the resolved extension list
+     * for the inline hint (e.g. "pdf, jpg, png").
+     *
+     * @return list<array{value:string, label:string, exts:string}>
+     */
+    private static function upload_preset_options(): array
+    {
+        $labels = UploadPolicy::preset_labels();
+        $out = [];
+        foreach (UploadPolicy::presets() as $slug => $exts) {
+            $out[] = [
+                'value' => $slug,
+                'label' => $labels[$slug] ?? $slug,
+                'exts'  => implode(', ', $exts),
+            ];
+        }
+        return $out;
     }
 
     /**
@@ -1299,11 +1427,11 @@ final class FormsPage
         $subject_default = __('[Site] New submission from {title}', 'lrob-email-toolkit');
         $success_default = __('Thanks! Your message has been sent.', 'lrob-email-toolkit');
         ?>
-        <div class="lrob-etk-modal" id="lrob-etk-cf-defaults-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-cf-defaults-title" hidden>
+        <div class="lrob-etk-modal" id="lrob-etk-defaults-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-defaults-title" hidden>
             <div class="lrob-etk-modal-backdrop" data-modal-close></div>
             <div class="lrob-etk-modal-dialog">
                 <header class="lrob-etk-modal-header">
-                    <h3 id="lrob-etk-cf-defaults-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Default settings for new forms', 'lrob-email-toolkit'); ?></h3>
+                    <h3 id="lrob-etk-defaults-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Default settings for new forms', 'lrob-email-toolkit'); ?></h3>
                     <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
                     </button>
@@ -1313,13 +1441,13 @@ final class FormsPage
                         <?php esc_html_e('Apply to every form unless overridden in the form\'s settings. Changes save automatically.', 'lrob-email-toolkit'); ?>
                     </p>
 
-        <article class="lrob-etk-identity-card lrob-etk-cf-form-card lrob-etk-cf-form-card--defaults" data-defaults-card="1">
+        <article class="lrob-etk-card lrob-etk-form-card lrob-etk-form-card--defaults" data-defaults-card="1">
             <form class="lrob-etk-card-form" onsubmit="return false">
                 <header class="lrob-etk-card-form-head">
                     <span class="lrob-etk-card-status" aria-live="polite"></span>
                 </header>
 
-                <section class="lrob-etk-cf-essentials">
+                <section class="lrob-etk-form-essentials">
                     <div class="lrob-etk-field">
                         <label><?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?></label>
                         <?php self::render_recipients(
@@ -1334,9 +1462,9 @@ final class FormsPage
                     </div>
                 </section>
 
-                <section class="lrob-etk-cf-style-group">
-                    <h3 class="lrob-etk-cf-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
-                    <div class="lrob-etk-cf-style-grid">
+                <section class="lrob-etk-form-style-group">
+                    <h3 class="lrob-etk-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
+                    <div class="lrob-etk-form-style-grid">
                         <div class="lrob-etk-field">
                             <label><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
                             <?php self::render_combobox(Settings::KEY_STYLE_PRESET, (string) $s[Settings::KEY_STYLE_PRESET], $preset_options); ?>
@@ -1368,7 +1496,7 @@ final class FormsPage
                     </div>
                 </section>
 
-                <div class="lrob-etk-cf-advanced-body">
+                <div class="lrob-etk-advanced-body">
                     <div class="lrob-etk-modal-columns">
                         <section class="lrob-etk-form-column">
                             <h3 class="lrob-etk-form-column-head">
@@ -1440,7 +1568,7 @@ final class FormsPage
                                 <span class="lrob-etk-form-column-title"><?php esc_html_e('Throttling', 'lrob-email-toolkit'); ?></span>
                                 <?php Tooltip::render(__('Server-side rate limit per submitter (IP hash). Blocks more than Max submissions within Window minutes.', 'lrob-email-toolkit')); ?>
                             </h3>
-                            <div class="lrob-etk-cf-defaults-inline-pair">
+                            <div class="lrob-etk-defaults-inline-pair">
                                 <div>
                                     <label><?php esc_html_e('Max per IP', 'lrob-email-toolkit'); ?></label>
                                     <input type="text" inputmode="numeric" pattern="[0-9]*"
@@ -1485,7 +1613,13 @@ final class FormsPage
      * `data-key` matching a key in AjaxController::DEFAULT_KEYS, and the
      * shared JS save handler in contact-form-admin.js binds on init.
      */
-    private function render_storage_modal(): void
+    /**
+     * Public + static so both this page (FormsPage) and the Submissions
+     * inbox (SubmissionsPage) can render the same modal. Inputs use the
+     * shared `lrob-etk-cf-field + data-key` auto-save plumbing wired by
+     * contact-form-admin.js — same JS works on both pages.
+     */
+    public static function render_storage_modal(): void
     {
         $s = Settings::all();
         $save_options = [
@@ -1496,10 +1630,11 @@ final class FormsPage
             ['value' => '0', 'label' => __('Hash only (recommended)', 'lrob-email-toolkit')],
             ['value' => '1', 'label' => __('Store raw IP', 'lrob-email-toolkit')],
         ];
+        $save_subs_on = !empty($s[Settings::KEY_SAVE_SUBMISSIONS]);
         ?>
         <div class="lrob-etk-modal" id="lrob-etk-cf-storage-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-cf-storage-title" hidden>
             <div class="lrob-etk-modal-backdrop" data-modal-close></div>
-            <div class="lrob-etk-modal-dialog">
+            <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--wide">
                 <header class="lrob-etk-modal-header">
                     <h3 id="lrob-etk-cf-storage-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Submissions storage', 'lrob-email-toolkit'); ?></h3>
                     <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
@@ -1511,61 +1646,212 @@ final class FormsPage
                         <?php esc_html_e('What gets kept when a form is submitted, for how long, and how IPs are recorded. Changes save automatically.', 'lrob-email-toolkit'); ?>
                     </p>
 
-                    <article class="lrob-etk-identity-card lrob-etk-cf-form-card lrob-etk-cf-form-card--defaults" data-defaults-card="1">
+                    <article class="lrob-etk-card lrob-etk-form-card lrob-etk-form-card--defaults" data-defaults-card="1" data-storage-card<?php echo $save_subs_on ? '' : ' data-save-off'; ?>>
                         <form class="lrob-etk-card-form" onsubmit="return false">
                             <header class="lrob-etk-card-form-head">
                                 <span class="lrob-etk-card-status" aria-live="polite"></span>
                             </header>
 
                             <section class="lrob-etk-cf-submissions-storage-section">
-                                <div class="lrob-etk-cf-defaults-grid">
+                                <h4 class="lrob-etk-popover-section-title"><?php esc_html_e('Archive policy', 'lrob-email-toolkit'); ?></h4>
+                                <div class="lrob-etk-defaults-grid">
                                     <div class="lrob-etk-field">
                                         <label>
                                             <?php esc_html_e('Save submissions', 'lrob-email-toolkit'); ?>
-                                            <?php Tooltip::render(__('Archive every received submission in the database (browsable in the Submissions inbox). Turn off if you only want the notification email and no audit trail — captcha and honeypot still run.', 'lrob-email-toolkit')); ?>
+                                            <?php Tooltip::render(__('Master switch. When off, the notification email still goes out but nothing is archived (captcha + honeypot still run). All other settings below are inert.', 'lrob-email-toolkit')); ?>
                                         </label>
-                                        <?php self::render_combobox(Settings::KEY_SAVE_SUBMISSIONS, !empty($s[Settings::KEY_SAVE_SUBMISSIONS]) ? '1' : '0', $save_options); ?>
+                                        <?php self::render_combobox(Settings::KEY_SAVE_SUBMISSIONS, $save_subs_on ? '1' : '0', $save_options); ?>
                                     </div>
-                                    <div class="lrob-etk-field">
+                                    <div class="lrob-etk-field" data-storage-conditional>
                                         <label>
                                             <?php esc_html_e('IP storage', 'lrob-email-toolkit'); ?>
-                                            <?php Tooltip::render(__('Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions. Contact forms are currently the only place the toolkit captures a client IP.', 'lrob-email-toolkit')); ?>
+                                            <?php Tooltip::render(__('Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions.', 'lrob-email-toolkit')); ?>
                                         </label>
                                         <?php self::render_combobox(Settings::KEY_STORE_RAW_IP, !empty($s[Settings::KEY_STORE_RAW_IP]) ? '1' : '0', $ip_options); ?>
                                     </div>
+                                </div>
+
+                                <h4 class="lrob-etk-popover-section-title" data-storage-conditional><?php esc_html_e('Spam recording', 'lrob-email-toolkit'); ?></h4>
+                                <p class="description" data-storage-conditional><?php esc_html_e('Even when archiving is on, you can skip these bot-blocked rows so the inbox stays clean.', 'lrob-email-toolkit'); ?></p>
+                                <div class="lrob-etk-defaults-grid" data-storage-conditional>
                                     <div class="lrob-etk-field">
                                         <label>
-                                            <?php esc_html_e('Keep delivered for (days)', 'lrob-email-toolkit'); ?>
-                                            <?php Tooltip::render(__('Submissions whose notification was sent. 0 = keep forever. Daily cron purges older rows.', 'lrob-email-toolkit')); ?>
+                                            <?php esc_html_e('Save honeypot / time-trap', 'lrob-email-toolkit'); ?>
+                                            <?php Tooltip::render(__('Almost always bots — keep off unless you\'re debugging your forms.', 'lrob-email-toolkit')); ?>
                                         </label>
-                                        <input type="text" inputmode="numeric" pattern="[0-9]*"
-                                               name="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
-                                               class="lrob-etk-cf-field"
-                                               data-key="<?php echo esc_attr(Settings::KEY_RETENTION_DELIVERED_DAYS); ?>"
-                                               maxlength="4"
-                                               value="<?php echo (int) $s[Settings::KEY_RETENTION_DELIVERED_DAYS]; ?>"
-                                               placeholder="0">
+                                        <?php self::render_combobox(Settings::KEY_SAVE_SPAM_BOT, !empty($s[Settings::KEY_SAVE_SPAM_BOT]) ? '1' : '0', $save_options); ?>
                                     </div>
                                     <div class="lrob-etk-field">
                                         <label>
-                                            <?php esc_html_e('Keep spam for (days)', 'lrob-email-toolkit'); ?>
-                                            <?php Tooltip::render(__('Honeypot + captcha-blocked rows. Defaults to 90 days — spam churns fast and stored rows are mostly useful for short-term forensics. 0 = keep forever.', 'lrob-email-toolkit')); ?>
+                                            <?php esc_html_e('Save captcha-failed', 'lrob-email-toolkit'); ?>
+                                            <?php Tooltip::render(__('Captcha can fail for legitimate users (typos, slow connections). Keep on so you can recover their messages.', 'lrob-email-toolkit')); ?>
                                         </label>
-                                        <input type="text" inputmode="numeric" pattern="[0-9]*"
-                                               name="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
-                                               class="lrob-etk-cf-field"
-                                               data-key="<?php echo esc_attr(Settings::KEY_RETENTION_SPAM_DAYS); ?>"
-                                               maxlength="4"
-                                               value="<?php echo (int) $s[Settings::KEY_RETENTION_SPAM_DAYS]; ?>"
-                                               placeholder="90">
+                                        <?php self::render_combobox(Settings::KEY_SAVE_SPAM_CAPTCHA, !empty($s[Settings::KEY_SAVE_SPAM_CAPTCHA]) ? '1' : '0', $save_options); ?>
                                     </div>
                                 </div>
+
+                                <h4 class="lrob-etk-popover-section-title" data-storage-conditional><?php esc_html_e('Automatic retention', 'lrob-email-toolkit'); ?></h4>
+                                <p class="description" data-storage-conditional><?php esc_html_e('Older rows are deleted daily by a cron event. Each bucket has its own toggle — turn it on only for rows you want auto-pruned.', 'lrob-email-toolkit'); ?></p>
+                                <div class="lrob-etk-defaults-grid" data-storage-conditional>
+                                    <div class="lrob-etk-field">
+                                        <label><?php esc_html_e('Delivered', 'lrob-email-toolkit'); ?></label>
+                                        <?php RetentionToggle::render([
+                                            'key'              => Settings::KEY_RETENTION_DELIVERED_DAYS,
+                                            'value'            => (int) $s[Settings::KEY_RETENTION_DELIVERED_DAYS],
+                                            'auto_save_marker' => 'lrob-etk-cf-field',
+                                            'default_days'     => 365,
+                                        ]); ?>
+                                    </div>
+                                    <div class="lrob-etk-field">
+                                        <label><?php esc_html_e('Received', 'lrob-email-toolkit'); ?></label>
+                                        <?php RetentionToggle::render([
+                                            'key'              => Settings::KEY_RETENTION_RECEIVED_DAYS,
+                                            'value'            => (int) $s[Settings::KEY_RETENTION_RECEIVED_DAYS],
+                                            'auto_save_marker' => 'lrob-etk-cf-field',
+                                            'default_days'     => 365,
+                                        ]); ?>
+                                    </div>
+                                    <div class="lrob-etk-field">
+                                        <label>
+                                            <?php esc_html_e('Failed', 'lrob-email-toolkit'); ?>
+                                            <?php Tooltip::render(__('Failed sends often hold useful debug info (rejected mailboxes, SMTP errors). Auto-deleting them is usually undesirable.', 'lrob-email-toolkit')); ?>
+                                        </label>
+                                        <?php RetentionToggle::render([
+                                            'key'              => Settings::KEY_RETENTION_FAILED_DAYS,
+                                            'value'            => (int) $s[Settings::KEY_RETENTION_FAILED_DAYS],
+                                            'auto_save_marker' => 'lrob-etk-cf-field',
+                                            'default_days'     => 365,
+                                        ]); ?>
+                                    </div>
+                                    <div class="lrob-etk-field">
+                                        <label><?php esc_html_e('Spam', 'lrob-email-toolkit'); ?></label>
+                                        <?php RetentionToggle::render([
+                                            'key'              => Settings::KEY_RETENTION_SPAM_DAYS,
+                                            'value'            => (int) $s[Settings::KEY_RETENTION_SPAM_DAYS],
+                                            'auto_save_marker' => 'lrob-etk-cf-field',
+                                            'default_days'     => 90,
+                                        ]); ?>
+                                    </div>
+                                </div>
+
+                                <h4 class="lrob-etk-popover-section-title"><?php esc_html_e('Manual cleanup', 'lrob-email-toolkit'); ?></h4>
+                                <p class="description"><?php esc_html_e('One-shot deletion. Pick an age + the statuses to include, then run. Works on existing rows even when archiving is off.', 'lrob-email-toolkit'); ?></p>
+                                <div class="lrob-etk-cleanup-row">
+                                    <label>
+                                        <?php esc_html_e('Delete submissions older than', 'lrob-email-toolkit'); ?>
+                                        <input type="number" id="lrob-etk-cf-cleanup-days" class="small-text" min="1" max="3650" value="30">
+                                        <?php esc_html_e('days, in:', 'lrob-email-toolkit'); ?>
+                                    </label>
+                                </div>
+                                <div class="lrob-etk-cleanup-statuses">
+                                    <label><input type="checkbox" data-cf-cleanup-status value="delivered" checked> <?php esc_html_e('Delivered', 'lrob-email-toolkit'); ?></label>
+                                    <label><input type="checkbox" data-cf-cleanup-status value="received"> <?php esc_html_e('Received', 'lrob-email-toolkit'); ?></label>
+                                    <label><input type="checkbox" data-cf-cleanup-status value="failed"> <?php esc_html_e('Failed', 'lrob-email-toolkit'); ?></label>
+                                    <label><input type="checkbox" data-cf-cleanup-status value="spam_blocked" checked> <?php esc_html_e('Spam', 'lrob-email-toolkit'); ?></label>
+                                </div>
+                                <div class="lrob-etk-cleanup-actions">
+                                    <button type="button" class="button button-secondary" id="lrob-etk-cf-cleanup-apply">
+                                        <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                                        <?php esc_html_e('Delete matching submissions', 'lrob-email-toolkit'); ?>
+                                    </button>
+                                </div>
+                                <div class="lrob-etk-cleanup-result lrob-etk-test-result" hidden></div>
                             </section>
                         </form>
                     </article>
                 </div>
             </div>
         </div>
+        <script>
+        // Co-located with the modal markup so it ships on whichever page
+        // renders the modal (Forms admin OR Submissions inbox). Guarded so
+        // double-rendering the modal in the same page wouldn't double-bind.
+        (function () {
+            if (window.__lrobEtkCfStorageCleanupBound) return;
+            window.__lrobEtkCfStorageCleanupBound = true;
+
+            var ajaxUrl = <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>;
+            var nonce   = <?php echo wp_json_encode(wp_create_nonce(SubmissionsAjax::NONCE_ACTION)); ?>;
+            var action  = <?php echo wp_json_encode(SubmissionsAjax::ACTION_PURGE); ?>;
+            var i18n = {
+                error:    <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>,
+                working:  <?php echo wp_json_encode(__('Working…', 'lrob-email-toolkit')); ?>,
+                noStatus: <?php echo wp_json_encode(__('Tick at least one status.', 'lrob-email-toolkit')); ?>,
+                confirm:  <?php
+                    /* translators: %d: number of days */
+                    echo wp_json_encode(__('Delete every submission older than %d days in the selected statuses? This cannot be undone.', 'lrob-email-toolkit'));
+                ?>
+
+            };
+
+            function whenReady(fn) {
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+                else fn();
+            }
+
+            whenReady(function () {
+                var btn = document.getElementById('lrob-etk-cf-cleanup-apply');
+                if (!btn) return;
+                var modal = document.getElementById('lrob-etk-cf-storage-modal');
+                if (!modal) return;
+                var result = modal.querySelector('.lrob-etk-cleanup-result');
+
+                btn.addEventListener('click', function () {
+                    var daysEl = document.getElementById('lrob-etk-cf-cleanup-days');
+                    var days = daysEl ? Math.max(1, parseInt(daysEl.value, 10) || 1) : 30;
+                    var statuses = [];
+                    modal.querySelectorAll('[data-cf-cleanup-status]:checked').forEach(function (cb) {
+                        statuses.push(cb.value);
+                    });
+                    if (statuses.length === 0) {
+                        if (result) {
+                            result.hidden = false;
+                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                            result.textContent = '✗ ' + i18n.noStatus;
+                        }
+                        return;
+                    }
+                    if (!confirm(i18n.confirm.replace('%d', days))) return;
+
+                    btn.disabled = true;
+                    if (result) {
+                        result.hidden = false;
+                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
+                        result.textContent = i18n.working;
+                    }
+
+                    var fd = new FormData();
+                    fd.append('action', action);
+                    fd.append('_ajax_nonce', nonce);
+                    fd.append('days', String(days));
+                    statuses.forEach(function (s) { fd.append('statuses[]', s); });
+
+                    fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                        .then(function (r) { return r.json(); })
+                        .then(function (resp) {
+                            btn.disabled = false;
+                            if (resp && resp.success) {
+                                if (result) {
+                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
+                                    result.textContent = '✓ ' + resp.data.message;
+                                }
+                                setTimeout(function () { window.location.reload(); }, 800);
+                            } else if (result) {
+                                result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                                result.textContent = '✗ ' + ((resp && resp.data && resp.data.message) || i18n.error);
+                            }
+                        })
+                        .catch(function () {
+                            btn.disabled = false;
+                            if (result) {
+                                result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                                result.textContent = '✗ ' + i18n.error;
+                            }
+                        });
+                });
+            });
+        })();
+        </script>
         <?php
     }
 
@@ -1618,6 +1904,17 @@ final class FormsPage
         $post = get_post($form_id);
         if ($post instanceof \WP_Post && $post->post_type === CPT::POST_TYPE) {
             if ($cascade) {
+                // Files get nuked alongside submissions when the admin opts
+                // into the destructive cascade. Without cascade, files stay
+                // on disk attached to orphaned submission rows — admin can
+                // clean them up later via the Storage maintenance tab.
+                $container = Plugin::instance()->container();
+                if ($container->has(\LRob\EmailToolkit\Modules\ContactForm\FileRepository::class)) {
+                    $file_repo = $container->get(\LRob\EmailToolkit\Modules\ContactForm\FileRepository::class);
+                    if ($file_repo instanceof \LRob\EmailToolkit\Modules\ContactForm\FileRepository) {
+                        $file_repo->delete_by_form($form_id);
+                    }
+                }
                 (new SubmissionRepository())->delete_for_form($form_id);
             }
             wp_delete_post($form_id, true);

@@ -49,12 +49,16 @@ final class Frontend
             'ajaxUrl'   => admin_url('admin-ajax.php'),
             'countries' => CountryData::all_translated(),
             'i18n'      => [
-                'sending'       => __('Sending…', 'lrob-email-toolkit'),
-                'unknownError'  => __('Something went wrong. Please try again.', 'lrob-email-toolkit'),
-                'success'       => __('Thanks! Your message has been sent.', 'lrob-email-toolkit'),
-                'invalidEmail'  => __('Please enter a valid email address.', 'lrob-email-toolkit'),
-                'required'      => __('This field is required.', 'lrob-email-toolkit'),
-                'searchCountry' => __('Search country…', 'lrob-email-toolkit'),
+                'sending'          => __('Sending…', 'lrob-email-toolkit'),
+                'unknownError'     => __('Something went wrong. Please try again.', 'lrob-email-toolkit'),
+                'success'          => __('Thanks! Your message has been sent.', 'lrob-email-toolkit'),
+                'invalidEmail'     => __('Please enter a valid email address.', 'lrob-email-toolkit'),
+                'required'         => __('This field is required.', 'lrob-email-toolkit'),
+                'searchCountry'    => __('Search country…', 'lrob-email-toolkit'),
+                'tooManyFiles'     => __('Too many files', 'lrob-email-toolkit'),
+                'fileTooLarge'     => __('File too large', 'lrob-email-toolkit'),
+                'fileTypeRejected' => __('Type not allowed', 'lrob-email-toolkit'),
+                'totalTooLarge'    => __('Combined size exceeds the limit', 'lrob-email-toolkit'),
             ],
         ]);
     }

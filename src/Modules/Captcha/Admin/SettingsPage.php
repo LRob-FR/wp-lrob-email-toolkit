@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Captcha\Admin;
 
 use LRob\EmailToolkit\Admin\Combobox;
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Identity;
 use LRob\EmailToolkit\Modules\Captcha\Providers\ProviderInterface;
@@ -50,15 +51,14 @@ final class SettingsPage
 
         ?>
         <div class="wrap lrob-etk lrob-etk-captcha-page">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('Captcha', 'lrob-email-toolkit'); ?></h1>
-                <?php if ($providers !== []) : ?>
-                    <button type="button" id="lrob-etk-captcha-add" class="button button-primary lrob-etk-page-add">
-                        <span class="dashicons dashicons-plus-alt2"></span>
-                        <?php esc_html_e('Add captcha', 'lrob-email-toolkit'); ?>
-                    </button>
-                <?php endif; ?>
-            </header>
+            <?php PageHeader::render([
+                'title'   => __('Captcha', 'lrob-email-toolkit'),
+                'primary' => $providers !== [] ? [
+                    'label' => __('New identity', 'lrob-email-toolkit'),
+                    'icon'  => 'dashicons-plus-alt2',
+                    'id'    => 'lrob-etk-captcha-add',
+                ] : null,
+            ]); ?>
 
             <div id="lrob-etk-flash" class="lrob-etk-flash" aria-live="polite"></div>
 
@@ -162,7 +162,7 @@ final class SettingsPage
                     </p>
                 <?php endif; ?>
 
-                <div class="lrob-etk-identities lrob-etk-captcha-identities" id="lrob-etk-captcha-identities">
+                <div class="lrob-etk-card-grid lrob-etk-captcha-identities" id="lrob-etk-captcha-identities">
                     <?php foreach ($identities as $identity) :
                         if (!isset($providers[$identity->provider_slug])) {
                             continue; // stale row pointing at an uninstalled provider
@@ -262,7 +262,7 @@ final class SettingsPage
             }
         }
         ?>
-        <article class="lrob-etk-identity-card lrob-etk-captcha-card<?php echo $is_new ? ' is-new' : ''; ?>"
+        <article class="lrob-etk-card lrob-etk-captcha-card<?php echo $is_new ? ' is-new' : ''; ?>"
                  data-identity-id="<?php echo (int) $id; ?>"
                  data-provider="<?php echo esc_attr($provider->slug()); ?>"
                  data-state="<?php echo $is_new ? 'new' : 'existing'; ?>"

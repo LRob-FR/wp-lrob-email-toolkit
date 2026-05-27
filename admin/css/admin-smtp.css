@@ -45,44 +45,18 @@
     font-size: 11px;
     background: var(--etk-soft);
     padding: 1px 5px;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     margin-left: 6px;
     font-weight: normal;
 }
 
-/* ---------- Inline connection test button ---------- */
+/* ---------- Inline connection test button ----------
+ *
+ * Base styling comes from .lrob-etk-icon-btn (admin-components.css).
+ * Only the state-paint variants live here — they're SMTP-specific
+ * (test outcome feedback). The spinning animation is shared via
+ * .is-spinning on icon-btn. */
 
-.lrob-etk-conn-test {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    background: #fff;
-    border: 1px solid var(--etk-line);
-    border-radius: 4px;
-    cursor: pointer;
-    color: var(--etk-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s ease;
-}
-.lrob-etk-conn-test:hover {
-    border-color: var(--etk-accent);
-    color: var(--etk-accent);
-}
-.lrob-etk-conn-test .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 1;
-}
-.lrob-etk-conn-test.is-testing {
-    color: var(--etk-muted);
-}
-.lrob-etk-conn-test.is-testing .dashicons {
-    animation: lrob-etk-spin 1s linear infinite;
-}
 .lrob-etk-conn-test.is-ok {
     border-color: var(--etk-success);
     color: var(--etk-success);
@@ -93,10 +67,8 @@
     color: var(--etk-danger);
     background: var(--etk-danger-bg);
 }
-
-@keyframes lrob-etk-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+.lrob-etk-conn-test.is-testing .dashicons {
+    animation: lrob-etk-spin 0.9s linear infinite;
 }
 
 /* Encryption + port row — select + port input side by side */
@@ -129,88 +101,36 @@
 .lrob-etk-from-warning {
     margin-top: 6px;
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     font-size: 12px;
     line-height: 1.4;
 }
 .lrob-etk-from-warning.is-warning {
     background: var(--etk-warning-bg);
-    color: #735900;
+    color: var(--etk-text-warning);
     border-left: 3px solid var(--etk-warning);
 }
 .lrob-etk-from-warning.is-danger {
     background: var(--etk-danger-bg);
-    color: #8a0000;
+    color: var(--etk-text-danger);
     border-left: 3px solid var(--etk-danger);
 }
 
-/* ---------- Test result indicators ---------- */
+/* Test result + identity card chrome moved to admin-components.css:
+ *   .lrob-etk-test-result          — shared with Logging, Captcha
+ *   .lrob-etk-card                 — shared identity-card primitive
+ *   .lrob-etk-card-grid            — shared card list grid
+ *   .lrob-etk-card--container      — opt-in container query
+ *
+ * Identity card collapses its inner 2-col (mailbox|server) when the
+ * container itself narrows. Container query is identity-specific
+ * because no other card has the same inner layout. */
 
-.lrob-etk-test-result {
-    margin-top: 8px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 13px;
-    line-height: 1.4;
-}
-.lrob-etk-test-result.is-pending {
-    background: var(--etk-soft);
-    color: var(--etk-muted);
-}
-.lrob-etk-test-result.is-success {
-    background: var(--etk-success-bg);
-    color: #1e6b3a;
-    border-left: 3px solid var(--etk-success);
-}
-.lrob-etk-test-result.is-failure {
-    background: var(--etk-danger-bg);
-    color: #8a0000;
-    border-left: 3px solid var(--etk-danger);
-}
-.lrob-etk-test-result pre {
-    margin: 6px 0 0;
-    background: rgba(0,0,0,.05);
-    padding: 6px;
-    font-size: 11px;
-    border-radius: 3px;
-    overflow-x: auto;
-    white-space: pre-wrap;
-}
-
-/* ---------- Identity cards (always-editable grid) ---------- */
-
-.lrob-etk-identities {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
-    gap: 14px;
-    margin: 16px 0;
-}
-
-.lrob-etk-identity-card {
-    background: #fff;
-    border: 1px solid var(--etk-line);
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.04);
-    transition: box-shadow 0.15s ease, border-color 0.15s ease;
-    container-type: inline-size;
-}
-
-/* Collapse the inner 2-col (mailbox | server) layout when the card itself
- * is narrow — happens when 3+ cards share a row. Container queries are
- * supported in all modern browsers (Chrome 105+, Firefox 110+, Safari 16+). */
 @container (max-width: 460px) {
     .lrob-etk-identity-card .lrob-etk-modal-columns {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-}
-.lrob-etk-identity-card:focus-within {
-    box-shadow: 0 4px 14px rgba(0,0,0,.06);
-    border-color: #b8d4ed;
-}
-.lrob-etk-identity-card.is-new {
-    border-color: var(--etk-accent);
-    background: #fcfdff;
 }
 
 /* Host resolve indicator */
@@ -219,19 +139,19 @@
     font-size: 12px;
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
 }
-.lrob-etk-host-status.is-ok    { background: var(--etk-success-bg); color: #1e6b3a; }
-.lrob-etk-host-status.is-bad   { background: var(--etk-danger-bg);  color: #8a0000; }
+.lrob-etk-host-status.is-ok    { background: var(--etk-success-bg); color: var(--etk-text-success); }
+.lrob-etk-host-status.is-bad   { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
 
 /* None-encryption warning */
 .lrob-etk-none-warning {
     margin-top: 8px;
     padding: 6px 10px;
     background: var(--etk-warning-bg);
-    color: #735900;
+    color: var(--etk-text-warning);
     border-left: 3px solid var(--etk-warning);
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     font-size: 12px;
     line-height: 1.4;
     display: flex;

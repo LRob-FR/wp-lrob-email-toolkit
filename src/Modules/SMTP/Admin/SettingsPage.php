@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\SMTP\Admin;
 
-use LRob\EmailToolkit\Admin\ModuleToggle;
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Admin\Tooltip;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 use LRob\EmailToolkit\Modules\SMTP\ConstantOverrides;
@@ -37,16 +37,15 @@ final class SettingsPage
 
         ?>
         <div class="wrap lrob-etk lrob-etk-smtp-page">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('SMTP', 'lrob-email-toolkit'); ?></h1>
-                <?php ModuleToggle::render_inline($this->module); ?>
-                <?php if ($enabled) : ?>
-                    <button type="button" id="lrob-etk-add-identity" class="button button-primary lrob-etk-page-add">
-                        <span class="dashicons dashicons-plus-alt2"></span>
-                        <?php esc_html_e('Add identity', 'lrob-email-toolkit'); ?>
-                    </button>
-                <?php endif; ?>
-            </header>
+            <?php PageHeader::render([
+                'title'   => __('SMTP', 'lrob-email-toolkit'),
+                'module'  => $this->module,
+                'primary' => [
+                    'label' => __('New identity', 'lrob-email-toolkit'),
+                    'icon'  => 'dashicons-plus-alt2',
+                    'id'    => 'lrob-etk-add-identity',
+                ],
+            ]); ?>
 
             <div id="lrob-etk-flash" class="lrob-etk-flash" aria-live="polite"></div>
 
@@ -60,10 +59,10 @@ final class SettingsPage
             <?php else : ?>
                 <?php if ($identities === []) : ?>
                     <div class="lrob-etk-empty">
-                        <p><?php esc_html_e('No SMTP identities yet — click "Add identity" to start.', 'lrob-email-toolkit'); ?></p>
+                        <p><?php esc_html_e('No SMTP identities yet — click "New identity" to start.', 'lrob-email-toolkit'); ?></p>
                     </div>
                 <?php else : ?>
-                    <div class="lrob-etk-identities">
+                    <div class="lrob-etk-card-grid">
                         <?php foreach ($identities as $identity) : ?>
                             <?php $this->render_identity_card($identity); ?>
                         <?php endforeach; ?>
@@ -87,7 +86,7 @@ final class SettingsPage
     private function render_identity_card(Identity $identity): void
     {
         ?>
-        <article class="lrob-etk-identity-card" data-identity-id="<?php echo (int) $identity->id; ?>" data-state="existing">
+        <article class="lrob-etk-card lrob-etk-card--container lrob-etk-identity-card" data-identity-id="<?php echo (int) $identity->id; ?>" data-state="existing">
             <?php $this->render_card_form($identity); ?>
         </article>
         <?php
@@ -97,7 +96,7 @@ final class SettingsPage
     {
         ?>
         <template id="lrob-etk-card-template">
-            <article class="lrob-etk-identity-card is-new" data-identity-id="0" data-state="new">
+            <article class="lrob-etk-card lrob-etk-card--container lrob-etk-identity-card is-new" data-identity-id="0" data-state="new">
                 <?php $this->render_card_form(null); ?>
             </article>
         </template>
@@ -292,7 +291,7 @@ final class SettingsPage
                     </div>
                     <button
                         type="button"
-                        class="lrob-etk-conn-test"
+                        class="lrob-etk-icon-btn lrob-etk-conn-test"
                         data-action="test-auth"
                         title="<?php esc_attr_e('Test connection', 'lrob-email-toolkit'); ?>"
                         aria-label="<?php esc_attr_e('Test SMTP connection', 'lrob-email-toolkit'); ?>">
@@ -1170,10 +1169,10 @@ final class SettingsPage
             if (!template) return;
             var fragment = template.content.cloneNode(true);
             var newCard = fragment.querySelector('.lrob-etk-identity-card');
-            var container = document.querySelector('.lrob-etk-identities');
+            var container = document.querySelector('.lrob-etk-card-grid');
             if (!container) {
                 container = document.createElement('div');
-                container.className = 'lrob-etk-identities';
+                container.className = 'lrob-etk-card-grid';
                 var emptyEl = document.querySelector('.lrob-etk-empty');
                 if (emptyEl) emptyEl.parentNode.replaceChild(container, emptyEl);
                 else document.querySelector('.lrob-etk-add-row').insertAdjacentElement('beforebegin', container);

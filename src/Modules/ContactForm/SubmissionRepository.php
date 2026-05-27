@@ -108,6 +108,65 @@ final class SubmissionRepository
         );
     }
 
+    /**
+     * Notes-field prefix used to carry the pre-spam status across a
+     * manual spam flag. Distinguishes our marker from other diagnostic
+     * notes (`honeypot_tripped`, `wp_mail_returned_false`, …).
+     */
+    private const NOTE_PRIOR_PREFIX = 'prior:';
+
+    /**
+     * Flag a submission as spam, preserving its current status inside the
+     * `notes` field as `prior:<status>` so a later restore_from_spam can
+     * roll it back accurately. No-op if already spam-flagged.
+     *
+     * Auto-spam (honeypot / captcha) bypasses this and writes its
+     * own diagnostic notes via the SubmitHandler — those rows have no
+     * prior status, and restoring them falls back to `received`.
+     */
+    public function flag_as_spam(int $id): bool
+    {
+        $row = $this->find($id);
+        if ($row === null || $row->status === self::STATUS_SPAM_BLOCKED) {
+            return false;
+        }
+        $this->update_status(
+            $id,
+            self::STATUS_SPAM_BLOCKED,
+            null,
+            self::NOTE_PRIOR_PREFIX . $row->status
+        );
+        return true;
+    }
+
+    /**
+     * Restore a spam-flagged submission to its pre-spam status, read from
+     * the `notes` marker that flag_as_spam wrote. If the marker is
+     * missing (auto-spam, legacy rows from before this column was used
+     * for prior-status), fall back to `received`.
+     *
+     * No-op (returns false) if the row doesn't exist or isn't currently
+     * spam-flagged.
+     */
+    public function restore_from_spam(int $id, ?string $notes = null): bool
+    {
+        $row = $this->find($id);
+        if ($row === null || $row->status !== self::STATUS_SPAM_BLOCKED) {
+            return false;
+        }
+        $target = self::STATUS_RECEIVED;
+        $raw_notes = is_string($row->notes) ? $row->notes : '';
+        if (str_starts_with($raw_notes, self::NOTE_PRIOR_PREFIX)) {
+            $candidate = substr($raw_notes, strlen(self::NOTE_PRIOR_PREFIX));
+            $known = [self::STATUS_RECEIVED, self::STATUS_DELIVERED, self::STATUS_FAILED];
+            if (in_array($candidate, $known, true)) {
+                $target = $candidate;
+            }
+        }
+        $this->update_status($id, $target, null, $notes);
+        return true;
+    }
+
     public function update_status(int $id, string $status, ?int $log_id = null, ?string $notes = null): void
     {
         global $wpdb;
@@ -193,6 +252,61 @@ final class SubmissionRepository
         return is_int($deleted) ? $deleted : 0;
     }
 
+    /** @return list<int> */
+    public function list_ids_by_status_older_than(string $status, \DateTimeImmutable $cutoff): array
+    {
+        global $wpdb;
+        $rows = $wpdb->get_col(
+            $wpdb->prepare(
+                'SELECT id FROM `' . Schema::submissions_table() . "` WHERE submitted_at < %s AND status = %s",
+                $cutoff->format('Y-m-d H:i:s'),
+                $status
+            )
+        );
+        return is_array($rows) ? array_map('intval', $rows) : [];
+    }
+
+    public function delete_by_status_older_than(string $status, \DateTimeImmutable $cutoff): int
+    {
+        global $wpdb;
+        $deleted = $wpdb->query(
+            $wpdb->prepare(
+                'DELETE FROM `' . Schema::submissions_table() . "` WHERE submitted_at < %s AND status = %s",
+                $cutoff->format('Y-m-d H:i:s'),
+                $status
+            )
+        );
+        return is_int($deleted) ? $deleted : 0;
+    }
+
+    /** @return list<int> */
+    public function list_ids_non_spam_older_than(\DateTimeImmutable $cutoff): array
+    {
+        global $wpdb;
+        $rows = $wpdb->get_col(
+            $wpdb->prepare(
+                'SELECT id FROM `' . Schema::submissions_table() . "` WHERE submitted_at < %s AND status <> %s",
+                $cutoff->format('Y-m-d H:i:s'),
+                self::STATUS_SPAM_BLOCKED
+            )
+        );
+        return is_array($rows) ? array_map('intval', $rows) : [];
+    }
+
+    /** @return list<int> */
+    public function list_ids_spam_older_than(\DateTimeImmutable $cutoff): array
+    {
+        global $wpdb;
+        $rows = $wpdb->get_col(
+            $wpdb->prepare(
+                'SELECT id FROM `' . Schema::submissions_table() . "` WHERE submitted_at < %s AND status = %s",
+                $cutoff->format('Y-m-d H:i:s'),
+                self::STATUS_SPAM_BLOCKED
+            )
+        );
+        return is_array($rows) ? array_map('intval', $rows) : [];
+    }
+
     public function delete_spam_older_than(\DateTimeImmutable $cutoff): int
     {
         global $wpdb;
@@ -204,6 +318,18 @@ final class SubmissionRepository
             )
         );
         return is_int($deleted) ? $deleted : 0;
+    }
+
+    /** Hard-delete a single submission row. Files attached to it (if any)
+     *  are handled separately by the caller (FileRepository). */
+    public function delete_by_id(int $id): bool
+    {
+        if ($id <= 0) {
+            return false;
+        }
+        global $wpdb;
+        $ok = $wpdb->delete(Schema::submissions_table(), ['id' => $id], ['%d']);
+        return (bool) $ok;
     }
 
     /** Delete all submissions for a form. Used by the cascade-delete path. */

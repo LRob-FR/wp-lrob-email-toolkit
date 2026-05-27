@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\EmailActions;
+use LRob\EmailToolkit\Modules\ContactForm\FileRepository;
+use LRob\EmailToolkit\Modules\ContactForm\Settings;
 use LRob\EmailToolkit\Modules\ContactForm\Submission;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController as LogsPageController;
+use LRob\EmailToolkit\Plugin;
 
 /**
  * Inbox for every contact-form submission (received, delivered, spam-blocked,
@@ -59,12 +64,22 @@ final class SubmissionsPage
             $this->render_detail($submission);
             return;
         }
+        if ($action === 'spam-confirm' || $action === 'delete-confirm') {
+            $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+            $submission = $this->repository->find($id);
+            if ($submission === null) {
+                $this->render_not_found();
+                return;
+            }
+            $this->render_confirm($submission, $action === 'delete-confirm' ? 'delete' : 'spam');
+            return;
+        }
         $this->render_list();
     }
 
     private function render_list(): void
     {
-        $filters = $this->parse_filters();
+        $filters = self::parse_filters();
         $per_page = (int) get_option(self::OPTION_PER_PAGE, self::DEFAULT_PER_PAGE);
         $per_page = max(5, min(500, $per_page));
         $page = max(1, isset($_GET['paged']) ? (int) $_GET['paged'] : 1);
@@ -76,14 +91,74 @@ final class SubmissionsPage
         $entries = $this->repository->paginate($filters, $page, $per_page);
         $forms = $this->all_forms();
 
+        $notice = isset($_GET['notice']) ? sanitize_key((string) $_GET['notice']) : '';
+        $notice_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         ?>
         <div class="wrap lrob-etk lrob-etk-logs-page lrob-etk-cf-submissions-page">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('Contact Form Submissions', 'lrob-email-toolkit'); ?></h1>
-            </header>
+            <?php if ($notice === 'spam' || $notice === 'unspam' || $notice === 'deleted') : ?>
+                <div class="notice notice-success is-dismissible">
+                    <p>
+                        <?php
+                        if ($notice === 'spam') {
+                            /* translators: %d: submission id */
+                            printf(esc_html__('Submission #%d marked as spam.', 'lrob-email-toolkit'), $notice_id);
+                        } elseif ($notice === 'unspam') {
+                            /* translators: %d: submission id */
+                            printf(esc_html__('Submission #%d restored from spam.', 'lrob-email-toolkit'), $notice_id);
+                        } else {
+                            /* translators: %d: submission id */
+                            printf(esc_html__('Submission #%d deleted permanently.', 'lrob-email-toolkit'), $notice_id);
+                        }
+                        ?>
+                    </p>
+                </div>
+            <?php elseif ($notice === 'not-found') : ?>
+                <div class="notice notice-warning is-dismissible">
+                    <p><?php esc_html_e('That submission no longer exists. It may have been deleted already.', 'lrob-email-toolkit'); ?></p>
+                </div>
+            <?php endif; ?>
+            <?php PageHeader::render([
+                'title' => __('Contact Form Submissions', 'lrob-email-toolkit'),
+                'tools' => [
+                    [
+                        'label' => __('Storage', 'lrob-email-toolkit'),
+                        'icon'  => 'dashicons-database',
+                        'id'    => 'lrob-etk-cf-storage-btn',
+                    ],
+                ],
+                'nav'   => [
+                    [
+                        'label' => __('Forms', 'lrob-email-toolkit'),
+                        'icon'  => 'dashicons-feedback',
+                        'href'  => admin_url('admin.php?page=' . FormsPage::SLUG),
+                    ],
+                ],
+            ]); ?>
 
             <?php $this->render_filter_bar($filters, $forms); ?>
 
+            <?php $this->render_list_region($filters, $entries, $page, $total, $total_pages, $per_page, $forms); ?>
+
+            <?php FormsPage::render_storage_modal(); ?>
+        </div>
+        <?php
+    }
+
+
+    /**
+     * Render the swap-able dynamic region (summary line + bulk toolbar +
+     * table + pagination, OR empty state). Called both from full-page
+     * render_list and from the AJAX filter endpoint when only this
+     * chunk needs replacing — same markup either way.
+     *
+     * @param array<string, mixed>   $filters
+     * @param array<int, Submission> $entries
+     * @param array<int, \WP_Post>   $forms
+     */
+    public function render_list_region(array $filters, array $entries, int $page, int $total, int $total_pages, int $per_page, array $forms): void
+    {
+        ?>
+        <div class="lrob-etk-list-region" data-etk-list-region>
             <?php if ($entries === [] && $total === 0) : ?>
                 <?php $this->render_empty_state(!empty(array_filter($filters))); ?>
             <?php else : ?>
@@ -91,43 +166,74 @@ final class SubmissionsPage
                 <?php $this->render_table($entries, $forms); ?>
                 <?php $this->render_pagination($page, $total_pages); ?>
             <?php endif; ?>
+            <div class="lrob-etk-list-loading" aria-hidden="true"><span class="spinner is-active"></span></div>
         </div>
         <?php
     }
 
     /**
+     * @param array<string, mixed>|null $source defaults to $_GET (page render); the
+     *        AJAX filter endpoint passes $_POST so the same parser handles both.
      * @return array{form_ids?:array<int,int>, statuses?:array<int,string>,
      *               captcha_outcomes?:array<int,string>, search?:string,
      *               date_from?:string, date_to?:string}
      */
-    private function parse_filters(): array
+    public static function parse_filters(?array $source = null): array
     {
+        $src = $source ?? $_GET;
         $f = [];
-        if (!empty($_GET['form_id']) && (int) $_GET['form_id'] > 0) {
-            $f['form_ids'] = [(int) $_GET['form_id']];
+        if (!empty($src['form_id']) && (int) $src['form_id'] > 0) {
+            $f['form_ids'] = [(int) $src['form_id']];
         }
-        if (!empty($_GET['status']) && is_string($_GET['status'])) {
-            $f['statuses'] = [sanitize_key((string) $_GET['status'])];
+        if (!empty($src['status']) && is_string($src['status'])) {
+            $f['statuses'] = [sanitize_key((string) $src['status'])];
         }
-        if (!empty($_GET['captcha']) && is_string($_GET['captcha'])) {
-            $f['captcha_outcomes'] = [sanitize_key((string) $_GET['captcha'])];
+        if (!empty($src['captcha']) && is_string($src['captcha'])) {
+            $f['captcha_outcomes'] = [sanitize_key((string) $src['captcha'])];
         }
-        if (!empty($_GET['s']) && is_string($_GET['s'])) {
-            $f['search'] = sanitize_text_field(wp_unslash($_GET['s']));
+        if (!empty($src['s']) && is_string($src['s'])) {
+            $f['search'] = sanitize_text_field(wp_unslash($src['s']));
         }
-        if (!empty($_GET['date_from']) && is_string($_GET['date_from'])) {
-            $d = sanitize_text_field(wp_unslash($_GET['date_from']));
+        if (!empty($src['date_from']) && is_string($src['date_from'])) {
+            $d = sanitize_text_field(wp_unslash($src['date_from']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
                 $f['date_from'] = $d . ' 00:00:00';
             }
         }
-        if (!empty($_GET['date_to']) && is_string($_GET['date_to'])) {
-            $d = sanitize_text_field(wp_unslash($_GET['date_to']));
+        if (!empty($src['date_to']) && is_string($src['date_to'])) {
+            $d = sanitize_text_field(wp_unslash($src['date_to']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
                 $f['date_to'] = $d . ' 23:59:59';
             }
         }
         return $f;
+    }
+
+    /**
+     * Drive the list-region render from a filter set + page number. Used by
+     * the AJAX filter endpoint to recompute + render only the swap-able
+     * portion of the inbox without booting the rest of the page chrome.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function render_list_region_for_filters(array $filters, int $page): void
+    {
+        $per_page = (int) get_option(self::OPTION_PER_PAGE, self::DEFAULT_PER_PAGE);
+        $per_page = max(5, min(500, $per_page));
+        $total = $this->repository->count($filters);
+        $total_pages = max(1, (int) ceil($total / $per_page));
+        if ($page > $total_pages) {
+            $page = $total_pages;
+        }
+        $page = max(1, $page);
+        $entries = $this->repository->paginate($filters, $page, $per_page);
+        $forms = $this->all_forms();
+        $this->render_list_region($filters, $entries, $page, $total, $total_pages, $per_page, $forms);
+    }
+
+    public function repository(): SubmissionRepository
+    {
+        return $this->repository;
     }
 
     /**
@@ -144,11 +250,11 @@ final class SubmissionsPage
         $current_to = isset($filters['date_to']) ? substr((string) $filters['date_to'], 0, 10) : '';
         $has_filter = $current_form > 0 || $current_status !== '' || $current_captcha !== '' || $current_search !== '' || $current_from !== '' || $current_to !== '';
         ?>
-        <form method="get" class="lrob-etk-logs-filter">
+        <form method="get" class="lrob-etk-filter-bar" data-etk-list-form>
             <input type="hidden" name="page" value="<?php echo esc_attr(FormsPage::SLUG); ?>">
             <input type="hidden" name="view" value="<?php echo esc_attr(FormsPage::VIEW_SUBMISSIONS); ?>">
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-cf-filter-form"><?php esc_html_e('Form', 'lrob-email-toolkit'); ?></label>
                 <select name="form_id" id="lrob-etk-cf-filter-form" class="lrob-etk-select">
                     <option value=""><?php esc_html_e('All forms', 'lrob-email-toolkit'); ?></option>
@@ -160,7 +266,7 @@ final class SubmissionsPage
                 </select>
             </div>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-cf-filter-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></label>
                 <select name="status" id="lrob-etk-cf-filter-status" class="lrob-etk-select">
                     <option value=""><?php esc_html_e('All', 'lrob-email-toolkit'); ?></option>
@@ -179,7 +285,7 @@ final class SubmissionsPage
                 </select>
             </div>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-cf-filter-captcha"><?php esc_html_e('Captcha', 'lrob-email-toolkit'); ?></label>
                 <select name="captcha" id="lrob-etk-cf-filter-captcha" class="lrob-etk-select">
                     <option value=""><?php esc_html_e('Any', 'lrob-email-toolkit'); ?></option>
@@ -195,29 +301,29 @@ final class SubmissionsPage
                 </select>
             </div>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-cf-filter-from"><?php esc_html_e('From', 'lrob-email-toolkit'); ?></label>
                 <input type="date" id="lrob-etk-cf-filter-from" name="date_from" value="<?php echo esc_attr($current_from); ?>">
             </div>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-cf-filter-to"><?php esc_html_e('To', 'lrob-email-toolkit'); ?></label>
                 <input type="date" id="lrob-etk-cf-filter-to" name="date_to" value="<?php echo esc_attr($current_to); ?>">
             </div>
 
-            <div class="lrob-etk-logs-filter-field lrob-etk-logs-filter-search">
+            <div class="lrob-etk-filter-bar-field lrob-etk-filter-bar-field--search">
                 <label for="lrob-etk-cf-filter-search"><?php esc_html_e('Search', 'lrob-email-toolkit'); ?></label>
                 <input type="search" id="lrob-etk-cf-filter-search" name="s" value="<?php echo esc_attr($current_search); ?>"
                        placeholder="<?php esc_attr_e('Field values, notes…', 'lrob-email-toolkit'); ?>">
             </div>
 
-            <div class="lrob-etk-logs-filter-actions">
-                <button type="submit" class="button button-primary"><?php esc_html_e('Filter', 'lrob-email-toolkit'); ?></button>
-                <?php if ($has_filter) : ?>
-                    <a href="<?php echo esc_url(self::base_url()); ?>" class="button button-link">
-                        <?php esc_html_e('Reset', 'lrob-email-toolkit'); ?>
-                    </a>
-                <?php endif; ?>
+            <div class="lrob-etk-filter-bar-actions">
+                <noscript>
+                    <button type="submit" class="button button-primary"><?php esc_html_e('Filter', 'lrob-email-toolkit'); ?></button>
+                </noscript>
+                <a href="<?php echo esc_url(self::base_url()); ?>" class="button button-link lrob-etk-cf-reset-filters"<?php echo $has_filter ? '' : ' hidden'; ?>>
+                    <?php esc_html_e('Reset', 'lrob-email-toolkit'); ?>
+                </a>
             </div>
         </form>
         <?php
@@ -229,6 +335,18 @@ final class SubmissionsPage
         $last = min($total, $page * $per_page);
         ?>
         <div class="lrob-etk-bulk-toolbar">
+            <div class="lrob-etk-bulk-actions" data-cf-bulk-actions>
+                <select class="lrob-etk-select" data-cf-bulk-op>
+                    <option value=""><?php esc_html_e('Bulk actions', 'lrob-email-toolkit'); ?></option>
+                    <option value="spam"><?php esc_html_e('Mark as spam', 'lrob-email-toolkit'); ?></option>
+                    <option value="unspam"><?php esc_html_e('Restore from spam', 'lrob-email-toolkit'); ?></option>
+                    <option value="delete"><?php esc_html_e('Delete permanently', 'lrob-email-toolkit'); ?></option>
+                </select>
+                <button type="button" class="button" data-cf-bulk-apply disabled>
+                    <?php esc_html_e('Apply', 'lrob-email-toolkit'); ?>
+                </button>
+                <span class="lrob-etk-bulk-selected-count" data-cf-bulk-count hidden></span>
+            </div>
             <div class="lrob-etk-bulk-selection">
                 <span class="lrob-etk-bulk-count">
                     <?php
@@ -257,10 +375,14 @@ final class SubmissionsPage
             $form_titles[(int) $f->ID] = $f->post_title;
         }
         ?>
-        <div class="lrob-etk-logs-table-wrap">
-            <table class="lrob-etk-logs-table lrob-etk-cf-submissions-table">
+        <div class="lrob-etk-data-table-wrap">
+            <table class="lrob-etk-data-table lrob-etk-cf-submissions-table">
                 <thead>
                     <tr>
+                        <th class="col-check">
+                            <label class="screen-reader-text" for="lrob-etk-cf-check-all"><?php esc_html_e('Select all', 'lrob-email-toolkit'); ?></label>
+                            <input type="checkbox" id="lrob-etk-cf-check-all" data-cf-bulk-check-all>
+                        </th>
                         <th class="col-date"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
                         <th class="col-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
                         <th class="col-form"><?php esc_html_e('Form', 'lrob-email-toolkit'); ?></th>
@@ -298,6 +420,16 @@ final class SubmissionsPage
         $preview = $this->preview_text($entry);
         ?>
         <tr data-submission-id="<?php echo (int) $entry->id; ?>">
+            <td class="col-check">
+                <label class="screen-reader-text" for="lrob-etk-cf-check-<?php echo (int) $entry->id; ?>">
+                    <?php
+                    /* translators: %d: submission id */
+                    printf(esc_html__('Select submission #%d', 'lrob-email-toolkit'), (int) $entry->id);
+                    ?>
+                </label>
+                <input type="checkbox" id="lrob-etk-cf-check-<?php echo (int) $entry->id; ?>"
+                       data-cf-bulk-check value="<?php echo (int) $entry->id; ?>">
+            </td>
             <td class="col-date">
                 <?php echo esc_html($entry->submitted_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
             </td>
@@ -308,13 +440,13 @@ final class SubmissionsPage
             </td>
             <td class="col-form">
                 <?php if ($is_orphan) : ?>
-                    <span class="lrob-etk-cf-form-deleted"><?php echo esc_html($form_label); ?></span>
+                    <span class="lrob-etk-form-deleted"><?php echo esc_html($form_label); ?></span>
                 <?php else : ?>
                     <?php echo esc_html($form_label); ?>
                 <?php endif; ?>
             </td>
             <td class="col-preview">
-                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-subject-link">
+                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-subject-link" data-cf-open-detail data-cf-row-id="<?php echo (int) $entry->id; ?>">
                     <?php echo esc_html($preview !== '' ? $preview : __('(no content)', 'lrob-email-toolkit')); ?>
                 </a>
             </td>
@@ -322,7 +454,7 @@ final class SubmissionsPage
                 <?php echo esc_html($this->captcha_summary($entry)); ?>
             </td>
             <td class="col-actions">
-                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>">
+                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost" data-cf-open-detail data-cf-row-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-visibility"></span>
                 </a>
                 <?php if ($entry->log_id !== null) : ?>
@@ -332,10 +464,22 @@ final class SubmissionsPage
                         admin_url('admin.php')
                     );
                     ?>
-                    <a href="<?php echo esc_url($log_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View outbound email', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View outbound email log', 'lrob-email-toolkit'); ?>">
+                    <a href="<?php echo esc_url($log_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost" title="<?php esc_attr_e('View outbound email', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View outbound email log', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-email-alt"></span>
                     </a>
                 <?php endif; ?>
+                <?php if ($entry->status === SubmissionRepository::STATUS_SPAM_BLOCKED) : ?>
+                    <button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost" data-cf-row-action="unspam" data-cf-row-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Restore from spam', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Restore from spam', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-undo"></span>
+                    </button>
+                <?php else : ?>
+                    <button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--spam" data-cf-row-action="spam" data-cf-row-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Mark as spam', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Mark as spam', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-flag"></span>
+                    </button>
+                <?php endif; ?>
+                <button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger" data-cf-row-action="delete" data-cf-row-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Delete permanently', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Delete submission', 'lrob-email-toolkit'); ?>">
+                    <span class="dashicons dashicons-trash"></span>
+                </button>
             </td>
         </tr>
         <?php
@@ -390,14 +534,14 @@ final class SubmissionsPage
     {
         ?>
         <div class="wrap lrob-etk lrob-etk-cf-submissions-page">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('Submission not found', 'lrob-email-toolkit'); ?></h1>
-            </header>
-            <p>
-                <a href="<?php echo esc_url(self::base_url()); ?>" class="button">
-                    <?php esc_html_e('Back to submissions', 'lrob-email-toolkit'); ?>
-                </a>
-            </p>
+            <?php PageHeader::render([
+                'title' => __('Submission not found', 'lrob-email-toolkit'),
+                'nav'   => [[
+                    'label' => __('Back to submissions', 'lrob-email-toolkit'),
+                    'icon'  => 'dashicons-arrow-left-alt',
+                    'href'  => self::base_url(),
+                ]],
+            ]); ?>
         </div>
         <?php
     }
@@ -445,99 +589,162 @@ final class SubmissionsPage
                             <?php esc_html_e('View outbound email', 'lrob-email-toolkit'); ?>
                         </a>
                     <?php endif; ?>
+                    <?php if ($entry->status === SubmissionRepository::STATUS_SPAM_BLOCKED) : ?>
+                        <button type="button" class="button" data-cf-row-action="unspam" data-cf-row-id="<?php echo (int) $entry->id; ?>">
+                            <span class="dashicons dashicons-undo" aria-hidden="true"></span>
+                            <?php esc_html_e('Restore from spam', 'lrob-email-toolkit'); ?>
+                        </button>
+                    <?php else : ?>
+                        <button type="button" class="button lrob-etk-btn--spam" data-cf-row-action="spam" data-cf-row-id="<?php echo (int) $entry->id; ?>">
+                            <span class="dashicons dashicons-flag" aria-hidden="true"></span>
+                            <?php esc_html_e('Mark as spam', 'lrob-email-toolkit'); ?>
+                        </button>
+                    <?php endif; ?>
+                    <button type="button" class="button lrob-etk-btn--danger" data-cf-row-action="delete" data-cf-row-id="<?php echo (int) $entry->id; ?>">
+                        <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                        <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
+                    </button>
                 </div>
             </header>
 
-            <div class="lrob-etk-cf-detail-strip">
-                <div class="lrob-etk-cf-detail-strip-item">
-                    <span class="lrob-etk-cf-detail-strip-label"><?php esc_html_e('Submitted', 'lrob-email-toolkit'); ?></span>
-                    <span class="lrob-etk-cf-detail-strip-value">
-                        <?php echo esc_html($entry->submitted_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
-                    </span>
-                </div>
-                <div class="lrob-etk-cf-detail-strip-item">
-                    <span class="lrob-etk-cf-detail-strip-label"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></span>
-                    <span class="lrob-etk-status <?php echo esc_attr($this->status_class($entry->status)); ?>">
-                        <?php echo esc_html($this->status_label($entry->status, $entry->notes)); ?>
-                    </span>
-                </div>
-                <div class="lrob-etk-cf-detail-strip-item">
-                    <span class="lrob-etk-cf-detail-strip-label"><?php esc_html_e('Captcha', 'lrob-email-toolkit'); ?></span>
-                    <span class="lrob-etk-cf-detail-strip-value">
-                        <?php echo esc_html($this->captcha_summary($entry)); ?>
-                    </span>
-                </div>
-                <?php if ($entry->notes !== null && $entry->notes !== '' && !$this->is_known_notes_code($entry->notes)) : ?>
-                    <div class="lrob-etk-cf-detail-strip-item">
-                        <span class="lrob-etk-cf-detail-strip-label"><?php esc_html_e('Notes', 'lrob-email-toolkit'); ?></span>
-                        <span class="lrob-etk-cf-detail-strip-value"><?php echo esc_html($entry->notes); ?></span>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <section class="lrob-etk-cf-detail-card lrob-etk-cf-detail-card--payload">
-                <h2><?php esc_html_e('Submitted values', 'lrob-email-toolkit'); ?></h2>
-                <?php if ($entry->fields === []) : ?>
-                    <p class="lrob-etk-empty"><?php esc_html_e('No fields recorded for this submission.', 'lrob-email-toolkit'); ?></p>
-                <?php else : ?>
-                    <dl class="lrob-etk-cf-detail-payload">
-                        <?php foreach ($entry->fields as $slug => $value) :
-                            [$label, $type] = $this->field_label_and_type((string) $slug, $index);
-                            ?>
-                            <div class="lrob-etk-cf-detail-row">
-                                <dt><?php echo esc_html($label); ?></dt>
-                                <dd><?php echo $this->render_field_value($value, $type); // phpcs:ignore WordPress.Security.EscapeOutput ?></dd>
-                            </div>
-                        <?php endforeach; ?>
-                    </dl>
-                <?php endif; ?>
-            </section>
-
-            <details class="lrob-etk-cf-detail-tech">
-                <summary>
-                    <span class="lrob-etk-cf-detail-tech-caret" aria-hidden="true">▸</span>
-                    <span><?php esc_html_e('Technical details', 'lrob-email-toolkit'); ?></span>
-                </summary>
-                <dl class="lrob-etk-cf-detail-meta">
-                    <?php if ($entry->ip_address !== null) : ?>
-                        <dt><?php esc_html_e('IP address', 'lrob-email-toolkit'); ?></dt>
-                        <dd><code><?php echo esc_html($entry->ip_address); ?></code></dd>
-                    <?php elseif ($entry->ip_hash !== '') : ?>
-                        <dt><?php esc_html_e('IP hash', 'lrob-email-toolkit'); ?></dt>
-                        <dd>
-                            <code><?php echo esc_html(substr($entry->ip_hash, 0, 16)); ?>…</code>
-                            <span class="description"><?php esc_html_e('(raw IP not stored — enable in settings if needed)', 'lrob-email-toolkit'); ?></span>
-                        </dd>
-                    <?php endif; ?>
-
-                    <?php if ($entry->user_agent !== '') : ?>
-                        <dt><?php esc_html_e('User agent', 'lrob-email-toolkit'); ?></dt>
-                        <dd><code class="lrob-etk-cf-ua"><?php echo esc_html($entry->user_agent); ?></code></dd>
-                    <?php endif; ?>
-
-                    <?php if ($entry->referer !== '') : ?>
-                        <dt><?php esc_html_e('Referer', 'lrob-email-toolkit'); ?></dt>
-                        <dd><a href="<?php echo esc_url($entry->referer); ?>" rel="noopener noreferrer" target="_blank"><?php echo esc_html($entry->referer); ?></a></dd>
-                    <?php endif; ?>
-
-                    <dt><?php esc_html_e('Form', 'lrob-email-toolkit'); ?></dt>
-                    <dd><?php echo esc_html($form_title); ?> (#<?php echo (int) $entry->form_id; ?>)</dd>
-
-                    <?php if ($log_url !== null) : ?>
-                        <dt><?php esc_html_e('Outbound email', 'lrob-email-toolkit'); ?></dt>
-                        <dd>
-                            <a href="<?php echo esc_url($log_url); ?>">
-                                <?php
-                                /* translators: %d: log entry id */
-                                printf(esc_html__('Log entry #%d', 'lrob-email-toolkit'), (int) $entry->log_id);
-                                ?>
-                            </a>
-                        </dd>
-                    <?php endif; ?>
-                </dl>
-            </details>
+            <?php $this->render_detail_body($entry); ?>
         </div>
         <?php
+    }
+
+    /**
+     * The body markup of a submission detail — everything below the page
+     * header (strip + payload + attached files + tech details). Public
+     * so the AJAX detail endpoint can call it directly when populating
+     * the in-page modal.
+     */
+    public function render_detail_body(Submission $entry): void
+    {
+        $form = get_post($entry->form_id);
+        $form_title = $form instanceof \WP_Post && $form->post_type === CPT::POST_TYPE
+            ? $form->post_title
+            : sprintf(
+                /* translators: %d: form id */
+                __('Deleted form #%d', 'lrob-email-toolkit'),
+                $entry->form_id
+            );
+        $index = [];
+        if ($form instanceof \WP_Post) {
+            $index = FormStructure::fields_index(FormStructure::load($entry->form_id));
+        }
+        $log_url = null;
+        if ($entry->log_id !== null) {
+            $log_url = add_query_arg(
+                ['page' => LogsPageController::SLUG, 'action' => 'view', 'id' => $entry->log_id],
+                admin_url('admin.php')
+            );
+        }
+        ?>
+        <div class="lrob-etk-detail-strip">
+            <div class="lrob-etk-detail-strip-item">
+                <span class="lrob-etk-detail-strip-label"><?php esc_html_e('Submitted', 'lrob-email-toolkit'); ?></span>
+                <span class="lrob-etk-detail-strip-value">
+                    <?php echo esc_html($entry->submitted_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
+                </span>
+            </div>
+            <div class="lrob-etk-detail-strip-item">
+                <span class="lrob-etk-detail-strip-label"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></span>
+                <span class="lrob-etk-status <?php echo esc_attr($this->status_class($entry->status)); ?>">
+                    <?php echo esc_html($this->status_label($entry->status, $entry->notes)); ?>
+                </span>
+            </div>
+            <div class="lrob-etk-detail-strip-item">
+                <span class="lrob-etk-detail-strip-label"><?php esc_html_e('Captcha', 'lrob-email-toolkit'); ?></span>
+                <span class="lrob-etk-detail-strip-value">
+                    <?php echo esc_html($this->captcha_summary($entry)); ?>
+                </span>
+            </div>
+            <?php if ($entry->notes !== null && $entry->notes !== '' && !$this->is_known_notes_code($entry->notes)) : ?>
+                <div class="lrob-etk-detail-strip-item">
+                    <span class="lrob-etk-detail-strip-label"><?php esc_html_e('Notes', 'lrob-email-toolkit'); ?></span>
+                    <span class="lrob-etk-detail-strip-value"><?php echo esc_html($entry->notes); ?></span>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <section class="lrob-etk-detail-card lrob-etk-detail-card--payload">
+            <h2><?php esc_html_e('Submitted values', 'lrob-email-toolkit'); ?></h2>
+            <?php if ($entry->fields === []) : ?>
+                <p class="lrob-etk-empty"><?php esc_html_e('No fields recorded for this submission.', 'lrob-email-toolkit'); ?></p>
+            <?php else : ?>
+                <dl class="lrob-etk-detail-payload">
+                    <?php foreach ($entry->fields as $slug => $value) :
+                        [$label, $type] = $this->field_label_and_type((string) $slug, $index);
+                        ?>
+                        <div class="lrob-etk-detail-row">
+                            <dt><?php echo esc_html($label); ?></dt>
+                            <dd><?php echo $this->render_field_value($value, $type); // phpcs:ignore WordPress.Security.EscapeOutput ?></dd>
+                        </div>
+                    <?php endforeach; ?>
+                </dl>
+            <?php endif; ?>
+        </section>
+
+        <?php $this->render_attached_files($entry, $index); ?>
+
+        <details class="lrob-etk-detail-tech">
+            <summary>
+                <span class="lrob-etk-detail-tech-caret" aria-hidden="true">▸</span>
+                <span><?php esc_html_e('Technical details', 'lrob-email-toolkit'); ?></span>
+            </summary>
+            <dl class="lrob-etk-detail-meta">
+                <?php if ($entry->ip_address !== null) : ?>
+                    <dt><?php esc_html_e('IP address', 'lrob-email-toolkit'); ?></dt>
+                    <dd><code><?php echo esc_html($entry->ip_address); ?></code></dd>
+                <?php elseif ($entry->ip_hash !== '') : ?>
+                    <dt><?php esc_html_e('IP hash', 'lrob-email-toolkit'); ?></dt>
+                    <dd>
+                        <code><?php echo esc_html(substr($entry->ip_hash, 0, 16)); ?>…</code>
+                        <span class="description"><?php esc_html_e('(raw IP not stored — enable in settings if needed)', 'lrob-email-toolkit'); ?></span>
+                    </dd>
+                <?php endif; ?>
+
+                <?php if ($entry->user_agent !== '') : ?>
+                    <dt><?php esc_html_e('User agent', 'lrob-email-toolkit'); ?></dt>
+                    <dd><code class="lrob-etk-ua-code"><?php echo esc_html($entry->user_agent); ?></code></dd>
+                <?php endif; ?>
+
+                <?php if ($entry->referer !== '') : ?>
+                    <dt><?php esc_html_e('Referer', 'lrob-email-toolkit'); ?></dt>
+                    <dd><a href="<?php echo esc_url($entry->referer); ?>" rel="noopener noreferrer" target="_blank"><?php echo esc_html($entry->referer); ?></a></dd>
+                <?php endif; ?>
+
+                <dt><?php esc_html_e('Form', 'lrob-email-toolkit'); ?></dt>
+                <dd><?php echo esc_html($form_title); ?> (#<?php echo (int) $entry->form_id; ?>)</dd>
+
+                <?php if ($log_url !== null) : ?>
+                    <dt><?php esc_html_e('Outbound email', 'lrob-email-toolkit'); ?></dt>
+                    <dd>
+                        <a href="<?php echo esc_url($log_url); ?>">
+                            <?php
+                            /* translators: %d: log entry id */
+                            printf(esc_html__('Log entry #%d', 'lrob-email-toolkit'), (int) $entry->log_id);
+                            ?>
+                        </a>
+                    </dd>
+                <?php endif; ?>
+            </dl>
+        </details>
+        <?php
+    }
+
+    /** Modal header title for a submission — "Form name #N". */
+    public function detail_title(Submission $entry): string
+    {
+        $form = get_post($entry->form_id);
+        $form_title = $form instanceof \WP_Post && $form->post_type === CPT::POST_TYPE && $form->post_title !== ''
+            ? $form->post_title
+            : sprintf(
+                /* translators: %d: form id */
+                __('Deleted form #%d', 'lrob-email-toolkit'),
+                $entry->form_id
+            );
+        return $form_title . ' #' . (int) $entry->id;
     }
 
     /**
@@ -550,6 +757,196 @@ final class SubmissionsPage
      * @param array<string, array{label:string, type:string}> $index
      * @return array{0:string, 1:string}
      */
+    /**
+     * Confirmation page for spam / delete actions reached from the email
+     * button. Renders a summary of the submission so admin knows what
+     * they're about to act on, plus an explicit Confirm button that
+     * POSTs to the admin-post handler (which carries the canonical nonce
+     * + cap check). Cancel returns to the inbox without firing anything.
+     *
+     * `$op` is one of 'spam' | 'delete'.
+     */
+    private function render_confirm(Submission $entry, string $op): void
+    {
+        $is_delete = $op === 'delete';
+        $action = $is_delete ? EmailActions::ACTION_DELETE : EmailActions::ACTION_SPAM;
+        $title = $is_delete
+            ? __('Delete this submission?', 'lrob-email-toolkit')
+            : __('Mark this submission as spam?', 'lrob-email-toolkit');
+        $confirm_label = $is_delete
+            ? __('Yes, delete permanently', 'lrob-email-toolkit')
+            : __('Yes, mark as spam', 'lrob-email-toolkit');
+        $back_url = self::base_url();
+
+        $form = get_post($entry->form_id);
+        $form_title = $form instanceof \WP_Post && $form->post_type === CPT::POST_TYPE
+            ? $form->post_title
+            : sprintf(
+                /* translators: %d: form id */
+                __('Deleted form #%d', 'lrob-email-toolkit'),
+                $entry->form_id
+            );
+        $preview = $this->compose_field_preview($entry);
+        ?>
+        <div class="wrap lrob-etk lrob-etk-cf-submissions-page lrob-etk-confirm-page">
+            <?php PageHeader::render(['title' => $title]); ?>
+            <div class="lrob-etk-confirm-card">
+                <p class="lrob-etk-confirm-summary">
+                    <?php
+                    printf(
+                        /* translators: 1: form title, 2: submission id, 3: submitted-at datetime */
+                        esc_html__('Submission to "%1$s" — #%2$d, received %3$s.', 'lrob-email-toolkit'),
+                        esc_html($form_title),
+                        (int) $entry->id,
+                        esc_html($entry->submitted_at->setTimezone(wp_timezone())->format('Y-m-d H:i'))
+                    );
+                    ?>
+                </p>
+                <?php if ($preview !== '') : ?>
+                    <blockquote class="lrob-etk-confirm-preview"><?php echo esc_html($preview); ?></blockquote>
+                <?php endif; ?>
+
+                <?php if ($is_delete) : ?>
+                    <p class="lrob-etk-confirm-warn">
+                        <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+                        <strong><?php esc_html_e('This is irreversible.', 'lrob-email-toolkit'); ?></strong>
+                        <?php esc_html_e('Field data and any attached files will be permanently removed.', 'lrob-email-toolkit'); ?>
+                    </p>
+                <?php else : ?>
+                    <p class="lrob-etk-confirm-info">
+                        <?php esc_html_e('Marking as spam keeps the row in the inbox under the Spam filter. You can move it back at any time.', 'lrob-email-toolkit'); ?>
+                    </p>
+                <?php endif; ?>
+
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="lrob-etk-confirm-form">
+                    <input type="hidden" name="action" value="<?php echo esc_attr($action); ?>">
+                    <input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
+                    <?php wp_nonce_field($action . '_' . $entry->id); ?>
+                    <div class="lrob-etk-confirm-actions">
+                        <a href="<?php echo esc_url($back_url); ?>" class="button"><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></a>
+                        <button type="submit" class="button button-primary <?php echo $is_delete ? 'lrob-etk-btn--danger-solid' : 'lrob-etk-btn--warn-solid'; ?>">
+                            <?php echo esc_html($confirm_label); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <?php
+    }
+
+    /** Truncate the most useful field's value into a one-line preview. */
+    private function compose_field_preview(Submission $entry): string
+    {
+        foreach ($entry->fields as $value) {
+            if (is_string($value) && trim($value) !== '') {
+                $s = trim($value);
+                if (mb_strlen($s) > 160) {
+                    $s = mb_substr($s, 0, 157) . '…';
+                }
+                return $s;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Render the "Attached files" section if any cf_files row exists for
+     * this submission. Files are grouped by their source field_slug, and
+     * each file is shown either as an inline preview (image thumbnail or
+     * embedded PDF) or as a download chip. All file URLs route through
+     * the gated REST endpoint — never the storage path.
+     *
+     * @param array<string, array{label:string, type:string}> $index
+     */
+    private function render_attached_files(Submission $entry, array $index): void
+    {
+        $repo = $this->file_repository();
+        if ($repo === null) {
+            return;
+        }
+        $files = $repo->find_by_submission($entry->id);
+        if ($files === []) {
+            return;
+        }
+
+        // Group by field slug for label clarity.
+        $by_slug = [];
+        foreach ($files as $row) {
+            $slug = (string) ($row['field_slug'] ?? '');
+            $by_slug[$slug][] = $row;
+        }
+        ?>
+        <section class="lrob-etk-detail-card lrob-etk-detail-card--files">
+            <h2><?php esc_html_e('Attached files', 'lrob-email-toolkit'); ?></h2>
+            <p class="lrob-etk-files-warning">
+                <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+                <?php esc_html_e('Files come from visitor submissions. Open with care — no malware scan is performed.', 'lrob-email-toolkit'); ?>
+            </p>
+            <?php foreach ($by_slug as $slug => $group) :
+                [$label, ] = $this->field_label_and_type((string) $slug, $index);
+                ?>
+                <div class="lrob-etk-files-group">
+                    <h3 class="lrob-etk-files-group-label"><?php echo esc_html($label); ?></h3>
+                    <div class="lrob-etk-files-list">
+                        <?php foreach ($group as $file) :
+                            $this->render_attached_file($file);
+                        endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </section>
+        <?php
+    }
+
+    /** @param array<string, mixed> $file */
+    private function render_attached_file(array $file): void
+    {
+        $file_id = (int) ($file['id'] ?? 0);
+        if ($file_id <= 0) {
+            return;
+        }
+        $name = (string) ($file['original_name'] ?? '');
+        $mime = (string) ($file['mime'] ?? '');
+        $size = (int) ($file['size_bytes'] ?? 0);
+        // WP REST auth via cookies requires a `wp_rest` nonce on every
+        // request — without it, even a logged-in admin clicking a plain
+        // <a href="/wp-json/...">  gets 401 rest_forbidden. Inject a
+        // fresh nonce at render time; it stays valid for the page's
+        // session lifetime.
+        $base_url = add_query_arg(
+            '_wpnonce',
+            wp_create_nonce('wp_rest'),
+            rest_url('lrob-etk/v1/cf/file/' . $file_id)
+        );
+        $download_url = $base_url; // Content-Disposition is decided server-side.
+        ?>
+        <div class="lrob-etk-file-card" id="file-<?php echo (int) $file_id; ?>">
+            <?php if (str_starts_with($mime, 'image/')) : ?>
+                <a class="lrob-etk-file-thumb" href="<?php echo esc_url($download_url); ?>" target="_blank" rel="noopener">
+                    <img src="<?php echo esc_url(add_query_arg(['w' => 320, 'h' => 320], $base_url)); ?>" alt="<?php echo esc_attr($name); ?>" loading="lazy">
+                </a>
+            <?php elseif ($mime === 'application/pdf') : ?>
+                <div class="lrob-etk-file-pdf">
+                    <iframe src="<?php echo esc_url($base_url); ?>" title="<?php echo esc_attr($name); ?>" loading="lazy"></iframe>
+                </div>
+            <?php endif; ?>
+            <div class="lrob-etk-file-meta">
+                <a class="lrob-etk-file-name" href="<?php echo esc_url($download_url); ?>" target="_blank" rel="noopener">
+                    <span class="dashicons dashicons-media-default" aria-hidden="true"></span>
+                    <span><?php echo esc_html($name); ?></span>
+                </a>
+                <span class="lrob-etk-file-size"><?php echo esc_html(size_format($size)); ?></span>
+            </div>
+        </div>
+        <?php
+    }
+
+    private function file_repository(): ?FileRepository
+    {
+        $container = Plugin::instance()->container();
+        return $container->has(FileRepository::class) ? $container->get(FileRepository::class) : null;
+    }
+
     private function field_label_and_type(string $slug, array $index): array
     {
         if (isset($index[$slug])) {
@@ -652,7 +1049,7 @@ final class SubmissionsPage
             if ($items === []) {
                 return '<em>' . esc_html__('(empty)', 'lrob-email-toolkit') . '</em>';
             }
-            $out = '<ul class="lrob-etk-cf-detail-list">';
+            $out = '<ul class="lrob-etk-detail-list">';
             foreach ($items as $item) {
                 $out .= '<li>' . esc_html($item) . '</li>';
             }
@@ -664,7 +1061,7 @@ final class SubmissionsPage
             return '<em>' . esc_html__('(empty)', 'lrob-email-toolkit') . '</em>';
         }
         if ($type === 'textarea') {
-            return '<pre class="lrob-etk-cf-detail-textarea">' . esc_html($text) . '</pre>';
+            return '<pre class="lrob-etk-detail-textarea">' . esc_html($text) . '</pre>';
         }
         if ($type === 'email' && is_email($text)) {
             return '<a href="' . esc_url('mailto:' . $text) . '">' . esc_html($text) . '</a>';
@@ -689,6 +1086,9 @@ final class SubmissionsPage
             if ($notes === 'honeypot_tripped') {
                 return __('Blocked (honeypot)', 'lrob-email-toolkit');
             }
+            if ($notes === 'time_trap') {
+                return __('Blocked (time-trap)', 'lrob-email-toolkit');
+            }
             if ($notes === 'captcha_failed') {
                 return __('Blocked (captcha)', 'lrob-email-toolkit');
             }
@@ -704,7 +1104,7 @@ final class SubmissionsPage
 
     private function is_known_notes_code(string $notes): bool
     {
-        return in_array($notes, ['honeypot_tripped', 'captcha_failed'], true);
+        return in_array($notes, ['honeypot_tripped', 'time_trap', 'captcha_failed'], true);
     }
 
     private function captcha_summary(Submission $entry): string

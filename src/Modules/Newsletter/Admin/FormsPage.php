@@ -31,8 +31,8 @@ use LRob\EmailToolkit\Plugin;
  * starter templates and clone-existing options.
  *
  * Shared CSS primitives (.lrob-etk-identity-card, .lrob-etk-card-form,
- * .lrob-etk-card-status, .lrob-etk-identities, .lrob-etk-cf-form-card,
- * .lrob-etk-cf-fields, etc.) come from admin-base / admin-components /
+ * .lrob-etk-card-status, .lrob-etk-card-grid, .lrob-etk-form-card,
+ * .lrob-etk-form-fields, etc.) come from admin-base / admin-components /
  * admin-contact-form. The form-builder DOM uses the lrob-etk-form-*
  * prefix from the 0.2.2 refactor; admin chrome from Contact Form
  * (cards, picker modal, delete modal) reuses lrob-etk-cf-* classes so
@@ -149,7 +149,7 @@ final class FormsPage
                     </button>
                 </div>
             <?php else : ?>
-                <div class="lrob-etk-identities lrob-etk-cf-forms-grid">
+                <div class="lrob-etk-card-grid lrob-etk-card-grid--wide">
                     <?php foreach ($forms as $post) : ?>
                         <?php $this->render_form_card($post, $confirmation_templates, $resolved_default_template_id); ?>
                     <?php endforeach; ?>
@@ -205,7 +205,7 @@ final class FormsPage
             $preset_options[] = ['value' => (string) $value, 'label' => (string) $label];
         }
         ?>
-        <article class="lrob-etk-identity-card lrob-etk-cf-form-card" id="form-<?php echo $form_id; ?>" data-form-id="<?php echo $form_id; ?>">
+        <article class="lrob-etk-card lrob-etk-form-card" id="form-<?php echo $form_id; ?>" data-form-id="<?php echo $form_id; ?>">
             <form class="lrob-etk-card-form" novalidate onsubmit="return false">
                 <header class="lrob-etk-card-form-head">
                     <input
@@ -222,7 +222,7 @@ final class FormsPage
                     <span class="lrob-etk-card-status" aria-live="polite"></span>
                 </header>
 
-                <section class="lrob-etk-cf-essentials">
+                <section class="lrob-etk-form-essentials">
                     <div class="lrob-etk-field">
                         <label><?php esc_html_e('Confirmation email template', 'lrob-email-toolkit'); ?></label>
                         <?php Combobox::render_fixed_select(
@@ -255,8 +255,8 @@ final class FormsPage
                     </div>
                 </section>
 
-                <section class="lrob-etk-cf-style-group">
-                    <h3 class="lrob-etk-cf-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
+                <section class="lrob-etk-form-style-group">
+                    <h3 class="lrob-etk-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
                     <div class="lrob-etk-field">
                         <label><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
                         <?php Combobox::render_fixed_select(
@@ -337,18 +337,18 @@ final class FormsPage
     private static function render_fields_editor(int $form_id): void
     {
         ?>
-        <section class="lrob-etk-cf-fields" data-form-id="<?php echo $form_id; ?>">
-            <div class="lrob-etk-cf-editor-toolbar">
-                <div class="lrob-etk-cf-editor-toolbar-actions">
+        <section class="lrob-etk-form-fields" data-form-id="<?php echo $form_id; ?>">
+            <div class="lrob-etk-form-editor-toolbar">
+                <div class="lrob-etk-form-editor-toolbar-actions">
                     <button type="button"
-                            class="lrob-etk-cf-editor-toolbar-btn lrob-etk-cf-editor-toolbar-btn--primary"
+                            class="lrob-etk-form-editor-toolbar-btn lrob-etk-form-editor-toolbar-btn--primary"
                             data-editor-action="add-field"
                             title="<?php esc_attr_e('Add a field', 'lrob-email-toolkit'); ?>"
                             aria-label="<?php esc_attr_e('Add a field', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
                     </button>
                     <button type="button"
-                            class="lrob-etk-cf-editor-toolbar-btn"
+                            class="lrob-etk-form-editor-toolbar-btn"
                             data-editor-action="undo"
                             disabled
                             title="<?php esc_attr_e('Undo (Ctrl+Z)', 'lrob-email-toolkit'); ?>"
@@ -356,7 +356,7 @@ final class FormsPage
                         <span class="dashicons dashicons-undo" aria-hidden="true"></span>
                     </button>
                     <button type="button"
-                            class="lrob-etk-cf-editor-toolbar-btn"
+                            class="lrob-etk-form-editor-toolbar-btn"
                             data-editor-action="redo"
                             disabled
                             title="<?php esc_attr_e('Redo (Ctrl+Shift+Z)', 'lrob-email-toolkit'); ?>"
@@ -364,7 +364,7 @@ final class FormsPage
                         <span class="dashicons dashicons-redo" aria-hidden="true"></span>
                     </button>
                 </div>
-                <span class="lrob-etk-cf-editor-status" aria-live="polite"></span>
+                <span class="lrob-etk-form-editor-status" aria-live="polite"></span>
             </div>
 
             <?php echo FormEditorRenderer::render($form_id, FormCPT::FIELD_NAME_PREFIX, FormCPT::FIELD_ID_PREFIX); ?>
@@ -444,7 +444,7 @@ final class FormsPage
                 <div class="lrob-etk-modal-body">
                     <p><?php esc_html_e('This will permanently delete the subscribe form. Existing subscribers are not affected.', 'lrob-email-toolkit'); ?></p>
                 </div>
-                <footer class="lrob-etk-modal-footer lrob-etk-cf-delete-footer">
+                <footer class="lrob-etk-modal-footer lrob-etk-delete-footer">
                     <button type="button" class="button" data-cf-delete-cancel>
                         <?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?>
                     </button>
@@ -485,7 +485,7 @@ final class FormsPage
                     // (contact form cards use the same data-cf-delete attribute).
                     var card = trigger.closest('[data-form-id]');
                     if (card && card.closest('#lrob-etk-nl-new-picker') === null
-                        && card.closest('.lrob-etk-cf-form-card')
+                        && card.closest('.lrob-etk-form-card')
                         && card.closest('.lrob-etk-nl-forms-section')) {
                         e.preventDefault();
                         open(trigger);

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging\Admin;
 
-use LRob\EmailToolkit\Admin\ModuleToggle;
+use LRob\EmailToolkit\Admin\Combobox;
+use LRob\EmailToolkit\Admin\PageHeader;
+use LRob\EmailToolkit\Admin\RetentionToggle;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage as ContactFormSubmissionsPage;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository as ContactFormSubmissions;
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
@@ -20,7 +22,10 @@ use LRob\EmailToolkit\Modules\ModuleInterface;
 final class LogsPage
 {
     public function __construct(
-        private ModuleInterface $module,
+        // Nullable so the AJAX list-filter endpoint can instantiate
+        // LogsPage purely for its render_list_region_for_filters output
+        // (which doesn't touch module state). render() still requires it.
+        private ?ModuleInterface $module,
         private LogRepository $repository,
     ) {
     }
@@ -38,22 +43,25 @@ final class LogsPage
 
         ?>
         <div class="wrap lrob-etk lrob-etk-logs-page">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('Email Logs', 'lrob-email-toolkit'); ?></h1>
-                <?php ModuleToggle::render_inline($this->module); ?>
-                <?php if ($enabled || $log_count > 0) : ?>
-                    <div class="lrob-etk-page-header-actions">
-                        <button type="button" id="lrob-etk-logs-settings-btn" class="button">
-                            <span class="dashicons dashicons-admin-generic"></span>
-                            <?php esc_html_e('Settings', 'lrob-email-toolkit'); ?>
-                        </button>
-                        <button type="button" id="lrob-etk-logs-cleanup-btn" class="button">
-                            <span class="dashicons dashicons-trash"></span>
-                            <?php esc_html_e('Cleanup', 'lrob-email-toolkit'); ?>
-                        </button>
-                    </div>
-                <?php endif; ?>
-            </header>
+            <?php PageHeader::render([
+                'title'  => __('Email Logs', 'lrob-email-toolkit'),
+                'module' => $this->module,
+                'gate'   => $enabled || $log_count > 0,
+                'tools'  => [
+                    [
+                        'label' => __('Storage', 'lrob-email-toolkit'),
+                        'icon'  => 'dashicons-database',
+                        'id'    => 'lrob-etk-logs-storage-btn',
+                    ],
+                ],
+                'nav'    => [
+                    [
+                        'label' => __('Contact form submissions', 'lrob-email-toolkit'),
+                        'icon'  => 'dashicons-feedback',
+                        'href'  => admin_url('admin.php?page=lrob-etk-cform&view=submissions'),
+                    ],
+                ],
+            ]); ?>
 
             <div id="lrob-etk-flash" class="lrob-etk-flash" aria-live="polite"></div>
             <?php $this->render_flash($notice, $errors); ?>
@@ -67,8 +75,7 @@ final class LogsPage
                 <?php $this->render_logs_view(); ?>
             <?php endif; ?>
 
-            <?php $this->render_cleanup_popover(); ?>
-            <?php $this->render_settings_popover(); ?>
+            <?php $this->render_storage_modal(); ?>
         </div>
 
         <script>
@@ -79,7 +86,7 @@ final class LogsPage
 
     private function render_logs_view(): void
     {
-        $filters = $this->parse_filters();
+        $filters = self::parse_filters();
         $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
         $per_page = max(5, min(500, $per_page));
         $page = max(1, isset($_GET['paged']) ? (int) $_GET['paged'] : 1);
@@ -91,16 +98,48 @@ final class LogsPage
         $entries = $this->repository->paginate($filters, $page, $per_page);
 
         $this->render_filter_bar($filters);
-
-        if ($entries === [] && $total === 0) {
-            $this->render_empty_state(!empty($filters));
-            return;
-        }
-
-        $this->render_bulk_toolbar($page, $total, $per_page);
-        $this->render_table($entries, $this->submission_link_map($entries));
-        $this->render_pagination($page, $total_pages, $total);
+        $this->render_list_region($filters, $entries, $page, $total, $total_pages, $per_page);
     }
+
+    /**
+     * Render the AJAX-swappable list region (bulk toolbar + table +
+     * pagination, OR empty state). Public so the filter AJAX endpoint
+     * can call it to return only this chunk.
+     *
+     * @param array<string, mixed>  $filters
+     * @param array<int, LogEntry>  $entries
+     */
+    public function render_list_region(array $filters, array $entries, int $page, int $total, int $total_pages, int $per_page): void
+    {
+        ?>
+        <div class="lrob-etk-list-region" data-etk-list-region>
+            <?php if ($entries === [] && $total === 0) : ?>
+                <?php $this->render_empty_state(!empty($filters)); ?>
+            <?php else : ?>
+                <?php $this->render_bulk_toolbar($page, $total, $per_page); ?>
+                <?php $this->render_table($entries, $this->submission_link_map($entries)); ?>
+                <?php $this->render_pagination($page, $total_pages, $total); ?>
+            <?php endif; ?>
+            <div class="lrob-etk-list-loading" aria-hidden="true"><span class="spinner is-active"></span></div>
+        </div>
+        <?php
+    }
+
+    /** Public render entry point for the AJAX list-filter endpoint. */
+    public function render_list_region_for_filters(array $filters, int $page): void
+    {
+        $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
+        $per_page = max(5, min(500, $per_page));
+        $total = $this->repository->count($filters);
+        $total_pages = max(1, (int) ceil($total / $per_page));
+        if ($page > $total_pages) {
+            $page = $total_pages;
+        }
+        $page = max(1, $page);
+        $entries = $this->repository->paginate($filters, $page, $per_page);
+        $this->render_list_region($filters, $entries, $page, $total, $total_pages, $per_page);
+    }
+
 
     /**
      * Batched log_id → submission_id lookup for the current page. Returns an
@@ -123,28 +162,31 @@ final class LogsPage
     }
 
     /**
+     * @param array<string, mixed>|null $source defaults to $_GET. AJAX
+     *        filter endpoint passes $_POST so the parser is shared.
      * @return array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string, newsletter_id?: int, newsletter_mode?: string}
      */
-    private function parse_filters(): array
+    public static function parse_filters(?array $source = null): array
     {
+        $src = $source ?? $_GET;
         $f = [];
-        if (!empty($_GET['status']) && is_string($_GET['status'])) {
-            $f['status'] = sanitize_key($_GET['status']);
+        if (!empty($src['status']) && is_string($src['status'])) {
+            $f['status'] = sanitize_key($src['status']);
         }
-        if (!empty($_GET['source']) && is_string($_GET['source'])) {
-            $f['source'] = sanitize_key($_GET['source']);
+        if (!empty($src['source']) && is_string($src['source'])) {
+            $f['source'] = sanitize_key($src['source']);
         }
-        if (!empty($_GET['s']) && is_string($_GET['s'])) {
-            $f['search'] = sanitize_text_field(wp_unslash($_GET['s']));
+        if (!empty($src['s']) && is_string($src['s'])) {
+            $f['search'] = sanitize_text_field(wp_unslash($src['s']));
         }
-        if (!empty($_GET['date_from']) && is_string($_GET['date_from'])) {
-            $d = sanitize_text_field(wp_unslash($_GET['date_from']));
+        if (!empty($src['date_from']) && is_string($src['date_from'])) {
+            $d = sanitize_text_field(wp_unslash($src['date_from']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
                 $f['date_from'] = $d . ' 00:00:00';
             }
         }
-        if (!empty($_GET['date_to']) && is_string($_GET['date_to'])) {
-            $d = sanitize_text_field(wp_unslash($_GET['date_to']));
+        if (!empty($src['date_to']) && is_string($src['date_to'])) {
+            $d = sanitize_text_field(wp_unslash($src['date_to']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
                 $f['date_to'] = $d . ' 23:59:59';
             }
@@ -152,11 +194,11 @@ final class LogsPage
         // Newsletter visibility — exclude by default. The recipients-drawer
         // cross-link passes both newsletter_id and newsletter_mode=only so
         // landing from there shows the right rows immediately.
-        if (!empty($_GET['newsletter_id'])) {
-            $f['newsletter_id'] = (int) $_GET['newsletter_id'];
+        if (!empty($src['newsletter_id'])) {
+            $f['newsletter_id'] = (int) $src['newsletter_id'];
         }
-        $mode = isset($_GET['newsletter_mode']) && is_string($_GET['newsletter_mode'])
-            ? sanitize_key($_GET['newsletter_mode'])
+        $mode = isset($src['newsletter_mode']) && is_string($src['newsletter_mode'])
+            ? sanitize_key($src['newsletter_mode'])
             : '';
         if (in_array($mode, ['include', 'only'], true)) {
             $f['newsletter_mode'] = $mode;
@@ -180,13 +222,13 @@ final class LogsPage
             || $current_from !== '' || $current_to !== ''
             || $current_nl_id > 0 || $current_nl_mode !== 'exclude';
         ?>
-        <form method="get" class="lrob-etk-logs-filter">
+        <form method="get" class="lrob-etk-filter-bar" data-etk-list-form>
             <input type="hidden" name="page" value="<?php echo esc_attr(PageController::SLUG); ?>">
             <?php if ($current_nl_id > 0) : ?>
                 <input type="hidden" name="newsletter_id" value="<?php echo (int) $current_nl_id; ?>">
             <?php endif; ?>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-filter-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></label>
                 <select name="status" id="lrob-etk-filter-status" class="lrob-etk-select">
                     <option value=""><?php esc_html_e('All', 'lrob-email-toolkit'); ?></option>
@@ -205,7 +247,7 @@ final class LogsPage
                 </select>
             </div>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-filter-source"><?php esc_html_e('Source', 'lrob-email-toolkit'); ?></label>
                 <select name="source" id="lrob-etk-filter-source" class="lrob-etk-select">
                     <option value=""><?php esc_html_e('All', 'lrob-email-toolkit'); ?></option>
@@ -218,7 +260,7 @@ final class LogsPage
             </div>
 
             <?php if ($current_nl_id === 0) : ?>
-                <div class="lrob-etk-logs-filter-field">
+                <div class="lrob-etk-filter-bar-field">
                     <label for="lrob-etk-filter-newsletter"><?php esc_html_e('Newsletter', 'lrob-email-toolkit'); ?></label>
                     <select name="newsletter_mode" id="lrob-etk-filter-newsletter" class="lrob-etk-select">
                         <option value="exclude" <?php selected($current_nl_mode, 'exclude'); ?>><?php esc_html_e('Hide newsletter sends', 'lrob-email-toolkit'); ?></option>
@@ -228,29 +270,29 @@ final class LogsPage
                 </div>
             <?php endif; ?>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-filter-date-from"><?php esc_html_e('From', 'lrob-email-toolkit'); ?></label>
                 <input type="date" id="lrob-etk-filter-date-from" name="date_from" value="<?php echo esc_attr($current_from); ?>">
             </div>
 
-            <div class="lrob-etk-logs-filter-field">
+            <div class="lrob-etk-filter-bar-field">
                 <label for="lrob-etk-filter-date-to"><?php esc_html_e('To', 'lrob-email-toolkit'); ?></label>
                 <input type="date" id="lrob-etk-filter-date-to" name="date_to" value="<?php echo esc_attr($current_to); ?>">
             </div>
 
-            <div class="lrob-etk-logs-filter-field lrob-etk-logs-filter-search">
+            <div class="lrob-etk-filter-bar-field lrob-etk-filter-bar-field--search">
                 <label for="lrob-etk-filter-search"><?php esc_html_e('Search', 'lrob-email-toolkit'); ?></label>
                 <input type="search" id="lrob-etk-filter-search" name="s" value="<?php echo esc_attr($current_search); ?>"
                        placeholder="<?php esc_attr_e('Subject, from, to…', 'lrob-email-toolkit'); ?>">
             </div>
 
-            <div class="lrob-etk-logs-filter-actions">
-                <button type="submit" class="button button-primary"><?php esc_html_e('Filter', 'lrob-email-toolkit'); ?></button>
-                <?php if ($has_filter) : ?>
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . PageController::SLUG)); ?>" class="button button-link">
-                        <?php esc_html_e('Reset', 'lrob-email-toolkit'); ?>
-                    </a>
-                <?php endif; ?>
+            <div class="lrob-etk-filter-bar-actions">
+                <noscript>
+                    <button type="submit" class="button button-primary"><?php esc_html_e('Filter', 'lrob-email-toolkit'); ?></button>
+                </noscript>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=' . PageController::SLUG)); ?>" class="button button-link" data-etk-list-reset<?php echo $has_filter ? '' : ' hidden'; ?>>
+                    <?php esc_html_e('Reset', 'lrob-email-toolkit'); ?>
+                </a>
             </div>
         </form>
         <?php
@@ -294,8 +336,8 @@ final class LogsPage
     private function render_table(array $entries, array $submission_link_map = []): void
     {
         ?>
-        <div class="lrob-etk-logs-table-wrap">
-            <table class="lrob-etk-logs-table">
+        <div class="lrob-etk-data-table-wrap">
+            <table class="lrob-etk-data-table">
                 <thead>
                     <tr>
                         <th class="col-check"></th>
@@ -345,13 +387,13 @@ final class LogsPage
             <td class="col-from"><?php echo esc_html($entry->from_email); ?></td>
             <td class="col-to"><?php echo esc_html($to_summary); ?></td>
             <td class="col-subject">
-                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-subject-link">
+                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-subject-link" data-etk-open-detail data-etk-row-id="<?php echo (int) $entry->id; ?>">
                     <?php echo esc_html($subject); ?>
                 </a>
             </td>
             <td class="col-source"><code><?php echo esc_html($entry->source); ?></code></td>
             <td class="col-actions">
-                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View log entry', 'lrob-email-toolkit'); ?>">
+                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost" data-etk-open-detail data-etk-row-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View log entry', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-visibility"></span>
                 </a>
                 <?php if ($submission_id !== null) :
@@ -360,14 +402,14 @@ final class LogsPage
                         ContactFormSubmissionsPage::base_url()
                     );
                     ?>
-                    <a href="<?php echo esc_url($submission_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View contact form submission', 'lrob-email-toolkit'); ?>">
+                    <a href="<?php echo esc_url($submission_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost" title="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View contact form submission', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-feedback"></span>
                     </a>
                 <?php endif; ?>
-                <button type="button" class="lrob-etk-row-action lrob-etk-row-resend" data-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Resend', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Resend email', 'lrob-email-toolkit'); ?>">
+                <button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-row-resend" data-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Resend', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Resend email', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-update"></span>
                 </button>
-                <button type="button" class="lrob-etk-row-action lrob-etk-row-delete" data-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Delete', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Delete log entry', 'lrob-email-toolkit'); ?>">
+                <button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-row-delete" data-id="<?php echo (int) $entry->id; ?>" title="<?php esc_attr_e('Delete', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Delete log entry', 'lrob-email-toolkit'); ?>">
                     <span class="dashicons dashicons-trash"></span>
                 </button>
             </td>
@@ -420,77 +462,87 @@ final class LogsPage
         <?php
     }
 
-    private function render_cleanup_popover(): void
-    {
-        ?>
-        <div class="lrob-etk-popover lrob-etk-logs-cleanup-popover" id="lrob-etk-logs-cleanup-popover" role="dialog" aria-label="<?php esc_attr_e('Cleanup logs', 'lrob-email-toolkit'); ?>" hidden>
-            <header class="lrob-etk-popover-header">
-                <h3><?php esc_html_e('Cleanup logs', 'lrob-email-toolkit'); ?></h3>
-                <button type="button" class="lrob-etk-popover-close" aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>" data-cleanup-close>
-                    <span class="dashicons dashicons-no-alt"></span>
-                </button>
-            </header>
-            <div class="lrob-etk-popover-body">
-                <p class="lrob-etk-popover-help"><?php esc_html_e('One-shot manual cleanup. Automatic retention is configured in Settings.', 'lrob-email-toolkit'); ?></p>
-                <div class="lrob-etk-cleanup-option">
-                    <label>
-                        <?php esc_html_e('Delete logs older than', 'lrob-email-toolkit'); ?>
-                        <input type="number" id="lrob-etk-cleanup-days" class="small-text" min="1" max="3650" value="30">
-                        <?php esc_html_e('days', 'lrob-email-toolkit'); ?>
-                    </label>
-                </div>
-                <div class="lrob-etk-cleanup-result lrob-etk-test-result" hidden></div>
-            </div>
-            <footer class="lrob-etk-popover-footer">
-                <button type="button" class="button" data-cleanup-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
-                <button type="button" class="button button-primary" data-cleanup-action="older_than">
-                    <?php esc_html_e('Delete matching logs', 'lrob-email-toolkit'); ?>
-                </button>
-            </footer>
-        </div>
-        <?php
-    }
-
-    private function render_settings_popover(): void
+    /**
+     * Unified Storage modal — replaces the earlier separate Settings +
+     * Cleanup popovers. Three sections, all on one auto-saving card:
+     *
+     *   - Retention  : Admin\RetentionToggle (checkbox + days, 0 = off)
+     *   - Display    : entries-per-page combobox
+     *   - Cleanup    : one-shot delete-older-than action (explicit button
+     *                  because it's destructive — no auto-save here)
+     */
+    private function render_storage_modal(): void
     {
         $retention = (int) get_option(RetentionCron::OPTION_RETENTION_DAYS, RetentionCron::DEFAULT_RETENTION_DAYS);
         $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
+        $per_page_options = [];
+        foreach ([10, 20, 50, 100, 200] as $opt) {
+            $per_page_options[] = ['value' => (string) $opt, 'label' => (string) $opt];
+        }
         ?>
-        <div class="lrob-etk-popover lrob-etk-logs-settings-popover" id="lrob-etk-logs-settings-popover" role="dialog" aria-label="<?php esc_attr_e('Log settings', 'lrob-email-toolkit'); ?>" hidden>
-            <header class="lrob-etk-popover-header">
-                <h3><?php esc_html_e('Log settings', 'lrob-email-toolkit'); ?></h3>
-                <button type="button" class="lrob-etk-popover-close" aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>" data-settings-close>
-                    <span class="dashicons dashicons-no-alt"></span>
-                </button>
-            </header>
-            <div class="lrob-etk-popover-body">
-                <div class="lrob-etk-field">
-                    <label for="lrob-etk-settings-retention"><?php esc_html_e('Retention', 'lrob-email-toolkit'); ?></label>
-                    <p class="lrob-etk-popover-help"><?php esc_html_e('Older entries are deleted daily by a cron event. 0 = keep forever.', 'lrob-email-toolkit'); ?></p>
-                    <p>
-                        <input type="number" id="lrob-etk-settings-retention" class="small-text" min="0" max="3650" value="<?php echo (int) $retention; ?>">
-                        <?php esc_html_e('days', 'lrob-email-toolkit'); ?>
+        <div class="lrob-etk-modal" id="lrob-etk-logs-storage-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-logs-storage-title" hidden>
+            <div class="lrob-etk-modal-backdrop" data-modal-close></div>
+            <div class="lrob-etk-modal-dialog">
+                <header class="lrob-etk-modal-header">
+                    <h3 id="lrob-etk-logs-storage-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Email logs storage', 'lrob-email-toolkit'); ?></h3>
+                    <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                    </button>
+                </header>
+                <div class="lrob-etk-modal-body">
+                    <p class="description" style="margin-top: 0;">
+                        <?php esc_html_e('Automatic retention, display preferences, and one-shot manual cleanup. Settings save automatically.', 'lrob-email-toolkit'); ?>
                     </p>
+
+                    <article class="lrob-etk-card lrob-etk-logs-storage-card" data-defaults-card="1">
+                        <form class="lrob-etk-card-form" onsubmit="return false">
+                            <header class="lrob-etk-card-form-head">
+                                <span class="lrob-etk-card-status" aria-live="polite"></span>
+                            </header>
+
+                            <section class="lrob-etk-logs-storage-section">
+                                <h4 class="lrob-etk-popover-section-title"><?php esc_html_e('Retention', 'lrob-email-toolkit'); ?></h4>
+                                <p class="description"><?php esc_html_e('Daily cron prunes older log entries. Turn off to keep every entry forever.', 'lrob-email-toolkit'); ?></p>
+                                <div class="lrob-etk-field">
+                                    <?php RetentionToggle::render([
+                                        'key'              => 'retention_days',
+                                        'value'            => $retention,
+                                        'auto_save_marker' => 'lrob-etk-logs-field',
+                                        'default_days'     => RetentionCron::DEFAULT_RETENTION_DAYS,
+                                    ]); ?>
+                                </div>
+
+                                <h4 class="lrob-etk-popover-section-title"><?php esc_html_e('Display', 'lrob-email-toolkit'); ?></h4>
+                                <div class="lrob-etk-field">
+                                    <label><?php esc_html_e('Entries per page', 'lrob-email-toolkit'); ?></label>
+                                    <?php Combobox::render_fixed_select(
+                                        'per_page',
+                                        (string) $per_page,
+                                        $per_page_options,
+                                        '',
+                                        'lrob-etk-logs-field'
+                                    ); ?>
+                                </div>
+
+                                <h4 class="lrob-etk-popover-section-title"><?php esc_html_e('Manual cleanup', 'lrob-email-toolkit'); ?></h4>
+                                <p class="description"><?php esc_html_e('One-shot deletion, independent from the retention cron above.', 'lrob-email-toolkit'); ?></p>
+                                <div class="lrob-etk-cleanup-row">
+                                    <label>
+                                        <?php esc_html_e('Delete logs older than', 'lrob-email-toolkit'); ?>
+                                        <input type="number" id="lrob-etk-cleanup-days" class="small-text" min="1" max="3650" value="30">
+                                        <?php esc_html_e('days', 'lrob-email-toolkit'); ?>
+                                    </label>
+                                    <button type="button" class="button button-secondary" data-cleanup-action="older_than">
+                                        <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                                        <?php esc_html_e('Delete matching logs', 'lrob-email-toolkit'); ?>
+                                    </button>
+                                </div>
+                                <div class="lrob-etk-cleanup-result lrob-etk-test-result" hidden></div>
+                            </section>
+                        </form>
+                    </article>
                 </div>
-                <hr style="margin: 12px 0; border: 0; border-top: 1px solid var(--etk-soft);">
-                <div class="lrob-etk-field">
-                    <label for="lrob-etk-settings-perpage"><?php esc_html_e('Entries per page', 'lrob-email-toolkit'); ?></label>
-                    <p>
-                        <select id="lrob-etk-settings-perpage" class="lrob-etk-select">
-                            <?php foreach ([10, 20, 50, 100, 200] as $opt) : ?>
-                                <option value="<?php echo (int) $opt; ?>" <?php selected($per_page, $opt); ?>><?php echo (int) $opt; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </p>
-                </div>
-                <div class="lrob-etk-test-result lrob-etk-settings-result" hidden></div>
             </div>
-            <footer class="lrob-etk-popover-footer">
-                <button type="button" class="button" data-settings-close><?php esc_html_e('Cancel', 'lrob-email-toolkit'); ?></button>
-                <button type="button" class="button button-primary" id="lrob-etk-settings-save">
-                    <?php esc_html_e('Save', 'lrob-email-toolkit'); ?>
-                </button>
-            </footer>
         </div>
         <?php
     }
@@ -506,7 +558,9 @@ final class LogsPage
                 bulkDelete:   <?php echo wp_json_encode(AjaxController::ACTION_BULK_DELETE); ?>,
                 purge:        <?php echo wp_json_encode(AjaxController::ACTION_PURGE); ?>,
                 resend:       <?php echo wp_json_encode(AjaxController::ACTION_RESEND); ?>,
-                saveSettings: <?php echo wp_json_encode(AjaxController::ACTION_SAVE_SETTINGS); ?>
+                saveSetting:  <?php echo wp_json_encode(AjaxController::ACTION_SAVE_SETTING); ?>,
+                listFilter:   <?php echo wp_json_encode(AjaxController::ACTION_LIST_FILTER); ?>,
+                detail:       <?php echo wp_json_encode(AjaxController::ACTION_DETAIL); ?>
             },
             i18n: {
                 confirmDelete:     <?php echo wp_json_encode(__('Delete this log entry?', 'lrob-email-toolkit')); ?>,
@@ -515,12 +569,24 @@ final class LogsPage
                     echo wp_json_encode(__('Delete %d selected log entries?', 'lrob-email-toolkit'));
                 ?>,
                 confirmResend:     <?php echo wp_json_encode(__('Resend this email now?', 'lrob-email-toolkit')); ?>,
+                confirmCleanup:    <?php
+                    /* translators: %d: number of days */
+                    echo wp_json_encode(__('Delete every log entry older than %d days? This cannot be undone.', 'lrob-email-toolkit'));
+                ?>,
                 noSelection:       <?php echo wp_json_encode(__('Select at least one entry.', 'lrob-email-toolkit')); ?>,
                 pickAction:        <?php echo wp_json_encode(__('Pick an action first.', 'lrob-email-toolkit')); ?>,
                 resending:         <?php echo wp_json_encode(__('Resending…', 'lrob-email-toolkit')); ?>,
                 working:           <?php echo wp_json_encode(__('Working…', 'lrob-email-toolkit')); ?>,
                 saving:            <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
-                unknownError:      <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>
+                saved:             <?php echo wp_json_encode(__('Saved', 'lrob-email-toolkit')); ?>,
+                saveError:         <?php echo wp_json_encode(__('Save failed', 'lrob-email-toolkit')); ?>,
+                unknownError:      <?php echo wp_json_encode(__('Something went wrong.', 'lrob-email-toolkit')); ?>,
+                detailPrev:        <?php echo wp_json_encode(__('Previous', 'lrob-email-toolkit')); ?>,
+                detailNext:        <?php echo wp_json_encode(__('Next', 'lrob-email-toolkit')); ?>,
+                detailClose:       <?php echo wp_json_encode(__('Close', 'lrob-email-toolkit')); ?>,
+                detailLoading:     <?php echo wp_json_encode(__('Loading…', 'lrob-email-toolkit')); ?>,
+                detailResend:      <?php echo wp_json_encode(__('Resend', 'lrob-email-toolkit')); ?>,
+                detailDelete:      <?php echo wp_json_encode(__('Delete', 'lrob-email-toolkit')); ?>
             }
         };
 
@@ -554,17 +620,21 @@ final class LogsPage
         setTimeout(function () { if (div.parentNode) div.parentNode.removeChild(div); }, 5000);
     }
 
-    // ---- Select-all + bulk action ----
-    var selectAll = document.getElementById('lrob-etk-select-all');
-    if (selectAll) {
-        selectAll.addEventListener('change', function () {
-            $$('.lrob-etk-row-check').forEach(function (cb) { cb.checked = selectAll.checked; });
-        });
-    }
+    // ---- List-region interactions (select-all, bulk, per-row) ----
+    // These elements live inside the AJAX-swappable region, so they
+    // get replaced wholesale on every filter reload. Document-level
+    // delegation keeps the wiring alive across swaps without re-bind.
+    document.addEventListener('change', function (e) {
+        var sa = e.target.closest && e.target.closest('#lrob-etk-select-all');
+        if (sa) {
+            $$('.lrob-etk-row-check').forEach(function (cb) { cb.checked = sa.checked; });
+        }
+    });
 
-    var bulkApply = document.getElementById('lrob-etk-bulk-apply');
-    if (bulkApply) {
-        bulkApply.addEventListener('click', function () {
+    document.addEventListener('click', function (e) {
+        var bulkApply = e.target.closest && e.target.closest('#lrob-etk-bulk-apply');
+        if (bulkApply) {
+            e.preventDefault();
             var actionSel = document.getElementById('lrob-etk-bulk-select');
             var action = actionSel ? actionSel.value : '';
             if (!action) { flash(L.i18n.pickAction, 'error'); return; }
@@ -583,36 +653,34 @@ final class LogsPage
                     }
                 });
             }
-        });
-    }
-
-    // ---- Per-row delete ----
-    $$('.lrob-etk-row-delete').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+            return;
+        }
+        var del = e.target.closest && e.target.closest('.lrob-etk-row-delete');
+        if (del) {
+            e.preventDefault();
             if (!confirm(L.i18n.confirmDelete)) return;
-            var id = btn.getAttribute('data-id');
-            ajax(L.actions.delete, { id: id }).then(function (resp) {
+            var did = del.getAttribute('data-id');
+            ajax(L.actions.delete, { id: did }).then(function (resp) {
                 if (resp.success) {
-                    var row = btn.closest('tr');
+                    var row = del.closest('tr');
                     if (row) row.parentNode.removeChild(row);
                     flash(resp.data.message, 'success');
                 } else {
                     flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
                 }
             });
-        });
-    });
-
-    // ---- Per-row resend ----
-    $$('.lrob-etk-row-resend').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+            return;
+        }
+        var resend = e.target.closest && e.target.closest('.lrob-etk-row-resend');
+        if (resend) {
+            e.preventDefault();
             if (!confirm(L.i18n.confirmResend)) return;
-            var id = btn.getAttribute('data-id');
-            var icon = btn.querySelector('.dashicons');
-            btn.disabled = true;
+            var rid = resend.getAttribute('data-id');
+            var icon = resend.querySelector('.dashicons');
+            resend.disabled = true;
             if (icon) icon.classList.add('lrob-etk-spin');
-            ajax(L.actions.resend, { id: id }).then(function (resp) {
-                btn.disabled = false;
+            ajax(L.actions.resend, { id: rid }).then(function (resp) {
+                resend.disabled = false;
                 if (icon) icon.classList.remove('lrob-etk-spin');
                 if (resp.success) {
                     flash(resp.data.message, 'success');
@@ -621,125 +689,183 @@ final class LogsPage
                     flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
                 }
             }).catch(function () {
-                btn.disabled = false;
+                resend.disabled = false;
                 if (icon) icon.classList.remove('lrob-etk-spin');
                 flash(L.i18n.unknownError, 'error');
             });
-        });
+            return;
+        }
     });
 
-    // ---- Cleanup popover ----
-    var cleanupBtn = document.getElementById('lrob-etk-logs-cleanup-btn');
-    var cleanupPop = document.getElementById('lrob-etk-logs-cleanup-popover');
-    function positionPopover(popover, anchor) {
-        popover.hidden = false;
-        var pRect = popover.getBoundingClientRect();
-        var aRect = anchor.getBoundingClientRect();
-        var margin = 8;
-        var top = aRect.bottom + margin;
-        if (top + pRect.height > window.innerHeight - margin) {
-            top = aRect.top - pRect.height - margin;
-            if (top < margin) top = margin;
+    // The shared helpers (etk-list-filter, etk-detail-modal) are
+    // enqueued in the footer, so they're not yet defined at the time
+    // this inline IIFE runs from mid-body. Wait for DOMContentLoaded —
+    // footer scripts are synchronous, so by then they've executed and
+    // the globals exist.
+    function whenReady(fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn);
+        } else {
+            fn();
         }
-        var left = aRect.right - pRect.width;
-        if (left < margin) left = margin;
-        if (left + pRect.width > window.innerWidth - margin) left = window.innerWidth - pRect.width - margin;
-        popover.style.position = 'fixed';
-        popover.style.top = top + 'px';
-        popover.style.left = left + 'px';
     }
-    if (cleanupBtn && cleanupPop) {
-        cleanupBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (cleanupPop.hidden) {
-                positionPopover(cleanupPop, cleanupBtn);
-            } else {
-                cleanupPop.hidden = true;
-            }
+
+    whenReady(function () {
+    // ---- Live filter (shared etk-list-filter helper) ----
+    if (window.lrobEtkListFilter) {
+        window.lrobEtkListFilter.attach({
+            formSelector:   '[data-etk-list-form]',
+            regionSelector: '[data-etk-list-region]',
+            ajaxUrl:        L.ajaxUrl,
+            nonce:          L.nonce,
+            action:         L.actions.listFilter,
         });
-        document.addEventListener('click', function (e) {
-            if (!cleanupPop.hidden && !cleanupPop.contains(e.target) && e.target !== cleanupBtn && !cleanupBtn.contains(e.target)) {
-                cleanupPop.hidden = true;
-            }
-        });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cleanupPop.hidden = true; });
-        cleanupPop.querySelectorAll('[data-cleanup-close]').forEach(function (b) {
-            b.addEventListener('click', function () { cleanupPop.hidden = true; });
+    }
+
+    // ---- Detail modal (shared etk-detail-modal helper) ----
+    // Click on the subject link or the eye icon in a row opens the
+    // modal instead of navigating to the full-page detail view. The
+    // full page still works for direct URLs (back-button, bookmarks,
+    // email "View in admin" links).
+    if (window.lrobEtkDetailModal) {
+        var detailModal = window.lrobEtkDetailModal.create({
+            actionsHtml: ''
+                + '<button type="button" class="button lrob-etk-detail-modal-action" data-cf-detail-action="resend">'
+                +   '<span class="dashicons dashicons-update" aria-hidden="true"></span>'
+                +   '<span>' + L.i18n.detailResend + '</span>'
+                + '</button>'
+                + '<button type="button" class="button lrob-etk-detail-modal-action lrob-etk-btn--danger" data-cf-detail-action="delete">'
+                +   '<span class="dashicons dashicons-trash" aria-hidden="true"></span>'
+                +   '<span>' + L.i18n.detailDelete + '</span>'
+                + '</button>',
+            fetcher: function (id) {
+                var fd = new FormData();
+                fd.append('action', L.actions.detail);
+                fd.append('_nonce', L.nonce);
+                fd.append('id', String(id));
+                return fetch(L.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                    .then(function (r) { return r.json(); })
+                    .then(function (resp) {
+                        if (!resp || !resp.success || !resp.data) throw new Error('bad');
+                        return resp.data;
+                    });
+            },
+            onAction: function (op, id, modal) {
+                if (op === 'resend') {
+                    if (!confirm(L.i18n.confirmResend)) return;
+                    ajax(L.actions.resend, { id: id }).then(function (resp) {
+                        if (resp.success) {
+                            flash(resp.data.message, 'success');
+                            // Refresh modal body — status may have changed.
+                            modal.refresh();
+                        } else {
+                            flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
+                        }
+                    });
+                } else if (op === 'delete') {
+                    if (!confirm(L.i18n.confirmDelete)) return;
+                    ajax(L.actions.delete, { id: id }).then(function (resp) {
+                        if (resp.success) {
+                            // Drop the row from the live table + close the modal.
+                            var row = document.querySelector('tr[data-log-id="' + id + '"]');
+                            if (row) row.parentNode.removeChild(row);
+                            modal.close();
+                            flash(resp.data.message, 'success');
+                        } else {
+                            flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
+                        }
+                    });
+                }
+            },
+            getVisibleIds: function () {
+                var rows = document.querySelectorAll('tr[data-log-id]');
+                var ids = [];
+                Array.prototype.forEach.call(rows, function (tr) {
+                    var v = parseInt(tr.getAttribute('data-log-id'), 10) || 0;
+                    if (v > 0) ids.push(v);
+                });
+                return ids;
+            },
+            i18n: {
+                prev:    L.i18n.detailPrev,
+                next:    L.i18n.detailNext,
+                close:   L.i18n.detailClose,
+                loading: L.i18n.detailLoading,
+                error:   L.i18n.unknownError,
+            },
         });
 
-        cleanupPop.querySelectorAll('[data-cleanup-action]').forEach(function (b) {
-            b.addEventListener('click', function () {
-                var mode = b.getAttribute('data-cleanup-action');
-                var result = cleanupPop.querySelector('.lrob-etk-cleanup-result');
-                var params = { mode: mode };
-                if (mode === 'older_than') {
-                    var daysEl = document.getElementById('lrob-etk-cleanup-days');
-                    params.days = daysEl ? daysEl.value : 30;
-                }
-                b.disabled = true;
+        // Highlight the active row + close on outside row click.
+        document.addEventListener('click', function (e) {
+            var trig = e.target.closest && e.target.closest('[data-etk-open-detail]');
+            if (!trig) return;
+            e.preventDefault();
+            var id = parseInt(trig.getAttribute('data-etk-row-id') || '0', 10);
+            if (id > 0) {
+                // Mark the active row to keep spatial orientation.
+                $$('tr.is-active').forEach(function (tr) { tr.classList.remove('is-active'); });
+                var tr = document.querySelector('tr[data-log-id="' + id + '"]');
+                if (tr) tr.classList.add('is-active');
+                detailModal.open(id);
+            }
+        });
+    }
+    }); // whenReady
+
+    // ---- Storage modal + autosave ---- (shared etk-modal + etk-autosave helpers)
+    // etk-autosave is footer-enqueued so we wait for DOMContentLoaded.
+    // etk-modal is head-enqueued and could bind sooner — kept in the same
+    // ready block for simplicity since the markup is identical timing.
+    whenReady(function () {
+        if (window.lrobEtkModal) {
+            window.lrobEtkModal.bindHeader('lrob-etk-logs-storage-modal', 'lrob-etk-logs-storage-btn');
+        }
+        if (window.lrobEtkAutosave) {
+            var storageCard = document.querySelector('.lrob-etk-logs-storage-card');
+            if (storageCard) {
+                window.lrobEtkAutosave.attach(storageCard, {
+                    fieldSelector: '.lrob-etk-logs-field',
+                    debounceMs: 0,
+                    save: function (field, value) {
+                        return ajax(L.actions.saveSetting, { key: field.dataset.key, value: String(value) });
+                    },
+                    i18n: { saving: L.i18n.saving, saved: L.i18n.saved, error: L.i18n.saveError }
+                });
+            }
+        }
+    });
+
+    // ---- Manual cleanup (one-shot, destructive — explicit Run button) ----
+    (function () {
+        var btn = document.querySelector('[data-cleanup-action="older_than"]');
+        if (!btn) return;
+        var result = document.querySelector('.lrob-etk-cleanup-result');
+        btn.addEventListener('click', function () {
+            var daysEl = document.getElementById('lrob-etk-cleanup-days');
+            var days = parseInt(daysEl ? daysEl.value : '30', 10);
+            if (!days || days < 1) { days = 30; if (daysEl) daysEl.value = '30'; }
+            if (!confirm(L.i18n.confirmCleanup.replace('%d', days))) return;
+            btn.disabled = true;
+            if (result) {
                 result.hidden = false;
                 result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
                 result.textContent = L.i18n.working;
-                ajax(L.actions.purge, params).then(function (resp) {
-                    b.disabled = false;
-                    if (resp.success) {
+            }
+            ajax(L.actions.purge, { mode: 'older_than', days: days }).then(function (resp) {
+                btn.disabled = false;
+                if (resp.success) {
+                    if (result) {
                         result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
                         result.textContent = '✓ ' + resp.data.message;
-                        setTimeout(function () { window.location.reload(); }, 800);
-                    } else {
-                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
-                        result.textContent = '✗ ' + ((resp.data && resp.data.message) || L.i18n.unknownError);
                     }
-                });
+                    setTimeout(function () { window.location.reload(); }, 800);
+                } else if (result) {
+                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                    result.textContent = '✗ ' + ((resp.data && resp.data.message) || L.i18n.unknownError);
+                }
             });
         });
-    }
-
-    // ---- Settings popover ----
-    var settingsBtn = document.getElementById('lrob-etk-logs-settings-btn');
-    var settingsPop = document.getElementById('lrob-etk-logs-settings-popover');
-    if (settingsBtn && settingsPop) {
-        settingsBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (settingsPop.hidden) positionPopover(settingsPop, settingsBtn);
-            else settingsPop.hidden = true;
-        });
-        document.addEventListener('click', function (e) {
-            if (!settingsPop.hidden && !settingsPop.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) {
-                settingsPop.hidden = true;
-            }
-        });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') settingsPop.hidden = true; });
-        settingsPop.querySelectorAll('[data-settings-close]').forEach(function (b) {
-            b.addEventListener('click', function () { settingsPop.hidden = true; });
-        });
-        var saveBtn = document.getElementById('lrob-etk-settings-save');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', function () {
-                var ret = document.getElementById('lrob-etk-settings-retention');
-                var per = document.getElementById('lrob-etk-settings-perpage');
-                var result = settingsPop.querySelector('.lrob-etk-settings-result');
-                saveBtn.disabled = true;
-                result.hidden = false;
-                result.className = 'lrob-etk-test-result lrob-etk-settings-result is-pending';
-                result.textContent = L.i18n.saving;
-                ajax(L.actions.saveSettings, {
-                    retention_days: ret ? ret.value : 365,
-                    per_page: per ? per.value : 20
-                }).then(function (resp) {
-                    saveBtn.disabled = false;
-                    if (resp.success) {
-                        result.className = 'lrob-etk-test-result lrob-etk-settings-result is-success';
-                        result.textContent = '✓ ' + resp.data.message;
-                        setTimeout(function () { window.location.reload(); }, 600);
-                    } else {
-                        result.className = 'lrob-etk-test-result lrob-etk-settings-result is-failure';
-                        result.textContent = '✗ ' + ((resp.data && resp.data.message) || L.i18n.unknownError);
-                    }
-                });
-            });
-        }
-    }
+    })();
 })();
         <?php
     }

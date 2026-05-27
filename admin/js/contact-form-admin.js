@@ -1,6 +1,6 @@
 /* LRob Email Toolkit — Contact Form admin page
  *
- * Auto-save for every input inside a .lrob-etk-cf-form-card. Each field has a
+ * Auto-save for every input inside a .lrob-etk-form-card. Each field has a
  * data-key attribute that tells the server which setting to update. Saves
  * debounce on text inputs (after typing pauses + on blur), fire immediately
  * on selects, and surface a small per-card status indicator.
@@ -16,13 +16,31 @@
     var TYPING_DEBOUNCE_MS = 600;
 
     function init() {
-        var cards = document.querySelectorAll('.lrob-etk-cf-form-card');
+        var cards = document.querySelectorAll('.lrob-etk-form-card');
         Array.prototype.forEach.call(cards, bindCard);
     }
 
     function bindCard(card) {
         if (card.__lrobEtkCfBound) return;
         card.__lrobEtkCfBound = true;
+
+        // Track the live save_submissions tri-state combo so the CSS rule
+        // on data-save-effective-off can flip the warning under any
+        // file_upload field in the same card without a page reload. The
+        // hidden combo-value carries 'default' | 'on' | 'off'.
+        var saveCombo = card.querySelector('input.lrob-etk-combo-value[data-key="_lrob_etk_cf_save_submissions"]');
+        if (saveCombo) {
+            var resync = function () {
+                var v = saveCombo.value || '';
+                var globalOff = card.getAttribute('data-save-global-off') === '1';
+                var effectiveOff = (v === 'off') || (v === '' || v === 'default') && globalOff;
+                card.setAttribute('data-save-effective-off', effectiveOff ? '1' : '0');
+            };
+            saveCombo.addEventListener('change', resync);
+            // Initial state already set server-side; resync once anyway in
+            // case the page was rendered before this script bound.
+            resync();
+        }
 
         // The global Defaults card uses data-defaults-card="1" and writes
         // to the contact-form settings option via a different AJAX action.
@@ -31,124 +49,40 @@
         var formId = parseInt(card.getAttribute('data-form-id'), 10) || 0;
         if (!isDefaults && !formId) return;
 
-        var status = card.querySelector('.lrob-etk-card-status');
-        var fields = card.querySelectorAll('.lrob-etk-cf-field');
-        var typingTimers = new WeakMap();
-        var lastSent = new WeakMap();
-
-        function readValue(field) {
-            // Rate-limit window UI is in minutes; storage is seconds.
-            // (per-form post_meta stores seconds; global default key is
-            // KEY_RATE_WINDOW_MINUTES — name says it all, stored as-is.)
-            if (field.dataset.unit === 'minutes') {
-                var n = parseInt(field.value, 10);
-                if (!n || n <= 0) return 0;
-                return n * 60;
-            }
-            return field.value;
-        }
-
-        function save(field) {
-            var key = field.dataset.key;
-            if (!key) return;
-            var value = readValue(field);
-            var serialized = String(value);
-            if (lastSent.get(field) === serialized) return;
-            lastSent.set(field, serialized);
-
-            setStatus('saving');
-
-            var fd = new FormData();
-            fd.append('action', isDefaults ? DATA.actionDefault : DATA.action);
-            fd.append('_nonce', DATA.nonce);
-            if (!isDefaults) {
-                fd.append('form_id', String(formId));
-            }
-            fd.append('key', key);
-            fd.append('value', serialized);
-
-            fetch(DATA.ajaxUrl, {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: fd
-            })
-                .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
-                .then(function (resp) {
-                    if (resp && resp.success) {
-                        setStatus('saved');
-                    } else {
-                        setStatus('error', (resp && resp.data && resp.data.message) || '');
-                        lastSent.delete(field); // let user retry
+        // Hand the per-key autosave plumbing to the shared helper. We
+        // supply the field selector, a value reader (minutes → seconds
+        // conversion for rate-limit window), and a save function that
+        // knows which AJAX action + extra form_id to send.
+        if (window.lrobEtkAutosave) {
+            window.lrobEtkAutosave.attach(card, {
+                fieldSelector: '.lrob-etk-cf-field',
+                debounceMs: TYPING_DEBOUNCE_MS,
+                readValue: function (field) {
+                    if (field.dataset.unit === 'minutes') {
+                        var n = parseInt(field.value, 10);
+                        if (!n || n <= 0) return 0;
+                        return n * 60;
                     }
-                })
-                .catch(function () {
-                    setStatus('error');
-                    lastSent.delete(field);
-                });
+                    return field.value;
+                },
+                save: function (field, value) {
+                    var fd = new FormData();
+                    fd.append('action', isDefaults ? DATA.actionDefault : DATA.action);
+                    fd.append('_nonce', DATA.nonce);
+                    if (!isDefaults) {
+                        fd.append('form_id', String(formId));
+                    }
+                    fd.append('key', field.dataset.key);
+                    fd.append('value', String(value));
+                    return fetch(DATA.ajaxUrl, {
+                        method: 'POST', credentials: 'same-origin', body: fd
+                    }).then(function (r) {
+                        return r.json().catch(function () { return { success: false }; });
+                    });
+                },
+                i18n: { saving: I18N.saving, saved: I18N.saved, error: I18N.error }
+            });
         }
-
-        function setStatus(state, detail) {
-            if (!status) return;
-            status.classList.remove('is-saving', 'is-saved', 'is-error');
-            if (state === 'saving') {
-                status.classList.add('is-saving');
-                status.textContent = I18N.saving || 'Saving…';
-            } else if (state === 'saved') {
-                status.classList.add('is-saved');
-                status.textContent = I18N.saved || 'Saved';
-                clearTimeout(status.__hideTimer);
-                status.__hideTimer = setTimeout(function () {
-                    status.classList.remove('is-saved');
-                    status.textContent = '';
-                }, 1400);
-            } else if (state === 'error') {
-                status.classList.add('is-error');
-                status.textContent = detail ? (I18N.error + ': ' + detail) : (I18N.error || 'Save failed');
-            }
-        }
-
-        Array.prototype.forEach.call(fields, function (field) {
-            // Initialize "what's already on the server" so we don't refire an
-            // identical save when blur happens without a real change.
-            lastSent.set(field, String(readValue(field)));
-
-            // Sibling "Using default: …" hint hides as soon as the user
-            // types something. Restored if they clear the field again.
-            var hintEl = field.nextElementSibling;
-            if (!hintEl || !hintEl.classList || !hintEl.classList.contains('lrob-etk-cf-default-hint')) {
-                hintEl = null;
-            }
-            function syncHint() {
-                if (!hintEl) return;
-                hintEl.hidden = String(field.value || '').trim() !== '';
-            }
-            syncHint();
-            field.addEventListener('input', syncHint);
-
-            var tag = field.tagName.toLowerCase();
-            var type = (field.type || '').toLowerCase();
-            var isHidden = type === 'hidden';
-            var isText = tag === 'textarea' || (tag === 'input' && ['text', 'email', 'number', 'tel', 'url', 'search'].indexOf(type) !== -1);
-
-            if (isHidden) {
-                // Hidden mirror inputs (e.g. recipients list) are updated by
-                // their own widget and dispatch a 'change' event when the
-                // canonical value shifts. Save on that.
-                field.addEventListener('change', function () { save(field); });
-            } else if (isText) {
-                field.addEventListener('input', function () {
-                    clearTimeout(typingTimers.get(field));
-                    typingTimers.set(field, setTimeout(function () { save(field); }, TYPING_DEBOUNCE_MS));
-                });
-                field.addEventListener('blur', function () {
-                    clearTimeout(typingTimers.get(field));
-                    save(field);
-                });
-            } else {
-                // selects, checkboxes, etc. — save immediately.
-                field.addEventListener('change', function () { save(field); });
-            }
-        });
 
         // Wire free-mode comboboxes (Subject template + Success message)
         // — same shape as the SMTP host combobox: typeable input + a
@@ -227,7 +161,7 @@
 
         function serialize() {
             var values = Array.prototype.map.call(
-                rows.querySelectorAll('.lrob-etk-cf-recipient-input'),
+                rows.querySelectorAll('.lrob-etk-recipient-input'),
                 function (input) { return (input.value || '').trim(); }
             ).filter(function (v) { return v !== ''; });
             var joined = values.join(', ');
@@ -237,21 +171,23 @@
         }
 
         function updateRemoveButtons() {
-            var rowEls = rows.querySelectorAll('.lrob-etk-cf-recipient-row');
+            var rowEls = rows.querySelectorAll('.lrob-etk-recipient-row');
             var only = rowEls.length === 1;
             Array.prototype.forEach.call(rowEls, function (row) {
-                var btn = row.querySelector('.lrob-etk-cf-recipient-remove');
+                var btn = row.querySelector('.lrob-etk-recipient-remove');
                 if (btn) btn.hidden = only;
             });
         }
 
         function addRow(value) {
             var row = document.createElement('div');
-            row.className = 'lrob-etk-cf-recipient-row';
+            row.className = 'lrob-etk-recipient-row';
             row.innerHTML =
-                '<input type="email" class="lrob-etk-cf-recipient-input" placeholder="' + escapeAttr(rowPlaceholder) + '" autocomplete="off">' +
-                '<button type="button" class="lrob-etk-cf-recipient-pick" aria-label="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '" title="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '"><span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></button>' +
-                '<button type="button" class="lrob-etk-cf-recipient-remove" aria-label="' + escapeAttr(I18N.removeRow || 'Remove') + '" title="' + escapeAttr(I18N.removeRow || 'Remove') + '"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>';
+                '<div class="lrob-etk-recipient-shell">' +
+                    '<input type="email" class="lrob-etk-recipient-input" placeholder="' + escapeAttr(rowPlaceholder) + '" autocomplete="off">' +
+                    '<button type="button" class="lrob-etk-recipient-pick" aria-label="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '" title="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '"><span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></button>' +
+                '</div>' +
+                '<button type="button" class="lrob-etk-recipient-remove" aria-label="' + escapeAttr(I18N.removeRow || 'Remove') + '" title="' + escapeAttr(I18N.removeRow || 'Remove') + '"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>';
             if (value) row.querySelector('input').value = value;
             rows.appendChild(row);
             updateRemoveButtons();
@@ -259,10 +195,10 @@
         }
 
         function removeRow(row) {
-            var rowEls = rows.querySelectorAll('.lrob-etk-cf-recipient-row');
+            var rowEls = rows.querySelectorAll('.lrob-etk-recipient-row');
             if (rowEls.length <= 1) {
                 // Keep at least one row visible — just clear it.
-                var input = row.querySelector('.lrob-etk-cf-recipient-input');
+                var input = row.querySelector('.lrob-etk-recipient-input');
                 if (input) input.value = '';
             } else {
                 row.parentNode.removeChild(row);
@@ -275,17 +211,17 @@
             closePickMenu();
             if (knownEmails.length === 0) return;
             var menu = document.createElement('div');
-            menu.className = 'lrob-etk-cf-recipient-menu';
+            menu.className = 'lrob-etk-menu lrob-etk-menu--fixed';
             knownEmails.forEach(function (item) {
                 var btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'lrob-etk-cf-recipient-menu-item';
+                btn.className = 'lrob-etk-menu-item';
                 btn.textContent = item.label;
                 btn.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    var row = button.closest('.lrob-etk-cf-recipient-row');
+                    var row = button.closest('.lrob-etk-recipient-row');
                     if (!row) return;
-                    var input = row.querySelector('.lrob-etk-cf-recipient-input');
+                    var input = row.querySelector('.lrob-etk-recipient-input');
                     if (input) {
                         input.value = item.value;
                         serialize();
@@ -341,26 +277,26 @@
         // Delegate row events to the rows container so dynamically-added rows
         // pick the same handlers automatically.
         rows.addEventListener('input', function (e) {
-            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-cf-recipient-input')) {
+            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-recipient-input')) {
                 clearTimeout(rows.__typingTimer);
                 rows.__typingTimer = setTimeout(serialize, TYPING_DEBOUNCE_MS);
             }
         });
         rows.addEventListener('blur', function (e) {
-            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-cf-recipient-input')) {
+            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-recipient-input')) {
                 clearTimeout(rows.__typingTimer);
                 serialize();
             }
         }, true);
         rows.addEventListener('click', function (e) {
-            var pick = e.target.closest('.lrob-etk-cf-recipient-pick');
-            var remove = e.target.closest('.lrob-etk-cf-recipient-remove');
+            var pick = e.target.closest('.lrob-etk-recipient-pick');
+            var remove = e.target.closest('.lrob-etk-recipient-remove');
             if (pick) {
                 openPickMenu(pick);
                 return;
             }
             if (remove) {
-                var row = remove.closest('.lrob-etk-cf-recipient-row');
+                var row = remove.closest('.lrob-etk-recipient-row');
                 if (row) removeRow(row);
             }
         });
@@ -368,41 +304,10 @@
         if (addBtn) {
             addBtn.addEventListener('click', function () {
                 var row = addRow('');
-                var input = row.querySelector('.lrob-etk-cf-recipient-input');
+                var input = row.querySelector('.lrob-etk-recipient-input');
                 if (input) input.focus();
             });
         }
-    }
-
-    /**
-     * Wire up a header-button-triggered modal. Backdrop click, the × button,
-     * and Escape all close it. Body scroll lock so background doesn't sneak
-     * behind the dialog. Reused for both the "Default settings" and
-     * "Storage" modals — same chrome, different content.
-     */
-    function bindHeaderModal(modalId, openerId) {
-        var modal = document.getElementById(modalId);
-        var openBtn = document.getElementById(openerId);
-        if (!modal || !openBtn) return;
-
-        function open() {
-            modal.hidden = false;
-            document.body.style.overflow = 'hidden';
-        }
-        function close() {
-            modal.hidden = true;
-            document.body.style.overflow = '';
-        }
-
-        openBtn.addEventListener('click', open);
-        modal.addEventListener('click', function (e) {
-            if (e.target.closest && e.target.closest('[data-modal-close]')) {
-                close();
-            }
-        });
-        document.addEventListener('keydown', function (e) {
-            if (!modal.hidden && e.key === 'Escape') close();
-        });
     }
 
     /**
@@ -422,10 +327,35 @@
         }, 50);
     }
 
+    /**
+     * Storage modal: when "Save submissions" flips to Off, every other
+     * setting in the modal (IP storage, spam recording, retention)
+     * becomes inert. Dim + disable them so admins immediately see they
+     * can't act on those fields. Runs on whatever page renders the
+     * Storage modal (FormsPage AND the Submissions inbox).
+     */
+    function bindStorageConditional() {
+        var card = document.querySelector('[data-storage-card]');
+        if (!card) return;
+        var saveCombo = card.querySelector('input.lrob-etk-combo-value[data-key="save_submissions"]');
+        function apply() {
+            var on = !saveCombo || saveCombo.value !== '0';
+            if (on) card.removeAttribute('data-save-off');
+            else card.setAttribute('data-save-off', '');
+            var inputs = card.querySelectorAll('[data-storage-conditional] input, [data-storage-conditional] select, [data-storage-conditional] button');
+            Array.prototype.forEach.call(inputs, function (i) { i.disabled = !on; });
+        }
+        apply();
+        if (saveCombo) saveCombo.addEventListener('change', apply);
+    }
+
     function bootstrap() {
         init();
-        bindHeaderModal('lrob-etk-cf-defaults-modal', 'lrob-etk-cf-defaults-btn');
-        bindHeaderModal('lrob-etk-cf-storage-modal',  'lrob-etk-cf-storage-btn');
+        if (window.lrobEtkModal) {
+            window.lrobEtkModal.bindHeader('lrob-etk-defaults-modal',    'lrob-etk-defaults-btn');
+            window.lrobEtkModal.bindHeader('lrob-etk-cf-storage-modal',  'lrob-etk-cf-storage-btn');
+        }
+        bindStorageConditional();
         smoothScrollToHash();
     }
 

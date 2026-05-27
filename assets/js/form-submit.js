@@ -214,6 +214,10 @@
         // scan the whole document so both contexts are covered.
         var pickers = document.querySelectorAll('.lrob-etk-form-phone[data-country-picker]');
         Array.prototype.forEach.call(pickers, attachPicker);
+        // File-upload fields: replace the hidden native input UX with a
+        // visible button + selected-files list.
+        var fileEls = document.querySelectorAll('.lrob-etk-form-file[data-file-upload]');
+        Array.prototype.forEach.call(fileEls, attachFileUpload);
     }
 
     // --- Country picker (phone field) ----------------------------------
@@ -357,6 +361,89 @@
         attach: attachPicker,
         joinForSubmit: joinPhonesInto,
     };
+
+    // --- File upload field (client-side UX + pre-validate) -------------
+    function attachFileUpload(el) {
+        if (el.__lrobEtkFileBound) return;
+        el.__lrobEtkFileBound = true;
+
+        var input = el.querySelector('input[type="file"]');
+        var trigger = el.querySelector('.lrob-etk-form-file-trigger');
+        var list = el.querySelector('[data-file-list]');
+        if (!input || !trigger || !list) return;
+
+        // Native file input is hidden — the visible label IS the trigger,
+        // but on browsers that ignore label-for-input we wire a click too.
+        trigger.addEventListener('click', function (e) {
+            // Default: <label for> already triggers the input. Avoid double-
+            // open on browsers that DO fire the label click.
+            if (e.target.tagName === 'INPUT') return;
+        });
+
+        input.addEventListener('change', function () {
+            renderFileList(el, input, list);
+        });
+    }
+
+    function renderFileList(el, input, list) {
+        var files = Array.prototype.slice.call(input.files || []);
+        if (files.length === 0) {
+            list.innerHTML = '';
+            return;
+        }
+        var maxSizeMb   = parseInt(el.getAttribute('data-max-size-mb')   || '15', 10);
+        var totalSizeMb = parseInt(el.getAttribute('data-total-size-mb') || '50', 10);
+        var maxCount    = parseInt(el.getAttribute('data-max-count')     || '1', 10);
+        var allowedExts = (el.getAttribute('data-accept-exts') || '').split(',').filter(Boolean);
+
+        var html = '';
+        var total = 0;
+        var errors = [];
+        files.forEach(function (f, i) {
+            var size = f.size || 0;
+            total += size;
+            var name = f.name || '';
+            var ext = (name.split('.').pop() || '').toLowerCase();
+            var bad = '';
+            if (i >= maxCount) {
+                bad = (I18N.tooManyFiles || 'Too many files');
+            } else if (size > maxSizeMb * 1024 * 1024) {
+                bad = (I18N.fileTooLarge || 'File too large');
+            } else if (allowedExts.length > 0 && allowedExts.indexOf(ext) === -1) {
+                bad = (I18N.fileTypeRejected || 'Type not allowed');
+            }
+            if (bad) errors.push(name + ': ' + bad);
+            html += '<li class="lrob-etk-form-file-item' + (bad ? ' is-invalid' : '') + '">'
+                +   '<span class="lrob-etk-form-file-item-name">' + escHtml(name) + '</span>'
+                +   '<span class="lrob-etk-form-file-item-size">' + escHtml(formatBytes(size)) + '</span>'
+                + '</li>';
+        });
+        if (total > totalSizeMb * 1024 * 1024) {
+            errors.push(I18N.totalTooLarge || 'Combined size exceeds the limit');
+        }
+        list.innerHTML = html;
+
+        // Surface validation errors on the field's existing error placeholder.
+        var fieldWrap = el.closest('.lrob-etk-form-field');
+        var errEl = fieldWrap ? fieldWrap.querySelector('[data-field-error]') : null;
+        if (errEl) {
+            if (errors.length > 0) {
+                fieldWrap.classList.add('is-invalid');
+                errEl.textContent = errors.join('  •  ');
+                errEl.hidden = false;
+            } else {
+                fieldWrap.classList.remove('is-invalid');
+                errEl.textContent = '';
+                errEl.hidden = true;
+            }
+        }
+    }
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', discoverAndInit);

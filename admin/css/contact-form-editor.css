@@ -1,105 +1,49 @@
-/* LRob Email Toolkit — Contact Form block editor styles
+/* LRob Email Toolkit — Gutenberg block editor styles
  *
- * Keep the editor preview close to the frontend look — minimal extra
- * styling. Editor-only chrome (placeholders, sidebar pieces) carries the
- * `lrob-etk-cf-` prefix to avoid bleed.
+ * The block renders an "Embed preview" placeholder inside the Gutenberg
+ * canvas — the actual form is rendered at view time. This file styles
+ * that placeholder + the submit-field alignment helpers.
  */
 
-/* Field block previews inside the editor */
-.editor-styles-wrapper .lrob-etk-form-field--preview {
-    margin: 0 0 1em 0;
-}
-
-.editor-styles-wrapper .lrob-etk-form-field--preview .lrob-etk-form-label {
-    display: block;
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: .35em;
-    color: inherit;
-}
-
-.editor-styles-wrapper .lrob-etk-form-field--preview input[disabled],
-.editor-styles-wrapper .lrob-etk-form-field--preview select[disabled],
-.editor-styles-wrapper .lrob-etk-form-field--preview textarea[disabled] {
-    opacity: 1;
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 4px;
-    padding: 6px 10px;
-    width: 100%;
-    color: #50575e;
-    font-size: 13px;
-    box-shadow: none;
-}
-
-.editor-styles-wrapper .lrob-etk-form-field--preview textarea[disabled] {
-    min-height: 80px;
-    resize: none;
-}
-
-.editor-styles-wrapper .lrob-etk-form-field--preview .lrob-etk-form-helper {
-    font-size: 12px;
-    color: #757575;
-    margin: .35em 0 0 0;
-}
-
-.editor-styles-wrapper .lrob-etk-form-field--preview .lrob-etk-form-required {
-    color: #b32d2e;
-    margin-left: .15em;
-}
-
-.editor-styles-wrapper .lrob-etk-form-field--preview .lrob-etk-form-options {
-    display: flex;
-    flex-direction: column;
-    gap: .25em;
-}
-
-.editor-styles-wrapper .lrob-etk-form-field--preview .lrob-etk-form-option {
-    display: inline-flex;
-    align-items: center;
-    gap: .5em;
-}
-
+/* Submit-field alignment cues (the .is-align-* classes are emitted by
+ * FormEditorRenderer when the user picks an alignment in the toolbar). */
 .editor-styles-wrapper .lrob-etk-form-field--submit {
     display: flex;
 }
-
 .editor-styles-wrapper .lrob-etk-form-field--submit.is-align-left   { justify-content: flex-start; }
 .editor-styles-wrapper .lrob-etk-form-field--submit.is-align-center { justify-content: center; }
 .editor-styles-wrapper .lrob-etk-form-field--submit.is-align-right  { justify-content: flex-end; }
 .editor-styles-wrapper .lrob-etk-form-field--submit.is-align-stretch .lrob-etk-form-submit { width: 100%; }
 
 .editor-styles-wrapper .lrob-etk-form-submit[disabled] {
-    background: #2563eb;
+    background: var(--etk-accent);
     color: #fff;
     padding: .65em 1.4em;
-    border-radius: 6px;
+    border-radius: var(--etk-radius-md);
     font-weight: 600;
     opacity: .9;
     cursor: default;
 }
 
-/* Embed preview block on a page */
-.lrob-etk-cf-embed-preview {
-    border: 1px dashed #c3c4c7;
-    border-radius: 8px;
+/* Embed-preview placeholder rendered by contact-form-editor.js inside
+ * the block canvas (the actual form ships at view time). */
+.lrob-etk-embed-preview {
+    border: 1px dashed var(--etk-line-strong);
+    border-radius: var(--etk-radius-lg);
     padding: 16px 20px;
-    background: #fafafa;
+    background: var(--etk-soft);
 }
-
-.lrob-etk-cf-embed-preview-head {
+.lrob-etk-embed-preview-head {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 6px;
 }
-
-.lrob-etk-cf-embed-preview-head .dashicons {
-    color: #2563eb;
+.lrob-etk-embed-preview-head .dashicons {
+    color: var(--etk-accent);
 }
-
-.lrob-etk-cf-embed-preview .description {
-    color: #757575;
+.lrob-etk-embed-preview .description {
+    color: var(--etk-muted);
     font-size: 12px;
     margin: 0;
 }

@@ -71,7 +71,7 @@ final class DashboardPage
         $failure_warning = $stats ? $this->compute_failure_warning($stats) : null;
         ?>
         <div class="wrap lrob-etk">
-            <h1 class="lrob-etk-page-title"><?php esc_html_e('Email Toolkit', 'lrob-email-toolkit'); ?></h1>
+            <?php PageHeader::render(['title' => __('Email Toolkit', 'lrob-email-toolkit')]); ?>
 
             <div id="lrob-etk-flash" class="lrob-etk-flash" aria-live="polite"></div>
 
@@ -626,7 +626,7 @@ final class DashboardPage
         ?>
         <h2 class="lrob-etk-section-title"><?php esc_html_e('Contact form submissions', 'lrob-email-toolkit'); ?></h2>
 
-        <div class="lrob-etk-stat-grid lrob-etk-cf-stat-grid">
+        <div class="lrob-etk-stat-grid lrob-etk-stat-grid">
             <a class="lrob-etk-stat-card" href="<?php echo esc_url(add_query_arg('status', ContactFormSubmissions::STATUS_DELIVERED, $inbox_url)); ?>">
                 <p class="lrob-etk-stat-label"><?php esc_html_e('Delivered (30d)', 'lrob-email-toolkit'); ?></p>
                 <div class="lrob-etk-stat-main">
@@ -659,8 +659,8 @@ final class DashboardPage
         </div>
 
         <?php if ($recent !== []) : ?>
-            <div class="lrob-etk-logs-table-wrap lrob-etk-cf-recent-wrap">
-                <table class="lrob-etk-logs-table">
+            <div class="lrob-etk-data-table-wrap lrob-etk-cf-recent-wrap">
+                <table class="lrob-etk-data-table">
                     <thead>
                         <tr>
                             <th class="col-date"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
@@ -698,7 +698,7 @@ final class DashboardPage
                                     </a>
                                 </td>
                                 <td class="col-actions">
-                                    <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>">
+                                    <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View submission', 'lrob-email-toolkit'); ?>">
                                         <span class="dashicons dashicons-visibility"></span>
                                     </a>
                                 </td>
@@ -778,8 +778,8 @@ final class DashboardPage
         }
         ?>
         <h2 class="lrob-etk-section-title"><?php esc_html_e('Recent activity', 'lrob-email-toolkit'); ?></h2>
-        <div class="lrob-etk-logs-table-wrap">
-            <table class="lrob-etk-logs-table">
+        <div class="lrob-etk-data-table-wrap">
+            <table class="lrob-etk-data-table">
                 <thead>
                     <tr>
                         <th class="col-date"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
@@ -819,7 +819,7 @@ final class DashboardPage
                             </td>
                             <td class="col-source"><code><?php echo esc_html($entry->source); ?></code></td>
                             <td class="col-actions">
-                                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-row-action" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View log entry', 'lrob-email-toolkit'); ?>">
+                                <a href="<?php echo esc_url($view_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost" title="<?php esc_attr_e('View', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('View log entry', 'lrob-email-toolkit'); ?>">
                                     <span class="dashicons dashicons-visibility"></span>
                                 </a>
                             </td>

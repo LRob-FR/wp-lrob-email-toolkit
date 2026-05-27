@@ -127,7 +127,7 @@ final class HCaptcha implements ProviderInterface
                         $creds_count
                     )
                     : __('CaptchaService did NOT inject credentials. The routing key probably resolves to a homemade challenge slug rather than an identity row — pick an "hCaptcha · &lt;name&gt;" entry in the Captcha settings instead of the generic provider name.', 'lrob-email-toolkit');
-                return '<div class="lrob-etk-cf-field lrob-etk-cf-field--challenge"><p class="lrob-etk-cf-error" style="display:block;">'
+                return '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge"><p class="lrob-etk-cf-error" style="display:block;">'
                     . '<strong>' . esc_html__('hCaptcha: site key is empty.', 'lrob-email-toolkit') . '</strong><br>'
                     . esc_html($diagnosis)
                     . '</p></div>';
@@ -147,8 +147,8 @@ final class HCaptcha implements ProviderInterface
         if ($is_preview && $site_key === '') {
             // Identity registered but no credentials yet — used by the
             // option list for "Configure hCaptcha first" entries.
-            return '<div class="lrob-etk-cf-field lrob-etk-cf-field--challenge lrob-etk-cf-hcaptcha-preview" data-field="_challenge">' .
-                '<div class="lrob-etk-cf-hcaptcha-preview-box">' .
+            return '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-hcaptcha-preview" data-field="_challenge">' .
+                '<div class="lrob-etk-hcaptcha-preview-box">' .
                     '<span class="dashicons dashicons-shield-alt" aria-hidden="true"></span>' .
                     '<span>' . esc_html__('hCaptcha widget will appear here', 'lrob-email-toolkit') . '</span>' .
                 '</div>' .
@@ -156,7 +156,7 @@ final class HCaptcha implements ProviderInterface
         }
 
         $widget_html = sprintf(
-            '<div class="lrob-etk-cf-field lrob-etk-cf-field--challenge lrob-etk-cf-challenge lrob-etk-cf-hcaptcha" data-field="_challenge">' .
+            '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-cf-challenge lrob-etk-hcaptcha" data-field="_challenge">' .
                 '<div class="h-captcha" data-sitekey="%s"></div>' .
                 '<p class="lrob-etk-cf-error" data-field-error hidden></p>' .
             '</div>',

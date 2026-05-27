@@ -24,7 +24,12 @@ final class AjaxController
 
     public const ACTION_RESEND      = 'lrob_etk_logging_ajax_resend';
 
-    public const ACTION_SAVE_SETTINGS = 'lrob_etk_logging_ajax_save_settings';
+    /** Per-key auto-save endpoint backing the Storage modal's card. */
+    public const ACTION_SAVE_SETTING = 'lrob_etk_logging_ajax_save_setting';
+
+    public const ACTION_LIST_FILTER   = 'lrob_etk_logging_ajax_list_filter';
+
+    public const ACTION_DETAIL        = 'lrob_etk_logging_ajax_detail';
 
     public const OPTION_PER_PAGE = 'lrob_etk_logging_per_page';
 
@@ -42,23 +47,81 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_BULK_DELETE, [$this, 'ajax_bulk_delete']);
         add_action('wp_ajax_' . self::ACTION_PURGE,       [$this, 'ajax_purge']);
         add_action('wp_ajax_' . self::ACTION_RESEND,      [$this, 'ajax_resend']);
-        add_action('wp_ajax_' . self::ACTION_SAVE_SETTINGS, [$this, 'ajax_save_settings']);
+        add_action('wp_ajax_' . self::ACTION_SAVE_SETTING, [$this, 'ajax_save_setting']);
+        add_action('wp_ajax_' . self::ACTION_LIST_FILTER,   [$this, 'ajax_list_filter']);
+        add_action('wp_ajax_' . self::ACTION_DETAIL,        [$this, 'ajax_detail']);
     }
 
-    public function ajax_save_settings(): void
+    /**
+     * Render the body markup for a single log entry, for the in-page
+     * detail modal on the logs list. Returns { id, status, title, html }.
+     */
+    public function ajax_detail(): void
     {
         $this->guard();
-        $days = isset($_POST['retention_days']) ? max(0, (int) $_POST['retention_days']) : null;
-        $per_page = isset($_POST['per_page']) ? (int) $_POST['per_page'] : null;
+        $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+        if ($id <= 0) {
+            wp_send_json_error(['message' => __('Missing log id.', 'lrob-email-toolkit')], 400);
+        }
+        $entry = $this->repository->find($id);
+        if ($entry === null) {
+            wp_send_json_error(['message' => __('Log entry not found.', 'lrob-email-toolkit')], 404);
+        }
+        $view = new LogViewPage();
+        ob_start();
+        $view->render_detail_body($entry);
+        $html = (string) ob_get_clean();
+        wp_send_json_success([
+            'id'     => $id,
+            'status' => $entry->status,
+            'title'  => $view->detail_title($entry),
+            'html'   => $html,
+        ]);
+    }
 
-        if ($days !== null) {
-            update_option(\LRob\EmailToolkit\Modules\Logging\RetentionCron::OPTION_RETENTION_DAYS, $days);
+    /**
+     * Renders the AJAX-swappable list region for the Email Logs page,
+     * using the filter parameters from the POSTed form data. Mirrors the
+     * Contact Form submissions inbox endpoint — same shape, same usage.
+     */
+    public function ajax_list_filter(): void
+    {
+        $this->guard();
+        $filters = LogsPage::parse_filters($_POST);
+        $page = isset($_POST['paged']) ? max(1, (int) $_POST['paged']) : 1;
+
+        $logs_page = new LogsPage(null, $this->repository);
+        ob_start();
+        $logs_page->render_list_region_for_filters($filters, $page);
+        $html = (string) ob_get_clean();
+
+        wp_send_json_success(['html' => $html]);
+    }
+
+    /**
+     * Per-key auto-save for the Storage modal. Whitelist-routed so an
+     * arbitrary `key` POST value can never write to unrelated options.
+     */
+    public function ajax_save_setting(): void
+    {
+        $this->guard();
+        $key = isset($_POST['key']) ? sanitize_key((string) $_POST['key']) : '';
+        $raw = $_POST['value'] ?? '';
+
+        switch ($key) {
+            case 'retention_days':
+                $days = max(0, min(3650, (int) $raw));
+                update_option(\LRob\EmailToolkit\Modules\Logging\RetentionCron::OPTION_RETENTION_DAYS, $days);
+                wp_send_json_success(['key' => $key, 'stored' => $days]);
+
+            case 'per_page':
+                $per = max(5, min(500, (int) $raw));
+                update_option(self::OPTION_PER_PAGE, $per);
+                wp_send_json_success(['key' => $key, 'stored' => $per]);
+
+            default:
+                wp_send_json_error(['message' => __('Unknown setting.', 'lrob-email-toolkit')], 400);
         }
-        if ($per_page !== null) {
-            $per_page = max(5, min(500, $per_page));
-            update_option(self::OPTION_PER_PAGE, $per_page);
-        }
-        wp_send_json_success(['message' => __('Settings saved.', 'lrob-email-toolkit')]);
     }
 
     public function ajax_delete(): void

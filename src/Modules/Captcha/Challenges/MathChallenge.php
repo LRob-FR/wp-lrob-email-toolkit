@@ -50,7 +50,7 @@ final class MathChallenge implements ChallengeInterface
             : substr(bin2hex(random_bytes(4)), 0, 8);
 
         return sprintf(
-            '<div class="lrob-etk-cf-field lrob-etk-cf-field--challenge lrob-etk-cf-challenge" data-field="_challenge">' .
+            '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-cf-challenge" data-field="_challenge">' .
             '<label class="lrob-etk-cf-label" for="%1$s">%2$s <span class="lrob-etk-cf-required" aria-hidden="true">*</span></label>' .
             '<input type="text" inputmode="numeric" id="%1$s" name="%3$s" autocomplete="off" required aria-required="true" maxlength="3" pattern="[0-9-]*">' .
             '<input type="hidden" name="%4$s" value="%5$s">' .

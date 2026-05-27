@@ -79,7 +79,7 @@
     padding: 4px 10px 4px 6px;
     background: var(--etk-soft);
     color: var(--etk-fg);
-    border-radius: 12px;
+    border-radius: var(--etk-radius-xl);
     font-size: 13px;
     font-weight: 600;
     flex-shrink: 0;
@@ -189,11 +189,11 @@
 }
 .lrob-etk-captcha-card-test-result.is-ok {
     background: var(--etk-success-bg);
-    color: #1e6b3a;
+    color: var(--etk-text-success);
 }
 .lrob-etk-captcha-card-test-result.is-fail {
     background: var(--etk-danger-bg);
-    color: #8a0000;
+    color: var(--etk-text-danger);
 }
 
 .lrob-etk-captcha-card-body {
@@ -295,11 +295,11 @@
  * scroll within the field — better than letting the iframe visually
  * leak onto adjacent columns or other fields. Applies to both the
  * editor preview and the frontend form. */
-.lrob-etk-cf-field--challenge {
+.lrob-etk-form-field--challenge {
     overflow-x: auto;
     max-width: 100%;
 }
-.lrob-etk-cf-hcaptcha .h-captcha {
+.lrob-etk-hcaptcha .h-captcha {
     min-width: 303px;
 }
 
@@ -354,7 +354,7 @@
 .lrob-etk-captcha-diag-table code {
     background: var(--etk-soft);
     padding: 1px 4px;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     font-size: 11px;
 }
 
@@ -377,7 +377,7 @@
     gap: 6px;
     padding: 3px 10px;
     background: var(--etk-soft);
-    border-radius: 999px;
+    border-radius: var(--etk-radius-pill);
     color: var(--etk-text-muted);
     font-size: 12px;
 }

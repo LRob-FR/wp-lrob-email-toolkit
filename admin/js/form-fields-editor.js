@@ -44,7 +44,7 @@
     var SAVE_DEBOUNCE_MS = 500;
 
     function init() {
-        var sections = document.querySelectorAll('.lrob-etk-cf-fields');
+        var sections = document.querySelectorAll('.lrob-etk-form-fields');
         Array.prototype.forEach.call(sections, bindSection);
         // Mount hCaptcha widgets PHP rendered into the initial captcha
         // previews (one per form card when hCaptcha is the active route).
@@ -63,7 +63,7 @@
 
         // Status indicator + undo/redo buttons live in the toolbar directly
         // above the form preview, so feedback sits next to the action.
-        var status = section.querySelector('.lrob-etk-cf-editor-status');
+        var status = section.querySelector('.lrob-etk-form-editor-status');
         var undoBtn = section.querySelector('[data-editor-action="undo"]');
         var redoBtn = section.querySelector('[data-editor-action="redo"]');
         if (undoBtn) undoBtn.addEventListener('click', function () { undo(); });
@@ -1139,7 +1139,7 @@
         function checkChipHtml(shell, key, label, defaultOn) {
             var v = shell.getAttribute('data-attr-' + key);
             var on = v === null ? !!defaultOn : v === '1';
-            return '<label class="lrob-etk-form-inline-check">'
+            return '<label class="lrob-etk-form-inline-check" data-inline-chip="' + key + '">'
                 + '<input type="checkbox" data-inline-prop="' + key + '"' + (on ? ' checked' : '') + '>'
                 + '<span>' + esc(label) + '</span>'
                 + '</label>';
@@ -1221,8 +1221,64 @@
                     return placeholderComboHtml(shell);
                 case 'checkbox':
                     return checkChipHtml(shell, 'multiple', EDITOR_I18N.multiple || 'Multiple choices', true);
+                case 'file_upload':
+                    return checkChipHtml(shell, 'multiple', EDITOR_I18N.multipleFiles || 'Multiple files', false)
+                         + numChipHtml(shell, 'max_count',     EDITOR_I18N.maxCount     || 'Max files', 3)
+                         + numChipHtmlWithSuffix(shell, 'max_size_mb', EDITOR_I18N.maxSizeMb || 'Max MB per file', 15, serverMaxSuffix())
+                         + numChipHtml(shell, 'total_size_mb', EDITOR_I18N.totalSizeMb  || 'Max MB total', 50)
+                         + uploadPresetChipHtml(shell)
+                         + textChipHtml(shell, 'accept_custom', EDITOR_I18N.acceptCustom || 'Custom (e.g. pdf, jpg)')
+                         + checkChipHtml(shell, 'strip_exif',     EDITOR_I18N.stripExif      || 'Strip image metadata',  false)
+                         + checkChipHtml(shell, 'allow_dangerous', EDITOR_I18N.allowDangerous || 'I understand the risks (allow scripts / executables)', false)
+                         + uploadDeliveryChipHtml(shell);
             }
             return '';
+        }
+        function numChipHtmlWithSuffix(shell, key, label, fallback, suffix) {
+            var v = shell.getAttribute('data-attr-' + key);
+            if (v === null || v === '') v = fallback != null ? String(fallback) : '';
+            return '<label class="lrob-etk-form-inline-chip" data-inline-chip="' + key + '">'
+                + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
+                + '<input type="number" data-inline-prop="' + key + '" value="' + escAttr(v) + '">'
+                + (suffix ? '<span class="lrob-etk-form-inline-chip-suffix">' + esc(suffix) + '</span>' : '')
+                + '</label>';
+        }
+        function serverMaxSuffix() {
+            var bytes = parseInt(EDITOR_DATA.serverMaxUploadBytes || '0', 10);
+            if (!bytes) return '';
+            var mb = Math.floor(bytes / (1024 * 1024));
+            var tpl = EDITOR_I18N.serverMaxHint || '(server max %d MB)';
+            return tpl.replace('%d', String(mb));
+        }
+        function uploadDeliveryChipHtml(shell) {
+            var current = shell.getAttribute('data-attr-delivery') || 'webserver';
+            var label = EDITOR_I18N.fileDelivery || 'Delivery';
+            return '<label class="lrob-etk-form-inline-chip" data-inline-chip="delivery">'
+                + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
+                + '<span class="lrob-etk-combo lrob-etk-form-inline-combo" data-upload-delivery-combo>'
+                + '<input type="text" class="lrob-etk-combo-input" readonly autocomplete="off">'
+                + '<input type="hidden" class="lrob-etk-combo-value" data-inline-prop="delivery" value="' + escAttr(current) + '">'
+                + '<button type="button" class="lrob-etk-combo-toggle" tabindex="-1" aria-label="' + esc(label) + '">'
+                + '<span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>'
+                + '</button>'
+                + '<ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>'
+                + '</span>'
+                + '</label>';
+        }
+        function uploadPresetChipHtml(shell) {
+            var current = shell.getAttribute('data-attr-accept_preset') || 'documents';
+            var label = EDITOR_I18N.acceptPreset || 'Types';
+            return '<label class="lrob-etk-form-inline-chip" data-inline-chip="accept_preset">'
+                + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
+                + '<span class="lrob-etk-combo lrob-etk-form-inline-combo" data-upload-preset-combo>'
+                + '<input type="text" class="lrob-etk-combo-input" readonly autocomplete="off">'
+                + '<input type="hidden" class="lrob-etk-combo-value" data-inline-prop="accept_preset" value="' + escAttr(current) + '">'
+                + '<button type="button" class="lrob-etk-combo-toggle" tabindex="-1" aria-label="' + esc(label) + '">'
+                + '<span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>'
+                + '</button>'
+                + '<ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>'
+                + '</span>'
+                + '</label>';
         }
         function ensureInlineSettings(shell) {
             if (!shell) return;
@@ -1245,6 +1301,68 @@
             // guards itself against double-binding via combo.__etkBound.
             bindPlaceholderCombo(shell);
             bindCountryCombo(shell);
+            bindUploadPresetCombo(shell);
+            bindUploadDeliveryCombo(shell);
+        }
+        function bindUploadDeliveryCombo(shell) {
+            var combo = shell.querySelector('.lrob-etk-form-inline-settings [data-upload-delivery-combo]');
+            if (!combo || !window.lrobEtkControls || !window.lrobEtkControls.attachCombobox) return;
+            var options = EDITOR_DATA.uploadDeliveryOptions || [];
+            window.lrobEtkControls.attachCombobox(combo, {
+                mode: 'select',
+                populate: function () { return options; },
+                getValue: function () {
+                    var h = combo.querySelector('.lrob-etk-combo-value');
+                    return h ? h.value : '';
+                },
+                setValue: function (value, label) {
+                    var input = combo.querySelector('.lrob-etk-combo-input');
+                    var hidden = combo.querySelector('.lrob-etk-combo-value');
+                    if (input) input.value = label || '';
+                    if (hidden) hidden.value = value;
+                    shell.setAttribute('data-attr-delivery', value);
+                    commitAndSave();
+                },
+            });
+            var stored = shell.getAttribute('data-attr-delivery') || 'webserver';
+            var match = null;
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].value === stored) { match = options[i]; break; }
+            }
+            var inputEl = combo.querySelector('.lrob-etk-combo-input');
+            if (inputEl) inputEl.value = match ? match.label : (options[0] ? options[0].label : '');
+        }
+        function bindUploadPresetCombo(shell) {
+            var combo = shell.querySelector('.lrob-etk-form-inline-settings [data-upload-preset-combo]');
+            if (!combo || !window.lrobEtkControls || !window.lrobEtkControls.attachCombobox) return;
+            var presets = (EDITOR_DATA.uploadPresets || []).map(function (p) {
+                return { value: p.value, label: p.label + (p.exts ? ' — ' + p.exts : '') };
+            });
+            window.lrobEtkControls.attachCombobox(combo, {
+                mode: 'select',
+                populate: function () { return presets; },
+                getValue: function () {
+                    var h = combo.querySelector('.lrob-etk-combo-value');
+                    return h ? h.value : '';
+                },
+                setValue: function (value, label) {
+                    var input = combo.querySelector('.lrob-etk-combo-input');
+                    var hidden = combo.querySelector('.lrob-etk-combo-value');
+                    if (input) input.value = label || '';
+                    if (hidden) hidden.value = value;
+                    shell.setAttribute('data-attr-accept_preset', value);
+                    applyFileUploadPreview(shell);
+                    commitAndSave();
+                },
+            });
+            // Initial display sync.
+            var stored = shell.getAttribute('data-attr-accept_preset') || 'documents';
+            var match = null;
+            for (var i = 0; i < presets.length; i++) {
+                if (presets[i].value === stored) { match = presets[i]; break; }
+            }
+            var inputEl = combo.querySelector('.lrob-etk-combo-input');
+            if (inputEl) inputEl.value = match ? match.label : (presets[0] ? presets[0].label : '');
         }
         function bindCountryCombo(shell) {
             var combo = shell.querySelector('.lrob-etk-form-inline-settings [data-country-combo]');
@@ -1352,7 +1470,21 @@
             if (key === 'country_picker' || key === 'country_auto_detect') {
                 applyPhonePreview(shell);
             }
+            if (key === 'multiple' || key === 'max_count' || key === 'max_size_mb'
+                || key === 'total_size_mb' || key === 'accept_preset'
+                || key === 'accept_custom' || key === 'allow_dangerous') {
+                applyFileUploadPreview(shell);
+            }
             queueSave();
+        });
+        // The file-upload field's label is wired to open the native file
+        // picker when clicked. In the editor that's noise — admin is
+        // designing, not testing. Suppress the default and let the inline
+        // settings strip take over.
+        form.addEventListener('click', function (e) {
+            var trig = e.target.closest && e.target.closest('.lrob-etk-form-file-trigger');
+            if (!trig) return;
+            e.preventDefault();
         });
         // Segmented controls (submit alignment): click flips the active button.
         form.addEventListener('click', function (e) {
@@ -1411,6 +1543,96 @@
         // the composite country picker so the editor preview matches what the
         // visitor will see. Triggered whenever country_picker /
         // country_default / country_auto_detect change.
+        // Refresh the file-upload preview text + hint + accept attribute
+        // when any of its admin knobs changes, so the editor visual matches
+        // what the visitor will see on the frontend.
+        function applyFileUploadPreview(shell) {
+            if (shell.getAttribute('data-field-type') !== 'file_upload') return;
+            var fileEl = shell.querySelector('.lrob-etk-form-file');
+            if (!fileEl) return;
+
+            var multiple    = shell.getAttribute('data-attr-multiple') === '1';
+            var maxCount    = parseInt(shell.getAttribute('data-attr-max_count')   || '1', 10) || 1;
+            var maxSizeMb   = parseInt(shell.getAttribute('data-attr-max_size_mb') || '15', 10) || 15;
+            var totalSizeMb = parseInt(shell.getAttribute('data-attr-total_size_mb') || '50', 10) || 50;
+            var preset      = shell.getAttribute('data-attr-accept_preset') || 'documents';
+            var custom      = shell.getAttribute('data-attr-accept_custom') || '';
+            var allowDanger = shell.getAttribute('data-attr-allow_dangerous') === '1';
+
+            var tier1 = EDITOR_DATA.uploadTier1Extensions || [];
+            var tier2 = EDITOR_DATA.uploadTier2Extensions || [];
+
+            // Resolve extension list. For known presets, pick from EDITOR_DATA.
+            // For custom, parse the raw csv from the admin.
+            var rawExts;
+            if (preset === 'custom') {
+                rawExts = custom.toLowerCase().split(/[,;\s]+/);
+            } else {
+                rawExts = [];
+                var presets = EDITOR_DATA.uploadPresets || [];
+                for (var i = 0; i < presets.length; i++) {
+                    if (presets[i].value === preset) {
+                        rawExts = (presets[i].exts || '').split(/[,;\s]+/);
+                        break;
+                    }
+                }
+            }
+            var hasDangerousInCustom = false;
+            var exts = [];
+            for (var j = 0; j < rawExts.length; j++) {
+                var ext = (rawExts[j] || '').replace(/^\./, '').trim();
+                if (!ext) continue;
+                if (tier1.indexOf(ext) !== -1) continue;
+                if (tier2.indexOf(ext) !== -1) {
+                    hasDangerousInCustom = true;
+                    if (!allowDanger) continue;
+                }
+                if (exts.indexOf(ext) === -1) exts.push(ext);
+            }
+
+            // Update the shell flag that drives the allow_dangerous chip
+            // visibility — only show when a dangerous extension is actually
+            // in the custom whitelist.
+            shell.setAttribute('data-has-dangerous-custom', (preset === 'custom' && hasDangerousInCustom) ? '1' : '0');
+
+            // Refresh trigger label + accept attribute + hint.
+            var acceptAttr = exts.map(function (e) { return '.' + e; }).join(',');
+            fileEl.setAttribute('data-accept-exts', exts.join(','));
+            fileEl.setAttribute('data-max-count', String(multiple ? maxCount : 1));
+            fileEl.setAttribute('data-max-size-mb', String(maxSizeMb));
+            fileEl.setAttribute('data-total-size-mb', String(totalSizeMb));
+            if (multiple) {
+                fileEl.setAttribute('data-multiple', '1');
+            } else {
+                fileEl.removeAttribute('data-multiple');
+            }
+
+            var input = fileEl.querySelector('input[type="file"]');
+            if (input) {
+                if (multiple) input.setAttribute('multiple', '');
+                else input.removeAttribute('multiple');
+                if (acceptAttr) input.setAttribute('accept', acceptAttr);
+                else input.removeAttribute('accept');
+            }
+
+            var trig = fileEl.querySelector('.lrob-etk-form-file-trigger-text');
+            if (trig) {
+                if (multiple) {
+                    var tpl = EDITOR_I18N.chooseFilesMulti || 'Choose files (max %d)';
+                    trig.textContent = tpl.replace('%d', String(maxCount));
+                } else {
+                    trig.textContent = EDITOR_I18N.chooseFile || 'Choose a file';
+                }
+            }
+            var hint = fileEl.querySelector('.lrob-etk-form-file-hint');
+            if (hint) {
+                var hintTpl = EDITOR_I18N.uploadHintTpl || 'Max %1$d MB per file — %2$s';
+                var extLabel = exts.length > 0
+                    ? exts.map(function (e) { return '.' + e; }).join(', ')
+                    : (EDITOR_I18N.uploadHintNoLimit || 'no file type restriction');
+                hint.textContent = hintTpl.replace('%1$d', String(maxSizeMb)).replace('%2$s', extLabel);
+            }
+        }
         function applyPhonePreview(shell) {
             if (shell.getAttribute('data-field-type') !== 'phone') return;
             var fieldWrap = shell.querySelector(':scope > .lrob-etk-form-field');
@@ -1517,7 +1739,7 @@
                 var v = String(o.value || '');
                 optsHtml += '<option value="' + escAttr(v) + '"' + (v === selectedValue ? ' selected' : '') + '>' + esc(o.label || '') + '</option>';
             });
-            var selectHtml = '<select id="lrob-etk-cf-editor-' + escAttr(slug) + '">' + optsHtml + '</select>';
+            var selectHtml = '<select id="lrob-etk-form-editor-' + escAttr(slug) + '">' + optsHtml + '</select>';
             if (existingSelect) {
                 existingSelect.outerHTML = selectHtml;
             } else {
@@ -1764,7 +1986,7 @@
                 + '</div>';
         }
         function buildControlHtml(type, slug) {
-            var id = 'lrob-etk-cf-editor-' + slug;
+            var id = 'lrob-etk-form-editor-' + slug;
             // Seed two options for multi-choice fields. Same shape that
             // applyOptionsToPreview emits — newly-created fields are
             // immediately inline-editable, no reload required.
@@ -1797,6 +2019,16 @@
                 case 'number':   return '<input type="number" id="' + id + '">';
                 case 'phone':    return '<input type="tel" id="' + id + '">';
                 case 'email':    return '<input type="email" id="' + id + '">';
+                case 'file_upload':
+                    return '<div class="lrob-etk-form-file" data-file-upload data-max-count="1" data-max-size-mb="15" data-total-size-mb="50" data-accept-exts="" data-admin-preset="documents" data-admin-custom="" data-admin-strip-exif="0" data-admin-allow-dangerous="0" data-admin-delivery="webserver">'
+                        + '<label class="lrob-etk-form-file-trigger" for="' + id + '">'
+                        +   '<span class="dashicons dashicons-upload" aria-hidden="true"></span>'
+                        +   '<span class="lrob-etk-form-file-trigger-text">' + esc(EDITOR_I18N.chooseFile || 'Choose a file') + '</span>'
+                        + '</label>'
+                        + '<input type="file" id="' + id + '" hidden>'
+                        + '<ul class="lrob-etk-form-file-list" data-file-list></ul>'
+                        + '<p class="lrob-etk-form-file-hint">' + esc(EDITOR_I18N.uploadHint || 'Max 15 MB per file') + '</p>'
+                        + '</div>';
                 default:         return '<input type="text" id="' + id + '">';
             }
         }
@@ -1963,6 +2195,18 @@
                 if (cdef) f.country_default = cdef;
                 if (shell.getAttribute('data-attr-country_auto_detect') === '1') f.country_auto_detect = true;
             }
+            if (type === 'file_upload') {
+                f.multiple        = shell.getAttribute('data-attr-multiple') === '1';
+                f.max_count       = parseInt(shell.getAttribute('data-attr-max_count') || '1', 10) || 1;
+                f.max_size_mb     = parseInt(shell.getAttribute('data-attr-max_size_mb') || '15', 10) || 15;
+                f.total_size_mb   = parseInt(shell.getAttribute('data-attr-total_size_mb') || '50', 10) || 50;
+                f.accept_preset   = shell.getAttribute('data-attr-accept_preset') || 'documents';
+                var cust = shell.getAttribute('data-attr-accept_custom');
+                if (cust) f.accept_custom = cust;
+                if (shell.getAttribute('data-attr-strip_exif') === '1') f.strip_exif = true;
+                if (shell.getAttribute('data-attr-allow_dangerous') === '1') f.allow_dangerous = true;
+                f.delivery        = shell.getAttribute('data-attr-delivery') || 'webserver';
+            }
             if (type === 'select' || type === 'radio' || type === 'checkbox') {
                 var optionsAttr = shell.getAttribute('data-attr-options');
                 if (optionsAttr) {
@@ -2097,6 +2341,38 @@
                     if (phoneEl.hasAttribute('data-auto-detect')) {
                         shell.setAttribute('data-attr-country_auto_detect', '1');
                     }
+                }
+            }
+            if (type === 'file_upload') {
+                var fileEl = shell.querySelector('.lrob-etk-form-file');
+                if (fileEl) {
+                    if (fileEl.hasAttribute('data-multiple')) {
+                        shell.setAttribute('data-attr-multiple', '1');
+                    }
+                    var cp = fileEl.getAttribute('data-max-count');
+                    if (cp !== null) shell.setAttribute('data-attr-max_count', cp);
+                    var sz = fileEl.getAttribute('data-max-size-mb');
+                    if (sz !== null) shell.setAttribute('data-attr-max_size_mb', sz);
+                    var tsz = fileEl.getAttribute('data-total-size-mb');
+                    if (tsz !== null) shell.setAttribute('data-attr-total_size_mb', tsz);
+                    var pr = fileEl.getAttribute('data-admin-preset');
+                    if (pr !== null) shell.setAttribute('data-attr-accept_preset', pr);
+                    var cu = fileEl.getAttribute('data-admin-custom');
+                    if (cu !== null) shell.setAttribute('data-attr-accept_custom', cu);
+                    if (fileEl.getAttribute('data-admin-strip-exif') === '1') {
+                        shell.setAttribute('data-attr-strip_exif', '1');
+                    }
+                    if (fileEl.getAttribute('data-admin-allow-dangerous') === '1') {
+                        shell.setAttribute('data-attr-allow_dangerous', '1');
+                    }
+                    var del = fileEl.getAttribute('data-admin-delivery');
+                    if (del !== null && del !== '') {
+                        shell.setAttribute('data-attr-delivery', del);
+                    }
+                    // Refresh preview now that data-attr-* are populated; this
+                    // also computes data-has-dangerous-custom for the
+                    // allow_dangerous chip's visibility rule.
+                    applyFileUploadPreview(shell);
                 }
             }
 

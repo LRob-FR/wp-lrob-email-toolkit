@@ -67,9 +67,7 @@ final class DataPage
         $notice = isset($_GET['done']) ? (string) $_GET['done'] : '';
         ?>
         <div class="lrob-etk wrap">
-            <div class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('Plugin data', 'lrob-email-toolkit'); ?></h1>
-            </div>
+            <?php PageHeader::render(['title' => __('Plugin data', 'lrob-email-toolkit')]); ?>
 
             <?php if ($notice !== '') : ?>
                 <div class="lrob-etk-flash"><div class="notice notice-success is-dismissible"><p><?php echo esc_html($notice); ?></p></div></div>

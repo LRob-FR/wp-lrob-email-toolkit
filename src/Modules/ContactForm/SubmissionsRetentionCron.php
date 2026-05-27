@@ -19,8 +19,10 @@ final class SubmissionsRetentionCron
 {
     public const HOOK = 'lrob_etk_cf_submissions_purge';
 
-    public function __construct(private SubmissionRepository $repository)
-    {
+    public function __construct(
+        private SubmissionRepository $repository,
+        private ?FileRepository $files = null,
+    ) {
     }
 
     public function register(): void
@@ -42,31 +44,50 @@ final class SubmissionsRetentionCron
 
     public function run(): void
     {
-        $delivered_days = Settings::retention_delivered_days();
-        $spam_days = Settings::retention_spam_days();
+        // Per-status retention. 0 days = disabled (kept forever) — the
+        // admin opt-in is explicit per category via the auto-cleanup
+        // checkbox in the submissions UI.
+        $by_status = [
+            SubmissionRepository::STATUS_DELIVERED    => Settings::retention_delivered_days(),
+            SubmissionRepository::STATUS_RECEIVED     => Settings::retention_received_days(),
+            SubmissionRepository::STATUS_FAILED       => Settings::retention_failed_days(),
+            SubmissionRepository::STATUS_SPAM_BLOCKED => Settings::retention_spam_days(),
+        ];
 
         $deleted_non_spam = 0;
-        if ($delivered_days > 0) {
-            try {
-                $cutoff = new \DateTimeImmutable('-' . $delivered_days . ' days', new \DateTimeZone('UTC'));
-                $deleted_non_spam = $this->repository->delete_non_spam_older_than($cutoff);
-            } catch (\Exception) {
-                // bad interval string — should be caught by Settings sanitizer, but stay quiet
-            }
-        }
-
         $deleted_spam = 0;
-        if ($spam_days > 0) {
+        foreach ($by_status as $status => $days) {
+            if ($days <= 0) {
+                continue;
+            }
             try {
-                $cutoff = new \DateTimeImmutable('-' . $spam_days . ' days', new \DateTimeZone('UTC'));
-                $deleted_spam = $this->repository->delete_spam_older_than($cutoff);
+                $cutoff = new \DateTimeImmutable('-' . $days . ' days', new \DateTimeZone('UTC'));
+                $this->purge_attached_files($this->repository->list_ids_by_status_older_than($status, $cutoff));
+                $deleted = $this->repository->delete_by_status_older_than($status, $cutoff);
             } catch (\Exception) {
-                // same
+                // bad interval string — sanitizer should catch upstream, stay quiet.
+                continue;
+            }
+            if ($status === SubmissionRepository::STATUS_SPAM_BLOCKED) {
+                $deleted_spam += $deleted;
+            } else {
+                $deleted_non_spam += $deleted;
             }
         }
 
         if (($deleted_non_spam + $deleted_spam) > 0) {
             do_action('lrob_etk_cf_submissions_purged', $deleted_non_spam, $deleted_spam);
+        }
+    }
+
+    /** @param list<int> $submission_ids */
+    private function purge_attached_files(array $submission_ids): void
+    {
+        if ($this->files === null || $submission_ids === []) {
+            return;
+        }
+        foreach ($submission_ids as $id) {
+            $this->files->delete_by_submission($id);
         }
     }
 }

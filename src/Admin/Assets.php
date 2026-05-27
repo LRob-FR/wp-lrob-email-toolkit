@@ -30,7 +30,12 @@ final class Assets
         self::HANDLE_NL         => 'admin/css/admin-newsletter.css',
     ];
 
-    public const HANDLE_CONTROLS_JS = 'lrob-etk-controls';
+    public const HANDLE_CONTROLS_JS    = 'lrob-etk-controls';
+    public const HANDLE_LIST_FILTER_JS = 'lrob-etk-list-filter';
+    public const HANDLE_DETAIL_MODAL_JS = 'lrob-etk-detail-modal';
+    public const HANDLE_RETENTION_TOGGLE_JS = 'lrob-etk-retention-toggle';
+    public const HANDLE_MODAL_JS = 'lrob-etk-modal';
+    public const HANDLE_AUTOSAVE_JS = 'lrob-etk-autosave';
 
     public static function enqueue_admin(string $hook_suffix): void
     {
@@ -63,6 +68,60 @@ final class Assets
             [],
             self::asset_version('admin/js/etk-controls.js'),
             false
+        );
+
+        // Shared filter-form ⇄ list-region AJAX helper. Used by the
+        // Submissions inbox + Email Logs list (both have a filter form
+        // and a swap-able results region with identical mechanics).
+        // ~5KB, footer-loaded.
+        wp_enqueue_script(
+            self::HANDLE_LIST_FILTER_JS,
+            LROB_ETK_URL . 'admin/js/etk-list-filter.js',
+            [],
+            self::asset_version('admin/js/etk-list-filter.js'),
+            true
+        );
+        // Shared detail-modal helper (overlay opened by clicking a row).
+        // Powers both the submissions inbox modal and the email logs
+        // detail modal. Tiny vanilla JS, footer-loaded.
+        wp_enqueue_script(
+            self::HANDLE_DETAIL_MODAL_JS,
+            LROB_ETK_URL . 'admin/js/etk-detail-modal.js',
+            [],
+            self::asset_version('admin/js/etk-detail-modal.js'),
+            true
+        );
+        // Shared "auto-delete after N days" widget — Admin\RetentionToggle
+        // renders it, both the Contact Form Storage modal and the Email
+        // Logs Storage modal use it. Footer-loaded; piggybacks on each
+        // module's existing data-key auto-save plumbing.
+        wp_enqueue_script(
+            self::HANDLE_RETENTION_TOGGLE_JS,
+            LROB_ETK_URL . 'admin/js/etk-retention-toggle.js',
+            [],
+            self::asset_version('admin/js/etk-retention-toggle.js'),
+            true
+        );
+        // Shared modal opener — drives every header-button-triggered
+        // .lrob-etk-modal (CF Defaults, CF Storage, Logs Storage, …).
+        // Must load in head: pages inline mid-body scripts that call
+        // window.lrobEtkModal.bindHeader(...) synchronously.
+        wp_enqueue_script(
+            self::HANDLE_MODAL_JS,
+            LROB_ETK_URL . 'admin/js/etk-modal.js',
+            [],
+            self::asset_version('admin/js/etk-modal.js'),
+            false
+        );
+        // Shared per-key autosave for settings cards (status badge +
+        // debounce + lastSent tracking). Footer is fine — consumers
+        // wrap their attach() call in DOMContentLoaded.
+        wp_enqueue_script(
+            self::HANDLE_AUTOSAVE_JS,
+            LROB_ETK_URL . 'admin/js/etk-autosave.js',
+            [],
+            self::asset_version('admin/js/etk-autosave.js'),
+            true
         );
 
         add_action('admin_footer', [self::class, 'print_tooltip_script']);

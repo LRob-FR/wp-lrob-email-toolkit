@@ -48,8 +48,12 @@ final class AjaxController
         Settings::KEY_RADIUS,
         Settings::KEY_FONT_SIZE,
         Settings::KEY_SAVE_SUBMISSIONS,
+        Settings::KEY_SAVE_SPAM_BOT,
+        Settings::KEY_SAVE_SPAM_CAPTCHA,
         Settings::KEY_STORE_RAW_IP,
         Settings::KEY_RETENTION_DELIVERED_DAYS,
+        Settings::KEY_RETENTION_RECEIVED_DAYS,
+        Settings::KEY_RETENTION_FAILED_DAYS,
         Settings::KEY_RETENTION_SPAM_DAYS,
     ];
 

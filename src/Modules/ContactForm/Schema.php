@@ -22,6 +22,8 @@ final class Schema
 
     public const TABLE_RATE = 'lrob_etk_contact_rate';
 
+    public const TABLE_FILES = 'lrob_etk_contact_files';
+
     public static function submissions_table(): string
     {
         global $wpdb;
@@ -32,6 +34,12 @@ final class Schema
     {
         global $wpdb;
         return $wpdb->prefix . self::TABLE_RATE;
+    }
+
+    public static function files_table(): string
+    {
+        global $wpdb;
+        return $wpdb->prefix . self::TABLE_FILES;
     }
 
     /**
@@ -79,9 +87,27 @@ final class Schema
             KEY ip_form_time (ip_hash, form_id, hit_at)
         ) $charset_collate;";
 
+        $files = self::files_table();
+        $sql_files = "CREATE TABLE $files (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            submission_id bigint(20) unsigned NOT NULL,
+            form_id bigint(20) unsigned NOT NULL,
+            field_slug varchar(80) NOT NULL,
+            original_name varchar(255) NOT NULL,
+            stored_path varchar(500) NOT NULL,
+            size_bytes bigint(20) unsigned NOT NULL,
+            mime varchar(120) NOT NULL DEFAULT '',
+            created_at datetime NOT NULL,
+            PRIMARY KEY  (id),
+            KEY submission_id (submission_id),
+            KEY form_id (form_id),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql_submissions);
         dbDelta($sql_rate);
+        dbDelta($sql_files);
     }
 
     public static function drop(): void
@@ -89,7 +115,9 @@ final class Schema
         global $wpdb;
         $submissions = self::submissions_table();
         $rate = self::rate_table();
+        $files = self::files_table();
         $wpdb->query("DROP TABLE IF EXISTS `$submissions`");
         $wpdb->query("DROP TABLE IF EXISTS `$rate`");
+        $wpdb->query("DROP TABLE IF EXISTS `$files`");
     }
 }

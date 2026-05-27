@@ -558,3 +558,75 @@
     opacity: 0.65;
     font-size: 12px;
 }
+
+/* --- File upload field --------------------------------------------
+ * Native <input type="file"> is hidden behind a label-button to avoid
+ * the OS-default file-input chrome (which is unstyleable on most
+ * browsers). The visible UI is the label-button + a list of selected
+ * files. Pre-submit JS pops invalid entries with .is-invalid. */
+.lrob-etk-form .lrob-etk-form-file {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+.lrob-etk-form .lrob-etk-form-file-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: color-mix(in srgb, currentColor 8%, transparent);
+    color: inherit;
+    border: 1px dashed var(--lrob-etk-cf-border);
+    border-radius: var(--lrob-etk-cf-radius);
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.2;
+    transition: background var(--lrob-etk-cf-trans), border-color var(--lrob-etk-cf-trans);
+}
+.lrob-etk-form .lrob-etk-form-file-trigger:hover {
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    border-color: var(--lrob-etk-cf-border-focus);
+}
+.lrob-etk-form .lrob-etk-form-file-trigger .dashicons {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+.lrob-etk-form .lrob-etk-form-file-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-form .lrob-etk-form-file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: color-mix(in srgb, currentColor 5%, transparent);
+    border-radius: var(--lrob-etk-cf-radius);
+    font-size: 0.92em;
+}
+.lrob-etk-form .lrob-etk-form-file-item.is-invalid {
+    background: var(--lrob-etk-form-error-bg);
+    color: var(--lrob-etk-form-error);
+}
+.lrob-etk-form .lrob-etk-form-file-item-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.lrob-etk-form .lrob-etk-form-file-item-size {
+    opacity: 0.65;
+    font-size: 0.85em;
+}
+.lrob-etk-form .lrob-etk-form-file-hint {
+    margin: 0;
+    font-size: 0.82em;
+    opacity: 0.7;
+}

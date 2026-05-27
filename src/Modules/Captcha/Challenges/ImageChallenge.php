@@ -90,7 +90,7 @@ final class ImageChallenge implements ChallengeInterface
         );
 
         return sprintf(
-            '<div class="lrob-etk-cf-field lrob-etk-cf-field--challenge lrob-etk-cf-challenge lrob-etk-cf-challenge--image" data-field="_challenge">' .
+            '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-cf-challenge lrob-etk-cf-challenge--image" data-field="_challenge">' .
             '<label class="lrob-etk-cf-label">%1$s <span class="lrob-etk-cf-required" aria-hidden="true">*</span></label>' .
             '<div class="lrob-etk-cf-image-options" role="radiogroup" aria-label="%2$s">%3$s</div>' .
             '<input type="hidden" name="%4$s" value="%5$s">' .

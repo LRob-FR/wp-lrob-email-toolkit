@@ -89,17 +89,75 @@ The user runs the plugin from the release zip, not the working tree. **Every PHP
 
 ## UI patterns — match these in new modules
 
-Admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table`, `<select>`, `<datalist>`). Shared components live in `admin/css/admin-{base,components,dashboard,smtp,logging,contact-form,captcha,newsletter}.css` under `.lrob-etk-*` plus shared PHP renderers in `src/Admin/`. Reuse — don't reinvent:
+Admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table`, `<select>`, `<datalist>`). Shared components live in `admin/css/admin-{base,components,dashboard,smtp,logging,contact-form,captcha,newsletter}.css` under `.lrob-etk-*` plus shared PHP renderers in `src/Admin/`. **Default to functional names + global classes** — drop module sub-prefixes (`cf-`, `smtp-`, `logs-`) when the pattern could resurface elsewhere. Reuse — don't reinvent.
 
-- **Card grid** for entity lists: `grid-template-columns: repeat(auto-fit, minmax(380px, 540px))`. Form cards override to `minmax(420px, 750px)` so hCaptcha (303px min) fits.
-- **Auto-save edit cards**: existing rows save on `blur`/`change` with the absolutely-positioned card-status badge that animates via `max-width` transition; new rows have an explicit "Create" button. Track per-input original value on focus, only save on blur if changed. Reference: `Modules/SMTP/Admin/SettingsPage.php` + `AjaxController`.
-- **Inline module toggle** next to the page `<h1>` via `Admin\ModuleToggle::render_inline()`.
-- **Anchored popovers** (`.lrob-etk-popover`) — JS positions via `getBoundingClientRect` relative to the trigger button.
-- **Custom combobox** (`.lrob-etk-combo`, input + dropdown menu) — `<datalist>` is banned (inconsistent cross-browser). **Always use `Admin\Combobox::render_fixed_select()` for select-style fields and `Admin\Combobox::render_free_text()` for free-text fields with suggestions. Never render a raw `<select>` or a raw `<input>` inside a settings card.** Pass the module's auto-save marker class (e.g. `lrob-etk-nl-field`, `lrob-etk-cf-field`) so the existing listener picks the field up.
-- **Custom data table** (`.lrob-etk-logs-table`) — replaces `widefat striped`.
-- **Tooltips** (`Admin\Tooltip::render()`) — `position: fixed` with JS-computed coords so they escape scroll containers / popovers. Tip text has explicit `text-transform: none`.
-- **Default-marker** on identity-style cards: `.lrob-etk-card-footer-default` slot in the card footer carries either `.lrob-etk-default-badge` (star-filled, "Default") or `.lrob-etk-set-default` (star-empty, click to make default). Used by SMTP identities + Captcha challenges/identities. Styles in `admin-components.css`.
-- **CSS gotcha**: WP's `.button { display: inline-block }` overrides `[hidden]`. `.lrob-etk [hidden] { display: none !important }` is the fix — keep it.
+### Design tokens (admin-base.css)
+
+Single source for every color, radius, shadow, spacing, transition. Hardcoding these is forbidden — if you need a new value, add a token. Adapting one (dark mode, compact mode, roundness preset) then ripples everywhere.
+
+| Token family | Values |
+|---|---|
+| Palette | `--etk-fg`, `--etk-muted`, `--etk-soft`, `--etk-line`, `--etk-line-strong`, `--etk-accent`, `--etk-accent-hover`, `--etk-accent-bg`, `--etk-success`, `--etk-success-bg`, `--etk-warning`, `--etk-warning-bg`, `--etk-danger`, `--etk-danger-bg` |
+| Text-on-tint | `--etk-text-{success,danger,warning}` (dark counterparts to the `*-bg` tokens) |
+| Surfaces | `--etk-card-bg` (warm off-white), `--etk-input-bg` (pure white) |
+| Radii | `--etk-radius-{sm,md,lg,xl,pill}` (4 / 6 / 8 / 12 / 999px). Legacy alias `--etk-radius` = md. |
+| Shadows | `--etk-shadow-{sm,md,lg,modal,menu}` |
+| Spacing | `--etk-space-{1..6}` (4 / 8 / 12 / 16 / 24 / 32px) |
+| Inputs | `--etk-input-height` (30px), `--etk-input-height-sm` (28px), `--etk-input-font-size` (13px) |
+| Icons | `--etk-icon-size` (16px), `--etk-icon-size-sm` (14px) |
+| Motion | `--etk-transition` (0.15s ease), `--etk-transition-slow` (0.30s ease) |
+
+### Shared PHP renderers (src/Admin/)
+
+- **`PageHeader::render($args)`** — Single source for every plugin page header. Layout: `[Title] [ModuleToggle?] [+ New X primary]   →→→   [Tools group] | [Nav group]`. Wording mandate: **`New X`** (the `dashicons-plus-alt2` icon supplies the `+`). Pass `primary`/`tools`/`nav` button arrays. Cross-page links go in `nav` (muted treatment + vertical divider).
+- **`ModuleToggle::render_inline($module)`** — toggle switch next to the H1. PageHeader auto-invokes when `module` is passed.
+- **`Combobox::render_fixed_select()` / `render_free_text()`** — `<datalist>` is banned; raw `<select>` is banned. Auto-save marker class passed in (`lrob-etk-cf-field`, etc.).
+- **`Tooltip::render($text)`** — `position: fixed` so they escape scroll/modal clipping.
+- **`RetentionToggle::render([...])`** — checkbox + days input pair (0 stored = disabled).
+
+### Shared JS helpers (admin/js/, enqueued plugin-wide via Admin\Assets)
+
+- **`etk-modal.js`** — `window.lrobEtkModal.bindHeader(modalId, openerId)`. Opens any `.lrob-etk-modal` via header button; backdrop / × / Escape all close; body scroll locks. Used by CF Defaults, CF Storage, Logs Storage.
+- **`etk-autosave.js`** — `window.lrobEtkAutosave.attach(card, opts)`. Per-key autosave with debounce, `lastSent` tracking, and `.lrob-etk-card-status` badge state machine. Consumer supplies `{ fieldSelector, save(field, value), readValue?, debounceMs?, i18n }`. Used by CF per-form cards + Defaults card, Logs Storage card.
+- **`etk-controls.js`** — combobox driver. Loads in head (SMTP cards call synchronously mid-body).
+- **`etk-list-filter.js`** — generic filter form ⇄ list region AJAX swap. Used by Email Logs + Submissions inbox.
+- **`etk-detail-modal.js`** — generic detail modal with prev/next nav.
+- **`etk-retention-toggle.js`** — RetentionToggle widget runtime.
+
+### CSS primitives (admin-components.css)
+
+Don't redefine these per module — extend with module-only variants where genuinely needed.
+
+- **`.lrob-etk-card`** (+ `--container` modifier for inline-size container queries) — every settings/identity card. Consumes `--etk-card-bg`, line border, lg radius, md shadow, focus-within highlight, `.is-new` accent. Module flavors (`.lrob-etk-identity-card` for SMTP JS hook, `.lrob-etk-form-card` for CF, `.lrob-etk-captcha-card`, `.lrob-etk-nl-card`, `.lrob-etk-logs-storage-card`) sit alongside as semantic markers, not duplicate visuals.
+- **`.lrob-etk-card-grid`** — `repeat(auto-fit, minmax(380px, 540px))`. CF form cards add `--wide` modifier (`minmax(420px, 750px)`) so hCaptcha (303px min) fits.
+- **`.lrob-etk-card-form` + `-head` + `-status` + `-footer`** — card internals. `-status` is the absolutely-positioned animated save badge.
+- **`.lrob-etk-data-table` + `-wrap`** — replaces WP `widefat striped`. Shared by Email Logs + Submissions inbox; column widths via `.col-*` modifiers.
+- **`.lrob-etk-filter-bar` + `-field` (+ `--search`) + `-actions`** — top-of-list filter row.
+- **`.lrob-etk-bulk-toolbar`, `.lrob-etk-pagination`** — list chrome below the filter bar / above results.
+- **`.lrob-etk-icon-btn`** (+ `--ghost` / `--danger` / `--spam`) — square icon-only button. Replaces every per-module row-action / picker-trigger / conn-test variant. Sizes drive off tokens.
+- **`.lrob-etk-btn--danger` / `--spam` / `--danger-solid` / `--warn-solid`** — modifiers on WP `.button`. Outline variants (`--danger`, `--spam`) for inline actions; solid-fill variants (`*-solid`) for destructive confirm buttons.
+- **`.lrob-etk-combo` + `-input` + `-toggle` + `-menu`** — input+dropdown shell. The recipient-list row uses the same input-shell idiom; the `<datalist>` ban applies.
+- **`.lrob-etk-menu` + `--fixed` + `-item`** — floating menu shared between combobox and JS-positioned pickers (recipient menu).
+- **`.lrob-etk-modal` + `-dialog` (+ `--small` / `--wide`) + `-header` + `-body` + `-footer`** — modal chrome. Opened via `window.lrobEtkModal.bindHeader()`.
+- **`.lrob-etk-popover` + `-header` + `-body` + `-footer`** — anchored popover (SMTP conn-test details, dashboard test email).
+- **`.lrob-etk-test-result`** (+ `.is-pending` / `.is-success` / `.is-failure`) — banner for SMTP conn-test / Captcha verify-test / manual-cleanup result.
+- **`.lrob-etk-detail-strip` + `-item` + `-label` + `-value`** — chip row at top of record detail views (submission, log entry).
+- **`.lrob-etk-cleanup-row` + `-statuses` + `-actions`** — manual-cleanup row inside Storage modals.
+- **`.lrob-etk-retention-toggle`** — checkbox + days widget rendered by `Admin\RetentionToggle`.
+- **`.lrob-etk-status`** (+ `--on` / `--off` / `--fail` / `--pending`) — pill badges.
+- **`.lrob-etk-section-title`** — page-level section title carries a `border-top`; inside `.lrob-etk-card` the border is suppressed (the parent section owns separation).
+- **`.lrob-etk-tip` + `-text`** — tooltip rendered via `Admin\Tooltip::render()`; `position: fixed` with JS coords.
+- **`.lrob-etk-card-footer-default`** slot carries `.lrob-etk-default-badge` (star-filled, "Default") or `.lrob-etk-set-default` (star-empty, click to make default).
+
+### Mandates
+
+- **Wording**: `+ New X` is forbidden — the dashicon already provides `+`. Use bare `New identity` / `New form` / etc.
+- **Forms / inputs**: never render a raw `<select>` or `<input>` in a settings card — always go through `Admin\Combobox` helpers.
+- **Modal opening**: never reimplement the open/close/scroll-lock dance — use `window.lrobEtkModal.bindHeader()`.
+- **Per-key autosave**: never reimplement debounce + status badge + lastSent — use `window.lrobEtkAutosave.attach()`.
+- **Colors / radii / shadows / transitions**: no hardcoded values — always reference tokens. If a needed value isn't tokenized yet, add the token in `admin-base.css`.
+- **`<datalist>`**: banned (cross-browser inconsistency). Use `Admin\Combobox::render_fixed_select()` for known options.
+- **`.lrob-etk [hidden] { display: none !important }`** — keep this. WP's `.button { display: inline-block }` has equal specificity and loads later, defeating plain `hidden`.
 
 ## Hidden admin pages
 

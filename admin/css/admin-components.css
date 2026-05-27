@@ -54,15 +54,15 @@
 .lrob-etk-status {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: var(--etk-radius-pill);
     font-size: 12px;
     font-weight: 600;
 }
 
-.lrob-etk-status--on      { background: var(--etk-success-bg); color: #1e6b3a; }
+.lrob-etk-status--on      { background: var(--etk-success-bg); color: var(--etk-text-success); }
 .lrob-etk-status--off     { background: var(--etk-soft);       color: var(--etk-muted); }
-.lrob-etk-status--fail    { background: var(--etk-danger-bg);  color: #a00; }
-.lrob-etk-status--pending { background: var(--etk-warning-bg); color: #996800; }
+.lrob-etk-status--fail    { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
+.lrob-etk-status--pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
 
 /* ---------- Empty state ---------- */
 
@@ -90,7 +90,7 @@
     position: relative;
     vertical-align: middle;
     margin: 0 2px;
-    transition: background 0.15s ease;
+    transition: background var(--etk-transition);
 }
 .lrob-etk-tip:hover, .lrob-etk-tip:focus, .lrob-etk-tip.is-open {
     background: var(--etk-soft);
@@ -108,11 +108,11 @@
     width: 280px;
     max-width: calc(100vw - 24px);
     padding: 8px 12px;
-    background: #1d2327;
+    background: var(--etk-fg);
     color: #fff;
     font-size: 12px;
     line-height: 1.5;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     z-index: 200000;  /* above modals (which sit at 100000) */
     cursor: text;
     box-shadow: 0 6px 16px rgba(0,0,0,.25);
@@ -146,8 +146,8 @@
     position: absolute;
     inset: 0;
     background: var(--etk-line-strong);
-    border-radius: 999px;
-    transition: background 0.15s ease;
+    border-radius: var(--etk-radius-pill);
+    transition: background var(--etk-transition);
     cursor: pointer;
 }
 .lrob-etk-switch-track::before {
@@ -159,7 +159,7 @@
     height: 16px;
     background: #fff;
     border-radius: 50%;
-    transition: transform 0.15s ease;
+    transition: transform var(--etk-transition);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .lrob-etk-switch input:checked + .lrob-etk-switch-track {
@@ -170,6 +170,33 @@
 }
 .lrob-etk-switch input:focus + .lrob-etk-switch-track {
     box-shadow: 0 0 0 2px var(--etk-accent);
+}
+
+/* ---------- Retention toggle widget ---------- */
+
+.lrob-etk-retention-toggle {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.lrob-etk-retention-toggle-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    cursor: pointer;
+}
+.lrob-etk-retention-toggle-days {
+    width: 5em;
+    transition: opacity var(--etk-transition);
+}
+.lrob-etk-retention-toggle-days:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+.lrob-etk-retention-toggle-unit {
+    color: var(--etk-muted);
 }
 
 /* ---------- Modal ---------- */
@@ -199,7 +226,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-modal-dialog {
     position: relative;
     background: #fff;
-    border-radius: 8px;
+    border-radius: var(--etk-radius-lg);
     box-shadow: 0 20px 50px rgba(0,0,0,.25);
     width: 100%;
     max-width: 820px;
@@ -237,7 +264,7 @@ body.lrob-etk-modal-open {
     cursor: pointer;
     color: var(--etk-muted);
     padding: 4px;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     line-height: 1;
 }
 .lrob-etk-modal-close:hover {
@@ -257,7 +284,7 @@ body.lrob-etk-modal-open {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-    background: #fafafa;
+    background: var(--etk-soft);
 }
 
 /* ---------- Modal two-column form layout ---------- */
@@ -316,7 +343,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-segmented {
     display: inline-flex;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     overflow: hidden;
     background: #fff;
 }
@@ -348,13 +375,13 @@ body.lrob-etk-modal-open {
     background-size: 10px 7px;
     padding-right: 26px;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     height: 32px;
     line-height: 1.4;
     font-size: 13px;
     color: var(--etk-fg);
     cursor: pointer;
-    transition: border-color 0.15s ease;
+    transition: border-color var(--etk-transition);
 }
 .lrob-etk-select:hover {
     border-color: var(--etk-line-strong);
@@ -381,9 +408,9 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: stretch;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     background: #fff;
-    transition: border-color 0.15s ease;
+    transition: border-color var(--etk-transition);
 }
 .lrob-etk-combo:hover {
     border-color: var(--etk-line-strong);
@@ -414,12 +441,12 @@ body.lrob-etk-modal-open {
     border-left: 1px solid var(--etk-soft);
     cursor: pointer;
     padding: 0 8px;
-    color: #80868b;
+    color: var(--etk-muted);
     display: flex;
     align-items: center;
     justify-content: center;
     min-width: 24px;
-    transition: color 0.15s ease, background 0.15s ease;
+    transition: color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-combo-toggle:hover {
     background: var(--etk-soft);
@@ -436,7 +463,7 @@ body.lrob-etk-modal-open {
 }
 
 /* Select mode: readonly input is the visible label, the hidden input is the
- * real value. WordPress admin sets `input[readonly] { background: #f6f7f7 }`
+ * real value. WordPress admin sets `input[readonly] { background: var(--etk-soft) }`
  * by default — we override to transparent so the combobox keeps the white
  * card look users expect (no grey "disabled" tone). */
 .lrob-etk-combo-input[readonly] {
@@ -459,8 +486,8 @@ body.lrob-etk-modal-open {
     list-style: none;
     background: #fff;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
-    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    border-radius: var(--etk-radius-sm);
+    box-shadow: var(--etk-shadow-menu);
     z-index: 100;
     max-height: 240px;
     overflow-y: auto;
@@ -477,7 +504,7 @@ body.lrob-etk-modal-open {
     background: var(--etk-soft);
 }
 .lrob-etk-combo-menu li.is-selected {
-    background: #f0f6fc;
+    background: var(--etk-accent-bg);
     color: var(--etk-accent);
     font-weight: 500;
 }
@@ -487,8 +514,8 @@ body.lrob-etk-modal-open {
 .lrob-etk-popover {
     background: #fff;
     border: 1px solid var(--etk-line);
-    border-radius: 8px;
-    box-shadow: 0 8px 28px rgba(0,0,0,.18);
+    border-radius: var(--etk-radius-lg);
+    box-shadow: var(--etk-shadow-lg);
     width: 360px;
     max-width: calc(100vw - 24px);
     z-index: 200000;
@@ -529,13 +556,13 @@ body.lrob-etk-modal-open {
     font-size: 13px;
     line-height: 1.5;
 }
-.lrob-etk-popover.is-success .lrob-etk-popover-message { color: #1e6b3a; }
-.lrob-etk-popover.is-failure .lrob-etk-popover-message { color: #8a0000; }
+.lrob-etk-popover.is-success .lrob-etk-popover-message { color: var(--etk-text-success); }
+.lrob-etk-popover.is-failure .lrob-etk-popover-message { color: var(--etk-text-danger); }
 .lrob-etk-popover-debug {
     margin: 8px 0 0;
     padding: 8px;
     background: var(--etk-soft);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     font-size: 11px;
     line-height: 1.4;
     max-height: 200px;
@@ -549,7 +576,7 @@ body.lrob-etk-modal-open {
     display: flex;
     justify-content: flex-end;
     gap: 6px;
-    background: #fafafa;
+    background: var(--etk-soft);
 }
 
 /* ---------- Anchored modal variant (used for test email near button) ---------- */
@@ -577,8 +604,8 @@ body.lrob-etk-modal-open {
     padding: 8px 12px;
     background: var(--etk-danger-bg);
     border-left: 3px solid var(--etk-danger);
-    color: #8a0000;
-    border-radius: 4px;
+    color: var(--etk-text-danger);
+    border-radius: var(--etk-radius-sm);
 }
 
 /* ---------- Flash messages container ---------- */
@@ -598,9 +625,8 @@ body.lrob-etk-modal-open {
 .lrob-etk-page-header .lrob-etk-page-title {
     margin: 0;
 }
-.lrob-etk-page-add {
-    margin-left: auto;
-}
+/* Primary "+ New X" sits flush after the title (and inline module toggle).
+ * No margin-left:auto — the page-header-actions div carries it instead. */
 .lrob-etk-page-add .dashicons,
 .lrob-etk-page-header-actions .button .dashicons {
     font-size: 16px;
@@ -629,6 +655,34 @@ body.lrob-etk-modal-open {
     align-items: center;
 }
 
+/* Header action groups: tools (page-local — Storage, Settings, Cleanup)
+ * sit on the inside; nav (links to other admin pages) on the far right,
+ * with a thin vertical divider between them. Mental model: tools act on
+ * the current page, nav leaves it — separation reflects that. Nav
+ * buttons get a subtle muted style so they recede next to the page-tool
+ * buttons. */
+.lrob-etk-page-header-actions .lrob-etk-header-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.lrob-etk-page-header-actions .lrob-etk-header-tools + .lrob-etk-header-nav {
+    margin-left: 6px;
+    padding-left: 12px;
+    border-left: 1px solid var(--etk-line, var(--etk-line));
+}
+.lrob-etk-page-header-actions .lrob-etk-nav-button.button {
+    background: transparent;
+    border-color: transparent;
+    color: var(--etk-text-muted, var(--etk-muted));
+    box-shadow: none;
+}
+.lrob-etk-page-header-actions .lrob-etk-nav-button.button:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--etk-fg);
+    border-color: transparent;
+}
+
 .lrob-etk-page-toggle-form {
     margin: 0;
     display: inline-block;
@@ -653,8 +707,8 @@ body.lrob-etk-modal-open {
     width: 32px;
     height: 18px;
     background: var(--etk-line-strong);
-    border-radius: 999px;
-    transition: background 0.15s ease;
+    border-radius: var(--etk-radius-pill);
+    transition: background var(--etk-transition);
 }
 .lrob-etk-page-toggle .lrob-etk-switch-track::before {
     content: '';
@@ -665,7 +719,7 @@ body.lrob-etk-modal-open {
     height: 14px;
     background: #fff;
     border-radius: 50%;
-    transition: transform 0.15s ease;
+    transition: transform var(--etk-transition);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .lrob-etk-page-toggle input:checked + .lrob-etk-switch-track {
@@ -718,8 +772,8 @@ body.lrob-etk-modal-open {
     width: 32px;
     height: 18px;
     background: var(--etk-line-strong);
-    border-radius: 999px;
-    transition: background 0.15s ease;
+    border-radius: var(--etk-radius-pill);
+    transition: background var(--etk-transition);
 }
 .lrob-etk-inline-switch .lrob-etk-switch-track::before {
     content: '';
@@ -730,7 +784,7 @@ body.lrob-etk-modal-open {
     height: 14px;
     background: #fff;
     border-radius: 50%;
-    transition: transform 0.15s ease;
+    transition: transform var(--etk-transition);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .lrob-etk-inline-switch input:checked + .lrob-etk-switch-track {
@@ -750,8 +804,525 @@ body.lrob-etk-modal-open {
 
 /* ---------- Card primitives ----------
  *
- * Reused by SMTP identity cards and Contact Form cards.
+ * Single card chrome shared by every module: SMTP identities, Contact
+ * Form forms, Email Logs storage modal, Captcha identities. Each
+ * consumer gets the white bg, line border, lg radius, soft shadow, and
+ * focus/new highlights. Don't redefine these in per-module files —
+ * extend with module-only variants (e.g. inner grid layout, header
+ * actions) and let the primitive own the visual chrome.
  */
+
+.lrob-etk-card {
+    background: var(--etk-card-bg);
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-lg);
+    box-shadow: var(--etk-shadow-md);
+    transition: box-shadow var(--etk-transition), border-color var(--etk-transition);
+}
+.lrob-etk-card:focus-within {
+    border-color: #b8d4ed;
+    box-shadow: 0 4px 14px rgba(0,0,0,.06);
+}
+.lrob-etk-card.is-new {
+    border-color: var(--etk-accent);
+    background: #fcfdff;
+}
+.lrob-etk-card--container {
+    container-type: inline-size;
+}
+
+/* Card grid — the canonical "list of cards" layout. Each entry is a
+ * card that scales between 380 (mobile sub-row) and 540 (one per col
+ * on widescreens). Used by SMTP / Captcha / CF / Newsletter. */
+.lrob-etk-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
+    gap: 14px;
+    margin: 16px 0;
+}
+
+/* ---------- Floating menu (dropdown / picker) ----------
+ *
+ * Single style for any JS-positioned dropdown menu — combobox options,
+ * recipient picker, etc. The combobox keeps its anchored absolute
+ * positioning (.lrob-etk-combo-menu); use this primitive when the menu
+ * is positioned via JS (position: fixed). */
+
+.lrob-etk-menu {
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    box-shadow: var(--etk-shadow-menu);
+    min-width: 220px;
+    max-width: 360px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+.lrob-etk-menu[hidden] { display: none; }
+/* Floating variant — used when the menu's position is JS-computed
+ * relative to an arbitrary anchor (recipient picker, etc.) rather
+ * than absolute-positioned inside a shell (combobox). */
+.lrob-etk-menu--fixed {
+    position: fixed;
+    z-index: 200000;
+}
+.lrob-etk-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 6px 12px;
+    font-size: var(--etk-input-font-size);
+    line-height: 1.4;
+    color: var(--etk-fg);
+    cursor: pointer;
+}
+.lrob-etk-menu-item:hover {
+    background: var(--etk-soft);
+    color: var(--etk-accent);
+}
+.lrob-etk-menu-item.is-selected {
+    background: var(--etk-accent-bg);
+    color: var(--etk-accent);
+    font-weight: 500;
+}
+.lrob-etk-menu-item.is-default::after {
+    content: "★";
+    color: var(--etk-warning);
+    margin-left: 6px;
+    font-size: 11px;
+}
+
+/* ---------- Icon button ----------
+ *
+ * Square icon-only button — table-row actions, picker triggers,
+ * connection-test buttons, recipient-remove. Sizing comes from tokens
+ * so a bump to --etk-icon-size flows through every consumer.
+ *
+ * Variants:
+ *   --danger : red hover (destructive)
+ *   --ghost  : no border, transparent (table-row actions)
+ */
+
+.lrob-etk-icon-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--etk-input-height);
+    height: var(--etk-input-height);
+    padding: 0;
+    border: 1px solid var(--etk-line);
+    background: #fff;
+    border-radius: var(--etk-radius-sm);
+    color: var(--etk-muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color var(--etk-transition), color var(--etk-transition), background var(--etk-transition);
+}
+.lrob-etk-icon-btn:hover {
+    border-color: var(--etk-accent);
+    color: var(--etk-accent);
+}
+.lrob-etk-icon-btn .dashicons {
+    font-size: var(--etk-icon-size);
+    width: var(--etk-icon-size);
+    height: var(--etk-icon-size);
+    line-height: 1;
+}
+.lrob-etk-icon-btn--danger:hover {
+    border-color: var(--etk-danger);
+    color: var(--etk-danger);
+    background: var(--etk-danger-bg);
+}
+.lrob-etk-icon-btn--spam:hover {
+    border-color: var(--etk-warning);
+    color: var(--etk-text-warning);
+    background: var(--etk-warning-bg);
+}
+/* Ghost icon button — borderless, for in-table row actions. */
+.lrob-etk-icon-btn--ghost {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    border-radius: var(--etk-radius-sm);
+}
+.lrob-etk-icon-btn--ghost:hover {
+    background: var(--etk-soft);
+    color: var(--etk-fg);
+    border: none;
+}
+.lrob-etk-icon-btn--ghost.lrob-etk-icon-btn--danger:hover {
+    background: var(--etk-danger-bg);
+    color: var(--etk-danger);
+}
+
+/* Spinner animation reused everywhere. Defined here so any icon-btn
+ * can opt in via .is-spinning on either the button or the icon. */
+@keyframes lrob-etk-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.lrob-etk-spin,
+.lrob-etk-icon-btn.is-spinning .dashicons {
+    animation: lrob-etk-spin 0.9s linear infinite;
+}
+
+/* ---------- Button variants ----------
+ *
+ * Modifiers applied to WordPress's .button. Avoids creating standalone
+ * button classes that have to re-implement WP's padding/font/etc. */
+
+.lrob-etk-btn--danger {
+    color: var(--etk-danger) !important;
+    border-color: var(--etk-danger) !important;
+    background: #fff !important;
+}
+.lrob-etk-btn--danger:hover {
+    background: var(--etk-danger-bg) !important;
+    color: var(--etk-text-danger) !important;
+    border-color: var(--etk-danger) !important;
+}
+.lrob-etk-btn--warn {
+    color: var(--etk-text-warning) !important;
+    border-color: var(--etk-warning) !important;
+    background: var(--etk-warning-bg) !important;
+}
+.lrob-etk-btn--warn:hover {
+    background: #fcefb8 !important;
+}
+.lrob-etk-btn--spam {
+    color: var(--etk-text-warning) !important;
+    border-color: var(--etk-warning) !important;
+    background: #fff !important;
+}
+.lrob-etk-btn--spam:hover {
+    background: var(--etk-warning-bg) !important;
+}
+
+/* Solid variants — filled background + white text. Used by destructive
+ * confirm buttons on standalone pages AND inside the JS confirm dialog;
+ * the visual contract is identical so the same primitive serves both. */
+.lrob-etk-btn--danger-solid {
+    background: var(--etk-text-danger) !important;
+    border-color: var(--etk-text-danger) !important;
+    color: #fff !important;
+}
+.lrob-etk-btn--danger-solid:hover {
+    background: var(--etk-text-danger) !important;
+    opacity: 0.92;
+}
+.lrob-etk-btn--warn-solid {
+    background: var(--etk-warning) !important;
+    border-color: var(--etk-text-warning) !important;
+    color: #fff !important;
+}
+.lrob-etk-btn--warn-solid:hover {
+    background: var(--etk-text-warning) !important;
+}
+
+/* ---------- Test result banner ----------
+ *
+ * Used by SMTP connection test, Captcha verify test, Manual cleanup
+ * result, etc. The is-pending/is-success/is-failure states map to the
+ * three semantic colors. */
+
+.lrob-etk-test-result {
+    margin-top: var(--etk-space-2);
+    padding: var(--etk-space-2) var(--etk-space-3);
+    border-radius: var(--etk-radius-sm);
+    font-size: var(--etk-input-font-size);
+    line-height: 1.4;
+}
+.lrob-etk-test-result.is-pending {
+    background: var(--etk-soft);
+    color: var(--etk-muted);
+}
+.lrob-etk-test-result.is-success {
+    background: var(--etk-success-bg);
+    color: var(--etk-text-success);
+    border-left: 3px solid var(--etk-success);
+}
+.lrob-etk-test-result.is-failure {
+    background: var(--etk-danger-bg);
+    color: var(--etk-text-danger);
+    border-left: 3px solid var(--etk-danger);
+}
+.lrob-etk-test-result pre {
+    margin: 6px 0 0;
+    background: rgba(0,0,0,.05);
+    padding: 6px;
+    font-size: 11px;
+    border-radius: var(--etk-radius-sm);
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
+
+/* ---------- Filter bar ----------
+ *
+ * Top-of-list filter inputs shared by Email Logs and Submissions
+ * inbox. Each field is a stacked label + input/select pair; the search
+ * field grows to fill remaining space; actions cluster on the right. */
+
+.lrob-etk-filter-bar {
+    display: flex;
+    gap: var(--etk-space-3);
+    align-items: flex-end;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    padding: var(--etk-space-3) 14px;
+    margin: var(--etk-space-3) 0 14px;
+}
+.lrob-etk-filter-bar-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--etk-space-1);
+    min-width: 140px;
+}
+.lrob-etk-filter-bar-field--search {
+    flex: 1;
+    min-width: 220px;
+}
+.lrob-etk-filter-bar-field label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--etk-muted);
+}
+.lrob-etk-filter-bar-field .lrob-etk-select,
+.lrob-etk-filter-bar-field input[type="search"],
+.lrob-etk-filter-bar-field input[type="date"] {
+    height: 32px;
+}
+.lrob-etk-filter-bar-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+/* ---------- Data table ----------
+ *
+ * Replaces WP's `widefat striped`. Shared by Email Logs and the
+ * Submissions inbox; nothing about the chrome is module-specific.
+ * Wrap in .lrob-etk-data-table-wrap for the rounded clipping. */
+
+.lrob-etk-data-table-wrap {
+    border: 1px solid var(--etk-line);
+    border-top: none;
+    border-radius: 0 0 var(--etk-radius-md) var(--etk-radius-md);
+    overflow: hidden;
+    background: #fff;
+    margin-bottom: var(--etk-space-4);
+}
+.lrob-etk-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-data-table thead th {
+    background: var(--etk-soft);
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    border-bottom: 1px solid var(--etk-line);
+    white-space: nowrap;
+}
+.lrob-etk-data-table tbody td {
+    padding: 10px 12px;
+    border-top: 1px solid var(--etk-soft);
+    vertical-align: middle;
+    color: var(--etk-fg);
+}
+.lrob-etk-data-table tbody tr:hover {
+    background: rgba(0,0,0,.02);
+}
+.lrob-etk-data-table tbody tr.is-active {
+    background: #f6f9fc;
+}
+.lrob-etk-data-table tbody tr:first-child td {
+    border-top: none;
+}
+.lrob-etk-data-table .col-check {
+    width: 32px;
+    padding-left: 14px;
+    padding-right: 4px;
+}
+.lrob-etk-data-table .col-date {
+    width: 160px;
+    white-space: nowrap;
+    color: var(--etk-muted);
+    font-variant-numeric: tabular-nums;
+}
+.lrob-etk-data-table .col-status {
+    width: 90px;
+}
+.lrob-etk-data-table .col-actions {
+    width: 100px;
+    white-space: nowrap;
+    text-align: right;
+    padding-right: 14px;
+}
+
+/* ---------- Bulk toolbar ----------
+ *
+ * Sits just above the data-table. Selection summary on the left, bulk
+ * action select + apply button on the right. Connects visually to the
+ * table (no bottom border, matching corners). */
+
+.lrob-etk-bulk-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--etk-space-3);
+    background: var(--etk-soft);
+    padding: var(--etk-space-2) 14px;
+    border: 1px solid var(--etk-line);
+    border-bottom: none;
+    border-radius: var(--etk-radius-md) var(--etk-radius-md) 0 0;
+    flex-wrap: wrap;
+}
+.lrob-etk-bulk-selection {
+    display: flex;
+    align-items: center;
+    gap: var(--etk-space-2);
+}
+.lrob-etk-bulk-selection label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--etk-space-2);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--etk-muted);
+}
+.lrob-etk-bulk-count {
+    color: var(--etk-muted);
+    font-size: 12px;
+}
+.lrob-etk-bulk-action {
+    display: flex;
+    gap: 6px;
+}
+
+/* ---------- Pagination ---------- */
+
+.lrob-etk-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin: var(--etk-space-4) 0 var(--etk-space-5);
+    flex-wrap: wrap;
+}
+.lrob-etk-pagination .page-numbers {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-sm);
+    background: #fff;
+    color: var(--etk-fg);
+    text-decoration: none;
+    font-size: var(--etk-input-font-size);
+    transition: all var(--etk-transition);
+}
+.lrob-etk-pagination .page-numbers:hover {
+    border-color: var(--etk-accent);
+    color: var(--etk-accent);
+}
+.lrob-etk-pagination .page-numbers.current {
+    background: var(--etk-accent);
+    color: #fff;
+    border-color: var(--etk-accent);
+}
+.lrob-etk-pagination .page-numbers.dots {
+    border: none;
+    background: transparent;
+    color: var(--etk-muted);
+}
+
+/* ---------- Cleanup row ----------
+ *
+ * Inline "Delete X older than N days" row used inside Storage modals
+ * (Email Logs + Contact Form). Label + days input wrap together on
+ * the left; primary destructive action on the right. */
+
+.lrob-etk-cleanup-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: var(--etk-space-1);
+}
+.lrob-etk-cleanup-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-cleanup-statuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: var(--etk-space-2);
+}
+.lrob-etk-cleanup-statuses label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-cleanup-actions {
+    margin-top: 10px;
+}
+.lrob-etk-cleanup-result {
+    margin-top: 10px;
+}
+
+/* ---------- Detail strip ----------
+ *
+ * Chip row at the top of a record detail view (submission, log entry,
+ * newsletter, etc.) listing the headline metadata: date, status,
+ * captcha outcome, etc. Each item is a label/value stack. */
+
+.lrob-etk-detail-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 24px;
+    margin: 10px 0 18px;
+    padding: 12px 16px;
+    background: var(--etk-soft);
+    border-radius: var(--etk-radius-xl);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-detail-strip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.lrob-etk-detail-strip-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-muted);
+}
+.lrob-etk-detail-strip-value {
+    color: var(--etk-fg);
+    font-weight: 500;
+}
+
+/* ---------- Card primitives (existing) ---------- */
 
 .lrob-etk-card-footer-default {
     display: flex;
@@ -776,7 +1347,7 @@ body.lrob-etk-modal-open {
     color: var(--etk-accent);
 }
 .lrob-etk-default-badge {
-    color: #735900;
+    color: var(--etk-text-warning);
     font-weight: 500;
 }
 .lrob-etk-default-badge .dashicons {
@@ -802,7 +1373,7 @@ body.lrob-etk-modal-open {
     box-shadow: none;
     outline: none;
     line-height: 1.4;
-    transition: border-color 0.15s ease;
+    transition: border-color var(--etk-transition);
 }
 .lrob-etk-title-input:hover {
     border-bottom-color: var(--etk-line-strong);
@@ -839,7 +1410,7 @@ body.lrob-etk-modal-open {
     min-width: 0;
     border-bottom: 1px solid var(--etk-line);
     margin: 0;
-    transition: border-color 0.15s ease;
+    transition: border-color var(--etk-transition);
 }
 .lrob-etk-card-form-head .lrob-etk-title-input:hover {
     border-bottom-color: var(--etk-line-strong);
@@ -854,7 +1425,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-card-status {
     font-size: 12px;
     font-weight: 500;
-    border-radius: 10px;
+    border-radius: var(--etk-radius-xl);
     background: transparent;
     color: var(--etk-muted);
     white-space: nowrap;
@@ -867,7 +1438,7 @@ body.lrob-etk-modal-open {
     max-width: 0;
     padding: 2px 0;
     opacity: 0;
-    transition: max-width 0.3s ease, padding 0.3s ease, opacity 0.25s ease;
+    transition: max-width var(--etk-transition-slow), padding var(--etk-transition-slow), opacity var(--etk-transition-slow);
 }
 .lrob-etk-card-status.is-dirty,
 .lrob-etk-card-status.is-saving,
@@ -891,16 +1462,16 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-card-status.is-saved {
     background: var(--etk-success-bg);
-    color: #1e6b3a;
+    color: var(--etk-text-success);
 }
 .lrob-etk-card-status.is-failed {
     background: var(--etk-danger-bg);
-    color: #8a0000;
+    color: var(--etk-text-danger);
 }
 
 /* Canonical card footer. SMTP overrides justify-content via the more-specific
  * .lrob-etk-card-footer-default selector; Contact Form overrides via
- * .lrob-etk-cf-form-card .lrob-etk-card-footer. */
+ * .lrob-etk-form-card .lrob-etk-card-footer. */
 .lrob-etk-card-footer {
     display: flex;
     align-items: center;

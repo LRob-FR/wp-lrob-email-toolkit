@@ -126,6 +126,7 @@
 /* ---------- Page chrome ---------- */
 
 .lrob-etk {
+    /* Palette */
     --etk-fg: #1d2327;
     --etk-muted: #50575e;
     --etk-soft: #f0f0f1;
@@ -139,8 +140,58 @@
     --etk-warning-bg: #fcf9e8;
     --etk-danger: #d63638;
     --etk-danger-bg: #fbeaea;
-    --etk-radius: 6px;
-    --etk-shadow: 0 1px 0 rgba(0,0,0,.04);
+    --etk-accent-bg: #f0f6fc;
+
+    /* Surface colors — distinguish cards from inputs from page body.
+     * Cards pick up a very faint warm off-white so they read as a soft
+     * surface against the WP body grey, while inputs stay pure white. */
+    --etk-card-bg:  #fdfdfe;
+    --etk-input-bg: #fff;
+
+    /* Text-on-tinted-background colors (the dark counterparts to the *-bg
+     * tokens — used inside .lrob-etk-status pills, test results, banners).
+     * Centralized so the dozens of inline `color: #1e6b3a` / `#8a0000` /
+     * `#735900` references collapse to one source. */
+    --etk-text-success: #1e6b3a;
+    --etk-text-danger:  #8a0000;
+    --etk-text-warning: #735900;
+
+    /* Radii — used in nested order: sm = inputs/buttons, md = cards,
+     * lg = modals/dialogs, pill = status badges + capsules. */
+    --etk-radius-sm:   4px;
+    --etk-radius:      6px;     /* legacy alias for --etk-radius-md */
+    --etk-radius-md:   6px;
+    --etk-radius-lg:   8px;
+    --etk-radius-xl:   12px;    /* card primitive corner, detail-strip */
+    --etk-radius-pill: 999px;
+
+    /* Shadows */
+    --etk-shadow:      0 1px 0 rgba(0,0,0,.04);   /* legacy alias of --etk-shadow-sm */
+    --etk-shadow-sm:   0 1px 0 rgba(0,0,0,.04);
+    --etk-shadow-md:   0 1px 3px rgba(0,0,0,.06);
+    --etk-shadow-lg:   0 8px 28px rgba(0,0,0,.18);
+    --etk-shadow-modal: 0 20px 50px rgba(0,0,0,.25);
+    --etk-shadow-menu: 0 6px 18px rgba(0,0,0,.12);
+
+    /* Spacing scale */
+    --etk-space-1: 4px;
+    --etk-space-2: 8px;
+    --etk-space-3: 12px;
+    --etk-space-4: 16px;
+    --etk-space-5: 24px;
+    --etk-space-6: 32px;
+
+    /* Input + icon sizing — single source for every text input height,
+     * icon glyph size, and the dashicons inside trigger buttons. */
+    --etk-input-height:    30px;
+    --etk-input-height-sm: 28px;
+    --etk-input-font-size: 13px;
+    --etk-icon-size:       16px;
+    --etk-icon-size-sm:    14px;
+
+    /* Motion */
+    --etk-transition:       0.15s ease;
+    --etk-transition-slow:  0.30s ease;
 }
 
 .lrob-etk .lrob-etk-page-title {

@@ -35,7 +35,7 @@
     box-shadow: var(--etk-shadow);
     color: var(--etk-fg);
     text-decoration: none;
-    transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+    transition: border-color var(--etk-transition), box-shadow var(--etk-transition), transform var(--etk-transition);
     min-height: 100px;
     cursor: pointer;
 }
@@ -148,7 +148,7 @@
 .lrob-etk-chart-type {
     display: inline-flex;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     overflow: hidden;
 }
 .lrob-etk-chart-type button {
@@ -226,10 +226,10 @@
 .lrob-etk-chart-tooltip {
     position: absolute;
     z-index: 10;
-    background: #1d2327;
+    background: var(--etk-fg);
     color: #fff;
     padding: 6px 8px;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     font-size: 11px;
     line-height: 1.5;
     pointer-events: none;
@@ -303,13 +303,13 @@
 }
 .lrob-etk-failure-banner > div {
     flex: 1;
-    color: #8a0000;
+    color: var(--etk-text-danger);
     font-size: 13px;
     line-height: 1.4;
 }
 .lrob-etk-failure-banner strong {
     display: block;
-    color: #8a0000;
+    color: var(--etk-text-danger);
     font-weight: 600;
 }
 
@@ -464,15 +464,15 @@
 /* Contact-form panel on the dashboard: two stat cards (delivered + spam
  * blocked) above a "recent submissions" mini-table. Re-uses .lrob-etk-stat-card
  * for chrome consistency. */
-.lrob-etk-cf-stat-grid {
+.lrob-etk-stat-grid {
     margin-top: 8px;
     margin-bottom: 16px;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
-.lrob-etk-cf-stat-grid .lrob-etk-stat-card.is-blocked {
+.lrob-etk-stat-grid .lrob-etk-stat-card.is-blocked {
     border-color: rgba(220, 38, 38, 0.18);
 }
-.lrob-etk-cf-stat-grid .lrob-etk-stat-card .lrob-etk-stat-rate {
+.lrob-etk-stat-grid .lrob-etk-stat-card .lrob-etk-stat-rate {
     margin-left: 4px;
 }
 .lrob-etk-cf-recent-wrap { margin-top: 4px; }

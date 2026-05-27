@@ -38,9 +38,17 @@ final class Settings
     public const KEY_RADIUS                = 'radius';
     public const KEY_FONT_SIZE             = 'font_size';
     public const KEY_SAVE_SUBMISSIONS      = 'save_submissions';
+    /** Save honeypot / time-trap-tripped rows. OFF by default — these are
+     *  almost always bots and clutter the inbox. */
+    public const KEY_SAVE_SPAM_BOT         = 'save_spam_bot';
+    /** Save captcha-failed rows. ON by default — captcha challenges can
+     *  also fail for legitimate users (typos, slow connections). */
+    public const KEY_SAVE_SPAM_CAPTCHA     = 'save_spam_captcha';
     public const KEY_STORE_RAW_IP          = 'store_raw_ip';
     public const KEY_RETENTION_DELIVERED_DAYS = 'retention_delivered_days';
-    public const KEY_RETENTION_SPAM_DAYS   = 'retention_spam_days';
+    public const KEY_RETENTION_RECEIVED_DAYS  = 'retention_received_days';
+    public const KEY_RETENTION_FAILED_DAYS    = 'retention_failed_days';
+    public const KEY_RETENTION_SPAM_DAYS      = 'retention_spam_days';
 
     /** @return array<string, mixed> */
     public static function defaults(): array
@@ -59,9 +67,18 @@ final class Settings
             self::KEY_RADIUS                => '',
             self::KEY_FONT_SIZE             => '',
             self::KEY_SAVE_SUBMISSIONS      => true,  // privacy-neutral default
+            self::KEY_SAVE_SPAM_BOT         => false, // honeypot/time-trap = bots, skip the inbox clutter
+            self::KEY_SAVE_SPAM_CAPTCHA     => true,  // captcha-fail can be a legit user — keep for review
             self::KEY_STORE_RAW_IP          => false, // privacy-first default
-            self::KEY_RETENTION_DELIVERED_DAYS => 0,  // 0 = keep forever
-            self::KEY_RETENTION_SPAM_DAYS   => 90,    // spam churns fast, 90d default
+            // Retention windows. 0 = auto-cleanup disabled (kept forever);
+            // any positive int = days before deletion. The Admin\RetentionToggle
+            // widget renders a checkbox + number input so admins never have to
+            // type 0 to mean "off". Delivered/received/failed default to off;
+            // spam defaults to 90 days because it churns fast.
+            self::KEY_RETENTION_DELIVERED_DAYS => 0,
+            self::KEY_RETENTION_RECEIVED_DAYS  => 0,
+            self::KEY_RETENTION_FAILED_DAYS    => 0,
+            self::KEY_RETENTION_SPAM_DAYS      => 90,
         ];
     }
 
@@ -96,9 +113,13 @@ final class Settings
             self::KEY_RATE_WINDOW_MINUTES,
             self::KEY_IDENTITY               => max(0, (int) $value),
             self::KEY_RETENTION_DELIVERED_DAYS,
+            self::KEY_RETENTION_RECEIVED_DAYS,
+            self::KEY_RETENTION_FAILED_DAYS,
             self::KEY_RETENTION_SPAM_DAYS    => max(0, min(3650, (int) $value)),
             self::KEY_HONEYPOT,
             self::KEY_SAVE_SUBMISSIONS,
+            self::KEY_SAVE_SPAM_BOT,
+            self::KEY_SAVE_SPAM_CAPTCHA,
             self::KEY_STORE_RAW_IP           => (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN),
             self::KEY_RECIPIENT              => is_string($value) ? self::sanitize_recipient_list($value) : '',
             self::KEY_REPLY_TO_FIELD         => is_string($value) ? sanitize_key($value) : '',
@@ -268,14 +289,35 @@ final class Settings
         return (bool) (self::all()[self::KEY_SAVE_SUBMISSIONS] ?? true);
     }
 
+
     public static function store_raw_ip(): bool
     {
         return (bool) (self::all()[self::KEY_STORE_RAW_IP] ?? false);
     }
 
+    public static function save_spam_bot(): bool
+    {
+        return (bool) (self::all()[self::KEY_SAVE_SPAM_BOT] ?? false);
+    }
+
+    public static function save_spam_captcha(): bool
+    {
+        return (bool) (self::all()[self::KEY_SAVE_SPAM_CAPTCHA] ?? true);
+    }
+
     public static function retention_delivered_days(): int
     {
         return max(0, (int) (self::all()[self::KEY_RETENTION_DELIVERED_DAYS] ?? 0));
+    }
+
+    public static function retention_received_days(): int
+    {
+        return max(0, (int) (self::all()[self::KEY_RETENTION_RECEIVED_DAYS] ?? 0));
+    }
+
+    public static function retention_failed_days(): int
+    {
+        return max(0, (int) (self::all()[self::KEY_RETENTION_FAILED_DAYS] ?? 0));
     }
 
     public static function retention_spam_days(): int

@@ -259,7 +259,7 @@
 }
 
 /* Forms section header — sits inside the Newsletter hub view. The card
- * grid below uses the shared .lrob-etk-identities + .lrob-etk-cf-form-card
+ * grid below uses the shared .lrob-etk-card-grid + .lrob-etk-form-card
  * primitives from admin-contact-form.css for visual consistency. */
 .lrob-etk-nl-forms-section-head {
     display: flex;

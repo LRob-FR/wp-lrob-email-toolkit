@@ -18,41 +18,22 @@
  * (303px min, plus card chrome + padding) sit comfortably in a 1-col
  * row without the column scrollbar fallback. Lower bound (420px) keeps
  * the Delivery / Anti-spam columns legible before they collapse. */
-.lrob-etk-cf-forms-grid {
+.lrob-etk-card-grid--wide {
     grid-template-columns: repeat(auto-fit, minmax(420px, 750px));
 }
 
-.lrob-etk-cf-form-card .lrob-etk-card-form {
+.lrob-etk-form-card .lrob-etk-card-form {
     padding: 12px 18px 14px;
 }
 
-/* The form's stats line — tucked under the columns, above the footer. */
-.lrob-etk-cf-form-card-stats {
-    margin-top: 4px;
-    padding: 8px 0;
-    font-size: 12px;
-    color: var(--etk-muted);
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-.lrob-etk-cf-form-card-stats strong {
-    color: var(--etk-fg);
-    font-weight: 600;
-}
-.lrob-etk-cf-form-card-since {
-    color: var(--etk-muted);
-    margin-left: 6px;
-}
-
-.lrob-etk-cf-form-card .lrob-etk-card-footer {
+.lrob-etk-form-card .lrob-etk-card-footer {
     border-top: 1px solid var(--etk-line);
     padding-top: 12px;
     margin: 0;
     display: flex;
     justify-content: flex-end;
 }
-.lrob-etk-cf-form-card .lrob-etk-card-footer-actions {
+.lrob-etk-form-card .lrob-etk-card-footer-actions {
     display: inline-flex;
     gap: 8px;
     align-items: center;
@@ -60,35 +41,35 @@
 /* The button itself is the flex container — same trick we used on the
  * dashboard "Test email" button so the icon and text both center on the
  * cross-axis instead of relying on a fragile margin-top hack. */
-.lrob-etk-cf-form-card .lrob-etk-card-footer .button {
+.lrob-etk-form-card .lrob-etk-card-footer .button {
     display: inline-flex;
     align-items: center;
     gap: 4px;
 }
-.lrob-etk-cf-form-card .lrob-etk-card-footer .button .dashicons {
+.lrob-etk-form-card .lrob-etk-card-footer .button .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
     line-height: 1;
 }
-.lrob-etk-cf-form-card .lrob-etk-card-delete-link {
+.lrob-etk-form-card .lrob-etk-card-delete-link {
     color: var(--etk-danger);
     text-decoration: none;
     padding: 6px 8px;
     font-size: 13px;
 }
-.lrob-etk-cf-form-card .lrob-etk-card-delete-link:hover {
+.lrob-etk-form-card .lrob-etk-card-delete-link:hover {
     text-decoration: underline;
 }
 
 /* Inputs inside the card column should always fill the column width,
  * not overflow. */
-.lrob-etk-cf-form-card .lrob-etk-field input[type="text"],
-.lrob-etk-cf-form-card .lrob-etk-field input[type="email"],
-.lrob-etk-cf-form-card .lrob-etk-field input[type="number"],
-.lrob-etk-cf-form-card .lrob-etk-field textarea,
-.lrob-etk-cf-form-card .lrob-etk-field .lrob-etk-select,
-.lrob-etk-cf-form-card .lrob-etk-field select {
+.lrob-etk-form-card .lrob-etk-field input[type="text"],
+.lrob-etk-form-card .lrob-etk-field input[type="email"],
+.lrob-etk-form-card .lrob-etk-field input[type="number"],
+.lrob-etk-form-card .lrob-etk-field textarea,
+.lrob-etk-form-card .lrob-etk-field .lrob-etk-select,
+.lrob-etk-form-card .lrob-etk-field select {
     width: 100%;
     max-width: 100%;
 }
@@ -96,39 +77,39 @@
 /* Title input — already styled by .lrob-etk-card-form-head .lrob-etk-title-input. */
 
 /* Defaults section — wrapped in a card with column layout inside. */
-.lrob-etk-cf-defaults {
+.lrob-etk-defaults {
     background: #fff;
     border: 1px solid var(--etk-line);
-    border-radius: 8px;
+    border-radius: var(--etk-radius-lg);
     padding: 16px 20px 18px;
     margin-top: 12px;
 }
-.lrob-etk-cf-defaults-columns {
+.lrob-etk-defaults-grid {
     /* Inherits .lrob-etk-modal-columns (2 cols). Style section sits full-width below. */
     margin-bottom: 18px;
 }
-.lrob-etk-cf-defaults .lrob-etk-form-column {
+.lrob-etk-defaults .lrob-etk-form-column {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
-.lrob-etk-cf-defaults .lrob-etk-form-column-head {
+.lrob-etk-defaults .lrob-etk-form-column-head {
     margin-bottom: 0;
 }
-.lrob-etk-cf-defaults .lrob-etk-field input[type="text"],
-.lrob-etk-cf-defaults .lrob-etk-field input[type="email"],
-.lrob-etk-cf-defaults .lrob-etk-field input[type="number"],
-.lrob-etk-cf-defaults .lrob-etk-field textarea,
-.lrob-etk-cf-defaults .lrob-etk-field .lrob-etk-select {
+.lrob-etk-defaults .lrob-etk-field input[type="text"],
+.lrob-etk-defaults .lrob-etk-field input[type="email"],
+.lrob-etk-defaults .lrob-etk-field input[type="number"],
+.lrob-etk-defaults .lrob-etk-field textarea,
+.lrob-etk-defaults .lrob-etk-field .lrob-etk-select {
     width: 100%;
     max-width: 100%;
 }
-.lrob-etk-cf-defaults-inline-pair {
+.lrob-etk-defaults-inline-pair {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
 }
-.lrob-etk-cf-defaults-inline-pair > div {
+.lrob-etk-defaults-inline-pair > div {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -138,46 +119,25 @@
  * 100%/box-sizing rule doesn't reach them. Without this they take their
  * natural size (input default ≈ 150px) and the right one overflows the
  * card border when the Anti-spam column gets narrow. */
-.lrob-etk-cf-defaults-inline-pair input {
+.lrob-etk-defaults-inline-pair input {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
 }
-.lrob-etk-cf-defaults-inline-pair label {
+.lrob-etk-defaults-inline-pair label {
     font-size: 12px;
     font-weight: 500;
     color: var(--etk-muted);
     text-transform: none;
 }
 
-/* Style section spans full width below the 2-col columns, but its inner
- * fields render as a 4-col grid so accent/radius/font-size sit side by side
- * rather than stretching across the whole page. */
-.lrob-etk-cf-style-section {
-    margin-top: 4px;
-    padding-top: 16px;
-    border-top: 1px solid var(--etk-line);
-}
-.lrob-etk-cf-style-section .lrob-etk-form-column-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
-}
-.lrob-etk-cf-style-section .lrob-etk-label-hint {
-    font-size: 11px;
-    color: var(--etk-muted);
-    text-transform: none;
-    font-weight: 400;
-}
-.lrob-etk-cf-style-grid {
+.lrob-etk-form-style-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;
 }
 
-.lrob-etk-cf-defaults .lrob-etk-card-footer {
+.lrob-etk-defaults .lrob-etk-card-footer {
     border-top: 1px solid var(--etk-line);
     padding-top: 14px;
     margin-top: 16px;
@@ -194,7 +154,7 @@
  * scoped under `.lrob-etk-form.is-editor` so it never affects published
  * forms. */
 
-.lrob-etk-cf-fields {
+.lrob-etk-form-fields {
     margin-top: 18px;
     padding-top: 14px;
     border-top: 1px solid var(--etk-line);
@@ -203,7 +163,7 @@
 /* Toolbar sitting directly above the form preview: undo/redo + save status.
  * Putting the save feedback next to where edits happen avoids the user
  * missing a "Save failed" indicator at the very top of the card. */
-.lrob-etk-cf-editor-toolbar {
+.lrob-etk-form-editor-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -211,70 +171,70 @@
     padding: 6px 4px 10px;
     min-height: 28px;
 }
-.lrob-etk-cf-editor-toolbar-actions {
+.lrob-etk-form-editor-toolbar-actions {
     display: inline-flex;
     align-items: center;
     gap: 2px;
 }
-.lrob-etk-cf-editor-toolbar-btn {
+.lrob-etk-form-editor-toolbar-btn {
     appearance: none;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     padding: 4px 6px;
     cursor: pointer;
     color: var(--etk-muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    transition: background var(--etk-transition), color var(--etk-transition), border-color var(--etk-transition);
 }
-.lrob-etk-cf-editor-toolbar-btn:hover:not(:disabled),
-.lrob-etk-cf-editor-toolbar-btn:focus-visible:not(:disabled) {
+.lrob-etk-form-editor-toolbar-btn:hover:not(:disabled),
+.lrob-etk-form-editor-toolbar-btn:focus-visible:not(:disabled) {
     color: var(--etk-fg);
     background: var(--etk-soft);
     border-color: var(--etk-line);
     outline: none;
 }
-.lrob-etk-cf-editor-toolbar-btn:disabled {
+.lrob-etk-form-editor-toolbar-btn:disabled {
     opacity: 0.35;
     cursor: default;
 }
 /* Primary add-field button — slightly more prominent than undo/redo so the
  * Gutenberg-style "drop a new field" action reads as the first move. */
-.lrob-etk-cf-editor-toolbar-btn--primary {
+.lrob-etk-form-editor-toolbar-btn--primary {
     color: var(--etk-accent);
     border-color: rgba(37, 99, 235, 0.35);
     margin-right: 4px;
 }
-.lrob-etk-cf-editor-toolbar-btn--primary:hover:not(:disabled),
-.lrob-etk-cf-editor-toolbar-btn--primary:focus-visible:not(:disabled) {
+.lrob-etk-form-editor-toolbar-btn--primary:hover:not(:disabled),
+.lrob-etk-form-editor-toolbar-btn--primary:focus-visible:not(:disabled) {
     background: rgba(37, 99, 235, 0.10);
     border-color: var(--etk-accent);
     color: var(--etk-accent);
 }
-.lrob-etk-cf-editor-toolbar-btn .dashicons {
+.lrob-etk-form-editor-toolbar-btn .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
     line-height: 1;
 }
-.lrob-etk-cf-editor-status {
+.lrob-etk-form-editor-status {
     font-size: 12px;
     color: var(--etk-muted);
     min-width: 0;
     text-align: right;
-    transition: color 0.12s ease;
+    transition: color var(--etk-transition);
 }
-.lrob-etk-cf-editor-status.is-saving { color: var(--etk-muted); }
-.lrob-etk-cf-editor-status.is-saved  { color: var(--etk-success); }
-.lrob-etk-cf-editor-status.is-error  { color: var(--etk-danger); }
+.lrob-etk-form-editor-status.is-saving { color: var(--etk-muted); }
+.lrob-etk-form-editor-status.is-saved  { color: var(--etk-success); }
+.lrob-etk-form-editor-status.is-error  { color: var(--etk-danger); }
 
 .lrob-etk-form.is-editor {
     position: relative;
-    background: #fdfdfe;
+    background: #fff;
     border: 1px solid var(--etk-line);
-    border-radius: 8px;
+    border-radius: var(--etk-radius-lg);
     padding: 14px 18px 18px;
 }
 
@@ -282,7 +242,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-col,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell {
     position: relative;
-    transition: outline-color 0.15s ease, opacity 0.15s ease;
+    transition: outline-color var(--etk-transition), opacity var(--etk-transition);
 }
 
 /* The frontend uses flex `gap` between body→rows and col→fields. The editor
@@ -304,7 +264,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell {
     outline: 1px dashed transparent;
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
 }
 /* Disable browser scroll-anchoring inside the editor. Without this, when
  * a hovered field grows (helper/strip/option reveals) the browser picks
@@ -363,13 +323,13 @@
     gap: 2px;
     background: #fff;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     padding: 2px 4px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
-    transition: opacity 0.12s ease, transform 0.12s ease;
+    transition: opacity var(--etk-transition), transform var(--etk-transition);
     z-index: 5;
     font-size: 11px;
 }
@@ -435,11 +395,11 @@
     cursor: pointer;
     color: var(--etk-muted);
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.12s ease, background 0.12s ease;
+    transition: color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-form-overlay-btn:hover {
     color: var(--etk-fg);
@@ -479,13 +439,13 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    border-radius: 999px;
+    border-radius: var(--etk-radius-pill);
     line-height: 1;
     position: relative;
     z-index: 5;
     opacity: 0;
     pointer-events: none; /* invisible inserts shouldn't intercept stray clicks */
-    transition: opacity 0.14s ease, background 0.12s ease, border-color 0.12s ease;
+    transition: opacity var(--etk-transition), background var(--etk-transition), border-color var(--etk-transition);
 }
 /* Visibility rules: an insert reveals itself when the user is over a
  * neighbouring block OR over the insert itself. With opacity-only fades,
@@ -536,7 +496,7 @@
     background: rgba(37, 99, 235, 0.18);
     border: 2px solid var(--etk-accent);
     box-shadow: 0 0 12px rgba(37, 99, 235, 0.28);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     color: transparent;
 }
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-drop-on-insert > * {
@@ -548,7 +508,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-col:has(> .lrob-etk-form-insert.is-drop-on-insert) {
     background: rgba(37, 99, 235, 0.08);
     box-shadow: inset 0 0 0 2px var(--etk-accent);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
 }
 
 /* Brief flash on a newly-inserted column so the user gets visible feedback
@@ -561,7 +521,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-col.is-just-inserted,
 .lrob-etk-form.is-editor .lrob-etk-form-row.is-just-inserted {
     animation: lrob-etk-form-col-flash 0.7s ease;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
 }
 .lrob-etk-form-insert-plus {
     font-size: 14px;
@@ -645,12 +605,12 @@
 /* --- Contenteditable cues --- */
 .lrob-etk-form.is-editor [contenteditable="plaintext-only"] {
     outline: none;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     padding: 1px 4px;
     margin: -1px -4px;
     border-bottom: 1px dotted transparent;
     cursor: text;
-    transition: border-color 0.12s ease, background 0.12s ease;
+    transition: border-color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-form.is-editor [contenteditable="plaintext-only"]:hover {
     border-bottom-color: var(--etk-muted);
@@ -676,7 +636,7 @@
     margin-top: -0.35em; /* cancels the field's flex gap when collapsed */
     overflow: hidden;
     pointer-events: none;
-    transition: max-height 0.22s ease, margin-top 0.22s ease, opacity 0.18s ease;
+    transition: max-height var(--etk-transition), margin-top var(--etk-transition), opacity var(--etk-transition);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover > .lrob-etk-form-field > .lrob-etk-form-helper.lrob-etk-form-helper-empty,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) > .lrob-etk-form-field > .lrob-etk-form-helper.lrob-etk-form-helper-empty,
@@ -723,7 +683,7 @@
     line-height: 1;
     font-weight: 700;
     opacity: 0.35;
-    transition: opacity 0.12s ease, color 0.12s ease;
+    transition: opacity var(--etk-transition), color var(--etk-transition);
 }
 .lrob-etk-form-required-star.is-on {
     opacity: 1;
@@ -763,8 +723,8 @@
     margin: 12px 0 0;
     padding: 8px 12px;
     background: var(--etk-warning-bg);
-    color: #996800;
-    border-radius: 4px;
+    color: var(--etk-text-warning);
+    border-radius: var(--etk-radius-sm);
     font-size: 12px;
 }
 
@@ -789,7 +749,7 @@
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: max-height 0.22s ease, margin-top 0.22s ease, padding 0.22s ease, border-top-width 0.22s ease, opacity 0.18s ease;
+    transition: max-height var(--etk-transition), margin-top var(--etk-transition), padding var(--etk-transition), border-top-width var(--etk-transition), opacity var(--etk-transition);
     /* `.lrob-etk-form-field` is a flex column whose `align-items` shifts
      * when the user picks Submit/Captcha alignment. Without this override
      * the strip itself slides with that alignment, dragging the chip
@@ -836,7 +796,7 @@
     font-size: 12px;
     line-height: 1.3;
     border: 1px solid var(--etk-line);
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     background: #fff;
     color: var(--etk-fg);
     box-sizing: border-box;
@@ -861,7 +821,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-inline-segmented {
     display: inline-flex;
     border: 1px solid var(--etk-line);
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     overflow: hidden;
 }
 .lrob-etk-form.is-editor .lrob-etk-form-inline-seg {
@@ -903,7 +863,7 @@
     line-height: 1;
     width: 22px;
     height: 22px;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     padding: 0;
     flex: 0 0 auto;
     max-width: 0;
@@ -911,7 +871,7 @@
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: max-width 0.18s ease, margin-left 0.18s ease, opacity 0.18s ease, color 0.12s ease;
+    transition: max-width var(--etk-transition), margin-left var(--etk-transition), opacity var(--etk-transition), color var(--etk-transition);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-form-option-default,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-form-option-default,
@@ -938,7 +898,7 @@
     content: '';
     position: absolute;
     background: var(--etk-accent);
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     pointer-events: none;
     box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
     z-index: 7;
@@ -959,7 +919,7 @@
     margin: 4px 0;
     background: #fff;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     box-shadow: 0 4px 14px rgba(0,0,0,.1);
     padding: 4px;
     display: grid;
@@ -975,7 +935,7 @@
     text-align: left;
     font-size: 12px;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     color: var(--etk-fg);
 }
 .lrob-etk-form-type-picker button:hover { background: var(--etk-soft); }
@@ -998,7 +958,7 @@
 }
 .lrob-etk-cf-new-picker-inner {
     background: #fff;
-    border-radius: 12px;
+    border-radius: var(--etk-radius-xl);
     box-shadow: 0 10px 40px rgba(0,0,0,.2);
     width: 100%;
     max-width: 800px;
@@ -1036,11 +996,11 @@
     appearance: none;
     background: #fff;
     border: 1px solid var(--etk-line);
-    border-radius: 6px;
+    border-radius: var(--etk-radius-md);
     padding: 12px 14px;
     cursor: pointer;
     text-align: left;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    transition: border-color var(--etk-transition), box-shadow var(--etk-transition), background var(--etk-transition);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -1049,7 +1009,7 @@
 .lrob-etk-cf-picker-card:hover {
     border-color: var(--etk-accent);
     box-shadow: 0 2px 8px rgba(0,0,0,.06);
-    background: #f0f6fc;
+    background: var(--etk-accent-bg);
 }
 .lrob-etk-cf-picker-card:disabled {
     opacity: 0.6;
@@ -1077,14 +1037,14 @@
     padding: 32px 24px;
     background: linear-gradient(180deg, #f6f8fb, #eef2ff);
     border: 1px solid var(--etk-line);
-    border-radius: 12px;
+    border-radius: var(--etk-radius-xl);
     margin-bottom: 24px;
 }
 .lrob-etk-cf-onboard-icon {
     font-size: 40px;
     width: 40px;
     height: 40px;
-    color: #2563eb;
+    color: var(--etk-accent);
 }
 .lrob-etk-cf-onboard-title {
     margin: 0;
@@ -1106,22 +1066,28 @@
  * WYSIWYG editor; "Advanced" is a collapsed <details> below the editor
  * (Email + Anti-spam + Throttling sub-blocks).
  */
-.lrob-etk-cf-essentials {
+.lrob-etk-form-essentials {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     gap: 16px;
     margin-bottom: 14px;
 }
 @media (max-width: 720px) {
-    .lrob-etk-cf-essentials { grid-template-columns: 1fr; }
+    .lrob-etk-form-essentials { grid-template-columns: 1fr; }
 }
-.lrob-etk-cf-style-group {
+.lrob-etk-form-style-group {
     margin-bottom: 14px;
-    padding-top: 4px;
+    padding-top: 12px;
     border-top: 1px solid var(--etk-soft);
 }
-.lrob-etk-cf-section-title {
-    margin: 8px 0 8px;
+/* Card-internal section title: smaller, uppercase, no border (the parent
+ * section provides its own separator). The big page-level border-top
+ * variant lives in admin-base.css under the same name. */
+.lrob-etk-card .lrob-etk-section-title,
+.lrob-etk-form-style-group .lrob-etk-section-title {
+    margin: 0 0 8px;
+    padding-top: 0;
+    border-top: none;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -1129,12 +1095,12 @@
     color: var(--etk-muted);
 }
 
-.lrob-etk-cf-advanced {
+.lrob-etk-form-advanced {
     margin-top: 14px;
     border-top: 1px solid var(--etk-line);
     padding-top: 8px;
 }
-.lrob-etk-cf-advanced-summary {
+.lrob-etk-advanced-summary {
     cursor: pointer;
     list-style: none;
     display: flex;
@@ -1144,139 +1110,153 @@
     color: var(--etk-fg);
     user-select: none;
 }
-.lrob-etk-cf-advanced-summary::-webkit-details-marker {
+.lrob-etk-advanced-summary::-webkit-details-marker {
     display: none;
 }
-.lrob-etk-cf-advanced-caret {
+.lrob-etk-advanced-caret {
     display: inline-block;
     color: var(--etk-muted);
-    transition: transform 0.15s ease;
+    transition: transform var(--etk-transition);
     font-size: 12px;
     width: 12px;
     text-align: center;
 }
-.lrob-etk-cf-advanced[open] .lrob-etk-cf-advanced-caret {
+.lrob-etk-form-advanced[open] .lrob-etk-advanced-caret {
     transform: rotate(90deg);
 }
-.lrob-etk-cf-advanced-label {
+.lrob-etk-advanced-label {
     font-weight: 600;
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
 }
-.lrob-etk-cf-advanced-meta {
+.lrob-etk-advanced-meta {
     margin-left: auto;
     font-size: 12px;
     color: var(--etk-muted);
 }
-.lrob-etk-cf-advanced-meta strong {
+.lrob-etk-advanced-meta strong {
     color: var(--etk-fg);
     font-weight: 600;
 }
-.lrob-etk-cf-advanced-body {
+.lrob-etk-advanced-body {
     padding-top: 6px;
 }
 
 /* ---------- Recipient list (one row per email) ---------- */
-.lrob-etk-cf-recipients {
+.lrob-etk-recipient-list {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
-.lrob-etk-cf-recipients-rows {
+.lrob-etk-recipient-list-rows {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
-.lrob-etk-cf-recipient-row {
+.lrob-etk-recipient-row {
     display: flex;
     align-items: stretch;
     gap: 4px;
 }
-.lrob-etk-cf-recipient-input {
+/* Input + pick share a single bordered shell — same visual idiom as the
+ * combobox (input glued to its dropdown trigger). The pick is a
+ * borderless trigger with just a left separator, mirroring
+ * .lrob-etk-combo-toggle. Remove button stays standalone (destructive). */
+.lrob-etk-recipient-shell {
     flex: 1;
     min-width: 0;
-    height: 30px;
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--etk-line);
+    background: #fff;
+    border-radius: var(--etk-radius-sm);
+    overflow: hidden;
+    transition: border-color var(--etk-transition);
 }
-.lrob-etk-cf-recipient-pick,
-.lrob-etk-cf-recipient-remove {
+.lrob-etk-recipient-shell:focus-within {
+    border-color: var(--etk-accent);
+}
+.lrob-etk-recipient-input {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    border: none;
+    background: transparent;
+    padding: 0 6px;
+    outline: none;
+    box-shadow: none;
+}
+.lrob-etk-recipient-pick {
+    flex: 0 0 auto;
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--etk-soft);
+    padding: 0 8px;
+    color: var(--etk-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    transition: color var(--etk-transition), background var(--etk-transition);
+}
+.lrob-etk-recipient-pick:hover {
+    background: var(--etk-soft);
+    color: var(--etk-fg);
+}
+.lrob-etk-recipient-pick .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+.lrob-etk-recipient-remove {
     flex: 0 0 auto;
     width: 30px;
     height: 30px;
     padding: 0;
     border: 1px solid var(--etk-line);
     background: #fff;
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     cursor: pointer;
     color: var(--etk-muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+    transition: border-color var(--etk-transition), color var(--etk-transition), background var(--etk-transition);
 }
-.lrob-etk-cf-recipient-pick:hover {
-    border-color: var(--etk-accent);
-    color: var(--etk-accent);
-}
-.lrob-etk-cf-recipient-remove:hover {
+.lrob-etk-recipient-remove:hover {
     border-color: var(--etk-danger);
     color: var(--etk-danger);
     background: var(--etk-danger-bg);
 }
-.lrob-etk-cf-recipient-pick .dashicons,
-.lrob-etk-cf-recipient-remove .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+.lrob-etk-recipient-remove .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
     line-height: 1;
 }
-.lrob-etk-cf-recipient-add {
+.lrob-etk-recipient-add {
     align-self: flex-start;
     margin-top: 2px;
     display: inline-flex !important;
     align-items: center;
     gap: 4px;
 }
-.lrob-etk-cf-recipient-add .dashicons {
+.lrob-etk-recipient-add .dashicons {
     font-size: 14px;
     width: 14px;
     height: 14px;
     line-height: 1;
 }
 
-/* Pick-known menu floats out of the card; position is set in JS. */
-.lrob-etk-cf-recipient-menu {
-    position: fixed;
-    z-index: 200000;
-    background: #fff;
-    border: 1px solid var(--etk-line);
-    border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    padding: 4px 0;
-    min-width: 220px;
-    max-width: 360px;
-    max-height: 280px;
-    overflow-y: auto;
-}
-.lrob-etk-cf-recipient-menu-item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: transparent;
-    border: 0;
-    padding: 6px 12px;
-    font-size: 13px;
-    cursor: pointer;
-    color: var(--etk-fg);
-}
-.lrob-etk-cf-recipient-menu-item:hover {
-    background: var(--etk-soft);
-    color: var(--etk-accent);
-}
+/* Recipient picker menu chrome lives in admin-components.css:
+ *   .lrob-etk-menu + .lrob-etk-menu--fixed + .lrob-etk-menu-item */
 
 /* ---------- Recipient warning (no recipient set anywhere) ---------- */
-.lrob-etk-cf-warning {
+.lrob-etk-banner-warning {
     display: flex;
     align-items: flex-start;
     gap: 8px;
@@ -1284,12 +1264,12 @@
     margin: 0 0 8px;
     background: var(--etk-warning-bg);
     border-left: 3px solid var(--etk-warning);
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     font-size: 12px;
-    color: #735900;
+    color: var(--etk-text-warning);
     line-height: 1.4;
 }
-.lrob-etk-cf-warning .dashicons {
+.lrob-etk-banner-warning .dashicons {
     flex: 0 0 auto;
     font-size: 16px;
     width: 16px;
@@ -1299,8 +1279,8 @@
 }
 
 /* Make labels inside the advanced section align the tooltip neatly. */
-.lrob-etk-cf-advanced-body .lrob-etk-field > label,
-.lrob-etk-cf-advanced-body .lrob-etk-form-column-head {
+.lrob-etk-advanced-body .lrob-etk-field > label,
+.lrob-etk-advanced-body .lrob-etk-form-column-head {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -1316,18 +1296,18 @@
  * whose min-width was overruling our 1fr cap, so Anti-spam ended up
  * wider than Email despite the rule. Forcing minmax(0, …) lets the
  * columns actually honour the 1.7 : 1 ratio. */
-.lrob-etk-cf-form-card .lrob-etk-cf-advanced-body .lrob-etk-modal-columns,
-.lrob-etk-cf-defaults .lrob-etk-cf-defaults-columns {
+.lrob-etk-form-card .lrob-etk-advanced-body .lrob-etk-modal-columns,
+.lrob-etk-defaults .lrob-etk-defaults-grid {
     grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) !important;
 }
 @media (max-width: 720px) {
-    .lrob-etk-cf-form-card .lrob-etk-cf-advanced-body .lrob-etk-modal-columns,
-    .lrob-etk-cf-defaults .lrob-etk-cf-defaults-columns {
+    .lrob-etk-form-card .lrob-etk-advanced-body .lrob-etk-modal-columns,
+    .lrob-etk-defaults .lrob-etk-defaults-grid {
         grid-template-columns: 1fr !important;
     }
 }
 
-.lrob-etk-cf-form-card .lrob-etk-field textarea {
+.lrob-etk-form-card .lrob-etk-field textarea {
     resize: vertical;
     min-height: 30px;
     line-height: 1.4;
@@ -1337,7 +1317,7 @@
 /* "Using default: …" hint below an inheriting field. Hidden as soon as
  * the user types (auto-save JS flips the hidden attribute). Smaller +
  * italic so it doesn't compete with the input itself. */
-.lrob-etk-cf-default-hint {
+.lrob-etk-default-hint {
     margin: 4px 0 0;
     font-size: 11px;
     color: var(--etk-muted);
@@ -1356,8 +1336,8 @@
     padding: 0;
     background: transparent;
     border: 1px dashed transparent;
-    border-radius: 6px;
-    transition: padding 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    border-radius: var(--etk-radius-md);
+    transition: padding var(--etk-transition), background var(--etk-transition), border-color var(--etk-transition);
 }
 
 /* Captcha alignment in the editor preview — applies to the widget slot
@@ -1376,7 +1356,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active > .lrob-etk-form-field--captcha.is-editor-stub,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within > .lrob-etk-form-field--captcha.is-editor-stub {
     padding: 12px 14px;
-    background: #fafbfc;
+    background: var(--etk-soft);
     border-color: var(--lrob-etk-cf-border, #cbd5e1);
 }
 .lrob-etk-form-captcha-stub-head {
@@ -1389,7 +1369,7 @@
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: max-height 0.22s ease, margin-bottom 0.22s ease, opacity 0.18s ease;
+    transition: max-height var(--etk-transition), margin-bottom var(--etk-transition), opacity var(--etk-transition);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-form-captcha-stub-head,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-form-captcha-stub-head,
@@ -1422,7 +1402,7 @@
     height: 30px;
     padding: 4px 8px;
     border: 1px solid var(--etk-line);
-    border-radius: 4px;
+    border-radius: var(--etk-radius-sm);
     background: #fff;
     font-size: 13px;
     color: var(--etk-fg);
@@ -1471,7 +1451,7 @@
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: max-height 0.22s ease, margin-top 0.22s ease, margin-bottom 0.22s ease, opacity 0.18s ease;
+    transition: max-height var(--etk-transition), margin-top var(--etk-transition), margin-bottom var(--etk-transition), opacity var(--etk-transition);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-form-field--select .lrob-etk-form-options[data-options-inline],
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-form-field--select .lrob-etk-form-options[data-options-inline],
@@ -1505,10 +1485,10 @@
     flex: 1;
     min-width: 0;
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     border-bottom: 1px dashed transparent;
     cursor: text;
-    transition: border-color 0.12s ease, background 0.12s ease;
+    transition: border-color var(--etk-transition), background var(--etk-transition);
     /* Long single-word labels would otherwise push past the right edge of
      * the option row in narrow columns. anywhere covers the no-whitespace
      * case; the row's flex layout handles the rest. */
@@ -1536,7 +1516,7 @@
     font-size: 16px;
     line-height: 1;
     height: 22px;
-    border-radius: 3px;
+    border-radius: var(--etk-radius-sm);
     padding: 0;
     flex: 0 0 auto;
     max-width: 0;
@@ -1544,7 +1524,7 @@
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: max-width 0.18s ease, margin-left 0.18s ease, opacity 0.18s ease, color 0.12s ease, background 0.12s ease;
+    transition: max-width var(--etk-transition), margin-left var(--etk-transition), opacity var(--etk-transition), color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-form-option-remove,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-form-option-remove,
@@ -1566,7 +1546,7 @@
     border: 1px dashed var(--etk-line-strong);
     color: var(--etk-muted);
     padding: 0 12px;
-    border-radius: 999px;
+    border-radius: var(--etk-radius-pill);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -1577,7 +1557,7 @@
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: max-height 0.22s ease, margin-top 0.22s ease, padding 0.22s ease, border-width 0.22s ease, opacity 0.18s ease, border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+    transition: max-height var(--etk-transition), margin-top var(--etk-transition), padding var(--etk-transition), border-width var(--etk-transition), opacity var(--etk-transition), border-color var(--etk-transition), color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-form-option-add,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-form-option-add,
@@ -1609,13 +1589,13 @@
     align-self: flex-start;
     margin: 6px 0 12px;
     padding: 6px 12px;
-    border-radius: 999px;
+    border-radius: var(--etk-radius-pill);
     background: var(--etk-soft);
     color: var(--etk-text);
     font-size: 13px;
     text-decoration: none;
     border: 1px solid transparent;
-    transition: border-color 0.12s ease, background 0.12s ease;
+    transition: border-color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-cf-submissions-link:hover,
 .lrob-etk-cf-submissions-link:focus {
@@ -1631,10 +1611,10 @@
 .lrob-etk-cf-submissions-link-sep { color: var(--etk-text-muted); opacity: 0.6; }
 .lrob-etk-cf-submissions-link-arrow { color: var(--etk-text-muted); margin-left: 2px; }
 
-.lrob-etk-cf-form-deleted {
+.lrob-etk-form-deleted {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: var(--etk-radius-pill);
     background: rgba(0, 0, 0, 0.06);
     color: var(--etk-text-muted);
     font-size: 12px;
@@ -1663,30 +1643,20 @@
     font-size: 12px;
 }
 
-/* Detail view: metadata + payload side-by-side on wide screens, stacked on narrow. */
-.lrob-etk-cf-detail-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
-    gap: 18px;
-    margin-top: 12px;
-}
-@media (max-width: 900px) {
-    .lrob-etk-cf-detail-grid { grid-template-columns: minmax(0, 1fr); }
-}
-.lrob-etk-cf-detail-card {
+.lrob-etk-detail-card {
     background: var(--etk-card-bg, #fff);
     border: 1px solid var(--etk-soft);
-    border-radius: 12px;
+    border-radius: var(--etk-radius-xl);
     padding: 16px 18px;
 }
-.lrob-etk-cf-detail-card h2 {
+.lrob-etk-detail-card h2 {
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-text-muted);
     margin: 0 0 12px;
 }
-.lrob-etk-cf-detail-meta {
+.lrob-etk-detail-meta {
     display: grid;
     grid-template-columns: minmax(0, 110px) minmax(0, 1fr);
     column-gap: 12px;
@@ -1694,28 +1664,28 @@
     margin: 0;
     font-size: 13px;
 }
-.lrob-etk-cf-detail-meta dt {
+.lrob-etk-detail-meta dt {
     color: var(--etk-text-muted);
     font-weight: 500;
 }
-.lrob-etk-cf-detail-meta dd {
+.lrob-etk-detail-meta dd {
     margin: 0;
     word-break: break-word;
 }
-.lrob-etk-cf-detail-meta code { font-size: 12px; }
-.lrob-etk-cf-detail-meta .lrob-etk-cf-ua {
+.lrob-etk-detail-meta code { font-size: 12px; }
+.lrob-etk-detail-meta .lrob-etk-ua-code {
     display: inline-block;
     max-width: 100%;
     overflow-wrap: anywhere;
     word-break: break-all;
 }
-.lrob-etk-cf-detail-payload {
+.lrob-etk-detail-payload {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 10px 14px;
     margin: 0;
 }
-.lrob-etk-cf-detail-payload dt {
+.lrob-etk-detail-payload dt {
     color: var(--etk-text-muted);
     font-weight: 600;
     font-size: 12px;
@@ -1723,15 +1693,15 @@
     letter-spacing: 0.04em;
     margin-top: 4px;
 }
-.lrob-etk-cf-detail-payload dt:first-child { margin-top: 0; }
-.lrob-etk-cf-detail-payload dd {
+.lrob-etk-detail-payload dt:first-child { margin-top: 0; }
+.lrob-etk-detail-payload dd {
     margin: 0 0 6px;
     font-size: 14px;
     word-break: break-word;
 }
-.lrob-etk-cf-detail-textarea {
+.lrob-etk-detail-textarea {
     background: var(--etk-soft);
-    border-radius: 6px;
+    border-radius: var(--etk-radius-md);
     padding: 10px 12px;
     white-space: pre-wrap;
     word-break: break-word;
@@ -1739,7 +1709,7 @@
     font-family: inherit;
     font-size: 14px;
 }
-.lrob-etk-cf-detail-list {
+.lrob-etk-detail-list {
     margin: 0;
     padding-left: 18px;
 }
@@ -1752,7 +1722,7 @@
     padding: 18px 20px;
     background: var(--etk-card-bg, #fff);
     border: 1px solid var(--etk-soft);
-    border-radius: 12px;
+    border-radius: var(--etk-radius-xl);
 }
 .lrob-etk-cf-submissions-panel-head {
     display: flex;
@@ -1775,11 +1745,11 @@
     gap: 4px;
     padding: 12px 14px;
     background: var(--etk-soft);
-    border-radius: 10px;
+    border-radius: var(--etk-radius-xl);
     text-decoration: none;
     color: var(--etk-text);
     border: 1px solid transparent;
-    transition: border-color 0.12s ease, background 0.12s ease;
+    transition: border-color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-cf-submissions-stat:hover,
 .lrob-etk-cf-submissions-stat:focus {
@@ -1794,7 +1764,7 @@
     border: 1px dashed var(--etk-soft);
 }
 .lrob-etk-cf-submissions-stat.is-failed {
-    color: #b91c1c;
+    color: var(--etk-text-danger);
 }
 .lrob-etk-cf-submissions-stat-value {
     font-size: 20px;
@@ -1815,77 +1785,58 @@
     padding-top: 14px;
     border-top: 1px solid var(--etk-soft);
 }
-.lrob-etk-cf-defaults-grid {
+.lrob-etk-defaults-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 12px 18px;
 }
 
-/* Detail view rework: single column, compact metadata strip at the top,
- * payload cards below, technical metadata in a collapsed details element. */
-.lrob-etk-cf-detail-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px 24px;
-    margin: 10px 0 18px;
-    padding: 12px 16px;
-    background: var(--etk-soft);
-    border-radius: 10px;
-    font-size: 13px;
-}
-.lrob-etk-cf-detail-strip-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-.lrob-etk-cf-detail-strip-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--etk-text-muted);
-}
-.lrob-etk-cf-detail-strip-value {
-    color: var(--etk-text);
-    font-weight: 500;
-}
-.lrob-etk-cf-detail-card--payload {
+/* .lrob-etk-detail-strip primitive lives in admin-components.css.
+ * Detail view rework: compact metadata strip at the top, payload cards
+ * below, technical metadata in a collapsed details element. */
+.lrob-etk-detail-card--payload {
     margin-top: 6px;
 }
-.lrob-etk-cf-detail-payload {
+.lrob-etk-detail-payload {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
     margin: 0;
 }
-.lrob-etk-cf-detail-row {
+.lrob-etk-detail-row {
     display: grid;
     grid-template-columns: minmax(140px, 220px) minmax(0, 1fr);
     gap: 16px;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--etk-soft);
+    /* Align the label baseline with the value's first text line — so a
+     * textarea-wrapped value (which has its own padding shifting the
+     * text down inside the box) doesn't make the label sit visibly
+     * higher than the message text. */
+    align-items: baseline;
 }
-.lrob-etk-cf-detail-row:last-child { border-bottom: 0; padding-bottom: 0; }
-.lrob-etk-cf-detail-row dt {
+.lrob-etk-detail-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.lrob-etk-detail-row dt {
     color: var(--etk-text-muted);
     font-weight: 600;
     font-size: 13px;
 }
-.lrob-etk-cf-detail-row dd {
+.lrob-etk-detail-row dd {
     margin: 0;
     font-size: 14px;
     word-break: break-word;
 }
 @media (max-width: 720px) {
-    .lrob-etk-cf-detail-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .lrob-etk-detail-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
 }
 
-.lrob-etk-cf-detail-tech {
+.lrob-etk-detail-tech {
     margin-top: 20px;
     padding: 12px 16px;
     background: var(--etk-soft);
-    border-radius: 10px;
+    border-radius: var(--etk-radius-xl);
 }
-.lrob-etk-cf-detail-tech > summary {
+.lrob-etk-detail-tech > summary {
     cursor: pointer;
     list-style: none;
     color: var(--etk-text-muted);
@@ -1894,13 +1845,13 @@
     align-items: center;
     gap: 6px;
 }
-.lrob-etk-cf-detail-tech > summary::-webkit-details-marker { display: none; }
-.lrob-etk-cf-detail-tech[open] .lrob-etk-cf-detail-tech-caret { transform: rotate(90deg); }
-.lrob-etk-cf-detail-tech-caret {
+.lrob-etk-detail-tech > summary::-webkit-details-marker { display: none; }
+.lrob-etk-detail-tech[open] .lrob-etk-detail-tech-caret { transform: rotate(90deg); }
+.lrob-etk-detail-tech-caret {
     display: inline-block;
-    transition: transform 0.15s ease;
+    transition: transform var(--etk-transition);
 }
-.lrob-etk-cf-detail-tech .lrob-etk-cf-detail-meta {
+.lrob-etk-detail-tech .lrob-etk-detail-meta {
     margin-top: 10px;
 }
 
@@ -1909,15 +1860,15 @@
 .lrob-etk-modal-dialog--small {
     max-width: 540px;
 }
-.lrob-etk-cf-delete-summary {
+.lrob-etk-delete-summary {
     margin: 0 0 8px;
 }
-.lrob-etk-cf-delete-warning {
+.lrob-etk-delete-warning {
     margin: 0;
     color: var(--etk-text-muted);
     font-style: italic;
 }
-.lrob-etk-cf-delete-footer {
+.lrob-etk-delete-footer {
     flex-wrap: wrap;
     gap: 8px;
 }
@@ -1928,4 +1879,555 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:not([data-attr-country_picker="1"]) [data-inline-chip="country_default"],
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:not([data-attr-country_picker="1"]) [data-inline-chip="country_auto_detect"] {
     display: none;
+}
+
+/* File-upload field chip visibility: only show the chips that apply to the
+ * current admin choices. max_count + total_size_mb need multi-file; the
+ * accept_custom text only matters under preset=custom; strip_exif under
+ * preset=images; allow_dangerous under preset=custom. */
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-attr-multiple="1"]) [data-inline-chip="max_count"],
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-attr-multiple="1"]) [data-inline-chip="total_size_mb"] {
+    display: none;
+}
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-attr-accept_preset="custom"]) [data-inline-chip="accept_custom"] {
+    display: none;
+}
+/* allow_dangerous chip only when the admin's custom list actually contains
+ * a Tier 2 extension (data-has-dangerous-custom is set by
+ * applyFileUploadPreview). Otherwise hidden, regardless of preset. */
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-has-dangerous-custom="1"]) [data-inline-chip="allow_dangerous"] {
+    display: none;
+}
+.lrob-etk-form.is-editor .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-attr-accept_preset="images"]) [data-inline-chip="strip_exif"] {
+    display: none;
+}
+
+/* Inline chip suffix (e.g. "(server max 8 MB)" next to the max-size input). */
+.lrob-etk-form.is-editor .lrob-etk-form-inline-chip-suffix {
+    font-size: 11px;
+    color: var(--etk-muted, var(--etk-muted));
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
+/* --- Submissions inbox: attached files section ----------------------
+ * Shown under the regular field-value table in the submission detail
+ * view. One group per source field, with image thumbs + PDF iframes
+ * inline and a download chip for everything else. */
+.lrob-etk-detail-card--files .lrob-etk-files-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: var(--etk-warning-bg);
+    border: 1px solid var(--etk-warning);
+    border-radius: var(--etk-radius-md);
+    color: var(--etk-text-warning);
+    font-size: 13px;
+}
+.lrob-etk-detail-card--files .lrob-etk-files-warning .dashicons {
+    color: var(--etk-text-warning);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+.lrob-etk-files-group {
+    margin-bottom: 24px;
+}
+.lrob-etk-files-group:last-child {
+    margin-bottom: 0;
+}
+.lrob-etk-files-group-label {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--etk-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lrob-etk-files-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 320px));
+    gap: 16px;
+}
+.lrob-etk-file-card {
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-lg);
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+.lrob-etk-file-thumb {
+    display: block;
+    background: var(--etk-soft);
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+.lrob-etk-file-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+.lrob-etk-file-pdf iframe {
+    width: 100%;
+    height: 420px;
+    border: 0;
+    background: var(--etk-soft);
+    display: block;
+}
+.lrob-etk-file-meta {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #f0f2f5;
+    background: var(--etk-soft);
+}
+.lrob-etk-file-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--etk-fg);
+    text-decoration: none;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.lrob-etk-file-name:hover {
+    color: var(--etk-accent);
+}
+.lrob-etk-file-name .dashicons {
+    flex: 0 0 auto;
+    color: var(--etk-muted);
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+.lrob-etk-file-size {
+    color: var(--etk-muted);
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+
+/* --- Submission confirm page (spam / delete) ------------------------
+ * Shown when admin clicks the spam/delete button from the email's
+ * footer. Mirrors WP's comment moderation pattern: summary + warning
+ * + Confirm / Cancel. */
+.lrob-etk-confirm-card {
+    max-width: 640px;
+    margin: 20px auto 0;
+    background: #fff;
+    border: 1px solid var(--etk-line-strong);
+    border-radius: var(--etk-radius-md);
+    padding: 24px 28px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+}
+.lrob-etk-confirm-summary {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: var(--etk-fg);
+}
+.lrob-etk-confirm-preview {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: var(--etk-soft);
+    border-left: 3px solid var(--etk-line-strong);
+    border-radius: 0 6px 6px 0;
+    color: var(--etk-muted);
+    font-style: italic;
+    font-size: 13px;
+}
+.lrob-etk-confirm-warn {
+    margin: 0 0 20px;
+    padding: 12px 14px;
+    background: var(--etk-danger-bg);
+    border: 1px solid var(--etk-danger-bg);
+    border-radius: var(--etk-radius-md);
+    color: var(--etk-text-danger);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+}
+.lrob-etk-confirm-warn .dashicons {
+    color: var(--etk-text-danger);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    margin-top: 1px;
+}
+.lrob-etk-confirm-info {
+    margin: 0 0 20px;
+    padding: 12px 14px;
+    background: var(--etk-warning-bg);
+    border: 1px solid var(--etk-warning);
+    border-radius: var(--etk-radius-md);
+    color: var(--etk-text-warning);
+    font-size: 13px;
+}
+.lrob-etk-confirm-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Warning banner under each file_upload field's preview when the form's
+ * "Save submissions" is effectively off AND the field is configured to
+ * save on the server (or both). Stays hidden otherwise. */
+.lrob-etk-form .lrob-etk-form-file-warning {
+    display: none;
+}
+.lrob-etk-form-card[data-save-effective-off="1"]
+    .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-attr-delivery="attachment"])
+    .lrob-etk-form-file-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 4px 0 0;
+    padding: 8px 10px;
+    background: var(--etk-warning-bg);
+    border: 1px solid var(--etk-warning);
+    border-radius: var(--etk-radius-md);
+    color: var(--etk-text-warning);
+    font-size: 12px;
+    line-height: 1.4;
+}
+.lrob-etk-form-card[data-save-effective-off="1"]
+    .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-attr-delivery="attachment"])
+    .lrob-etk-form-file-warning .dashicons {
+    color: var(--etk-text-warning);
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    margin-top: 1px;
+}
+
+/* --- Submissions inbox: bulk actions + filter loading state ----------- */
+.lrob-etk-list-region {
+    position: relative;
+    min-height: 200px;
+    transition: opacity var(--etk-transition);
+}
+.lrob-etk-list-region.is-loading {
+    opacity: 0.55;
+    pointer-events: none;
+}
+.lrob-etk-list-loading {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 60px;
+    z-index: 5;
+}
+.lrob-etk-list-region.is-loading .lrob-etk-list-loading {
+    display: flex;
+}
+.lrob-etk-list-loading .spinner {
+    float: none;
+    margin: 0;
+}
+
+.lrob-etk-bulk-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 12px 0 8px;
+}
+.lrob-etk-bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.lrob-etk-bulk-actions .lrob-etk-select {
+    min-width: 160px;
+}
+.lrob-etk-bulk-selected-count {
+    font-size: 12px;
+    color: var(--etk-muted);
+    background: var(--etk-soft);
+    padding: 2px 8px;
+    border-radius: var(--etk-radius-xl);
+}
+
+/* Checkbox column on the submissions list */
+.lrob-etk-cf-submissions-table .col-check {
+    width: 32px;
+    text-align: center;
+    padding-left: 8px;
+    padding-right: 4px;
+}
+.lrob-etk-cf-submissions-table .col-check input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Detail-page action buttons (spam/danger variants) */
+.lrob-etk-btn--spam.button {
+    color: var(--etk-text-warning);
+    border-color: #fbbf24;
+}
+.lrob-etk-btn--spam.button:hover {
+    background: var(--etk-warning-bg);
+    border-color: var(--etk-warning);
+}
+.lrob-etk-btn--danger.button {
+    color: var(--etk-text-danger);
+    border-color: var(--etk-danger-bg);
+}
+.lrob-etk-btn--danger.button:hover {
+    background: var(--etk-danger-bg);
+    border-color: #ef4444;
+}
+
+/* --- Confirm modal (inbox row + detail-page actions) ---------------- */
+.lrob-etk-confirm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.lrob-etk-confirm-modal.is-open {
+    display: flex;
+}
+.lrob-etk-confirm-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+}
+.lrob-etk-confirm-modal-panel {
+    position: relative;
+    background: #fff;
+    border-radius: var(--etk-radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    padding: 24px 28px;
+    max-width: 460px;
+    width: calc(100% - 32px);
+    z-index: 1;
+}
+.lrob-etk-confirm-modal-title {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--etk-fg);
+}
+.lrob-etk-confirm-modal-body {
+    margin: 0 0 20px;
+    color: var(--etk-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+.lrob-etk-confirm-modal-body:empty {
+    display: none;
+}
+.lrob-etk-confirm-modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Row-action danger/spam tints moved to admin-components.css as
+ * .lrob-etk-icon-btn--danger / --spam (used by row-action consumers
+ * which now spell out lrob-etk-icon-btn lrob-etk-icon-btn--ghost). */
+
+/* --- Detail modal (inbox click-to-view) ------------------------------
+ * The modal sits at a *fixed top offset* (not vertically centered) so
+ * navigating between submissions of different heights doesn't shift its
+ * frame around the screen — the prev/next arrows stay under the cursor
+ * between clicks. The panel itself has a fixed height with internal
+ * scroll so tall content scrolls inside the body. */
+.lrob-etk-detail-modal {
+    align-items: flex-start;
+    padding-top: 5vh;
+}
+.lrob-etk-detail-modal-panel {
+    position: relative;
+    background: #fff;
+    border-radius: var(--etk-radius-lg);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+    width: min(900px, calc(100% - 32px));
+    height: 88vh;
+    max-height: 88vh;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.lrob-etk-detail-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px 10px 18px;
+    border-bottom: 1px solid var(--etk-line);
+    background: #f9fafb;
+}
+.lrob-etk-detail-modal-title {
+    flex: 1 1 auto;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    text-align: left;
+    min-height: 22px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lrob-etk-detail-modal-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+}
+.lrob-etk-detail-modal-controls-spacer {
+    width: 1px;
+    height: 22px;
+    background: var(--etk-line);
+    margin: 0 6px;
+}
+.lrob-etk-detail-modal-action.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    height: auto;
+    line-height: 1.4;
+}
+.lrob-etk-detail-modal-action.button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+.lrob-etk-detail-modal-nav,
+.lrob-etk-detail-modal-close {
+    flex: 0 0 auto;
+    border: 0;
+    background: transparent;
+    color: var(--etk-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--etk-radius-md);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.lrob-etk-detail-modal-nav:hover:not(:disabled),
+.lrob-etk-detail-modal-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--etk-fg);
+}
+.lrob-etk-detail-modal-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+.lrob-etk-detail-modal-body {
+    overflow: auto;
+    padding: 20px 24px;
+    flex: 1;
+    /* Match the WP admin page background so the white cards inside the
+     * detail content stand out, just like they do on the full-page
+     * detail (the .wrap WP background is the same grey). Without this,
+     * white cards on a white modal body look flat. */
+    background: #f0f0f1;
+    /* Smooth dim during navigation — keeps the current content visible
+     * underneath, so no blank flash between adjacent submissions. */
+    transition: opacity 120ms ease;
+}
+.lrob-etk-detail-modal.is-loading .lrob-etk-detail-modal-body {
+    opacity: 0.55;
+}
+/* Within the modal body, give detail cards a touch more spacing between
+ * each other so the visual rhythm reads cleanly. */
+.lrob-etk-detail-modal-body .lrob-etk-detail-strip,
+.lrob-etk-detail-modal-body .lrob-etk-detail-card,
+.lrob-etk-detail-modal-body .lrob-etk-detail-tech {
+    margin-bottom: 14px;
+}
+.lrob-etk-detail-modal-body > :last-child {
+    margin-bottom: 0;
+}
+.lrob-etk-detail-modal-loading,
+.lrob-etk-detail-modal-error {
+    text-align: center;
+    color: var(--etk-muted);
+    padding: 40px 0;
+    font-size: 14px;
+}
+
+/* Active row highlight while the detail modal is open */
+.lrob-etk-cf-submissions-table tr.is-active {
+    background: #eff6ff !important;
+    box-shadow: inset 3px 0 0 var(--etk-accent);
+}
+
+/* --- Storage modal: Manual cleanup section ------------------------- */
+.lrob-etk-cleanup-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.lrob-etk-cleanup-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+.lrob-etk-cleanup-statuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-top: 8px;
+}
+.lrob-etk-cleanup-statuses label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+}
+.lrob-etk-cleanup-actions {
+    margin-top: 10px;
+}
+.lrob-etk-popover-section-title {
+    margin: 8px 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-text-muted, var(--etk-muted));
+}
+.lrob-etk-popover-section-title:first-child {
+    margin-top: 0;
+}
+
+/* Storage modal: dim + lock the dependent rows when save_submissions=off.
+ * The card carries `data-save-off` (added by JS in contact-form-admin.js)
+ * and we cascade visual cues to every `[data-storage-conditional]` block. */
+.lrob-etk-form-card[data-save-off] [data-storage-conditional] {
+    opacity: 0.45;
+    pointer-events: none;
+}
+.lrob-etk-form-card[data-save-off] [data-storage-conditional] input,
+.lrob-etk-form-card[data-save-off] [data-storage-conditional] select,
+.lrob-etk-form-card[data-save-off] [data-storage-conditional] button {
+    cursor: not-allowed;
+}
+
+/* Wider Storage modal so the new grid breathes. */
+.lrob-etk-modal-dialog--wide {
+    max-width: min(720px, calc(100% - 32px));
 }

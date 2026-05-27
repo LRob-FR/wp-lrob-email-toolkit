@@ -9,6 +9,7 @@ use LRob\EmailToolkit\Forms\FieldTypeRegistry;
 use LRob\EmailToolkit\Forms\Fields\CheckboxField;
 use LRob\EmailToolkit\Forms\Fields\DateField;
 use LRob\EmailToolkit\Forms\Fields\EmailField;
+use LRob\EmailToolkit\Forms\Fields\FileUploadField;
 use LRob\EmailToolkit\Forms\Fields\NumberField;
 use LRob\EmailToolkit\Forms\Fields\PhoneField;
 use LRob\EmailToolkit\Forms\Fields\RadioField;
@@ -18,8 +19,10 @@ use LRob\EmailToolkit\Forms\Fields\TextField;
 use LRob\EmailToolkit\Forms\Fields\TextareaField;
 use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\AjaxController;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\EmailActions;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\FormsPage;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\PageController;
+use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsAjax;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage;
 
 /**
@@ -65,7 +68,7 @@ final class Module extends AbstractModule
 
     public function db_version_int(): int
     {
-        return 4;
+        return 5;
     }
 
     public function install(): void
@@ -89,6 +92,10 @@ final class Module extends AbstractModule
      * v3 → v4: submissions table grew an `ip_address` column. Default empty
      * string means "raw IP not captured" (privacy-first default). dbDelta
      * handles the additive ALTER TABLE.
+     *
+     * v4 → v5: new `lrob_etk_contact_files` table for the file-upload field
+     * type. Submission JSON references file IDs; the actual file metadata
+     * + on-disk path live here. dbDelta creates the table on existing sites.
      */
     public function migrate(int $from_version, int $to_version): void
     {
@@ -100,6 +107,9 @@ final class Module extends AbstractModule
             self::migrate_captcha_routing_keys();
         }
         if ($from_version < 4) {
+            Schema::install();
+        }
+        if ($from_version < 5) {
             Schema::install();
         }
     }
@@ -218,8 +228,10 @@ final class Module extends AbstractModule
     {
         $rate_limiter = new RateLimiter();
         $submissions = new SubmissionRepository();
+        $files = new FileRepository();
         $this->container->set(RateLimiter::class, $rate_limiter);
         $this->container->set(SubmissionRepository::class, $submissions);
+        $this->container->set(FileRepository::class, $files);
 
         // Field types this CPT accepts. The shared form-builder dispatches
         // via the registry — adding a new field type here is the entry
@@ -236,6 +248,7 @@ final class Module extends AbstractModule
             $registry->register(CPT::POST_TYPE, new SelectField());
             $registry->register(CPT::POST_TYPE, new RadioField());
             $registry->register(CPT::POST_TYPE, new CheckboxField());
+            $registry->register(CPT::POST_TYPE, new FileUploadField());
             $registry->register(CPT::POST_TYPE, new SubmitField());
             // Shared captcha field, configured for the contact_form Captcha
             // routing context + the legacy META_CHALLENGE_KIND meta key.
@@ -248,8 +261,9 @@ final class Module extends AbstractModule
             (new Blocks())->register();
             (new Frontend())->register();
             $rate_limiter->register();
-            (new SubmitHandler($rate_limiter, $submissions))->register();
-            $retention = new SubmissionsRetentionCron($submissions);
+            (new SubmitHandler($rate_limiter, $submissions, $files))->register();
+            (new FileDownloadController($files))->register();
+            $retention = new SubmissionsRetentionCron($submissions, $files);
             $retention->register();
             $retention->schedule();
         }
@@ -264,6 +278,12 @@ final class Module extends AbstractModule
             $forms_page->register();
             (new PageController($this, $forms_page))->register();
             (new AjaxController())->register();
+            // Email action buttons (view/spam/delete) — handlers fire on
+            // admin_post regardless of which admin page is showing.
+            (new EmailActions($submissions, $files))->register();
+            // AJAX endpoints driving the submissions inbox: live filter
+            // updates + bulk spam/delete on selected rows.
+            (new SubmissionsAjax($submissions_page, $submissions, $files))->register();
         }
     }
 }
