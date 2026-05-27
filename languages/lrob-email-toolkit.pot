@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-27T19:48:14+00:00\n"
+"POT-Creation-Date: 2026-05-27T19:59:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -100,7 +100,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1491
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1517
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1565
-#: src/Modules/Newsletter/Module.php:834
+#: src/Modules/Newsletter/Module.php:836
 #: src/Modules/Newsletter/Send/SendAjaxController.php:730
 #: src/Modules/SMTP/Admin/AjaxController.php:385
 #: src/Modules/SMTP/Admin/PageController.php:50
@@ -733,7 +733,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1496
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1521
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1570
-#: src/Modules/Newsletter/Module.php:838
+#: src/Modules/Newsletter/Module.php:840
 msgid "Security check failed. Please retry."
 msgstr ""
 
@@ -813,7 +813,7 @@ msgstr ""
 #: src/Modules/Captcha/Admin/SettingsPage.php:498
 #: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/ContactForm/Admin/FormsPage.php:256
-#: src/Modules/Newsletter/Admin/FormsPage.php:683
+#: src/Modules/Newsletter/Admin/FormsPage.php:667
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
 msgstr ""
@@ -1837,20 +1837,20 @@ msgstr ""
 #: src/Forms/FieldRenderHelpers.php:168
 #: src/Forms/FieldRenderHelpers.php:356
 #: src/Modules/ContactForm/Admin/FormsPage.php:251
-#: src/Modules/Newsletter/Admin/FormsPage.php:677
+#: src/Modules/Newsletter/Admin/FormsPage.php:661
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:202
 #: src/Modules/ContactForm/Admin/FormsPage.php:211
-#: src/Modules/Newsletter/Admin/FormsPage.php:667
+#: src/Modules/Newsletter/Admin/FormsPage.php:651
 msgid "Required"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:210
 #: src/Modules/ContactForm/Admin/FormsPage.php:250
-#: src/Modules/Newsletter/Admin/FormsPage.php:676
+#: src/Modules/Newsletter/Admin/FormsPage.php:660
 msgid "(optional helper text)"
 msgstr ""
 
@@ -1916,8 +1916,8 @@ msgstr ""
 #: src/Modules/ContactForm/TemplateRegistry.php:102
 #: src/Modules/ContactForm/TemplateRegistry.php:122
 #: src/Modules/Newsletter/Admin/FormsPage.php:567
-#: src/Modules/Newsletter/Admin/FormsPage.php:603
-#: src/Modules/Newsletter/Admin/FormsPage.php:605
+#: src/Modules/Newsletter/Admin/FormsPage.php:604
+#: src/Modules/Newsletter/Admin/FormsPage.php:606
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:40
 #: src/Modules/Newsletter/FormTemplateRegistry.php:117
 #: src/Modules/Newsletter/FormTemplateRegistry.php:136
@@ -1940,7 +1940,7 @@ msgid "Dropdown"
 msgstr ""
 
 #: src/Forms/Fields/SubmitField.php:20
-#: src/Modules/Newsletter/Admin/FormsPage.php:570
+#: src/Modules/Newsletter/Admin/FormsPage.php:571
 msgid "Submit button"
 msgstr ""
 
@@ -1973,7 +1973,7 @@ msgstr ""
 
 #: src/Forms/FormEditorRenderer.php:167
 #: src/Modules/ContactForm/Admin/FormsPage.php:254
-#: src/Modules/Newsletter/Admin/FormsPage.php:680
+#: src/Modules/Newsletter/Admin/FormsPage.php:664
 msgid "Field"
 msgstr ""
 
@@ -2655,7 +2655,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:218
 #: src/Modules/Newsletter/Admin/AjaxController.php:508
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1578
-#: src/Modules/Newsletter/Module.php:849
+#: src/Modules/Newsletter/Module.php:851
 msgid "%s (copy)"
 msgstr ""
 
@@ -2784,32 +2784,32 @@ msgid "email@example.com"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:207
-#: src/Modules/Newsletter/Admin/FormsPage.php:663
+#: src/Modules/Newsletter/Admin/FormsPage.php:647
 msgid "Add field"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:208
-#: src/Modules/Newsletter/Admin/FormsPage.php:664
+#: src/Modules/Newsletter/Admin/FormsPage.php:648
 msgid "Field options"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:209
-#: src/Modules/Newsletter/Admin/FormsPage.php:665
+#: src/Modules/Newsletter/Admin/FormsPage.php:649
 msgid "Field slug"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:210
-#: src/Modules/Newsletter/Admin/FormsPage.php:666
+#: src/Modules/Newsletter/Admin/FormsPage.php:650
 msgid "Helper text"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:212
-#: src/Modules/Newsletter/Admin/FormsPage.php:668
+#: src/Modules/Newsletter/Admin/FormsPage.php:652
 msgid "Placeholder"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:213
-#: src/Modules/Newsletter/Admin/FormsPage.php:669
+#: src/Modules/Newsletter/Admin/FormsPage.php:653
 msgid "Max length"
 msgstr ""
 
@@ -2830,22 +2830,22 @@ msgid "Step"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:218
-#: src/Modules/Newsletter/Admin/FormsPage.php:681
+#: src/Modules/Newsletter/Admin/FormsPage.php:665
 msgid "Regex pattern"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:219
-#: src/Modules/Newsletter/Admin/FormsPage.php:682
+#: src/Modules/Newsletter/Admin/FormsPage.php:666
 msgid "Country code picker"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:221
-#: src/Modules/Newsletter/Admin/FormsPage.php:684
+#: src/Modules/Newsletter/Admin/FormsPage.php:668
 msgid "Auto-detect from browser"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:222
-#: src/Modules/Newsletter/Admin/FormsPage.php:685
+#: src/Modules/Newsletter/Admin/FormsPage.php:669
 msgid "Auto (locale)"
 msgstr ""
 
@@ -2909,39 +2909,39 @@ msgid "Add option"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:244
-#: src/Modules/Newsletter/Admin/FormsPage.php:670
+#: src/Modules/Newsletter/Admin/FormsPage.php:654
 msgid "Alignment"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:245
-#: src/Modules/Newsletter/Admin/FormsPage.php:671
+#: src/Modules/Newsletter/Admin/FormsPage.php:655
 msgid "Left"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:246
-#: src/Modules/Newsletter/Admin/FormsPage.php:672
+#: src/Modules/Newsletter/Admin/FormsPage.php:656
 msgid "Center"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:247
-#: src/Modules/Newsletter/Admin/FormsPage.php:673
+#: src/Modules/Newsletter/Admin/FormsPage.php:657
 msgid "Right"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:248
-#: src/Modules/Newsletter/Admin/FormsPage.php:674
+#: src/Modules/Newsletter/Admin/FormsPage.php:658
 msgid "Full width"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:249
-#: src/Modules/Newsletter/Admin/FormsPage.php:675
+#: src/Modules/Newsletter/Admin/FormsPage.php:659
 msgid "Toggle required"
 msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:252
 #: src/Modules/ContactForm/Admin/FormsPage.php:1260
 #: src/Modules/Newsletter/Admin/FormsPage.php:372
-#: src/Modules/Newsletter/Admin/FormsPage.php:678
+#: src/Modules/Newsletter/Admin/FormsPage.php:662
 #: src/Modules/Newsletter/Admin/HomePage.php:146
 msgid "Undo"
 msgstr ""
@@ -2949,7 +2949,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:253
 #: src/Modules/ContactForm/Admin/FormsPage.php:1268
 #: src/Modules/Newsletter/Admin/FormsPage.php:380
-#: src/Modules/Newsletter/Admin/FormsPage.php:679
+#: src/Modules/Newsletter/Admin/FormsPage.php:663
 msgid "Redo"
 msgstr ""
 
@@ -4147,7 +4147,7 @@ msgid "Send message"
 msgstr ""
 
 #: src/Modules/ContactForm/TemplateRegistry.php:117
-#: src/Modules/Newsletter/Admin/FormsPage.php:597
+#: src/Modules/Newsletter/Admin/FormsPage.php:598
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:38
 #: src/Modules/Newsletter/FormTemplateRegistry.php:110
 #: src/Modules/Newsletter/FormTemplateRegistry.php:129
@@ -4157,7 +4157,7 @@ msgid "First name"
 msgstr ""
 
 #: src/Modules/ContactForm/TemplateRegistry.php:118
-#: src/Modules/Newsletter/Admin/FormsPage.php:598
+#: src/Modules/Newsletter/Admin/FormsPage.php:599
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:39
 #: src/Modules/Newsletter/FormTemplateRegistry.php:111
 #: src/Modules/Newsletter/FormTemplateRegistry.php:130
@@ -4853,101 +4853,78 @@ msgid "Text (name, etc.)"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:568
-msgid "Dropdown (select)"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:569
-#: src/Modules/Newsletter/Fields/ListPicker.php:35
-msgid "List picker"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:588
-#: src/Modules/Newsletter/Admin/FormsPage.php:590
-#: src/Modules/Newsletter/SubscriberFields.php:53
-msgid "Full name"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:595
-msgid "First + Last name"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/FormsPage.php:610
-#: src/Modules/Newsletter/Admin/FormsPage.php:614
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:41
+#: src/Modules/Newsletter/Fields/GenderField.php:35
+#: src/Modules/Newsletter/Fields/GenderField.php:57
 #: src/Modules/Newsletter/FormTemplateRegistry.php:137
 #: src/Modules/Newsletter/PrefsRenderer.php:138
 #: src/Modules/Newsletter/SubscriberFields.php:63
 msgid "Gender"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:617
-#: src/Modules/Newsletter/FormTemplateRegistry.php:141
-#: src/Modules/Newsletter/SubscriberFields.php:72
-msgid "Female"
+#: src/Modules/Newsletter/Admin/FormsPage.php:569
+msgid "Dropdown (select)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:618
-#: src/Modules/Newsletter/FormTemplateRegistry.php:142
-#: src/Modules/Newsletter/SubscriberFields.php:73
-msgid "Male"
+#: src/Modules/Newsletter/Admin/FormsPage.php:570
+#: src/Modules/Newsletter/Fields/ListPicker.php:35
+msgid "List picker"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:619
-#: src/Modules/Newsletter/FormTemplateRegistry.php:143
-#: src/Modules/Newsletter/SubscriberFields.php:74
-msgid "Other"
+#: src/Modules/Newsletter/Admin/FormsPage.php:589
+#: src/Modules/Newsletter/Admin/FormsPage.php:591
+#: src/Modules/Newsletter/SubscriberFields.php:53
+msgid "Full name"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:620
-#: src/Modules/Newsletter/FormTemplateRegistry.php:144
-#: src/Modules/Newsletter/SubscriberFields.php:75
-msgid "Prefer not to say"
+#: src/Modules/Newsletter/Admin/FormsPage.php:596
+msgid "First + Last name"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:627
+#: src/Modules/Newsletter/Admin/FormsPage.php:611
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1326
 #: src/Modules/Newsletter/PrefsRenderer.php:151
 msgid "Postal address"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:629
-#: src/Modules/Newsletter/FormTemplateRegistry.php:149
+#: src/Modules/Newsletter/Admin/FormsPage.php:613
+#: src/Modules/Newsletter/FormTemplateRegistry.php:140
 #: src/Modules/Newsletter/PrefsRenderer.php:153
 #: src/Modules/Newsletter/SubscriberFields.php:57
 msgid "Street address"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:630
-#: src/Modules/Newsletter/FormTemplateRegistry.php:152
+#: src/Modules/Newsletter/Admin/FormsPage.php:614
+#: src/Modules/Newsletter/FormTemplateRegistry.php:143
 #: src/Modules/Newsletter/PrefsRenderer.php:157
 #: src/Modules/Newsletter/SubscriberFields.php:58
 msgid "Address line 2"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:631
-#: src/Modules/Newsletter/FormTemplateRegistry.php:155
+#: src/Modules/Newsletter/Admin/FormsPage.php:615
+#: src/Modules/Newsletter/FormTemplateRegistry.php:146
 #: src/Modules/Newsletter/PrefsRenderer.php:162
 #: src/Modules/Newsletter/SubscriberFields.php:59
 msgid "Postcode"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:632
-#: src/Modules/Newsletter/FormTemplateRegistry.php:156
+#: src/Modules/Newsletter/Admin/FormsPage.php:616
+#: src/Modules/Newsletter/FormTemplateRegistry.php:147
 #: src/Modules/Newsletter/PrefsRenderer.php:166
 #: src/Modules/Newsletter/SubscriberFields.php:60
 msgid "City"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:633
-#: src/Modules/Newsletter/FormTemplateRegistry.php:159
+#: src/Modules/Newsletter/Admin/FormsPage.php:617
+#: src/Modules/Newsletter/FormTemplateRegistry.php:150
 msgid "Country"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:686
+#: src/Modules/Newsletter/Admin/FormsPage.php:670
 msgid "Maps to"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/FormsPage.php:687
+#: src/Modules/Newsletter/Admin/FormsPage.php:671
 msgid "— (none)"
 msgstr ""
 
@@ -5164,7 +5141,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:99
 #: src/Modules/Newsletter/Admin/PageController.php:37
 #: src/Modules/Newsletter/Admin/PageController.php:38
-#: src/Modules/Newsletter/Module.php:57
+#: src/Modules/Newsletter/Module.php:58
 #: src/Modules/Newsletter/NewsletterCPT.php:131
 #: src/Modules/Newsletter/NewsletterCPT.php:141
 #: src/Modules/Newsletter/NewsletterCPT.php:142
@@ -6553,8 +6530,14 @@ msgstr ""
 #: src/Modules/Newsletter/FormTemplateRegistry.php:87
 #: src/Modules/Newsletter/FormTemplateRegistry.php:100
 #: src/Modules/Newsletter/FormTemplateRegistry.php:119
-#: src/Modules/Newsletter/FormTemplateRegistry.php:164
+#: src/Modules/Newsletter/FormTemplateRegistry.php:155
 msgid "Subscribe"
+msgstr ""
+
+#: src/Modules/Newsletter/Fields/GenderField.php:66
+#: src/Modules/Newsletter/FormTemplateRegistry.php:169
+#: src/Modules/Newsletter/PrefsRenderer.php:140
+msgid "—"
 msgstr ""
 
 #: src/Modules/Newsletter/Fields/ListPicker.php:52
@@ -6635,12 +6618,6 @@ msgstr ""
 msgid "Every profile field: name, gender, phone, postal address. Heavier but feeds segmentation rules."
 msgstr ""
 
-#: src/Modules/Newsletter/FormTemplateRegistry.php:140
-#: src/Modules/Newsletter/FormTemplateRegistry.php:178
-#: src/Modules/Newsletter/PrefsRenderer.php:140
-msgid "—"
-msgstr ""
-
 #: src/Modules/Newsletter/ListRepository.php:58
 msgid "Subscribers list"
 msgstr ""
@@ -6650,7 +6627,7 @@ msgid "WP users list"
 msgstr ""
 
 #: src/Modules/Newsletter/ListRepository.php:60
-#: src/Modules/Newsletter/Module.php:918
+#: src/Modules/Newsletter/Module.php:920
 msgid "All subscribers"
 msgstr ""
 
@@ -6722,46 +6699,46 @@ msgstr ""
 msgid "Roles"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:62
+#: src/Modules/Newsletter/Module.php:63
 msgid "Send newsletters to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline."
 msgstr ""
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
-#: src/Modules/Newsletter/Module.php:666
+#: src/Modules/Newsletter/Module.php:667
 msgid "%s subscriber"
 msgid_plural "%s subscribers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Newsletter/Module.php:842
+#: src/Modules/Newsletter/Module.php:844
 msgid "Unknown onboarding email purpose."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:865
+#: src/Modules/Newsletter/Module.php:867
 msgid "Could not create the template draft."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:898
+#: src/Modules/Newsletter/Module.php:900
 msgid "Newsletter: SMTP module not enabled"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:899
+#: src/Modules/Newsletter/Module.php:901
 msgid "Subscribe forms and the Newsletter admin work, but newsletter sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity."
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:901
+#: src/Modules/Newsletter/Module.php:903
 msgid "Open SMTP settings"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:923
+#: src/Modules/Newsletter/Module.php:925
 msgid "All WP members"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:931
+#: src/Modules/Newsletter/Module.php:933
 msgid "All WC customers"
 msgstr ""
 
-#: src/Modules/Newsletter/Module.php:939
+#: src/Modules/Newsletter/Module.php:941
 msgid "Active WC subscribers"
 msgstr ""
 
@@ -7112,6 +7089,22 @@ msgstr ""
 
 #: src/Modules/Newsletter/SubmitHandler.php:167
 msgid "Could not record your subscription. Please try again."
+msgstr ""
+
+#: src/Modules/Newsletter/SubscriberFields.php:72
+msgid "Female"
+msgstr ""
+
+#: src/Modules/Newsletter/SubscriberFields.php:73
+msgid "Male"
+msgstr ""
+
+#: src/Modules/Newsletter/SubscriberFields.php:74
+msgid "Other"
+msgstr ""
+
+#: src/Modules/Newsletter/SubscriberFields.php:75
+msgid "Prefer not to say"
 msgstr ""
 
 #: src/Modules/Newsletter/TemplateCPT.php:93

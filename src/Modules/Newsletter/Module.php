@@ -21,6 +21,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Admin\NewslettersPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SettingsPage;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\SubscribersPage;
+use LRob\EmailToolkit\Modules\Newsletter\Fields\GenderField;
 use LRob\EmailToolkit\Modules\Newsletter\Fields\ListPicker;
 use LRob\EmailToolkit\Modules\Newsletter\Send\Materializer;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
@@ -712,6 +713,7 @@ final class Module extends AbstractModule
                 FormCPT::POST_TYPE,
                 new SharedCaptchaField(CaptchaRouting::CONTEXT_NEWSLETTER, FormCPT::META_CAPTCHA_ROUTE)
             );
+            $registry->register(FormCPT::POST_TYPE, new GenderField());
             $registry->register(FormCPT::POST_TYPE, new ListPicker());
         }
 

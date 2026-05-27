@@ -254,7 +254,9 @@ These are enforced project-wide; the named memory file documents the why + how:
 
 Form fields can declare a **`maps_to`** attribute (added via the editor's "Maps to" chip — Newsletter forms only; Contact Form gets an empty `EDITOR_DATA.mapsToTargets` and the chip stays hidden). At subscribe time, `SubmitHandler::extract_mapped_profile` walks the structure, runs values through `SubscriberFields::sanitize`, and `write_mapped_profile` fans them onto the subscriber row.
 
-The Newsletter Forms picker also ships **field presets** (`FormsPage::field_presets()`) — *Full name*, *First + Last name*, *Phone*, *Gender* (select with M/F/Other/Prefer-not), *Postal address* (5 sub-fields). Picking a preset drops one or more pre-mapped fields in one shot.
+The Newsletter Forms picker also ships **field presets** (`FormsPage::field_presets()`) — *Full name*, *First + Last name*, *Phone*, *Postal address* (5 sub-fields). Picking a preset drops one or more pre-mapped fields in one shot.
+
+Newsletter-specific field types live module-local under `src/Modules/Newsletter/Fields/` and are registered against `FormCPT::POST_TYPE` only (not Contact Form): `CategoryPicker` (back-compat shim, retired post-v0.3.4), `ListPicker`, `GenderField`. Shared types in `src/Forms/Fields/` (text/email/phone/select/etc) get registered into both CPTs from the respective modules. The `gender` field is a dedicated type rather than a `select+maps_to=gender` preset — options come from `SubscriberFields::GENDER_VALUES`, labels are translated at render time, and `maps_to` is locked so admin can't accidentally rewire it.
 
 ## Form-builder WYSIWYG editor (`admin/js/form-fields-editor.js`)
 

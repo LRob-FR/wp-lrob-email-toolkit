@@ -134,16 +134,7 @@ final class FormTemplateRegistry
                 ])]),
                 self::row([
                     self::col([self::field('phone',  'phone',  __('Phone',  'lrob-email-toolkit'), false, ['maps_to' => 'phone'])]),
-                    self::col([self::field('select', 'gender', __('Gender', 'lrob-email-toolkit'), false, [
-                        'maps_to' => 'gender',
-                        'options' => [
-                            ['value' => '',                  'label' => __('—', 'lrob-email-toolkit')],
-                            ['value' => 'female',            'label' => __('Female', 'lrob-email-toolkit')],
-                            ['value' => 'male',              'label' => __('Male', 'lrob-email-toolkit')],
-                            ['value' => 'other',             'label' => __('Other', 'lrob-email-toolkit')],
-                            ['value' => 'prefer_not_to_say', 'label' => __('Prefer not to say', 'lrob-email-toolkit')],
-                        ],
-                    ])]),
+                    self::col([self::field('gender', 'gender', __('Gender', 'lrob-email-toolkit'), false, ['maps_to' => 'gender'])]),
                 ]),
                 self::row([self::col([
                     self::field('text', 'address_line', __('Street address', 'lrob-email-toolkit'), false, ['maps_to' => 'address_line']),

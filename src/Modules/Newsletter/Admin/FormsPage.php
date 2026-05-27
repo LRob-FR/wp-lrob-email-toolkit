@@ -565,6 +565,7 @@ final class FormsPage
             'email'            => __('Email', 'lrob-email-toolkit'),
             'text'             => __('Text (name, etc.)', 'lrob-email-toolkit'),
             'phone'            => __('Phone', 'lrob-email-toolkit'),
+            'gender'           => __('Gender', 'lrob-email-toolkit'),
             'select'           => __('Dropdown (select)', 'lrob-email-toolkit'),
             'list_picker'      => __('List picker', 'lrob-email-toolkit'),
             'submit'           => __('Submit button', 'lrob-email-toolkit'),
@@ -603,23 +604,6 @@ final class FormsPage
                 'label'  => __('Phone', 'lrob-email-toolkit'),
                 'fields' => [
                     ['type' => 'phone', 'label' => __('Phone', 'lrob-email-toolkit'), 'maps_to' => 'phone'],
-                ],
-            ],
-            [
-                'slug'   => 'gender',
-                'label'  => __('Gender', 'lrob-email-toolkit'),
-                'fields' => [
-                    [
-                        'type'    => 'select',
-                        'label'   => __('Gender', 'lrob-email-toolkit'),
-                        'maps_to' => 'gender',
-                        'options' => [
-                            ['value' => 'female',            'label' => __('Female', 'lrob-email-toolkit')],
-                            ['value' => 'male',              'label' => __('Male', 'lrob-email-toolkit')],
-                            ['value' => 'other',             'label' => __('Other', 'lrob-email-toolkit')],
-                            ['value' => 'prefer_not_to_say', 'label' => __('Prefer not to say', 'lrob-email-toolkit')],
-                        ],
-                    ],
                 ],
             ],
             [
