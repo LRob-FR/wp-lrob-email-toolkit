@@ -249,11 +249,13 @@ final class SubmitHandler
     /**
      * Resolve the list ids to add the new subscriber to:
      *   1. Explicit picker ticks, intersected with existing list ids.
-     *   2. Form's default list (META_DEFAULT_LIST_ID) — only when the
-     *      submission had no picker selections (empty $chosen_lists).
-     *      "Form had a picker but visitor ticked nothing" defers to
-     *      the visitor's choice; "form had no picker, admin set a
-     *      default" uses that default.
+     *   2. Form's default lists (META_DEFAULT_LIST_IDS, JSON array) —
+     *      only when the submission had no picker selections (empty
+     *      $chosen_lists). "Form had a picker but visitor ticked
+     *      nothing" defers to the visitor's choice; "form had no
+     *      picker, admin set defaults" uses those.
+     *   3. Legacy singular META_DEFAULT_LIST_ID fallback for forms
+     *      saved before the multi-list UI shipped.
      *
      * @param array<int, int> $chosen_lists
      * @return array<int, int>
@@ -263,11 +265,33 @@ final class SubmitHandler
         if ($chosen_lists !== []) {
             return $chosen_lists;
         }
-        $default = (int) get_post_meta($form_id, FormCPT::META_DEFAULT_LIST_ID, true);
-        if ($default <= 0) {
+        $defaults = [];
+        $raw = (string) get_post_meta($form_id, FormCPT::META_DEFAULT_LIST_IDS, true);
+        if ($raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $defaults = array_values(array_unique(array_filter(
+                    array_map('intval', $decoded),
+                    static fn ($n) => $n > 0
+                )));
+            }
+        }
+        if ($defaults === []) {
+            $legacy = (int) get_post_meta($form_id, FormCPT::META_DEFAULT_LIST_ID, true);
+            if ($legacy > 0) {
+                $defaults = [$legacy];
+            }
+        }
+        if ($defaults === []) {
             return [];
         }
-        return $this->lists->find($default) !== null ? [$default] : [];
+        $existing = [];
+        foreach ($defaults as $list_id) {
+            if ($this->lists->find($list_id) !== null) {
+                $existing[] = $list_id;
+            }
+        }
+        return $existing;
     }
 
     private function dispatch_confirmation(int $subscriber_id, string $email, string $name, int $form_id): void

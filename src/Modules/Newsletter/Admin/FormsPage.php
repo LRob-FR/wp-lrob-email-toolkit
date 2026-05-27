@@ -17,6 +17,8 @@ use LRob\EmailToolkit\Modules\ContactForm\Frontend as ContactFormFrontend;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 use LRob\EmailToolkit\Modules\Newsletter\FormRepository;
 use LRob\EmailToolkit\Modules\Newsletter\FormTemplateRegistry;
+use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
+use LRob\EmailToolkit\Modules\Newsletter\Lists\RuleRegistry;
 use LRob\EmailToolkit\Modules\Newsletter\TemplateCPT;
 use LRob\EmailToolkit\Modules\Newsletter\TemplateRepository;
 use LRob\EmailToolkit\Plugin;
@@ -262,13 +264,18 @@ final class FormsPage
                     </div>
 
                     <div class="lrob-etk-field">
-                        <label><?php esc_html_e('Default list', 'lrob-email-toolkit'); ?></label>
-                        <?php /* List CRUD lands with step 4; this picker stays disabled-with-placeholder until then. */ ?>
-                        <select class="lrob-etk-nl-field"
-                                data-key="<?php echo esc_attr(FormCPT::META_DEFAULT_LIST_ID); ?>"
-                                disabled>
-                            <option value="0"><?php esc_html_e('No automatic list — coming soon', 'lrob-email-toolkit'); ?></option>
-                        </select>
+                        <label>
+                            <?php esc_html_e('Default lists', 'lrob-email-toolkit'); ?>
+                            <button type="button"
+                                    class="lrob-etk-nl-field-link lrob-etk-nl-open-lists-modal"
+                                    title="<?php esc_attr_e('Manage lists', 'lrob-email-toolkit'); ?>">
+                                <?php esc_html_e('Manage lists →', 'lrob-email-toolkit'); ?>
+                            </button>
+                        </label>
+                        <?php self::render_default_lists_picker($form_id); ?>
+                        <p class="description">
+                            <?php esc_html_e('Confirmed subscribers from this form are added to every list picked here. Leave empty to skip auto-assignment.', 'lrob-email-toolkit'); ?>
+                        </p>
                     </div>
                 </section>
 
@@ -314,6 +321,172 @@ final class FormsPage
                 </footer>
             </form>
         </article>
+        <?php
+    }
+
+    /**
+     * Default-lists picker — same dropdown idiom as the newsletter
+     * card's audience picker (same CSS classes; behaviour driven by
+     * the shared admin/js/etk-audience-picker.js, parameterised via
+     * data attrs). Multi-select; persists the picked IDs to
+     * `META_DEFAULT_LIST_IDS` via the `default_list_ids` pseudo-key.
+     *
+     * Renders only the picker shell; the JS handles open/close,
+     * persist, and summary updates. Reuses every `.lrob-etk-nl-
+     * audience-*` style — no form-specific CSS needed.
+     */
+    private static function render_default_lists_picker(int $form_id): void
+    {
+        $repo = new ListRepository();
+        // Only admin-created Subscribers lists are eligible as a form
+        // default. System lists (All subscribers / All WP members /
+        // All WC customers / Active WC subscribers) are computed —
+        // adding a fresh subscriber to them either no-ops or makes
+        // no semantic sense. WP users lists are rule-based — they
+        // don't accept manual subscriber memberships at all.
+        $lists = array_values(array_filter(
+            $repo->list_all(),
+            static fn (array $row): bool =>
+                ListRepository::kind_of($row) === ListRepository::KIND_SUBSCRIBERS
+                && !ListRepository::is_system($row)
+        ));
+        $counts = $repo->member_counts();
+        $opted_out = $repo->opted_out_counts_per_list();
+        $rule_providers = RuleRegistry::all();
+
+        // Read both new (plural) + legacy (singular) so older forms
+        // pre-fill correctly on first render.
+        $raw = (string) get_post_meta($form_id, FormCPT::META_DEFAULT_LIST_IDS, true);
+        $picked = [];
+        if ($raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $picked = array_values(array_filter(array_map('intval', $decoded), static fn ($n) => $n > 0));
+            }
+        }
+        if ($picked === []) {
+            $legacy = (int) get_post_meta($form_id, FormCPT::META_DEFAULT_LIST_ID, true);
+            if ($legacy > 0) {
+                $picked = [$legacy];
+            }
+        }
+
+        $by_id = [];
+        foreach ($lists as $l) {
+            $by_id[(int) ($l['id'] ?? 0)] = $l;
+        }
+
+        // Group by kind; system rows pushed to the end. Same logic the
+        // newsletter audience picker uses — admins recognise the order.
+        $subs_lists = $user_lists = $subs_system = $user_system = [];
+        foreach ($lists as $list) {
+            $k = ListRepository::kind_of($list);
+            $is_sys = ListRepository::is_system($list);
+            if ($k === ListRepository::KIND_ALL_SUBSCRIBERS || $k === ListRepository::KIND_SUBSCRIBERS) {
+                $is_sys ? $subs_system[] = $list : $subs_lists[] = $list;
+            } elseif ($k === ListRepository::KIND_USERS) {
+                $is_sys ? $user_system[] = $list : $user_lists[] = $list;
+            }
+        }
+        $subs_lists = array_merge($subs_lists, $subs_system);
+        $user_lists = array_merge($user_lists, $user_system);
+
+        $summary = '';
+        if ($picked !== []) {
+            $names = [];
+            foreach ($picked as $lid) {
+                if (isset($by_id[$lid])) {
+                    $names[] = (string) ($by_id[$lid]['name'] ?? '');
+                }
+            }
+            $summary = implode(', ', $names);
+        }
+        ?>
+        <div class="lrob-etk-nl-audience"
+             data-audience-picker
+             data-audience-action="<?php echo esc_attr(AjaxController::ACTION_SAVE_META); ?>"
+             data-audience-key="default_list_ids"
+             data-audience-id-param="form_id"
+             data-audience-id="<?php echo (int) $form_id; ?>"
+             data-audience-nonce="<?php echo esc_attr(wp_create_nonce(AjaxController::NONCE_ACTION)); ?>"
+             data-audience-ajax-url="<?php echo esc_attr(admin_url('admin-ajax.php')); ?>"
+             data-audience-empty-label="<?php esc_attr_e('no automatic list', 'lrob-email-toolkit'); ?>">
+            <button type="button"
+                    class="lrob-etk-nl-audience-trigger"
+                    data-audience-toggle
+                    aria-haspopup="true"
+                    aria-expanded="false">
+                <span class="lrob-etk-nl-audience-summary">
+                    <em data-audience-lists-summary class="lrob-etk-nl-audience-summary-lists">
+                        <?php
+                        echo esc_html($summary !== ''
+                            ? $summary
+                            : __('no automatic list', 'lrob-email-toolkit'));
+                        ?>
+                    </em>
+                </span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+            </button>
+            <div class="lrob-etk-nl-audience-menu" data-audience-menu hidden role="menu">
+                <?php
+                $render_section = static function (string $title, array $section_lists) use ($counts, $opted_out, $picked, $rule_providers): void {
+                    if ($section_lists === []) return;
+                    ?>
+                    <div class="lrob-etk-nl-audience-section">
+                        <h4 class="lrob-etk-nl-audience-section-title"><?php echo esc_html($title); ?></h4>
+                        <ul class="lrob-etk-nl-audience-list">
+                            <?php foreach ($section_lists as $list) :
+                                $lid = (int) ($list['id'] ?? 0);
+                                if ($lid <= 0) continue;
+                                $cnt = (int) ($counts[$lid] ?? 0);
+                                $oo  = (int) ($opted_out[$lid] ?? 0);
+                                $checked = in_array($lid, $picked, true);
+                                $is_sys = ListRepository::is_system($list);
+                                $rule = ListRepository::decode_rule((string) ($list['rule_json'] ?? ''));
+                                $provider_slug = $rule['provider'] ?? '';
+                                ?>
+                                <li class="lrob-etk-nl-audience-item">
+                                    <label>
+                                        <input type="checkbox" data-audience-list="<?php echo $lid; ?>" <?php checked($checked); ?>>
+                                        <span class="lrob-etk-nl-audience-item-name"><?php echo esc_html((string) ($list['name'] ?? '')); ?></span>
+                                        <?php if ($is_sys) : ?>
+                                            <span class="lrob-etk-nl-list-system-badge"
+                                                  title="<?php esc_attr_e('Built-in list — cannot be renamed or deleted.', 'lrob-email-toolkit'); ?>">
+                                                <?php esc_html_e('System', 'lrob-email-toolkit'); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        <?php if ($provider_slug !== '' && isset($rule_providers[$provider_slug])) : ?>
+                                            <span class="lrob-etk-nl-list-provider-badge"
+                                                  title="<?php echo esc_attr($rule_providers[$provider_slug]->label()); ?>">
+                                                <?php echo esc_html($rule_providers[$provider_slug]->label()); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        <span class="lrob-etk-nl-audience-item-counts">
+                                            <?php if ($oo > 0) : ?>
+                                                <span class="lrob-etk-nl-audience-item-optout">
+                                                    <?php printf(
+                                                        /* translators: %s: number of opted-out users. */
+                                                        esc_html__('−%s opt-out', 'lrob-email-toolkit'),
+                                                        esc_html(number_format_i18n($oo))
+                                                    ); ?>
+                                                </span>
+                                            <?php endif; ?>
+                                            <span class="lrob-etk-nl-audience-item-count">
+                                                <?php echo esc_html(number_format_i18n($cnt)); ?>
+                                            </span>
+                                        </span>
+                                    </label>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <?php
+                };
+                $render_section(__('Subscribers lists', 'lrob-email-toolkit'), $subs_lists);
+                $render_section(__('WP users lists', 'lrob-email-toolkit'), $user_lists);
+                ?>
+            </div>
+        </div>
         <?php
     }
 

@@ -636,15 +636,23 @@ final class NewslettersPage
                             <label>
                                 <?php esc_html_e('Recipients', 'lrob-email-toolkit'); ?>
                                 <button type="button"
-                                        id="lrob-etk-nl-lists-btn"
-                                        class="lrob-etk-nl-field-link"
+                                        class="lrob-etk-nl-field-link lrob-etk-nl-open-lists-modal"
                                         title="<?php esc_attr_e('Manage lists', 'lrob-email-toolkit'); ?>">
                                     <?php esc_html_e('Manage lists →', 'lrob-email-toolkit'); ?>
                                 </button>
                             </label>
                             <div class="lrob-etk-nl-audience"
                                  data-audience-picker
-                                 data-newsletter-id="<?php echo (int) $post_id; ?>">
+                                 data-newsletter-id="<?php echo (int) $post_id; ?>"
+                                 data-audience-action="lrob_etk_nl_newsletter_save_meta"
+                                 data-audience-key="target_list_ids"
+                                 data-audience-id-param="newsletter_id"
+                                 data-audience-id="<?php echo (int) $post_id; ?>"
+                                 data-audience-saved-event="lrob-etk-nl-saved"
+                                 data-audience-saved-id-key="newsletterId"
+                                 data-audience-nonce="<?php echo esc_attr(wp_create_nonce(AjaxController::NONCE_ACTION)); ?>"
+                                 data-audience-ajax-url="<?php echo esc_attr(admin_url('admin-ajax.php')); ?>"
+                                 data-audience-empty-label="<?php esc_attr_e('no list picked — pick one to send', 'lrob-email-toolkit'); ?>">
                                 <button type="button"
                                         class="lrob-etk-nl-audience-trigger"
                                         data-audience-toggle
@@ -1149,122 +1157,6 @@ final class NewslettersPage
                 </div>
             </div>
         </div>
-        <script>
-        // Multi-list audience picker — a dropdown of grouped checkboxes
-        // (Subscribers / WP users), each with a per-list member count.
-        // Toggle persists immediately via `target_list_ids` pseudo-key;
-        // the recipient count auto-refreshes via the lrob-etk-nl-saved
-        // event (see newsletter-cards.js refreshRecipientCount).
-        (function () {
-            if (window.__lrobEtkNlAudiencePickerBound) return;
-            window.__lrobEtkNlAudiencePickerBound = true;
-
-            var i18nNoLists  = <?php echo wp_json_encode(__('no list picked — pick one to send', 'lrob-email-toolkit')); ?>;
-
-            function readPickedIds(picker) {
-                var ids = [];
-                picker.querySelectorAll('[data-audience-list]:checked').forEach(function (cb) {
-                    var v = parseInt(cb.getAttribute('data-audience-list'), 10) || 0;
-                    if (v > 0) ids.push(v);
-                });
-                return ids;
-            }
-
-            function updateSummary(picker) {
-                var checked = picker.querySelectorAll('[data-audience-list]:checked');
-                var summaryEl = picker.querySelector('[data-audience-lists-summary]');
-                if (!summaryEl) return;
-                if (checked.length === 0) {
-                    summaryEl.textContent = i18nNoLists;
-                    return;
-                }
-                var names = [];
-                Array.prototype.forEach.call(checked, function (cb) {
-                    var label = cb.closest('label');
-                    if (!label) return;
-                    var nameEl = label.querySelector('.lrob-etk-nl-audience-item-name');
-                    if (nameEl) names.push(nameEl.textContent.trim());
-                });
-                summaryEl.textContent = names.join(', ');
-            }
-
-            function persistAudience(picker) {
-                var nlId = picker.getAttribute('data-newsletter-id');
-                if (!nlId) return;
-                var ids = readPickedIds(picker);
-                picker.dispatchEvent(new CustomEvent('lrob-etk:save-status', { bubbles: true, detail: { state: 'saving' } }));
-                var fd = new FormData();
-                fd.append('action', 'lrob_etk_nl_newsletter_save_meta');
-                fd.append('_nonce', (window.lrobEtkNlAdmin && window.lrobEtkNlAdmin.nonce) || '');
-                fd.append('newsletter_id', nlId);
-                fd.append('key', 'target_list_ids');
-                fd.append('value', ids.join(','));
-                fetch((window.lrobEtkNlAdmin && window.lrobEtkNlAdmin.ajaxUrl) || '', { method: 'POST', credentials: 'same-origin', body: fd })
-                    .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
-                    .then(function (resp) {
-                        picker.dispatchEvent(new CustomEvent('lrob-etk:save-status', { bubbles: true, detail: { state: (resp && resp.success) ? 'saved' : 'error' } }));
-                        document.dispatchEvent(new CustomEvent('lrob-etk-nl-saved', { detail: { newsletterId: nlId, key: 'target_list_ids' } }));
-                    });
-            }
-
-            // Toggle the menu open/close on trigger click. Outside-click
-            // + Escape close it. Multiple pickers per page coexist
-            // because every handler is scoped to the trigger's picker.
-            document.addEventListener('click', function (e) {
-                var trigger = e.target.closest && e.target.closest('[data-audience-toggle]');
-                if (trigger) {
-                    var picker = trigger.closest('[data-audience-picker]');
-                    if (!picker) return;
-                    var menu = picker.querySelector('[data-audience-menu]');
-                    if (!menu) return;
-                    var open = menu.hasAttribute('hidden');
-                    // Close every other audience menu first.
-                    document.querySelectorAll('[data-audience-menu]').forEach(function (m) {
-                        if (m !== menu) m.setAttribute('hidden', '');
-                    });
-                    document.querySelectorAll('[data-audience-toggle]').forEach(function (t) {
-                        if (t !== trigger) t.setAttribute('aria-expanded', 'false');
-                    });
-                    if (open) {
-                        menu.removeAttribute('hidden');
-                        trigger.setAttribute('aria-expanded', 'true');
-                    } else {
-                        menu.setAttribute('hidden', '');
-                        trigger.setAttribute('aria-expanded', 'false');
-                    }
-                    return;
-                }
-                // Outside-click close.
-                if (!e.target.closest('[data-audience-menu]')) {
-                    document.querySelectorAll('[data-audience-menu]').forEach(function (m) {
-                        m.setAttribute('hidden', '');
-                    });
-                    document.querySelectorAll('[data-audience-toggle]').forEach(function (t) {
-                        t.setAttribute('aria-expanded', 'false');
-                    });
-                }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key !== 'Escape') return;
-                document.querySelectorAll('[data-audience-menu]').forEach(function (m) {
-                    m.setAttribute('hidden', '');
-                });
-                document.querySelectorAll('[data-audience-toggle]').forEach(function (t) {
-                    t.setAttribute('aria-expanded', 'false');
-                });
-            });
-
-            document.addEventListener('change', function (e) {
-                var cb = e.target.closest && e.target.closest('[data-audience-list]');
-                if (!cb) return;
-                var picker = cb.closest('[data-audience-picker]');
-                if (!picker) return;
-                updateSummary(picker);
-                persistAudience(picker);
-            });
-        })();
-        </script>
         <script>
         // Viewport switcher for the email preview — JS toggles the body's
         // data-preview-vp attribute; CSS handles the iframe sizing.

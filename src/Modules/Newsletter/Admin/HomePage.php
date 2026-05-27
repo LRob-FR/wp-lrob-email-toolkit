@@ -82,6 +82,13 @@ final class HomePage
             SharedAssets::asset_version_for('admin/js/newsletter-admin.js'),
             true
         );
+        wp_enqueue_script(
+            'lrob-etk-audience-picker',
+            LROB_ETK_URL . 'admin/js/etk-audience-picker.js',
+            [],
+            SharedAssets::asset_version_for('admin/js/etk-audience-picker.js'),
+            true
+        );
         wp_localize_script(self::HANDLE_ADMIN_JS, 'lrobEtkNlAdmin', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),

@@ -39,12 +39,19 @@ final class FormCPT
     public const META_CONFIRMATION_TEMPLATE_ID = '_lrob_etk_nl_form_confirmation_template_id';
 
     /**
-     * Optional default list id — when a form has no list_picker field,
-     * confirmed subscribers from this form land in this list. 0 = no
-     * automatic list assignment. The list-picker field type itself lands
-     * with step 4 (categories + lists CRUD).
+     * Legacy single-default-list meta — kept as a back-compat fallback
+     * read by SubmitHandler when META_DEFAULT_LIST_IDS is empty.
+     * Admin UI no longer writes here.
      */
     public const META_DEFAULT_LIST_ID = '_lrob_etk_nl_form_default_list_id';
+
+    /**
+     * Multi-list default audience — when a form has no list_picker
+     * field, confirmed subscribers from this form land in every list
+     * referenced here. JSON-encoded array of int IDs. Empty array =
+     * no automatic list assignment.
+     */
+    public const META_DEFAULT_LIST_IDS = '_lrob_etk_nl_form_default_list_ids';
 
     /** Per-form success message shown to the visitor after submit. Empty = inherit global. */
     public const META_SUCCESS_MESSAGE = '_lrob_etk_nl_form_success_message';
@@ -149,6 +156,30 @@ final class FormCPT
             'single'            => true,
             'default'           => 0,
             'sanitize_callback' => 'absint',
+            'auth_callback'     => $auth_callback,
+            'show_in_rest'      => true,
+        ]);
+        register_post_meta(self::POST_TYPE, self::META_DEFAULT_LIST_IDS, [
+            'type'              => 'string',
+            'single'            => true,
+            'default'           => '',
+            // JSON array of ints — sanitize by re-decoding so anything
+            // shaped wrong gets stored as an empty array.
+            'sanitize_callback' => static function ($value): string {
+                $raw = is_string($value) ? $value : '';
+                if ($raw === '') {
+                    return '';
+                }
+                $decoded = json_decode($raw, true);
+                if (!is_array($decoded)) {
+                    return '';
+                }
+                $ids = array_values(array_unique(array_filter(
+                    array_map('intval', $decoded),
+                    static fn ($n) => $n > 0
+                )));
+                return $ids === [] ? '' : (string) wp_json_encode($ids);
+            },
             'auth_callback'     => $auth_callback,
             'show_in_rest'      => true,
         ]);

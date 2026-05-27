@@ -144,6 +144,12 @@ final class AjaxController
         FormCPT::META_SUCCESS_MESSAGE,
         FormCPT::META_STYLE_PRESET,
         FormCPT::META_CAPTCHA_ROUTE,
+        // Pseudo-key — the audience picker posts a comma-separated
+        // list of IDs that handle_save_meta unpacks + JSON-encodes
+        // into META_DEFAULT_LIST_IDS. Same pattern the newsletter
+        // card's `target_list_ids` pseudo-key uses for
+        // META_TARGET_SPEC list_ids.
+        'default_list_ids',
     ];
 
     /** Special non-meta key for the title (which lives on the post row, not in post_meta). */
@@ -463,6 +469,42 @@ final class AjaxController
             case FormCPT::META_CAPTCHA_ROUTE:
                 $raw = is_array($value) ? '' : sanitize_text_field((string) $value);
                 update_post_meta($form_id, $key, $raw);
+                break;
+            case 'default_list_ids':
+                // CSV → array of validated list IDs → JSON. Defence:
+                //   (1) drop anything not in the lists table,
+                //   (2) drop system rows + users-kind rows — only admin-
+                //       created Subscribers lists are eligible as a
+                //       form default (rule-based / computed lists don't
+                //       accept manual subscriber assignments).
+                $raw = is_array($value) ? '' : (string) $value;
+                $ids = [];
+                if ($raw !== '') {
+                    foreach (preg_split('/[\s,]+/', $raw) ?: [] as $piece) {
+                        $n = (int) $piece;
+                        if ($n > 0) $ids[] = $n;
+                    }
+                }
+                $ids = array_values(array_unique($ids));
+                if ($ids !== []) {
+                    global $wpdb;
+                    $tbl = \LRob\EmailToolkit\Modules\Newsletter\Schema::lists_table();
+                    $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+                    $rows = (array) $wpdb->get_results($wpdb->prepare(
+                        "SELECT id, kind, is_system FROM `$tbl` WHERE id IN ($placeholders)",
+                        ...$ids
+                    ), ARRAY_A);
+                    $eligible = [];
+                    foreach ($rows as $row) {
+                        $kind = (string) ($row['kind'] ?? '');
+                        if ($kind === 'subscribers' && (int) ($row['is_system'] ?? 0) === 0) {
+                            $eligible[] = (int) $row['id'];
+                        }
+                    }
+                    $ids = array_values(array_intersect($ids, $eligible));
+                }
+                $payload = $ids === [] ? '' : (string) wp_json_encode($ids);
+                update_post_meta($form_id, FormCPT::META_DEFAULT_LIST_IDS, $payload);
                 break;
             default:
                 wp_send_json_error(['message' => __('Unsupported setting.', 'lrob-email-toolkit')], 400);

@@ -57,6 +57,21 @@ final class ListsPage
                     window.lrobEtkModal.bindHeader('lrob-etk-nl-lists-modal', 'lrob-etk-nl-lists-btn');
                 }
             });
+            // Delegated handler — any element with the
+            // `.lrob-etk-nl-open-lists-modal` class opens the lists
+            // modal. Lets multiple opener buttons coexist on the same
+            // page (per-card link in NewslettersPage + FormsPage)
+            // without ID collisions.
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest && e.target.closest('.lrob-etk-nl-open-lists-modal');
+                if (!btn) return;
+                e.preventDefault();
+                var modal = document.getElementById('lrob-etk-nl-lists-modal');
+                if (modal) {
+                    modal.hidden = false;
+                    document.body.style.overflow = 'hidden';
+                }
+            });
         })();
         </script>
         <?php
