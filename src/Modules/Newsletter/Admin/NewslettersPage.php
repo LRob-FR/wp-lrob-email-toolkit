@@ -6,6 +6,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\Combobox;
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Admin\Tooltip;
 use LRob\EmailToolkit\Container;
 use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
@@ -85,7 +86,7 @@ final class NewslettersPage
         ], true) ? $raw : NewsletterRepository::TAB_IN_PREP;
     }
 
-    public function render(): void
+    public function render(?HomePage $hub = null): void
     {
         $tab = $this->current_tab();
         $rows = $this->newsletters->list_all(50, 0, $tab);
@@ -97,16 +98,18 @@ final class NewslettersPage
             add_query_arg(['action' => self::ACTION_CREATE], admin_url('admin-post.php')),
             self::ACTION_CREATE
         );
+        PageHeader::render([
+            'title'   => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Newsletters', 'lrob-email-toolkit')),
+            'primary' => [
+                'label' => __('New newsletter', 'lrob-email-toolkit'),
+                'icon'  => 'dashicons-plus-alt2',
+                'href'  => $create_url,
+            ],
+            'tools' => [HomePage::settings_tool()],
+            'nav'   => $hub ? $hub->nav_links(HomePage::VIEW_NEWSLETTERS) : [],
+        ]);
         ?>
         <section class="lrob-etk-nl-newsletters">
-            <header class="lrob-etk-nl-resource-head">
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Newsletters', 'lrob-email-toolkit'); ?></h2>
-                <a href="<?php echo esc_url($create_url); ?>" class="button button-primary">
-                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-                    <?php esc_html_e('New newsletter', 'lrob-email-toolkit'); ?>
-                </a>
-            </header>
-
             <?php $this->render_tabs($tab, $counts); ?>
 
             <?php if ($rows === []) : ?>

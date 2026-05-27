@@ -120,7 +120,7 @@
     }
 
     /**
-     * Swap the .lrob-etk-cf-preset--X class on the preview form so the
+     * Swap the .lrob-etk-form-preset--X class on the preview form so the
      * editor reflects the active style. Empty value = use whatever the
      * defaults section is rendering (no class — frontend CSS picks the
      * default look). The slug is also stored on a data-attr so future
@@ -130,13 +130,13 @@
         // Strip any previous preset class.
         var toRemove = [];
         for (var i = 0; i < previewForm.classList.length; i++) {
-            if (previewForm.classList[i].indexOf('lrob-etk-cf-preset--') === 0) {
+            if (previewForm.classList[i].indexOf('lrob-etk-form-preset--') === 0) {
                 toRemove.push(previewForm.classList[i]);
             }
         }
         toRemove.forEach(function (c) { previewForm.classList.remove(c); });
         if (slug) {
-            previewForm.classList.add('lrob-etk-cf-preset--' + slug);
+            previewForm.classList.add('lrob-etk-form-preset--' + slug);
         }
         previewForm.setAttribute('data-preset', slug || '');
     }
@@ -161,7 +161,7 @@
 
         function serialize() {
             var values = Array.prototype.map.call(
-                rows.querySelectorAll('.lrob-etk-recipient-input'),
+                rows.querySelectorAll('.lrob-etk-combo-input'),
                 function (input) { return (input.value || '').trim(); }
             ).filter(function (v) { return v !== ''; });
             var joined = values.join(', ');
@@ -183,9 +183,9 @@
             var row = document.createElement('div');
             row.className = 'lrob-etk-recipient-row';
             row.innerHTML =
-                '<div class="lrob-etk-recipient-shell">' +
-                    '<input type="email" class="lrob-etk-recipient-input" placeholder="' + escapeAttr(rowPlaceholder) + '" autocomplete="off">' +
-                    '<button type="button" class="lrob-etk-recipient-pick" aria-label="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '" title="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '"><span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></button>' +
+                '<div class="lrob-etk-combo">' +
+                    '<input type="email" class="lrob-etk-combo-input" placeholder="' + escapeAttr(rowPlaceholder) + '" autocomplete="off">' +
+                    '<button type="button" class="lrob-etk-combo-toggle" aria-label="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '" title="' + escapeAttr(I18N.pickKnown || 'Pick a known email') + '"><span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></button>' +
                 '</div>' +
                 '<button type="button" class="lrob-etk-recipient-remove" aria-label="' + escapeAttr(I18N.removeRow || 'Remove') + '" title="' + escapeAttr(I18N.removeRow || 'Remove') + '"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>';
             if (value) row.querySelector('input').value = value;
@@ -198,7 +198,7 @@
             var rowEls = rows.querySelectorAll('.lrob-etk-recipient-row');
             if (rowEls.length <= 1) {
                 // Keep at least one row visible — just clear it.
-                var input = row.querySelector('.lrob-etk-recipient-input');
+                var input = row.querySelector('.lrob-etk-combo-input');
                 if (input) input.value = '';
             } else {
                 row.parentNode.removeChild(row);
@@ -221,7 +221,7 @@
                     e.stopPropagation();
                     var row = button.closest('.lrob-etk-recipient-row');
                     if (!row) return;
-                    var input = row.querySelector('.lrob-etk-recipient-input');
+                    var input = row.querySelector('.lrob-etk-combo-input');
                     if (input) {
                         input.value = item.value;
                         serialize();
@@ -277,19 +277,19 @@
         // Delegate row events to the rows container so dynamically-added rows
         // pick the same handlers automatically.
         rows.addEventListener('input', function (e) {
-            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-recipient-input')) {
+            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-combo-input')) {
                 clearTimeout(rows.__typingTimer);
                 rows.__typingTimer = setTimeout(serialize, TYPING_DEBOUNCE_MS);
             }
         });
         rows.addEventListener('blur', function (e) {
-            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-recipient-input')) {
+            if (e.target && e.target.classList && e.target.classList.contains('lrob-etk-combo-input')) {
                 clearTimeout(rows.__typingTimer);
                 serialize();
             }
         }, true);
         rows.addEventListener('click', function (e) {
-            var pick = e.target.closest('.lrob-etk-recipient-pick');
+            var pick = e.target.closest('.lrob-etk-combo-toggle');
             var remove = e.target.closest('.lrob-etk-recipient-remove');
             if (pick) {
                 openPickMenu(pick);
@@ -304,7 +304,7 @@
         if (addBtn) {
             addBtn.addEventListener('click', function () {
                 var row = addRow('');
-                var input = row.querySelector('.lrob-etk-recipient-input');
+                var input = row.querySelector('.lrob-etk-combo-input');
                 if (input) input.focus();
             });
         }

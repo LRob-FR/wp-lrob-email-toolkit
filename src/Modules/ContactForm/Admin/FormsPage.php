@@ -418,13 +418,13 @@ final class FormsPage
             <div class="lrob-etk-recipient-list-rows" data-recipient-rows>
                 <?php foreach ($emails as $i => $email) : ?>
                     <div class="lrob-etk-recipient-row">
-                        <div class="lrob-etk-recipient-shell">
+                        <div class="lrob-etk-combo">
                             <input type="email"
-                                   class="lrob-etk-recipient-input"
+                                   class="lrob-etk-combo-input"
                                    value="<?php echo esc_attr((string) $email); ?>"
                                    placeholder="<?php echo esc_attr($placeholder); ?>"
                                    autocomplete="off">
-                            <button type="button" class="lrob-etk-recipient-pick" aria-label="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>">
+                            <button type="button" class="lrob-etk-combo-toggle" aria-label="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>" title="<?php esc_attr_e('Pick a known email', 'lrob-email-toolkit'); ?>">
                                 <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                             </button>
                         </div>

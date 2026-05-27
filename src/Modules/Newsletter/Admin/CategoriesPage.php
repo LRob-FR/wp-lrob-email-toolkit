@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Modules\Newsletter\CategoryRepository;
 
 /**
@@ -29,19 +30,21 @@ final class CategoriesPage
     {
     }
 
-    public function render(): void
+    public function render(?HomePage $hub = null): void
     {
         $rows = $this->categories->list_all();
         $nonce = wp_create_nonce(AjaxController::NONCE_ACTION);
         $ajax_url = admin_url('admin-ajax.php');
+        PageHeader::render([
+            'title' => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Categories', 'lrob-email-toolkit')),
+            'tools' => [HomePage::settings_tool()],
+            'nav'   => $hub ? $hub->nav_links(HomePage::VIEW_CATEGORIES) : [],
+        ]);
         ?>
         <section class="lrob-etk-nl-resource">
-            <header class="lrob-etk-nl-resource-head">
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Email categories', 'lrob-email-toolkit'); ?></h2>
-                <p class="lrob-etk-nl-resource-intro">
-                    <?php esc_html_e('Every newsletter is tagged with a category. Subscribers can opt out of categories individually — useful for separating product updates from promotions, for example.', 'lrob-email-toolkit'); ?>
-                </p>
-            </header>
+            <p class="lrob-etk-nl-resource-intro">
+                <?php esc_html_e('Every newsletter is tagged with a category. Subscribers can opt out of categories individually — useful for separating product updates from promotions, for example.', 'lrob-email-toolkit'); ?>
+            </p>
 
             <form class="lrob-etk-nl-resource-new" data-resource-new="category">
                 <input type="text"

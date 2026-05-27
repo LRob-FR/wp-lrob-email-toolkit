@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
 use LRob\EmailToolkit\Modules\Newsletter\TrashCron;
 
@@ -42,7 +43,7 @@ final class SubscribersPage
     {
     }
 
-    public function render(): void
+    public function render(?HomePage $hub = null): void
     {
         $current_status = isset($_GET['status']) ? sanitize_key((string) $_GET['status']) : '';
         if (!array_key_exists($current_status, self::TAB_STATUSES)) {
@@ -79,14 +80,16 @@ final class SubscribersPage
         /* translators: %d: count of trashed subscribers */
         $i18n_confirm_empty  = __('Permanently delete all %d trashed subscribers? This cannot be undone.', 'lrob-email-toolkit');
         $i18n_error          = __('Could not complete the action.', 'lrob-email-toolkit');
+        PageHeader::render([
+            'title' => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Subscribers', 'lrob-email-toolkit')),
+            'tools' => [HomePage::settings_tool()],
+            'nav'   => $hub ? $hub->nav_links(HomePage::VIEW_SUBSCRIBERS) : [],
+        ]);
         ?>
         <section class="lrob-etk-nl-subscribers">
-            <header class="lrob-etk-nl-resource-head">
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Subscribers', 'lrob-email-toolkit'); ?></h2>
-                <p class="lrob-etk-nl-resource-intro">
-                    <?php esc_html_e('Email-only subscribers managed by this module. WordPress users are recipients too but appear under Users, not here.', 'lrob-email-toolkit'); ?>
-                </p>
-            </header>
+            <p class="lrob-etk-nl-resource-intro">
+                <?php esc_html_e('Email-only subscribers managed by this module. WordPress users are recipients too but appear under Users, not here.', 'lrob-email-toolkit'); ?>
+            </p>
 
             <nav class="lrob-etk-nl-subtabs">
                 <?php foreach (self::TAB_STATUSES as $slug => $label) : ?>

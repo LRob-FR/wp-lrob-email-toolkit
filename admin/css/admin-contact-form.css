@@ -1160,57 +1160,12 @@
     align-items: stretch;
     gap: 4px;
 }
-/* Input + pick share a single bordered shell — same visual idiom as the
- * combobox (input glued to its dropdown trigger). The pick is a
- * borderless trigger with just a left separator, mirroring
- * .lrob-etk-combo-toggle. Remove button stays standalone (destructive). */
-.lrob-etk-recipient-shell {
+/* Input + pick now consume the shared .lrob-etk-combo / .lrob-etk-combo-toggle
+ * primitive — see admin-components.css. The recipient-row only needs to
+ * make the combo grow + sit next to the standalone remove button. */
+.lrob-etk-recipient-row > .lrob-etk-combo {
     flex: 1;
     min-width: 0;
-    display: flex;
-    align-items: stretch;
-    border: 1px solid var(--etk-line);
-    background: #fff;
-    border-radius: var(--etk-radius-sm);
-    overflow: hidden;
-    transition: border-color var(--etk-transition);
-}
-.lrob-etk-recipient-shell:focus-within {
-    border-color: var(--etk-accent);
-}
-.lrob-etk-recipient-input {
-    flex: 1;
-    min-width: 0;
-    height: 28px;
-    border: none;
-    background: transparent;
-    padding: 0 6px;
-    outline: none;
-    box-shadow: none;
-}
-.lrob-etk-recipient-pick {
-    flex: 0 0 auto;
-    background: transparent;
-    border: none;
-    border-left: 1px solid var(--etk-soft);
-    padding: 0 8px;
-    color: var(--etk-muted);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    transition: color var(--etk-transition), background var(--etk-transition);
-}
-.lrob-etk-recipient-pick:hover {
-    background: var(--etk-soft);
-    color: var(--etk-fg);
-}
-.lrob-etk-recipient-pick .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 1;
 }
 .lrob-etk-recipient-remove {
     flex: 0 0 auto;

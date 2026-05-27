@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 
 /**
@@ -22,19 +23,21 @@ final class ListsPage
     {
     }
 
-    public function render(): void
+    public function render(?HomePage $hub = null): void
     {
         $rows = $this->lists->list_all();
         $nonce = wp_create_nonce(AjaxController::NONCE_ACTION);
         $ajax_url = admin_url('admin-ajax.php');
+        PageHeader::render([
+            'title' => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Lists', 'lrob-email-toolkit')),
+            'tools' => [HomePage::settings_tool()],
+            'nav'   => $hub ? $hub->nav_links(HomePage::VIEW_LISTS) : [],
+        ]);
         ?>
         <section class="lrob-etk-nl-resource">
-            <header class="lrob-etk-nl-resource-head">
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Subscriber lists', 'lrob-email-toolkit'); ?></h2>
-                <p class="lrob-etk-nl-resource-intro">
-                    <?php esc_html_e('Group subscribers so you can target specific audiences when sending. Lists you create here are manual — subscribers join via subscribe forms or admin actions. Rule-based lists (auto-populated by WP role, registration date, etc.) arrive with the send pipeline.', 'lrob-email-toolkit'); ?>
-                </p>
-            </header>
+            <p class="lrob-etk-nl-resource-intro">
+                <?php esc_html_e('Group subscribers so you can target specific audiences when sending. Lists you create here are manual — subscribers join via subscribe forms or admin actions. Rule-based lists (auto-populated by WP role, registration date, etc.) arrive with the send pipeline.', 'lrob-email-toolkit'); ?>
+            </p>
 
             <form class="lrob-etk-nl-resource-new" data-resource-new="list">
                 <input type="text"

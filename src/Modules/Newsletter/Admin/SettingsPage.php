@@ -27,23 +27,51 @@ use LRob\EmailToolkit\Modules\Newsletter\TrashCron;
  */
 final class SettingsPage
 {
-    public function render(): void
+    /** Module-wide Settings modal — opened from the Settings header button
+     *  on every Newsletter sub-page (mirror of the CF / Logs Storage modal). */
+    public static function render_modal(): void
     {
         ?>
-        <section class="lrob-etk-nl-settings">
-            <header class="lrob-etk-nl-settings-head">
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Newsletter settings', 'lrob-email-toolkit'); ?></h2>
-                <span class="lrob-etk-card-status" aria-live="polite"></span>
-            </header>
-            <p class="lrob-etk-nl-settings-intro">
-                <?php esc_html_e('Module-wide controls. Each section here is mirrored on the page where the related feature is managed — changes flow both ways.', 'lrob-email-toolkit'); ?>
-            </p>
+        <div class="lrob-etk-modal" id="lrob-etk-nl-settings-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-nl-settings-title" hidden>
+            <div class="lrob-etk-modal-backdrop" data-modal-close></div>
+            <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--wide">
+                <header class="lrob-etk-modal-header">
+                    <h3 id="lrob-etk-nl-settings-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Newsletter settings', 'lrob-email-toolkit'); ?></h3>
+                    <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                    </button>
+                </header>
+                <div class="lrob-etk-modal-body">
+                    <p class="description" style="margin-top: 0;">
+                        <?php esc_html_e('Module-wide controls. Each section here is mirrored on the page where the related feature is managed — changes flow both ways.', 'lrob-email-toolkit'); ?>
+                    </p>
+                    <span class="lrob-etk-card-status" aria-live="polite"></span>
 
-            <?php self::render_reminder_schedule_section(true); ?>
-            <?php self::render_trash_retention_section(); ?>
-            <?php self::render_newsletter_footer_section(); ?>
-            <?php self::render_tracking_section(); ?>
-        </section>
+                    <?php self::render_reminder_schedule_section(true); ?>
+                    <?php self::render_trash_retention_section(); ?>
+                    <?php self::render_newsletter_footer_section(); ?>
+                    <?php self::render_tracking_section(); ?>
+                </div>
+            </div>
+        </div>
+        <script>
+        // Wire the Settings header button to open this modal — runs on
+        // every Newsletter sub-page since the modal markup is rendered
+        // once at the bottom of every view by HomePage.
+        (function () {
+            if (window.__lrobEtkNlSettingsModalBound) return;
+            window.__lrobEtkNlSettingsModalBound = true;
+            function whenReady(fn) {
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+                else fn();
+            }
+            whenReady(function () {
+                if (window.lrobEtkModal) {
+                    window.lrobEtkModal.bindHeader('lrob-etk-nl-settings-modal', 'lrob-etk-nl-settings-btn');
+                }
+            });
+        })();
+        </script>
         <?php
     }
 

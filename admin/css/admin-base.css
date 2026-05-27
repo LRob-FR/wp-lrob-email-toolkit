@@ -68,7 +68,8 @@
     gap: 4px;
 }
 
-/* Tight inline switch used in section headers (smaller than the page-level one) */
+/* Tight inline switch for section headers — layout only. Track sizing
+ * comes from .lrob-etk-switch-track--sm modifier (admin-components.css). */
 .lrob-etk-section-switch {
     display: inline-flex;
     align-items: center;
@@ -78,40 +79,6 @@
     font-size: 11px;
     font-weight: 500;
     color: var(--etk-muted);
-}
-.lrob-etk-section-switch input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
-}
-.lrob-etk-section-switch .lrob-etk-switch-track {
-    position: relative;
-    display: inline-block;
-    width: 26px;
-    height: 14px;
-    background: var(--etk-line-strong);
-    border-radius: 999px;
-    transition: background 0.15s ease;
-}
-.lrob-etk-section-switch .lrob-etk-switch-track::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 10px;
-    height: 10px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform 0.15s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,.2);
-}
-.lrob-etk-section-switch input:checked + .lrob-etk-switch-track {
-    background: var(--etk-success);
-}
-.lrob-etk-section-switch input:checked + .lrob-etk-switch-track::before {
-    transform: translateX(12px);
 }
 .lrob-etk-section-switch-label {
     font-size: 11px;

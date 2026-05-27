@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\Assets as SharedAssets;
 use LRob\EmailToolkit\Admin\ModuleToggle;
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 use LRob\EmailToolkit\Modules\Newsletter\Module as NewsletterModule;
 use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
@@ -194,77 +195,75 @@ final class HomePage
         }
 
         $view = isset($_GET['view']) && is_string($_GET['view']) ? sanitize_key((string) $_GET['view']) : '';
+        // Settings used to be a sub-view; it's now a modal on the
+        // Dashboard. A stale ?view=settings URL falls back to Dashboard.
+        if ($view === self::VIEW_SETTINGS) {
+            $view = '';
+        }
         $enabled = $this->module->is_enabled();
         ?>
         <div class="wrap lrob-etk lrob-etk-nl-page">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title">
-                    <?php esc_html_e('Newsletter', 'lrob-email-toolkit'); ?>
-                    <?php if ($view !== '') : ?>
-                        <span class="lrob-etk-page-title-sub">— <?php echo esc_html($this->view_label($view)); ?></span>
-                    <?php endif; ?>
-                </h1>
-                <?php
-                // The enable/disable toggle reads as a property of the
-                // whole module, not of the current view — surfacing it
-                // next to a subpage title makes it look like it gates
-                // just that subpage. Keep it on the Dashboard only.
-                if ($view === '') {
-                    ModuleToggle::render_inline($this->module);
-                }
-                ?>
-            </header>
-
             <?php if (!$enabled) : ?>
+                <?php PageHeader::render([
+                    'title'  => __('Newsletter', 'lrob-email-toolkit'),
+                    'module' => $this->module,
+                ]); ?>
                 <p class="lrob-etk-disabled-message">
                     <?php esc_html_e('Enable the Newsletter module to start managing newsletters and subscribers.', 'lrob-email-toolkit'); ?>
                 </p>
             <?php else : ?>
-                <?php $this->render_nav($view); ?>
                 <?php $this->render_view($view); ?>
+                <?php SettingsPage::render_modal(); ?>
             <?php endif; ?>
         </div>
         <?php
     }
 
-    /** Sticky-style sub-nav across the hub views. Inert "Coming soon" until each view lands. */
-    private function render_nav(string $current): void
+    /** Nav links shared across every Newsletter sub-page header — points to
+     *  the other primary surfaces. The current view is excluded. */
+    public function nav_links(string $current): array
     {
         $base = admin_url('admin.php?page=' . PageController::SLUG);
-        $tabs = [
-            ''                       => __('Dashboard', 'lrob-email-toolkit'),
-            self::VIEW_NEWSLETTERS     => __('Newsletters', 'lrob-email-toolkit'),
-            self::VIEW_SUBSCRIBERS   => __('Subscribers', 'lrob-email-toolkit'),
-            self::VIEW_LISTS         => __('Lists', 'lrob-email-toolkit'),
-            self::VIEW_CATEGORIES    => __('Categories', 'lrob-email-toolkit'),
-            self::VIEW_ONBOARDING     => __('Onboarding', 'lrob-email-toolkit'),
-            self::VIEW_FORMS         => __('Forms', 'lrob-email-toolkit'),
-            self::VIEW_IMPORT        => __('Import', 'lrob-email-toolkit'),
-            self::VIEW_SETTINGS      => __('Settings', 'lrob-email-toolkit'),
+        $all = [
+            ''                     => [__('Dashboard', 'lrob-email-toolkit'),    'dashicons-chart-bar'],
+            self::VIEW_NEWSLETTERS => [__('Newsletters', 'lrob-email-toolkit'),  'dashicons-email'],
+            self::VIEW_SUBSCRIBERS => [__('Subscribers', 'lrob-email-toolkit'),  'dashicons-groups'],
+            self::VIEW_LISTS       => [__('Lists', 'lrob-email-toolkit'),        'dashicons-list-view'],
+            self::VIEW_CATEGORIES  => [__('Categories', 'lrob-email-toolkit'),   'dashicons-category'],
+            self::VIEW_ONBOARDING  => [__('Onboarding', 'lrob-email-toolkit'),   'dashicons-megaphone'],
+            self::VIEW_FORMS       => [__('Forms', 'lrob-email-toolkit'),        'dashicons-feedback'],
+            self::VIEW_IMPORT      => [__('Import', 'lrob-email-toolkit'),       'dashicons-upload'],
         ];
-        ?>
-        <nav class="lrob-etk-nl-tabs">
-            <?php foreach ($tabs as $slug => $label) : ?>
-                <?php $url = $slug === '' ? $base : add_query_arg('view', $slug, $base); ?>
-                <a href="<?php echo esc_url($url); ?>"
-                   class="lrob-etk-nl-tab<?php echo $current === $slug ? ' is-active' : ''; ?>">
-                    <?php echo esc_html($label); ?>
-                </a>
-            <?php endforeach; ?>
-        </nav>
-        <?php
+        $links = [];
+        foreach ($all as $slug => [$label, $icon]) {
+            if ($slug === $current) {
+                continue;
+            }
+            $url = $slug === '' ? $base : add_query_arg('view', $slug, $base);
+            $links[] = ['label' => $label, 'icon' => $icon, 'href' => $url];
+        }
+        return $links;
+    }
+
+    /** Standard "Settings" tools button used by every Newsletter sub-page. */
+    public static function settings_tool(): array
+    {
+        return [
+            'label' => __('Settings', 'lrob-email-toolkit'),
+            'icon'  => 'dashicons-admin-generic',
+            'id'    => 'lrob-etk-nl-settings-btn',
+        ];
     }
 
     private function render_view(string $view): void
     {
         match ($view) {
             self::VIEW_ONBOARDING  => $this->render_onboarding(),
-            self::VIEW_FORMS       => $this->forms_page->render(),
-            self::VIEW_CATEGORIES  => $this->categories_page->render(),
-            self::VIEW_LISTS       => $this->lists_page->render(),
-            self::VIEW_SUBSCRIBERS => $this->subscribers_page->render(),
-            self::VIEW_NEWSLETTERS   => $this->newsletters_page->render(),
-            self::VIEW_SETTINGS    => $this->settings_page->render(),
+            self::VIEW_FORMS       => $this->forms_page->render($this),
+            self::VIEW_CATEGORIES  => $this->categories_page->render($this),
+            self::VIEW_LISTS       => $this->lists_page->render($this),
+            self::VIEW_SUBSCRIBERS => $this->subscribers_page->render($this),
+            self::VIEW_NEWSLETTERS => $this->newsletters_page->render($this),
             self::VIEW_IMPORT      => $this->render_placeholder($view),
             default                => $this->render_dashboard(),
         };
@@ -285,6 +284,11 @@ final class HomePage
         foreach (TemplateCPT::purposes() as $purpose) {
             $resolved_defaults[$purpose] = $this->templates->default_id_for_purpose($purpose);
         }
+        PageHeader::render([
+            'title' => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Onboarding', 'lrob-email-toolkit')),
+            'tools' => [self::settings_tool()],
+            'nav'   => $this->nav_links(self::VIEW_ONBOARDING),
+        ]);
         ?>
         <section class="lrob-etk-nl-templates">
             <p class="lrob-etk-nl-templates-intro">
@@ -312,7 +316,7 @@ final class HomePage
                     <header class="lrob-etk-nl-template-group-head">
                         <h2 class="lrob-etk-nl-template-group-title"><?php echo esc_html(TemplateCPT::purpose_label($purpose)); ?></h2>
                         <a class="button button-secondary" href="<?php echo esc_url($new_url); ?>" title="<?php esc_attr_e('Start a new draft pre-filled with the default content for this purpose.', 'lrob-email-toolkit'); ?>">
-                            <?php esc_html_e('+ New from default', 'lrob-email-toolkit'); ?>
+                            <?php esc_html_e('New from default', 'lrob-email-toolkit'); ?>
                         </a>
                     </header>
 
@@ -381,11 +385,14 @@ final class HomePage
     private function render_dashboard(): void
     {
         $subs = $this->subscribers->count_total();
+        PageHeader::render([
+            'title'  => __('Newsletter', 'lrob-email-toolkit'),
+            'module' => $this->module,
+            'tools'  => [self::settings_tool()],
+            'nav'    => $this->nav_links(''),
+        ]);
         ?>
         <section class="lrob-etk-nl-dashboard">
-            <p class="lrob-etk-nl-intro">
-                <?php esc_html_e('Send newsletters to your WordPress users and subscribers. Pick a section above to start.', 'lrob-email-toolkit'); ?>
-            </p>
             <div class="lrob-etk-nl-tiles">
                 <div class="lrob-etk-nl-tile">
                     <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n($subs)); ?></span>
@@ -405,29 +412,22 @@ final class HomePage
 
     private function render_placeholder(string $view): void
     {
+        $labels = [
+            self::VIEW_IMPORT => __('Import', 'lrob-email-toolkit'),
+        ];
+        $label = $labels[$view] ?? __('Coming soon', 'lrob-email-toolkit');
+        PageHeader::render([
+            'title' => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), $label),
+            'tools' => [self::settings_tool()],
+            'nav'   => $this->nav_links($view),
+        ]);
         ?>
         <section class="lrob-etk-nl-placeholder">
             <div class="lrob-etk-nl-placeholder-icon dashicons dashicons-clock" aria-hidden="true"></div>
-            <h2 class="lrob-etk-nl-placeholder-title"><?php echo esc_html($this->view_label($view)); ?></h2>
             <p class="lrob-etk-nl-placeholder-text">
                 <?php esc_html_e('This section is part of the Newsletter module rollout and will land in a coming release.', 'lrob-email-toolkit'); ?>
             </p>
         </section>
         <?php
-    }
-
-    private function view_label(string $view): string
-    {
-        return match ($view) {
-            self::VIEW_NEWSLETTERS   => __('Newsletters', 'lrob-email-toolkit'),
-            self::VIEW_SUBSCRIBERS => __('Subscribers', 'lrob-email-toolkit'),
-            self::VIEW_LISTS       => __('Lists', 'lrob-email-toolkit'),
-            self::VIEW_CATEGORIES  => __('Categories', 'lrob-email-toolkit'),
-            self::VIEW_ONBOARDING  => __('Onboarding', 'lrob-email-toolkit'),
-            self::VIEW_FORMS       => __('Forms', 'lrob-email-toolkit'),
-            self::VIEW_IMPORT      => __('Import', 'lrob-email-toolkit'),
-            self::VIEW_SETTINGS    => __('Settings', 'lrob-email-toolkit'),
-            default                => __('Dashboard', 'lrob-email-toolkit'),
-        };
     }
 }

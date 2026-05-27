@@ -219,7 +219,7 @@ final class SettingsPage
                 </span>
                 <label class="lrob-etk-section-switch" title="<?php esc_attr_e('Authentication', 'lrob-email-toolkit'); ?>">
                     <input type="checkbox" name="smtp_auth" class="lrob-etk-field-smtp-auth" value="1" <?php checked($f['smtp_auth']); ?>>
-                    <span class="lrob-etk-switch-track"></span>
+                    <span class="lrob-etk-switch-track lrob-etk-switch-track--sm"></span>
                     <span class="lrob-etk-section-switch-label"><?php esc_html_e('Auth', 'lrob-email-toolkit'); ?></span>
                 </label>
             </h3>

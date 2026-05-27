@@ -127,24 +127,30 @@
     display: block;
 }
 
-/* ---------- Toggle switch ---------- */
+/* ---------- Toggle switch ----------
+ *
+ * Single track + knob primitive consumed by every switch wrapper
+ * (page-toggle, inline-switch, section-switch, retention-toggle, ...).
+ * Default size is md (32×18 track, 14×14 knob); modifier classes
+ * --sm (26×14) and --lg (36×20) override.
+ *
+ * Markup contract:
+ *   <label class="lrob-etk-...-switch">
+ *       <input type="checkbox" hidden>           (visually-hidden via parent rule)
+ *       <span class="lrob-etk-switch-track [--sm|--lg]"></span>
+ *       <span class="lrob-etk-..-label">…</span>
+ *   </label>
+ *
+ * The label wrapper owns the FLEX layout + label styling only — it does
+ * not redefine track dimensions.
+ */
 
-.lrob-etk-switch {
+.lrob-etk-switch-track {
     position: relative;
     display: inline-block;
-    width: 36px;
-    height: 20px;
+    width: 32px;
+    height: 18px;
     flex-shrink: 0;
-}
-.lrob-etk-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    position: absolute;
-}
-.lrob-etk-switch-track {
-    position: absolute;
-    inset: 0;
     background: var(--etk-line-strong);
     border-radius: var(--etk-radius-pill);
     transition: background var(--etk-transition);
@@ -155,21 +161,36 @@
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     background: #fff;
     border-radius: 50%;
     transition: transform var(--etk-transition);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
-.lrob-etk-switch input:checked + .lrob-etk-switch-track {
-    background: var(--etk-success);
-}
-.lrob-etk-switch input:checked + .lrob-etk-switch-track::before {
-    transform: translateX(16px);
-}
-.lrob-etk-switch input:focus + .lrob-etk-switch-track {
-    box-shadow: 0 0 0 2px var(--etk-accent);
+input:checked + .lrob-etk-switch-track             { background: var(--etk-success); }
+input:checked + .lrob-etk-switch-track::before     { transform: translateX(14px); }
+input:focus   + .lrob-etk-switch-track             { box-shadow: 0 0 0 2px var(--etk-accent); }
+
+/* Size modifiers */
+.lrob-etk-switch-track--sm                                  { width: 26px; height: 14px; }
+.lrob-etk-switch-track--sm::before                          { width: 10px; height: 10px; }
+input:checked + .lrob-etk-switch-track--sm::before          { transform: translateX(12px); }
+
+.lrob-etk-switch-track--lg                                  { width: 36px; height: 20px; }
+.lrob-etk-switch-track--lg::before                          { width: 16px; height: 16px; }
+input:checked + .lrob-etk-switch-track--lg::before          { transform: translateX(16px); }
+
+/* Hide the actual checkbox inside every switch wrapper — only the
+ * track visual is interactive. */
+.lrob-etk-page-toggle input[type="checkbox"],
+.lrob-etk-inline-switch input[type="checkbox"],
+.lrob-etk-section-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
 }
 
 /* ---------- Retention toggle widget ---------- */
@@ -683,6 +704,7 @@ body.lrob-etk-modal-open {
     border-color: transparent;
 }
 
+/* Page-level toggle — layout + state label only; track from shared primitive. */
 .lrob-etk-page-toggle-form {
     margin: 0;
     display: inline-block;
@@ -694,42 +716,8 @@ body.lrob-etk-modal-open {
     cursor: pointer;
     user-select: none;
 }
-.lrob-etk-page-toggle input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
-}
-.lrob-etk-page-toggle .lrob-etk-switch-track {
-    position: relative;
-    display: inline-block;
-    width: 32px;
-    height: 18px;
-    background: var(--etk-line-strong);
-    border-radius: var(--etk-radius-pill);
-    transition: background var(--etk-transition);
-}
-.lrob-etk-page-toggle .lrob-etk-switch-track::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform var(--etk-transition);
-    box-shadow: 0 1px 2px rgba(0,0,0,.2);
-}
-.lrob-etk-page-toggle input:checked + .lrob-etk-switch-track {
-    background: var(--etk-success);
-}
-.lrob-etk-page-toggle input:checked + .lrob-etk-switch-track::before {
-    transform: translateX(14px);
-}
 .lrob-etk-page-toggle-state {
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     font-weight: 500;
     color: var(--etk-muted);
 }
@@ -750,7 +738,8 @@ body.lrob-etk-modal-open {
     line-height: 1.5;
 }
 
-/* ---------- Inline switch (used in card headers, force-row, etc.) ---------- */
+/* ---------- Inline switch (card headers, force-row, etc.) ----------
+ * Layout + label only; track visual comes from the shared primitive. */
 
 .lrob-etk-inline-switch {
     display: inline-flex;
@@ -759,42 +748,8 @@ body.lrob-etk-modal-open {
     cursor: pointer;
     user-select: none;
 }
-.lrob-etk-inline-switch input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
-}
-.lrob-etk-inline-switch .lrob-etk-switch-track {
-    position: relative;
-    display: inline-block;
-    width: 32px;
-    height: 18px;
-    background: var(--etk-line-strong);
-    border-radius: var(--etk-radius-pill);
-    transition: background var(--etk-transition);
-}
-.lrob-etk-inline-switch .lrob-etk-switch-track::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform var(--etk-transition);
-    box-shadow: 0 1px 2px rgba(0,0,0,.2);
-}
-.lrob-etk-inline-switch input:checked + .lrob-etk-switch-track {
-    background: var(--etk-success);
-}
-.lrob-etk-inline-switch input:checked + .lrob-etk-switch-track::before {
-    transform: translateX(14px);
-}
 .lrob-etk-inline-switch-label {
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     font-weight: 500;
     color: var(--etk-muted);
 }

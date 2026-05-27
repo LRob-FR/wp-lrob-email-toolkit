@@ -6,6 +6,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Admin\Assets as SharedAssets;
 use LRob\EmailToolkit\Admin\Combobox;
+use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
 use LRob\EmailToolkit\Forms\CountryData;
 use LRob\EmailToolkit\Forms\FormEditorRenderer;
@@ -119,20 +120,23 @@ final class FormsPage
         ]);
     }
 
-    public function render(): void
+    public function render(?HomePage $hub = null): void
     {
         $forms = $this->forms->list_published();
         $confirmation_templates = $this->templates->list_by_purpose(TemplateCPT::PURPOSE_CONFIRMATION);
         $resolved_default_template_id = $this->templates->default_id_for_purpose(TemplateCPT::PURPOSE_CONFIRMATION);
+        PageHeader::render([
+            'title'   => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Forms', 'lrob-email-toolkit')),
+            'primary' => [
+                'label' => __('New subscribe form', 'lrob-email-toolkit'),
+                'icon'  => 'dashicons-plus-alt2',
+                'id'    => 'lrob-etk-nl-new-form-btn',
+            ],
+            'tools' => [HomePage::settings_tool()],
+            'nav'   => $hub ? $hub->nav_links(HomePage::VIEW_FORMS) : [],
+        ]);
         ?>
         <section class="lrob-etk-nl-forms-section">
-            <header class="lrob-etk-nl-forms-section-head">
-                <h2 class="lrob-etk-section-title"><?php esc_html_e('Subscribe forms', 'lrob-email-toolkit'); ?></h2>
-                <button type="button" class="button button-primary" id="lrob-etk-nl-new-form-btn">
-                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-                    <?php esc_html_e('New subscribe form', 'lrob-email-toolkit'); ?>
-                </button>
-            </header>
 
             <?php self::render_new_form_picker(); ?>
 
