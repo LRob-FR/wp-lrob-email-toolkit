@@ -28,6 +28,11 @@ final class ReminderCron
 {
     public const CRON_HOOK = 'lrob_etk_nl_pending_followup';
 
+    /** Master kill-switch for the whole reminder pipeline. When off, the
+     *  cron tick bails before scanning the pending table — schedule
+     *  controls (max/first_after/interval) become inert. */
+    public const OPTION_ENABLED            = 'lrob_etk_nl_reminder_enabled';
+
     public const OPTION_MAX                = 'lrob_etk_nl_reminder_max';
 
     public const OPTION_FIRST_AFTER_DAYS   = 'lrob_etk_nl_first_reminder_after_days';
@@ -71,6 +76,9 @@ final class ReminderCron
 
     public function handle_tick(): void
     {
+        if (!(bool) get_option(self::OPTION_ENABLED, true)) {
+            return;
+        }
         $max = (int) get_option(self::OPTION_MAX, self::DEFAULT_MAX);
         if ($max <= 0) {
             return;

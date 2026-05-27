@@ -71,24 +71,49 @@
         var addFieldBtn = section.querySelector('[data-editor-action="add-field"]');
         if (addFieldBtn) {
             addFieldBtn.addEventListener('click', function () {
-                // Gutenberg-style top "+": pick a type, append a single-col
-                // row at the end of the form. User drags it wherever after.
-                showTypePicker(addFieldBtn, function (type) {
+                // Gutenberg-style top "+": pick a type or preset; append a
+                // single-col row (or N for a multi-field preset) at the end.
+                showTypePicker(addFieldBtn, function (choice) {
                     var body = form.querySelector('.lrob-etk-form-body');
                     if (!body) return;
-                    var newRow = buildRowWithField(type);
-                    body.appendChild(newRow);
-                    normalizeAllInserts();
-                    // Highlight + scroll the new row into view so the user
-                    // sees where the added field landed.
-                    newRow.classList.add('is-just-inserted');
-                    setTimeout(function () { newRow.classList.remove('is-just-inserted'); }, 800);
-                    if (newRow.scrollIntoView) {
-                        newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    var rows = buildRowsForChoice(choice);
+                    if (rows.length === 0) return;
+                    rows.forEach(function (row) {
+                        body.appendChild(row);
+                        normalizeAllInserts();
+                        row.classList.add('is-just-inserted');
+                        setTimeout(function () { row.classList.remove('is-just-inserted'); }, 800);
+                    });
+                    if (rows[0].scrollIntoView) {
+                        rows[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
                     commitAndSave();
                 });
             });
+        }
+
+        // Resolve a picker choice into a list of ready-to-insert rows.
+        // Generic type → one row, one field. Preset → one row per
+        // descriptor (so admins can rearrange / delete individually).
+        function buildRowsForChoice(choice) {
+            if (!choice) return [];
+            if (choice.kind === 'preset') {
+                var preset = findPreset(choice.slug);
+                if (!preset) return [];
+                return (preset.fields || []).map(function (desc) {
+                    var row = buildRow();
+                    var col = row.querySelector('.lrob-etk-form-col');
+                    if (col) {
+                        var shell = buildPresetField(desc);
+                        if (shell) {
+                            col.appendChild(shell);
+                            col.appendChild(buildInsertZone('field'));
+                        }
+                    }
+                    return row;
+                }).filter(Boolean);
+            }
+            return [buildRowWithField(choice.type)];
         }
         // Keyboard shortcuts: Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z (or Y) to
         // redo. Only fire when the keystroke is happening inside this card's
@@ -988,15 +1013,33 @@
             // Both "row" (body-level) and "field" (inside a column) open the
                 // type picker. Row picks build a single-col row containing one
                 // field; field picks add a field to the surrounding column.
-            return showTypePicker(btn, function (type) {
+            return showTypePicker(btn, function (choice) {
                 if (kind === 'row') {
-                    var row = buildRowWithField(type);
-                    btn.parentNode.insertBefore(row, btn.nextSibling);
-                    btn.parentNode.insertBefore(buildInsertZone('row'), row.nextSibling);
+                    var rows = buildRowsForChoice(choice);
+                    var anchor = btn;
+                    rows.forEach(function (row) {
+                        anchor.parentNode.insertBefore(row, anchor.nextSibling);
+                        anchor.parentNode.insertBefore(buildInsertZone('row'), row.nextSibling);
+                        anchor = row.nextSibling;
+                    });
                 } else {
-                    var field = buildField(type);
-                    btn.parentNode.insertBefore(field, btn.nextSibling);
-                    btn.parentNode.insertBefore(buildInsertZone('field'), field.nextSibling);
+                    // Inside-a-column insert: presets drop each preset
+                    // field side-by-side in the same column.
+                    var descs;
+                    if (choice.kind === 'preset') {
+                        var preset = findPreset(choice.slug);
+                        descs = preset ? (preset.fields || []) : [];
+                    } else {
+                        descs = [{ type: choice.type }];
+                    }
+                    var fanchor = btn;
+                    descs.forEach(function (desc) {
+                        var field = desc.maps_to || desc.label ? buildPresetField(desc) : buildField(desc.type);
+                        if (!field) return;
+                        fanchor.parentNode.insertBefore(field, fanchor.nextSibling);
+                        fanchor.parentNode.insertBefore(buildInsertZone('field'), field.nextSibling);
+                        fanchor = field.nextSibling;
+                    });
                 }
                 commitAndSave();
             });
@@ -1028,12 +1071,20 @@
             if (!tpl) return;
             var picker = tpl.content.firstElementChild.cloneNode(true);
             picker.addEventListener('click', function (e) {
+                var presetBtn = e.target.closest('[data-preset]');
+                if (presetBtn) {
+                    e.preventDefault();
+                    var slug = presetBtn.getAttribute('data-preset');
+                    picker.remove();
+                    onPick({ kind: 'preset', slug: slug });
+                    return;
+                }
                 var tb = e.target.closest('[data-type]');
                 if (!tb) return;
                 e.preventDefault();
                 var type = tb.getAttribute('data-type');
                 picker.remove();
-                onPick(type);
+                onPick({ kind: 'type', type: type });
             });
             btn.parentNode.insertBefore(picker, btn.nextSibling);
             setTimeout(function () {
@@ -1044,6 +1095,45 @@
                     }
                 });
             }, 0);
+        }
+
+        function findPreset(slug) {
+            var presets = EDITOR_DATA.fieldPresets || [];
+            for (var i = 0; i < presets.length; i++) {
+                if (presets[i].slug === slug) return presets[i];
+            }
+            return null;
+        }
+
+        // Compile a preset's field descriptor into a live shell. Each
+        // entry: { type, label, maps_to?, required?, options? }.
+        function buildPresetField(descriptor) {
+            var shell = buildField(descriptor.type);
+            if (!shell) return null;
+            // Override the auto-derived label with the preset's label,
+            // then re-slug since slug derives from <type>_<label>_<nth>.
+            if (descriptor.label) {
+                var labelEl = shell.querySelector('[data-edit="label"]');
+                if (labelEl) {
+                    labelEl.textContent = descriptor.label;
+                    labelEl.classList.remove('lrob-etk-form-label-empty');
+                }
+                recomputeSlug(shell);
+            }
+            if (descriptor.maps_to) {
+                shell.setAttribute('data-attr-maps_to', descriptor.maps_to);
+                // Sync the inline-settings select (already rendered by ensureInlineSettings).
+                var sel = shell.querySelector('select[data-inline-prop="maps_to"]');
+                if (sel) sel.value = descriptor.maps_to;
+            }
+            if (descriptor.required === false) {
+                shell.setAttribute('data-attr-required', '0');
+            }
+            if (descriptor.options && (descriptor.type === 'select' || descriptor.type === 'radio' || descriptor.type === 'checkbox')) {
+                shell.setAttribute('data-attr-options', JSON.stringify(descriptor.options));
+                if (typeof applyOptionsToPreview === 'function') applyOptionsToPreview(shell);
+            }
+            return shell;
         }
 
         function updateRowCols(row) {
@@ -1195,32 +1285,54 @@
                 + '</span>'
                 + '</label>';
         }
+        function mapsToChipHtml(shell) {
+            var targets = EDITOR_DATA.mapsToTargets || [];
+            if (!targets.length) return '';
+            var current = shell.getAttribute('data-attr-maps_to') || '';
+            var label = EDITOR_I18N.mapsTo || 'Maps to';
+            var html = '<label class="lrob-etk-form-inline-chip" data-inline-chip="maps_to">'
+                + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
+                + '<select data-inline-prop="maps_to">'
+                + '<option value=""' + (current === '' ? ' selected' : '') + '>' + esc(EDITOR_I18N.mapsToNone || '— (none)') + '</option>';
+            targets.forEach(function (t) {
+                html += '<option value="' + escAttr(t.value) + '"' + (t.value === current ? ' selected' : '') + '>' + esc(t.label) + '</option>';
+            });
+            html += '</select></label>';
+            return html;
+        }
         function typeSpecificInlineHtml(shell, type) {
             switch (type) {
                 case 'textarea':
                     return numChipHtml(shell, 'rows',      EDITOR_I18N.rows      || 'Rows', 5)
-                         + numChipHtml(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0);
+                         + numChipHtml(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0)
+                         + mapsToChipHtml(shell);
                 case 'text':
                 case 'email':
-                    return numChipHtml(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0);
+                    return numChipHtml(shell, 'maxLength', EDITOR_I18N.maxLength || 'Max length', 0)
+                         + mapsToChipHtml(shell);
                 case 'number':
                     return textChipHtml(shell, 'min',  EDITOR_I18N.min  || 'Min')
                          + textChipHtml(shell, 'max',  EDITOR_I18N.max  || 'Max')
-                         + textChipHtml(shell, 'step', EDITOR_I18N.step || 'Step');
+                         + textChipHtml(shell, 'step', EDITOR_I18N.step || 'Step')
+                         + mapsToChipHtml(shell);
                 case 'phone':
                     return checkChipHtml(shell, 'country_picker', EDITOR_I18N.countryPicker || 'Country code picker')
                          + countryDefaultChipHtml(shell)
                          + checkChipHtml(shell, 'country_auto_detect', EDITOR_I18N.autoDetectCountry || 'Auto-detect from browser')
-                         + textChipHtml(shell, 'pattern', EDITOR_I18N.pattern || 'Regex pattern');
+                         + textChipHtml(shell, 'pattern', EDITOR_I18N.pattern || 'Regex pattern')
+                         + mapsToChipHtml(shell);
                 case 'date':
                     return textChipHtml(shell, 'min', EDITOR_I18N.min || 'Min')
-                         + textChipHtml(shell, 'max', EDITOR_I18N.max || 'Max');
+                         + textChipHtml(shell, 'max', EDITOR_I18N.max || 'Max')
+                         + mapsToChipHtml(shell);
                 case 'select':
                     // No `multiple` chip — a native <select> is single-choice
                     // by design here; use the checkbox field type for multi.
-                    return placeholderComboHtml(shell);
+                    return placeholderComboHtml(shell)
+                         + mapsToChipHtml(shell);
                 case 'checkbox':
-                    return checkChipHtml(shell, 'multiple', EDITOR_I18N.multiple || 'Multiple choices', true);
+                    return checkChipHtml(shell, 'multiple', EDITOR_I18N.multiple || 'Multiple choices', true)
+                         + mapsToChipHtml(shell);
                 case 'file_upload':
                     return checkChipHtml(shell, 'multiple', EDITOR_I18N.multipleFiles || 'Multiple files', false)
                          + numChipHtml(shell, 'max_count',     EDITOR_I18N.maxCount     || 'Max files', 3)
@@ -2180,6 +2292,13 @@
             } else {
                 f.placeholder = inputEl && inputEl.hasAttribute('placeholder') ? inputEl.getAttribute('placeholder') : '';
             }
+
+            // Subscriber-profile mapping. The "Maps to" inline chip
+            // declares which subscriber column this field populates on
+            // submit. Only present on Newsletter subscribe forms; Contact
+            // Form leaves it blank.
+            var mapsTo = shell.getAttribute('data-attr-maps_to');
+            if (mapsTo) f.maps_to = mapsTo;
 
             // Type-specific scalars stored as data-attr-* by the inline
             // settings strip.

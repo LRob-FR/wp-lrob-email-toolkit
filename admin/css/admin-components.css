@@ -75,6 +75,45 @@
     margin: 16px 0;
 }
 
+/* ---------- Plugin-wide confirm prompt (replaces window.confirm() so
+ *            the look stays consistent + popup blockers don't bite). */
+
+.lrob-etk-confirm-prompt.is-open {
+    display: block;
+}
+.lrob-etk-confirm-prompt-message {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--etk-fg);
+}
+
+/* ---------- Inline confirm (replaces browser confirm() for destructive
+ *            actions in modals — popup blockers + ugliness). Drop it
+ *            into any row's normal flow; the JS swaps row → confirm. */
+
+.lrob-etk-inline-confirm {
+    display: flex;
+    align-items: center;
+    gap: var(--etk-space-3);
+    padding: var(--etk-space-2) var(--etk-space-3);
+    background: var(--etk-danger-bg);
+    border: 1px solid var(--etk-danger);
+    border-radius: var(--etk-radius-md);
+    color: var(--etk-text-danger);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-inline-confirm-message {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--etk-text-danger);
+}
+.lrob-etk-inline-confirm-actions {
+    display: inline-flex;
+    gap: var(--etk-space-2);
+    flex: 0 0 auto;
+}
+
 /* ---------- Tooltips ---------- */
 
 .lrob-etk-tip {
@@ -292,6 +331,21 @@ body.lrob-etk-modal-open {
     background: rgba(0,0,0,.05);
     color: var(--etk-fg);
 }
+
+.lrob-etk-modal-header-status {
+    margin: 0 12px 0 auto;
+    font-size: 12px;
+    color: var(--etk-muted);
+    transition: opacity 0.2s ease;
+    min-width: 0;
+    text-align: right;
+}
+.lrob-etk-modal-header-status:empty {
+    min-width: 0;
+}
+.lrob-etk-modal-header-status.is-saving { color: var(--etk-text-warning); }
+.lrob-etk-modal-header-status.is-saved  { color: var(--etk-text-success); }
+.lrob-etk-modal-header-status.is-error  { color: var(--etk-text-danger); }
 
 .lrob-etk-modal-body {
     padding: 16px 24px;
@@ -640,7 +694,9 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 8px 0 16px;
+    margin: 8px 0 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--etk-line);
     flex-wrap: wrap;
 }
 .lrob-etk-page-header .lrob-etk-page-title {
@@ -1243,6 +1299,132 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-cleanup-result {
     margin-top: 10px;
+}
+
+/* ---------- Section tabs ----------
+ *
+ * Page-internal navigation strip — used for both the page-level sub-
+ * section selector (Newsletter: Dashboard / Newsletters / Subscribers
+ * / Forms / Import) AND for in-page filter tabs (e.g. status filter on
+ * Newsletters: All / In preparation / Sent / Trash).
+ *
+ * Visually distinct from the cross-module nav (muted treatment on the
+ * right of PageHeader for inter-module links). These
+ * tabs sit *under* the PageHeader, carry a baseline border, and the
+ * active tab "sits on" that border in WP-native nav-tab style.
+ *
+ * Stable order — never remove the current item from the list, just
+ * mark it `.is-active`.
+ */
+.lrob-etk-section-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: flex-end;
+    margin: 0 0 16px;
+    padding: 0;
+    border-bottom: 1px solid var(--etk-line);
+}
+.lrob-etk-section-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    color: var(--etk-muted);
+    text-decoration: none;
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: var(--etk-radius-sm) var(--etk-radius-sm) 0 0;
+    margin-bottom: -1px;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: background var(--etk-transition), color var(--etk-transition);
+}
+.lrob-etk-section-tab:hover,
+.lrob-etk-section-tab:focus-visible {
+    color: var(--etk-fg);
+    background: var(--etk-soft);
+}
+.lrob-etk-section-tab.is-active {
+    color: var(--etk-fg);
+    background: var(--etk-card-bg);
+    border-color: var(--etk-line);
+    font-weight: 600;
+    cursor: default;
+}
+.lrob-etk-section-tab .dashicons {
+    font-size: var(--etk-icon-size);
+    width: var(--etk-icon-size);
+    height: var(--etk-icon-size);
+    line-height: 1;
+}
+.lrob-etk-section-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    padding: 0 6px;
+    border-radius: var(--etk-radius-pill);
+    background: rgba(0, 0, 0, 0.06);
+    color: inherit;
+    font-size: 11px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+}
+.lrob-etk-section-tab.is-active .lrob-etk-section-tab-count {
+    background: var(--etk-soft);
+}
+/* Trailing slot for actions (e.g. "Empty trash" on the Trash tab). */
+.lrob-etk-section-tabs-end {
+    margin-left: auto;
+    align-self: center;
+    padding-bottom: 4px;
+}
+
+/* ---------- Number input ----------
+ *
+ * WP admin's native number-input arrows crowd the value and trigger
+ * a confusing "ghost arrows" rendering when the row itself is
+ * hovered (browser focuses the input as it bubbles). Right-padding
+ * the input gives the arrows breathing room; reserving the focus
+ * appearance only on actual focus avoids the perceived bug. */
+.lrob-etk input[type="number"] {
+    padding-right: 24px;
+}
+
+/* ---------- Empty-state card ----------
+ *
+ * Used when a list / table has zero rows AND the admin needs a
+ * pointer to the action that creates one. Replaces the bare `<p>` we
+ * used to scatter around. Icon + title + body + optional primary CTA.
+ */
+.lrob-etk-empty-state {
+    text-align: center;
+    padding: 32px 24px;
+    background: var(--etk-card-bg);
+    border: 1px dashed var(--etk-line-strong);
+    border-radius: var(--etk-radius-lg);
+    color: var(--etk-muted);
+    margin: 12px 0 16px;
+}
+.lrob-etk-empty-state-icon {
+    color: var(--etk-line-strong);
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 8px;
+    display: block;
+}
+.lrob-etk-empty-state-text {
+    margin: 0 auto 14px;
+    max-width: 480px;
+    font-size: var(--etk-input-font-size);
+    line-height: 1.5;
+}
+.lrob-etk-empty-state .button {
+    margin-top: 4px;
 }
 
 /* ---------- Detail strip ----------

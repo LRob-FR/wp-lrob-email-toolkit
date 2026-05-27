@@ -40,6 +40,8 @@ final class Schema
 
     public const TABLE_LIST_MEMBERS          = 'lrob_etk_nl_list_members';
 
+    public const TABLE_LIST_EXCLUSIONS       = 'lrob_etk_nl_list_exclusions';
+
     public const TABLE_CATEGORIES            = 'lrob_etk_nl_categories';
 
     public const TABLE_NEWSLETTERS           = 'lrob_etk_nl_newsletters';
@@ -68,6 +70,12 @@ final class Schema
     {
         global $wpdb;
         return $wpdb->prefix . self::TABLE_LIST_MEMBERS;
+    }
+
+    public static function list_exclusions_table(): string
+    {
+        global $wpdb;
+        return $wpdb->prefix . self::TABLE_LIST_EXCLUSIONS;
     }
 
     public static function categories_table(): string
@@ -120,6 +128,7 @@ final class Schema
         $subscribers           = self::subscribers_table();
         $lists                 = self::lists_table();
         $list_members          = self::list_members_table();
+        $list_exclusions       = self::list_exclusions_table();
         $categories            = self::categories_table();
         $newsletters           = self::newsletters_table();
         $newsletter_recipients = self::newsletter_recipients_table();
@@ -148,6 +157,16 @@ final class Schema
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             email varchar(190) NOT NULL,
             name varchar(190) NOT NULL DEFAULT '',
+            first_name varchar(120) NOT NULL DEFAULT '',
+            last_name varchar(120) NOT NULL DEFAULT '',
+            gender varchar(20) NOT NULL DEFAULT '',
+            phone varchar(40) NOT NULL DEFAULT '',
+            address_line varchar(190) NOT NULL DEFAULT '',
+            address_line2 varchar(190) NOT NULL DEFAULT '',
+            address_postcode varchar(20) NOT NULL DEFAULT '',
+            address_city varchar(120) NOT NULL DEFAULT '',
+            address_region varchar(120) NOT NULL DEFAULT '',
+            address_country varchar(2) NOT NULL DEFAULT '',
             language varchar(20) NOT NULL DEFAULT '',
             status varchar(20) NOT NULL DEFAULT 'pending',
             previous_status varchar(20) NOT NULL DEFAULT '',
@@ -176,19 +195,27 @@ final class Schema
             KEY cold_subscribers (status, sends_since_engagement)
         ) $charset_collate;";
 
-        // rule_json: JSON filter expression when the list is rule-based or
-        // hybrid; empty string for manual-only lists. Rule grammar is TBD —
-        // see todo.md "subscriber custom fields + tags".
+        // kind: 'subscribers' | 'users'. Subscribers lists collect explicit
+        //   members (subscribers + legacy users via subscribe forms);
+        //   rule_json stays empty. Users lists are pure rule-based filters
+        //   over wp_users; list_members is ignored. The Materializer
+        //   branches on this column so the two list types stay
+        //   semantically distinct.
+        // rule_json: JSON `{provider, config}` describing the filter rule
+        //   on users lists. Empty for subscribers lists.
         $sql_lists = "CREATE TABLE $lists (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             name varchar(190) NOT NULL,
             slug varchar(190) NOT NULL,
+            kind varchar(20) NOT NULL DEFAULT 'subscribers',
+            is_system tinyint(1) NOT NULL DEFAULT 0,
             description text NOT NULL,
             rule_json longtext NOT NULL,
             created_at datetime NOT NULL,
             updated_at datetime NOT NULL,
             PRIMARY KEY  (id),
-            UNIQUE KEY slug (slug)
+            UNIQUE KEY slug (slug),
+            KEY kind (kind)
         ) $charset_collate;";
 
         // recipient_kind: 'user' | 'subscriber'. recipient_id is wp_users.ID
@@ -204,6 +231,22 @@ final class Schema
             PRIMARY KEY  (id),
             UNIQUE KEY list_recipient (list_id, recipient_kind, recipient_id),
             KEY recipient_lookup (recipient_kind, recipient_id)
+        ) $charset_collate;";
+
+        // Per-list exclusion list — admin marks specific WP users as
+        // "never send", regardless of whether the list's rule would match
+        // them. Applied at Materializer time, after rule resolution.
+        // Only meaningful for users-kind lists today (subscribers lists
+        // remove via the standard unsubscribe / leave-list path).
+        $sql_list_exclusions = "CREATE TABLE $list_exclusions (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            list_id bigint(20) unsigned NOT NULL,
+            user_id bigint(20) unsigned NOT NULL,
+            reason varchar(190) NOT NULL DEFAULT '',
+            added_at datetime NOT NULL,
+            PRIMARY KEY  (id),
+            UNIQUE KEY list_user (list_id, user_id),
+            KEY user_lookup (user_id)
         ) $charset_collate;";
 
         $sql_categories = "CREATE TABLE $categories (
@@ -335,6 +378,7 @@ final class Schema
         dbDelta($sql_subscribers);
         dbDelta($sql_lists);
         dbDelta($sql_list_members);
+        dbDelta($sql_list_exclusions);
         dbDelta($sql_categories);
         dbDelta($sql_newsletters);
         dbDelta($sql_newsletter_recipients);

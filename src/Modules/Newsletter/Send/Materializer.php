@@ -64,11 +64,31 @@ final class Materializer
         $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : ['kind' => NewsletterCPT::TARGET_KIND_ALL];
         $target_kind = (string) ($target['kind'] ?? NewsletterCPT::TARGET_KIND_ALL);
         $list_id = isset($target['list_id']) ? (int) $target['list_id'] : 0;
+        $list_ids = isset($target['list_ids']) && is_array($target['list_ids'])
+            ? array_values(array_filter(array_map('intval', $target['list_ids']), static fn ($n) => $n > 0))
+            : [];
 
         $category_id = (int) get_post_meta($newsletter_id, NewsletterCPT::META_CATEGORY_ID, true);
         $category_slug = $this->category_slug($category_id);
 
-        $recipients = $this->resolve_recipients($target_kind, $list_id, $category_slug);
+        // Multi-list union: iterate list_ids[], collect every recipient,
+        // dedupe by (kind, id). Single-list (legacy) goes through the
+        // original code path.
+        if ($target_kind === NewsletterCPT::TARGET_KIND_LISTS && $list_ids !== []) {
+            $seen = [];
+            $recipients = [];
+            foreach ($list_ids as $lid) {
+                $rs = $this->resolve_recipients(NewsletterCPT::TARGET_KIND_LIST, $lid, $category_slug);
+                foreach ($rs as $r) {
+                    $key = $r['kind'] . ':' . $r['id'];
+                    if (isset($seen[$key])) continue;
+                    $seen[$key] = true;
+                    $recipients[] = $r;
+                }
+            }
+        } else {
+            $recipients = $this->resolve_recipients($target_kind, $list_id, $category_slug);
+        }
         $total = $this->insert_recipients($newsletter_id, $recipients);
 
         // Sender-side lifetime stat bump per recipient. We do this *after*
@@ -111,15 +131,31 @@ final class Materializer
         $subscribers_table = Schema::subscribers_table();
         $list_members_table = Schema::list_members_table();
 
+        // When targeting a list, read its kind once so subscriber/user
+        // sides know to skip themselves. Subscribers lists never resolve
+        // users-side; users lists never resolve subscribers-side. This
+        // keeps the two list types semantically distinct.
+        $list_kind = '';
+        if ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_id > 0) {
+            $list_row = (new \LRob\EmailToolkit\Modules\Newsletter\ListRepository())->find($list_id);
+            $list_kind = $list_row !== null ? \LRob\EmailToolkit\Modules\Newsletter\ListRepository::kind_of($list_row) : '';
+        }
+
         $out = [];
 
-        // Subscriber side
-        if (in_array($target_kind, [
-            NewsletterCPT::TARGET_KIND_ALL,
-            NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS,
-            NewsletterCPT::TARGET_KIND_LIST,
-        ], true)) {
-            if ($target_kind === NewsletterCPT::TARGET_KIND_LIST) {
+        // Subscriber side — when target is ALL / ALL_SUBSCRIBERS, or
+        // a LIST whose kind is subscribers (manual membership) OR the
+        // pseudo-kind `all_subscribers` (the "All subscribers" system
+        // list — resolves to every confirmed subscriber).
+        $is_all_subs_pseudo = ($target_kind === NewsletterCPT::TARGET_KIND_LIST
+            && $list_kind === \LRob\EmailToolkit\Modules\Newsletter\ListRepository::KIND_ALL_SUBSCRIBERS);
+        $want_subscribers = $target_kind === NewsletterCPT::TARGET_KIND_ALL
+            || $target_kind === NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS
+            || $is_all_subs_pseudo
+            || ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_kind === \LRob\EmailToolkit\Modules\Newsletter\ListRepository::KIND_SUBSCRIBERS);
+
+        if ($want_subscribers) {
+            if ($target_kind === NewsletterCPT::TARGET_KIND_LIST && !$is_all_subs_pseudo) {
                 $rows = $list_id > 0 ? (array) $wpdb->get_results($wpdb->prepare(
                     "SELECT s.id, s.email, s.name, s.prefs_token, s.category_opt_outs
                        FROM `$subscribers_table` s
@@ -153,12 +189,12 @@ final class Materializer
             }
         }
 
-        // WP-user side
-        if (in_array($target_kind, [
-            NewsletterCPT::TARGET_KIND_ALL,
-            NewsletterCPT::TARGET_KIND_ALL_USERS,
-            NewsletterCPT::TARGET_KIND_LIST,
-        ], true)) {
+        // WP-user side — ALL / ALL_USERS, or LIST with kind=users.
+        $want_users = $target_kind === NewsletterCPT::TARGET_KIND_ALL
+            || $target_kind === NewsletterCPT::TARGET_KIND_ALL_USERS
+            || ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_kind === \LRob\EmailToolkit\Modules\Newsletter\ListRepository::KIND_USERS);
+
+        if ($want_users) {
             $users = $this->fetch_opted_in_users($target_kind, $list_id);
             foreach ($users as $u) {
                 $user_id = (int) $u['ID'];
@@ -219,9 +255,10 @@ final class Materializer
         ], is_array($users) ? $users : []);
 
         if ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_id > 0) {
-            // Intersect with list members. Cheaper than joining in SQL
-            // because users come from get_users (multisite-aware) and
-            // list_members is a custom table.
+            // Users-kind list: rule resolves the audience; legacy
+            // recipient_kind='user' rows in list_members are honoured
+            // too so v9 sites with mixed entries don't lose them.
+            // Exclusions are already applied by resolve_rule_user_ids.
             global $wpdb;
             $list_members_table = Schema::list_members_table();
             $member_ids = (array) $wpdb->get_col($wpdb->prepare(
@@ -230,7 +267,8 @@ final class Materializer
                 UserMeta::KIND_USER,
                 $list_id
             ));
-            $member_set = array_flip(array_map('intval', $member_ids));
+            $rule_ids = (new \LRob\EmailToolkit\Modules\Newsletter\ListRepository())->resolve_rule_user_ids($list_id);
+            $member_set = array_flip(array_map('intval', array_merge($member_ids, $rule_ids)));
             $rows = array_filter($rows, static fn ($r) => isset($member_set[$r['ID']]));
         }
 

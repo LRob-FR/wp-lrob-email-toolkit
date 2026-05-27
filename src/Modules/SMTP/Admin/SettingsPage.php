@@ -1023,10 +1023,20 @@ final class SettingsPage
             card.parentNode.removeChild(card);
         } else if (action === 'delete') {
             var label = btn.getAttribute('data-label') || '';
-            if (!confirm(S.i18n.deleteConfirm.replace('%s', label))) return;
-            ajax(S.actions.delete, { id: btn.getAttribute('data-id') }).then(function (resp) {
-                if (resp.success) { flash(resp.data.message, 'success'); setTimeout(function () { window.location.reload(); }, 300); }
-                else flash((resp.data && resp.data.message) || S.i18n.unknownError, 'error');
+            var ask = window.lrobEtkConfirm
+                ? window.lrobEtkConfirm.prompt({
+                    title: S.i18n.deleteTitle || 'Delete identity?',
+                    message: S.i18n.deleteConfirm.replace('%s', label),
+                    confirmLabel: S.i18n.deleteLabel || 'Delete',
+                    danger: true
+                })
+                : Promise.resolve(true);
+            ask.then(function (ok) {
+                if (!ok) return;
+                ajax(S.actions.delete, { id: btn.getAttribute('data-id') }).then(function (resp) {
+                    if (resp.success) { flash(resp.data.message, 'success'); setTimeout(function () { window.location.reload(); }, 300); }
+                    else flash((resp.data && resp.data.message) || S.i18n.unknownError, 'error');
+                });
             });
         } else if (action === 'test') {
             openTestModal(parseInt(btn.getAttribute('data-id'), 10), btn);

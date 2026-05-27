@@ -505,19 +505,6 @@
             }
             return;
         }
-        // Card-level: toggle list picker visibility when the audience
-        // "Specific list" radio toggles. (Pure UI state, no count refresh
-        // here — that's debounced via the saved event below so we count
-        // against the latest persisted meta, not the in-flight change.)
-        if (e.target.matches('input[data-key="target_kind"]')) {
-            var card = e.target.closest('[data-newsletter-id]');
-            if (!card) return;
-            var listPicker = card.querySelector('[data-target-list-picker]');
-            if (listPicker) {
-                var showList = e.target.checked && e.target.value === 'list';
-                listPicker[showList ? 'removeAttribute' : 'setAttribute']('hidden', '');
-            }
-        }
     });
 
     /**
@@ -655,15 +642,9 @@
         });
     }
 
-    // Initial card sync on page load: list-picker visibility +
-    // recipient count (one cheap AJAX per card).
+    // Initial card sync on page load: refresh recipient count
+    // (one cheap AJAX per card).
     function syncCardInitial(card) {
-        var listPicker = card.querySelector('[data-target-list-picker]');
-        if (listPicker) {
-            var kindRadio = card.querySelector('input[data-key="target_kind"]:checked');
-            var showList = kindRadio && kindRadio.value === 'list';
-            listPicker[showList ? 'removeAttribute' : 'setAttribute']('hidden', '');
-        }
         refreshRecipientCount(card);
     }
     document.querySelectorAll('[data-newsletter-id]').forEach(syncCardInitial);

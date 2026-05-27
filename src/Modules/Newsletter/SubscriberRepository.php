@@ -126,6 +126,73 @@ final class SubscriberRepository
         $wpdb->update(Schema::subscribers_table(), $data, ['id' => $id], $formats, ['%d']);
     }
 
+    /**
+     * Admin-side rename / re-email. Returns one of:
+     *   - 'ok'          — update applied (no email change or new email free)
+     *   - 'email_taken' — the requested email already belongs to another row
+     *   - 'invalid'     — email is malformed
+     *   - 'noop'        — subscriber not found
+     * Caller is responsible for surfacing the result.
+     */
+    public function update_basics(int $id, string $email, string $name): string
+    {
+        $row = $this->find_by_id($id);
+        if ($row === null) {
+            return 'noop';
+        }
+        $email = sanitize_email($email);
+        $name = sanitize_text_field($name);
+        if ($email === '' || !is_email($email)) {
+            return 'invalid';
+        }
+        if (strcasecmp($email, (string) $row['email']) !== 0) {
+            $clash = $this->find_by_email($email);
+            if ($clash !== null && (int) $clash['id'] !== $id) {
+                return 'email_taken';
+            }
+        }
+        global $wpdb;
+        $wpdb->update(Schema::subscribers_table(), [
+            'email' => $email,
+            'name'  => $name,
+        ], ['id' => $id], ['%s', '%s'], ['%d']);
+        return 'ok';
+    }
+
+    /**
+     * Single-column profile-field write. Returns 'ok' / 'invalid' /
+     * 'noop' / 'email_taken'. Whitelists `$column` against
+     * `SubscriberFields::PROFILE_COLUMNS` so the caller can never reach
+     * outside the subscriber profile schema. Email writes go through the
+     * collision check + is_email validation; everything else flows through
+     * the per-column sanitiser.
+     */
+    public function set_profile_field(int $id, string $column, string $value): string
+    {
+        $row = $this->find_by_id($id);
+        if ($row === null) {
+            return 'noop';
+        }
+        if (!in_array($column, SubscriberFields::PROFILE_COLUMNS, true)) {
+            return 'invalid';
+        }
+        $clean = SubscriberFields::sanitize($column, $value);
+        if ($column === 'email') {
+            if ($clean === '' || !is_email($clean)) {
+                return 'invalid';
+            }
+            if (strcasecmp($clean, (string) $row['email']) !== 0) {
+                $other = $this->find_by_email($clean);
+                if ($other !== null && (int) $other['id'] !== $id) {
+                    return 'email_taken';
+                }
+            }
+        }
+        global $wpdb;
+        $wpdb->update(Schema::subscribers_table(), [$column => $clean], ['id' => $id], ['%s'], ['%d']);
+        return 'ok';
+    }
+
     public function find_by_id(int $id): ?array
     {
         global $wpdb;

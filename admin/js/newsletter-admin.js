@@ -70,7 +70,7 @@
 
     function sendSave(formId, newsletterId, key, sourceEl) {
         var statusEl = findStatusEl(sourceEl);
-        setStatus(statusEl, 'saving');
+        setStatus(statusEl, 'saving', null, sourceEl);
 
         // Resource-rename dispatches go to dedicated endpoints rather
         // than save_meta — categories and lists aren't forms and their
@@ -119,7 +119,7 @@
             .then(function (resp) {
                 if (resp && resp.success) {
                     sourceEl.__original = sourceEl.value;
-                    setStatus(statusEl, 'saved');
+                    setStatus(statusEl, 'saved', null, sourceEl);
                     // Emit a save-complete event so per-card scripts can
                     // react (e.g. refresh the recipients count after an
                     // audience change). Detail carries newsletterId so
@@ -130,10 +130,10 @@
                         }));
                     }
                 } else {
-                    setStatus(statusEl, 'error', resp && resp.data && resp.data.message);
+                    setStatus(statusEl, 'error', resp && resp.data && resp.data.message, sourceEl);
                 }
             })
-            .catch(function () { setStatus(statusEl, 'error'); });
+            .catch(function () { setStatus(statusEl, 'error', null, sourceEl); });
     }
 
     function findStatusEl(sourceEl) {
@@ -145,7 +145,18 @@
         return ancestor.querySelector('.lrob-etk-card-status');
     }
 
-    function setStatus(el, state, detail) {
+    function setStatus(el, state, detail, sourceEl) {
+        // Bubble for any enclosing .lrob-etk-modal (list / category /
+        // settings modal) to mirror on its header badge. Use sourceEl
+        // when supplied (the field itself bubbles even when there's no
+        // per-card status element), falling back to the status badge.
+        var emitter = sourceEl || el;
+        if (emitter && emitter.dispatchEvent) {
+            emitter.dispatchEvent(new CustomEvent('lrob-etk:save-status', {
+                bubbles: true,
+                detail: { state: state, message: detail || '' },
+            }));
+        }
         if (!el) return;
         el.classList.remove('is-saving', 'is-saved', 'is-error');
         if (state === 'saving') {

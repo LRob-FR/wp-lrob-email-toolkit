@@ -359,9 +359,6 @@ final class DashboardPage
                     <button type="button" data-chart-type="smooth" class="is-active" title="<?php esc_attr_e('Smoothed line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Smoothed line chart', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-chart-area"></span>
                     </button>
-                    <button type="button" data-chart-type="line" title="<?php esc_attr_e('Line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Line chart', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-chart-line"></span>
-                    </button>
                     <button type="button" data-chart-type="bars" title="<?php esc_attr_e('Bars', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Bar chart', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-chart-bar"></span>
                     </button>

@@ -127,8 +127,15 @@
         var deleteBtn = form.querySelector('[data-action="delete"]');
         if (deleteBtn) {
             deleteBtn.addEventListener('click', function () {
-                if (!window.confirm(CFG.i18n.confirmDelete)) return;
-                deleteCard(card);
+                var ask = window.lrobEtkConfirm
+                    ? window.lrobEtkConfirm.prompt({
+                        title: CFG.i18n.confirmDeleteTitle || 'Delete identity?',
+                        message: CFG.i18n.confirmDelete,
+                        confirmLabel: CFG.i18n.confirmDeleteLabel || 'Delete',
+                        danger: true
+                    })
+                    : Promise.resolve(true);
+                ask.then(function (ok) { if (ok) deleteCard(card); });
             });
         }
     }

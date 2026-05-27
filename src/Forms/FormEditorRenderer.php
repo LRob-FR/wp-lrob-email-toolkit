@@ -133,10 +133,15 @@ final class FormEditorRenderer
             return '';
         }
 
+        $maps_to_attr = '';
+        if (!empty($field['maps_to'])) {
+            $maps_to_attr = ' data-attr-maps_to="' . esc_attr((string) $field['maps_to']) . '"';
+        }
         return sprintf(
-            '<div class="lrob-etk-form-edit-shell" data-field-id="%s" data-field-type="%s" data-draggable-type="field" draggable="true">%s%s</div>',
+            '<div class="lrob-etk-form-edit-shell" data-field-id="%s" data-field-type="%s" data-draggable-type="field" draggable="true"%s>%s%s</div>',
             esc_attr($id),
             esc_attr($type),
+            $maps_to_attr,
             self::field_overlay(),
             $inner
         );

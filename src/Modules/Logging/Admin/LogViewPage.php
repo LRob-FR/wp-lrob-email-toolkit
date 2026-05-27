@@ -258,9 +258,15 @@ final class LogViewPage
 
     private function render_delete_form(LogEntry $entry, string $action_url): void
     {
+        $msg = __('Delete this log entry?', 'lrob-email-toolkit');
+        $title = __('Delete?', 'lrob-email-toolkit');
+        $label = __('Delete', 'lrob-email-toolkit');
         ?>
         <form method="post" action="<?php echo esc_url($action_url); ?>" style="display:inline"
-              onsubmit="return confirm('<?php echo esc_js(__('Delete this log entry?', 'lrob-email-toolkit')); ?>');">
+              data-etk-confirm-form
+              data-confirm-title="<?php echo esc_attr($title); ?>"
+              data-confirm-message="<?php echo esc_attr($msg); ?>"
+              data-confirm-label="<?php echo esc_attr($label); ?>">
             <input type="hidden" name="action" value="<?php echo esc_attr(PageController::ACTION_DELETE); ?>">
             <input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
             <?php wp_nonce_field(PageController::ACTION_DELETE, '_lrob_etk_nonce'); ?>

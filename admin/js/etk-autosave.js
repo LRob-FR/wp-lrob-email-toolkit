@@ -55,6 +55,16 @@
         var lastSent = new WeakMap();
 
         function setStatus(state, detail) {
+            // Also bubble a save-status event so any enclosing
+            // .lrob-etk-modal can mirror it on its header badge
+            // (etk-modal.js listens). Cheap: a single CustomEvent
+            // dispatch, no DOM walking on this side.
+            if (card && card.dispatchEvent) {
+                card.dispatchEvent(new CustomEvent('lrob-etk:save-status', {
+                    bubbles: true,
+                    detail: { state: state, message: detail || '' },
+                }));
+            }
             if (!status) return;
             status.classList.remove('is-saving', 'is-saved', 'is-error');
             if (state === 'saving') {

@@ -62,10 +62,6 @@ final class SettingsPage
 
             <div id="lrob-etk-flash" class="lrob-etk-flash" aria-live="polite"></div>
 
-            <p class="description" style="max-width: 760px;">
-                <?php esc_html_e('Anti-bot challenges shared across modules. Pick a default below, then optionally override it per use case (contact forms, comments, …). Built-in challenges work offline; hosted providers (hCaptcha, soon Turnstile / reCAPTCHA) need credentials added as identities.', 'lrob-email-toolkit'); ?>
-            </p>
-
             <?php $this->render_builtins_section($homemade); ?>
             <?php $this->render_providers_section($providers, $identities); ?>
             <?php $this->render_routing_section($default_route, $map); ?>

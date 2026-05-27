@@ -34,8 +34,8 @@ final class PageController
     {
         add_submenu_page(
             MainMenu::SLUG,
-            __('Newsletter', 'lrob-email-toolkit'),
-            __('Newsletter', 'lrob-email-toolkit'),
+            __('Newsletters', 'lrob-email-toolkit'),
+            __('Newsletters', 'lrob-email-toolkit'),
             Activator::CAPABILITY,
             self::SLUG,
             [$this->home, 'render']

@@ -83,7 +83,7 @@ final class NewslettersPage
             NewsletterRepository::TAB_IN_PREP,
             NewsletterRepository::TAB_SENT,
             NewsletterRepository::TAB_TRASH,
-        ], true) ? $raw : NewsletterRepository::TAB_IN_PREP;
+        ], true) ? $raw : '';
     }
 
     public function render(?HomePage $hub = null): void
@@ -99,23 +99,32 @@ final class NewslettersPage
             self::ACTION_CREATE
         );
         PageHeader::render([
-            'title'   => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Newsletters', 'lrob-email-toolkit')),
+            'title'   => __('Newsletters', 'lrob-email-toolkit'),
             'primary' => [
                 'label' => __('New newsletter', 'lrob-email-toolkit'),
                 'icon'  => 'dashicons-plus-alt2',
                 'href'  => $create_url,
             ],
-            'tools' => [HomePage::settings_tool()],
-            'nav'   => $hub ? $hub->nav_links(HomePage::VIEW_NEWSLETTERS) : [],
+            'tools' => [CategoriesPage::categories_tool(), HomePage::settings_tool()],
         ]);
+        if ($hub) $hub->render_section_tabs(HomePage::VIEW_NEWSLETTERS);
         ?>
         <section class="lrob-etk-nl-newsletters">
             <?php $this->render_tabs($tab, $counts); ?>
 
             <?php if ($rows === []) : ?>
-                <p class="lrob-etk-nl-resource-empty">
-                    <?php echo esc_html($this->empty_tab_message($tab)); ?>
-                </p>
+                <div class="lrob-etk-empty-state">
+                    <span class="dashicons dashicons-email-alt lrob-etk-empty-state-icon" aria-hidden="true"></span>
+                    <p class="lrob-etk-empty-state-text">
+                        <?php echo esc_html($this->empty_tab_message($tab)); ?>
+                    </p>
+                    <?php if ($tab === '' || $tab === NewsletterRepository::TAB_IN_PREP) : ?>
+                        <a class="button button-primary" href="<?php echo esc_url($create_url); ?>">
+                            <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                            <?php esc_html_e('New newsletter', 'lrob-email-toolkit'); ?>
+                        </a>
+                    <?php endif; ?>
+                </div>
             <?php else : ?>
                 <div class="lrob-etk-nl-newsletter-cards">
                     <?php foreach ($rows as $row) : ?>
@@ -143,24 +152,27 @@ final class NewslettersPage
             ['page' => PageController::SLUG, 'view' => HomePage::VIEW_NEWSLETTERS],
             admin_url('admin.php')
         );
+        $all_total = (int) (($counts[NewsletterRepository::TAB_IN_PREP] ?? 0)
+            + ($counts[NewsletterRepository::TAB_SENT] ?? 0)
+            + ($counts[NewsletterRepository::TAB_TRASH] ?? 0));
         $tabs = [
-            NewsletterRepository::TAB_IN_PREP => __('In preparation', 'lrob-email-toolkit'),
-            NewsletterRepository::TAB_SENT    => __('Sent', 'lrob-email-toolkit'),
-            NewsletterRepository::TAB_TRASH   => __('Trash', 'lrob-email-toolkit'),
+            ''                                => [__('All', 'lrob-email-toolkit'),            $all_total],
+            NewsletterRepository::TAB_IN_PREP => [__('In preparation', 'lrob-email-toolkit'), (int) ($counts[NewsletterRepository::TAB_IN_PREP] ?? 0)],
+            NewsletterRepository::TAB_SENT    => [__('Sent', 'lrob-email-toolkit'),           (int) ($counts[NewsletterRepository::TAB_SENT] ?? 0)],
+            NewsletterRepository::TAB_TRASH   => [__('Trash', 'lrob-email-toolkit'),          (int) ($counts[NewsletterRepository::TAB_TRASH] ?? 0)],
         ];
         ?>
-        <nav class="lrob-etk-nl-tabs" role="tablist" aria-label="<?php esc_attr_e('Newsletter filter', 'lrob-email-toolkit'); ?>">
-            <?php foreach ($tabs as $tab => $label) :
-                $url = add_query_arg([self::TAB_QUERY_VAR => $tab], $base);
-                $count = (int) ($counts[$tab] ?? 0);
+        <nav class="lrob-etk-section-tabs" role="tablist" aria-label="<?php esc_attr_e('Newsletter filter', 'lrob-email-toolkit'); ?>">
+            <?php foreach ($tabs as $tab => [$label, $count]) :
+                $url = $tab === '' ? $base : add_query_arg([self::TAB_QUERY_VAR => $tab], $base);
                 $is_active = $tab === $current;
                 ?>
                 <a href="<?php echo esc_url($url); ?>"
-                   class="lrob-etk-nl-tab<?php echo $is_active ? ' is-active' : ''; ?>"
+                   class="lrob-etk-section-tab<?php echo $is_active ? ' is-active' : ''; ?>"
                    role="tab"
                    aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>">
-                    <span class="lrob-etk-nl-tab-label"><?php echo esc_html($label); ?></span>
-                    <span class="lrob-etk-nl-tab-count" aria-label="<?php
+                    <?php echo esc_html($label); ?>
+                    <span class="lrob-etk-section-tab-count" aria-label="<?php
                         /* translators: %d: count of newsletters in this tab */
                         echo esc_attr(sprintf(__('%d item(s)', 'lrob-email-toolkit'), $count));
                     ?>"><?php echo esc_html(number_format_i18n($count)); ?></span>
@@ -172,8 +184,9 @@ final class NewslettersPage
                     self::ACTION_EMPTY_TRASH
                 );
                 ?>
+                <span class="lrob-etk-section-tabs-end">
                 <button type="button"
-                        class="button button-link-delete lrob-etk-nl-tabs-empty"
+                        class="button button-link-delete"
                         data-empty-trash
                         data-empty-trash-url="<?php echo esc_attr($empty_url); ?>"
                         data-empty-trash-confirm="<?php echo esc_attr(sprintf(
@@ -188,6 +201,7 @@ final class NewslettersPage
                         )); ?>">
                     <?php esc_html_e('Empty trash', 'lrob-email-toolkit'); ?>
                 </button>
+                </span>
             <?php endif; ?>
         </nav>
         <?php
@@ -196,9 +210,10 @@ final class NewslettersPage
     private function empty_tab_message(string $tab): string
     {
         return match ($tab) {
-            NewsletterRepository::TAB_SENT  => __('No sent newsletters yet. Drafts and scheduled sends live in the "In preparation" tab.', 'lrob-email-toolkit'),
-            NewsletterRepository::TAB_TRASH => __('Trash is empty.', 'lrob-email-toolkit'),
-            default                          => __('No newsletters in preparation. Click "New newsletter" to start one.', 'lrob-email-toolkit'),
+            NewsletterRepository::TAB_SENT    => __('No sent newsletters yet. Drafts and scheduled sends live in the "In preparation" tab.', 'lrob-email-toolkit'),
+            NewsletterRepository::TAB_TRASH   => __('Trash is empty.', 'lrob-email-toolkit'),
+            NewsletterRepository::TAB_IN_PREP => __('No newsletters in preparation yet.', 'lrob-email-toolkit'),
+            default                            => __('No newsletters yet. Start one to send to your subscribers.', 'lrob-email-toolkit'),
         };
     }
 
@@ -423,7 +438,7 @@ final class NewslettersPage
         // decisions.
         $effective_status = $is_trashed ? 'trashed' : $status;
         ?>
-        <article class="lrob-etk-identity-card lrob-etk-nl-card<?php echo $is_trashed ? ' is-trashed' : ''; ?>"
+        <article class="lrob-etk-card lrob-etk-nl-card<?php echo $is_trashed ? ' is-trashed' : ''; ?><?php echo ($_GET['created'] ?? '') === (string) $post_id ? ' is-just-created' : ''; ?>" data-newsletter-status="<?php echo esc_attr((string) ($row['status'] ?? 'draft')); ?>"
                  data-newsletter-id="<?php echo $post_id; ?>"
                  data-status="<?php echo esc_attr($effective_status); ?>"
                  id="newsletter-<?php echo $post_id; ?>">
@@ -500,10 +515,9 @@ final class NewslettersPage
                 // resource — admins jump to the right place to add a
                 // missing identity / category without losing context.
                 $smtp_admin_url = admin_url('admin.php?page=lrob-etk-smtp');
-                $categories_admin_url = add_query_arg(
-                    ['page' => PageController::SLUG, 'view' => HomePage::VIEW_CATEGORIES],
-                    admin_url('admin.php')
-                );
+                // Categories live in a modal opened from the Newsletters
+                // page header — link uses the same #lrob-etk-nl-categories-btn
+                // anchor so a JS click handler can pop the modal directly.
                 ?>
                 <fieldset class="lrob-etk-nl-card-settings" <?php disabled($is_locked); ?>>
                     <div class="lrob-etk-field">
@@ -530,9 +544,10 @@ final class NewslettersPage
                                     __('Recipients can opt out of specific categories (e.g. product news, weekly digest). This newsletter only reaches recipients who haven\'t opted out of the picked category.', 'lrob-email-toolkit')
                                 );
                                 ?>
-                                <a href="<?php echo esc_url($categories_admin_url); ?>" class="lrob-etk-nl-field-link">
-                                    <?php esc_html_e('Edit categories →', 'lrob-email-toolkit'); ?>
-                                </a>
+                                <button type="button" class="lrob-etk-nl-field-link"
+                                        onclick="document.getElementById('lrob-etk-nl-categories-btn').click()">
+                                    <?php esc_html_e('Manage categories', 'lrob-email-toolkit'); ?>
+                                </button>
                             </label>
                             <?php
                             Combobox::render_fixed_select(
@@ -570,31 +585,65 @@ final class NewslettersPage
 
                     <div class="lrob-etk-modal-columns lrob-etk-nl-card-audience-row">
                         <div class="lrob-etk-field">
-                            <label><?php esc_html_e('Audience', 'lrob-email-toolkit'); ?></label>
+                            <label>
+                                <?php esc_html_e('Audience', 'lrob-email-toolkit'); ?>
+                                <button type="button"
+                                        class="lrob-etk-nl-card-manage-lists"
+                                        id="lrob-etk-nl-lists-btn"
+                                        title="<?php esc_attr_e('Manage lists', 'lrob-email-toolkit'); ?>">
+                                    <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
+                                    <?php esc_html_e('Manage lists', 'lrob-email-toolkit'); ?>
+                                </button>
+                            </label>
                             <?php
-                            $kinds = [
-                                NewsletterCPT::TARGET_KIND_ALL              => __('All recipients (subscribers + WP users)', 'lrob-email-toolkit'),
-                                NewsletterCPT::TARGET_KIND_ALL_SUBSCRIBERS  => __('Subscribers only', 'lrob-email-toolkit'),
-                                NewsletterCPT::TARGET_KIND_ALL_USERS        => __('WordPress users only', 'lrob-email-toolkit'),
-                                NewsletterCPT::TARGET_KIND_LIST             => __('Specific list', 'lrob-email-toolkit'),
-                            ];
-                            foreach ($kinds as $value => $label) :
-                                ?>
-                                <label class="lrob-etk-nl-card-radio">
-                                    <input type="radio" class="lrob-etk-nl-field" data-key="target_kind"
-                                           name="target_kind_<?php echo $post_id; ?>"
-                                           value="<?php echo esc_attr($value); ?>" <?php checked($target_kind, $value); ?>>
-                                    <?php echo esc_html($label); ?>
-                                </label>
-                            <?php endforeach; ?>
-                            <div class="lrob-etk-nl-card-list-picker" data-target-list-picker>
-                                <?php
-                                $list_options = [['value' => '0', 'label' => __('— Select a list —', 'lrob-email-toolkit')]];
-                                foreach ($lists as $list) {
-                                    $list_options[] = ['value' => (string) ($list['id'] ?? 0), 'label' => (string) ($list['name'] ?? '')];
-                                }
-                                Combobox::render_fixed_select('target_list_id', (string) $target_list_id, $list_options, '0', 'lrob-etk-nl-field');
-                                ?>
+                            // Build the per-list lookup for the picker.
+                            $target = $target_raw !== '' ? (array) json_decode($target_raw, true) : [];
+                            $target_list_ids = isset($target['list_ids']) && is_array($target['list_ids'])
+                                ? array_values(array_unique(array_map('intval', $target['list_ids'])))
+                                : [];
+                            // Back-compat: single legacy list_id rolls into list_ids[].
+                            if ($target_list_ids === [] && $target_kind === NewsletterCPT::TARGET_KIND_LIST && $target_list_id > 0) {
+                                $target_list_ids = [$target_list_id];
+                            }
+                            $by_id = [];
+                            foreach ($lists as $l) { $by_id[(int) ($l['id'] ?? 0)] = $l; }
+                            ?>
+                            <div class="lrob-etk-nl-card-audience-picker"
+                                 data-audience-picker
+                                 data-newsletter-id="<?php echo (int) $post_id; ?>">
+                                <ul class="lrob-etk-nl-card-audience-chips" data-audience-chips>
+                                    <?php foreach ($target_list_ids as $lid) :
+                                        if (!isset($by_id[$lid])) continue;
+                                        $row = $by_id[$lid];
+                                        ?>
+                                        <li class="lrob-etk-nl-card-audience-chip" data-audience-chip-id="<?php echo (int) $lid; ?>">
+                                            <span><?php echo esc_html((string) ($row['name'] ?? '')); ?></span>
+                                            <button type="button"
+                                                    class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger"
+                                                    data-audience-chip-remove
+                                                    aria-label="<?php esc_attr_e('Remove from audience', 'lrob-email-toolkit'); ?>">
+                                                <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                                            </button>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <select class="lrob-etk-nl-card-audience-add" data-audience-add>
+                                    <option value=""><?php esc_html_e('+ Add a list…', 'lrob-email-toolkit'); ?></option>
+                                    <?php
+                                    $system_lists = array_filter($lists, static fn ($l) => (int) ($l['is_system'] ?? 0) === 1);
+                                    $user_lists   = array_filter($lists, static fn ($l) => (int) ($l['is_system'] ?? 0) !== 1);
+                                    foreach ([$system_lists, $user_lists] as $group) :
+                                        foreach ($group as $list) :
+                                            $lid = (int) ($list['id'] ?? 0);
+                                            if ($lid <= 0) continue;
+                                            ?>
+                                            <option value="<?php echo $lid; ?>"
+                                                    <?php echo in_array($lid, $target_list_ids, true) ? 'disabled' : ''; ?>>
+                                                <?php echo esc_html((string) ($list['name'] ?? '')); ?>
+                                            </option>
+                                        <?php endforeach;
+                                    endforeach; ?>
+                                </select>
                             </div>
                         </div>
                         <div class="lrob-etk-field lrob-etk-nl-card-recipients">
@@ -1046,18 +1095,134 @@ final class NewslettersPage
 
         <div class="lrob-etk-modal" id="lrob-etk-nl-modal-preview" role="dialog" aria-modal="true" hidden>
             <div class="lrob-etk-modal-backdrop" data-modal-close></div>
-            <div class="lrob-etk-modal-dialog">
+            <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--wide">
                 <header class="lrob-etk-modal-header">
                     <h3 class="lrob-etk-modal-title-text"><?php esc_html_e('Email preview', 'lrob-email-toolkit'); ?></h3>
+                    <nav class="lrob-etk-nl-preview-viewport" role="tablist" aria-label="<?php esc_attr_e('Viewport size', 'lrob-email-toolkit'); ?>">
+                        <button type="button" class="lrob-etk-icon-btn lrob-etk-nl-preview-vp is-active" data-preview-viewport="desktop" title="<?php esc_attr_e('Desktop', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Desktop preview', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-desktop" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="lrob-etk-icon-btn lrob-etk-nl-preview-vp" data-preview-viewport="tablet" title="<?php esc_attr_e('Tablet', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Tablet preview', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-tablet" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="lrob-etk-icon-btn lrob-etk-nl-preview-vp" data-preview-viewport="mobile" title="<?php esc_attr_e('Mobile', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Mobile preview', 'lrob-email-toolkit'); ?>">
+                            <span class="dashicons dashicons-smartphone" aria-hidden="true"></span>
+                        </button>
+                    </nav>
                     <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
                         <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
                     </button>
                 </header>
-                <div class="lrob-etk-modal-body">
-                    <iframe data-preview-iframe sandbox style="width: 100%; min-height: 60vh; border: 1px solid #dcdcde; border-radius: 4px; display: block;"></iframe>
+                <div class="lrob-etk-modal-body lrob-etk-nl-preview-body" data-preview-vp="desktop">
+                    <iframe data-preview-iframe sandbox></iframe>
                 </div>
             </div>
         </div>
+        <script>
+        // Multi-list audience picker: add chips on select, remove on
+        // click ✕, persist the full list_ids[] as a comma-separated
+        // string via the `target_list_ids` pseudo-key.
+        (function () {
+            if (window.__lrobEtkNlAudiencePickerBound) return;
+            window.__lrobEtkNlAudiencePickerBound = true;
+
+            function readChipIds(picker) {
+                var ids = [];
+                picker.querySelectorAll('[data-audience-chip-id]').forEach(function (c) {
+                    var v = parseInt(c.getAttribute('data-audience-chip-id'), 10) || 0;
+                    if (v > 0) ids.push(v);
+                });
+                return ids;
+            }
+
+            function persistAudience(picker) {
+                var nlId = picker.getAttribute('data-newsletter-id');
+                if (!nlId) return;
+                var ids = readChipIds(picker);
+                // Dispatch a save-status bubble so the modal header reflects.
+                picker.dispatchEvent(new CustomEvent('lrob-etk:save-status', { bubbles: true, detail: { state: 'saving' } }));
+                var fd = new FormData();
+                fd.append('action', 'lrob_etk_nl_newsletter_save_meta');
+                fd.append('_nonce', (window.lrobEtkNlAdmin && window.lrobEtkNlAdmin.nonce) || '');
+                fd.append('newsletter_id', nlId);
+                fd.append('key', 'target_list_ids');
+                fd.append('value', ids.join(','));
+                fetch((window.lrobEtkNlAdmin && window.lrobEtkNlAdmin.ajaxUrl) || '', { method: 'POST', credentials: 'same-origin', body: fd })
+                    .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+                    .then(function (resp) {
+                        picker.dispatchEvent(new CustomEvent('lrob-etk:save-status', { bubbles: true, detail: { state: (resp && resp.success) ? 'saved' : 'error' } }));
+                        // Refresh the recipients count for this card.
+                        document.dispatchEvent(new CustomEvent('lrob-etk-nl-saved', { detail: { newsletterId: nlId, key: 'target_list_ids' } }));
+                    });
+            }
+
+            document.addEventListener('change', function (e) {
+                var sel = e.target.closest && e.target.closest('[data-audience-add]');
+                if (!sel) return;
+                var lid = parseInt(sel.value, 10) || 0;
+                if (lid <= 0) return;
+                var picker = sel.closest('[data-audience-picker]');
+                if (!picker) return;
+                var chipsEl = picker.querySelector('[data-audience-chips]');
+                if (!chipsEl) return;
+                // Build the new chip — label comes from the picked <option>.
+                var label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : ('#' + lid);
+                var li = document.createElement('li');
+                li.className = 'lrob-etk-nl-card-audience-chip';
+                li.setAttribute('data-audience-chip-id', String(lid));
+                li.innerHTML = '<span></span>'
+                    + '<button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger" data-audience-chip-remove aria-label="Remove">'
+                    +   '<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>'
+                    + '</button>';
+                li.querySelector('span').textContent = label;
+                chipsEl.appendChild(li);
+                // Disable that option so it can't be re-picked.
+                Array.prototype.forEach.call(sel.options, function (opt) {
+                    if (parseInt(opt.value, 10) === lid) opt.disabled = true;
+                });
+                sel.value = '';
+                persistAudience(picker);
+            });
+
+            document.addEventListener('click', function (e) {
+                var rem = e.target.closest && e.target.closest('[data-audience-chip-remove]');
+                if (!rem) return;
+                var chip = rem.closest('[data-audience-chip-id]');
+                var picker = rem.closest('[data-audience-picker]');
+                if (!chip || !picker) return;
+                var lid = parseInt(chip.getAttribute('data-audience-chip-id'), 10) || 0;
+                chip.parentNode.removeChild(chip);
+                // Re-enable that option in the picker.
+                var sel = picker.querySelector('[data-audience-add]');
+                if (sel && lid > 0) {
+                    Array.prototype.forEach.call(sel.options, function (opt) {
+                        if (parseInt(opt.value, 10) === lid) opt.disabled = false;
+                    });
+                }
+                persistAudience(picker);
+            });
+        })();
+        </script>
+        <script>
+        // Viewport switcher for the email preview — JS toggles the body's
+        // data-preview-vp attribute; CSS handles the iframe sizing.
+        (function () {
+            if (window.__lrobEtkNlPreviewVpBound) return;
+            window.__lrobEtkNlPreviewVpBound = true;
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest && e.target.closest('[data-preview-viewport]');
+                if (!btn) return;
+                var modal = btn.closest('.lrob-etk-modal');
+                if (!modal) return;
+                var vp = btn.getAttribute('data-preview-viewport');
+                modal.querySelectorAll('[data-preview-viewport]').forEach(function (b) {
+                    b.classList.toggle('is-active', b === btn);
+                });
+                var body = modal.querySelector('[data-preview-vp]');
+                if (body) body.setAttribute('data-preview-vp', vp);
+            });
+        })();
+        </script>
 
         <div class="lrob-etk-modal" id="lrob-etk-nl-modal-recipients" role="dialog" aria-modal="true" hidden>
             <div class="lrob-etk-modal-backdrop" data-modal-close></div>
@@ -1160,12 +1325,15 @@ final class NewslettersPage
         if (is_wp_error($new_id) || !is_int($new_id) || $new_id <= 0) {
             wp_die(esc_html__('Could not create the newsletter.', 'lrob-email-toolkit'));
         }
-        // After creating, drop the admin on the newsletters list view
-        // with the new card scrolled into focus — the card itself
-        // exposes all settings + the Edit-content link, so we no
-        // longer auto-jump into Gutenberg.
+        // After creating, drop the admin on the All tab (newest first) with
+        // ?created=<id> so the new card highlights via the .is-just-created
+        // fade-in / zoom animation defined in admin-newsletter.css.
         wp_safe_redirect(add_query_arg(
-            ['page' => PageController::SLUG, 'view' => HomePage::VIEW_NEWSLETTERS],
+            [
+                'page'    => PageController::SLUG,
+                'view'    => HomePage::VIEW_NEWSLETTERS,
+                'created' => $new_id,
+            ],
             admin_url('admin.php')
         ) . '#newsletter-' . $new_id);
         exit;
@@ -1451,4 +1619,13 @@ final class NewslettersPage
         }
         return (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $ts);
     }
+
+    /** Dashboard tile counter — proxies to the repo so HomePage can show
+     *  counts without injecting the repository directly. */
+    public function count_for_dashboard(string $bucket): int
+    {
+        $counts = $this->newsletters->counts_by_tab();
+        return (int) ($counts[$bucket] ?? 0);
+    }
+
 }

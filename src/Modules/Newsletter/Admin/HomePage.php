@@ -14,7 +14,6 @@ use LRob\EmailToolkit\Modules\Newsletter\Send\SendAjaxController;
 use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
 use LRob\EmailToolkit\Modules\Newsletter\TemplateCPT;
 use LRob\EmailToolkit\Modules\Newsletter\TemplateRepository;
-use LRob\EmailToolkit\Modules\Newsletter\TemplateTokens;
 use LRob\EmailToolkit\Modules\Newsletter\TemplateValidator;
 
 /**
@@ -205,44 +204,21 @@ final class HomePage
         <div class="wrap lrob-etk lrob-etk-nl-page">
             <?php if (!$enabled) : ?>
                 <?php PageHeader::render([
-                    'title'  => __('Newsletter', 'lrob-email-toolkit'),
+                    'title'  => __('Newsletters', 'lrob-email-toolkit'),
                     'module' => $this->module,
                 ]); ?>
                 <p class="lrob-etk-disabled-message">
-                    <?php esc_html_e('Enable the Newsletter module to start managing newsletters and subscribers.', 'lrob-email-toolkit'); ?>
+                    <?php esc_html_e('Enable the Newsletters module to start managing newsletters and subscribers.', 'lrob-email-toolkit'); ?>
                 </p>
             <?php else : ?>
                 <?php $this->render_view($view); ?>
                 <?php SettingsPage::render_modal(); ?>
+                <?php $this->lists_page->render_modal(); ?>
+                <?php $this->categories_page->render_modal(); ?>
+                <?php $this->render_subscription_emails_modal(); ?>
             <?php endif; ?>
         </div>
         <?php
-    }
-
-    /** Nav links shared across every Newsletter sub-page header — points to
-     *  the other primary surfaces. The current view is excluded. */
-    public function nav_links(string $current): array
-    {
-        $base = admin_url('admin.php?page=' . PageController::SLUG);
-        $all = [
-            ''                     => [__('Dashboard', 'lrob-email-toolkit'),    'dashicons-chart-bar'],
-            self::VIEW_NEWSLETTERS => [__('Newsletters', 'lrob-email-toolkit'),  'dashicons-email'],
-            self::VIEW_SUBSCRIBERS => [__('Subscribers', 'lrob-email-toolkit'),  'dashicons-groups'],
-            self::VIEW_LISTS       => [__('Lists', 'lrob-email-toolkit'),        'dashicons-list-view'],
-            self::VIEW_CATEGORIES  => [__('Categories', 'lrob-email-toolkit'),   'dashicons-category'],
-            self::VIEW_ONBOARDING  => [__('Onboarding', 'lrob-email-toolkit'),   'dashicons-megaphone'],
-            self::VIEW_FORMS       => [__('Forms', 'lrob-email-toolkit'),        'dashicons-feedback'],
-            self::VIEW_IMPORT      => [__('Import', 'lrob-email-toolkit'),       'dashicons-upload'],
-        ];
-        $links = [];
-        foreach ($all as $slug => [$label, $icon]) {
-            if ($slug === $current) {
-                continue;
-            }
-            $url = $slug === '' ? $base : add_query_arg('view', $slug, $base);
-            $links[] = ['label' => $label, 'icon' => $icon, 'href' => $url];
-        }
-        return $links;
     }
 
     /** Standard "Settings" tools button used by every Newsletter sub-page. */
@@ -255,18 +231,106 @@ final class HomePage
         ];
     }
 
+    /** Page-internal section tabs — stable order. Renders the strip used
+     *  on every Newsletter sub-page right under the PageHeader. Each
+     *  sub-page calls `$hub->render_section_tabs(HomePage::VIEW_X)`. */
+    public function render_section_tabs(string $current): void
+    {
+        $base = admin_url('admin.php?page=' . PageController::SLUG);
+        $tabs = [
+            ''                     => [__('Dashboard', 'lrob-email-toolkit'),    'dashicons-chart-bar'],
+            self::VIEW_NEWSLETTERS => [__('Newsletters', 'lrob-email-toolkit'),  'dashicons-email'],
+            self::VIEW_SUBSCRIBERS => [__('Subscribers', 'lrob-email-toolkit'),  'dashicons-groups'],
+            self::VIEW_FORMS       => [__('Forms', 'lrob-email-toolkit'),        'dashicons-feedback'],
+            self::VIEW_IMPORT      => [__('Import', 'lrob-email-toolkit'),       'dashicons-upload'],
+        ];
+        ?>
+        <nav class="lrob-etk-section-tabs" aria-label="<?php esc_attr_e('Newsletter sections', 'lrob-email-toolkit'); ?>">
+            <?php foreach ($tabs as $slug => [$label, $icon]) :
+                $url = $slug === '' ? $base : add_query_arg('view', $slug, $base);
+                $active = $current === $slug;
+                $class = 'lrob-etk-section-tab' . ($active ? ' is-active' : '');
+                ?>
+                <a href="<?php echo esc_url($url); ?>" class="<?php echo esc_attr($class); ?>"<?php echo $active ? ' aria-current="page"' : ''; ?>>
+                    <span class="dashicons <?php echo esc_attr($icon); ?>" aria-hidden="true"></span>
+                    <?php echo esc_html($label); ?>
+                </a>
+            <?php endforeach; ?>
+        </nav>
+        <?php
+    }
+
     private function render_view(string $view): void
     {
+        // Stale URLs for views that have been folded into a parent:
+        //   ?view=categories  → render Newsletters (Categories now lives there)
+        //   ?view=lists       → render Subscribers (Lists lives there)
+        //   ?view=onboarding  → render Subscribers (Onboarding lives there)
+        // No HTTP redirect — just delegate to the consolidated parent so
+        // the URL stays stable and the user sees the new home.
         match ($view) {
-            self::VIEW_ONBOARDING  => $this->render_onboarding(),
-            self::VIEW_FORMS       => $this->forms_page->render($this),
-            self::VIEW_CATEGORIES  => $this->categories_page->render($this),
-            self::VIEW_LISTS       => $this->lists_page->render($this),
-            self::VIEW_SUBSCRIBERS => $this->subscribers_page->render($this),
-            self::VIEW_NEWSLETTERS => $this->newsletters_page->render($this),
-            self::VIEW_IMPORT      => $this->render_placeholder($view),
-            default                => $this->render_dashboard(),
+            self::VIEW_FORMS                        => $this->forms_page->render($this),
+            self::VIEW_CATEGORIES,
+            self::VIEW_NEWSLETTERS                  => $this->newsletters_page->render($this),
+            self::VIEW_LISTS,
+            self::VIEW_ONBOARDING,
+            self::VIEW_SUBSCRIBERS                  => $this->subscribers_page->render($this),
+            self::VIEW_IMPORT                       => $this->render_placeholder($view),
+            default                                 => $this->render_dashboard(),
         };
+    }
+
+    /** Embedded passthroughs — sub-pages call these to render absorbed
+     *  sections (Categories inside Newsletters, Lists + Onboarding inside
+     *  Subscribers). Embedded mode skips the inner PageHeader + section-tabs. */
+    public function render_categories_embedded(): void { $this->categories_page->render($this, true); }
+    public function render_lists_embedded(): void      { $this->lists_page->render($this, true); }
+    public function render_onboarding_embedded(): void { $this->render_onboarding(true); }
+
+    /** Standard "Subscription emails" tools button for the Subscribers page. */
+    public static function subscription_emails_tool(): array
+    {
+        return [
+            'label' => __('Subscription emails', 'lrob-email-toolkit'),
+            'icon'  => 'dashicons-email',
+            'id'    => 'lrob-etk-nl-subscription-emails-btn',
+        ];
+    }
+
+    /** Modal wrapper for the Subscription-emails (onboarding) UI. */
+    public function render_subscription_emails_modal(): void
+    {
+        ?>
+        <div class="lrob-etk-modal" id="lrob-etk-nl-subscription-emails-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-nl-subscription-emails-title" hidden>
+            <div class="lrob-etk-modal-backdrop" data-modal-close></div>
+            <div class="lrob-etk-modal-dialog lrob-etk-modal-dialog--wide">
+                <header class="lrob-etk-modal-header">
+                    <h3 id="lrob-etk-nl-subscription-emails-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Subscription emails', 'lrob-email-toolkit'); ?></h3>
+                    <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                    </button>
+                </header>
+                <div class="lrob-etk-modal-body">
+                    <?php $this->render_onboarding(true); ?>
+                </div>
+            </div>
+        </div>
+        <script>
+        (function () {
+            if (window.__lrobEtkNlSubscriptionEmailsModalBound) return;
+            window.__lrobEtkNlSubscriptionEmailsModalBound = true;
+            function whenReady(fn) {
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+                else fn();
+            }
+            whenReady(function () {
+                if (window.lrobEtkModal) {
+                    window.lrobEtkModal.bindHeader('lrob-etk-nl-subscription-emails-modal', 'lrob-etk-nl-subscription-emails-btn');
+                }
+            });
+        })();
+        </script>
+        <?php
     }
 
     /**
@@ -277,30 +341,44 @@ final class HomePage
      * Each row links to the Gutenberg post editor; defaults carry a
      * "Default" badge; validator issues surface inline.
      */
-    private function render_onboarding(): void
+    public function render_onboarding(bool $embedded = false): void
     {
         $grouped = $this->templates->list_all_grouped();
         $resolved_defaults = [];
         foreach (TemplateCPT::purposes() as $purpose) {
             $resolved_defaults[$purpose] = $this->templates->default_id_for_purpose($purpose);
         }
-        PageHeader::render([
-            'title' => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Onboarding', 'lrob-email-toolkit')),
-            'tools' => [self::settings_tool()],
-            'nav'   => $this->nav_links(self::VIEW_ONBOARDING),
-        ]);
+        if (!$embedded) {
+            PageHeader::render([
+                'title' => sprintf(__('Newsletters — %s', 'lrob-email-toolkit'), __('Subscription emails', 'lrob-email-toolkit')),
+                'tools' => [self::settings_tool()],
+            ]);
+            $this->render_section_tabs(self::VIEW_ONBOARDING);
+        } else {
+            echo '<h2 class="lrob-etk-section-title">' . esc_html__('Subscription emails', 'lrob-email-toolkit') . '</h2>';
+        }
         ?>
         <section class="lrob-etk-nl-templates">
-            <p class="lrob-etk-nl-templates-intro">
-                <?php esc_html_e('System emails sent automatically during subscription onboarding. Edit any template in the block editor. Tokens marked with an asterisk (*) are required for the email to function.', 'lrob-email-toolkit'); ?>
+            <p class="description">
+                <?php esc_html_e('System emails fired automatically as a visitor moves through signup. Each purpose has one active template — the rest are alternates you can swap in. Click the title to edit in the block editor.', 'lrob-email-toolkit'); ?>
             </p>
 
+            <?php
+            $purpose_descriptions = [
+                TemplateCPT::PURPOSE_CONFIRMATION => __('Sent when someone signs up — contains the click-to-confirm link.', 'lrob-email-toolkit'),
+                TemplateCPT::PURPOSE_REMINDER     => __('Sent on a schedule to subscribers who signed up but haven\'t clicked the confirmation link yet.', 'lrob-email-toolkit'),
+                TemplateCPT::PURPOSE_REFUSE_ACK   => __('Sent after a subscriber declines confirmation, acknowledging the choice.', 'lrob-email-toolkit'),
+            ];
+            ?>
+
+            <?php
+            $nonce = wp_create_nonce(AjaxController::NONCE_ACTION);
+            $ajax_url = admin_url('admin-ajax.php');
+            ?>
             <?php foreach (TemplateCPT::purposes() as $purpose) : ?>
                 <?php
                 $posts = $grouped[$purpose] ?? [];
                 $default_id = $resolved_defaults[$purpose] ?? 0;
-                $tokens = TemplateTokens::available_tokens($purpose);
-                $required = TemplateTokens::required_tokens($purpose);
                 $new_url = wp_nonce_url(
                     add_query_arg(
                         [
@@ -312,100 +390,191 @@ final class HomePage
                     NewsletterModule::ACTION_NEW_FROM_DEFAULT
                 );
                 ?>
-                <article class="lrob-etk-nl-template-group">
-                    <header class="lrob-etk-nl-template-group-head">
-                        <h2 class="lrob-etk-nl-template-group-title"><?php echo esc_html(TemplateCPT::purpose_label($purpose)); ?></h2>
-                        <a class="button button-secondary" href="<?php echo esc_url($new_url); ?>" title="<?php esc_attr_e('Start a new draft pre-filled with the default content for this purpose.', 'lrob-email-toolkit'); ?>">
-                            <?php esc_html_e('New from default', 'lrob-email-toolkit'); ?>
-                        </a>
-                    </header>
+                <article class="lrob-etk-card lrob-etk-nl-template-group">
+                    <div class="lrob-etk-card-form">
+                        <header class="lrob-etk-nl-template-group-head">
+                            <h3 class="lrob-etk-nl-template-group-title"><?php echo esc_html(TemplateCPT::purpose_label($purpose)); ?></h3>
+                            <span class="lrob-etk-nl-template-group-purpose"><?php echo esc_html($purpose_descriptions[$purpose] ?? ''); ?></span>
+                        </header>
 
-                    <p class="lrob-etk-nl-template-group-tokens">
-                        <?php esc_html_e('Available tokens:', 'lrob-email-toolkit'); ?>
-                        <?php foreach ($tokens as $i => $token) : ?>
-                            <?php $is_req = in_array($token, $required, true); ?>
-                            <code<?php echo $is_req ? ' class="is-required" title="' . esc_attr__('Required for this onboarding purpose', 'lrob-email-toolkit') . '"' : ''; ?>>{{<?php echo esc_html($token); ?>}}<?php echo $is_req ? '*' : ''; ?></code><?php echo $i < count($tokens) - 1 ? ' ' : ''; ?>
-                        <?php endforeach; ?>
-                    </p>
+                        <?php if ($posts === []) : ?>
+                            <div class="lrob-etk-empty-state">
+                                <span class="dashicons dashicons-email lrob-etk-empty-state-icon" aria-hidden="true"></span>
+                                <p class="lrob-etk-empty-state-text">
+                                    <?php esc_html_e('No template configured for this purpose. Visitors who reach this step would get nothing.', 'lrob-email-toolkit'); ?>
+                                </p>
+                                <a class="button button-primary" href="<?php echo esc_url($new_url); ?>">
+                                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                    <?php esc_html_e('Create from default', 'lrob-email-toolkit'); ?>
+                                </a>
+                            </div>
+                        <?php else : ?>
+                            <ul class="lrob-etk-nl-template-list" data-template-purpose="<?php echo esc_attr($purpose); ?>">
+                                <?php foreach ($posts as $p) :
+                                    $is_active = ((int) $p->ID === $default_id);
+                                    $edit_url = get_edit_post_link($p->ID);
+                                    $validation = TemplateValidator::validate($p->ID);
+                                    $is_seed = (bool) get_post_meta($p->ID, TemplateCPT::META_IS_DEFAULT, true);
+                                    ?>
+                                    <li class="lrob-etk-nl-template-row<?php echo $is_active ? ' is-active' : ''; ?>"
+                                        data-template-id="<?php echo (int) $p->ID; ?>">
+                                        <?php if ($is_active) : ?>
+                                            <span class="lrob-etk-default-badge" title="<?php esc_attr_e('This is the active template — actually sent.', 'lrob-email-toolkit'); ?>">
+                                                <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
+                                                <?php esc_html_e('Active', 'lrob-email-toolkit'); ?>
+                                            </span>
+                                        <?php else : ?>
+                                            <button type="button"
+                                                    class="lrob-etk-set-default"
+                                                    data-set-default-template="<?php echo (int) $p->ID; ?>"
+                                                    title="<?php esc_attr_e('Make this the active template for this purpose.', 'lrob-email-toolkit'); ?>">
+                                                <span class="dashicons dashicons-star-empty" aria-hidden="true"></span>
+                                                <?php esc_html_e('Make active', 'lrob-email-toolkit'); ?>
+                                            </button>
+                                        <?php endif; ?>
+                                        <a class="lrob-etk-nl-template-title" href="<?php echo esc_url((string) $edit_url); ?>">
+                                            <?php echo esc_html($p->post_title !== '' ? $p->post_title : __('(untitled)', 'lrob-email-toolkit')); ?>
+                                        </a>
+                                        <?php if ($validation['valid']) : ?>
+                                            <span class="lrob-etk-status lrob-etk-status--on"><?php esc_html_e('Valid', 'lrob-email-toolkit'); ?></span>
+                                        <?php else : ?>
+                                            <span class="lrob-etk-status lrob-etk-status--fail" title="<?php echo esc_attr(implode(' · ', $validation['issues'])); ?>">
+                                                <?php echo esc_html(sprintf(
+                                                    /* translators: %d: number of validation issues. */
+                                                    _n('%d issue', '%d issues', count($validation['issues']), 'lrob-email-toolkit'),
+                                                    count($validation['issues'])
+                                                )); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                            <div class="lrob-etk-nl-template-group-footer">
+                                <a class="button" href="<?php echo esc_url($new_url); ?>" title="<?php esc_attr_e('Create a new draft pre-filled with the seeded default content.', 'lrob-email-toolkit'); ?>">
+                                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                    <?php esc_html_e('New variant', 'lrob-email-toolkit'); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
 
-                    <?php if ($posts === []) : ?>
-                        <p class="lrob-etk-nl-template-empty">
-                            <?php esc_html_e('No templates yet for this purpose.', 'lrob-email-toolkit'); ?>
-                        </p>
-                    <?php else : ?>
-                        <ul class="lrob-etk-nl-template-list">
-                            <?php foreach ($posts as $post) : ?>
-                                <?php
-                                $edit_url = get_edit_post_link($post->ID);
-                                $is_default_seed = (bool) get_post_meta($post->ID, TemplateCPT::META_IS_DEFAULT, true);
-                                $is_resolved_default = ((int) $post->ID === $default_id);
-                                $validation = TemplateValidator::validate($post->ID);
-                                ?>
-                                <li class="lrob-etk-nl-template-row">
-                                    <a class="lrob-etk-nl-template-title" href="<?php echo esc_url((string) $edit_url); ?>">
-                                        <?php echo esc_html($post->post_title !== '' ? $post->post_title : __('(untitled)', 'lrob-email-toolkit')); ?>
-                                    </a>
-                                    <?php if ($is_resolved_default) : ?>
-                                        <span class="lrob-etk-nl-template-badge is-default" title="<?php esc_attr_e('Currently used by the newsletter for this purpose.', 'lrob-email-toolkit'); ?>"><?php esc_html_e('Default', 'lrob-email-toolkit'); ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($is_default_seed && !$is_resolved_default) : ?>
-                                        <span class="lrob-etk-nl-template-badge is-seed" title="<?php esc_attr_e('Auto-created on module install.', 'lrob-email-toolkit'); ?>"><?php esc_html_e('Seeded', 'lrob-email-toolkit'); ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($validation['valid']) : ?>
-                                        <span class="lrob-etk-nl-template-status is-valid"><?php esc_html_e('OK', 'lrob-email-toolkit'); ?></span>
-                                    <?php else : ?>
-                                        <span class="lrob-etk-nl-template-status is-invalid" title="<?php echo esc_attr(implode(' · ', $validation['issues'])); ?>">
-                                            <?php echo esc_html(sprintf(
-                                                /* translators: %d: number of validation issues. */
-                                                _n('%d issue', '%d issues', count($validation['issues']), 'lrob-email-toolkit'),
-                                                count($validation['issues'])
-                                            )); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
+                        <?php if ($purpose === TemplateCPT::PURPOSE_REMINDER) : ?>
+                            <div class="lrob-etk-nl-template-reminder-schedule">
+                                <?php SettingsPage::render_reminder_schedule_section(false); ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </article>
             <?php endforeach; ?>
         </section>
 
-        <?php
-        // Reminder schedule lives below the templates because that's the
-        // schedule that drives the reminder template's dispatch. Same
-        // controls also live on the Settings hub — both surfaces auto-
-        // save to the same option keys.
-        ?>
-        <section class="lrob-etk-nl-settings lrob-etk-nl-settings--inline">
-            <?php SettingsPage::render_reminder_schedule_section(false); ?>
-        </section>
+        <script>
+        (function () {
+            if (window.__lrobEtkNlTemplateDefaultBound) return;
+            window.__lrobEtkNlTemplateDefaultBound = true;
+            var ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
+            var nonce = <?php echo wp_json_encode($nonce); ?>;
+            var action = <?php echo wp_json_encode(AjaxController::ACTION_TEMPLATE_SET_DEFAULT); ?>;
+            var i18nError = <?php echo wp_json_encode(__('Could not change the active template.', 'lrob-email-toolkit')); ?>;
+
+            var i18nActive    = <?php echo wp_json_encode(__('Active', 'lrob-email-toolkit')); ?>;
+            var i18nMakeActive= <?php echo wp_json_encode(__('Make active', 'lrob-email-toolkit')); ?>;
+            var i18nActiveTip = <?php echo wp_json_encode(__('This is the active template — actually sent.', 'lrob-email-toolkit')); ?>;
+            var i18nMakeActiveTip = <?php echo wp_json_encode(__('Make this the active template for this purpose.', 'lrob-email-toolkit')); ?>;
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest && e.target.closest('[data-set-default-template]');
+                if (!btn) return;
+                e.preventDefault();
+                var id = parseInt(btn.getAttribute('data-set-default-template'), 10);
+                if (!id) return;
+                var row = btn.closest('[data-template-id]');
+                var list = row ? row.closest('[data-template-purpose]') : null;
+                if (!list) return;
+                btn.disabled = true;
+                var fd = new FormData();
+                fd.append('action', action);
+                fd.append('_nonce', nonce);
+                fd.append('template_id', String(id));
+                fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                    .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+                    .then(function (resp) {
+                        if (resp && resp.success) {
+                            // Flip badges in place — no reload, no modal close.
+                            list.querySelectorAll('[data-template-id]').forEach(function (other) {
+                                var otherId = parseInt(other.getAttribute('data-template-id'), 10);
+                                var firstChild = other.firstElementChild;
+                                if (!firstChild) return;
+                                if (otherId === id) {
+                                    other.classList.add('is-active');
+                                    firstChild.outerHTML = ''
+                                        + '<span class="lrob-etk-default-badge" title="' + i18nActiveTip + '">'
+                                        +   '<span class="dashicons dashicons-star-filled" aria-hidden="true"></span>'
+                                        +   i18nActive
+                                        + '</span>';
+                                } else {
+                                    other.classList.remove('is-active');
+                                    // Only rewrite if the row currently shows the active badge;
+                                    // otherwise we'd erase a fresh "Make active" button.
+                                    if (firstChild.classList && firstChild.classList.contains('lrob-etk-default-badge')) {
+                                        firstChild.outerHTML = ''
+                                            + '<button type="button" class="lrob-etk-set-default" '
+                                            +   'data-set-default-template="' + otherId + '" '
+                                            +   'title="' + i18nMakeActiveTip + '">'
+                                            +   '<span class="dashicons dashicons-star-empty" aria-hidden="true"></span>'
+                                            +   i18nMakeActive
+                                            + '</button>';
+                                    }
+                                }
+                            });
+                        } else {
+                            btn.disabled = false;
+                            window.alert((resp && resp.data && resp.data.message) || i18nError);
+                        }
+                    });
+            });
+        })();
+        </script>
         <?php
     }
 
     private function render_dashboard(): void
     {
         $subs = $this->subscribers->count_total();
+        $wp_users = (int) count_users()['total_users'];
+        $nl_in_prep = $this->newsletters_page->count_for_dashboard('in_prep');
+        $nl_sent = $this->newsletters_page->count_for_dashboard('sent');
+        $forms_count = $this->forms_page->count_for_dashboard();
+        $base = admin_url('admin.php?page=' . PageController::SLUG);
         PageHeader::render([
-            'title'  => __('Newsletter', 'lrob-email-toolkit'),
+            'title'  => __('Newsletters', 'lrob-email-toolkit'),
             'module' => $this->module,
             'tools'  => [self::settings_tool()],
-            'nav'    => $this->nav_links(''),
         ]);
+        $this->render_section_tabs('');
         ?>
         <section class="lrob-etk-nl-dashboard">
             <div class="lrob-etk-nl-tiles">
-                <div class="lrob-etk-nl-tile">
+                <a class="lrob-etk-nl-tile" href="<?php echo esc_url(add_query_arg('view', self::VIEW_SUBSCRIBERS, $base)); ?>">
                     <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n($subs)); ?></span>
                     <span class="lrob-etk-nl-tile-label"><?php esc_html_e('Email-only subscribers', 'lrob-email-toolkit'); ?></span>
-                </div>
+                </a>
                 <div class="lrob-etk-nl-tile">
-                    <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n((int) count_users()['total_users'])); ?></span>
+                    <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n($wp_users)); ?></span>
                     <span class="lrob-etk-nl-tile-label"><?php esc_html_e('WP users (potential recipients)', 'lrob-email-toolkit'); ?></span>
                 </div>
+                <a class="lrob-etk-nl-tile" href="<?php echo esc_url(add_query_arg('view', self::VIEW_NEWSLETTERS, $base)); ?>">
+                    <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n($nl_in_prep)); ?></span>
+                    <span class="lrob-etk-nl-tile-label"><?php esc_html_e('Newsletters in preparation', 'lrob-email-toolkit'); ?></span>
+                </a>
+                <a class="lrob-etk-nl-tile" href="<?php echo esc_url(add_query_arg(['view' => self::VIEW_NEWSLETTERS, 'tab' => 'sent'], $base)); ?>">
+                    <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n($nl_sent)); ?></span>
+                    <span class="lrob-etk-nl-tile-label"><?php esc_html_e('Newsletters sent', 'lrob-email-toolkit'); ?></span>
+                </a>
+                <a class="lrob-etk-nl-tile" href="<?php echo esc_url(add_query_arg('view', self::VIEW_FORMS, $base)); ?>">
+                    <span class="lrob-etk-nl-tile-value"><?php echo esc_html(number_format_i18n($forms_count)); ?></span>
+                    <span class="lrob-etk-nl-tile-label"><?php esc_html_e('Subscribe forms', 'lrob-email-toolkit'); ?></span>
+                </a>
             </div>
-            <p class="lrob-etk-nl-skeleton-note">
-                <?php esc_html_e('This module is in active development — dashboard polish, tracking, bounce handling, and import/export land across the next few releases.', 'lrob-email-toolkit'); ?>
-            </p>
         </section>
         <?php
     }
@@ -417,10 +586,10 @@ final class HomePage
         ];
         $label = $labels[$view] ?? __('Coming soon', 'lrob-email-toolkit');
         PageHeader::render([
-            'title' => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), $label),
+            'title' => sprintf(__('Newsletters — %s', 'lrob-email-toolkit'), $label),
             'tools' => [self::settings_tool()],
-            'nav'   => $this->nav_links($view),
         ]);
+        $this->render_section_tabs($view);
         ?>
         <section class="lrob-etk-nl-placeholder">
             <div class="lrob-etk-nl-placeholder-icon dashicons dashicons-clock" aria-hidden="true"></div>

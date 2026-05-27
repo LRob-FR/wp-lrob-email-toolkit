@@ -98,4 +98,31 @@ final class TemplateRepository
         }
         return (int) ($counts->publish ?? 0) + (int) ($counts->draft ?? 0);
     }
+
+    /**
+     * Flag $template_id as the active template for its purpose. Clears
+     * the same flag on every other template of that purpose so the
+     * default-resolver always finds a single winner. Returns true on
+     * success, false if the post isn't a template or has no purpose
+     * meta yet.
+     */
+    public function set_default_for_purpose(int $template_id): bool
+    {
+        $post = $template_id > 0 ? get_post($template_id) : null;
+        if (!$post instanceof \WP_Post || $post->post_type !== TemplateCPT::POST_TYPE) {
+            return false;
+        }
+        $purpose = (string) get_post_meta($template_id, TemplateCPT::META_PURPOSE, true);
+        if ($purpose === '') {
+            return false;
+        }
+        foreach ($this->list_by_purpose($purpose) as $sibling) {
+            if ((int) $sibling->ID === $template_id) {
+                update_post_meta($sibling->ID, TemplateCPT::META_IS_DEFAULT, '1');
+            } else {
+                delete_post_meta($sibling->ID, TemplateCPT::META_IS_DEFAULT);
+            }
+        }
+        return true;
+    }
 }

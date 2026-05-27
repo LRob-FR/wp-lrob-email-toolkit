@@ -940,6 +940,44 @@
 }
 .lrob-etk-form-type-picker button:hover { background: var(--etk-soft); }
 
+/* Sectioned picker (Newsletter form editor) — presets on top, generic
+ * fields below. Each section gets its own header label. */
+.lrob-etk-form-type-picker:has(.lrob-etk-form-type-picker-section) {
+    display: block;
+    padding: 8px;
+}
+.lrob-etk-form-type-picker-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin: 0;
+}
+.lrob-etk-form-type-picker-section + .lrob-etk-form-type-picker-section {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--etk-line);
+}
+.lrob-etk-form-type-picker-section-label {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-muted);
+    font-weight: 600;
+    padding: 0 4px 4px;
+}
+.lrob-etk-form-type-picker-preset {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+}
+.lrob-etk-form-type-picker-preset .dashicons {
+    color: var(--etk-accent);
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
 
 /* ---------- New form picker (modal) ---------- */
 .lrob-etk-cf-new-picker {

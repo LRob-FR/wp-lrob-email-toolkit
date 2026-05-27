@@ -24,28 +24,13 @@
     display: none !important;
 }
 
-/* ---------- Case + hierarchy normalization ---------- */
-/* Avoid uppercase on anything the user is meant to read. h3 (section header)
- * should be larger than field labels — easy to invert by accident in CSS. */
-.lrob-etk h2,
-.lrob-etk h3,
-.lrob-etk-card-form h3,
-.lrob-etk-card-form label,
-.lrob-etk-card-form .lrob-etk-field > label,
-.lrob-etk-form-column h3,
-.lrob-etk-form-row-full h3,
-.lrob-etk-card-status,
-.lrob-etk-inline-switch-label,
-.lrob-etk-page-toggle-state,
-.lrob-etk-stat-label,
-.lrob-etk-log-meta-row .label,
-.lrob-etk-log-body h3,
-.lrob-etk-port-input label,
-.lrob-etk-modal-title-text {
-    text-transform: none !important;
-    letter-spacing: normal !important;
-}
-
+/* ---------- Card-internal headings ----------
+ * Inside `.lrob-etk-card-form` we want compact, dense settings — WP's
+ * default h3 (1.17em, ~18.7px) is too big for an in-card section
+ * title. The card primitive keeps its own 14px scale here. Page-level
+ * h1/h2/h3 outside cards follow WP admin defaults — fewer plugin-
+ * specific overrides to maintain across WP updates.
+ */
 .lrob-etk-card-form h3 {
     font-size: 14px;
     font-weight: 600;
@@ -161,16 +146,11 @@
     --etk-transition-slow:  0.30s ease;
 }
 
-.lrob-etk .lrob-etk-page-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 4px 0;
-    padding: 0;
-}
-
+/* Page title (`.lrob-etk-page-title`) inherits WP's default `<h1>` look.
+ * Section title keeps its top-border decoration (visually separates
+ * page sections) but inherits WP's font-size + weight so updates to the
+ * admin typography flow through. */
 .lrob-etk .lrob-etk-section-title {
-    font-size: 16px;
-    font-weight: 600;
     color: var(--etk-fg);
     margin: 32px 0 12px;
     padding-top: 16px;

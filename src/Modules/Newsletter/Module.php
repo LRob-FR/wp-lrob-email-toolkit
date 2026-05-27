@@ -54,7 +54,7 @@ final class Module extends AbstractModule
 
     public function name(): string
     {
-        return __('Newsletter', 'lrob-email-toolkit');
+        return __('Newsletters', 'lrob-email-toolkit');
     }
 
     public function description(): string
@@ -107,16 +107,35 @@ final class Module extends AbstractModule
      *       plus a cold_subscribers index. Additive — dbDelta + idempotent
      *       install() path. WP-user equivalents live in user_meta keys
      *       declared on UserMeta.
+     *   9 — extended subscriber profile fields for marketing filters:
+     *       first_name / last_name (lets subscribe forms collect names as
+     *       one composite or two separate fields), gender (with neutral
+     *       options), phone, postal address (line / line2 / postcode /
+     *       city / region / country). All optional + plain VARCHAR;
+     *       SubmitHandler populates them from form fields that declare a
+     *       `data-attr-maps-to` target. Additive — dbDelta handles it.
+     *  10 — two list kinds: adds `kind varchar(20) DEFAULT 'subscribers'`
+     *       on lists + `wp_lrob_etk_nl_list_exclusions` table. Backfill:
+     *       existing lists carrying rule_json become kind='users' (the
+     *       rule-driven mode); everything else stays 'subscribers'. The
+     *       Materializer branches on kind so the two list types stay
+     *       semantically distinct from this point on.
+     *  11 — `lists.is_system` flag + seed of built-in users-kind lists:
+     *       "All WP members", "All WC customers", "Active WC subscribers".
+     *       System lists can't be deleted from the UI; rule config is
+     *       fixed and the trash icon is suppressed. Newsletter audience
+     *       picker offers them alongside admin-created lists.
      */
     public function db_version_int(): int
     {
-        return 8;
+        return 11;
     }
 
     public function install(): void
     {
         Schema::install();
         self::seed_default_category();
+        self::seed_system_lists();
 
         // Template seeding deferred via a pending-flag option. install()
         // can fire from maybe_migrate() during plugins_loaded — too early
@@ -167,6 +186,9 @@ final class Module extends AbstractModule
             self::migrate_campaign_to_newsletter();
         }
         $this->install();
+        if ($from_version < 10) {
+            self::backfill_list_kinds();
+        }
         if ($from_version < 3) {
             self::repair_broken_default_templates();
         }
@@ -270,6 +292,19 @@ final class Module extends AbstractModule
      * yet and wp_delete_post depends on get_post_type_object lookups
      * that would short-circuit.
      */
+    /**
+     * Schema v10 backfill: every list with a non-empty rule_json was
+     * a rule-driven list pre-v10 and becomes kind='users'. Everything
+     * else stays the default 'subscribers'. Idempotent.
+     */
+    private static function backfill_list_kinds(): void
+    {
+        global $wpdb;
+        $lists = Schema::lists_table();
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $wpdb->query("UPDATE `$lists` SET kind = 'users' WHERE rule_json <> '' AND kind = 'subscribers'");
+    }
+
     private static function repair_broken_default_templates(): void
     {
         global $wpdb;
@@ -619,5 +654,75 @@ final class Module extends AbstractModule
             'sort_order'  => 0,
             'created_at'  => current_time('mysql', true),
         ], ['%s', '%s', '%s', '%d', '%s']);
+    }
+
+    /**
+     * Seed the built-in `is_system=1` users-kind lists. Idempotent —
+     * each entry is keyed by slug (UNIQUE), so re-running just upserts
+     * the rule_json + name in case the seed shape changed across
+     * versions. Slugs are reserved and never reused by user lists.
+     */
+    private static function seed_system_lists(): void
+    {
+        global $wpdb;
+        $table = Schema::lists_table();
+        $now = current_time('mysql', true);
+        $seeds = [
+            'all_subscribers' => [
+                'name'      => __('All subscribers', 'lrob-email-toolkit'),
+                'kind'      => 'all_subscribers',
+                'rule_json' => '',
+            ],
+            'all_wp_members' => [
+                'name'      => __('All WP members', 'lrob-email-toolkit'),
+                'kind'      => 'users',
+                'rule_json' => (string) wp_json_encode([
+                    'provider' => 'wp_all_users',
+                    'config'   => (object) [],
+                ]),
+            ],
+            'all_wc_customers' => [
+                'name'      => __('All WC customers', 'lrob-email-toolkit'),
+                'kind'      => 'users',
+                'rule_json' => (string) wp_json_encode([
+                    'provider' => 'wc_customers',
+                    'config'   => (object) [],
+                ]),
+            ],
+            'active_wc_subs' => [
+                'name'      => __('Active WC subscribers', 'lrob-email-toolkit'),
+                'kind'      => 'users',
+                'rule_json' => (string) wp_json_encode([
+                    'provider' => 'woo_subscriptions',
+                    'config'   => ['statuses' => ['active'], 'product_ids' => []],
+                ]),
+            ],
+        ];
+        foreach ($seeds as $slug => $row) {
+            $existing = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM `$table` WHERE slug = %s LIMIT 1",
+                $slug
+            ));
+            if ($existing > 0) {
+                $wpdb->update($table, [
+                    'name'      => $row['name'],
+                    'rule_json' => $row['rule_json'],
+                    'kind'      => $row['kind'],
+                    'is_system' => 1,
+                    'updated_at'=> $now,
+                ], ['id' => $existing], ['%s', '%s', '%s', '%d', '%s'], ['%d']);
+                continue;
+            }
+            $wpdb->insert($table, [
+                'name'        => $row['name'],
+                'slug'        => $slug,
+                'kind'        => $row['kind'],
+                'is_system'   => 1,
+                'description' => '',
+                'rule_json'   => $row['rule_json'],
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ], ['%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s']);
+        }
     }
 }

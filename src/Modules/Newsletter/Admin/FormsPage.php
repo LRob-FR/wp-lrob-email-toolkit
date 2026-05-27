@@ -90,12 +90,25 @@ final class FormsPage
         );
         $captcha_service = Plugin::instance()->container()->get(CaptchaService::class);
         $captcha_service = $captcha_service instanceof CaptchaService ? $captcha_service : null;
+        $maps_to_targets = [];
+        foreach (\LRob\EmailToolkit\Modules\Newsletter\SubscriberFields::PROFILE_COLUMNS as $col) {
+            $maps_to_targets[] = ['value' => $col, 'label' => \LRob\EmailToolkit\Modules\Newsletter\SubscriberFields::label($col)];
+        }
         wp_localize_script('lrob-etk-form-fields-editor', 'lrobEtkFormEditor', [
             'fieldTypes'         => self::field_types(),
             'captchaKey'         => FormCPT::META_CAPTCHA_ROUTE,
             'captchaOptions'     => SharedCaptchaField::build_editor_options(CaptchaRouting::CONTEXT_NEWSLETTER, $captcha_service),
             'countries'          => CountryData::all_translated(),
             'placeholderPresets' => [],
+            // List of subscriber-profile column targets the per-field
+            // "Maps to" picker offers. Empty on Contact Form pages —
+            // only Newsletter subscribe forms actually populate
+            // subscriber columns at submit time.
+            'mapsToTargets'      => $maps_to_targets,
+            // Quick-add presets surfaced at the top of the field-type
+            // picker. Pre-mapped to the right subscriber column so the
+            // admin doesn't have to set `Maps to` by hand.
+            'fieldPresets'       => self::field_presets(),
             'i18n'               => self::editor_i18n(),
             'save'               => [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -126,15 +139,15 @@ final class FormsPage
         $confirmation_templates = $this->templates->list_by_purpose(TemplateCPT::PURPOSE_CONFIRMATION);
         $resolved_default_template_id = $this->templates->default_id_for_purpose(TemplateCPT::PURPOSE_CONFIRMATION);
         PageHeader::render([
-            'title'   => sprintf(__('Newsletter — %s', 'lrob-email-toolkit'), __('Forms', 'lrob-email-toolkit')),
+            'title'   => sprintf(__('Newsletters — %s', 'lrob-email-toolkit'), __('Forms', 'lrob-email-toolkit')),
             'primary' => [
                 'label' => __('New subscribe form', 'lrob-email-toolkit'),
                 'icon'  => 'dashicons-plus-alt2',
                 'id'    => 'lrob-etk-nl-new-form-btn',
             ],
-            'tools' => [HomePage::settings_tool()],
-            'nav'   => $hub ? $hub->nav_links(HomePage::VIEW_FORMS) : [],
+            'tools' => [HomePage::subscription_emails_tool(), HomePage::settings_tool()],
         ]);
+        if ($hub) $hub->render_section_tabs(HomePage::VIEW_FORMS);
         ?>
         <section class="lrob-etk-nl-forms-section">
 
@@ -375,11 +388,35 @@ final class FormsPage
 
             <template data-field-type-picker>
                 <div class="lrob-etk-form-type-picker" role="menu">
-                    <?php foreach (self::field_types() as $type => $label) : ?>
-                        <button type="button" role="menuitem" data-type="<?php echo esc_attr($type); ?>">
-                            <?php echo esc_html($label); ?>
-                        </button>
-                    <?php endforeach; ?>
+                    <?php $presets = self::field_presets(); ?>
+                    <?php if ($presets !== []) : ?>
+                        <div class="lrob-etk-form-type-picker-section">
+                            <span class="lrob-etk-form-type-picker-section-label"><?php esc_html_e('Quick add (pre-mapped)', 'lrob-email-toolkit'); ?></span>
+                            <?php foreach ($presets as $preset) : ?>
+                                <button type="button"
+                                        role="menuitem"
+                                        class="lrob-etk-form-type-picker-preset"
+                                        data-preset="<?php echo esc_attr((string) $preset['slug']); ?>">
+                                    <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                                    <?php echo esc_html((string) $preset['label']); ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="lrob-etk-form-type-picker-section">
+                            <span class="lrob-etk-form-type-picker-section-label"><?php esc_html_e('Generic fields', 'lrob-email-toolkit'); ?></span>
+                            <?php foreach (self::field_types() as $type => $label) : ?>
+                                <button type="button" role="menuitem" data-type="<?php echo esc_attr($type); ?>">
+                                    <?php echo esc_html($label); ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else : ?>
+                        <?php foreach (self::field_types() as $type => $label) : ?>
+                            <button type="button" role="menuitem" data-type="<?php echo esc_attr($type); ?>">
+                                <?php echo esc_html($label); ?>
+                            </button>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </template>
         </section>
@@ -533,6 +570,91 @@ final class FormsPage
         ];
     }
 
+    /**
+     * Quick-add presets surfaced at the top of the field-type picker.
+     * Each preset expands into one or more pre-mapped fields so admins
+     * don't have to drop a generic Text + set its `Maps to` themselves.
+     * Storage shape is plain: every preset compiles to existing field
+     * types (no new types — the FieldTypeRegistry stays untouched).
+     *
+     * @return array<int, array{slug:string,label:string,fields:array<int, array<string, mixed>>}>
+     */
+    private static function field_presets(): array
+    {
+        return [
+            [
+                'slug'   => 'name_full',
+                'label'  => __('Full name', 'lrob-email-toolkit'),
+                'fields' => [
+                    ['type' => 'text', 'label' => __('Full name', 'lrob-email-toolkit'), 'maps_to' => 'name', 'required' => true],
+                ],
+            ],
+            [
+                'slug'   => 'name_split',
+                'label'  => __('First + Last name', 'lrob-email-toolkit'),
+                'fields' => [
+                    ['type' => 'text', 'label' => __('First name', 'lrob-email-toolkit'), 'maps_to' => 'first_name'],
+                    ['type' => 'text', 'label' => __('Last name',  'lrob-email-toolkit'), 'maps_to' => 'last_name'],
+                ],
+            ],
+            [
+                'slug'   => 'phone',
+                'label'  => __('Phone', 'lrob-email-toolkit'),
+                'fields' => [
+                    ['type' => 'phone', 'label' => __('Phone', 'lrob-email-toolkit'), 'maps_to' => 'phone'],
+                ],
+            ],
+            [
+                'slug'   => 'gender',
+                'label'  => __('Gender', 'lrob-email-toolkit'),
+                'fields' => [
+                    [
+                        'type'    => 'select',
+                        'label'   => __('Gender', 'lrob-email-toolkit'),
+                        'maps_to' => 'gender',
+                        'options' => [
+                            ['value' => 'female',            'label' => __('Female', 'lrob-email-toolkit')],
+                            ['value' => 'male',              'label' => __('Male', 'lrob-email-toolkit')],
+                            ['value' => 'other',             'label' => __('Other', 'lrob-email-toolkit')],
+                            ['value' => 'prefer_not_to_say', 'label' => __('Prefer not to say', 'lrob-email-toolkit')],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'slug'   => 'address',
+                'label'  => __('Postal address', 'lrob-email-toolkit'),
+                'fields' => [
+                    ['type' => 'text',   'label' => __('Street address', 'lrob-email-toolkit'), 'maps_to' => 'address_line'],
+                    ['type' => 'text',   'label' => __('Address line 2', 'lrob-email-toolkit'), 'maps_to' => 'address_line2'],
+                    ['type' => 'text',   'label' => __('Postcode',       'lrob-email-toolkit'), 'maps_to' => 'address_postcode'],
+                    ['type' => 'text',   'label' => __('City',           'lrob-email-toolkit'), 'maps_to' => 'address_city'],
+                    ['type' => 'select', 'label' => __('Country',        'lrob-email-toolkit'), 'maps_to' => 'address_country', 'options' => self::country_select_options()],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Country `<option>` list for the address preset's country field —
+     * iso2 → "Flag Name" via CountryData (the same source the phone
+     * field uses). Stored value is the ISO-2 code, so the
+     * subscribers.address_country VARCHAR(2) column stays correct.
+     *
+     * @return array<int, array{value:string,label:string}>
+     */
+    private static function country_select_options(): array
+    {
+        $out = [];
+        foreach (CountryData::all_translated() as $row) {
+            $out[] = [
+                'value' => (string) $row['iso'],
+                'label' => $row['flag'] . ' ' . $row['name'],
+            ];
+        }
+        return $out;
+    }
+
     /** @return array<string, string> */
     private static function editor_i18n(): array
     {
@@ -560,6 +682,15 @@ final class FormsPage
             'defaultCountry'    => __('Default', 'lrob-email-toolkit'),
             'autoDetectCountry' => __('Auto-detect from browser', 'lrob-email-toolkit'),
             'autoFromLocale'    => __('Auto (locale)', 'lrob-email-toolkit'),
+            'mapsTo'            => __('Maps to', 'lrob-email-toolkit'),
+            'mapsToNone'        => __('— (none)', 'lrob-email-toolkit'),
         ];
     }
+
+    /** Dashboard tile counter — proxies to the repo. */
+    public function count_for_dashboard(): int
+    {
+        return $this->forms->count_total();
+    }
+
 }

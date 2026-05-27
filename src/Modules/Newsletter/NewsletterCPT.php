@@ -64,6 +64,9 @@ final class NewsletterCPT
 
     public const TARGET_KIND_LIST             = 'list';
 
+    /** Multi-list union: target = union of every list_id in list_ids[]. */
+    public const TARGET_KIND_LISTS            = 'lists';
+
     /**
      * Same email-safe block subset as TemplateCPT. The CSS inliner (step
      * 7b polish) relies on this restricted vocabulary; newsletters and

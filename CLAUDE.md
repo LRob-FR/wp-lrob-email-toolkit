@@ -200,6 +200,56 @@ Drop a class implementing `ProviderInterface` into `Providers/`. Required: `slug
 
 Captcha is a **service module** (`is_service_module() === true`, always-enabled), so `maybe_migrate()` runs every boot. AbstractModule's default `db_version_int() === 1` recorded version=1 on every existing site *before* the module had install logic. Bumping to 2 makes `maybe_migrate()` take the `migrate()` branch (not `install()`) — schema never gets created on upgrade sites. **Fix**: always override `migrate()` to forward to `install()` (idempotent). If recovering from an already-shipped broken bump, bump the target one more notch so stuck sites re-take the migrate path. See memory `project_service_module_migrate_trap`.
 
+## Newsletter list kinds + system lists
+
+`wp_lrob_etk_nl_lists.kind` is an enum-ish column with three values:
+
+| kind | semantics | membership source |
+|---|---|---|
+| `subscribers` | Subscribers list — collects explicit members via `list_members` table | manual (subscribe form / contact form / admin add) |
+| `users` | WP users list — rule-based; provider locked at creation, can't be swapped post-hoc | `rule_json` → `RuleProviderInterface::resolve_user_ids()` |
+| `all_subscribers` | Pseudo-kind, system-only — resolves to every confirmed subscriber, no membership row needed | Materializer special-cases it |
+
+`lists.is_system = 1` marks the four built-in lists seeded on install/migrate (`Module::seed_system_lists`): **All subscribers**, **All WP members**, **All WC customers**, **Active WC subscribers**. System lists refuse rename / rule edits / delete via the AjaxController guards + `ListRepository::is_system`. They **do** accept exclusions (admin can pin out specific WP users).
+
+The Newsletter audience picker (`META_TARGET_SPEC`) supports `{kind: 'lists', list_ids: [1,2,3]}` for multi-list union. Materializer iterates list_ids, dedupes by (kind,id), and resolves each per its `list.kind`. Legacy `{kind: 'all'}` and friends keep working under the hood.
+
+## Newsletter list rule providers — adding one
+
+Lists (`wp_lrob_etk_nl_lists`) can be manual, rule-based, or both. Rule providers implement `Modules\Newsletter\Lists\RuleProviderInterface` and are surfaced via the `RuleRegistry`. Built-ins ship in `src/Modules/Newsletter/Lists/` (today: `WpUserRoleRule`).
+
+To register a third-party provider, hook the `lrob_etk_nl_list_rule_providers` filter and append your instance:
+
+```php
+add_filter('lrob_etk_nl_list_rule_providers', function (array $providers) {
+    $providers[] = new \MyPlugin\WooSubscribersRule();
+    return $providers;
+});
+```
+
+`config_fields()` returns generic field descriptors (`text` / `select` / `multiselect` / `checkbox`); the list-modal admin UI renders them automatically — no UI work to register a new provider. `sanitize_config()` is the trust boundary (the server never trusts the raw POST shape) and `resolve_user_ids()` is what the send-time Materializer calls to compute the auto-membership set. Manual memberships are unioned in by `Materializer::fetch_opted_in_users`.
+
+## Mandates carried by memory
+
+These are enforced project-wide; the named memory file documents the why + how:
+
+- **No `window.confirm/alert/prompt`** (`feedback_no_browser_popups`) — every destructive admin action goes through `window.lrobEtkConfirm.prompt()` (head-loaded `admin/js/etk-confirm.js`). Server-rendered forms use `[data-etk-confirm-form]` + `data-confirm-title/-message/-label`.
+- **No explicit Save buttons** (`feedback_autosave_everywhere`) — every editable field autosaves on blur/change. The shared `lrob-etk:save-status` CustomEvent bubbles to the nearest `.lrob-etk-modal`, where `etk-modal.js` reflects state on a `[data-modal-status]` badge near the X button. Emit it from any custom save handler.
+- **Never reload from inside an open modal** (`feedback_no_modal_close_on_save`) — return the server-rendered HTML snippet from the AJAX endpoint and insert it client-side; mutate badges/state in place. Reloads slam the modal shut and lose scroll position. A reload deferred to modal-close is acceptable when the surrounding table genuinely needs a re-render (column picker).
+
+## Subscriber profile fields + form mapping
+
+`Modules\Newsletter\SubscriberFields` is the single source of truth for the subscriber profile columns:
+
+- `PROFILE_COLUMNS` — the canonical whitelist (`email`, `name`, `first_name`, `last_name`, `phone`, `address_line`, `address_line2`, `address_postcode`, `address_city`, `address_region`, `address_country`, `gender`, `language`).
+- `GENDER_VALUES` — `female` / `male` / `other` / `prefer_not_to_say`.
+- `sanitize($column, $value)` — per-column sanitiser (sanitize_email for email, ENUM check for gender, ISO-2 cap for country, etc.). Every write goes through this.
+- `SubscriberRepository::set_profile_field($id, $column, $value)` — whitelisted single-column write. Used by the detail-modal autosave (per-key AJAX path), the form-submit `write_mapped_profile`, and the CSV import handler.
+
+Form fields can declare a **`maps_to`** attribute (added via the editor's "Maps to" chip — Newsletter forms only; Contact Form gets an empty `EDITOR_DATA.mapsToTargets` and the chip stays hidden). At subscribe time, `SubmitHandler::extract_mapped_profile` walks the structure, runs values through `SubscriberFields::sanitize`, and `write_mapped_profile` fans them onto the subscriber row.
+
+The Newsletter Forms picker also ships **field presets** (`FormsPage::field_presets()`) — *Full name*, *First + Last name*, *Phone*, *Gender* (select with M/F/Other/Prefer-not), *Postal address* (5 sub-fields). Picking a preset drops one or more pre-mapped fields in one shot.
+
 ## Form-builder WYSIWYG editor (`admin/js/form-fields-editor.js`)
 
 Shared between Contact Form and Newsletter via `src/Forms/`. Form-builder DOM uses the `lrob-etk-form-*` CSS prefix; module-specific admin chrome keeps its own prefix (`lrob-etk-cf-*` for Contact Form's form cards / recipients / modals, `lrob-etk-nl-*` for Newsletter's). The captcha field type is per-module — Contact Form's captcha emits `lrob-etk-cf-captcha-*` styles; Newsletter's emits its own.

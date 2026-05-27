@@ -36,6 +36,7 @@ final class Assets
     public const HANDLE_RETENTION_TOGGLE_JS = 'lrob-etk-retention-toggle';
     public const HANDLE_MODAL_JS = 'lrob-etk-modal';
     public const HANDLE_AUTOSAVE_JS = 'lrob-etk-autosave';
+    public const HANDLE_CONFIRM_JS = 'lrob-etk-confirm';
 
     public static function enqueue_admin(string $hook_suffix): void
     {
@@ -113,6 +114,11 @@ final class Assets
             self::asset_version('admin/js/etk-modal.js'),
             false
         );
+        wp_localize_script(self::HANDLE_MODAL_JS, 'lrobEtkModalI18n', [
+            'saving' => __('Saving…', 'lrob-email-toolkit'),
+            'saved'  => __('Saved', 'lrob-email-toolkit'),
+            'error'  => __('Save failed', 'lrob-email-toolkit'),
+        ]);
         // Shared per-key autosave for settings cards (status badge +
         // debounce + lastSent tracking). Footer is fine — consumers
         // wrap their attach() call in DOMContentLoaded.
@@ -122,6 +128,17 @@ final class Assets
             [],
             self::asset_version('admin/js/etk-autosave.js'),
             true
+        );
+        // Shared in-modal confirm() replacement — every destructive admin
+        // action across the plugin funnels through window.lrobEtkConfirm.
+        // Head-loaded so mid-body inline scripts can use it without
+        // wrapping in DOMContentLoaded.
+        wp_enqueue_script(
+            self::HANDLE_CONFIRM_JS,
+            LROB_ETK_URL . 'admin/js/etk-confirm.js',
+            [],
+            self::asset_version('admin/js/etk-confirm.js'),
+            false
         );
 
         add_action('admin_footer', [self::class, 'print_tooltip_script']);

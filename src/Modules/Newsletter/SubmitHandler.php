@@ -123,6 +123,7 @@ final class SubmitHandler
             ], 400);
         }
         $name = self::pick_name_field($form_id, $field_values);
+        $mapped_profile = self::extract_mapped_profile($form_id, $field_values);
 
         // Picker values: which lists this subscriber wants to join +
         // which categories they want (anything they tick they want;
@@ -151,6 +152,7 @@ final class SubmitHandler
             }
             $subscriber_id = (int) $existing['id'];
             $this->subscribers->reset_to_pending($subscriber_id);
+            $this->write_mapped_profile($subscriber_id, $mapped_profile);
             $this->apply_subscriber_preferences($subscriber_id, $form_id, $chosen_lists, $chosen_categories, $has_category_picker);
             $this->dispatch_confirmation($subscriber_id, $email, $name, $form_id);
             Events::dispatch('newsletter.subscriber.resubscribed', [
@@ -171,6 +173,7 @@ final class SubmitHandler
                 'message' => __('Could not record your subscription. Please try again.', 'lrob-email-toolkit'),
             ], 500);
         }
+        $this->write_mapped_profile($new_id, $mapped_profile);
         $this->apply_subscriber_preferences($new_id, $form_id, $chosen_lists, $chosen_categories, $has_category_picker);
         $this->dispatch_confirmation($new_id, $email, $name, $form_id);
         Events::dispatch('newsletter.subscriber.added', [
@@ -244,6 +247,23 @@ final class SubmitHandler
      * @param array<int, int>    $chosen_lists
      * @param array<int, string> $chosen_categories
      */
+    /**
+     * Fan out a mapped-profile payload onto the subscriber row via the
+     * whitelisted set_profile_field path. Skips the empty entries that
+     * are already filtered by extract_mapped_profile.
+     *
+     * @param array<string, string> $mapped
+     */
+    private function write_mapped_profile(int $subscriber_id, array $mapped): void
+    {
+        if ($mapped === [] || $subscriber_id <= 0) {
+            return;
+        }
+        foreach ($mapped as $column => $value) {
+            $this->subscribers->set_profile_field($subscriber_id, $column, $value);
+        }
+    }
+
     private function apply_subscriber_preferences(
         int $subscriber_id,
         int $form_id,
@@ -373,11 +393,17 @@ final class SubmitHandler
     }
 
     /**
-     * Optional name field. Picks the first text-type field whose slug
-     * matches a name-like pattern. Defaults to empty if no such field.
+     * Optional name field. Honours an explicit `maps_to=name`
+     * declaration first (the form-builder's "Maps to subscriber field"
+     * picker), then falls back to the first text-type field's value.
      */
     private static function pick_name_field(int $form_id, array $field_values): string
     {
+        $mapped = self::extract_mapped_profile($form_id, $field_values);
+        if (isset($mapped['name']) && $mapped['name'] !== '') {
+            return $mapped['name'];
+        }
+        // Fallback: first text field's value (legacy).
         $structure = FormStructure::load($form_id);
         foreach ($structure['rows'] as $row) {
             foreach ($row['columns'] as $col) {
@@ -397,6 +423,49 @@ final class SubmitHandler
             }
         }
         return '';
+    }
+
+    /**
+     * Walk the form structure for every field carrying a `maps_to`
+     * attribute and return `column => sanitised value` for each
+     * non-empty submission. Whitelisted server-side against the canonical
+     * `SubscriberFields::PROFILE_COLUMNS`. The email field is excluded
+     * here — it's resolved separately via `pick_email_field` (which is
+     * the actual signup gate).
+     *
+     * @return array<string, string>
+     */
+    private static function extract_mapped_profile(int $form_id, array $field_values): array
+    {
+        $structure = FormStructure::load($form_id);
+        $out = [];
+        foreach ($structure['rows'] as $row) {
+            foreach ($row['columns'] as $col) {
+                foreach ($col['fields'] as $field) {
+                    $maps_to = (string) ($field['maps_to'] ?? '');
+                    if ($maps_to === '' || $maps_to === 'email') {
+                        continue;
+                    }
+                    if (!in_array($maps_to, SubscriberFields::PROFILE_COLUMNS, true)) {
+                        continue;
+                    }
+                    $slug = (string) ($field['slug'] ?? '');
+                    if ($slug === '') {
+                        continue;
+                    }
+                    $raw = $field_values[$slug] ?? '';
+                    if (!is_string($raw)) {
+                        continue;
+                    }
+                    $clean = SubscriberFields::sanitize($maps_to, $raw);
+                    if ($clean === '') {
+                        continue;
+                    }
+                    $out[$maps_to] = $clean;
+                }
+            }
+        }
+        return $out;
     }
 
     /**

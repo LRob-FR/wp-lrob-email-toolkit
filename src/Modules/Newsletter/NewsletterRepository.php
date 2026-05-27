@@ -193,6 +193,10 @@ final class NewsletterRepository
         if ($tab === self::TAB_TRASH) {
             return "p.post_status = 'trash'";
         }
+        if ($tab === '' || $tab === 'all') {
+            // "All" — every newsletter except auto-draft skeletons + trash.
+            return "p.post_status NOT IN ('auto-draft','trash')";
+        }
         $statuses = $tab === self::TAB_SENT ? self::TAB_SENT_STATUSES : self::TAB_IN_PREP_STATUSES;
         $quoted = array_map(static fn (string $s): string => "'" . esc_sql($s) . "'", $statuses);
         return "p.post_status NOT IN ('auto-draft','trash')"
@@ -212,15 +216,26 @@ final class NewsletterRepository
      *
      * @return array<int, array<string, mixed>>
      */
-    public function list_all(int $limit = 50, int $offset = 0, string $tab = self::TAB_IN_PREP): array
+    public function list_all(int $limit = 50, int $offset = 0, string $tab = ''): array
     {
         global $wpdb;
-        if (!in_array($tab, [self::TAB_IN_PREP, self::TAB_SENT, self::TAB_TRASH], true)) {
-            $tab = self::TAB_IN_PREP;
+        if (!in_array($tab, ['', self::TAB_IN_PREP, self::TAB_SENT, self::TAB_TRASH], true)) {
+            $tab = '';
         }
         $cpt = NewsletterCPT::POST_TYPE;
         $newsletters_table = Schema::newsletters_table();
         $where_tab = self::where_for_tab($tab);
+        // All-tab ordering: keep in-preparation rows at the top, then
+        // sent, then trash. Per-tab views just stable date DESC since
+        // they're already filtered to one group.
+        $sent_statuses_in = "'" . implode("','", array_map('esc_sql', self::TAB_SENT_STATUSES)) . "'";
+        $order_priority = $tab === '' || $tab === 'all'
+            ? "CASE
+                   WHEN p.post_status = 'trash' THEN 3
+                   WHEN COALESCE(c.status, 'draft') IN ($sent_statuses_in) THEN 2
+                   ELSE 1
+               END,"
+            : '';
         return (array) $wpdb->get_results($wpdb->prepare(
             "SELECT p.ID AS post_id,
                     p.post_title,
@@ -244,7 +259,7 @@ final class NewsletterRepository
                LEFT JOIN `$newsletters_table` c ON c.post_id = p.ID
               WHERE p.post_type = %s
                 AND $where_tab
-              ORDER BY p.post_date_gmt DESC
+              ORDER BY $order_priority p.post_date_gmt DESC
               LIMIT %d OFFSET %d",
             $cpt,
             $limit,

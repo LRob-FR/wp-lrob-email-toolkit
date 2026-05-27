@@ -260,66 +260,101 @@ final class SettingsPage
      */
     public static function render_reminder_schedule_section(bool $include_link_back = false): void
     {
+        $enabled     = (bool) get_option(ReminderCron::OPTION_ENABLED, true);
         $max         = (int) get_option(ReminderCron::OPTION_MAX, 2);
         $first_after = (int) get_option(ReminderCron::OPTION_FIRST_AFTER_DAYS, 3);
         $interval    = (int) get_option(ReminderCron::OPTION_INTERVAL_DAYS, 7);
         $onboarding_url = add_query_arg(
-            ['page' => PageController::SLUG, 'view' => HomePage::VIEW_ONBOARDING],
+            ['page' => PageController::SLUG, 'view' => HomePage::VIEW_SUBSCRIBERS],
             admin_url('admin.php')
         );
         ?>
-        <article class="lrob-etk-nl-settings-group">
-            <h3 class="lrob-etk-nl-settings-group-title"><?php esc_html_e('Reminder schedule', 'lrob-email-toolkit'); ?></h3>
+        <article class="lrob-etk-nl-settings-group" data-reminder-section data-reminder-on="<?php echo $enabled ? '1' : '0'; ?>">
+            <div class="lrob-etk-nl-settings-head">
+                <h3 class="lrob-etk-nl-settings-group-title"><?php esc_html_e('Reminder schedule', 'lrob-email-toolkit'); ?></h3>
+                <label class="lrob-etk-inline-switch">
+                    <input type="checkbox"
+                           class="lrob-etk-nl-field"
+                           data-key="setting-reminder-enabled"
+                           data-option-key="<?php echo esc_attr(ReminderCron::OPTION_ENABLED); ?>"
+                           value="1" <?php checked($enabled); ?>>
+                    <span class="lrob-etk-switch-track"></span>
+                    <span class="lrob-etk-inline-switch-label">
+                        <?php esc_html_e('Enabled', 'lrob-email-toolkit'); ?>
+                    </span>
+                </label>
+            </div>
             <p class="lrob-etk-nl-settings-group-intro">
-                <?php esc_html_e('When a visitor signs up but doesn\'t click the confirmation link, the daily cron nudges them with the reminder template. Set max to 0 to disable reminders entirely.', 'lrob-email-toolkit'); ?>
+                <?php esc_html_e('Daily cron nudges visitors who signed up but haven\'t confirmed their email yet.', 'lrob-email-toolkit'); ?>
                 <?php if ($include_link_back) : ?>
                     <a href="<?php echo esc_url($onboarding_url); ?>" class="lrob-etk-nl-settings-context-link">
-                        <?php esc_html_e('Manage on the Onboarding page →', 'lrob-email-toolkit'); ?>
+                        <?php esc_html_e('Manage on the Subscribers page →', 'lrob-email-toolkit'); ?>
                     </a>
                 <?php endif; ?>
             </p>
 
-            <div class="lrob-etk-nl-settings-row">
-                <label for="lrob-etk-nl-setting-max">
-                    <?php esc_html_e('Maximum reminders to send', 'lrob-email-toolkit'); ?>
-                </label>
-                <input type="number"
-                       id="lrob-etk-nl-setting-max"
-                       class="lrob-etk-nl-field"
-                       data-key="setting-reminder-max"
-                       data-option-key="<?php echo esc_attr(ReminderCron::OPTION_MAX); ?>"
-                       value="<?php echo esc_attr((string) $max); ?>"
-                       min="0" max="10" step="1">
-                <p class="description"><?php esc_html_e('0 disables reminders for everyone going forward. Already-pending subscribers stop receiving nudges immediately.', 'lrob-email-toolkit'); ?></p>
+            <div data-reminder-schedule-fields<?php echo $enabled ? '' : ' hidden'; ?>>
+                <div class="lrob-etk-nl-settings-row">
+                    <label for="lrob-etk-nl-setting-max">
+                        <?php esc_html_e('Maximum reminders to send', 'lrob-email-toolkit'); ?>
+                    </label>
+                    <input type="number"
+                           id="lrob-etk-nl-setting-max"
+                           class="lrob-etk-nl-field"
+                           data-key="setting-reminder-max"
+                           data-option-key="<?php echo esc_attr(ReminderCron::OPTION_MAX); ?>"
+                           value="<?php echo esc_attr((string) $max); ?>"
+                           min="1" max="10" step="1">
+                    <p class="description"><?php esc_html_e('After this many nudges without a click, the subscriber is left alone.', 'lrob-email-toolkit'); ?></p>
+                </div>
+
+                <div class="lrob-etk-nl-settings-row">
+                    <label for="lrob-etk-nl-setting-first">
+                        <?php esc_html_e('Send first reminder after (days)', 'lrob-email-toolkit'); ?>
+                    </label>
+                    <input type="number"
+                           id="lrob-etk-nl-setting-first"
+                           class="lrob-etk-nl-field"
+                           data-key="setting-first-after-days"
+                           data-option-key="<?php echo esc_attr(ReminderCron::OPTION_FIRST_AFTER_DAYS); ?>"
+                           value="<?php echo esc_attr((string) $first_after); ?>"
+                           min="1" max="365" step="1">
+                    <p class="description"><?php esc_html_e('Days from signup before the first reminder fires. Default: 3.', 'lrob-email-toolkit'); ?></p>
+                </div>
+
+                <div class="lrob-etk-nl-settings-row">
+                    <label for="lrob-etk-nl-setting-interval">
+                        <?php esc_html_e('Days between reminders', 'lrob-email-toolkit'); ?>
+                    </label>
+                    <input type="number"
+                           id="lrob-etk-nl-setting-interval"
+                           class="lrob-etk-nl-field"
+                           data-key="setting-interval-days"
+                           data-option-key="<?php echo esc_attr(ReminderCron::OPTION_INTERVAL_DAYS); ?>"
+                           value="<?php echo esc_attr((string) $interval); ?>"
+                           min="1" max="365" step="1">
+                    <p class="description"><?php esc_html_e('Wait this long between subsequent reminders. Default: 7.', 'lrob-email-toolkit'); ?></p>
+                </div>
             </div>
 
-            <div class="lrob-etk-nl-settings-row">
-                <label for="lrob-etk-nl-setting-first">
-                    <?php esc_html_e('Send first reminder after (days)', 'lrob-email-toolkit'); ?>
-                </label>
-                <input type="number"
-                       id="lrob-etk-nl-setting-first"
-                       class="lrob-etk-nl-field"
-                       data-key="setting-first-after-days"
-                       data-option-key="<?php echo esc_attr(ReminderCron::OPTION_FIRST_AFTER_DAYS); ?>"
-                       value="<?php echo esc_attr((string) $first_after); ?>"
-                       min="1" max="365" step="1">
-                <p class="description"><?php esc_html_e('Days from signup before the first reminder fires. Default: 3.', 'lrob-email-toolkit'); ?></p>
-            </div>
-
-            <div class="lrob-etk-nl-settings-row">
-                <label for="lrob-etk-nl-setting-interval">
-                    <?php esc_html_e('Days between reminders', 'lrob-email-toolkit'); ?>
-                </label>
-                <input type="number"
-                       id="lrob-etk-nl-setting-interval"
-                       class="lrob-etk-nl-field"
-                       data-key="setting-interval-days"
-                       data-option-key="<?php echo esc_attr(ReminderCron::OPTION_INTERVAL_DAYS); ?>"
-                       value="<?php echo esc_attr((string) $interval); ?>"
-                       min="1" max="365" step="1">
-                <p class="description"><?php esc_html_e('Wait this long between subsequent reminders. Default: 7.', 'lrob-email-toolkit'); ?></p>
-            </div>
+            <script>
+            // Inline toggle behaviour for the reminder-enabled switch.
+            // Idempotent — multiple renders on the same page (Settings
+            // modal + inline Onboarding) just register once.
+            (function () {
+                if (window.__lrobEtkNlReminderToggleBound) return;
+                window.__lrobEtkNlReminderToggleBound = true;
+                document.addEventListener('change', function (e) {
+                    if (!e.target.matches('[data-key="setting-reminder-enabled"]')) return;
+                    document.querySelectorAll('[data-reminder-section]').forEach(function (section) {
+                        var on = e.target.checked;
+                        section.setAttribute('data-reminder-on', on ? '1' : '0');
+                        var fields = section.querySelector('[data-reminder-schedule-fields]');
+                        if (fields) fields.hidden = !on;
+                    });
+                });
+            })();
+            </script>
         </article>
         <?php
     }

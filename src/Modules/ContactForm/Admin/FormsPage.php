@@ -1018,6 +1018,21 @@ final class FormsPage
 
                 <?php self::render_fields_editor($form_id); ?>
 
+                <section class="lrob-etk-form-success-message">
+                    <div class="lrob-etk-field">
+                        <label>
+                            <?php esc_html_e('Success message', 'lrob-email-toolkit'); ?>
+                            <?php Tooltip::render(__('Shown to the visitor right after they submit the form. Open the dropdown to insert the site-language default.', 'lrob-email-toolkit')); ?>
+                        </label>
+                        <?php self::render_free_combobox(
+                            CPT::META_SUCCESS_MESSAGE,
+                            $meta['success'],
+                            [['value' => $success_default, 'label' => $success_placeholder]],
+                            $success_placeholder
+                        ); ?>
+                    </div>
+                </section>
+
                 <?php
                 $received = (int) ($form['submissions_received'] ?? 0);
                 $blocked = (int) ($form['submissions_blocked'] ?? 0);
@@ -1076,18 +1091,6 @@ final class FormsPage
                                         $meta['subject'],
                                         [['value' => $subject_default, 'label' => $subject_placeholder]],
                                         $subject_placeholder
-                                    ); ?>
-                                </div>
-                                <div class="lrob-etk-field">
-                                    <label>
-                                        <?php esc_html_e('Success message', 'lrob-email-toolkit'); ?>
-                                        <?php Tooltip::render(__('Message shown to the visitor after a successful submission. Open the dropdown to insert the default.', 'lrob-email-toolkit')); ?>
-                                    </label>
-                                    <?php self::render_free_combobox(
-                                        CPT::META_SUCCESS_MESSAGE,
-                                        $meta['success'],
-                                        [['value' => $success_default, 'label' => $success_placeholder]],
-                                        $success_placeholder
                                     ); ?>
                                 </div>
                             </section>
@@ -1811,43 +1814,52 @@ final class FormsPage
                         }
                         return;
                     }
-                    if (!confirm(i18n.confirm.replace('%d', days))) return;
-
-                    btn.disabled = true;
-                    if (result) {
-                        result.hidden = false;
-                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
-                        result.textContent = i18n.working;
-                    }
-
-                    var fd = new FormData();
-                    fd.append('action', action);
-                    fd.append('_ajax_nonce', nonce);
-                    fd.append('days', String(days));
-                    statuses.forEach(function (s) { fd.append('statuses[]', s); });
-
-                    fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
-                        .then(function (r) { return r.json(); })
-                        .then(function (resp) {
-                            btn.disabled = false;
-                            if (resp && resp.success) {
-                                if (result) {
-                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
-                                    result.textContent = '✓ ' + resp.data.message;
-                                }
-                                setTimeout(function () { window.location.reload(); }, 800);
-                            } else if (result) {
-                                result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
-                                result.textContent = '✗ ' + ((resp && resp.data && resp.data.message) || i18n.error);
-                            }
+                    var askPromise = window.lrobEtkConfirm
+                        ? window.lrobEtkConfirm.prompt({
+                            title: i18n.confirmTitle || 'Run cleanup?',
+                            message: i18n.confirm.replace('%d', days),
+                            confirmLabel: i18n.confirmLabel || 'Delete',
+                            danger: true
                         })
-                        .catch(function () {
-                            btn.disabled = false;
-                            if (result) {
-                                result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
-                                result.textContent = '✗ ' + i18n.error;
-                            }
-                        });
+                        : Promise.resolve(true);
+                    askPromise.then(function (ok) {
+                        if (!ok) return;
+                        btn.disabled = true;
+                        if (result) {
+                            result.hidden = false;
+                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
+                            result.textContent = i18n.working;
+                        }
+
+                        var fd = new FormData();
+                        fd.append('action', action);
+                        fd.append('_ajax_nonce', nonce);
+                        fd.append('days', String(days));
+                        statuses.forEach(function (s) { fd.append('statuses[]', s); });
+
+                        fetch(ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                            .then(function (r) { return r.json(); })
+                            .then(function (resp) {
+                                btn.disabled = false;
+                                if (resp && resp.success) {
+                                    if (result) {
+                                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
+                                        result.textContent = '✓ ' + resp.data.message;
+                                    }
+                                    setTimeout(function () { window.location.reload(); }, 800);
+                                } else if (result) {
+                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                                    result.textContent = '✗ ' + ((resp && resp.data && resp.data.message) || i18n.error);
+                                }
+                            })
+                            .catch(function () {
+                                btn.disabled = false;
+                                if (result) {
+                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                                    result.textContent = '✗ ' + i18n.error;
+                                }
+                            });
+                    });
                 });
             });
         })();

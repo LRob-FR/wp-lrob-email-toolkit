@@ -5,9 +5,9 @@
  * for now — actual screens land across the v0.3.0 rollout.
  */
 
-/* Tabs nav (.lrob-etk-nl-tabs) + page-title-sub dropped — each sub-page
- * now renders its own PageHeader and cross-nav comes from the shared
- * .lrob-etk-header-nav primitive. */
+/* Old per-Newsletter tab strip dropped — each sub-page now renders its
+ * own PageHeader and section nav comes from the shared section-tabs
+ * primitive. */
 
 /* Dashboard view */
 .lrob-etk-nl-dashboard {
@@ -44,16 +44,6 @@
 .lrob-etk-nl-tile-label {
     font-size: 0.85rem;
     color: var(--etk-muted);
-}
-
-.lrob-etk-nl-skeleton-note {
-    margin: 0;
-    padding: 0.85rem 1rem;
-    background: var(--etk-warning-bg);
-    border: 1px solid var(--etk-warning);
-    border-radius: var(--etk-radius-md);
-    color: var(--etk-text-warning);
-    font-size: 0.9rem;
 }
 
 /* Placeholder view (Coming soon) */
@@ -95,11 +85,6 @@
     gap: 1.25rem;
 }
 
-.lrob-etk-nl-templates-intro {
-    margin: 0;
-    color: var(--etk-muted);
-}
-
 .lrob-etk-nl-template-group {
     background: #fff;
     border: 1px solid var(--etk-line);
@@ -121,71 +106,59 @@
     font-weight: 600;
 }
 
-.lrob-etk-nl-template-group-tokens {
-    margin: 0 0 0.75rem;
-    color: var(--etk-muted);
-    font-size: 0.85rem;
-    line-height: 1.6;
-}
-
-.lrob-etk-nl-template-group-tokens code {
-    background: rgba(0, 0, 0, 0.04);
-    border-radius: var(--etk-radius-sm);
-    padding: 0.1rem 0.4rem;
-    font-size: 0.8rem;
-    color: var(--etk-fg);
-}
-
-.lrob-etk-nl-template-group-tokens code.is-required {
-    font-weight: 600;
-    cursor: help;
-}
-
-.lrob-etk-nl-template-empty {
-    margin: 0;
-    padding: 0.75rem;
-    color: var(--etk-muted);
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: var(--etk-radius-md);
-    font-size: 0.9rem;
-}
-
 .lrob-etk-nl-template-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 6px;
 }
 
 .lrob-etk-nl-template-row {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 0.75rem;
-    background: rgba(0, 0, 0, 0.02);
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--etk-soft);
+    border: 1px solid transparent;
     border-radius: var(--etk-radius-md);
     margin: 0;
+    transition: var(--etk-transition);
+}
+.lrob-etk-nl-template-row.is-active {
+    background: var(--etk-accent-bg);
+    border-color: color-mix(in srgb, var(--etk-accent) 25%, transparent);
+}
+
+.lrob-etk-nl-template-row .lrob-etk-default-badge,
+.lrob-etk-nl-template-row .lrob-etk-set-default {
+    flex: 0 0 auto;
+    min-width: 110px;
 }
 
 .lrob-etk-nl-template-title {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
     text-decoration: none;
     color: var(--etk-fg);
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-
+.lrob-etk-nl-template-row.is-active .lrob-etk-nl-template-title {
+    font-weight: 600;
+}
 .lrob-etk-nl-template-title:hover {
+    color: var(--etk-accent);
     text-decoration: underline;
 }
 
-.lrob-etk-nl-template-badge {
-    font-size: 0.75rem;
-    padding: 0.15rem 0.45rem;
-    border-radius: var(--etk-radius-pill);
-    line-height: 1.5;
-    font-weight: 600;
+.lrob-etk-nl-template-group-footer {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .lrob-etk-nl-template-badge.is-default {
@@ -285,13 +258,438 @@
 
 .lrob-etk-nl-resource-row {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    flex-direction: column;
+    gap: 0.4rem;
     padding: 0.5rem 0.75rem;
     background: #fff;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     margin: 0;
+}
+.lrob-etk-nl-resource-row.is-kind-subscribers {
+    border-left: 3px solid var(--etk-accent);
+}
+.lrob-etk-nl-resource-row.is-kind-users {
+    border-left: 3px solid var(--etk-warning);
+}
+.lrob-etk-nl-resource-section {
+    margin: 0 0 var(--etk-space-4);
+}
+.lrob-etk-nl-resource-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--etk-muted);
+    font-weight: 600;
+    margin: 0 0 var(--etk-space-2);
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--etk-line);
+}
+.lrob-etk-nl-list-provider-badge {
+    flex: 0 0 auto;
+    padding: 2px 8px;
+    background: var(--etk-warning-bg);
+    color: var(--etk-text-warning);
+    border-radius: var(--etk-radius-pill);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.lrob-etk-nl-list-system-badge {
+    flex: 0 0 auto;
+    padding: 2px 8px;
+    background: var(--etk-soft);
+    color: var(--etk-muted);
+    border-radius: var(--etk-radius-pill);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+.lrob-etk-nl-resource-row.is-system .lrob-etk-nl-resource-name {
+    background: transparent;
+    border: 0;
+    color: var(--etk-fg);
+}
+.lrob-etk-nl-resource-new--listkind {
+    flex-wrap: wrap;
+}
+.lrob-etk-nl-resource-new-kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--etk-muted);
+}
+.lrob-etk-nl-resource-new-kind > span {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    font-size: 11px;
+}
+.lrob-etk-nl-resource-new-kind select {
+    padding: 4px 8px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-sm);
+    background: var(--etk-input-bg);
+    font-size: var(--etk-input-font-size);
+}
+
+.lrob-etk-nl-list-exclusions {
+    margin-top: var(--etk-space-3);
+    padding: var(--etk-space-3);
+    background: var(--etk-soft);
+    border-radius: var(--etk-radius-md);
+}
+.lrob-etk-nl-list-exclusions-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: var(--etk-space-2);
+}
+.lrob-etk-nl-list-exclusions-title {
+    font-weight: 600;
+    color: var(--etk-fg);
+}
+.lrob-etk-nl-list-exclusions-picker {
+    position: relative;
+    margin-bottom: var(--etk-space-2);
+}
+.lrob-etk-nl-list-exclusions-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    background: var(--etk-input-bg);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-list-exclusions-results {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--etk-input-bg);
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    box-shadow: var(--etk-shadow-md);
+    max-height: 240px;
+    overflow: auto;
+    z-index: 20;
+}
+.lrob-etk-nl-list-exclusions-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 240px;
+    overflow: auto;
+}
+.lrob-etk-nl-list-exclusions-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    background: var(--etk-input-bg);
+    border-radius: var(--etk-radius-sm);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-list-exclusions-empty {
+    color: var(--etk-muted);
+    font-style: italic;
+}
+.lrob-etk-nl-list-exclusions-name {
+    font-weight: 500;
+    color: var(--etk-fg);
+}
+.lrob-etk-nl-list-exclusions-email {
+    color: var(--etk-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    flex: 1;
+}
+.lrob-etk-nl-list-exclusions-status {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--etk-muted);
+}
+.lrob-etk-nl-resource-row-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+}
+.lrob-etk-nl-resource-row-main .lrob-etk-nl-resource-name {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.lrob-etk-nl-resource-row-actions {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.lrob-etk-nl-list-rule-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--etk-accent-bg);
+    color: var(--etk-accent);
+    border-radius: var(--etk-radius-pill);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.lrob-etk-nl-list-rule-badge .dashicons {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+}
+.lrob-etk-nl-list-rule-toggle {
+    margin-left: auto;
+}
+.lrob-etk-nl-list-rule-toggle .dashicons {
+    margin-right: 2px;
+}
+.lrob-etk-nl-list-rule-editor {
+    margin-top: 4px;
+    padding: var(--etk-space-3);
+    background: var(--etk-soft);
+    border-radius: var(--etk-radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--etk-space-3);
+}
+.lrob-etk-nl-list-rule-row {
+    display: flex;
+    align-items: center;
+    gap: var(--etk-space-3);
+}
+.lrob-etk-nl-list-rule-status {
+    font-size: 12px;
+    margin-left: auto;
+}
+.lrob-etk-nl-list-rule-status.is-pending { color: var(--etk-text-warning); }
+.lrob-etk-nl-list-rule-status.is-success { color: var(--etk-text-success); }
+.lrob-etk-nl-list-rule-status.is-failure { color: var(--etk-text-danger); }
+.lrob-etk-nl-list-rule-config .description {
+    margin: 0 0 8px;
+    color: var(--etk-muted);
+}
+.lrob-etk-nl-list-rule-field {
+    margin: 6px 0;
+}
+/* Direct-child only — tickbox labels are nested inside <fieldset> and
+ * must NOT inherit the field-label stacking + uppercase chrome. */
+.lrob-etk-nl-list-rule-field > label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-nl-list-rule-field > label > span {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-muted);
+    font-weight: 600;
+}
+.lrob-etk-nl-list-rule-field select,
+.lrob-etk-nl-list-rule-field input[type="text"] {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    background: var(--etk-input-bg);
+}
+/* Compact role picker — one role per line, checkbox left of label,
+ * no fieldset chrome (the legend carries enough context). */
+.lrob-etk-nl-list-rule-tickboxes {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.lrob-etk-nl-list-rule-tickboxes legend {
+    padding: 0 0 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-muted);
+    font-weight: 600;
+}
+.lrob-etk-nl-list-rule-tickbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 4px;
+    cursor: pointer;
+    border-radius: var(--etk-radius-sm);
+    transition: background var(--etk-transition);
+}
+.lrob-etk-nl-list-rule-tickbox:hover {
+    background: var(--etk-soft);
+}
+.lrob-etk-nl-list-rule-tickbox > span {
+    font-size: var(--etk-input-font-size);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--etk-fg);
+    text-transform: none;
+}
+.lrob-etk-nl-list-rule-tickbox input[type="checkbox"] {
+    margin: 0;
+    flex: 0 0 auto;
+}
+.lrob-etk-nl-list-rule-tickbox.is-stale > span {
+    color: var(--etk-text-warning);
+}
+.lrob-etk-nl-list-rule-tickbox.is-stale .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--etk-warning);
+}
+.lrob-etk-nl-list-rule-tickbox.is-stale em {
+    font-style: italic;
+    color: var(--etk-muted);
+    font-size: 11px;
+}
+
+/* WC product picker — chips above + search input below + AJAX results dropdown. */
+.lrob-etk-nl-wc-product-picker {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+.lrob-etk-nl-wc-product-chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.lrob-etk-nl-wc-product-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px 2px 10px;
+    background: var(--etk-accent-bg);
+    color: var(--etk-accent);
+    border-radius: var(--etk-radius-pill);
+    font-size: 12px;
+    font-weight: 500;
+}
+.lrob-etk-nl-wc-product-chip code {
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: var(--etk-radius-sm);
+    padding: 0 6px;
+    font-size: 10px;
+}
+.lrob-etk-nl-wc-product-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    background: var(--etk-input-bg);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-wc-product-results {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--etk-input-bg);
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    box-shadow: var(--etk-shadow-md);
+    max-height: 240px;
+    overflow: auto;
+    z-index: 20;
+}
+.lrob-etk-nl-wc-product-result {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--etk-radius-sm);
+    cursor: pointer;
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-wc-product-result:hover {
+    background: var(--etk-accent-bg);
+}
+.lrob-etk-nl-wc-product-result code {
+    color: var(--etk-muted);
+    font-size: 11px;
+}
+.lrob-etk-nl-wc-product-empty {
+    padding: 6px 10px;
+    color: var(--etk-muted);
+    font-style: italic;
+}
+
+.lrob-etk-nl-list-rule-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--etk-space-2);
+}
+.lrob-etk-nl-list-rule-preview {
+    margin-top: var(--etk-space-3);
+    padding: var(--etk-space-3);
+    background: var(--etk-input-bg);
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    font-size: var(--etk-input-font-size);
+    max-height: 320px;
+    overflow: auto;
+}
+.lrob-etk-nl-list-rule-preview-head {
+    margin-bottom: var(--etk-space-2);
+    color: var(--etk-muted);
+}
+.lrob-etk-nl-list-rule-preview-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.lrob-etk-nl-list-rule-preview-list li {
+    padding: 4px 0;
+    border-bottom: 1px dashed var(--etk-line);
+}
+.lrob-etk-nl-list-rule-preview-list li:last-child {
+    border-bottom: 0;
+}
+.lrob-etk-nl-list-rule-preview-name {
+    font-weight: 500;
+    color: var(--etk-fg);
+}
+.lrob-etk-nl-list-rule-preview-email {
+    color: var(--etk-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+}
+.lrob-etk-nl-list-rule-preview-footer {
+    margin-top: var(--etk-space-2);
+    display: flex;
+    gap: var(--etk-space-2);
+    justify-content: center;
 }
 
 .lrob-etk-nl-resource-name {
@@ -344,12 +742,6 @@
     color: var(--etk-muted);
     font-size: 0.9rem;
     max-width: 50rem;
-}
-
-/* Inline-mode (rendered inside another view) — drops the page-level
- * intro/header chrome since the surrounding view owns those. */
-.lrob-etk-nl-settings--inline {
-    margin-top: 1.5rem;
 }
 
 .lrob-etk-nl-settings-context-link {
@@ -429,44 +821,9 @@
  * resource-page primitives where possible.
  * ----------------------------------------------------------------------- */
 
-.lrob-etk-nl-subtabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    margin: 1rem 0 1.25rem;
-    border-bottom: 1px solid var(--etk-line);
-}
-
-.lrob-etk-nl-subtab {
-    padding: 0.5rem 0.85rem;
-    text-decoration: none;
-    color: var(--etk-muted);
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    font-weight: 500;
-    transition: color 0.15s, border-color 0.15s;
-}
-
-.lrob-etk-nl-subtab:hover,
-.lrob-etk-nl-subtab:focus {
-    color: var(--lrob-etk-color-primary, var(--etk-accent));
-}
-
-.lrob-etk-nl-subtab.is-active {
-    color: var(--lrob-etk-color-primary, var(--etk-accent));
-    border-bottom-color: var(--lrob-etk-color-primary, var(--etk-accent));
-}
-
-.lrob-etk-nl-subtab-count {
-    display: inline-block;
-    margin-left: 0.4rem;
-    padding: 0 0.4rem;
-    background: rgba(0, 0, 0, 0.08);
-    border-radius: 9px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1.6;
-}
+/* Status sub-tabs (Subscribers / Newsletters) now consume the shared
+ * .lrob-etk-section-tabs primitive from admin-components.css — no more
+ * Newsletter-specific styling. */
 
 .lrob-etk-nl-subscribers-toolbar {
     display: flex;
@@ -498,64 +855,288 @@
     font-size: 0.9rem;
 }
 
-.lrob-etk-nl-subscribers-table {
+/* Subscribers table chrome now consumes .lrob-etk-data-table primitive
+ * (admin-components.css). Row actions consume .lrob-etk-icon-btn
+ * --ghost / --danger. */
+
+/* Email cell trigger — visual cue that the row is clickable. */
+.lrob-etk-nl-subscriber-trigger {
+    color: var(--etk-accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+.lrob-etk-nl-subscriber-trigger:hover,
+.lrob-etk-nl-subscriber-trigger:focus {
+    color: var(--etk-accent-hover);
+    text-decoration: underline;
+}
+
+/* Add-subscribers modal (paste + CSV import). */
+.lrob-etk-nl-import-tabs {
+    margin: var(--etk-space-3) 0;
+}
+.lrob-etk-nl-import-pane {
+    margin: var(--etk-space-3) 0;
+}
+.lrob-etk-nl-import-pane label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.lrob-etk-nl-import-textarea {
     width: 100%;
-    border-collapse: collapse;
-    background: #fff;
+    font-family: var(--etk-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: var(--etk-input-font-size);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
-    overflow: hidden;
+    padding: 8px 10px;
+    background: var(--etk-input-bg);
 }
-
-.lrob-etk-nl-subscribers-table th,
-.lrob-etk-nl-subscribers-table td {
-    padding: 0.65rem 0.85rem;
-    text-align: left;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    font-size: 0.92rem;
-    vertical-align: middle;
-}
-
-.lrob-etk-nl-subscribers-table th {
+.lrob-etk-nl-import-file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
     background: var(--etk-soft);
+    border: 1px dashed var(--etk-line-strong);
+    border-radius: var(--etk-radius-md);
+    cursor: pointer;
+    transition: var(--etk-transition);
+}
+.lrob-etk-nl-import-file-label:hover {
+    background: var(--etk-accent-bg);
+    border-color: var(--etk-accent);
+}
+.lrob-etk-nl-import-csv-preview {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    background: var(--etk-soft);
+    border-radius: var(--etk-radius-md);
+    font-family: var(--etk-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 12px;
+    color: var(--etk-fg);
+    max-height: 160px;
+    overflow: auto;
+}
+.lrob-etk-nl-import-options {
+    margin-top: var(--etk-space-3);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--etk-space-4);
+}
+.lrob-etk-nl-import-options fieldset {
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    padding: 12px;
+    margin: 0;
+}
+.lrob-etk-nl-import-options legend {
+    padding: 0 6px;
     font-weight: 600;
     color: var(--etk-fg);
 }
+.lrob-etk-nl-import-options-status label {
+    display: block;
+    margin: 4px 0;
+}
+.lrob-etk-nl-import-count {
+    margin-right: auto;
+    color: var(--etk-muted);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-import-result {
+    margin-top: var(--etk-space-3);
+    padding: 10px 14px;
+    border-radius: var(--etk-radius-md);
+    font-weight: 500;
+}
+.lrob-etk-nl-import-result.is-pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
+.lrob-etk-nl-import-result.is-success { background: var(--etk-success-bg); color: var(--etk-text-success); }
+.lrob-etk-nl-import-result.is-failure { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
 
-.lrob-etk-nl-subscribers-table tbody tr:last-child td {
-    border-bottom: 0;
+.lrob-etk-bulk-toolbar-right {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--etk-space-2);
+}
+.col-bulk-check {
+    width: 28px;
+    text-align: center;
 }
 
-.lrob-etk-nl-subscribers-table tbody tr:hover {
-    background: rgba(34, 113, 177, 0.03);
+/* Columns picker modal — compact checkbox-list, one column per line. */
+.lrob-etk-nl-columns-picker {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 4px var(--etk-space-3);
+}
+.lrob-etk-nl-columns-picker label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: var(--etk-radius-sm);
+    cursor: pointer;
+    transition: var(--etk-transition);
+}
+.lrob-etk-nl-columns-picker label:hover {
+    background: var(--etk-soft);
+}
+.lrob-etk-nl-columns-picker input[type="checkbox"] {
+    margin: 0;
 }
 
-.lrob-etk-nl-col-actions {
-    text-align: right;
+/* Lists column in the subscribers table — compact chips. */
+.lrob-etk-nl-subscriber-list-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.lrob-etk-nl-subscriber-list-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: var(--etk-accent-bg);
+    color: var(--etk-accent);
+    border-radius: var(--etk-radius-pill);
+    font-size: 12px;
+    font-weight: 500;
     white-space: nowrap;
 }
+.lrob-etk-nl-subscriber-lists-empty {
+    color: var(--etk-muted);
+}
 
-.lrob-etk-nl-row-action {
-    background: transparent;
-    border: 0;
-    padding: 0.25rem 0.5rem;
-    color: var(--lrob-etk-color-primary, var(--etk-accent));
+/* Inline subscriber edit at the top of the detail modal — name + email
+ * autosave on blur. Status text appears to the right. */
+.lrob-etk-nl-subscriber-edit {
+    margin: 0 0 var(--etk-space-3);
+    padding: var(--etk-space-3);
+    background: var(--etk-soft);
+    border-radius: var(--etk-radius-md);
+}
+.lrob-etk-nl-subscriber-edit-group {
+    margin: 0 0 var(--etk-space-2);
+}
+.lrob-etk-nl-subscriber-edit-group > summary {
     cursor: pointer;
-    font-size: 0.85rem;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    padding: 4px 0;
+    list-style: revert;
 }
-
-.lrob-etk-nl-row-action:hover {
-    color: var(--lrob-etk-color-primary-hover, #135e96);
+.lrob-etk-nl-subscriber-edit-group.is-static {
+    /* `Identity` block, always open — no <summary> chrome */
 }
-
-.lrob-etk-nl-row-action.is-danger {
-    color: var(--lrob-etk-color-danger, var(--etk-danger));
+.lrob-etk-nl-subscriber-edit-group-title {
+    margin: 0 0 var(--etk-space-2);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--etk-fg);
 }
+.lrob-etk-nl-subscriber-edit-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--etk-space-3);
+    align-items: end;
+    margin: var(--etk-space-2) 0;
+}
+.lrob-etk-nl-subscriber-edit-row label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lrob-etk-nl-subscriber-edit-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--etk-muted);
+}
+.lrob-etk-nl-subscriber-edit-row input,
+.lrob-etk-nl-subscriber-edit-row select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    background: var(--etk-input-bg);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-subscriber-edit-status {
+    font-size: 12px;
+    color: var(--etk-muted);
+    align-self: center;
+}
+.lrob-etk-nl-subscriber-edit-status.is-pending { color: var(--etk-text-warning); }
+.lrob-etk-nl-subscriber-edit-status.is-success { color: var(--etk-text-success); }
+.lrob-etk-nl-subscriber-edit-status.is-failure { color: var(--etk-text-danger); }
 
-.lrob-etk-nl-row-action.is-danger:hover {
-    color: var(--etk-text-danger);
+/* Subscriber detail-modal body sections — list-membership editor +
+ * read-only metadata grid. */
+.lrob-etk-nl-subscriber-section {
+    margin: var(--etk-space-4) 0 0;
+}
+.lrob-etk-nl-subscriber-section-title {
+    margin: 0 0 var(--etk-space-2);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--etk-fg);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lrob-etk-nl-subscriber-empty {
+    margin: 0;
+    color: var(--etk-muted);
+    font-style: italic;
+}
+.lrob-etk-nl-subscriber-lists {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--etk-space-2);
+}
+.lrob-etk-nl-subscriber-lists label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-md);
+    background: var(--etk-input-bg);
+    cursor: pointer;
+    transition: var(--etk-transition);
+}
+.lrob-etk-nl-subscriber-lists label:hover {
+    border-color: var(--etk-accent);
+}
+.lrob-etk-nl-subscriber-lists input[type="checkbox"] {
+    margin: 0;
+}
+.lrob-etk-nl-subscriber-lists input[type="checkbox"]:checked + span {
+    font-weight: 600;
+}
+.lrob-etk-nl-subscriber-lists input[type="checkbox"]:disabled + span {
+    opacity: 0.6;
+}
+.lrob-etk-nl-subscriber-meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px var(--etk-space-3);
+    margin: 0;
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-subscriber-meta dt {
+    color: var(--etk-muted);
+    font-weight: 500;
+}
+.lrob-etk-nl-subscriber-meta dd {
+    margin: 0;
+    color: var(--etk-fg);
 }
 
 .lrob-etk-nl-status {
@@ -691,76 +1272,147 @@
  * ----------------------------------------------------------------------- */
 
 
-/* Tab navigation — pill row segmenting the cards list into
-   In-preparation / Sent / Trash. Count badges to the right of each
-   label; Empty-trash button sits at the far right when the Trash tab
-   is active. */
-.lrob-etk-nl-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    align-items: center;
-    margin: 0 0 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--etk-line);
-}
+/* Newsletter status tabs (All / In preparation / Sent / Trash) now
+ * consume the shared .lrob-etk-section-tabs primitive — see
+ * admin-components.css. The trash "Empty trash" button uses
+ * .lrob-etk-section-tabs-end. No Newsletter-local tab styling here. */
 
-.lrob-etk-nl-tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.8rem;
-    border-radius: var(--etk-radius-pill);
-    color: var(--etk-muted);
-    background: transparent;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color var(--etk-transition), color var(--etk-transition);
-}
-
-.lrob-etk-nl-tab:hover,
-.lrob-etk-nl-tab:focus-visible {
-    background: rgba(0, 0, 0, 0.04);
-    color: var(--etk-fg);
-}
-
-.lrob-etk-nl-tab.is-active {
-    background: var(--etk-accent);
-    color: #fff;
-}
-
-.lrob-etk-nl-tab.is-active:hover,
-.lrob-etk-nl-tab.is-active:focus-visible {
-    background: var(--etk-accent);
-    color: #fff;
-}
-
-.lrob-etk-nl-tab-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.5rem;
-    padding: 0 0.4rem;
-    border-radius: var(--etk-radius-pill);
-    background: rgba(0, 0, 0, 0.08);
-    color: inherit;
-    font-size: 0.8rem;
-    line-height: 1.4;
-    font-variant-numeric: tabular-nums;
-}
-
-.lrob-etk-nl-tab.is-active .lrob-etk-nl-tab-count {
-    background: rgba(255, 255, 255, 0.25);
-}
-
-.lrob-etk-nl-tabs-empty {
-    margin-left: auto;
-}
-
-/* Trashed-card variant — muted look so the tab feels visibly cold. */
+/* Trashed-card variant — strong visual distinction so trashed
+ * newsletters don't read as "active but slightly muted". Dashed
+ * border + desaturated background + slanted-stripe ::before. */
 .lrob-etk-nl-card.is-trashed {
-    opacity: 0.78;
-    background: rgba(0, 0, 0, 0.015);
+    opacity: 0.65;
+    background: var(--etk-soft);
+    border-style: dashed;
+    border-color: var(--etk-line-strong);
+    position: relative;
+}
+.lrob-etk-nl-card.is-trashed:hover {
+    opacity: 0.85;
+}
+.lrob-etk-nl-card.is-trashed::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        135deg,
+        transparent 0 12px,
+        rgba(0, 0, 0, 0.025) 12px 14px
+    );
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* Sent-state cards — subtle success cue so admins can scan at a
+ * glance which newsletters are out the door vs in prep. */
+.lrob-etk-nl-card[data-newsletter-status="sent"],
+.lrob-etk-nl-card[data-newsletter-status="completed"] {
+    border-left: 3px solid var(--etk-success);
+}
+.lrob-etk-nl-card[data-newsletter-status="sending"],
+.lrob-etk-nl-card[data-newsletter-status="paused"] {
+    border-left: 3px solid var(--etk-warning);
+}
+.lrob-etk-nl-card[data-newsletter-status="failed"],
+.lrob-etk-nl-card[data-newsletter-status="aborted"] {
+    border-left: 3px solid var(--etk-danger);
+}
+
+/* Email preview modal — viewport switcher + iframe sizing.
+ * The iframe's natural width matches the email render width (typically
+ * 600px); the body crops + centers it to the chosen viewport so the
+ * preview stays accurate while letting admins check mobile rendering. */
+.lrob-etk-nl-preview-viewport {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: auto;
+    margin-right: 12px;
+}
+.lrob-etk-nl-preview-vp.is-active {
+    background: var(--etk-card-bg);
+    border-color: var(--etk-accent);
+    color: var(--etk-accent);
+}
+.lrob-etk-nl-preview-body {
+    background: var(--etk-soft);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+}
+.lrob-etk-nl-preview-body iframe {
+    background: #fff;
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-sm);
+    display: block;
+    height: 70vh;
+    max-height: 800px;
+    transition: width var(--etk-transition);
+}
+.lrob-etk-nl-preview-body[data-preview-vp="desktop"] iframe { width: 100%; max-width: 900px; }
+.lrob-etk-nl-preview-body[data-preview-vp="tablet"]  iframe { width: 768px; }
+.lrob-etk-nl-preview-body[data-preview-vp="mobile"]  iframe { width: 375px; }
+
+/* Onboarding template-group rework */
+.lrob-etk-nl-template-group-head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+.lrob-etk-nl-template-group-purpose {
+    color: var(--etk-muted);
+    font-size: var(--etk-input-font-size);
+}
+.lrob-etk-nl-template-reminder-schedule {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--etk-line);
+}
+.lrob-etk-nl-template-reminder-schedule .lrob-etk-nl-settings-group {
+    border: none;
+    padding: 0;
+    background: transparent;
+    margin: 0;
+}
+.lrob-etk-nl-template-reminder-schedule .lrob-etk-nl-settings-group-title {
+    display: none;
+}
+
+/* Toggle in the settings-group header row */
+.lrob-etk-nl-settings-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+.lrob-etk-nl-settings-head .lrob-etk-nl-settings-group-title {
+    margin: 0;
+}
+
+/* Disabled-reminder visual: dim the whole purpose card when the
+ * reminder is off so the admin doesn't think the template still
+ * fires. The template row stays clickable for repair, but the
+ * reminder schedule fields are hidden via [hidden]. */
+.lrob-etk-nl-template-group:has([data-reminder-section][data-reminder-on="0"]) .lrob-etk-nl-template-list {
+    opacity: 0.55;
+}
+.lrob-etk-nl-template-reminder-schedule [data-reminder-section][data-reminder-on="0"] [data-reminder-schedule-fields] {
+    display: none;
+}
+
+/* Just-created card highlight — fade-in + brief accent border pulse so
+ * the new entry is visually obvious after redirect. Triggered server-side
+ * when `?created=<id>` matches the card's id. */
+@keyframes lrob-etk-nl-card-just-created {
+    0%   { opacity: 0; transform: translateY(-8px) scale(0.98); box-shadow: 0 0 0 0 var(--etk-accent-bg); }
+    20%  { opacity: 1; transform: translateY(0)    scale(1);     box-shadow: 0 0 0 6px var(--etk-accent-bg); }
+    100% { opacity: 1; transform: translateY(0)    scale(1);     box-shadow: var(--etk-shadow-md); }
+}
+.lrob-etk-nl-card.is-just-created {
+    animation: lrob-etk-nl-card-just-created 1.4s ease-out;
 }
 
 .lrob-etk-nl-card.is-trashed:hover {
@@ -854,23 +1506,6 @@
         grid-template-columns: 1fr;
         gap: 8px;
     }
-}
-
-.lrob-etk-nl-card-radio {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.4rem;
-    padding: 0.15rem 0;
-    font-size: 0.9rem;
-}
-
-.lrob-etk-nl-card-list-picker {
-    padding-left: 1.5rem;
-    margin-top: 0.4rem;
-}
-
-.lrob-etk-nl-card-list-picker[hidden] {
-    display: none;
 }
 
 .lrob-etk-nl-card-checks {

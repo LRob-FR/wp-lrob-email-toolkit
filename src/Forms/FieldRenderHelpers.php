@@ -43,7 +43,7 @@ final class FieldRenderHelpers
      */
     public static function normalize_base_keys(array $field, string $type): array
     {
-        return [
+        $base = [
             'id'          => isset($field['id']) && is_string($field['id']) && $field['id'] !== ''
                 ? sanitize_key($field['id'])
                 : self::gen_id('f'),
@@ -60,6 +60,17 @@ final class FieldRenderHelpers
             'placeholder' => isset($field['placeholder']) ? self::recover_unicode_escapes(sanitize_text_field((string) $field['placeholder'])) : '',
             'required'    => !empty($field['required']),
         ];
+        // Newsletter subscribe forms map fields to subscriber profile
+        // columns via `maps_to`. The value is meaningless on Contact Form
+        // (Contact Form's SubmitHandler ignores it), so passthrough is
+        // fine — we just sanitize the key.
+        if (isset($field['maps_to'])) {
+            $maps = sanitize_key((string) $field['maps_to']);
+            if ($maps !== '') {
+                $base['maps_to'] = $maps;
+            }
+        }
+        return $base;
     }
 
     /** @return array<int, array{value:string, label:string}> */

@@ -72,7 +72,7 @@ final class FormTemplateRegistry
             'version' => FormStructure::VERSION,
             'rows'    => array_merge([
                 self::row([self::col([
-                    self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true),
+                    self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true, ['maps_to' => 'email']),
                 ])]),
             ], self::tail_rows(__('Subscribe', 'lrob-email-toolkit'))),
         ];
@@ -84,8 +84,8 @@ final class FormTemplateRegistry
             'version' => FormStructure::VERSION,
             'rows'    => array_merge([
                 self::row([
-                    self::col([self::field('text',  'name',  __('Your name',  'lrob-email-toolkit'), false)]),
-                    self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true)]),
+                    self::col([self::field('text',  'name',  __('Your name',  'lrob-email-toolkit'), false, ['maps_to' => 'name'])]),
+                    self::col([self::field('email', 'email', __('Your email', 'lrob-email-toolkit'), true,  ['maps_to' => 'email'])]),
                 ]),
             ], self::tail_rows(__('Subscribe', 'lrob-email-toolkit'))),
         ];

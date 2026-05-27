@@ -620,6 +620,11 @@ final class LogsPage
         setTimeout(function () { if (div.parentNode) div.parentNode.removeChild(div); }, 5000);
     }
 
+    function ask(opts) {
+        if (!window.lrobEtkConfirm) return Promise.resolve(true);
+        return window.lrobEtkConfirm.prompt(opts);
+    }
+
     // ---- List-region interactions (select-all, bulk, per-row) ----
     // These elements live inside the AJAX-swappable region, so they
     // get replaced wholesale on every filter reload. Document-level
@@ -641,16 +646,23 @@ final class LogsPage
             var ids = $$('.lrob-etk-row-check:checked').map(function (cb) { return cb.value; });
             if (ids.length === 0) { flash(L.i18n.noSelection, 'error'); return; }
             if (action === 'delete') {
-                if (!confirm(L.i18n.confirmBulkDelete.replace('%d', ids.length))) return;
-                bulkApply.disabled = true;
-                ajax(L.actions.bulkDelete, { ids: ids }).then(function (resp) {
-                    if (resp.success) {
-                        flash(resp.data.message, 'success');
-                        setTimeout(function () { window.location.reload(); }, 400);
-                    } else {
-                        flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
-                        bulkApply.disabled = false;
-                    }
+                ask({
+                    title: L.i18n.detailDelete,
+                    message: L.i18n.confirmBulkDelete.replace('%d', ids.length),
+                    confirmLabel: L.i18n.detailDelete,
+                    danger: true
+                }).then(function (ok) {
+                    if (!ok) return;
+                    bulkApply.disabled = true;
+                    ajax(L.actions.bulkDelete, { ids: ids }).then(function (resp) {
+                        if (resp.success) {
+                            flash(resp.data.message, 'success');
+                            setTimeout(function () { window.location.reload(); }, 400);
+                        } else {
+                            flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
+                            bulkApply.disabled = false;
+                        }
+                    });
                 });
             }
             return;
@@ -658,24 +670,42 @@ final class LogsPage
         var del = e.target.closest && e.target.closest('.lrob-etk-row-delete');
         if (del) {
             e.preventDefault();
-            if (!confirm(L.i18n.confirmDelete)) return;
             var did = del.getAttribute('data-id');
-            ajax(L.actions.delete, { id: did }).then(function (resp) {
-                if (resp.success) {
-                    var row = del.closest('tr');
-                    if (row) row.parentNode.removeChild(row);
-                    flash(resp.data.message, 'success');
-                } else {
-                    flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
-                }
+            ask({
+                title: L.i18n.detailDelete,
+                message: L.i18n.confirmDelete,
+                confirmLabel: L.i18n.detailDelete,
+                danger: true
+            }).then(function (ok) {
+                if (!ok) return;
+                ajax(L.actions.delete, { id: did }).then(function (resp) {
+                    if (resp.success) {
+                        var row = del.closest('tr');
+                        if (row) row.parentNode.removeChild(row);
+                        flash(resp.data.message, 'success');
+                    } else {
+                        flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
+                    }
+                });
             });
             return;
         }
         var resend = e.target.closest && e.target.closest('.lrob-etk-row-resend');
         if (resend) {
             e.preventDefault();
-            if (!confirm(L.i18n.confirmResend)) return;
             var rid = resend.getAttribute('data-id');
+            ask({
+                title: L.i18n.detailResend,
+                message: L.i18n.confirmResend,
+                confirmLabel: L.i18n.detailResend
+            }).then(function (ok) {
+                if (!ok) return;
+                resendNow(resend, rid);
+            });
+            return;
+        }
+        // pre-extracted resend body, used by both row click and detail modal action
+        function resendNow(resend, rid) {
             var icon = resend.querySelector('.dashicons');
             resend.disabled = true;
             if (icon) icon.classList.add('lrob-etk-spin');
@@ -752,28 +782,39 @@ final class LogsPage
             },
             onAction: function (op, id, modal) {
                 if (op === 'resend') {
-                    if (!confirm(L.i18n.confirmResend)) return;
-                    ajax(L.actions.resend, { id: id }).then(function (resp) {
-                        if (resp.success) {
-                            flash(resp.data.message, 'success');
-                            // Refresh modal body — status may have changed.
-                            modal.refresh();
-                        } else {
-                            flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
-                        }
+                    ask({
+                        title: L.i18n.detailResend,
+                        message: L.i18n.confirmResend,
+                        confirmLabel: L.i18n.detailResend
+                    }).then(function (ok) {
+                        if (!ok) return;
+                        ajax(L.actions.resend, { id: id }).then(function (resp) {
+                            if (resp.success) {
+                                flash(resp.data.message, 'success');
+                                modal.refresh();
+                            } else {
+                                flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
+                            }
+                        });
                     });
                 } else if (op === 'delete') {
-                    if (!confirm(L.i18n.confirmDelete)) return;
-                    ajax(L.actions.delete, { id: id }).then(function (resp) {
-                        if (resp.success) {
-                            // Drop the row from the live table + close the modal.
-                            var row = document.querySelector('tr[data-log-id="' + id + '"]');
-                            if (row) row.parentNode.removeChild(row);
-                            modal.close();
-                            flash(resp.data.message, 'success');
-                        } else {
-                            flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
-                        }
+                    ask({
+                        title: L.i18n.detailDelete,
+                        message: L.i18n.confirmDelete,
+                        confirmLabel: L.i18n.detailDelete,
+                        danger: true
+                    }).then(function (ok) {
+                        if (!ok) return;
+                        ajax(L.actions.delete, { id: id }).then(function (resp) {
+                            if (resp.success) {
+                                var row = document.querySelector('tr[data-log-id="' + id + '"]');
+                                if (row) row.parentNode.removeChild(row);
+                                modal.close();
+                                flash(resp.data.message, 'success');
+                            } else {
+                                flash((resp.data && resp.data.message) || L.i18n.unknownError, 'error');
+                            }
+                        });
                     });
                 }
             },
@@ -844,25 +885,32 @@ final class LogsPage
             var daysEl = document.getElementById('lrob-etk-cleanup-days');
             var days = parseInt(daysEl ? daysEl.value : '30', 10);
             if (!days || days < 1) { days = 30; if (daysEl) daysEl.value = '30'; }
-            if (!confirm(L.i18n.confirmCleanup.replace('%d', days))) return;
-            btn.disabled = true;
-            if (result) {
-                result.hidden = false;
-                result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
-                result.textContent = L.i18n.working;
-            }
-            ajax(L.actions.purge, { mode: 'older_than', days: days }).then(function (resp) {
-                btn.disabled = false;
-                if (resp.success) {
-                    if (result) {
-                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
-                        result.textContent = '✓ ' + resp.data.message;
-                    }
-                    setTimeout(function () { window.location.reload(); }, 800);
-                } else if (result) {
-                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
-                    result.textContent = '✗ ' + ((resp.data && resp.data.message) || L.i18n.unknownError);
+            ask({
+                title: L.i18n.detailDelete,
+                message: L.i18n.confirmCleanup.replace('%d', days),
+                confirmLabel: L.i18n.detailDelete,
+                danger: true
+            }).then(function (ok) {
+                if (!ok) return;
+                btn.disabled = true;
+                if (result) {
+                    result.hidden = false;
+                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
+                    result.textContent = L.i18n.working;
                 }
+                ajax(L.actions.purge, { mode: 'older_than', days: days }).then(function (resp) {
+                    btn.disabled = false;
+                    if (resp.success) {
+                        if (result) {
+                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
+                            result.textContent = '✓ ' + resp.data.message;
+                        }
+                        setTimeout(function () { window.location.reload(); }, 800);
+                    } else if (result) {
+                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                        result.textContent = '✗ ' + ((resp.data && resp.data.message) || L.i18n.unknownError);
+                    }
+                });
             });
         });
     })();
