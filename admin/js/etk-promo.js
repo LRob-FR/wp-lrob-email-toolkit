@@ -15,7 +15,21 @@
         var hosts = document.querySelectorAll('[data-role="lrob-etk-promo"]');
         if (!hosts.length || !POOL.length) return;
 
+        var bodyContent = document.getElementById('wpbody-content');
+
         Array.prototype.forEach.call(hosts, function (host) {
+            // `in_admin_footer` injects the strip inside #wpfooter, which is
+            // position:absolute in the WP admin layout (WP only reserves ~65px
+            // of padding for its own small footer). Our taller strip therefore
+            // overflows upward and paints over the bottom of the page content
+            // (most visibly on card grids). Relocate the strip's .wrap into
+            // #wpbody-content's normal flow so it reserves its own height and
+            // the footer sits cleanly below it.
+            var wrap = host.closest('.wrap') || host.parentElement;
+            if (bodyContent && wrap && wrap.parentElement !== bodyContent) {
+                bodyContent.appendChild(wrap);
+            }
+
             host.innerHTML = '<span class="lrob-etk-promo-icon"></span><span class="lrob-etk-promo-body"></span>';
             var iconEl = host.querySelector('.lrob-etk-promo-icon');
             var bodyEl = host.querySelector('.lrob-etk-promo-body');
@@ -45,6 +59,15 @@
                     + esc(p.link || '') + '</a>';
             }
         });
+
+        // After the strip is out of #wpfooter, the footer holds only WP's
+        // small default text. Shrink #wpbody-content's reserved bottom padding
+        // to exactly that height so the relocated strip sits flush above the
+        // footer instead of floating over a big empty gap.
+        var wpfooter = document.getElementById('wpfooter');
+        if (bodyContent && wpfooter) {
+            bodyContent.style.paddingBottom = wpfooter.offsetHeight + 'px';
+        }
     }
 
     function esc(s) {

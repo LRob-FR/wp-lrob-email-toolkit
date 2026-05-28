@@ -38,7 +38,6 @@ final class Blocks
     public function enqueue_editor_assets(): void
     {
         $deps_js  = ['wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-i18n', 'wp-data', 'wp-api-fetch'];
-        $deps_css = ['wp-edit-blocks'];
 
         wp_enqueue_script(
             'lrob-etk-cf-editor',
@@ -47,10 +46,20 @@ final class Blocks
             self::asset_version('admin/js/contact-form-editor.js'),
             true
         );
+        // The editor canvas isn't under the admin `.lrob-etk` wrap, so the
+        // design tokens (defined in admin-base.css on `.lrob-etk`) must be
+        // loaded here too — the preview placeholder carries a `.lrob-etk`
+        // class so the `var(--etk-*)` references resolve inside the canvas.
+        wp_enqueue_style(
+            'lrob-etk-base',
+            LROB_ETK_URL . 'admin/css/admin-base.css',
+            ['wp-edit-blocks'],
+            self::asset_version('admin/css/admin-base.css')
+        );
         wp_enqueue_style(
             'lrob-etk-cf-editor',
             LROB_ETK_URL . 'admin/css/contact-form-editor.css',
-            $deps_css,
+            ['lrob-etk-base'],
             self::asset_version('admin/css/contact-form-editor.css')
         );
 

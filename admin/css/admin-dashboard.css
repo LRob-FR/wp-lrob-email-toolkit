@@ -28,7 +28,7 @@
     justify-content: center;
     text-align: center;
     gap: 4px;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
     padding: 16px 14px;
@@ -42,7 +42,7 @@
 .lrob-etk-stat-card:hover,
 .lrob-etk-stat-card:focus-visible {
     border-color: var(--etk-accent);
-    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.12);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--etk-accent) 12%, transparent);
     color: var(--etk-fg);
     outline: none;
     transform: translateY(-1px);
@@ -53,7 +53,7 @@
 .lrob-etk-stat-card.is-warning:hover,
 .lrob-etk-stat-card.is-warning:focus-visible {
     border-color: var(--etk-danger);
-    box-shadow: 0 4px 12px rgba(214, 54, 56, 0.18);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--etk-danger) 18%, transparent);
 }
 
 .lrob-etk-stat-label {
@@ -115,7 +115,7 @@
 
 .lrob-etk-chart-wrap {
     position: relative;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
     padding: 12px 14px 14px;
@@ -152,7 +152,7 @@
     overflow: hidden;
 }
 .lrob-etk-chart-type button {
-    background: #fff;
+    background: var(--etk-input-bg);
     border: none;
     border-right: 1px solid var(--etk-line);
     padding: 4px 8px;
@@ -166,7 +166,7 @@
 .lrob-etk-chart-type button:hover { background: var(--etk-soft); color: var(--etk-fg); }
 .lrob-etk-chart-type button.is-active {
     background: var(--etk-accent);
-    color: #fff;
+    color: var(--etk-on-accent);
 }
 .lrob-etk-chart-type .dashicons {
     font-size: 16px;
@@ -220,26 +220,26 @@
     cursor: crosshair;
 }
 .lrob-etk-chart-hover:hover {
-    fill: rgba(34, 113, 177, 0.06);
+    fill: color-mix(in srgb, var(--etk-accent) 6%, transparent);
 }
 
 .lrob-etk-chart-tooltip {
     position: absolute;
     z-index: 10;
     background: var(--etk-fg);
-    color: #fff;
+    color: var(--etk-on-accent);
     padding: 6px 8px;
     border-radius: var(--etk-radius-sm);
     font-size: 11px;
     line-height: 1.5;
     pointer-events: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    box-shadow: var(--etk-shadow-menu);
     min-width: 140px;
 }
 .lrob-etk-tooltip-title {
     font-weight: 600;
     margin-bottom: 2px;
-    color: #fff;
+    color: var(--etk-on-accent);
 }
 .lrob-etk-tooltip-row {
     display: flex;
@@ -326,7 +326,7 @@
 }
 
 .lrob-etk-module-card {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
     padding: 16px 20px;
@@ -418,7 +418,7 @@
  * Compact card listing what each module stores ("412 log entries",
  * "3 identities", etc.) with a CTA to the (menu-hidden) Data page. */
 .lrob-etk-data-summary-card {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
     padding: 14px 18px;
@@ -470,7 +470,7 @@
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 .lrob-etk-stat-grid .lrob-etk-stat-card.is-blocked {
-    border-color: rgba(220, 38, 38, 0.18);
+    border-color: color-mix(in srgb, var(--etk-danger) 18%, transparent);
 }
 .lrob-etk-stat-grid .lrob-etk-stat-card .lrob-etk-stat-rate {
     margin-left: 4px;

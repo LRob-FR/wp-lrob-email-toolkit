@@ -2562,15 +2562,21 @@
     }
 
     /**
-     * Lazy-load the hCaptcha vendor script the first time the editor
-     * needs it. Uses default mode (no ?render=explicit) so the first
-     * batch of widgets present at load auto-renders; subsequent
-     * dynamically-injected widgets are rendered manually via
-     * hcaptcha.render(). Polls for the global since hCaptcha's script
-     * doesn't expose a documented onload promise.
+     * Lazy-load the hCaptcha vendor script the first time the editor needs
+     * it, in EXPLICIT render mode (?render=explicit&onload=…). Explicit mode
+     * stops the vendor auto-rendering the .h-captcha previews — we render them
+     * ourselves in mountCaptchaPreview, and letting auto-render also fire is
+     * what triggers "Only one captcha is permitted per parent container" plus
+     * the "render before api fully loaded" console warning. The poll backs up
+     * the onload callback in case a cached non-explicit api.js is already on
+     * the page.
      */
     var hCaptchaLoading = false;
     var hCaptchaCallbacks = [];
+    function flushHCaptchaCallbacks() {
+        var fns = hCaptchaCallbacks.splice(0);
+        fns.forEach(function (fn) { try { fn(); } catch (e) {} });
+    }
     function ensureHCaptchaScript(callback) {
         if (window.hcaptcha && typeof window.hcaptcha.render === 'function') {
             callback();
@@ -2580,9 +2586,10 @@
         if (hCaptchaLoading) return;
         hCaptchaLoading = true;
 
+        window.lrobEtkHcaptchaOnload = flushHCaptchaCallbacks;
         if (!document.querySelector('script[src*="js.hcaptcha.com"]')) {
             var s = document.createElement('script');
-            s.src = 'https://js.hcaptcha.com/1/api.js';
+            s.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=lrobEtkHcaptchaOnload';
             s.async = true;
             s.defer = true;
             document.head.appendChild(s);
@@ -2591,8 +2598,7 @@
         var poll = setInterval(function () {
             if (window.hcaptcha && typeof window.hcaptcha.render === 'function') {
                 clearInterval(poll);
-                var fns = hCaptchaCallbacks.splice(0);
-                fns.forEach(function (fn) { try { fn(); } catch (e) {} });
+                flushHCaptchaCallbacks();
             } else if (++attempts > 100) {
                 // 10s ceiling; give up rather than poll forever on a
                 // blocked network.

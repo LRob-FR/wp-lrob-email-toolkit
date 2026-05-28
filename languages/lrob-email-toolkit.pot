@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-28T18:32:07+00:00\n"
+"POT-Creation-Date: 2026-05-28T23:18:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -3402,6 +3402,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1016
 #: src/Modules/ContactForm/Admin/FormsPage.php:1473
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:427
 msgid "SMTP identity"
 msgstr ""
 
@@ -5810,10 +5811,6 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:422
 msgid "Inbox preview snippet (~90 chars visible)"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:427
-msgid "Sender identity"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:430

@@ -36,7 +36,10 @@
     --lrob-etk-form-error-bg:    #fef2f2;
     --lrob-etk-cf-success-bg:  #ecfdf5;
     --lrob-etk-cf-success-fg:  #065f46;
-    --lrob-etk-cf-shadow-focus: 0 0 0 3px rgba(37, 99, 235, .22);
+    --lrob-etk-cf-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--lrob-etk-cf-accent) 22%, transparent);
+    --lrob-etk-cf-shadow:        0 1px 0 rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.08);
+    --lrob-etk-cf-shadow-hover:  0 2px 4px rgba(0,0,0,.06), 0 6px 12px rgba(0,0,0,.10);
+    --lrob-etk-cf-shadow-menu:   0 6px 16px rgba(0,0,0,.12);
     --lrob-etk-cf-trans:       180ms cubic-bezier(.2,.7,.2,1);
 
     font-family: var(--lrob-etk-cf-font);
@@ -224,18 +227,18 @@
     border-radius: var(--lrob-etk-cf-radius);
     cursor: pointer;
     transition: transform var(--lrob-etk-cf-trans), opacity var(--lrob-etk-cf-trans), filter var(--lrob-etk-cf-trans), box-shadow var(--lrob-etk-cf-trans);
-    box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 2px 6px rgba(0,0,0,.08);
+    box-shadow: var(--lrob-etk-cf-shadow);
 }
 
 .lrob-etk-form-submit:hover {
     filter: brightness(1.05);
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,.06), 0 6px 12px rgba(0,0,0,.10);
+    box-shadow: var(--lrob-etk-cf-shadow-hover);
 }
 
 .lrob-etk-form-submit:focus {
     outline: 0;
-    box-shadow: var(--lrob-etk-cf-shadow-focus), 0 2px 6px rgba(0,0,0,.10);
+    box-shadow: var(--lrob-etk-cf-shadow-focus), var(--lrob-etk-cf-shadow);
 }
 
 .lrob-etk-form-submit:active {
@@ -282,13 +285,13 @@
 .lrob-etk-form-status.is-success {
     background: var(--lrob-etk-cf-success-bg);
     color: var(--lrob-etk-cf-success-fg);
-    border-color: rgba(6, 95, 70, .18);
+    border-color: color-mix(in srgb, var(--lrob-etk-cf-success-fg) 18%, transparent);
 }
 
 .lrob-etk-form-status.is-error {
     background: var(--lrob-etk-form-error-bg);
     color: var(--lrob-etk-form-error);
-    border-color: rgba(185, 28, 28, .25);
+    border-color: color-mix(in srgb, var(--lrob-etk-form-error) 25%, transparent);
 }
 
 @keyframes lrob-etk-cf-slide-in {
@@ -424,17 +427,17 @@
     width: 44px;
     height: 44px;
     box-sizing: border-box;
-    border: 1px solid var(--lrob-etk-cf-border, #cbd5e1);
-    border-radius: var(--lrob-etk-cf-radius, 6px);
-    background: #fff;
+    border: 1px solid var(--lrob-etk-cf-border);
+    border-radius: var(--lrob-etk-cf-radius);
+    background: var(--lrob-etk-cf-bg);
     cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
     margin: 0;
-    color: var(--lrob-etk-cf-fg, #1f2937);
+    color: var(--lrob-etk-cf-fg);
 }
 .lrob-etk-cf-image-option:hover {
-    border-color: var(--lrob-etk-cf-accent, #2563eb);
-    background: #f8fafc;
+    border-color: var(--lrob-etk-cf-accent);
+    background: color-mix(in srgb, var(--lrob-etk-cf-accent) 4%, var(--lrob-etk-cf-bg));
 }
 .lrob-etk-cf-image-option input[type="radio"] {
     position: absolute;
@@ -448,13 +451,13 @@
     border: 0;
 }
 .lrob-etk-cf-image-option:has(input[type="radio"]:checked) {
-    border-color: var(--lrob-etk-cf-accent, #2563eb);
+    border-color: var(--lrob-etk-cf-accent);
     border-width: 2px;
-    background: rgba(37, 99, 235, 0.08);
-    color: var(--lrob-etk-cf-accent, #2563eb);
+    background: color-mix(in srgb, var(--lrob-etk-cf-accent) 8%, transparent);
+    color: var(--lrob-etk-cf-accent);
 }
 .lrob-etk-cf-image-option:has(input[type="radio"]:focus-visible) {
-    box-shadow: var(--lrob-etk-cf-shadow-focus, 0 0 0 3px rgba(37, 99, 235, 0.25));
+    box-shadow: var(--lrob-etk-cf-shadow-focus);
     outline: none;
 }
 .lrob-etk-cf-image-svg {
@@ -586,7 +589,7 @@
     color: var(--lrob-etk-cf-input-fg);
     border: 1px solid var(--lrob-etk-cf-border);
     border-radius: var(--lrob-etk-cf-radius);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--lrob-etk-cf-shadow-menu);
     z-index: 100;
     display: flex;
     flex-direction: column;

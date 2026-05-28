@@ -78,7 +78,7 @@
 
 /* Defaults section — wrapped in a card with column layout inside. */
 .lrob-etk-defaults {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
     padding: 16px 20px 18px;
@@ -204,12 +204,12 @@
  * Gutenberg-style "drop a new field" action reads as the first move. */
 .lrob-etk-form-editor-toolbar-btn--primary {
     color: var(--etk-accent);
-    border-color: rgba(37, 99, 235, 0.35);
+    border-color: color-mix(in srgb, var(--etk-accent) 35%, transparent);
     margin-right: 4px;
 }
 .lrob-etk-form-editor-toolbar-btn--primary:hover:not(:disabled),
 .lrob-etk-form-editor-toolbar-btn--primary:focus-visible:not(:disabled) {
-    background: rgba(37, 99, 235, 0.10);
+    background: color-mix(in srgb, var(--etk-accent) 10%, transparent);
     border-color: var(--etk-accent);
     color: var(--etk-accent);
 }
@@ -232,7 +232,7 @@
 
 .lrob-etk-form.is-editor {
     position: relative;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
     padding: 14px 18px 18px;
@@ -291,7 +291,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover),
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active {
-    outline-color: rgba(37, 99, 235, 0.35);
+    outline-color: color-mix(in srgb, var(--etk-accent) 35%, transparent);
 }
 
 /* Single-column rows are conceptually just "a field at body level" — the
@@ -321,11 +321,11 @@
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
     padding: 2px 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+    box-shadow: var(--etk-shadow-md);
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
@@ -426,8 +426,8 @@
  */
 .lrob-etk-form-insert {
     appearance: none;
-    border: 1px solid rgba(37, 99, 235, 0.35);
-    background: #fff;
+    border: 1px solid color-mix(in srgb, var(--etk-accent) 35%, transparent);
+    background: var(--etk-card-bg);
     padding: 0;
     cursor: pointer;
     display: inline-flex;
@@ -493,9 +493,9 @@
  * highlight, NOT the "+ Field" pill (whose content we hide). */
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-drop-on-insert {
     opacity: 1;
-    background: rgba(37, 99, 235, 0.18);
+    background: color-mix(in srgb, var(--etk-accent) 18%, transparent);
     border: 2px solid var(--etk-accent);
-    box-shadow: 0 0 12px rgba(37, 99, 235, 0.28);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--etk-accent) 28%, transparent);
     border-radius: var(--etk-radius-sm);
     color: transparent;
 }
@@ -506,7 +506,7 @@
  * highlight the column itself too — makes it obvious that the dragged
  * payload will land inside this column rather than between cols. */
 .lrob-etk-form.is-editor .lrob-etk-form-col:has(> .lrob-etk-form-insert.is-drop-on-insert) {
-    background: rgba(37, 99, 235, 0.08);
+    background: color-mix(in srgb, var(--etk-accent) 8%, transparent);
     box-shadow: inset 0 0 0 2px var(--etk-accent);
     border-radius: var(--etk-radius-sm);
 }
@@ -515,7 +515,7 @@
  * that the click did something — without this, a new empty column tucked
  * next to existing content can read as "nothing happened". */
 @keyframes lrob-etk-form-col-flash {
-    0%   { background: rgba(37, 99, 235, 0.20); box-shadow: inset 0 0 0 1px var(--etk-accent); }
+    0%   { background: color-mix(in srgb, var(--etk-accent) 20%, transparent); box-shadow: inset 0 0 0 1px var(--etk-accent); }
     100% { background: transparent;             box-shadow: inset 0 0 0 1px transparent; }
 }
 .lrob-etk-form.is-editor .lrob-etk-form-col.is-just-inserted,
@@ -533,7 +533,7 @@
 }
 .lrob-etk-form-insert:hover,
 .lrob-etk-form-insert:focus-visible {
-    background: rgba(37, 99, 235, 0.12);
+    background: color-mix(in srgb, var(--etk-accent) 12%, transparent);
     border-color: var(--etk-accent);
     outline: none;
 }
@@ -584,7 +584,7 @@
     padding: 0 14px;
 }
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-orphan:hover {
-    background: rgba(37, 99, 235, 0.10);
+    background: color-mix(in srgb, var(--etk-accent) 10%, transparent);
     border-color: var(--etk-accent);
     color: var(--etk-accent);
 }
@@ -617,7 +617,7 @@
 }
 .lrob-etk-form.is-editor [contenteditable="plaintext-only"]:focus {
     border-bottom-color: var(--etk-accent);
-    background: rgba(37, 99, 235, 0.04);
+    background: color-mix(in srgb, var(--etk-accent) 4%, transparent);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-label-empty,
 .lrob-etk-form.is-editor .lrob-etk-form-helper-empty {
@@ -797,7 +797,7 @@
     line-height: 1.3;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
-    background: #fff;
+    background: var(--etk-input-bg);
     color: var(--etk-fg);
     box-sizing: border-box;
 }
@@ -827,7 +827,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-inline-seg {
     appearance: none;
     border: 0;
-    background: #fff;
+    background: var(--etk-input-bg);
     color: var(--etk-muted);
     padding: 2px 8px;
     font-size: 11px;
@@ -836,7 +836,7 @@
 }
 .lrob-etk-form.is-editor .lrob-etk-form-inline-seg:last-child { border-right: 0; }
 .lrob-etk-form.is-editor .lrob-etk-form-inline-seg:hover { background: var(--etk-soft); color: var(--etk-fg); }
-.lrob-etk-form.is-editor .lrob-etk-form-inline-seg.is-on { background: var(--etk-accent); color: #fff; }
+.lrob-etk-form.is-editor .lrob-etk-form-inline-seg.is-on { background: var(--etk-accent); color: var(--etk-on-accent); }
 .lrob-etk-form.is-editor .lrob-etk-form-inline-combo {
     display: inline-flex;
     width: 200px;
@@ -900,7 +900,7 @@
     background: var(--etk-accent);
     border-radius: var(--etk-radius-sm);
     pointer-events: none;
-    box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--etk-accent) 45%, transparent);
     z-index: 7;
 }
 .lrob-etk-form.is-editor .is-drop-before::before { left: 0; right: 0; top: -6px; height: 5px; }
@@ -917,10 +917,10 @@
 .lrob-etk-form-type-picker {
     position: relative;
     margin: 4px 0;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
-    box-shadow: 0 4px 14px rgba(0,0,0,.1);
+    box-shadow: var(--etk-shadow-menu);
     padding: 4px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -983,7 +983,7 @@
 .lrob-etk-cf-new-picker {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, .45);
+    background: var(--etk-backdrop);
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -995,9 +995,9 @@
     display: none !important;
 }
 .lrob-etk-cf-new-picker-inner {
-    background: #fff;
+    background: var(--etk-card-bg);
     border-radius: var(--etk-radius-xl);
-    box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    box-shadow: var(--etk-shadow-modal);
     width: 100%;
     max-width: 800px;
     padding: 20px 24px 24px;
@@ -1032,7 +1032,7 @@
 }
 .lrob-etk-cf-picker-card {
     appearance: none;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     padding: 12px 14px;
@@ -1046,7 +1046,7 @@
 }
 .lrob-etk-cf-picker-card:hover {
     border-color: var(--etk-accent);
-    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    box-shadow: var(--etk-shadow-md);
     background: var(--etk-accent-bg);
 }
 .lrob-etk-cf-picker-card:disabled {
@@ -1073,7 +1073,7 @@
     text-align: center;
     gap: 12px;
     padding: 32px 24px;
-    background: linear-gradient(180deg, #f6f8fb, #eef2ff);
+    background: linear-gradient(180deg, var(--etk-card-bg), var(--etk-accent-bg));
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-xl);
     margin-bottom: 24px;
@@ -1211,7 +1211,7 @@
     height: 30px;
     padding: 0;
     border: 1px solid var(--etk-line);
-    background: #fff;
+    background: var(--etk-input-bg);
     border-radius: var(--etk-radius-sm);
     cursor: pointer;
     color: var(--etk-muted);
@@ -1329,7 +1329,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within > .lrob-etk-form-field--captcha.is-editor-stub {
     padding: 12px 14px;
     background: var(--etk-soft);
-    border-color: var(--lrob-etk-cf-border, #cbd5e1);
+    border-color: var(--lrob-etk-cf-border, var(--etk-line));
 }
 .lrob-etk-form-captcha-stub-head {
     display: flex;
@@ -1375,7 +1375,7 @@
     padding: 4px 8px;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
-    background: #fff;
+    background: var(--etk-card-bg);
     font-size: 13px;
     color: var(--etk-fg);
 }
@@ -1471,7 +1471,7 @@
 }
 .lrob-etk-form.is-editor .lrob-etk-form-option-label:focus {
     border-bottom-color: var(--etk-accent);
-    background: rgba(37, 99, 235, 0.04);
+    background: color-mix(in srgb, var(--etk-accent) 4%, transparent);
     outline: none;
 }
 /* Per-option × button and "+ Add option" pill are editor-only chrome:
@@ -1545,7 +1545,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-option-add:hover {
     border-color: var(--etk-accent);
     color: var(--etk-accent);
-    background: rgba(37, 99, 235, 0.06);
+    background: color-mix(in srgb, var(--etk-accent) 6%, transparent);
 }
 
 
@@ -1563,7 +1563,7 @@
     padding: 6px 12px;
     border-radius: var(--etk-radius-pill);
     background: var(--etk-soft);
-    color: var(--etk-text);
+    color: var(--etk-fg);
     font-size: 13px;
     text-decoration: none;
     border: 1px solid transparent;
@@ -1572,23 +1572,23 @@
 .lrob-etk-cf-submissions-link:hover,
 .lrob-etk-cf-submissions-link:focus {
     border-color: var(--etk-accent);
-    background: rgba(37, 99, 235, 0.08);
-    color: var(--etk-text);
+    background: color-mix(in srgb, var(--etk-accent) 8%, transparent);
+    color: var(--etk-fg);
     text-decoration: none;
 }
 .lrob-etk-cf-submissions-link strong { font-weight: 700; }
-.lrob-etk-cf-submissions-link-received { color: var(--etk-text); }
-.lrob-etk-cf-submissions-link-blocked { color: var(--etk-text-muted); }
-.lrob-etk-cf-submissions-link-blocked strong { color: var(--etk-text); }
-.lrob-etk-cf-submissions-link-sep { color: var(--etk-text-muted); opacity: 0.6; }
-.lrob-etk-cf-submissions-link-arrow { color: var(--etk-text-muted); margin-left: 2px; }
+.lrob-etk-cf-submissions-link-received { color: var(--etk-fg); }
+.lrob-etk-cf-submissions-link-blocked { color: var(--etk-muted); }
+.lrob-etk-cf-submissions-link-blocked strong { color: var(--etk-fg); }
+.lrob-etk-cf-submissions-link-sep { color: var(--etk-muted); opacity: 0.6; }
+.lrob-etk-cf-submissions-link-arrow { color: var(--etk-muted); margin-left: 2px; }
 
 .lrob-etk-form-deleted {
     display: inline-block;
     padding: 2px 8px;
     border-radius: var(--etk-radius-pill);
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--etk-text-muted);
+    background: var(--etk-veil-2);
+    color: var(--etk-muted);
     font-size: 12px;
     font-style: italic;
 }
@@ -1605,12 +1605,12 @@
 }
 .lrob-etk-cf-submissions-table .col-captcha {
     width: 14%;
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     font-size: 12px;
 }
 
 .lrob-etk-detail-card {
-    background: var(--etk-card-bg, #fff);
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-soft);
     border-radius: var(--etk-radius-xl);
     padding: 16px 18px;
@@ -1619,7 +1619,7 @@
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     margin: 0 0 12px;
 }
 .lrob-etk-detail-meta {
@@ -1631,7 +1631,7 @@
     font-size: 13px;
 }
 .lrob-etk-detail-meta dt {
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     font-weight: 500;
 }
 .lrob-etk-detail-meta dd {
@@ -1652,7 +1652,7 @@
     margin: 0;
 }
 .lrob-etk-detail-payload dt {
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
@@ -1686,7 +1686,7 @@
 .lrob-etk-cf-submissions-panel {
     margin-top: 28px;
     padding: 18px 20px;
-    background: var(--etk-card-bg, #fff);
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-soft);
     border-radius: var(--etk-radius-xl);
 }
@@ -1713,15 +1713,15 @@
     background: var(--etk-soft);
     border-radius: var(--etk-radius-xl);
     text-decoration: none;
-    color: var(--etk-text);
+    color: var(--etk-fg);
     border: 1px solid transparent;
     transition: border-color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-cf-submissions-stat:hover,
 .lrob-etk-cf-submissions-stat:focus {
     border-color: var(--etk-accent);
-    background: rgba(37, 99, 235, 0.06);
-    color: var(--etk-text);
+    background: color-mix(in srgb, var(--etk-accent) 6%, transparent);
+    color: var(--etk-fg);
     text-decoration: none;
 }
 .lrob-etk-cf-submissions-stat.is-total {
@@ -1739,7 +1739,7 @@
 }
 .lrob-etk-cf-submissions-stat-label {
     font-size: 12px;
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -1783,7 +1783,7 @@
 }
 .lrob-etk-detail-row:last-child { border-bottom: 0; padding-bottom: 0; }
 .lrob-etk-detail-row dt {
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     font-weight: 600;
     font-size: 13px;
 }
@@ -1805,7 +1805,7 @@
 .lrob-etk-detail-tech > summary {
     cursor: pointer;
     list-style: none;
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     font-size: 13px;
     display: inline-flex;
     align-items: center;
@@ -1831,7 +1831,7 @@
 }
 .lrob-etk-delete-warning {
     margin: 0;
-    color: var(--etk-text-muted);
+    color: var(--etk-muted);
     font-style: italic;
 }
 .lrob-etk-delete-footer {
@@ -1921,7 +1921,7 @@
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
     overflow: hidden;
-    background: #fff;
+    background: var(--etk-card-bg);
     display: flex;
     flex-direction: column;
 }
@@ -1949,7 +1949,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    border-top: 1px solid #f0f2f5;
+    border-top: 1px solid var(--etk-soft);
     background: var(--etk-soft);
 }
 .lrob-etk-file-name {
@@ -1987,11 +1987,11 @@
 .lrob-etk-confirm-card {
     max-width: 640px;
     margin: 20px auto 0;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line-strong);
     border-radius: var(--etk-radius-md);
     padding: 24px 28px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+    box-shadow: var(--etk-shadow-sm);
 }
 .lrob-etk-confirm-summary {
     margin: 0 0 12px;
@@ -2140,7 +2140,7 @@
 /* Detail-page action buttons (spam/danger variants) */
 .lrob-etk-btn--spam.button {
     color: var(--etk-text-warning);
-    border-color: #fbbf24;
+    border-color: var(--etk-warning);
 }
 .lrob-etk-btn--spam.button:hover {
     background: var(--etk-warning-bg);
@@ -2152,7 +2152,7 @@
 }
 .lrob-etk-btn--danger.button:hover {
     background: var(--etk-danger-bg);
-    border-color: #ef4444;
+    border-color: var(--etk-danger);
 }
 
 /* --- Confirm modal (inbox row + detail-page actions) ---------------- */
@@ -2170,13 +2170,13 @@
 .lrob-etk-confirm-modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
+    background: var(--etk-backdrop);
 }
 .lrob-etk-confirm-modal-panel {
     position: relative;
-    background: #fff;
+    background: var(--etk-card-bg);
     border-radius: var(--etk-radius-lg);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--etk-shadow-modal);
     padding: 24px 28px;
     max-width: 460px;
     width: calc(100% - 32px);
@@ -2220,9 +2220,9 @@
 }
 .lrob-etk-detail-modal-panel {
     position: relative;
-    background: #fff;
+    background: var(--etk-card-bg);
     border-radius: var(--etk-radius-lg);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+    box-shadow: var(--etk-shadow-modal);
     width: min(900px, calc(100% - 32px));
     height: 88vh;
     max-height: 88vh;
@@ -2237,7 +2237,7 @@
     gap: 8px;
     padding: 10px 12px 10px 18px;
     border-bottom: 1px solid var(--etk-line);
-    background: #f9fafb;
+    background: var(--etk-soft);
 }
 .lrob-etk-detail-modal-title {
     flex: 1 1 auto;
@@ -2292,7 +2292,7 @@
 }
 .lrob-etk-detail-modal-nav:hover:not(:disabled),
 .lrob-etk-detail-modal-close:hover {
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--etk-veil-2);
     color: var(--etk-fg);
 }
 .lrob-etk-detail-modal-nav:disabled {
@@ -2307,7 +2307,7 @@
      * detail content stand out, just like they do on the full-page
      * detail (the .wrap WP background is the same grey). Without this,
      * white cards on a white modal body look flat. */
-    background: #f0f0f1;
+    background: var(--etk-soft);
     /* Smooth dim during navigation — keeps the current content visible
      * underneath, so no blank flash between adjacent submissions. */
     transition: opacity 120ms ease;
@@ -2335,7 +2335,7 @@
 
 /* Active row highlight while the detail modal is open */
 .lrob-etk-cf-submissions-table tr.is-active {
-    background: #eff6ff !important;
+    background: color-mix(in srgb, var(--etk-accent) 6%, var(--etk-input-bg)) !important;
     box-shadow: inset 3px 0 0 var(--etk-accent);
 }
 

@@ -17,7 +17,7 @@
 
 .editor-styles-wrapper .lrob-etk-form-submit[disabled] {
     background: var(--etk-accent);
-    color: #fff;
+    color: var(--etk-on-accent);
     padding: .65em 1.4em;
     border-radius: var(--etk-radius-md);
     font-weight: 600;
@@ -30,20 +30,20 @@
 .lrob-etk-embed-preview {
     border: 1px dashed var(--etk-line-strong);
     border-radius: var(--etk-radius-lg);
-    padding: 16px 20px;
+    padding: var(--etk-space-4) var(--etk-space-5);
     background: var(--etk-soft);
 }
 .lrob-etk-embed-preview-head {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
+    gap: var(--etk-space-2);
+    margin-bottom: var(--etk-space-2);
 }
 .lrob-etk-embed-preview-head .dashicons {
     color: var(--etk-accent);
 }
 .lrob-etk-embed-preview .description {
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-sm);
     margin: 0;
 }

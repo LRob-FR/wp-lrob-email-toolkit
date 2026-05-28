@@ -109,13 +109,14 @@ Admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table
 
 ### Design tokens (admin-base.css)
 
-Single source for every color, radius, shadow, spacing, transition, **and text size**. **Hardcoding chrome values is forbidden** — `font-size: 12px`, `gap: 6px`, `padding: 8px`, `color: #eee`, `border-radius: 4px` all belong to a token. If a needed value isn't tokenized yet, **add a token to admin-base.css first**, then reference it. Adapting one (dark mode, compact density, roundness preset) then ripples everywhere. The same rule applies to **reuse**: before forking a new class, grep for similar existing primitives — extend rather than duplicate (see memory `feedback_css_tokens_no_hardcode`).
+Single source for every color, radius, shadow, spacing, transition, **and text size**. **Hardcoding chrome values is forbidden** — `font-size: 12px`, `gap: 6px`, `padding: 8px`, `color: #eee`, `border-radius: 4px` all belong to a token. If a needed value isn't tokenized yet, **add a token to admin-base.css first**, then reference it. Adapting one (dark mode, compact density, roundness preset) then ripples everywhere. The same rule applies to **reuse**: before forking a new class, grep for similar existing primitives — extend rather than duplicate (see memory `feedback_css_tokens_no_hardcode`). **Tints** (glows, hover/selected backgrounds, focus rings) are NOT new tokens — derive them at the use site with `color-mix(in srgb, var(--etk-accent) N%, transparent)` (or `--etk-danger`, or a surface var) so they track the palette / any future theme automatically; the only literal left is the `%`. The frontend `assets/css/contact-form.css` is a **separate** token system (`--lrob-etk-cf-*`, user-themeable per form) — never cross the two.
 
 | Token family | Values |
 |---|---|
 | Palette | `--etk-fg`, `--etk-muted`, `--etk-soft`, `--etk-line`, `--etk-line-strong`, `--etk-accent`, `--etk-accent-hover`, `--etk-accent-bg`, `--etk-success`, `--etk-success-bg`, `--etk-warning`, `--etk-warning-bg`, `--etk-danger`, `--etk-danger-bg` |
-| Text-on-tint | `--etk-text-{success,danger,warning}` (dark counterparts to the `*-bg` tokens) |
+| Text-on-tint | `--etk-text-{success,danger,warning,accent}` (dark text on the matching `*-bg` tints). `--etk-on-accent` = light text/icon sitting ON an accent or semantic fill (primary buttons, solid badges). |
 | Surfaces | `--etk-card-bg` (warm off-white), `--etk-input-bg` (pure white) |
+| Veils / scrim | `--etk-veil-{1,2,3}` (translucent black — layered over a surface to recede / gray it out: sent/trashed rows, disabled cards, hover tints), `--etk-backdrop` (modal scrim) |
 | Radii | `--etk-radius-{sm,md,lg,xl,pill}` (4 / 6 / 8 / 12 / 999px). Legacy alias `--etk-radius` = md. |
 | Shadows | `--etk-shadow-{sm,md,lg,modal,menu}` |
 | Spacing | `--etk-space-{1..6}` (4 / 8 / 12 / 16 / 24 / 32px). Snap to grid — don't add `--etk-space-1-5` for 6px, round to 4px or 8px. |
@@ -124,7 +125,7 @@ Single source for every color, radius, shadow, spacing, transition, **and text s
 | Icons | `--etk-icon-size` (16px), `--etk-icon-size-sm` (14px) |
 | Motion | `--etk-transition` (0.15s ease), `--etk-transition-slow` (0.30s ease) |
 
-**Pre-existing tech debt note:** historical hardcoded values (`font-size: 12px` in old `.lrob-etk-nl-status-*` pills, `padding: 8px 12px` on table heads, etc.) predate the token system — don't mass-refactor them mid-feature, risk of visual regression. Add tokens cleanly to NEW additions; the user will ask for an explicit cleanup pass when migrating the old ones.
+**Cleanup status (v0.4.0, in progress):** the **colour** cleanup pass is DONE — every hardcoded colour across admin sheets + JS + the frontend now resolves from a token or `color-mix`. **Still remaining for 0.4.0** (next session, NOT deferred): tokenize hardcoded **font-sizes** (`font-size: 12px` → `--etk-text-*`; use the px scale + snap-to-grid, not an `em` re-architecture — user is wary of em) and **spacing/radius** (off-grid `6/10/14px` gaps → `--etk-space-*` grid), then a **structural dedup** pass (merge duplicate classes; promote `-cf-`/`-nl-`/`-smtp-` sub-prefixes → globals; drop dead selectors). Do these incrementally with visual QA (regression risk). Add tokens cleanly to NEW additions meanwhile.
 
 ### Shared PHP renderers (src/Admin/)
 

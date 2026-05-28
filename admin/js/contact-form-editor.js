@@ -183,7 +183,7 @@
 
         return el('div', blockProps,
             inspector,
-            el('div', { className: 'lrob-etk-embed-preview lrob-etk-form-preset--' + (attrs.preset || 'default') },
+            el('div', { className: 'lrob-etk lrob-etk-embed-preview lrob-etk-form-preset--' + (attrs.preset || 'default') },
                 el('div', { className: 'lrob-etk-embed-preview-head' },
                     el('span', { className: 'dashicons dashicons-feedback' }),
                     el('strong', null, __('Contact Form: ', 'lrob-email-toolkit') + title)

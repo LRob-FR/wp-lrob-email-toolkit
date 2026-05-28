@@ -4,7 +4,7 @@
 
 ## Status
 
-**Public beta — v0.3.x.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. Schema is stable, surfaces are stable; the toolkit drives real sends on production sites. Bug reports + UX feedback welcome on GitHub issues.
+**Public beta — v0.4.0 finalizing** (latest published release: v0.3.5). Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. Schema is stable, surfaces are stable; the toolkit drives real sends on production sites. v0.4.0 adds the full captcha provider lineup (hCaptcha / Turnstile / reCAPTCHA, incl. invisible + score-based v3), in-place modal detail views everywhere, resend-safe saved attachments, LRob branding, a fully tokenized admin colour system (theming groundwork), and a French i18n quality pass. Bug reports + UX feedback welcome on GitHub issues.
 
 Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning).
 
@@ -21,10 +21,10 @@ No external libraries at runtime: no Composer, no React, no build pipeline. Plai
 
 | Module | Status | What it does |
 |---|---|---|
-| **SMTP** | ✅ shipped | Route `wp_mail()` through one or more configured SMTP servers. Multiple "from" identities, per-source routing rules, `wp-config.php` constant overrides, AES-256-GCM-encrypted passwords at rest, native PHP `mail()` transport as fallback. |
-| **Email Logging** | ✅ shipped | Log every outgoing email (headers, body, attachments, status, errors). Browse / search / filter / resend in the admin. Configurable retention. Activity charts on the dashboard. |
+| **SMTP** | ✅ shipped | Route `wp_mail()` through one or more configured SMTP servers. Multiple "from" identities, per-source routing rules, `wp-config.php` constant overrides, AES-256-GCM-encrypted passwords at rest, native PHP `mail()` transport as fallback. Per-identity *save attachments locally* option so logged emails can be re-sent with their files intact. |
+| **Email Logging** | ✅ shipped | Log every outgoing email (headers, body, attachments, status, errors). Browse / search / filter / resend from an in-page detail modal — resend re-attaches files saved via the SMTP *save attachments* toggle. Configurable retention. Activity charts on the dashboard. |
 | **Contact Form** | ✅ shipped | Customizable forms with a from-scratch WYSIWYG editor (drag & drop, columns, inline settings, autosave, undo/redo). Stacked anti-spam: honeypot, time-trap, rate-limit, captcha. Starter templates. Per-form recipients, Reply-To picking, subject templates, success-message templates. Submissions inbox with captcha-outcome tracking + filters + detail view. |
-| **Captcha** | ✅ shipped (service module) | Shared captcha service consumed by Contact Form + Newsletter sign-up forms + WordPress comments + lost-password + registration. Per-context assignments with the **Make as default** badge — pick the default site-wide then optionally override per use case. Built-in math + picture-recognition challenges. **hCaptcha** provider shipped; Cloudflare Turnstile and Google reCAPTCHA designed to plug in (multi-identity, encrypted credentials). |
+| **Captcha** | ✅ shipped (service module) | Shared captcha service consumed by Contact Form + Newsletter sign-up forms + WordPress comments + login + lost-password + registration (+ WooCommerce login). Per-context assignments with the **Make as default** badge — pick the default site-wide then optionally override per use case. Built-in math + picture-recognition challenges. **hCaptcha**, **Cloudflare Turnstile**, and **Google reCAPTCHA** (v2 + v3 score-based) all shipped — multi-identity, AES-encrypted credentials, per-identity theme / size / invisible mode. |
 | **Newsletter** | 🧪 beta (v0.3.x) | Newsletters composed in Gutenberg, sent to your subscribers + WordPress users. **Lists**: two kinds — *Subscribers lists* (manual membership) and *WP users lists* (rule-based — by role, WooCommerce customer status, active WooCommerce subscriptions, or a custom rule plugged in by a developer). Mark lists as *Public* so subscribers self-join from their prefs page, *Private* for admin-managed segmentation. **Audience picker** with per-list member counts, opt-out visibility, per-row *Send anyway / Exclude* overrides, *Bypass opt-outs* for operational sends (warned at send time). **Subscribe forms** with a drag-and-drop builder (text / email / phone with country picker / gender / dropdown / list picker / captcha / submit), full-form templates (*Email-only*, *Contact basics*, *Full profile*), per-form default lists. **Subscriber self-edit**: name / phone / postal address / gender from the prefs page; email change requires click-to-confirm on the new address. Throttled AJAX + Cron send pipeline with SMTP circuit-breaker, open + click tracking via HMAC-signed REST endpoints, per-subscriber lifetime engagement stats, cold-subscriber detection, bulk unsubscribe, RFC 8058 one-click unsubscribe headers. WP-Cron health diagnostic. |
 | **Integrations** | ⏳ planned | Outbound webhooks to n8n, Slack, Discord, Matrix and generic endpoints. Each module already emits events from v0.0.1 — devs can hook them today via WordPress actions, no module needed. |
 
@@ -33,6 +33,7 @@ No external libraries at runtime: no Composer, no React, no build pipeline. Plai
 - PHP **8.1+**
 - WordPress **6.0+**
 - WooCommerce **8.0+** *(only required if you'll use WooCommerce-based segmentation in the Newsletter module — HPOS supported, integration planned)*
+- A reasonably modern browser for the **admin UI** — the design system uses CSS `color-mix()` (Chrome/Edge **111+**, Firefox **113+**, Safari **16.2+**; all released 2023). Older browsers degrade gracefully (tints/glows just don't paint); the public-facing forms have no such requirement.
 
 ## Languages
 

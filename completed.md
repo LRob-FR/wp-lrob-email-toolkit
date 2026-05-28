@@ -7,9 +7,9 @@ For working rules (conventions, naming, build, UI patterns), see [CLAUDE.md](./C
 
 ---
 
-## v0.4.0 — Modal-everywhere + IMAP cleanup + saved attachments + captcha enrichment (in preparation)
+## v0.4.0 — Modal-everywhere + IMAP cleanup + saved attachments + captcha enrichment + LRob branding (finalizing for release)
 
-Milestone v0.4.x in progress. Done so far in 0.4.0:
+Milestone v0.4.x feature-complete in code (version bumped to 0.4.0). **Not yet released** — latest GitHub release is v0.3.5; 0.4.0 is being finalized (translation release-gate → `./release.sh` → `gh release create v0.4.0`). What landed:
 
 ### Detail views are modals everywhere (no more dedicated full pages)
 - **Email Logs + Contact Form submissions detail = in-page modal only.** The dedicated full-page detail views are gone. `LogViewPage` is now `LogDetailRenderer` (body-only, shared with the AJAX modal endpoint); `SubmissionsPage::render_detail()` removed (kept `render_detail_body()` + the spam/delete email-action confirm pages).
@@ -46,6 +46,22 @@ Milestone v0.4.x in progress. Done so far in 0.4.0:
 
 ### Quick cleanups
 - Logging module description trimmed (no IMAP promise). Module descriptions simplified plugin-wide for the dashboard. The always-on Newsletter cron-diagnostic panel is now a conditional banner that only shows when cron is slow/stalled, with Plesk WordPress-Toolkit guidance.
+
+### CSS colour consolidation (theming prerequisite)
+- **Every hardcoded colour eliminated from the admin sheets + JS + the frontend form CSS.** ~160 swaps. Admin colours now resolve from the `--etk-*` palette; the frontend `contact-form.css` from its own `--lrob-etk-cf-*` theme vars. The only literal colours left are the **token/var definitions themselves** (the base palette) and the throwaway frontend presets (`--soft` / `--contrast`, slated for the v0.6.x rework).
+- **New tokens** in `admin-base.css`: `--etk-on-accent` (text/icon on accent or semantic fills), `--etk-veil-1/2/3` + `--etk-backdrop` (translucent-black veils for recessed/grayed surfaces + modal scrims — layered over content so a theme recolours the surface beneath, not an opaque fill), `--etk-text-accent` (dark-blue text on accent-bg, completes the success/warning/danger set for the "scheduled/info" pills).
+- **Tints derive from tokens via `color-mix`** — every accent/danger glow, hover tint, focus ring and selected-row background is now `color-mix(in srgb, var(--etk-accent|danger) N%, transparent|surface)` instead of a frozen `rgba`, so swapping the palette (or a future theme / LRob colours) recolours all tints automatically. Shadows map to the `--etk-shadow-*` scale (unified elevation); modal scrims unified on `--etk-backdrop`.
+- **Frontend**: added `--lrob-etk-cf-shadow` / `-hover` / `-menu` vars; the focus-ring (`--lrob-etk-cf-shadow-focus`) now derives from `--lrob-etk-cf-accent` (was frozen blue → now follows the form theme); dead `#hex` fallbacks stripped from rule-level `var()`s.
+- **Bug-fix surfaced in passing**: phantom token refs `var(--etk-text)` / `var(--etk-text-muted)` (undefined → colour was silently inheriting instead of applying) corrected to `var(--etk-fg)` / `var(--etk-muted)`; the stray `var(--lrob-etk-color-primary/-danger, …)` fallback chains collapsed onto the real tokens.
+- **Browser floor**: `color-mix()` requires Chrome 111 / Firefox 113 / Safari 16.2 (all 2023+) — to be documented in the README. `release.sh` clean: 616 CSS classes all referenced, PHP + 23 JS lint clean. **Colours only this pass** — font-size/spacing tokenisation + structural dedup are still part of 0.4.0 (remaining work, see todo.md).
+
+### v0.4.0 finalization — i18n quality pass + UI polish + promo placement
+- **French translation fixes.** Corrected several mis-mappings left by past auto-translation scripts (which is what produces wrong msgid→msgstr pairs): `Preview`→Aperçu (was "Précédent"), `Blocked`/`blocked`→Bloqués/bloqués (was "cadenas"), `Mailbox login`→Identifiants email. The newsletter sender field was relabelled `Sender identity`→**`SMTP identity`** (matches Contact Form) — which also killed a literal "%d identité" in the UI that was actually the *broken FR translation* of "Sender identity", not a missing `sprintf`.
+- **"submission" → "Message" terminology** across ~33 FR strings (gender agreement fixed — `cette`→`ce`, `sélectionnées`→`sélectionnés`, etc.; the *act* of submitting kept as "envoi"). EN source strings keep "Submission(s)". The mismatched `Contact Form Submissions`→"[%s] Nouvelle soumission…" page title was fixed too.
+- **`.po` header repaired.** The script-mangled `fr_FR.po` carried only 3 header fields and **no `Plural-Forms`** → WordPress fell back to the English plural rule (rendered "0 messages" instead of FR "0 message"). Restored a full gettext header (`Plural-Forms: nplurals=2; plural=(n > 1);`, `MIME-Version`, `Project-Id-Version`, `X-Generator`, …). `msgmerge` takes the header from the `.po`, so it would never have self-healed — it now persists. (See memory `no-python-for-po-translation`.)
+- **UI polish.** Combobox + card-title placeholders darkened (`--etk-line-strong`→`--etk-muted`, were near-illegible); subscriber-list chips gained an inset accent ring so they stay legible when the row underneath turns a faint accent tint (hover / selected).
+- **hCaptcha editor preview** now loads the vendor script in `?render=explicit&onload=…` mode → no more double-render / "render before api loaded" console warnings.
+- **Promo strip placement fixed.** `in_admin_footer` lands inside the absolutely-positioned `#wpfooter` (WP reserves only ~65px), so the taller strip overflowed upward and painted over the bottom of card grids. `etk-promo.js` now relocates the strip's `.wrap` into `#wpbody-content`'s normal flow and trims the now-redundant reserved bottom padding to the footer's real height; the strip stays `display:none` until painted so it never flickers in from the footer position first.
 
 ### LRob branding (header credit + promo strip)
 - **"by LRob" credit in every page title** — `PageHeader::render()` appends `<small class="lrob-etk-page-credit">by <a href="lrob.fr">LRob</a></small>` to the H1, on every page that uses the shared header.

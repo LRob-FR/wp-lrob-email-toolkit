@@ -11,17 +11,20 @@ For **how to build / conventions**, see [CLAUDE.md](./CLAUDE.md).
 
 Sequence locked with the user. Each milestone is a meaty chunk; items inside a milestone can ship in any order. Bounce / suppression / universal-tracking / outbound-customize and a few others stay in 1.x — see *Essential / Nice to have* below.
 
-### v0.4.x — Captcha enrichment + CSS cleanup + LRob branding
-*(Most of this milestone shipped — providers hCaptcha/Turnstile/reCAPTCHA v2+v3, theme/size, invisible mode, modal chooser, WP-native rendering, login context, etc. See [completed.md](./completed.md#v040).)*
-- **Captcha follow-ups (remaining).**
-  - **Turnstile invisible** — its invisible widget mode is dashboard-configured, but still needs the same execute-on-submit wiring as hCaptcha/reCAPTCHA.
-  - **Invisible + reCAPTCHA v3 in WP-native forms** (comments / login / lost-password / registration) — visible challenges render fine, but execute-on-submit doesn't fire there because the native WP forms aren't `.lrob-etk-form`. Either hook the real WP form submit, or disable invisible/v3 selection for those contexts.
-  - **Optional extra hosted provider** — Friendly Captcha (privacy-first, EU/RGPD), a clean `AbstractHostedCaptcha` drop-in.
-  - **Per-context "v3 action" override** — today a fixed `lrob_etk_form` action.
-- **CSS cleanup — eliminate hardcoded chrome values plugin-wide.** The token system (`--etk-text-*`, `--etk-space-*`, etc.) is in place but historical hardcoded values still litter `admin-newsletter.css` (status pills, gaps, paddings), `admin-components.css`, and per-module sheets. Prerequisite for the theme system + density setting in v0.5.x. Risk: visual regressions — do it as a careful sweep with eyeball checks. See memory `feedback_css_tokens_no_hardcode`.
-- **LRob branding — remaining.** Page-title "by LRob" credit + bottom-of-page rotating promo strip already shipped (mirrored from QR Code Maker). Still to do: subliminal placements in empty states + module About panels; polish the plugin readme / `Author URI` header / lrob.fr links. Strategic: this is how the dev work gets amortized.
+### v0.4.x — Captcha enrichment + CSS cleanup + LRob branding  ← ACTIVE (0.4.0 in progress — colour cleanup + i18n done; **font/spacing tokenization + dedup still remain**)
+v0.4.0 **feature** work is shipped + visual-QA'd: captcha enrichment (hCaptcha / Turnstile / reCAPTCHA v2+v3, theme/size, invisible, modal chooser, WP-native + login/WC contexts), modal-everywhere detail views, IMAP purge, per-identity saved attachments, LRob branding, plus the admin **CSS colour** consolidation and a French i18n quality pass. Full detail in [completed.md](./completed.md#v040). **The CSS cleanup is NOT finished** — only colours are done; font-size/spacing tokenization + structural dedup are still part of 0.4.0 (see below). **Not yet released** (latest GitHub release is v0.3.5); session commits are checkpoints, not a release.
+- **✅ Done so far in 0.4.0:** feature work (captcha enrichment, modal-everywhere, saved attachments, branding); **CSS colour cleanup** (every hardcoded colour → `--etk-*` / `--lrob-etk-cf-*` tokens + `color-mix` tints; new tokens `--etk-on-accent`, `--etk-veil-1/2/3`, `--etk-backdrop`, `--etk-text-accent`); README browser-floor note; i18n quality pass ("submission→Message", mistranslation fixes, `.po` Plural-Forms header repair); placeholder/chip legibility; hCaptcha-editor console; promo-strip overlap. See memory `feedback_css_tokens_no_hardcode`.
+- **➡️ REMAINING for 0.4.0 — finish NEXT SESSION (these are the open tasks; NOT deferred):**
+  1. **Tokenize admin font-sizes** (px + `em`/`rem`) onto the `--etk-text-*` scale. ⚠ Use the existing **px token scale + snap-to-grid**, NOT an `em`/`rem` re-architecture — user is wary of em ("le em me fait peur de tout casser"). Display sizes >14px → judgment (leave, or add a display token).
+  2. **Tokenize admin spacing + radius** — gap/padding/margin → `--etk-space-*` (snap off-grid `6/10/14px` to the 4/8/12/16/24/32 grid; visual change → eyeball it), border-radius → `--etk-radius-*`.
+  3. **Structural dedup** — the ~2000-line reduction the user wants: merge different classes doing identical things into one + modifier; promote module sub-prefixes (`-cf-`/`-nl-`/`-smtp-`/`-logs-`) → global primitives per `feedback_css_generic_naming`; remove dead selectors. Highest regression risk → do incrementally with `release.sh` dead-class checks + visual QA.
+  4. **Only once 1–3 land**: translation gate (`./release.sh` → `0 fuzzy / 0 untranslated`; last build 1755 translated, clean) → `gh release create v0.4.0` (do NOT flag pre-release — memory `project_releases_not_prerelease`; version already `0.4.0`). Then move this v0.4.x block to completed.md + activate v0.5.x.
+- **Genuinely deferred to LATER milestones (NOT 0.4.0):**
+  - **Deep frontend theme/preset rework** — throwaway `--soft`/`--contrast` form presets → real multi-theme. Front already has the `--lrob-etk-cf-*` var plumbing (a theme = a class overriding those vars), so additive. → **v0.6.x**.
+  - **`fr_FR.po` mis-mapping audit** (nice-to-have before 1.0) — auto-translation scripts left wrong msgid→msgstr pairs (tell: one msgstr reused across unrelated msgids). Fixed the spotted ones; a scan would surface more. Memory `no-python-for-po-translation`.
+  - Two optional captcha extras (Friendly Captcha provider, per-context "v3 action" override) → "Cross-feature captcha enrichment" under Nice to have.
 
-### v0.5.x — Theme system + density + accessibility
+### v0.5.x — Theme system + density + accessibility  (next, once 0.4.0 ships)
 - **Theme system: Light / Dark / Auto / LRob / Contrast.** Settings radio. Auto follows `prefers-color-scheme`. LRob = branded palette (user provides colors). Contrast = colorblind-safe palette + reinforced WCAG ratios. Each theme is a CSS-variable swap on top of the v0.4.x-cleaned tokens.
 - **Density setting: Compact / Comfortable / Spacious.** Single setting flips the `--etk-text-*` + `--etk-space-*` scale. Accessibility win.
 - **Accessibility audit pass.** Focus rings, keyboard nav, ARIA labels on icon buttons, screen-reader-friendly status pills, color-only-information audit (paired with Contrast theme).
@@ -148,7 +151,7 @@ Real features, well worth doing, but the plugin isn't materially worse without t
 ### New modules
 - **Draw / raffle module.** Visitors register via a form; admin (or scheduled trigger) picks N winners at random; winners get an automated email. Participants can opt into a shared Newsletter list. Per-draw config: entry window, max winners, one-per-email / one-per-WP-user. Cryptographic randomness seeded once + stored for auditability.
 - **Integrations module.** Outbound webhooks: Slack / Discord / Matrix / n8n + generic. Built on the `lrob_etk_event` action that already ships from v0.0.1 — devs can hook events today via WordPress actions, no module needed.
-- **Cross-feature captcha enrichment.** More providers (Cloudflare Turnstile, Google reCAPTCHA) — drop into `Providers/`, auto-discovered. More in-house challenges (image-letter, simple logic, proof-of-work using local browser compute) — drop into `Challenges/`, also auto-discovered.
+- **Cross-feature captcha enrichment (optional extras).** Turnstile + reCAPTCHA shipped in v0.4.0. Remaining optional: **Friendly Captcha** provider (privacy-first, EU/RGPD — a clean `AbstractHostedCaptcha` drop-in into `Providers/`, auto-discovered); **per-context "v3 action" override** (today a fixed `lrob_etk_form` action). More in-house challenges (image-letter, simple logic, proof-of-work using local browser compute) — drop into `Challenges/`, also auto-discovered.
 
 ### Cross-cutting polish
 - **Per-context SMTP identity routing.** Admin assigns identities to email categories (WooCommerce, admin notifications, contact forms, etc.) on the SMTP settings page. `MailRouter` matches from headers / hook context.

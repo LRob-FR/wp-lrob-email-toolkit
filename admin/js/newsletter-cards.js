@@ -257,7 +257,7 @@
             iframe.setAttribute('data-preview-iframe', '');
             iframe.setAttribute('sandbox', '');
             iframe.style.cssText = oldIframe ? oldIframe.style.cssText :
-                'width:100%; min-height:60vh; border:1px solid #dcdcde; border-radius:4px; display:block;';
+                'width:100%; min-height:60vh; border:1px solid var(--etk-line); border-radius:var(--etk-radius-sm); display:block;';
             if (oldIframe && oldIframe.parentNode) {
                 oldIframe.parentNode.replaceChild(iframe, oldIframe);
             }

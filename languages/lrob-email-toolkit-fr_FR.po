@@ -1,9 +1,21 @@
+# Copyright (C) 2026 LRob
+# This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
+"Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-28T18:12:50+00:00\n"
+"POT-Creation-Date: 2026-05-28T22:30:38+00:00\n"
+"PO-Revision-Date: 2026-05-29 00:00+0000\n"
+"Last-Translator: LRob\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: lrob-email-toolkit\n"
 
 #. Plugin Name of the plugin
 msgid "LRob - Email Toolkit"
@@ -18,7 +30,10 @@ msgid ""
 "All-in-one modular email plugin: SMTP routing, email logging, contact forms, "
 "newsletters, captcha, and webhook integrations. Each module is independently "
 "activatable."
-msgstr "Extension email tout-en-un modulaire : routage SMTP, journalisation des emails, formulaires de contact, newsletters, captcha et intégrations webhook. Chaque module est activable indépendamment."
+msgstr ""
+"Extension email tout-en-un modulaire : routage SMTP, journalisation des "
+"emails, formulaires de contact, newsletters, captcha et intégrations "
+"webhook. Chaque module est activable indépendamment."
 
 #. Author of the plugin
 msgid "LRob"
@@ -240,8 +255,8 @@ msgstr[1] "formulaires"
 #: src/Admin/DashboardPage.php:423 src/Admin/DashboardPage.php:631
 msgid "submission"
 msgid_plural "submissions"
-msgstr[0] "soumission"
-msgstr[1] "soumissions"
+msgstr[0] "message"
+msgstr[1] "messages"
 
 #: src/Admin/DashboardPage.php:439 src/Admin/ModuleToggle.php:42
 #: src/Modules/Newsletter/Admin/SettingsPage.php:283
@@ -368,7 +383,7 @@ msgstr "Envoyer"
 
 #: src/Admin/DashboardPage.php:624 src/Modules/Logging/Admin/LogsPage.php:58
 msgid "Contact form submissions"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #: src/Admin/DashboardPage.php:628
 msgid "Delivered (30d)"
@@ -437,7 +452,7 @@ msgstr "Formulaire"
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:395
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:702
 msgid "Preview"
-msgstr "Précédent"
+msgstr "Aperçu"
 
 #: src/Admin/DashboardPage.php:667 src/Admin/DashboardPage.php:787
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:397
@@ -465,12 +480,12 @@ msgstr "Voir"
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:463
 #: src/Modules/Logging/Admin/LogsPage.php:413
 msgid "View submission"
-msgstr "Nouvelle soumission"
+msgstr "Nouveau message"
 
 #: src/Admin/DashboardPage.php:709
 #: src/Modules/ContactForm/Admin/FormsPage.php:708
 msgid "View all submissions"
-msgstr "Nouvelle soumission"
+msgstr "Nouveau message"
 
 #: src/Admin/DashboardPage.php:732
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:1026
@@ -485,7 +500,7 @@ msgstr "Ajouter un captcha"
 #: src/Admin/DashboardPage.php:737
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:1034
 msgid "Blocked"
-msgstr "cadenas"
+msgstr "Bloqués"
 
 #: src/Admin/DashboardPage.php:740
 #: src/Modules/ContactForm/Admin/FormsPage.php:715
@@ -2256,7 +2271,9 @@ msgstr "Aucun fournisseur hébergé enregistré pour le moment."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:172
 msgid "No captchas configured yet. Click \"New captcha\" to set one up."
-msgstr "Aucun captcha configuré pour le moment. Cliquez sur « Nouveau captcha » pour en configurer un."
+msgstr ""
+"Aucun captcha configuré pour le moment. Cliquez sur « Nouveau captcha » pour "
+"en configurer un."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:198
 msgid "Captcha activity since this challenge was first used"
@@ -2266,7 +2283,7 @@ msgstr "Activité du captcha depuis la première utilisation de ce défi"
 #: src/Modules/ContactForm/Admin/FormsPage.php:627
 #: src/Modules/ContactForm/Admin/FormsPage.php:1061
 msgid "blocked"
-msgstr "cadenas"
+msgstr "bloqués"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:201
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:1056
@@ -2432,7 +2449,9 @@ msgstr "Défi par défaut"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:651
 msgid "Used on this plugin's forms unless you override them below."
-msgstr "Utilisé sur les formulaires de cette extension, sauf si vous le remplacez ci-dessous."
+msgstr ""
+"Utilisé sur les formulaires de cette extension, sauf si vous le remplacez ci-"
+"dessous."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:657
 msgid "This plugin's forms"
@@ -2444,7 +2463,9 @@ msgstr "Sections WordPress"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:666
 msgid "Off by default — turn on captcha per WordPress section as needed."
-msgstr "Désactivé par défaut — activez le captcha section WordPress par section selon vos besoins."
+msgstr ""
+"Désactivé par défaut — activez le captcha section WordPress par section "
+"selon vos besoins."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:698
 msgid "Use default"
@@ -2478,13 +2499,17 @@ msgstr "✗ Échec de la vérification"
 msgid ""
 "Invisible mode — no widget is shown; it runs automatically when visitors "
 "submit the form."
-msgstr "Mode invisible — aucun widget n'est affiché ; il s'exécute automatiquement lorsque les visiteurs envoient le formulaire."
+msgstr ""
+"Mode invisible — aucun widget n'est affiché ; il s'exécute automatiquement "
+"lorsque les visiteurs envoient le formulaire."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:810
 msgid ""
 "reCAPTCHA v3 — no widget; a risk score is fetched and checked when visitors "
 "submit the form."
-msgstr "reCAPTCHA v3 — aucun widget ; un score de risque est récupéré et vérifié lorsque les visiteurs envoient le formulaire."
+msgstr ""
+"reCAPTCHA v3 — aucun widget ; un score de risque est récupéré et vérifié "
+"lorsque les visiteurs envoient le formulaire."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:811
 msgid "Test score"
@@ -2772,7 +2797,11 @@ msgid ""
 "CaptchaService did NOT inject credentials. The routing key probably resolves "
 "to a homemade challenge slug rather than an identity row — pick a hosted-"
 "provider entry in the Captcha settings instead of the generic provider name."
-msgstr "CaptchaService n'a PAS injecté d'identifiants. La clé de routage résout probablement vers un défi intégré plutôt que vers une identité — choisissez une entrée de fournisseur hébergé dans les réglages Captcha plutôt que le nom générique du fournisseur."
+msgstr ""
+"CaptchaService n'a PAS injecté d'identifiants. La clé de routage résout "
+"probablement vers un défi intégré plutôt que vers une identité — choisissez "
+"une entrée de fournisseur hébergé dans les réglages Captcha plutôt que le "
+"nom générique du fournisseur."
 
 #. translators: %s: provider name
 #: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:246
@@ -2804,7 +2833,12 @@ msgid ""
 "classic \"I'm not a robot\" checkbox (or an invisible variant). Pick the "
 "version inside the card. Requires a matching site key + secret from the "
 "Google reCAPTCHA admin console."
-msgstr "Le captcha de Google. La v3 (par défaut) évalue les visiteurs de façon invisible ; la v2 affiche la classique case « Je ne suis pas un robot » (ou une variante invisible). Choisissez la version dans la carte. Nécessite une clé de site et un secret correspondants depuis la console d'administration Google reCAPTCHA."
+msgstr ""
+"Le captcha de Google. La v3 (par défaut) évalue les visiteurs de façon "
+"invisible ; la v2 affiche la classique case « Je ne suis pas un robot » (ou "
+"une variante invisible). Choisissez la version dans la carte. Nécessite une "
+"clé de site et un secret correspondants depuis la console d'administration "
+"Google reCAPTCHA."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:86
 msgid "Version"
@@ -2822,11 +2856,16 @@ msgstr "v2 — case à cocher / widget invisible"
 msgid ""
 "v3 is Google's current default. v2 and v3 use different key pairs — re-enter "
 "keys if you switch."
-msgstr "La v3 est la valeur par défaut actuelle de Google. Les v2 et v3 utilisent des paires de clés différentes — ressaisissez les clés si vous changez de version."
+msgstr ""
+"La v3 est la valeur par défaut actuelle de Google. Les v2 et v3 utilisent "
+"des paires de clés différentes — ressaisissez les clés si vous changez de "
+"version."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:101
 msgid "Public \"Site key\" from your Google reCAPTCHA admin console."
-msgstr "« Clé de site » publique depuis votre console d'administration Google reCAPTCHA."
+msgstr ""
+"« Clé de site » publique depuis votre console d'administration Google "
+"reCAPTCHA."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:112
 msgid "Minimum score"
@@ -2836,7 +2875,9 @@ msgstr "Score minimum"
 msgid ""
 "Reject submissions scoring below this. 0 = lax, 1 = strict; 0.5 is a "
 "sensible default."
-msgstr "Rejeter les envois dont le score est inférieur à cette valeur. 0 = permissif, 1 = strict ; 0,5 est une valeur par défaut raisonnable."
+msgstr ""
+"Rejeter les envois dont le score est inférieur à cette valeur. 0 = "
+"permissif, 1 = strict ; 0,5 est une valeur par défaut raisonnable."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:148
 msgid "Score must be between 0 and 1."
@@ -2846,7 +2887,9 @@ msgstr "Le score doit être compris entre 0 et 1."
 msgid ""
 "reCAPTCHA v3 runs invisibly — no widget is shown; a risk score is checked "
 "when the form is submitted."
-msgstr "reCAPTCHA v3 s'exécute de façon invisible — aucun widget n'est affiché ; un score de risque est vérifié à l'envoi du formulaire."
+msgstr ""
+"reCAPTCHA v3 s'exécute de façon invisible — aucun widget n'est affiché ; un "
+"score de risque est vérifié à l'envoi du formulaire."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:250
 #: src/Modules/Captcha/Providers/Recaptcha.php:327
@@ -2874,7 +2917,10 @@ msgid ""
 "Privacy-friendly, often invisible captcha from Cloudflare. No puzzles for "
 "most visitors; bots are filtered by Cloudflare's risk engine. Requires a "
 "free Cloudflare account."
-msgstr "Captcha respectueux de la vie privée, souvent invisible, par Cloudflare. Pas de puzzle pour la plupart des visiteurs ; les bots sont filtrés par le moteur de risque de Cloudflare. Nécessite un compte Cloudflare gratuit."
+msgstr ""
+"Captcha respectueux de la vie privée, souvent invisible, par Cloudflare. Pas "
+"de puzzle pour la plupart des visiteurs ; les bots sont filtrés par le "
+"moteur de risque de Cloudflare. Nécessite un compte Cloudflare gratuit."
 
 #: src/Modules/Captcha/Providers/Turnstile.php:52
 msgid "Cloudflare"
@@ -2907,7 +2953,7 @@ msgstr "Inscription utilisateur"
 
 #: src/Modules/Captcha/WpHooks.php:235
 msgid "Comment submission blocked"
-msgstr "Soumission du commentaire bloquée"
+msgstr "Envoi du commentaire bloqué"
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:98
 #: src/Modules/ContactForm/Admin/AjaxController.php:123
@@ -2968,12 +3014,12 @@ msgstr "Impossible de créer le formulaire."
 #. translators: %d: count of selected submissions
 #: src/Modules/ContactForm/Admin/FormsPage.php:109
 msgid "Mark the %d selected submissions as spam?"
-msgstr "Marquer les %d soumissions sélectionnées comme spam ?"
+msgstr "Marquer les %d messages sélectionnés comme spam ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:110
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:714
 msgid "Mark this submission as spam?"
-msgstr "Marquer cette soumission comme spam ?"
+msgstr "Marquer ce message comme spam ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:111
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:717
@@ -2991,12 +3037,12 @@ msgstr ""
 #. translators: %d: count of selected submissions
 #: src/Modules/ContactForm/Admin/FormsPage.php:114
 msgid "Permanently delete the %d selected submissions?"
-msgstr "Supprimer définitivement les %d soumissions sélectionnées ?"
+msgstr "Supprimer définitivement les %d messages sélectionnés ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:115
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:713
 msgid "Delete this submission?"
-msgstr "Supprimer cette soumission ?"
+msgstr "Supprimer ce message ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:116
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:716
@@ -3013,7 +3059,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:120
 msgid "Select at least one submission first."
-msgstr "Sélectionnez d'abord au moins une soumission."
+msgstr "Sélectionnez d'abord au moins un message."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:121
 msgid "Choose a bulk action first."
@@ -3331,7 +3377,7 @@ msgstr "Stockage"
 #: src/Modules/ContactForm/Admin/FormsPage.php:533
 #: src/Modules/ContactForm/Admin/FormsPage.php:706
 msgid "Submissions"
-msgstr "soumission"
+msgstr "message"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:548
 msgid "Enable the Contact Form module to start building forms."
@@ -3341,7 +3387,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:583
 msgid "This form has no submissions yet. Deleting is final."
-msgstr "Ce formulaire n'a aucune soumission. La suppression est définitive."
+msgstr "Ce formulaire n'a aucun message. La suppression est définitive."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:591
 msgid "Delete form only"
@@ -3349,7 +3395,7 @@ msgstr "Supprimer le champ"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:594
 msgid "Delete form + submissions"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #. translators: %s: contact form title
 #: src/Modules/ContactForm/Admin/FormsPage.php:619
@@ -3367,12 +3413,12 @@ msgstr[1] "reçues"
 #. translators: %1$d total submissions, %2$s breakdown
 #: src/Modules/ContactForm/Admin/FormsPage.php:630
 msgid "This form has %1$d submissions (%2$s). What should happen to them?"
-msgstr "Ce formulaire a %1$d soumissions (%2$s). Que voulez-vous en faire ?"
+msgstr "Ce formulaire a %1$d messages (%2$s). Que voulez-vous en faire ?"
 
 #. translators: %d: number of submissions
 #: src/Modules/ContactForm/Admin/FormsPage.php:638
 msgid "Delete form + %d submissions"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:719
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:285
@@ -3437,7 +3483,7 @@ msgstr "Aucun champ email pour le moment"
 #: src/Modules/ContactForm/Admin/FormsPage.php:875
 #: src/Modules/ContactForm/Admin/FormsPage.php:1440
 msgid "[Site] New submission from {title}"
-msgstr "[Site] Nouvelle soumission depuis {title}"
+msgstr "[Site] Nouveau message depuis {title}"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:881
 #: src/Modules/ContactForm/Admin/FormsPage.php:1441
@@ -3485,6 +3531,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1016
 #: src/Modules/ContactForm/Admin/FormsPage.php:1473
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:427
 msgid "SMTP identity"
 msgstr "Identité SMTP"
 
@@ -3592,7 +3639,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/FormsPage.php:1128
 #: src/Modules/ContactForm/Admin/FormsPage.php:1673
 msgid "Save submissions"
-msgstr "soumission"
+msgstr "message"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1129
 msgid ""
@@ -3658,7 +3705,7 @@ msgstr "Depuis vos formulaires existants"
 #. translators: %s: submission count
 #: src/Modules/ContactForm/Admin/FormsPage.php:1231
 msgid "Clone this form (%s submissions so far)"
-msgstr "Cloner ce formulaire (%s soumissions jusqu'à présent)"
+msgstr "Cloner ce formulaire (%s messages jusqu'à présent)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1261
 #: src/Modules/ContactForm/Admin/FormsPage.php:1262
@@ -3754,7 +3801,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1540
 msgid "Message shown to the visitor after a successful submission."
-msgstr "Message affiché au visiteur après une soumission réussie."
+msgstr "Message affiché au visiteur après un envoi réussi."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1558
 msgid ""
@@ -3792,7 +3839,7 @@ msgstr "Stocker l'IP brute"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1652
 msgid "Submissions storage"
-msgstr "soumission"
+msgstr "message"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1659
 msgid ""
@@ -3908,7 +3955,7 @@ msgstr ""
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1754
 msgid "Delete submissions older than"
-msgstr "Supprimer les soumissions plus anciennes que"
+msgstr "Supprimer les messages plus anciens que"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1756
 msgid "days, in:"
@@ -3916,7 +3963,7 @@ msgstr "jours, dans :"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1768
 msgid "Delete matching submissions"
-msgstr "Supprimer les soumissions correspondantes"
+msgstr "Supprimer les messages correspondants"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1791
 #: src/Modules/Logging/Admin/LogsPage.php:579
@@ -3951,20 +3998,20 @@ msgstr "Âge invalide."
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:96
 msgid "%d submission purged."
 msgid_plural "%d submissions purged."
-msgstr[0] "%s soumission"
-msgstr[1] "%s soumissions"
+msgstr[0] "%s message"
+msgstr[1] "%s messages"
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:114
 msgid "Missing submission id."
-msgstr "ID de soumission manquant."
+msgstr "ID de message manquant."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:118
 msgid "Submission not found."
-msgstr "Soumission introuvable."
+msgstr "Message introuvable."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:157
 msgid "No submissions selected."
-msgstr "Aucune soumission sélectionnée."
+msgstr "Aucun message sélectionné."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:160
 #: src/Modules/Newsletter/Admin/AjaxController.php:1052
@@ -3976,45 +4023,45 @@ msgstr "Action groupée inconnue."
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:191
 msgid "%d submission marked as spam."
 msgid_plural "%d submissions marked as spam."
-msgstr[0] "soumission"
-msgstr[1] "soumission"
+msgstr[0] "message"
+msgstr[1] "message"
 
 #. translators: %d: number of submissions restored from spam
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:196
 msgid "%d submission restored."
 msgid_plural "%d submissions restored."
-msgstr[0] "%s soumission"
-msgstr[1] "%s soumissions"
+msgstr[0] "%s message"
+msgstr[1] "%s messages"
 
 #. translators: %d: number of submissions deleted
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:201
 msgid "%d submission deleted."
 msgid_plural "%d submissions deleted."
-msgstr[0] "%s soumission"
-msgstr[1] "%s soumissions"
+msgstr[0] "%s message"
+msgstr[1] "%s messages"
 
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:99
 msgid "Submission #%d marked as spam."
-msgstr "Soumission n°%d marquée comme spam."
+msgstr "Message n°%d marqué comme spam."
 
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:102
 msgid "Submission #%d restored from spam."
-msgstr "Soumission n°%d restaurée du spam."
+msgstr "Message n°%d restauré du spam."
 
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:105
 msgid "Submission #%d deleted permanently."
-msgstr "Soumission n°%d supprimée définitivement."
+msgstr "Message n°%d supprimé définitivement."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:112
 msgid "That submission no longer exists. It may have been deleted already."
-msgstr "Cette soumission n'existe plus. Elle a peut-être déjà été supprimée."
+msgstr "Ce message n'existe plus. Il a peut-être déjà été supprimé."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:116
 msgid "Contact Form Submissions"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "Messages du formulaire de contact"
 
 #. translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —".
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:126
@@ -4116,7 +4163,7 @@ msgstr "Tout sélectionner"
 #. translators: %d: submission id
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:433
 msgid "Select submission #%d"
-msgstr "Sélectionner la soumission n°%d"
+msgstr "Sélectionner le message n°%d"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:473
 msgid "View outbound email"
@@ -4128,7 +4175,7 @@ msgstr "Voir tous les journaux"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:486
 msgid "Delete submission"
-msgstr "Supprimer la soumission"
+msgstr "Supprimer le message"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:513
 msgid "Submissions pagination"
@@ -4156,7 +4203,7 @@ msgstr "Formulaire introuvable."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:546
 msgid "Back to submissions"
-msgstr "soumission"
+msgstr "message"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:584
 msgid "Submitted"
@@ -4172,7 +4219,7 @@ msgstr "Valeurs envoyées"
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:612
 msgid "No fields recorded for this submission."
-msgstr "Aucun champ enregistré pour cette soumission."
+msgstr "Aucun champ enregistré pour ce message."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:632
 msgid "Technical details"
@@ -4210,7 +4257,7 @@ msgstr "Voir l'entrée du journal"
 #. translators: 1: form title, 2: submission id, 3: submitted-at datetime
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:737
 msgid "Submission to \"%1$s\" — #%2$d, received %3$s."
-msgstr "Soumission à « %1$s » — n°%2$d, reçue le %3$s."
+msgstr "Message à « %1$s » — n°%2$d, reçu le %3$s."
 
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:751
 msgid "This is irreversible."
@@ -4335,7 +4382,9 @@ msgstr "Taille totale dépassée"
 
 #: src/Modules/ContactForm/Frontend.php:62
 msgid "Anti-spam check is unavailable. Please reload and try again."
-msgstr "Le contrôle anti-spam est indisponible. Veuillez recharger la page et réessayer."
+msgstr ""
+"Le contrôle anti-spam est indisponible. Veuillez recharger la page et "
+"réessayer."
 
 #: src/Modules/ContactForm/Frontend.php:63
 #: src/Modules/Newsletter/SubmitHandler.php:110
@@ -4357,8 +4406,8 @@ msgstr[1] "%d formulaires"
 #: src/Modules/ContactForm/Module.php:221
 msgid "%s submission"
 msgid_plural "%s submissions"
-msgstr[0] "%s soumission"
-msgstr[1] "%s soumissions"
+msgstr[0] "%s message"
+msgstr[1] "%s messages"
 
 #: src/Modules/ContactForm/SubmitHandler.php:58
 #: src/Modules/Newsletter/SubmitHandler.php:68
@@ -4421,7 +4470,7 @@ msgstr "Ce champ est trop long (max %d caractères)."
 #. translators: %s: form name
 #: src/Modules/ContactForm/SubmitHandler.php:658
 msgid "[%s] New contact form submission"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #: src/Modules/ContactForm/SubmitHandler.php:659
 #: admin/js/contact-form-editor.js:94
@@ -4447,7 +4496,7 @@ msgstr "Voir dans l'admin"
 
 #: src/Modules/ContactForm/SubmitHandler.php:777
 msgid "New submission"
-msgstr "Nouvelle soumission"
+msgstr "Nouveau message"
 
 #: src/Modules/ContactForm/SubmitHandler.php:933
 msgid "Please attach a file."
@@ -4855,7 +4904,9 @@ msgstr "Journaux d'emails"
 msgid ""
 "Enable email logging to capture every outgoing email and let you audit "
 "deliverability and retry failed sends."
-msgstr "Activez la journalisation des emails pour capturer chaque email sortant, vérifier la délivrabilité et relancer les envois échoués."
+msgstr ""
+"Activez la journalisation des emails pour capturer chaque email sortant, "
+"vérifier la délivrabilité et relancer les envois échoués."
 
 #: src/Modules/Logging/Admin/LogsPage.php:252
 #: src/Modules/Logging/Admin/LogsPage.php:956
@@ -4896,7 +4947,7 @@ msgstr "Action groupée…"
 
 #: src/Modules/Logging/Admin/LogsPage.php:413
 msgid "View contact form submission"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #: src/Modules/Logging/Admin/LogsPage.php:417
 #: src/Modules/Logging/Admin/LogsPage.php:588
@@ -6092,33 +6143,46 @@ msgstr ""
 msgid ""
 "The newsletter cron event is not scheduled. Disable and re-enable the "
 "Newsletter module to fix this."
-msgstr "L'événement cron de la newsletter n'est pas programmé. Désactivez puis réactivez le module Newsletter pour corriger cela."
+msgstr ""
+"L'événement cron de la newsletter n'est pas programmé. Désactivez puis "
+"réactivez le module Newsletter pour corriger cela."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:251
 msgid ""
 "WordPress pseudo-cron is disabled and the server cron has not run yet. "
 "Enable the server cron from the WordPress Toolkit in Plesk (one click), or "
 "ask your host's support team."
-msgstr "Le pseudo-cron de WordPress est désactivé et le cron serveur ne s'est pas encore exécuté. Activez le cron serveur depuis le WordPress Toolkit de Plesk (en un clic), ou demandez à l'équipe support de votre hébergeur."
+msgstr ""
+"Le pseudo-cron de WordPress est désactivé et le cron serveur ne s'est pas "
+"encore exécuté. Activez le cron serveur depuis le WordPress Toolkit de Plesk "
+"(en un clic), ou demandez à l'équipe support de votre hébergeur."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:254
 msgid ""
 "The cron is scheduled but has not run yet. Wait a couple of minutes or load "
 "any page on your site to trigger it."
-msgstr "Le cron est programmé mais ne s'est pas encore exécuté. Patientez quelques minutes ou chargez n'importe quelle page de votre site pour le déclencher."
+msgstr ""
+"Le cron est programmé mais ne s'est pas encore exécuté. Patientez quelques "
+"minutes ou chargez n'importe quelle page de votre site pour le déclencher."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:257
 msgid ""
 "Cron has not fired in over 5 minutes — scheduled sends will stall. Enable "
 "the server cron from the WordPress Toolkit in Plesk, or set up a system cron "
 "hitting wp-cron.php every minute."
-msgstr "Le cron ne s'est pas déclenché depuis plus de 5 minutes — les envois programmés vont caler. Activez le cron serveur depuis le WordPress Toolkit de Plesk, ou configurez un cron système appelant wp-cron.php chaque minute."
+msgstr ""
+"Le cron ne s'est pas déclenché depuis plus de 5 minutes — les envois "
+"programmés vont caler. Activez le cron serveur depuis le WordPress Toolkit "
+"de Plesk, ou configurez un cron système appelant wp-cron.php chaque minute."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:260
 msgid ""
 "Cron is firing slowly — sends may stall during low-traffic periods. For "
 "reliability, enable the server cron from the WordPress Toolkit in Plesk."
-msgstr "Le cron s'exécute lentement — les envois peuvent caler pendant les périodes creuses. Pour plus de fiabilité, activez le cron serveur depuis le WordPress Toolkit de Plesk."
+msgstr ""
+"Le cron s'exécute lentement — les envois peuvent caler pendant les périodes "
+"creuses. Pour plus de fiabilité, activez le cron serveur depuis le WordPress "
+"Toolkit de Plesk."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:360
 msgid "Subject — used as both the title and the email's subject line"
@@ -6157,10 +6221,6 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:422
 msgid "Inbox preview snippet (~90 chars visible)"
 msgstr "Aperçu boîte de réception (~90 caractères visibles)"
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:427
-msgid "Sender identity"
-msgstr "%d identité"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:430
 msgid ""
@@ -7237,7 +7297,7 @@ msgstr "S'inscrire"
 #. translators: %s: site name.
 #: src/Modules/Newsletter/ConfirmationDispatcher.php:73
 msgid "Confirm your subscription to %s"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #: src/Modules/Newsletter/ConfirmationHandler.php:55
 #: src/Modules/Newsletter/ConfirmationHandler.php:62
@@ -7945,7 +8005,7 @@ msgstr ""
 #. translators: %s: site name.
 #: src/Modules/Newsletter/ReminderCron.php:140
 msgid "Reminder: confirm your subscription to %s"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #: src/Modules/Newsletter/Send/NewsletterFooter.php:53
 msgid "You're receiving this email because you subscribed at {{site_name}}."
@@ -8146,7 +8206,7 @@ msgstr ""
 
 #: src/Modules/Newsletter/TemplateSeeder.php:98
 msgid "Confirm subscription"
-msgstr "[%s] Nouvelle soumission de formulaire de contact"
+msgstr "[%s] Nouveau message de formulaire de contact"
 
 #: src/Modules/Newsletter/TemplateSeeder.php:99
 msgid "No thanks — don't subscribe me"
@@ -8323,7 +8383,11 @@ msgid ""
 "Keep a copy of each attachment sent through this identity on the server, so "
 "you can re-send the email later with its files intact. Copies are removed "
 "when the log entry is deleted."
-msgstr "Conserver sur le serveur une copie de chaque pièce jointe envoyée via cette identité, afin de pouvoir renvoyer l'email plus tard avec ses fichiers intacts. Les copies sont supprimées lorsque l'entrée de journal est supprimée."
+msgstr ""
+"Conserver sur le serveur une copie de chaque pièce jointe envoyée via cette "
+"identité, afin de pouvoir renvoyer l'email plus tard avec ses fichiers "
+"intacts. Les copies sont supprimées lorsque l'entrée de journal est "
+"supprimée."
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:190
 msgid "Default identity"
@@ -8331,7 +8395,7 @@ msgstr "Identité par défaut"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:229
 msgid "Mailbox login"
-msgstr "Identifiants de boîte mail"
+msgstr "Identifiants email"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:230
 msgid ""
@@ -8753,7 +8817,7 @@ msgstr "Ce formulaire d'inscription apparaîtra ici sur la page publiée."
 
 #: admin/js/newsletter-block-editor.js:84
 msgid "Pick a subscribe form to embed."
-msgstr "soumission"
+msgstr "message"
 
 #: admin/js/newsletter-block-editor.js:104
 msgid "Loading forms…"

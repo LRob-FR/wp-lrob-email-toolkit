@@ -11,7 +11,7 @@
 
 /* Dashboard view */
 .lrob-etk-nl-dashboard {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
     padding: 1.5rem;
@@ -25,7 +25,7 @@
 }
 
 .lrob-etk-nl-tile {
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--etk-veil-1);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     padding: 1rem 1.25rem;
@@ -48,7 +48,7 @@
 
 /* Placeholder view (Coming soon) */
 .lrob-etk-nl-placeholder {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px dashed var(--etk-line);
     border-radius: var(--etk-radius-lg);
     padding: 3rem 1.5rem;
@@ -86,7 +86,7 @@
 }
 
 .lrob-etk-nl-template-group {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
     padding: 1rem 1.25rem;
@@ -167,8 +167,8 @@
 }
 
 .lrob-etk-nl-template-badge.is-seed {
-    background: #e0e7ff;
-    color: #3730a3;
+    background: var(--etk-accent-bg);
+    color: var(--etk-text-accent);
 }
 
 .lrob-etk-nl-template-status {
@@ -216,7 +216,7 @@
     gap: 0.5rem;
     margin-bottom: 1rem;
     padding: 0.75rem 1rem;
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--etk-veil-1);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
 }
@@ -242,7 +242,7 @@
     color: var(--etk-muted);
     font-style: italic;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--etk-veil-1);
     border-radius: var(--etk-radius-md);
     margin: 0;
 }
@@ -261,7 +261,7 @@
     flex-direction: column;
     gap: 0.4rem;
     padding: 0.5rem 0.75rem;
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     margin: 0;
@@ -641,7 +641,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-weight: 500;
 }
 .lrob-etk-nl-wc-product-chip code {
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--etk-veil-2);
     border-radius: var(--etk-radius-sm);
     padding: 0 6px;
     font-size: 10px;
@@ -751,7 +751,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-resource-name:focus,
 .lrob-etk-nl-resource-name:hover {
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--etk-veil-1);
     border-color: var(--etk-line);
 }
 
@@ -804,7 +804,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-settings-group {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
     padding: 1rem 1.25rem;
@@ -832,7 +832,7 @@ a.lrob-etk-nl-list-count-badge:focus {
         "help  help";
     gap: 0.35rem 1rem;
     padding: 0.75rem 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--etk-veil-2);
 }
 
 .lrob-etk-nl-settings-row:first-of-type {
@@ -878,7 +878,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-trash-note {
     margin: 0 0 1rem;
     padding: 0.6rem 0.9rem;
-    background: #fef9ec;
+    background: var(--etk-warning-bg);
     border-left: 3px solid var(--etk-warning);
     color: var(--etk-text-warning);
     font-size: 0.9rem;
@@ -1025,6 +1025,9 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 2px 8px;
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
+    /* Inset ring keeps the chip delineated even when the row underneath turns
+     * a faint accent tint (hover / selected row), where bg alone would blend. */
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--etk-accent) 22%, transparent);
     border-radius: var(--etk-radius-pill);
     font-size: 12px;
     font-weight: 500;
@@ -1170,23 +1173,23 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--etk-veil-2);
     color: var(--etk-fg);
 }
 
-.lrob-etk-nl-status-pending      { background: #fff4e0; color: #8a5a00; }
-.lrob-etk-nl-status-confirmed    { background: #e1f6e6; color: #155724; }
-.lrob-etk-nl-status-unsubscribed { background: #eee; color: var(--etk-muted); }
+.lrob-etk-nl-status-pending      { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
+.lrob-etk-nl-status-confirmed    { background: var(--etk-success-bg); color: var(--etk-text-success); }
+.lrob-etk-nl-status-unsubscribed { background: var(--etk-soft); color: var(--etk-muted); }
 .lrob-etk-nl-status-refused      { background: var(--etk-danger-bg); color: var(--etk-text-danger); }
 .lrob-etk-nl-status-bounced      { background: var(--etk-danger-bg); color: var(--etk-text-danger); }
-.lrob-etk-nl-status-trashed      { background: #e6e6e6; color: var(--etk-muted); }
-.lrob-etk-nl-status-draft        { background: #eee; color: var(--etk-muted); }
-.lrob-etk-nl-status-scheduled    { background: #e0eafd; color: #0a3978; }
-.lrob-etk-nl-status-sending      { background: #fff4e0; color: #8a5a00; }
-.lrob-etk-nl-status-paused       { background: #fff4e0; color: #8a5a00; }
-.lrob-etk-nl-status-sent         { background: #e1f6e6; color: #155724; }
+.lrob-etk-nl-status-trashed      { background: var(--etk-soft); color: var(--etk-muted); }
+.lrob-etk-nl-status-draft        { background: var(--etk-soft); color: var(--etk-muted); }
+.lrob-etk-nl-status-scheduled    { background: var(--etk-accent-bg); color: var(--etk-text-accent); }
+.lrob-etk-nl-status-sending      { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
+.lrob-etk-nl-status-paused       { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
+.lrob-etk-nl-status-sent         { background: var(--etk-success-bg); color: var(--etk-text-success); }
 .lrob-etk-nl-status-failed       { background: var(--etk-danger-bg); color: var(--etk-text-danger); }
-.lrob-etk-nl-status-aborted      { background: #e6e6e6; color: var(--etk-muted); }
+.lrob-etk-nl-status-aborted      { background: var(--etk-soft); color: var(--etk-muted); }
 /* `opted_in` / `opted_out` reuse the `confirmed` / `unsubscribed` pill
  * visuals — mapped in PHP at render time (SubscribersPage::status_pill_class)
  * to avoid duplicating colour values. */
@@ -1235,7 +1238,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-send-progress-bar {
     width: 100%;
     height: 8px;
-    background: #f0f0f1;
+    background: var(--etk-soft);
     border-radius: var(--etk-radius-sm);
     overflow: hidden;
     margin: 0.5rem 0 0.25rem;
@@ -1243,7 +1246,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-send-progress-fill {
     height: 100%;
-    background: var(--lrob-etk-color-primary, var(--etk-accent));
+    background: var(--etk-accent);
     transition: width 200ms ease;
 }
 
@@ -1259,8 +1262,8 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-send-abort {
-    color: var(--lrob-etk-color-danger, var(--etk-danger)) !important;
-    border-color: var(--lrob-etk-color-danger, var(--etk-danger)) !important;
+    color: var(--etk-danger) !important;
+    border-color: var(--etk-danger) !important;
 }
 
 /* Unschedule replaces the Schedule primary button when a newsletter is
@@ -1268,8 +1271,8 @@ a.lrob-etk-nl-list-count-badge:focus {
  * commitment" without being as alarming as the Abort styling (which
  * kills an in-progress send). */
 .lrob-etk-nl-send-unschedule {
-    color: var(--lrob-etk-color-danger, var(--etk-danger)) !important;
-    border-color: var(--lrob-etk-color-danger, var(--etk-danger)) !important;
+    color: var(--etk-danger) !important;
+    border-color: var(--etk-danger) !important;
 }
 
 /* Full-width setting row (e.g. the newsletter-footer HTML textarea).
@@ -1330,7 +1333,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     background-image: repeating-linear-gradient(
         135deg,
         transparent 0 12px,
-        rgba(0, 0, 0, 0.025) 12px 14px
+        var(--etk-veil-1) 12px 14px
     );
     pointer-events: none;
     border-radius: inherit;
@@ -1375,7 +1378,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     justify-content: center;
 }
 .lrob-etk-nl-preview-body iframe {
-    background: #fff;
+    background: var(--etk-input-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
     display: block;
@@ -1575,7 +1578,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 0.5rem 0.75rem;
     background: var(--etk-input-bg);
     border: 1px solid var(--etk-line);
-    border-left: 3px solid var(--lrob-etk-color-primary, var(--etk-accent));
+    border-left: 3px solid var(--etk-accent);
     border-radius: var(--etk-radius-sm);
     cursor: pointer;
     font-family: inherit;
@@ -1739,8 +1742,8 @@ a.lrob-etk-nl-list-count-badge:focus {
     flex-direction: column;
     gap: 0.4rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(34, 113, 177, 0.05);
-    border-left: 3px solid var(--lrob-etk-color-primary, var(--etk-accent));
+    background: color-mix(in srgb, var(--etk-accent) 5%, transparent);
+    border-left: 3px solid var(--etk-accent);
     border-radius: var(--etk-radius-sm);
 }
 
@@ -1766,7 +1769,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-card-recipients-show {
     margin-left: auto;
-    color: var(--lrob-etk-color-primary, var(--etk-accent));
+    color: var(--etk-accent);
     text-decoration: underline;
     font-size: 0.85rem;
     cursor: pointer;
@@ -1774,7 +1777,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-card-recipients-show:hover,
 .lrob-etk-nl-card-recipients-show:focus {
-    color: var(--lrob-etk-color-primary-hover, #135e96);
+    color: var(--etk-accent-hover);
     text-decoration: none;
 }
 
@@ -1798,7 +1801,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-card-recipients-stats li.is-warn strong {
-    color: var(--lrob-etk-color-danger, var(--etk-danger));
+    color: var(--etk-danger);
 }
 
 /* Show-list trigger: plain anchor look (WP's .button-link still
@@ -1809,7 +1812,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 0 !important;
     margin: 0 !important;
     box-shadow: none !important;
-    color: var(--lrob-etk-color-primary, var(--etk-accent)) !important;
+    color: var(--etk-accent) !important;
     font-size: 0.85rem;
     text-decoration: underline;
     cursor: pointer;
@@ -1818,7 +1821,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-card-recipients-body .button:hover {
-    color: var(--lrob-etk-color-primary-hover, #135e96) !important;
+    color: var(--etk-accent-hover) !important;
     text-decoration: none;
 }
 
@@ -1853,13 +1856,13 @@ a.lrob-etk-nl-list-count-badge:focus {
  * .lrob-etk-card-delete-link (text-only link, muted) but doesn't
  * recolour to danger on hover since it's not destructive. */
 .lrob-etk-nl-card-duplicate-link:hover {
-    color: var(--lrob-etk-color-primary, var(--etk-accent)) !important;
+    color: var(--etk-accent) !important;
 }
 
 .lrob-etk-nl-modal-confirm-danger {
     background: var(--etk-danger) !important;
     border-color: var(--etk-danger) !important;
-    color: #fff !important;
+    color: var(--etk-on-accent) !important;
 }
 
 .lrob-etk-nl-modal-confirm-danger:hover {
@@ -1885,8 +1888,8 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-card-status-msg.is-info {
-    background: rgba(34, 113, 177, 0.08);
-    color: #0a3978;
+    background: color-mix(in srgb, var(--etk-accent) 8%, transparent);
+    color: var(--etk-text-accent);
 }
 
 .lrob-etk-nl-card-status-msg.is-sent {
@@ -1895,7 +1898,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-card-status-msg.is-warn {
-    background: #fef9ec;
+    background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
 }
 
@@ -1940,7 +1943,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0;
-    color: var(--lrob-etk-color-primary, var(--etk-accent));
+    color: var(--etk-accent);
     text-decoration: none;
 }
 
@@ -1989,7 +1992,7 @@ button.lrob-etk-nl-field-link {
     gap: 0.35rem;
     padding: 0.25rem 0.65rem;
     border: 1px solid var(--etk-line);
-    background: #fff;
+    background: var(--etk-input-bg);
     border-radius: var(--etk-radius-pill);
     color: var(--etk-muted);
     font-size: 0.85rem;
@@ -1998,14 +2001,14 @@ button.lrob-etk-nl-field-link {
 }
 
 .lrob-etk-nl-recipients-filter:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--etk-veil-1);
     color: var(--etk-fg);
 }
 
 .lrob-etk-nl-recipients-filter.is-active {
     background: var(--etk-accent);
     border-color: var(--etk-accent);
-    color: #fff;
+    color: var(--etk-on-accent);
 }
 
 .lrob-etk-nl-recipients-filter-count {
@@ -2015,14 +2018,14 @@ button.lrob-etk-nl-field-link {
     min-width: 1.3rem;
     padding: 0 0.35rem;
     border-radius: var(--etk-radius-pill);
-    background: rgba(0, 0, 0, 0.07);
+    background: var(--etk-veil-2);
     color: inherit;
     font-size: 0.75rem;
     font-variant-numeric: tabular-nums;
 }
 
 .lrob-etk-nl-recipients-filter.is-active .lrob-etk-nl-recipients-filter-count {
-    background: rgba(255, 255, 255, 0.25);
+    background: color-mix(in srgb, var(--etk-on-accent) 25%, transparent);
 }
 
 .lrob-etk-nl-recipients-search {
@@ -2067,13 +2070,13 @@ button.lrob-etk-nl-field-link {
 .lrob-etk-nl-recipients-table th,
 .lrob-etk-nl-recipients-table td {
     padding: 0.45rem 0.6rem;
-    border-bottom: 1px solid #f0f0f1;
+    border-bottom: 1px solid var(--etk-soft);
     text-align: left;
     vertical-align: middle;
 }
 
 .lrob-etk-nl-recipients-table thead th {
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--etk-veil-1);
     font-weight: 600;
     color: var(--etk-muted);
     border-bottom-width: 2px;
@@ -2083,14 +2086,14 @@ button.lrob-etk-nl-field-link {
 }
 
 .lrob-etk-nl-recipients-table tbody tr:hover {
-    background: rgba(0, 0, 0, 0.015);
+    background: var(--etk-veil-1);
 }
 
 .lrob-etk-nl-recipients-kind {
     display: inline-block;
     padding: 0.1rem 0.4rem;
     border-radius: var(--etk-radius-sm);
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--etk-veil-2);
     color: var(--etk-muted);
     font-size: 0.72rem;
     text-transform: uppercase;
@@ -2307,7 +2310,7 @@ button.lrob-etk-nl-field-link {
 
 .lrob-etk-nl-recipients-preview-list li {
     padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid #f0f0f1;
+    border-bottom: 1px solid var(--etk-soft);
     font-size: 0.9em;
     display: flex;
     align-items: center;

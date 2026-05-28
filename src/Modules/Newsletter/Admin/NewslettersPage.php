@@ -424,7 +424,7 @@ final class NewslettersPage
 
                     <div class="lrob-etk-field">
                         <label>
-                            <?php esc_html_e('Sender identity', 'lrob-email-toolkit'); ?>
+                            <?php esc_html_e('SMTP identity', 'lrob-email-toolkit'); ?>
                             <?php
                             Tooltip::render(
                                 __('The mailbox this newsletter goes out from. From-name, From-email, and Reply-to are all controlled by the picked identity — to change any of those, edit the identity itself rather than per-newsletter.', 'lrob-email-toolkit')

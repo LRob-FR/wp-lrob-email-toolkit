@@ -32,11 +32,11 @@
  * specific overrides to maintain across WP updates.
  */
 .lrob-etk-card-form h3 {
-    font-size: 14px;
+    font-size: var(--etk-text-lg);
     font-weight: 600;
     color: var(--etk-fg);
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: var(--etk-space-3);
     padding: 0;
     border: none;
 }
@@ -44,13 +44,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: var(--etk-space-2);
     min-height: 24px;
 }
 .lrob-etk-form-column-title {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 
 /* Tight inline switch for section headers — layout only. Track sizing
@@ -58,21 +58,21 @@
 .lrob-etk-section-switch {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-2);
     cursor: pointer;
     user-select: none;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     color: var(--etk-muted);
 }
 .lrob-etk-section-switch-label {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-card-form .lrob-etk-field > label {
-    font-size: 12px;
+    font-size: var(--etk-text-sm);
     font-weight: 500;
     color: var(--etk-muted);
-    margin-bottom: 4px;
+    margin-bottom: var(--etk-space-1);
 }
 
 /* ---------- Page chrome ---------- */
@@ -100,6 +100,26 @@
     --etk-card-bg:  #fdfdfe;
     --etk-input-bg: #fff;
 
+    /* Text / icon color sitting on an accent or semantic fill (primary
+     * buttons, solid badges). One source so a theme can flip it. */
+    --etk-on-accent: #fff;
+
+    /* Translucent veils — layer OVER a surface to recede / gray it out
+     * (sent or trashed rows, disabled cards) and to dim the page behind a
+     * modal. Black-on-content so the surface beneath still shows through and
+     * no per-state opaque color is needed. 1 = faint, 2 = recessed,
+     * 3 = disabled, backdrop = modal scrim. */
+    --etk-veil-1:   rgba(0, 0, 0, 0.03);
+    --etk-veil-2:   rgba(0, 0, 0, 0.06);
+    --etk-veil-3:   rgba(0, 0, 0, 0.12);
+    --etk-backdrop: rgba(0, 0, 0, 0.55);
+
+    /* Tints (accent / danger glows, hover + selected backgrounds, focus
+     * rings) are NOT stored as tokens — derive them at the use site with
+     *   color-mix(in srgb, var(--etk-accent) N%, transparent)
+     * so the hue tracks the palette (and any future theme) automatically.
+     * The only literal left is the percentage, never a color code. */
+
     /* Text-on-tinted-background colors (the dark counterparts to the *-bg
      * tokens — used inside .lrob-etk-status pills, test results, banners).
      * Centralized so the dozens of inline `color: #1e6b3a` / `#8a0000` /
@@ -107,6 +127,7 @@
     --etk-text-success: #1e6b3a;
     --etk-text-danger:  #8a0000;
     --etk-text-warning: #735900;
+    --etk-text-accent:  #0a3978;  /* dark-blue text on accent-bg (scheduled/info pills) */
 
     /* Radii — used in nested order: sm = inputs/buttons, md = cards,
      * lg = modals/dialogs, pill = status badges + capsules. */
@@ -167,8 +188,8 @@
  * admin typography flow through. */
 .lrob-etk .lrob-etk-section-title {
     color: var(--etk-fg);
-    margin: 32px 0 12px;
-    padding-top: 16px;
+    margin: var(--etk-space-6) 0 var(--etk-space-3);
+    padding-top: var(--etk-space-4);
     border-top: 1px solid var(--etk-line);
 }
 /* When the first section-title on a page immediately follows the page
@@ -178,20 +199,20 @@
 .lrob-etk .lrob-etk-page-header + .lrob-etk-flash:empty + .lrob-etk-section-title {
     border-top: 0;
     padding-top: 0;
-    margin-top: 8px;
+    margin-top: var(--etk-space-2);
 }
 
 /* Reduce form-table breathing room inside our wrap */
 .lrob-etk .form-table th {
-    padding: 12px 10px 12px 0;
+    padding: var(--etk-space-3) var(--etk-space-3) var(--etk-space-3) 0;
     width: 200px;
 }
 .lrob-etk .form-table td {
-    padding: 12px 0;
+    padding: var(--etk-space-3) 0;
 }
 .lrob-etk .form-table .description {
-    margin-top: 4px;
-    font-size: 12px;
+    margin-top: var(--etk-space-1);
+    font-size: var(--etk-text-sm);
     color: var(--etk-muted);
 }
 
@@ -208,10 +229,10 @@
 /* ---------- Footer ---------- */
 
 .lrob-etk-footer {
-    margin-top: 32px;
-    padding-top: 16px;
+    margin-top: var(--etk-space-6);
+    padding-top: var(--etk-space-4);
     border-top: 1px solid var(--etk-line);
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-sm);
     text-align: center;
 }

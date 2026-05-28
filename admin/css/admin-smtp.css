@@ -33,7 +33,7 @@
 }
 
 .lrob-etk-routing-row {
-    background: #fff;
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
     padding: 12px 16px;
