@@ -27,6 +27,16 @@ final class HCaptcha extends AbstractHostedCaptcha
 
     public const WIDGET_GLOBAL = 'hcaptcha';
 
+    public function supports_invisible(): bool
+    {
+        return true;
+    }
+
+    public function sort_order(): int
+    {
+        return 10;
+    }
+
     public function slug(): string
     {
         return self::SLUG;

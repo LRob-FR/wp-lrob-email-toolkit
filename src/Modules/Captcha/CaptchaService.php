@@ -76,7 +76,7 @@ final class CaptchaService
         return $out;
     }
 
-    /** @return array<string, ProviderInterface> Hosted providers only — need identities to be usable. */
+    /** @return array<string, ProviderInterface> Hosted providers only — need identities to be usable, ordered by sort_order(). */
     public function hosted_providers(): array
     {
         $out = [];
@@ -85,6 +85,7 @@ final class CaptchaService
                 $out[$slug] = $challenge;
             }
         }
+        uasort($out, static fn(ProviderInterface $a, ProviderInterface $b): int => $a->sort_order() <=> $b->sort_order());
         return $out;
     }
 

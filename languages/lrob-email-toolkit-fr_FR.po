@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-28T14:19:55+00:00\n"
+"POT-Creation-Date: 2026-05-28T17:47:26+00:00\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #. Plugin Name of the plugin
@@ -33,7 +33,7 @@ msgstr "LRob"
 msgid "https://www.lrob.fr"
 msgstr "https://www.lrob.fr"
 
-#: src/Admin/Assets.php:138 src/Modules/Captcha/Admin/SettingsPage.php:741
+#: src/Admin/Assets.php:138 src/Modules/Captcha/Admin/SettingsPage.php:800
 #: src/Modules/ContactForm/Admin/FormsPage.php:157
 #: src/Modules/Logging/Admin/LogsPage.php:580
 #: src/Modules/Newsletter/Admin/HomePage.php:101
@@ -42,7 +42,7 @@ msgstr "https://www.lrob.fr"
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: src/Admin/Assets.php:139 src/Modules/Captcha/Admin/SettingsPage.php:742
+#: src/Admin/Assets.php:139 src/Modules/Captcha/Admin/SettingsPage.php:801
 #: src/Modules/ContactForm/Admin/FormsPage.php:158
 #: src/Modules/Logging/Admin/LogsPage.php:581
 #: src/Modules/Newsletter/Admin/HomePage.php:102
@@ -51,7 +51,7 @@ msgstr "Enregistrement…"
 msgid "Saved"
 msgstr "Enregistré"
 
-#: src/Admin/Assets.php:140 src/Modules/Captcha/Admin/SettingsPage.php:743
+#: src/Admin/Assets.php:140 src/Modules/Captcha/Admin/SettingsPage.php:802
 #: src/Modules/ContactForm/Admin/FormsPage.php:159
 #: src/Modules/Logging/Admin/LogsPage.php:582
 #: src/Modules/Newsletter/Admin/HomePage.php:103
@@ -69,7 +69,7 @@ msgstr "Ouvrir les suggestions"
 
 #: src/Admin/DashboardPage.php:53 src/Admin/DataPage.php:61
 #: src/Admin/DataPage.php:297 src/Modules/AbstractModule.php:140
-#: src/Modules/Captcha/Admin/AjaxController.php:338
+#: src/Modules/Captcha/Admin/AjaxController.php:407
 #: src/Modules/Captcha/Admin/PageController.php:73
 #: src/Modules/ContactForm/Admin/AjaxController.php:93
 #: src/Modules/ContactForm/Admin/AjaxController.php:117
@@ -291,6 +291,7 @@ msgid "Send test email"
 msgstr "Envoyer un email de test"
 
 #: src/Admin/DashboardPage.php:526
+#: src/Modules/Captcha/Admin/SettingsPage.php:231
 #: src/Modules/ContactForm/Admin/FormsPage.php:119
 #: src/Modules/ContactForm/Admin/FormsPage.php:576
 #: src/Modules/ContactForm/Admin/FormsPage.php:1200
@@ -437,7 +438,7 @@ msgid "Form"
 msgstr "Formulaire"
 
 #: src/Admin/DashboardPage.php:666
-#: src/Modules/Captcha/Admin/SettingsPage.php:115
+#: src/Modules/Captcha/Admin/SettingsPage.php:116
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:395
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:702
 msgid "Preview"
@@ -763,10 +764,10 @@ msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: src/Admin/ModuleToggle.php:55 src/Modules/Captcha/Admin/SettingsPage.php:292
-#: src/Modules/Captcha/Admin/SettingsPage.php:295
-#: src/Modules/Captcha/Admin/SettingsPage.php:297
-#: src/Modules/Captcha/Admin/SettingsPage.php:466
+#: src/Admin/ModuleToggle.php:55 src/Modules/Captcha/Admin/SettingsPage.php:337
+#: src/Modules/Captcha/Admin/SettingsPage.php:340
+#: src/Modules/Captcha/Admin/SettingsPage.php:342
+#: src/Modules/Captcha/Admin/SettingsPage.php:512
 #: src/Modules/Newsletter/Admin/HomePage.php:442
 #: src/Modules/Newsletter/Admin/HomePage.php:497
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:53
@@ -776,8 +777,8 @@ msgstr "Tableau de bord"
 msgid "Active"
 msgstr "Actif"
 
-#: src/Admin/ModuleToggle.php:56 src/Modules/Captcha/Admin/SettingsPage.php:295
-#: src/Modules/Captcha/Admin/SettingsPage.php:298
+#: src/Admin/ModuleToggle.php:56 src/Modules/Captcha/Admin/SettingsPage.php:340
+#: src/Modules/Captcha/Admin/SettingsPage.php:343
 #: src/Modules/SMTP/Admin/SettingsPage.php:159
 #: src/Modules/SMTP/Admin/SettingsPage.php:162
 #: src/Modules/SMTP/Admin/SettingsPage.php:616
@@ -834,8 +835,8 @@ msgid "Default (%s)"
 msgstr "Par défaut (%s)"
 
 #: src/Forms/CaptchaField.php:130 src/Forms/CaptchaField.php:280
-#: src/Forms/StylePresets.php:29 src/Modules/Captcha/Admin/SettingsPage.php:135
-#: src/Modules/Captcha/Admin/SettingsPage.php:514
+#: src/Forms/StylePresets.php:29 src/Modules/Captcha/Admin/SettingsPage.php:142
+#: src/Modules/Captcha/Admin/SettingsPage.php:560
 #: src/Modules/ContactForm/Admin/FormsPage.php:230
 #: src/Modules/ContactForm/Admin/FormsPage.php:266
 #: src/Modules/Newsletter/Admin/FormsPage.php:841
@@ -856,7 +857,7 @@ msgid "None"
 msgstr "Aucun"
 
 #: src/Forms/CaptchaField.php:167 src/Forms/CaptchaField.php:308
-#: src/Modules/Captcha/Admin/SettingsPage.php:659
+#: src/Modules/Captcha/Admin/SettingsPage.php:706
 #: src/Modules/ContactForm/Admin/FormsPage.php:933
 msgid "Built-in"
 msgstr "Intégré"
@@ -2075,70 +2076,80 @@ msgstr "Archives"
 msgid "Custom (advanced)"
 msgstr "Personnalisé (avancé)"
 
-#: src/Modules/Captcha/Admin/AjaxController.php:65
+#: src/Modules/Captcha/Admin/AjaxController.php:69
 msgid "Solve the captcha first to run a test."
 msgstr "Résolvez d'abord le captcha pour lancer un test."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:70
+#: src/Modules/Captcha/Admin/AjaxController.php:74
+#: src/Modules/Captcha/Admin/AjaxController.php:120
 msgid "Identity not found."
 msgstr "Identité introuvable."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:75
+#: src/Modules/Captcha/Admin/AjaxController.php:79
 msgid "Provider class not available."
 msgstr "Classe du fournisseur non disponible."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:94
+#: src/Modules/Captcha/Admin/AjaxController.php:98
 msgid "Captcha works!"
 msgstr "Le captcha fonctionne !"
 
-#: src/Modules/Captcha/Admin/AjaxController.php:96
+#: src/Modules/Captcha/Admin/AjaxController.php:100
 msgid "Verification failed."
 msgstr "Échec de la vérification."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:107
+#: src/Modules/Captcha/Admin/AjaxController.php:115
+#: src/Modules/Captcha/Providers/Recaptcha.php:275
+msgid "No token to test."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/AjaxController.php:126
+msgid "Score test is only available for reCAPTCHA v3."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/AjaxController.php:155
 msgid "Unknown captcha provider."
 msgstr "Fournisseur de captcha inconnu."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:115
-#: src/Modules/Captcha/Admin/AjaxController.php:116
-#: src/Modules/Captcha/Admin/SettingsPage.php:745
+#: src/Modules/Captcha/Admin/AjaxController.php:163
+#: src/Modules/Captcha/Admin/AjaxController.php:164
+#: src/Modules/Captcha/Admin/SettingsPage.php:804
 #: src/Modules/SMTP/Admin/AjaxController.php:101
 msgid "Label is required."
 msgstr "Le libellé est requis."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:161
+#: src/Modules/Captcha/Admin/AjaxController.php:209
 #: src/Modules/SMTP/Admin/AjaxController.php:173
 msgid "Please fix the highlighted fields."
 msgstr "Veuillez corriger les champs en évidence."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:207
+#: src/Modules/Captcha/Admin/AjaxController.php:276
 msgid "Captcha created."
 msgstr "Captcha créé."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:208
+#: src/Modules/Captcha/Admin/AjaxController.php:277
 msgid "Captcha saved."
 msgstr "Captcha enregistré."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:219
+#: src/Modules/Captcha/Admin/AjaxController.php:288
 #: src/Modules/SMTP/Admin/AjaxController.php:219
 #: src/Modules/SMTP/Admin/AjaxController.php:231
 msgid "Invalid identity."
 msgstr "Identité invalide."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:245
+#: src/Modules/Captcha/Admin/AjaxController.php:314
 #: src/Modules/SMTP/Admin/AjaxController.php:222
 msgid "Identity deleted."
 msgstr "Identité supprimée."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:269
+#: src/Modules/Captcha/Admin/AjaxController.php:338
 msgid "Routing saved."
 msgstr "Routage enregistré."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:319
+#: src/Modules/Captcha/Admin/AjaxController.php:388
 msgid "Invalid challenge."
 msgstr "Défi invalide."
 
-#: src/Modules/Captcha/Admin/AjaxController.php:353
+#: src/Modules/Captcha/Admin/AjaxController.php:422
 #: src/Modules/SMTP/Admin/AjaxController.php:381
 msgid "Security check failed. Please reload and retry."
 msgstr "Vérification de sécurité échouée. Rechargez et réessayez."
@@ -2154,87 +2165,93 @@ msgid "Captcha"
 msgstr "Captcha"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:58
-#: src/Modules/SMTP/Admin/SettingsPage.php:44
-msgid "New identity"
-msgstr "Nouvelle identité"
+#, fuzzy
+msgid "New captcha"
+msgstr "Captcha"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:94
+#: src/Modules/Captcha/Admin/SettingsPage.php:95
 msgid "Built-in challenges"
 msgstr "Défis intégrés"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:144
+#: src/Modules/Captcha/Admin/SettingsPage.php:151
+#: src/Modules/Captcha/Admin/SettingsPage.php:812
 #: src/Modules/SMTP/Admin/SettingsPage.php:195
 msgid "Set as default"
 msgstr "Définir par défaut"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:158
+#: src/Modules/Captcha/Admin/SettingsPage.php:165
 msgid "Hosted providers"
 msgstr "Fournisseurs hébergés"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:161
+#: src/Modules/Captcha/Admin/SettingsPage.php:168
 msgid "No hosted providers are registered yet."
 msgstr "Aucun fournisseur hébergé enregistré pour le moment."
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:165
-msgid "No captchas configured yet. Click \"Add captcha\" to set one up."
+#: src/Modules/Captcha/Admin/SettingsPage.php:172
+#, fuzzy
+msgid "No captchas configured yet. Click \"New captcha\" to set one up."
 msgstr ""
 "Aucun captcha configuré pour le moment. Cliquez sur « Ajouter un captcha » "
 "pour en configurer un."
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:194
+#: src/Modules/Captcha/Admin/SettingsPage.php:198
 #, fuzzy
 msgid "Captcha activity since this challenge was first used"
 msgstr "Activité du captcha sur les 30 derniers jours"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:195
+#: src/Modules/Captcha/Admin/SettingsPage.php:199
 #: src/Modules/ContactForm/Admin/FormsPage.php:627
 #: src/Modules/ContactForm/Admin/FormsPage.php:1061
 msgid "blocked"
 msgstr "cadenas"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:197
+#: src/Modules/Captcha/Admin/SettingsPage.php:201
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:1056
 msgid "passed"
 msgstr "réussis"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:289
+#: src/Modules/Captcha/Admin/SettingsPage.php:230
+#, fuzzy
+msgid "Add a captcha"
+msgstr "Captcha"
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:236
+msgid "Choose a provider to configure."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:334
 msgid "e.g. Main site"
 msgstr "ex. Site principal"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:318
-#: src/Modules/Captcha/Admin/SettingsPage.php:464
-msgid "Provider"
-msgstr "Fournisseur"
-
-#: src/Modules/Captcha/Admin/SettingsPage.php:336
+#: src/Modules/Captcha/Admin/SettingsPage.php:366
 msgid "Theme"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:340
+#: src/Modules/Captcha/Admin/SettingsPage.php:370
 msgid "Size"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:347
+#: src/Modules/Captcha/Admin/SettingsPage.php:377
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:708
 msgid "Test"
 msgstr "Test"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:348
+#: src/Modules/Captcha/Admin/SettingsPage.php:378
 msgid "Solve below to verify your credentials."
 msgstr "Résolvez ci-dessous pour vérifier vos identifiants."
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:365
+#: src/Modules/Captcha/Admin/SettingsPage.php:395
 #: src/Modules/SMTP/Admin/SettingsPage.php:202
 #: src/Modules/SMTP/Admin/SettingsPage.php:617
 msgid "Create"
 msgstr "Créer"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:368
+#: src/Modules/Captcha/Admin/SettingsPage.php:398
 #: src/Modules/SMTP/Admin/SettingsPage.php:205
 msgid "Discard"
 msgstr "Abandonner"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:371
+#: src/Modules/Captcha/Admin/SettingsPage.php:401
 #: src/Modules/ContactForm/Admin/FormsPage.php:130
 #: src/Modules/ContactForm/Admin/FormsPage.php:644
 #: src/Modules/ContactForm/Admin/FormsPage.php:1177
@@ -2250,171 +2267,201 @@ msgstr "Abandonner"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:453
+#: src/Modules/Captcha/Admin/SettingsPage.php:499
 msgid "Diagnostics"
 msgstr "Diagnostics"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:456
+#: src/Modules/Captcha/Admin/SettingsPage.php:502
 msgid "Stored identities"
 msgstr "Identités enregistrées"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:458
+#: src/Modules/Captcha/Admin/SettingsPage.php:504
 msgid "No identities saved."
 msgstr "Aucune identité enregistrée."
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:463
+#: src/Modules/Captcha/Admin/SettingsPage.php:509
 msgid "ID"
 msgstr "ID"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:465
+#: src/Modules/Captcha/Admin/SettingsPage.php:510
+msgid "Provider"
+msgstr "Fournisseur"
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:511
 msgid "Label"
 msgstr "Libellé"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:467
+#: src/Modules/Captcha/Admin/SettingsPage.php:513
 msgid "Blob (chars)"
 msgstr "Blob (car.)"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:468
+#: src/Modules/Captcha/Admin/SettingsPage.php:514
 msgid "Decrypt"
 msgstr "Déchiffrement"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:469
+#: src/Modules/Captcha/Admin/SettingsPage.php:515
 msgid "Keys present"
 msgstr "Clés présentes"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:482
+#: src/Modules/Captcha/Admin/SettingsPage.php:528
 msgid "(decoded but empty)"
 msgstr "(décodé mais vide)"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:503
+#: src/Modules/Captcha/Admin/SettingsPage.php:549
 msgid "Routing resolution"
 msgstr "Résolution du routage"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:507
+#: src/Modules/Captcha/Admin/SettingsPage.php:553
 msgid "Context"
 msgstr "Contexte"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:508
+#: src/Modules/Captcha/Admin/SettingsPage.php:554
 msgid "Stored route"
 msgstr "Route enregistrée"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:509
+#: src/Modules/Captcha/Admin/SettingsPage.php:555
 msgid "Resolves to"
 msgstr "Résout vers"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:543
+#: src/Modules/Captcha/Admin/SettingsPage.php:589
 msgid "No challenge"
 msgstr "Aucun défi"
 
 #. translators: %s: homemade challenge slug
-#: src/Modules/Captcha/Admin/SettingsPage.php:552
+#: src/Modules/Captcha/Admin/SettingsPage.php:598
 msgid "Unknown built-in challenge \"%s\""
 msgstr "Défi intégré inconnu « %s »"
 
 #. translators: %d: identity row id that no longer exists
-#: src/Modules/Captcha/Admin/SettingsPage.php:559
+#: src/Modules/Captcha/Admin/SettingsPage.php:605
 msgid "Identity #%d (not found)"
 msgstr "Identité n°%d (introuvable)"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:565
+#: src/Modules/Captcha/Admin/SettingsPage.php:611
 msgid "decoded empty"
 msgstr "décodé vide"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:567
+#: src/Modules/Captcha/Admin/SettingsPage.php:613
 msgid "decrypt failed"
 msgstr "échec du déchiffrement"
 
 #. translators: 1: identity id, 2: provider label, 3: identity label, 4: creds summary
-#: src/Modules/Captcha/Admin/SettingsPage.php:571
+#: src/Modules/Captcha/Admin/SettingsPage.php:617
 msgid "Identity #%1$d · %2$s · %3$s (%4$s)"
 msgstr "Identité n°%1$d · %2$s · %3$s (%4$s)"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:596
-#, fuzzy
-msgid "Off (default)"
-msgstr " (par défaut)"
+#: src/Modules/Captcha/Admin/SettingsPage.php:643
+#: src/Modules/ContactForm/Admin/FormsPage.php:899
+#: src/Modules/ContactForm/Admin/FormsPage.php:904
+#: src/Modules/ContactForm/Admin/FormsPage.php:909
+#: src/Modules/ContactForm/Admin/FormsPage.php:914
+#: src/Modules/ContactForm/Admin/FormsPage.php:1417
+#: src/Modules/ContactForm/Admin/FormsPage.php:1640
+msgid "Off"
+msgstr "Désactivé"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:599
+#: src/Modules/Captcha/Admin/SettingsPage.php:646
 #, fuzzy
 msgid "Captcha protection"
 msgstr "Captcha créé."
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:603
+#: src/Modules/Captcha/Admin/SettingsPage.php:650
 #, fuzzy
 msgid "Default challenge"
 msgstr "Défis intégrés"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:604
+#: src/Modules/Captcha/Admin/SettingsPage.php:651
 msgid "Used on this plugin's forms unless you override them below."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:610
+#: src/Modules/Captcha/Admin/SettingsPage.php:657
 msgid "This plugin's forms"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:617
+#: src/Modules/Captcha/Admin/SettingsPage.php:664
 #, fuzzy
 msgid "WordPress sections"
 msgstr "Utilisateurs WordPress"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:619
+#: src/Modules/Captcha/Admin/SettingsPage.php:666
 msgid "Off by default — turn on captcha per WordPress section as needed."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:651
+#: src/Modules/Captcha/Admin/SettingsPage.php:698
 #, fuzzy
 msgid "Use default"
 msgstr "Définir par défaut"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:656
+#: src/Modules/Captcha/Admin/SettingsPage.php:703
 #, fuzzy
 msgid "Off — no captcha here"
 msgstr "Aucun — pas de captcha ici"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:744
+#: src/Modules/Captcha/Admin/SettingsPage.php:803
 msgid "Delete this captcha?"
 msgstr "Supprimer ce captcha ?"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:746
+#: src/Modules/Captcha/Admin/SettingsPage.php:805
 msgid "Save your credentials to load the captcha widget here."
 msgstr "Enregistrez vos identifiants pour charger le widget captcha ici."
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:747
+#: src/Modules/Captcha/Admin/SettingsPage.php:806
 msgid "Verifying…"
 msgstr "Vérification…"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:748
+#: src/Modules/Captcha/Admin/SettingsPage.php:807
 msgid "✓ Captcha works"
 msgstr "✓ Le captcha fonctionne"
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:749
+#: src/Modules/Captcha/Admin/SettingsPage.php:808
 msgid "✗ Verification failed"
 msgstr "✗ Échec de la vérification"
 
-#: src/Modules/Captcha/Appearance.php:44
+#: src/Modules/Captcha/Admin/SettingsPage.php:809
+msgid ""
+"Invisible mode — no widget is shown; it runs automatically when visitors "
+"submit the form."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:810
+msgid ""
+"reCAPTCHA v3 — no widget; a risk score is fetched and checked when visitors "
+"submit the form."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:811
+#, fuzzy
+msgid "Test score"
+msgstr "Tester la connexion"
+
+#: src/Modules/Captcha/Appearance.php:45
 msgid "Auto (follow visitor system)"
 msgstr ""
 
-#: src/Modules/Captcha/Appearance.php:45
+#: src/Modules/Captcha/Appearance.php:46
 #, fuzzy
 msgid "Light"
 msgstr "Droite"
 
-#: src/Modules/Captcha/Appearance.php:46
+#: src/Modules/Captcha/Appearance.php:47
 msgid "Dark"
 msgstr ""
 
-#: src/Modules/Captcha/Appearance.php:54
+#: src/Modules/Captcha/Appearance.php:59
 #: src/Modules/ContactForm/TemplateRegistry.php:142
 msgid "Normal"
 msgstr "Normale"
 
-#: src/Modules/Captcha/Appearance.php:55
+#: src/Modules/Captcha/Appearance.php:60
 #, fuzzy
 msgid "Compact"
 msgstr "Société"
 
-#: src/Modules/Captcha/CaptchaService.php:247
+#: src/Modules/Captcha/Appearance.php:63
+msgid "Invisible"
+msgstr ""
+
+#: src/Modules/Captcha/CaptchaService.php:248
 msgid ""
 "Anti-spam check is unavailable right now. Please try again later or contact "
 "the site administrator."
@@ -2456,9 +2503,11 @@ msgstr "Contrôle anti-spam rapide."
 #: src/Modules/Captcha/Challenges/ImageChallenge.php:125
 #: src/Modules/Captcha/Challenges/MathChallenge.php:74
 #: src/Modules/Captcha/Challenges/MathChallenge.php:83
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:172
-#: src/Modules/Captcha/WpHooks.php:125 src/Modules/Captcha/WpHooks.php:140
-#: src/Modules/Captcha/WpHooks.php:155
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:210
+#: src/Modules/Captcha/Providers/Recaptcha.php:323
+#: src/Modules/Captcha/WpHooks.php:234 src/Modules/Captcha/WpHooks.php:261
+#: src/Modules/Captcha/WpHooks.php:277 src/Modules/Captcha/WpHooks.php:290
+#: src/Modules/Captcha/WpHooks.php:305
 msgid "Anti-spam check failed."
 msgstr "Échec du contrôle anti-spam."
 
@@ -2603,51 +2652,59 @@ msgstr ""
 msgid "Open Captcha settings"
 msgstr "Réglages par défaut"
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:46
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:56
+#: src/Modules/Captcha/Providers/Recaptcha.php:98
 msgid "Site key"
 msgstr "Clé de site"
 
 #. translators: %s: provider name (e.g. hCaptcha, Cloudflare)
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:51
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:61
 #, fuzzy
 msgid "Public \"Site key\" from your %s dashboard."
 msgstr "« Clé de site » publique depuis votre tableau de bord hCaptcha."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:57
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:67
+#: src/Modules/Captcha/Providers/Recaptcha.php:105
 msgid "Secret key"
 msgstr "Clé secrète"
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:60
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:70
+#: src/Modules/Captcha/Providers/Recaptcha.php:108
 msgid "Private \"Secret key\", stored AES-256-encrypted at rest."
 msgstr "« Clé secrète » privée, stockée chiffrée en AES-256 au repos."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:72
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:82
+#: src/Modules/Captcha/Providers/Recaptcha.php:136
 msgid "Site key is required."
 msgstr "La clé de site est requise."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:77
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:87
+#: src/Modules/Captcha/Providers/Recaptcha.php:141
 msgid "Secret key is required."
 msgstr "La clé secrète est requise."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:146
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:184
+#: src/Modules/Captcha/Providers/Recaptcha.php:234
 #, fuzzy
 msgid "Please complete the anti-spam challenge."
 msgstr "Veuillez compléter le défi hCaptcha."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:154
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:192
+#: src/Modules/Captcha/Providers/Recaptcha.php:242
 msgid "Anti-spam check is misconfigured (missing secret key)."
 msgstr "Le contrôle anti-spam est mal configuré (clé secrète manquante)."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:169
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:207
+#: src/Modules/Captcha/Providers/Recaptcha.php:320
 msgid "Anti-spam check could not be reached. Please retry."
 msgstr "Le contrôle anti-spam n'a pas pu être atteint. Veuillez réessayer."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:177
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:215
 msgid "Wrong answer to the anti-spam challenge."
 msgstr "Mauvaise réponse au défi anti-spam."
 
 #. translators: %d: number of credential keys present
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:200
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:238
 msgid ""
 "CaptchaService passed %d credential key(s) but no site_key. Either the "
 "stored credentials were saved with a different key name, or decryption "
@@ -2658,7 +2715,7 @@ msgstr ""
 "soit le déchiffrement a renvoyé un tableau vide (AUTH_KEY a peut-être changé "
 "depuis l'enregistrement)."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:203
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:241
 #, fuzzy
 msgid ""
 "CaptchaService did NOT inject credentials. The routing key probably resolves "
@@ -2671,17 +2728,17 @@ msgstr ""
 "le nom générique du fournisseur."
 
 #. translators: %s: provider name
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:208
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:246
 #, fuzzy
 msgid "%s: site key is empty."
 msgstr "hCaptcha : la clé de site est vide."
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:37
 #: src/Modules/Captcha/Providers/HCaptcha.php:47
+#: src/Modules/Captcha/Providers/HCaptcha.php:57
 msgid "hCaptcha"
 msgstr "hCaptcha"
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:42
+#: src/Modules/Captcha/Providers/HCaptcha.php:52
 msgid ""
 "Privacy-respecting hosted captcha. Visitors see a checkbox widget; bots are "
 "filtered by hCaptcha's risk engine. Requires a free or paid hCaptcha account."
@@ -2690,11 +2747,88 @@ msgstr ""
 "à cocher ; les bots sont filtrés par le moteur de risque de hCaptcha. "
 "Nécessite un compte hCaptcha gratuit ou payant."
 
-#: src/Modules/Captcha/Providers/Turnstile.php:37
+#: src/Modules/Captcha/Providers/Recaptcha.php:68
+#: src/Modules/Captcha/Providers/Recaptcha.php:78
+msgid "Google reCAPTCHA"
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:73
+msgid ""
+"Google's captcha. v3 (default) scores visitors invisibly; v2 shows the "
+"classic \"I'm not a robot\" checkbox (or an invisible variant). Pick the "
+"version inside the card. Requires a matching site key + secret from the "
+"Google reCAPTCHA admin console."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:86
+msgid "Version"
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:91
+msgid "v3 — invisible, score-based (recommended)"
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:92
+msgid "v2 — checkbox / invisible widget"
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:94
+msgid ""
+"v3 is Google's current default. v2 and v3 use different key pairs — re-enter "
+"keys if you switch."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:101
+#, fuzzy
+msgid "Public \"Site key\" from your Google reCAPTCHA admin console."
+msgstr "« Clé de site » publique depuis votre tableau de bord hCaptcha."
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:112
+msgid "Minimum score"
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:119
+msgid ""
+"Reject submissions scoring below this. 0 = lax, 1 = strict; 0.5 is a "
+"sensible default."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:148
+#, fuzzy
+msgid "Score must be between 0 and 1."
+msgstr "Le port doit être compris entre 1 et 65535."
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:201
+msgid ""
+"reCAPTCHA v3 runs invisibly — no widget is shown; a risk score is checked "
+"when the form is submitted."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:250
+#: src/Modules/Captcha/Providers/Recaptcha.php:327
+#, fuzzy
+msgid "Anti-spam verification failed."
+msgstr "Échec de la vérification."
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:256
+msgid "Your submission looks automated. Please try again."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:278
+#, fuzzy
+msgid "Missing secret key."
+msgstr "Structure manquante."
+
+#: src/Modules/Captcha/Providers/Recaptcha.php:288
+#, fuzzy
+msgid "verification failed"
+msgstr "Échec de la vérification."
+
+#: src/Modules/Captcha/Providers/Turnstile.php:42
 msgid "Cloudflare Turnstile"
 msgstr ""
 
-#: src/Modules/Captcha/Providers/Turnstile.php:42
+#: src/Modules/Captcha/Providers/Turnstile.php:47
 #, fuzzy
 msgid ""
 "Privacy-friendly, often invisible captcha from Cloudflare. No puzzles for "
@@ -2705,32 +2839,36 @@ msgstr ""
 "à cocher ; les bots sont filtrés par le moteur de risque de hCaptcha. "
 "Nécessite un compte hCaptcha gratuit ou payant."
 
-#: src/Modules/Captcha/Providers/Turnstile.php:47
+#: src/Modules/Captcha/Providers/Turnstile.php:52
 msgid "Cloudflare"
 msgstr ""
 
-#: src/Modules/Captcha/Routing.php:88
+#: src/Modules/Captcha/Routing.php:91
 msgid "Contact forms"
 msgstr "Formulaires de contact"
 
-#: src/Modules/Captcha/Routing.php:89
+#: src/Modules/Captcha/Routing.php:92
 msgid "Blog comments"
 msgstr "Commentaires de blog"
 
-#: src/Modules/Captcha/Routing.php:90 admin/js/newsletter-block-editor.js:103
+#: src/Modules/Captcha/Routing.php:93 admin/js/newsletter-block-editor.js:103
 #: admin/js/newsletter-block-editor.js:114
 msgid "Newsletter subscribe"
 msgstr "Inscription newsletter"
 
-#: src/Modules/Captcha/Routing.php:91
+#: src/Modules/Captcha/Routing.php:94
+msgid "Login (WordPress + WooCommerce)"
+msgstr ""
+
+#: src/Modules/Captcha/Routing.php:95
 msgid "Lost password"
 msgstr "Mot de passe oublié"
 
-#: src/Modules/Captcha/Routing.php:92
+#: src/Modules/Captcha/Routing.php:96
 msgid "User registration"
 msgstr "Inscription utilisateur"
 
-#: src/Modules/Captcha/WpHooks.php:126
+#: src/Modules/Captcha/WpHooks.php:235
 msgid "Comment submission blocked"
 msgstr "Soumission du commentaire bloquée"
 
@@ -3279,15 +3417,6 @@ msgstr "Merci ! Votre message a bien été envoyé."
 #: src/Modules/ContactForm/Admin/FormsPage.php:1639
 msgid "On"
 msgstr "Activé"
-
-#: src/Modules/ContactForm/Admin/FormsPage.php:899
-#: src/Modules/ContactForm/Admin/FormsPage.php:904
-#: src/Modules/ContactForm/Admin/FormsPage.php:909
-#: src/Modules/ContactForm/Admin/FormsPage.php:914
-#: src/Modules/ContactForm/Admin/FormsPage.php:1417
-#: src/Modules/ContactForm/Admin/FormsPage.php:1640
-msgid "Off"
-msgstr "Désactivé"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:996
 #: src/Modules/Newsletter/Admin/FormsPage.php:237
@@ -4166,6 +4295,16 @@ msgstr "Type non autorisé"
 #: src/Modules/ContactForm/Frontend.php:61
 msgid "Combined size exceeds the limit"
 msgstr "Taille totale dépassée"
+
+#: src/Modules/ContactForm/Frontend.php:62
+#, fuzzy
+msgid "Anti-spam check is unavailable. Please reload and try again."
+msgstr "Échec du contrôle anti-spam."
+
+#: src/Modules/ContactForm/Frontend.php:63
+#: src/Modules/Newsletter/SubmitHandler.php:110
+msgid "Anti-spam check failed. Please try again."
+msgstr "Échec du contrôle anti-spam."
 
 #: src/Modules/ContactForm/Module.php:58
 msgid "Drag-and-drop contact forms with built-in anti-spam."
@@ -7850,10 +7989,6 @@ msgstr "Impossible de créer le formulaire."
 msgid "No failed recipients to retry."
 msgstr "Retirer ce destinataire"
 
-#: src/Modules/Newsletter/SubmitHandler.php:110
-msgid "Anti-spam check failed. Please try again."
-msgstr "Échec du contrôle anti-spam."
-
 #: src/Modules/Newsletter/SubmitHandler.php:134
 msgid "Welcome back! You're subscribed."
 msgstr "Bon retour ! Vous êtes abonné(e)."
@@ -8129,6 +8264,10 @@ msgstr "Règles de routage enregistrées."
 #: src/Modules/SMTP/Admin/SettingsPage.php:141 src/Modules/SMTP/Module.php:34
 msgid "SMTP"
 msgstr "SMTP"
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:44
+msgid "New identity"
+msgstr "Nouvelle identité"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:57
 msgid ""

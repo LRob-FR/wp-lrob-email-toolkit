@@ -38,6 +38,24 @@
             return;
         }
 
+        // Invisible captcha: no visible widget — trigger the challenge now and
+        // resume submission once the vendor fires our callback with a token.
+        // On the resumed pass the response field is filled, so this guard is
+        // skipped and the normal fetch runs.
+        var invisible = form.querySelector('[data-lrob-etk-invisible]');
+        if (invisible && !invisibleTokenReady(form, invisible)) {
+            runInvisibleCaptcha(form, invisible);
+            return;
+        }
+
+        // reCAPTCHA v3: no widget — fetch a score token via grecaptcha.execute()
+        // then resume. Same resume/fail plumbing as the invisible path.
+        var recaptchaV3 = form.querySelector('[data-lrob-etk-recaptcha-v3]');
+        if (recaptchaV3 && !recaptchaV3TokenReady(recaptchaV3)) {
+            runRecaptchaV3(form, recaptchaV3);
+            return;
+        }
+
         var submitBtn = form.querySelector('.lrob-etk-form-submit');
         var labelEl = submitBtn ? submitBtn.querySelector('.lrob-etk-form-submit-label') : null;
         var originalLabel = labelEl ? labelEl.textContent : '';
@@ -100,6 +118,10 @@
         }
         var topMsg = data.message || I18N.unknownError || 'Error';
         showStatus(form, 'error', topMsg);
+        // reCAPTCHA v3 tokens are single-use + short-lived; drop a spent token
+        // so the next submit fetches a fresh one instead of replaying a stale one.
+        var v3 = form.querySelector('[data-lrob-etk-recaptcha-v3] input[type="hidden"]');
+        if (v3) v3.value = '';
     }
 
     function validateClient(form) {
@@ -443,6 +465,118 @@
         if (bytes < 1024) return bytes + ' B';
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // --- Invisible captcha (hCaptcha) ----------------------------------
+    // The widget renders nothing; on submit we call the vendor's execute()
+    // and wait for its declarative callback (data-callback on the widget) to
+    // fire — at which point the response field is populated and we re-submit
+    // the form, which then sails past the invisible guard into the fetch.
+    var pendingInvisibleForm = null;
+
+    function invisibleTokenReady(form, fieldEl) {
+        var name = fieldEl.getAttribute('data-lrob-etk-response');
+        if (!name) return false;
+        var resp = form.querySelector('[name="' + cssEscape(name) + '"]');
+        return !!(resp && resp.value);
+    }
+
+    function runInvisibleCaptcha(form, fieldEl) {
+        if (pendingInvisibleForm === form) return; // already executing
+        var globalName = fieldEl.getAttribute('data-lrob-etk-global');
+        var api = globalName ? window[globalName] : null;
+        if (!api || typeof api.execute !== 'function') {
+            // Vendor script still loading — retry briefly, then give up.
+            form.__invisibleRetries = (form.__invisibleRetries || 0) + 1;
+            if (form.__invisibleRetries > 25) {
+                form.__invisibleRetries = 0;
+                showStatus(form, 'error', I18N.captchaUnavailable || I18N.unknownError || 'Error');
+                return;
+            }
+            setTimeout(function () { runInvisibleCaptcha(form, fieldEl); }, 200);
+            return;
+        }
+        form.__invisibleRetries = 0;
+        pendingInvisibleForm = form;
+        var submitBtn = form.querySelector('.lrob-etk-form-submit');
+        if (submitBtn) submitBtn.disabled = true; // brief lock during execute
+        var widget = fieldEl.querySelector('[data-hcaptcha-widget-id]');
+        var widgetId = widget ? widget.getAttribute('data-hcaptcha-widget-id') : null;
+        try {
+            if (widgetId !== null) api.execute(widgetId); else api.execute();
+        } catch (err) {
+            pendingInvisibleForm = null;
+            if (submitBtn) submitBtn.disabled = false;
+            showStatus(form, 'error', I18N.captchaUnavailable || I18N.unknownError || 'Error');
+        }
+    }
+
+    function resumeInvisibleSubmit() {
+        var form = pendingInvisibleForm;
+        pendingInvisibleForm = null;
+        if (!form) return;
+        var submitBtn = form.querySelector('.lrob-etk-form-submit');
+        if (submitBtn) submitBtn.disabled = false; // let the real submit re-lock
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+    }
+
+    function failInvisible() {
+        var form = pendingInvisibleForm;
+        pendingInvisibleForm = null;
+        if (!form) return;
+        var submitBtn = form.querySelector('.lrob-etk-form-submit');
+        if (submitBtn) submitBtn.disabled = false;
+        showStatus(form, 'error', I18N.captchaFailed || I18N.unknownError || 'Error');
+    }
+
+    // Referenced declaratively by the widget (data-callback / -error-callback
+    // / -expired-callback) emitted in AbstractHostedCaptcha::render.
+    window.lrobEtkInvisibleResolve = resumeInvisibleSubmit;
+    window.lrobEtkInvisibleFailed = failInvisible;
+    window.lrobEtkInvisibleExpired = function () { pendingInvisibleForm = null; };
+
+    // --- reCAPTCHA v3 (score) ------------------------------------------
+    function recaptchaV3TokenReady(fieldEl) {
+        var hidden = fieldEl.querySelector('input[type="hidden"]');
+        return !!(hidden && hidden.value);
+    }
+
+    function runRecaptchaV3(form, fieldEl) {
+        if (pendingInvisibleForm === form) return; // already executing
+        var api = window.grecaptcha;
+        if (!api || typeof api.execute !== 'function' || typeof api.ready !== 'function') {
+            form.__v3Retries = (form.__v3Retries || 0) + 1;
+            if (form.__v3Retries > 25) {
+                form.__v3Retries = 0;
+                showStatus(form, 'error', I18N.captchaUnavailable || I18N.unknownError || 'Error');
+                return;
+            }
+            setTimeout(function () { runRecaptchaV3(form, fieldEl); }, 200);
+            return;
+        }
+        form.__v3Retries = 0;
+        var siteKey = fieldEl.getAttribute('data-sitekey');
+        var action = fieldEl.getAttribute('data-action') || 'submit';
+        var hidden = fieldEl.querySelector('input[type="hidden"]');
+        if (!siteKey || !hidden) {
+            showStatus(form, 'error', I18N.captchaUnavailable || I18N.unknownError || 'Error');
+            return;
+        }
+        pendingInvisibleForm = form;
+        var submitBtn = form.querySelector('.lrob-etk-form-submit');
+        if (submitBtn) submitBtn.disabled = true;
+        api.ready(function () {
+            api.execute(siteKey, { action: action }).then(function (token) {
+                hidden.value = token || '';
+                resumeInvisibleSubmit();
+            }).catch(function () {
+                failInvisible();
+            });
+        });
     }
 
     if (document.readyState === 'loading') {

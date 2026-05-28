@@ -38,6 +38,16 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
     /** Vendor name shown in credential-field hints, e.g. "hCaptcha". */
     abstract protected function vendor_label(): string;
 
+    public function supports_invisible(): bool
+    {
+        return false;
+    }
+
+    public function sort_order(): int
+    {
+        return 100;
+    }
+
     public function credential_fields(): array
     {
         return [
@@ -98,27 +108,55 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
 
         $widget_class = (string) static::WIDGET_CLASS;
 
-        // Global appearance (theme/size) injected by CaptchaService::render.
+        // Per-identity appearance (theme/size) injected by CaptchaService::render.
         $display = isset($context['display']) && is_array($context['display']) ? $context['display'] : [];
         $theme = isset($display['theme']) ? (string) $display['theme'] : 'auto';
         $size  = isset($display['size'])  ? (string) $display['size']  : 'normal';
-        $size_attr  = $size === 'compact' ? ' data-size="compact"' : ' data-size="normal"';
+
+        // "Invisible" is only honored by providers that support it; otherwise
+        // fall back to a normal visible widget so a mis-set size never silently
+        // disables the captcha.
+        $invisible = ($size === 'invisible') && $this->supports_invisible();
+        if ($invisible) {
+            $size_attr = ' data-size="invisible"';
+        } elseif ($size === 'compact') {
+            $size_attr = ' data-size="compact"';
+        } else {
+            $size_attr = ' data-size="normal"';
+        }
         // Native themes are light/dark; "auto" is resolved client-side below
         // from prefers-color-scheme.
         $theme_attr = ($theme === 'light' || $theme === 'dark') ? ' data-theme="' . esc_attr($theme) . '"' : '';
 
+        // Invisible mode: the widget shows nothing; the frontend triggers it on
+        // submit. Declarative callbacks let the vendor populate the response
+        // field + tell form-submit.js when the token is ready / failed. The
+        // outer field carries markers so form-submit.js can find + drive it.
+        $is_preview = isset($context['context']) && $context['context'] === 'preview';
+        $widget_callbacks = ($invisible && !$is_preview)
+            ? ' data-callback="lrobEtkInvisibleResolve"'
+                . ' data-error-callback="lrobEtkInvisibleFailed"'
+                . ' data-expired-callback="lrobEtkInvisibleExpired"'
+            : '';
+        $field_markers = $invisible
+            ? ' data-lrob-etk-invisible="1"'
+                . ' data-lrob-etk-global="' . esc_attr((string) static::WIDGET_GLOBAL) . '"'
+                . ' data-lrob-etk-response="' . esc_attr((string) static::POST_RESPONSE_FIELD) . '"'
+            : '';
+
         $widget_html = sprintf(
-            '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-cf-challenge" data-field="_challenge">' .
-                '<div class="%1$s" data-sitekey="%2$s"%3$s%4$s></div>' .
+            '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-cf-challenge" data-field="_challenge"%5$s>' .
+                '<div class="%1$s" data-sitekey="%2$s"%3$s%4$s%6$s></div>' .
                 '<p class="lrob-etk-cf-error" data-field-error hidden></p>' .
             '</div>',
             esc_attr($widget_class),
             esc_attr($site_key),
             $size_attr,
-            $theme_attr
+            $theme_attr,
+            $field_markers,
+            $widget_callbacks
         );
 
-        $is_preview = isset($context['context']) && $context['context'] === 'preview';
         if ($is_preview) {
             // Editor / settings JS owns the vendor script + render call.
             return $widget_html;
@@ -187,7 +225,7 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
      *
      * @param array<string, mixed> $context
      */
-    private function render_misconfigured_notice(array $context): string
+    protected function render_misconfigured_notice(array $context): string
     {
         if (!current_user_can('manage_options')) {
             return '';

@@ -20,8 +20,9 @@ final class Appearance
     public const THEME_LIGHT = 'light';
     public const THEME_DARK  = 'dark';
 
-    public const SIZE_NORMAL  = 'normal';
-    public const SIZE_COMPACT = 'compact';
+    public const SIZE_NORMAL    = 'normal';
+    public const SIZE_COMPACT   = 'compact';
+    public const SIZE_INVISIBLE = 'invisible';
 
     public static function normalize_theme(string $value): string
     {
@@ -32,7 +33,7 @@ final class Appearance
 
     public static function normalize_size(string $value): string
     {
-        return in_array($value, [self::SIZE_NORMAL, self::SIZE_COMPACT], true)
+        return in_array($value, [self::SIZE_NORMAL, self::SIZE_COMPACT, self::SIZE_INVISIBLE], true)
             ? $value
             : self::SIZE_NORMAL;
     }
@@ -47,12 +48,20 @@ final class Appearance
         ];
     }
 
-    /** @return array<int, array{value:string, label:string}> */
-    public static function size_options(): array
+    /**
+     * @param bool $include_invisible Append the "Invisible" option — only for
+     *                                providers whose supports_invisible() is true.
+     * @return array<int, array{value:string, label:string}>
+     */
+    public static function size_options(bool $include_invisible = false): array
     {
-        return [
+        $options = [
             ['value' => self::SIZE_NORMAL,  'label' => __('Normal', 'lrob-email-toolkit')],
             ['value' => self::SIZE_COMPACT, 'label' => __('Compact', 'lrob-email-toolkit')],
         ];
+        if ($include_invisible) {
+            $options[] = ['value' => self::SIZE_INVISIBLE, 'label' => __('Invisible', 'lrob-email-toolkit')];
+        }
+        return $options;
     }
 }

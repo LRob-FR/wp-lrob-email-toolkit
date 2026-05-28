@@ -5,6 +5,7 @@
     var CFG = window.lrobEtkCaptcha;
     var saveTimers = new WeakMap();
     var loadedProviderScripts = {}; // providerSlug → true once script tag injected
+    var loadedV3Scripts = {}; // reCAPTCHA v3 site key → true once api.js?render injected
 
     document.addEventListener('DOMContentLoaded', init);
 
@@ -32,35 +33,72 @@
         });
     }
 
-    // --- Add captcha button ---
-    // Spawns a new card directly (no popover), provider chosen via the
-    // dropdown inside the card itself.
+    // --- New captcha button ---
+    // The provider is chosen up front in a modal (logo + label + description,
+    // like "New form") so the card is created already branded for the pick.
+    // A single registered provider skips the chooser and spawns directly.
     function wireAddButton() {
         var btn = document.getElementById('lrob-etk-captcha-add');
         if (!btn) return;
-        btn.addEventListener('click', function () {
-            spawnNewCard();
+        var providers = CFG.providers || [];
+
+        if (providers.length <= 1) {
+            btn.addEventListener('click', function () {
+                spawnNewCard(providers[0] ? providers[0].slug : btn.dataset.provider);
+            });
+            return;
+        }
+
+        var modalApi = (window.lrobEtkModal && window.lrobEtkModal.bindHeader)
+            ? window.lrobEtkModal.bindHeader('lrob-etk-captcha-provider-modal', 'lrob-etk-captcha-add')
+            : null;
+        var modal = document.getElementById('lrob-etk-captcha-provider-modal');
+        if (!modal) return;
+        modal.addEventListener('click', function (e) {
+            var card = e.target.closest('[data-provider-pick-card]');
+            if (!card) return;
+            var slug = card.getAttribute('data-provider-slug');
+            if (modalApi && modalApi.close) modalApi.close();
+            else { modal.hidden = true; document.body.style.overflow = ''; }
+            spawnNewCard(slug);
         });
     }
 
-    function spawnNewCard() {
+    function spawnNewCard(providerSlug) {
         var tpl = document.getElementById('lrob-etk-captcha-card-template');
         var container = document.getElementById('lrob-etk-captcha-identities');
         if (!tpl || !container) return;
+        var slug = providerSlug || tpl.content.firstElementChild.dataset.provider;
         var clone = tpl.content.firstElementChild.cloneNode(true);
         container.appendChild(clone);
         wireIdentityCard(clone);
-        // Bind the cloned card's appearance comboboxes (theme / size).
-        // initCombos is idempotent (skips already-bound combos).
+        // Brand the card + load the credential fields for the chosen provider.
+        applyProviderToCard(clone, slug);
+        // The master template carries the first provider's size options; swap
+        // in the chosen provider's list (only invisible-capable providers offer
+        // "Invisible") BEFORE binding the combos — the combo captures its
+        // option list once at init.
+        applyProviderSizeOptions(clone, slug);
+        // Bind the cloned card's appearance comboboxes (theme / size) — done
+        // last so they pick up the correct, just-set option list.
         if (window.lrobEtkControls && window.lrobEtkControls.initCombos) {
             window.lrobEtkControls.initCombos();
         }
-        // Sync fields container against the dropdown's default value.
-        applyProviderToCard(clone, clone.dataset.provider);
-        var firstInput = clone.querySelector('.lrob-etk-field-label');
-        if (firstInput) firstInput.focus();
         var emptyMsg = document.querySelector('.lrob-etk-captcha-providers-empty');
         if (emptyMsg) emptyMsg.style.display = 'none';
+        // Bring the fresh card into view (the grid can be long) then focus.
+        clone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var firstInput = clone.querySelector('.lrob-etk-field-label');
+        if (firstInput) firstInput.focus({ preventScroll: true });
+    }
+
+    function applyProviderSizeOptions(card, providerSlug) {
+        var meta = (CFG.providers || []).filter(function (p) { return p.slug === providerSlug; })[0];
+        if (!meta || !meta.sizeOptions) return;
+        var sizeHidden = card.querySelector('.lrob-etk-combo-value[name="size"]');
+        if (!sizeHidden) return;
+        var combo = sizeHidden.closest('.lrob-etk-combo');
+        if (combo) combo.setAttribute('data-options', JSON.stringify(meta.sizeOptions));
     }
 
     // --- Identity cards ---
@@ -106,19 +144,16 @@
                 if (card.dataset.state === 'existing') scheduleSave(card);
                 return;
             }
-            // Appearance comboboxes (theme / size) post their value via a
-            // hidden .lrob-etk-combo-value input that fires `change` on pick.
+            // Appearance comboboxes (theme / size) + the reCAPTCHA version
+            // combo post their value via a hidden .lrob-etk-combo-value input
+            // that fires `change` on pick.
             if (e.target.classList && e.target.classList.contains('lrob-etk-combo-value')) {
+                if (e.target.name === 'credentials[version]') {
+                    applyVersionVisibility(card);
+                }
                 if (card.dataset.state === 'existing') scheduleSave(card);
             }
         });
-
-        var providerPick = form.querySelector('[data-provider-pick]');
-        if (providerPick) {
-            providerPick.addEventListener('change', function () {
-                applyProviderToCard(card, providerPick.value);
-            });
-        }
 
         var createBtn = form.querySelector('[data-action="create"]');
         if (createBtn) {
@@ -149,6 +184,10 @@
                 ask.then(function (ok) { if (ok) deleteCard(card); });
             });
         }
+
+        // Existing reCAPTCHA cards: reflect the saved version's field visibility
+        // on load (new cards get it via applyProviderToCard at spawn time).
+        applyVersionVisibility(card);
     }
 
     /**
@@ -168,6 +207,29 @@
         card.dataset.provider = providerSlug;
         var hidden = card.querySelector('[data-provider-slug]');
         if (hidden) hidden.value = providerSlug;
+        // Re-brand the header chip (logo + label) to match the chosen provider.
+        var meta = (CFG.providers || []).filter(function (p) { return p.slug === providerSlug; })[0];
+        if (meta) {
+            var logo = card.querySelector('[data-provider-logo]');
+            if (logo) logo.innerHTML = meta.logo || '';
+            var label = card.querySelector('[data-provider-label]');
+            if (label) label.textContent = meta.label;
+        }
+        applyVersionVisibility(card);
+    }
+
+    // reCAPTCHA only: the score field applies to v3, the theme/size (widget
+    // appearance) applies to v2. Show each only where it's relevant. Cards
+    // without a version combo (hCaptcha / Turnstile) are left untouched.
+    function applyVersionVisibility(card) {
+        var versionEl = card.querySelector('.lrob-etk-combo-value[name="credentials[version]"]');
+        if (!versionEl) return;
+        var isV3 = versionEl.value === 'v3';
+        var scoreInput = card.querySelector('[name="credentials[score_threshold]"]');
+        var scoreField = scoreInput ? scoreInput.closest('.lrob-etk-field') : null;
+        if (scoreField) scoreField.hidden = !isV3;
+        var appearance = card.querySelector('.lrob-etk-captcha-card-appearance');
+        if (appearance) appearance.hidden = isV3;
     }
 
     function isAutoSaveSource(el) {
@@ -254,6 +316,8 @@
         });
     }
 
+    // Update the card in place — no full-page reload. Autosave should feel
+    // dynamic; reloads slam scroll position + are jarring on every edit.
     function handleSaveSuccess(card, res, isCreate) {
         var form = card.querySelector('form');
         var wasNew = isCreate || card.dataset.state === 'new';
@@ -261,28 +325,44 @@
             card.dataset.state = 'existing';
             card.classList.remove('is-new');
             card.dataset.identityId = String(res.data.id);
-            form.querySelector('input[name="id"]').value = String(res.data.id);
+            var idInput = form.querySelector('input[name="id"]');
+            if (idInput) idInput.value = String(res.data.id);
             var del = form.querySelector('[data-action="delete"]');
             if (del) { del.removeAttribute('hidden'); del.dataset.id = String(res.data.id); }
             var create = form.querySelector('[data-action="create"]');
             if (create) create.setAttribute('hidden', '');
             var discard = form.querySelector('[data-action="discard"]');
             if (discard) discard.setAttribute('hidden', '');
-            var pickField = form.querySelector('[data-provider-pick-field]');
-            if (pickField) pickField.parentNode.removeChild(pickField);
-            window.location.reload();
-            return;
-        } else {
-            window.location.reload();
-            return;
         }
-        // Update the derived slug chip + the data-site-key attribute so
-        // the preview renders against the freshly-saved credentials.
+        // Derived slug chip + data-site-key so the preview renders against the
+        // freshly-saved credentials.
         if (res.data.slug !== undefined) updateSlugChip(card, res.data.slug);
         if (res.data.site_key !== undefined) {
             card.dataset.siteKey = res.data.site_key || '';
-            renderPreview(card);
         }
+        refreshDefaultSlot(card, res.data.route_key);
+        renderPreview(card);
+    }
+
+    // Keep the footer's default marker consistent after an in-place save:
+    // an active saved identity offers "Set as default"; an inactive one can't
+    // be the default (the server sweeps it), so clear any marker.
+    function refreshDefaultSlot(card, route) {
+        var slot = card.querySelector('.lrob-etk-card-footer-default');
+        if (!slot) return;
+        var activeEl = card.querySelector('input[name="is_active"]');
+        var isActive = !activeEl || activeEl.checked;
+        if (!isActive) {
+            slot.innerHTML = '';
+            return;
+        }
+        // Leave an existing "Default" badge / button untouched; only seed a
+        // Set-as-default button when the slot is empty (e.g. just-created card).
+        if (slot.querySelector('.lrob-etk-default-badge, .lrob-etk-set-default')) return;
+        if (!route) return;
+        slot.innerHTML = '<button type="button" class="lrob-etk-set-default" data-set-default-route="' + escAttr(route) + '">'
+            + '<span class="dashicons dashicons-star-empty" aria-hidden="true"></span> '
+            + escText(CFG.i18n.setDefaultLabel || 'Set as default') + '</button>';
     }
 
     function updateSlugChip(card, slug) {
@@ -364,6 +444,28 @@
         }
 
         previewContainer.hidden = false;
+
+        // reCAPTCHA v3 has no widget — score-based. Offer a "Test score"
+        // button that runs a real execute()+siteverify and shows the score.
+        var versionEl = card.querySelector('.lrob-etk-combo-value[name="credentials[version]"]');
+        if (versionEl && versionEl.value === 'v3') {
+            widgetSlot.innerHTML = '<div class="lrob-etk-captcha-v3-test-box">'
+                + '<p class="description">' + escText(CFG.i18n.recaptchaV3Note || CFG.i18n.invisibleNote || '') + '</p>'
+                + '<button type="button" class="button lrob-etk-captcha-v3-test" data-v3-test>' + escText(CFG.i18n.testScore || 'Test score') + '</button>'
+                + '</div>';
+            var v3Btn = widgetSlot.querySelector('[data-v3-test]');
+            if (v3Btn) v3Btn.addEventListener('click', function () { runV3ScoreTest(card, siteKey, v3Btn); });
+            return;
+        }
+
+        // Invisible mode renders no visible box — there's nothing to show or
+        // click-to-test here; explain it instead of an empty slot.
+        var sizeEl = card.querySelector('.lrob-etk-combo-value[name="size"]');
+        if (sizeEl && sizeEl.value === 'invisible') {
+            widgetSlot.innerHTML = '<p class="description">' + escText(CFG.i18n.invisibleNote || '') + '</p>';
+            return;
+        }
+
         var scriptUrl = CFG.providerScripts && CFG.providerScripts[providerSlug];
         ensureProviderScript(providerSlug, scriptUrl);
 
@@ -439,6 +541,86 @@
             resultEl.className = 'lrob-etk-captcha-card-test-result is-fail';
             resultEl.textContent = CFG.i18n.testFailed;
         });
+    }
+
+    // reCAPTCHA v3 score test — loads api.js?render=key, executes, sends the
+    // token to the server which siteverifies and returns the raw score.
+    function runV3ScoreTest(card, siteKey, btn) {
+        if (!siteKey) return;
+        var resultEl = card.querySelector('[data-test-result]');
+        if (resultEl) {
+            resultEl.hidden = false;
+            resultEl.className = 'lrob-etk-captcha-card-test-result is-testing';
+            resultEl.textContent = CFG.i18n.testing;
+        }
+        if (btn) btn.disabled = true;
+
+        ensureV3Script(siteKey, function () {
+            var g = window.grecaptcha;
+            if (!g || typeof g.ready !== 'function' || typeof g.execute !== 'function') {
+                showV3Fail(resultEl, btn, CFG.i18n.captchaUnavailable || CFG.i18n.testFailed);
+                return;
+            }
+            g.ready(function () {
+                g.execute(siteKey, { action: 'admin_test' }).then(function (token) {
+                    var data = new FormData();
+                    data.append('action', CFG.actions.testScore);
+                    data.append('_nonce', CFG.nonce);
+                    data.append('id', card.dataset.identityId);
+                    data.append('token', token);
+                    request(data).then(function (res) {
+                        if (btn) btn.disabled = false;
+                        if (res.success && res.data) {
+                            var d = res.data;
+                            var verdict = d.ok ? CFG.i18n.testWorks : CFG.i18n.testFailed;
+                            var msg = verdict + ' · score ' + Number(d.score).toFixed(2)
+                                + ' (≥ ' + Number(d.threshold).toFixed(2) + ')';
+                            if (resultEl) {
+                                resultEl.hidden = false;
+                                resultEl.className = 'lrob-etk-captcha-card-test-result ' + (d.ok ? 'is-ok' : 'is-fail');
+                                resultEl.textContent = msg;
+                            }
+                        } else {
+                            showV3Fail(resultEl, null, (res.data && res.data.message) || CFG.i18n.testFailed);
+                        }
+                    }).catch(function () { showV3Fail(resultEl, btn, CFG.i18n.testFailed); });
+                }).catch(function () { showV3Fail(resultEl, btn, CFG.i18n.testFailed); });
+            });
+        });
+    }
+
+    function showV3Fail(resultEl, btn, msg) {
+        if (btn) btn.disabled = false;
+        if (resultEl) {
+            resultEl.hidden = false;
+            resultEl.className = 'lrob-etk-captcha-card-test-result is-fail';
+            resultEl.textContent = msg;
+        }
+    }
+
+    function ensureV3Script(siteKey, cb) {
+        if (window.grecaptcha && typeof window.grecaptcha.execute === 'function' && loadedV3Scripts[siteKey]) {
+            cb();
+            return;
+        }
+        if (loadedV3Scripts[siteKey]) {
+            // Tag injected but not ready yet — poll briefly.
+            var tries = 0;
+            var iv = setInterval(function () {
+                if (window.grecaptcha && typeof window.grecaptcha.execute === 'function') { clearInterval(iv); cb(); }
+                else if (++tries > 50) { clearInterval(iv); cb(); }
+            }, 100);
+            return;
+        }
+        loadedV3Scripts[siteKey] = true;
+        var base = (CFG.providerScripts && CFG.providerScripts.recaptcha) || 'https://www.google.com/recaptcha/api.js';
+        var s = document.createElement('script');
+        s.async = true;
+        s.defer = true;
+        s.src = base + '?render=' + encodeURIComponent(siteKey);
+        s.onload = function () { cb(); };
+        s.onerror = function () { cb(); };
+        document.head.appendChild(s);
     }
 
     // One delegated change listener on the protection section: any combo

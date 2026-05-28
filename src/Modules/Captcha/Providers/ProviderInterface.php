@@ -46,6 +46,22 @@ interface ProviderInterface extends ChallengeInterface
     public function validate_credentials(array $values): array;
 
     /**
+     * Whether this provider supports an "invisible" widget size — no visible
+     * box; the challenge is triggered programmatically on form submit. Drives
+     * whether the admin size picker offers "Invisible" and whether the
+     * frontend wires execute-on-submit. Default false; providers that support
+     * it (hCaptcha) override.
+     */
+    public function supports_invisible(): bool;
+
+    /**
+     * Sort weight for the provider chooser (ascending). Lower = earlier.
+     * Lets the menu present a deliberate order (hCaptcha, Cloudflare, Google)
+     * instead of filename order.
+     */
+    public function sort_order(): int;
+
+    /**
      * Inline HTML logo for the admin UI — inline SVG preferred so it
      * inherits text color and ships without an extra asset round-trip. May
      * be empty when the provider doesn't have a visual mark.

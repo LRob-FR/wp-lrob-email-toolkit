@@ -344,6 +344,65 @@
     --lrob-etk-cf-shadow-focus: 0 0 0 3px rgba(15, 23, 42, .25);
 }
 
+/* ---------- Homemade challenge (math / picture) — shared layout ----------
+ *
+ * Self-contained so the rendered challenge looks identical in all three
+ * places it appears: the live form (inside .lrob-etk-form), the form-builder
+ * editor preview (inside .lrob-etk-form.is-editor), and the captcha-settings
+ * preview (NOT inside .lrob-etk-form). None of these rules lean on the
+ * `.lrob-etk-form input` scope, which is absent in the settings preview —
+ * that scope-gap is exactly what used to leave the math answer glued to the
+ * right of the question there. flex-column stacks label / input / helper
+ * tight regardless of container. */
+.lrob-etk-cf-challenge {
+    display: flex;
+    flex-direction: column;
+    gap: .35em;
+}
+.lrob-etk-cf-challenge .lrob-etk-cf-label {
+    font-weight: 600;
+    font-size: .95em;
+    line-height: 1.3;
+    color: var(--lrob-etk-cf-fg);
+}
+.lrob-etk-cf-challenge input[type="text"] {
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    color: var(--lrob-etk-cf-input-fg);
+    background: var(--lrob-etk-cf-bg);
+    border: 1px solid var(--lrob-etk-cf-border);
+    border-radius: var(--lrob-etk-cf-radius);
+    padding: .5em .7em;
+    width: auto;
+    max-width: 7em;
+    line-height: 1.4;
+}
+.lrob-etk-cf-challenge .lrob-etk-cf-helper {
+    margin: 0;
+    font-size: .82em;
+    line-height: 1.4;
+    color: var(--lrob-etk-cf-muted);
+}
+.lrob-etk-cf-challenge .lrob-etk-cf-error {
+    margin: 0;
+    font-size: .82em;
+    line-height: 1.4;
+    color: var(--lrob-etk-form-error);
+}
+
+/* Captcha injected into WP-native forms (comments / login / register /
+ * lost-password) via WpHooks — a .lrob-etk-form host with breathing room
+ * from the surrounding form fields + submit button. */
+.lrob-etk-captcha-wrap {
+    margin: 1em 0;
+}
+.lrob-etk-captcha-wrap--lost-password,
+.lrob-etk-captcha-wrap--registration,
+.lrob-etk-captcha-wrap--login {
+    margin-bottom: 1.25em;
+}
+
 /* ---------- Image-recognition challenge ----------
  *
  * 6 radio inputs presented as small SVG tiles. The native radio is
@@ -355,7 +414,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 6px;
 }
 
 .lrob-etk-cf-image-option {
@@ -420,6 +478,25 @@
 }
 .lrob-etk-form .lrob-etk-cf-hcaptcha .h-captcha {
     min-width: 303px;
+}
+
+/* Narrow contexts (wp-login is ~270px): a full-size hosted widget (~300px)
+ * overflows into a horizontal scrollbar — ugly. Scale it down to fit instead
+ * (clip the layout-box overflow with overflow:hidden; the scaled content fits
+ * within the column). Compact widgets already fit, so just centre them. */
+.lrob-etk-captcha-wrap--narrow .lrob-etk-form-field--challenge {
+    overflow: hidden;
+}
+.lrob-etk-captcha-wrap--narrow .h-captcha:not([data-size="compact"]),
+.lrob-etk-captcha-wrap--narrow .g-recaptcha:not([data-size="compact"]),
+.lrob-etk-captcha-wrap--narrow .cf-turnstile:not([data-size="compact"]) {
+    transform: scale(0.88);
+    transform-origin: top left;
+}
+.lrob-etk-captcha-wrap--narrow .h-captcha[data-size="compact"],
+.lrob-etk-captcha-wrap--narrow .g-recaptcha[data-size="compact"],
+.lrob-etk-captcha-wrap--narrow .cf-turnstile[data-size="compact"] {
+    margin: 0 auto;
 }
 
 /* Captcha alignment wrapper — emitted by FieldRenderer::captcha around

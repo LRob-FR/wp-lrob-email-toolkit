@@ -86,10 +86,23 @@
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
     box-shadow: 0 1px 2px rgba(0,0,0,.03);
+    /* Flex column so the footer can be pinned to the bottom and cards in a
+     * row stay equal height (providers differ in setting count — Google is
+     * taller), keeping "Set as default" / "Delete" aligned across cards. */
+    display: flex;
+    flex-direction: column;
 }
 .lrob-etk-captcha-card.is-new {
     border-color: var(--etk-accent);
     box-shadow: 0 1px 6px rgba(34,113,177,.15);
+}
+.lrob-etk-captcha-card .lrob-etk-card-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+.lrob-etk-captcha-card .lrob-etk-card-footer {
+    margin-top: auto;
 }
 
 .lrob-etk-captcha-card-provider {
@@ -140,24 +153,53 @@
     color: var(--etk-muted);
 }
 
-/* Provider dropdown — visible only on unsaved cards when multiple
- * providers are registered, drops out after save. */
-.lrob-etk-captcha-provider-pick-field {
-    padding: 0 18px;
-    margin: 10px 0 6px;
+/* "New captcha" provider chooser modal — grid of provider cards (logo +
+ * label + description), styled like the "New form" picker. */
+.lrob-etk-captcha-provider-pick-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--etk-space-2);
+    margin-top: var(--etk-space-3);
+}
+.lrob-etk-captcha-provider-pick-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--etk-space-3);
+    width: 100%;
+    text-align: left;
+    padding: var(--etk-space-3);
+    background: var(--etk-card-bg);
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-lg);
+    cursor: pointer;
+    transition: border-color var(--etk-transition), box-shadow var(--etk-transition), background var(--etk-transition);
+}
+.lrob-etk-captcha-provider-pick-card:hover,
+.lrob-etk-captcha-provider-pick-card:focus-visible {
+    border-color: var(--etk-accent);
+    box-shadow: var(--etk-shadow-sm);
+    background: var(--etk-input-bg);
+    outline: none;
+}
+.lrob-etk-captcha-provider-pick-logo {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+.lrob-etk-captcha-provider-pick-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
+    min-width: 0;
 }
-.lrob-etk-captcha-provider-pick-field label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+.lrob-etk-captcha-provider-pick-text strong {
+    font-size: var(--etk-text-lg);
+    color: var(--etk-fg);
+}
+.lrob-etk-captcha-provider-pick-text span {
+    font-size: var(--etk-text-sm);
     color: var(--etk-muted);
-    font-weight: 600;
-}
-.lrob-etk-captcha-provider-pick-field select {
-    width: 100%;
+    line-height: 1.4;
 }
 
 /* Inline widget preview + test feedback area. */
@@ -195,6 +237,15 @@
     color: var(--etk-muted);
     font-size: 12px;
     font-style: italic;
+}
+/* reCAPTCHA v3: note + "Test score" button stacked (the widget slot itself
+ * is a flex row). */
+.lrob-etk-captcha-v3-test-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--etk-space-2);
+    width: 100%;
 }
 .lrob-etk-captcha-card-test-result {
     margin-top: 8px;

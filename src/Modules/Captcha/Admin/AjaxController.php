@@ -10,6 +10,7 @@ use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Identity;
 use LRob\EmailToolkit\Modules\Captcha\IdentityRepository;
 use LRob\EmailToolkit\Modules\Captcha\Providers\ProviderInterface;
+use LRob\EmailToolkit\Modules\Captcha\Providers\Recaptcha;
 use LRob\EmailToolkit\Modules\Captcha\Routing;
 
 /**
@@ -32,6 +33,8 @@ final class AjaxController
 
     public const ACTION_TEST_IDENTITY   = 'lrob_etk_captcha_test_identity';
 
+    public const ACTION_TEST_SCORE      = 'lrob_etk_captcha_test_score';
+
     public const ACTION_SET_DEFAULT     = 'lrob_etk_captcha_set_default';
 
     public function __construct(
@@ -46,6 +49,7 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_DELETE_IDENTITY, [$this, 'ajax_delete_identity']);
         add_action('wp_ajax_' . self::ACTION_SAVE_ROUTING,    [$this, 'ajax_save_routing']);
         add_action('wp_ajax_' . self::ACTION_TEST_IDENTITY,   [$this, 'ajax_test_identity']);
+        add_action('wp_ajax_' . self::ACTION_TEST_SCORE,      [$this, 'ajax_test_score']);
         add_action('wp_ajax_' . self::ACTION_SET_DEFAULT,     [$this, 'ajax_set_default']);
     }
 
@@ -94,6 +98,50 @@ final class AjaxController
             wp_send_json_success(['message' => __('Captcha works!', 'lrob-email-toolkit')]);
         }
         wp_send_json_error(['message' => $error ?: __('Verification failed.', 'lrob-email-toolkit')]);
+    }
+
+    /**
+     * Run a real reCAPTCHA v3 siteverify for one identity and return the raw
+     * score so the admin can confirm the keys + calibrate the threshold from
+     * the settings page (the v3 widget is invisible — nothing to click-test).
+     */
+    public function ajax_test_score(): void
+    {
+        $this->guard();
+
+        $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
+        $token = $this->post_str('token');
+        if ($id <= 0 || $token === '') {
+            wp_send_json_error(['message' => __('No token to test.', 'lrob-email-toolkit')]);
+        }
+
+        $identity = $this->identities->find($id);
+        if ($identity === null) {
+            wp_send_json_error(['message' => __('Identity not found.', 'lrob-email-toolkit')]);
+        }
+
+        $providers = $this->service->hosted_providers();
+        $provider = $providers[$identity->provider_slug] ?? null;
+        if (!$provider instanceof Recaptcha) {
+            wp_send_json_error(['message' => __('Score test is only available for reCAPTCHA v3.', 'lrob-email-toolkit')]);
+        }
+
+        try {
+            $credentials = $identity->decrypted_credentials();
+        } catch (\RuntimeException $e) {
+            wp_send_json_error(['message' => $e->getMessage()]);
+        }
+
+        $result = $provider->test_score($token, $credentials);
+        if ($result['error'] !== null) {
+            wp_send_json_error(['message' => $result['error']]);
+        }
+
+        wp_send_json_success([
+            'ok'        => $result['ok'],
+            'score'     => $result['score'],
+            'threshold' => $result['threshold'],
+        ]);
     }
 
     public function ajax_save_identity(): void
@@ -183,6 +231,27 @@ final class AjaxController
             $saved_id = $this->identities->save($identity, $clean_credentials);
         } catch (\Throwable $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
+        }
+
+        // Deactivating an identity must not leave a dangling route. Any context
+        // (incl. the site-wide default) pointing at this now-inactive identity
+        // is swept back to a working challenge — the default falls to a
+        // built-in so a captcha is always active; per-context entries fall to
+        // 'inherit'. Mirrors the delete sweep.
+        if (!$is_active) {
+            $this_route = Routing::identity($saved_id);
+            $map = Routing::context_map();
+            $changed = false;
+            foreach ($map as $key => $value) {
+                if ($value !== $this_route) {
+                    continue;
+                }
+                $map[$key] = $key === Routing::KEY_DEFAULT ? $this->default_fallback() : Routing::ROUTE_INHERIT;
+                $changed = true;
+            }
+            if ($changed) {
+                Routing::replace_map($map);
+            }
         }
 
         // Re-load to get the derived slug + reflect the merged credentials

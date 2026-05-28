@@ -47,6 +47,8 @@ final class Routing
 
     public const CONTEXT_REGISTRATION = 'registration';
 
+    public const CONTEXT_LOGIN = 'login';
+
     /** @return array<int, string> Known contexts shown on the settings page, in display order. */
     public static function known_contexts(): array
     {
@@ -77,6 +79,7 @@ final class Routing
     {
         return [
             self::CONTEXT_COMMENTS,
+            self::CONTEXT_LOGIN,
             self::CONTEXT_LOST_PASSWORD,
             self::CONTEXT_REGISTRATION,
         ];
@@ -88,6 +91,7 @@ final class Routing
             self::CONTEXT_CONTACT_FORM   => __('Contact forms', 'lrob-email-toolkit'),
             self::CONTEXT_COMMENTS       => __('Blog comments', 'lrob-email-toolkit'),
             self::CONTEXT_NEWSLETTER     => __('Newsletter subscribe', 'lrob-email-toolkit'),
+            self::CONTEXT_LOGIN          => __('Login (WordPress + WooCommerce)', 'lrob-email-toolkit'),
             self::CONTEXT_LOST_PASSWORD  => __('Lost password', 'lrob-email-toolkit'),
             self::CONTEXT_REGISTRATION   => __('User registration', 'lrob-email-toolkit'),
             default                      => $context,

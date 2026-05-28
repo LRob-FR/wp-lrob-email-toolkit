@@ -59,6 +59,8 @@ final class Frontend
                 'fileTooLarge'     => __('File too large', 'lrob-email-toolkit'),
                 'fileTypeRejected' => __('Type not allowed', 'lrob-email-toolkit'),
                 'totalTooLarge'    => __('Combined size exceeds the limit', 'lrob-email-toolkit'),
+                'captchaUnavailable' => __('Anti-spam check is unavailable. Please reload and try again.', 'lrob-email-toolkit'),
+                'captchaFailed'    => __('Anti-spam check failed. Please try again.', 'lrob-email-toolkit'),
             ],
         ]);
     }

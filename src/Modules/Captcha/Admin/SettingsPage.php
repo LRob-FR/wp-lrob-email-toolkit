@@ -55,7 +55,7 @@ final class SettingsPage
             <?php PageHeader::render([
                 'title'   => __('Captcha', 'lrob-email-toolkit'),
                 'primary' => $providers !== [] ? [
-                    'label' => __('New identity', 'lrob-email-toolkit'),
+                    'label' => __('New captcha', 'lrob-email-toolkit'),
                     'icon'  => 'dashicons-plus-alt2',
                     'id'    => 'lrob-etk-captcha-add',
                 ] : null,
@@ -68,6 +68,7 @@ final class SettingsPage
             <?php $this->render_protection_section($default_route, $map); ?>
             <?php $this->render_diagnostics_section($identities, $map); ?>
 
+            <?php $this->render_provider_modal($providers); ?>
             <?php $this->render_master_card_template($providers); ?>
             <?php foreach ($providers as $provider) {
                 $this->render_fields_template($provider);
@@ -114,10 +115,16 @@ final class SettingsPage
                         <div class="lrob-etk-captcha-builtin-preview">
                             <div class="lrob-etk-captcha-card-preview-head"><?php esc_html_e('Preview', 'lrob-email-toolkit'); ?></div>
                             <?php
-                            // The challenge renders the exact frontend markup a
+                            // Render inside a .lrob-etk-form host so the frontend
+                            // CSS vars (theme-adaptive colours, radii) resolve here
+                            // exactly as they do on the live form — the preview
+                            // then mirrors what a visitor sees.
+                            // The challenge emits the exact frontend markup a
                             // visitor sees (self-contained, no external script).
-                            echo $challenge->render(['context' => 'preview']); // phpcs:ignore WordPress.Security.EscapeOutput — challenge render escapes internally.
                             ?>
+                            <div class="lrob-etk-form">
+                                <?php echo $challenge->render(['context' => 'preview']); // phpcs:ignore WordPress.Security.EscapeOutput — challenge render escapes internally. ?>
+                            </div>
                         </div>
                     </li>
                 <?php endforeach; ?>
@@ -162,7 +169,7 @@ final class SettingsPage
             <?php else : ?>
                 <?php if ($identities === []) : ?>
                     <p class="description lrob-etk-captcha-providers-empty">
-                        <?php esc_html_e('No captchas configured yet. Click "Add captcha" to set one up.', 'lrob-email-toolkit'); ?>
+                        <?php esc_html_e('No captchas configured yet. Click "New captcha" to set one up.', 'lrob-email-toolkit'); ?>
                     </p>
                 <?php endif; ?>
 
@@ -171,7 +178,7 @@ final class SettingsPage
                         if (!isset($providers[$identity->provider_slug])) {
                             continue; // stale row pointing at an uninstalled provider
                         }
-                        $this->render_identity_card($identity, $providers[$identity->provider_slug], $providers);
+                        $this->render_identity_card($identity, $providers[$identity->provider_slug]);
                     endforeach; ?>
                 </div>
             <?php endif; ?>
@@ -179,12 +186,9 @@ final class SettingsPage
         <?php
     }
 
-    /**
-     * @param array<string, ProviderInterface> $providers
-     */
-    private function render_identity_card(Identity $identity, ProviderInterface $provider, array $providers): void
+    private function render_identity_card(Identity $identity, ProviderInterface $provider): void
     {
-        $this->render_card_shell($identity, $provider, $providers, false);
+        $this->render_card_shell($identity, $provider, false);
     }
 
     /** @param array{passed:int, failed:int, total:int} $stats */
@@ -206,9 +210,54 @@ final class SettingsPage
     }
 
     /**
-     * Master card template — single shape, provider chosen via the inline
-     * dropdown. JS clones this on "Add captcha", then injects the right
-     * credential fields by cloning the matching `render_fields_template`.
+     * Provider chooser shown when "New captcha" is clicked — a shared modal
+     * (same chrome as the other plugin modals) with one card per hosted
+     * provider, ordered by sort_order(). Picking a card spawns its identity
+     * card (JS) and closes the modal.
+     *
+     * @param array<string, ProviderInterface> $providers
+     */
+    private function render_provider_modal(array $providers): void
+    {
+        if ($providers === []) {
+            return;
+        }
+        ?>
+        <div class="lrob-etk-modal" id="lrob-etk-captcha-provider-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-captcha-provider-modal-title" hidden>
+            <div class="lrob-etk-modal-backdrop" data-modal-close></div>
+            <div class="lrob-etk-modal-dialog">
+                <header class="lrob-etk-modal-header">
+                    <h3 id="lrob-etk-captcha-provider-modal-title" class="lrob-etk-modal-title-text"><?php esc_html_e('Add a captcha', 'lrob-email-toolkit'); ?></h3>
+                    <button type="button" class="lrob-etk-modal-close" data-modal-close aria-label="<?php esc_attr_e('Close', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                    </button>
+                </header>
+                <div class="lrob-etk-modal-body">
+                    <p class="description" style="margin-top: 0;"><?php esc_html_e('Choose a provider to configure.', 'lrob-email-toolkit'); ?></p>
+                    <div class="lrob-etk-captcha-provider-pick-grid">
+                        <?php foreach ($providers as $slug => $provider) : ?>
+                            <button type="button" class="lrob-etk-captcha-provider-pick-card" data-provider-pick-card data-provider-slug="<?php echo esc_attr($slug); ?>">
+                                <span class="lrob-etk-captcha-provider-pick-logo"><?php echo $provider->logo_html(); // phpcs:ignore WordPress.Security.EscapeOutput — trusted inline SVG ?></span>
+                                <span class="lrob-etk-captcha-provider-pick-text">
+                                    <strong><?php echo esc_html($provider->label()); ?></strong>
+                                    <span><?php echo esc_html($provider->description()); ?></span>
+                                </span>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Master card template. The "New captcha" button picks the provider
+     * (directly when there's only one, via a small menu otherwise), then JS
+     * clones this template and reconfigures it for the chosen provider —
+     * chip branding + credential fields from the matching
+     * `render_fields_template`. The placeholder provider below is just the
+     * cloned starting point; JS overwrites it immediately.
      *
      * @param array<string, ProviderInterface> $providers
      */
@@ -220,7 +269,7 @@ final class SettingsPage
         $first = array_key_first($providers);
         ?>
         <template id="lrob-etk-captcha-card-template">
-            <?php $this->render_card_shell(null, $providers[$first], $providers, true); ?>
+            <?php $this->render_card_shell(null, $providers[$first], true); ?>
         </template>
         <?php
     }
@@ -239,16 +288,12 @@ final class SettingsPage
         <?php
     }
 
-    /**
-     * @param array<string, ProviderInterface> $providers
-     */
-    private function render_card_shell(?Identity $identity, ProviderInterface $provider, array $providers, bool $is_new): void
+    private function render_card_shell(?Identity $identity, ProviderInterface $provider, bool $is_new): void
     {
         $id = $identity?->id ?? 0;
         $label = $identity?->label ?? '';
         $is_active = $identity ? $identity->is_active : true;
         $derived_slug = $identity?->derived_slug() ?? '';
-        $can_swap_provider = $is_new && count($providers) > 1;
         $theme = $identity?->theme ?? Appearance::THEME_AUTO;
         $size  = $identity?->size ?? Appearance::SIZE_NORMAL;
 
@@ -312,21 +357,6 @@ final class SettingsPage
                     ?>
                 </div>
 
-                <?php if ($can_swap_provider) : ?>
-                    <div class="lrob-etk-field lrob-etk-captcha-provider-pick-field" data-provider-pick-field>
-                        <label for="lrob-etk-captcha-provider-pick-<?php echo (int) $id; ?>">
-                            <?php esc_html_e('Provider', 'lrob-email-toolkit'); ?>
-                        </label>
-                        <select id="lrob-etk-captcha-provider-pick-<?php echo (int) $id; ?>" data-provider-pick>
-                            <?php foreach ($providers as $slug => $p) : ?>
-                                <option value="<?php echo esc_attr($slug); ?>" <?php selected($slug, $provider->slug()); ?>>
-                                    <?php echo esc_html($p->label()); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endif; ?>
-
                 <div class="lrob-etk-captcha-card-body" data-fields-container>
                     <?php $this->render_credential_fields($provider, $is_new, $identity); ?>
                 </div>
@@ -338,7 +368,7 @@ final class SettingsPage
                     </div>
                     <div class="lrob-etk-captcha-card-appearance-field">
                         <label><?php esc_html_e('Size', 'lrob-email-toolkit'); ?></label>
-                        <?php Combobox::render_fixed_select('size', $size, Appearance::size_options(), '', ''); ?>
+                        <?php Combobox::render_fixed_select('size', $size, Appearance::size_options($provider->supports_invisible()), '', ''); ?>
                     </div>
                 </div>
 
@@ -410,19 +440,35 @@ final class SettingsPage
             $placeholder = $is_secret && $has_stored && !$is_new
                 ? str_repeat("\u{2022}", 10) // ten bullets — matches password manager UI
                 : '';
+            $current_or_default = $stored_value !== '' ? $stored_value : (string) ($field['default'] ?? '');
             ?>
             <div class="lrob-etk-field">
                 <label>
                     <?php echo esc_html((string) $field['label']); ?>
                     <?php if ($required) : ?><span class="lrob-etk-required" aria-hidden="true">*</span><?php endif; ?>
                 </label>
-                <input
-                    type="<?php echo esc_attr($type); ?>"
-                    name="credentials[<?php echo esc_attr($key); ?>]"
-                    data-credential-key="<?php echo esc_attr($key); ?>"
-                    value="<?php echo esc_attr($input_value); ?>"
-                    autocomplete="<?php echo $is_secret ? 'new-password' : 'off'; ?>"
-                    placeholder="<?php echo esc_attr($placeholder); ?>">
+                <?php if ($type === 'select') :
+                    $options = isset($field['options']) && is_array($field['options']) ? $field['options'] : [];
+                    Combobox::render_fixed_select('credentials[' . $key . ']', $current_or_default, $options, '', '');
+                elseif ($type === 'number') : ?>
+                    <input
+                        type="number"
+                        name="credentials[<?php echo esc_attr($key); ?>]"
+                        data-credential-key="<?php echo esc_attr($key); ?>"
+                        value="<?php echo esc_attr($current_or_default); ?>"
+                        <?php if (isset($field['min'])) : ?>min="<?php echo esc_attr((string) $field['min']); ?>"<?php endif; ?>
+                        <?php if (isset($field['max'])) : ?>max="<?php echo esc_attr((string) $field['max']); ?>"<?php endif; ?>
+                        <?php if (isset($field['step'])) : ?>step="<?php echo esc_attr((string) $field['step']); ?>"<?php endif; ?>
+                        autocomplete="off">
+                <?php else : ?>
+                    <input
+                        type="<?php echo esc_attr($type); ?>"
+                        name="credentials[<?php echo esc_attr($key); ?>]"
+                        data-credential-key="<?php echo esc_attr($key); ?>"
+                        value="<?php echo esc_attr($input_value); ?>"
+                        autocomplete="<?php echo $is_secret ? 'new-password' : 'off'; ?>"
+                        placeholder="<?php echo esc_attr($placeholder); ?>">
+                <?php endif; ?>
                 <?php if ($description !== '') : ?>
                     <p class="description"><?php echo esc_html($description); ?></p>
                 <?php endif; ?>
@@ -589,11 +635,12 @@ final class SettingsPage
     private function render_protection_section(string $default_route, array $map): void
     {
         $default_options = $this->route_options_for_combobox(false, false);
-        // Plugin forms can inherit the site default; WordPress sections can't
-        // (they're opt-in), so their "off" reads "Off (default)" and there's
-        // no "Use default" option.
+        // Plugin forms inherit the site default by default. WordPress sections
+        // default to off (opt-in) but can also "Use default" (inherit the site
+        // default challenge) or pick a specific one — so they get the inherit
+        // option too; "off" stays their placeholder/default via inherit_value.
         $plugin_options = $this->route_options_for_combobox(true, true);
-        $wp_options = $this->route_options_for_combobox(false, true, __('Off (default)', 'lrob-email-toolkit'));
+        $wp_options = $this->route_options_for_combobox(true, true, __('Off', 'lrob-email-toolkit'));
         ?>
         <section class="lrob-etk-captcha-section lrob-etk-captcha-protection">
             <h2 class="lrob-etk-section-title"><?php esc_html_e('Captcha protection', 'lrob-email-toolkit'); ?></h2>
@@ -702,8 +749,18 @@ final class SettingsPage
         // without touching this method.
         $provider_scripts = [];
         $provider_widgets = [];
+        $provider_meta = []; // ordered list driving the "New captcha" provider menu
         foreach ($this->service->hosted_providers() as $slug => $provider) {
             $cls = $provider::class;
+            $provider_meta[] = [
+                'slug'        => $slug,
+                'label'       => $provider->label(),
+                'logo'        => $provider->logo_html(),
+                // Per-provider size options so a new card spawned for this
+                // provider shows the right list (only invisible-capable
+                // providers offer "Invisible").
+                'sizeOptions' => Appearance::size_options($provider->supports_invisible()),
+            ];
             if (defined($cls . '::SCRIPT_URL')) {
                 $provider_scripts[$slug] = (string) constant($cls . '::SCRIPT_URL');
             }
@@ -726,6 +783,7 @@ final class SettingsPage
                 deleteIdentity: <?php echo wp_json_encode(AjaxController::ACTION_DELETE_IDENTITY); ?>,
                 saveRouting:    <?php echo wp_json_encode(AjaxController::ACTION_SAVE_ROUTING); ?>,
                 testIdentity:   <?php echo wp_json_encode(AjaxController::ACTION_TEST_IDENTITY); ?>,
+                testScore:      <?php echo wp_json_encode(AjaxController::ACTION_TEST_SCORE); ?>,
                 setDefault:     <?php echo wp_json_encode(AjaxController::ACTION_SET_DEFAULT); ?>
             },
             // Per-action nonces for destructive endpoints (defense in
@@ -737,6 +795,7 @@ final class SettingsPage
             },
             providerScripts: <?php echo wp_json_encode($provider_scripts); ?>,
             providerWidgets: <?php echo wp_json_encode($provider_widgets); ?>,
+            providers: <?php echo wp_json_encode($provider_meta); ?>,
             i18n: {
                 saving:          <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
                 saved:           <?php echo wp_json_encode(__('Saved', 'lrob-email-toolkit')); ?>,
@@ -746,7 +805,11 @@ final class SettingsPage
                 previewUnsaved:  <?php echo wp_json_encode(__('Save your credentials to load the captcha widget here.', 'lrob-email-toolkit')); ?>,
                 testing:         <?php echo wp_json_encode(__('Verifying…', 'lrob-email-toolkit')); ?>,
                 testWorks:       <?php echo wp_json_encode(__('✓ Captcha works', 'lrob-email-toolkit')); ?>,
-                testFailed:      <?php echo wp_json_encode(__('✗ Verification failed', 'lrob-email-toolkit')); ?>
+                testFailed:      <?php echo wp_json_encode(__('✗ Verification failed', 'lrob-email-toolkit')); ?>,
+                invisibleNote:   <?php echo wp_json_encode(__('Invisible mode — no widget is shown; it runs automatically when visitors submit the form.', 'lrob-email-toolkit')); ?>,
+                recaptchaV3Note: <?php echo wp_json_encode(__('reCAPTCHA v3 — no widget; a risk score is fetched and checked when visitors submit the form.', 'lrob-email-toolkit')); ?>,
+                testScore:       <?php echo wp_json_encode(__('Test score', 'lrob-email-toolkit')); ?>,
+                setDefaultLabel: <?php echo wp_json_encode(__('Set as default', 'lrob-email-toolkit')); ?>
             }
         };
         <?php

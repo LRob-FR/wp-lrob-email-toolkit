@@ -27,6 +27,11 @@ final class Turnstile extends AbstractHostedCaptcha
 
     public const WIDGET_GLOBAL = 'turnstile';
 
+    public function sort_order(): int
+    {
+        return 20;
+    }
+
     public function slug(): string
     {
         return self::SLUG;
