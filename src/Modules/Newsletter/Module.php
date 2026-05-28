@@ -787,7 +787,7 @@ final class Module extends AbstractModule
             $forms_page = new FormsPage($forms, $templates);
             $lists_page = new ListsPage($lists);
             $settings_page = new SettingsPage();
-            $subscribers_page = new SubscribersPage($subscribers);
+            $subscribers_page = new SubscribersPage($subscribers, new \LRob\EmailToolkit\Modules\Newsletter\WpUserRepository());
             $newsletters_page = new NewslettersPage($newsletters, $lists, $this->container);
             $newsletters_page->register();
             $home = new HomePage($this, $subscribers, $templates, $forms_page, $lists_page, $settings_page, $subscribers_page, $newsletters_page);

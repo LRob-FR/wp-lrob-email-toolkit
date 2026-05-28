@@ -109,7 +109,11 @@
 
             var fd = new FormData(form);
             fd.append('action', action);
+            // Two nonce field names sent so the helper works with both
+            // check_ajax_referer (falls back to `_ajax_nonce`) and the
+            // stricter Newsletter `$_POST['_nonce']` guard.
             fd.append('_ajax_nonce', nonce);
+            fd.append('_nonce', nonce);
             fd.append('paged', String(page));
 
             if (!skipUrlUpdate) {
@@ -134,6 +138,13 @@
                     if (next && live && live.parentNode) {
                         live.parentNode.replaceChild(next, live);
                         if (onAfterReload) onAfterReload(next);
+                        // Fan-out signal for table chrome that lives
+                        // inside the region (sortable headers, etc.) —
+                        // the swap nukes their DOM refs, so they
+                        // re-paint on this event instead.
+                        document.dispatchEvent(new CustomEvent('etk:list-region-swapped', {
+                            detail: { region: next },
+                        }));
                     }
                 })
                 .catch(function () {

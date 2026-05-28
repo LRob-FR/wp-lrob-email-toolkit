@@ -32,6 +32,8 @@ final class Assets
 
     public const HANDLE_CONTROLS_JS    = 'lrob-etk-controls';
     public const HANDLE_LIST_FILTER_JS = 'lrob-etk-list-filter';
+    public const HANDLE_SORTABLE_JS    = 'lrob-etk-sortable';
+    public const HANDLE_PERPAGE_JS     = 'lrob-etk-perpage';
     public const HANDLE_DETAIL_MODAL_JS = 'lrob-etk-detail-modal';
     public const HANDLE_RETENTION_TOGGLE_JS = 'lrob-etk-retention-toggle';
     public const HANDLE_MODAL_JS = 'lrob-etk-modal';
@@ -80,6 +82,24 @@ final class Assets
             LROB_ETK_URL . 'admin/js/etk-list-filter.js',
             [],
             self::asset_version('admin/js/etk-list-filter.js'),
+            true
+        );
+        // Shared sortable-column helper. Pairs with etk-list-filter:
+        // clicks on `<th data-sort-key>` write hidden `orderby/order`
+        // inputs, the next reload picks them up. Cookie persists the
+        // chosen sort per table across page reloads.
+        wp_enqueue_script(
+            self::HANDLE_SORTABLE_JS,
+            LROB_ETK_URL . 'admin/js/etk-sortable.js',
+            [self::HANDLE_LIST_FILTER_JS],
+            self::asset_version('admin/js/etk-sortable.js'),
+            true
+        );
+        wp_enqueue_script(
+            self::HANDLE_PERPAGE_JS,
+            LROB_ETK_URL . 'admin/js/etk-perpage.js',
+            [self::HANDLE_LIST_FILTER_JS],
+            self::asset_version('admin/js/etk-perpage.js'),
             true
         );
         // Shared detail-modal helper (overlay opened by clicking a row).

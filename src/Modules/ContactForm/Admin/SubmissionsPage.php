@@ -80,8 +80,9 @@ final class SubmissionsPage
     private function render_list(): void
     {
         $filters = self::parse_filters();
-        $per_page = (int) get_option(self::OPTION_PER_PAGE, self::DEFAULT_PER_PAGE);
-        $per_page = max(5, min(500, $per_page));
+        // Inline session-cookie picker (Admin\PerPagePicker) replaces the
+        // former site-level OPTION_PER_PAGE setting.
+        $per_page = \LRob\EmailToolkit\Admin\PerPagePicker::parse('cf_submissions', self::DEFAULT_PER_PAGE);
         $page = max(1, isset($_GET['paged']) ? (int) $_GET['paged'] : 1);
         $total = $this->repository->count($filters);
         $total_pages = max(1, (int) ceil($total / $per_page));
@@ -206,6 +207,15 @@ final class SubmissionsPage
                 $f['date_to'] = $d . ' 23:59:59';
             }
         }
+        if (!empty($src['orderby']) && is_string($src['orderby'])) {
+            $f['orderby'] = sanitize_key((string) $src['orderby']);
+        }
+        if (!empty($src['order']) && is_string($src['order'])) {
+            $o = sanitize_key((string) $src['order']);
+            if (in_array($o, ['asc', 'desc'], true)) {
+                $f['order'] = $o;
+            }
+        }
         return $f;
     }
 
@@ -218,8 +228,9 @@ final class SubmissionsPage
      */
     public function render_list_region_for_filters(array $filters, int $page): void
     {
-        $per_page = (int) get_option(self::OPTION_PER_PAGE, self::DEFAULT_PER_PAGE);
-        $per_page = max(5, min(500, $per_page));
+        // Inline session-cookie picker (Admin\PerPagePicker) replaces the
+        // former site-level OPTION_PER_PAGE setting.
+        $per_page = \LRob\EmailToolkit\Admin\PerPagePicker::parse('cf_submissions', self::DEFAULT_PER_PAGE);
         $total = $this->repository->count($filters);
         $total_pages = max(1, (int) ceil($total / $per_page));
         if ($page > $total_pages) {
@@ -347,7 +358,7 @@ final class SubmissionsPage
                 </button>
                 <span class="lrob-etk-bulk-selected-count" data-cf-bulk-count hidden></span>
             </div>
-            <div class="lrob-etk-bulk-selection">
+            <div class="lrob-etk-bulk-action">
                 <span class="lrob-etk-bulk-count">
                     <?php
                     printf(
@@ -359,6 +370,7 @@ final class SubmissionsPage
                     );
                     ?>
                 </span>
+                <?php \LRob\EmailToolkit\Admin\PerPagePicker::render('cf_submissions', $per_page); ?>
             </div>
         </div>
         <?php
@@ -383,11 +395,11 @@ final class SubmissionsPage
                             <label class="screen-reader-text" for="lrob-etk-cf-check-all"><?php esc_html_e('Select all', 'lrob-email-toolkit'); ?></label>
                             <input type="checkbox" id="lrob-etk-cf-check-all" data-cf-bulk-check-all>
                         </th>
-                        <th class="col-date"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-form"><?php esc_html_e('Form', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-date" data-sort-key="submitted_at"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-status" data-sort-key="status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-form" data-sort-key="form_id"><?php esc_html_e('Form', 'lrob-email-toolkit'); ?></th>
                         <th class="col-preview"><?php esc_html_e('Preview', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-captcha"><?php esc_html_e('Captcha', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-captcha" data-sort-key="captcha_outcome"><?php esc_html_e('Captcha', 'lrob-email-toolkit'); ?></th>
                         <th class="col-actions"><?php esc_html_e('Actions', 'lrob-email-toolkit'); ?></th>
                     </tr>
                 </thead>

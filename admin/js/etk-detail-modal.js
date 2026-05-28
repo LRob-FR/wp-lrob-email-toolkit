@@ -41,7 +41,8 @@
         var className     = (config.className || '') + ' lrob-etk lrob-etk-confirm-modal lrob-etk-detail-modal';
 
         var el = null;
-        var currentId = 0;
+        // Init to '' rather than 0 so composite-string ids work too.
+        var currentId = '';
 
         function ensure() {
             if (el) return el;
@@ -103,7 +104,9 @@
         }
         function close() {
             if (el) el.classList.remove('is-open');
-            currentId = 0;
+            // Reset to '' (not 0) so consumers that pass composite-string
+            // ids ("subscriber:42") don't trip the truthy check below.
+            currentId = '';
         }
         function fetch_(id) {
             if (!el) return;
@@ -157,7 +160,10 @@
         var api = {
             open: open,
             close: close,
-            refresh: function () { if (currentId > 0) fetch_(currentId); },
+            // `currentId` may be a number (legacy: Logs, CF inbox) OR a
+            // composite string like "subscriber:42" (unified Subscribers
+            // table) — truthy check covers both.
+            refresh: function () { if (currentId) fetch_(currentId); },
             currentId: function () { return currentId; },
             element: function () { return el; },
         };

@@ -432,7 +432,11 @@ final class SubmissionRepository
         $offset = ($page - 1) * $per_page;
 
         [$where, $params] = $this->build_where($filters);
-        $sql = 'SELECT * FROM `' . Schema::submissions_table() . "` $where ORDER BY id DESC LIMIT %d OFFSET %d";
+        $orderby = self::sanitize_orderby((string) ($filters['orderby'] ?? ''));
+        $order = (string) ($filters['order'] ?? '') === 'asc' ? 'ASC' : 'DESC';
+        // `orderby` came through `sanitize_orderby` which only emits whitelisted column names —
+        // safe to interpolate. `order` is constrained to ASC/DESC above.
+        $sql = 'SELECT * FROM `' . Schema::submissions_table() . "` $where ORDER BY $orderby $order LIMIT %d OFFSET %d";
         $params[] = $per_page;
         $params[] = $offset;
 
@@ -520,6 +524,15 @@ final class SubmissionRepository
      *              date_from?: string, date_to?: string} $filters
      * @return array{0:string, 1:array<int, scalar>}
      */
+    private static function sanitize_orderby(string $key): string
+    {
+        // Match the actual `wp_lrob_etk_cf_submissions` schema: the date
+        // column is `submitted_at`, not `created_at`; from-email lives
+        // in `fields_json` (not its own column) so it isn't sortable.
+        $allowed = ['id', 'submitted_at', 'status', 'form_id', 'captcha_outcome'];
+        return in_array($key, $allowed, true) ? $key : 'id';
+    }
+
     private function build_where(array $filters): array
     {
         global $wpdb;

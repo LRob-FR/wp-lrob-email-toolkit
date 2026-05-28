@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-27T21:06:19+00:00\n"
+"POT-Creation-Date: 2026-05-28T00:29:11+00:00\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #. Plugin Name of the plugin
@@ -32,27 +32,27 @@ msgstr "LRob"
 msgid "https://www.lrob.fr"
 msgstr "https://www.lrob.fr"
 
-#: src/Admin/Assets.php:118 src/Modules/Captcha/Admin/SettingsPage.php:729
+#: src/Admin/Assets.php:138 src/Modules/Captcha/Admin/SettingsPage.php:729
 #: src/Modules/ContactForm/Admin/FormsPage.php:147
-#: src/Modules/Logging/Admin/LogsPage.php:580
+#: src/Modules/Logging/Admin/LogsPage.php:574
 #: src/Modules/Newsletter/Admin/HomePage.php:101
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:607
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:673
 #: src/Modules/SMTP/Admin/SettingsPage.php:593
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: src/Admin/Assets.php:119 src/Modules/Captcha/Admin/SettingsPage.php:730
+#: src/Admin/Assets.php:139 src/Modules/Captcha/Admin/SettingsPage.php:730
 #: src/Modules/ContactForm/Admin/FormsPage.php:148
-#: src/Modules/Logging/Admin/LogsPage.php:581
+#: src/Modules/Logging/Admin/LogsPage.php:575
 #: src/Modules/Newsletter/Admin/HomePage.php:102
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:619
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:685
 #: src/Modules/SMTP/Admin/SettingsPage.php:594
 msgid "Saved"
 msgstr "Enregistré"
 
-#: src/Admin/Assets.php:120 src/Modules/Captcha/Admin/SettingsPage.php:731
+#: src/Admin/Assets.php:140 src/Modules/Captcha/Admin/SettingsPage.php:731
 #: src/Modules/ContactForm/Admin/FormsPage.php:149
-#: src/Modules/Logging/Admin/LogsPage.php:582
+#: src/Modules/Logging/Admin/LogsPage.php:576
 #: src/Modules/Newsletter/Admin/HomePage.php:103
 #: src/Modules/SMTP/Admin/SettingsPage.php:595
 msgid "Save failed"
@@ -81,11 +81,11 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/ContactForm/Admin/FormsPage.php:1901
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:216
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:54
-#: src/Modules/Logging/Admin/AjaxController.php:226
+#: src/Modules/Logging/Admin/AjaxController.php:221
 #: src/Modules/Logging/Admin/PageController.php:62
 #: src/Modules/Logging/Admin/PageController.php:174
-#: src/Modules/Newsletter/Admin/AjaxController.php:1310
-#: src/Modules/Newsletter/Admin/AjaxController.php:1332
+#: src/Modules/Newsletter/Admin/AjaxController.php:1491
+#: src/Modules/Newsletter/Admin/AjaxController.php:1513
 #: src/Modules/Newsletter/Admin/HomePage.php:213
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1267
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1305
@@ -171,7 +171,7 @@ msgstr[0] "email envoyé"
 msgstr[1] "emails envoyés"
 
 #: src/Admin/DashboardPage.php:328
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1118
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1130
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:473
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:603
 msgid "failed"
@@ -295,8 +295,8 @@ msgstr "Envoyer un email de test"
 #: src/Modules/ContactForm/Admin/FormsPage.php:1190
 #: src/Modules/ContactForm/Admin/FormsPage.php:1438
 #: src/Modules/ContactForm/Admin/FormsPage.php:1643
-#: src/Modules/Logging/Admin/LogsPage.php:488
-#: src/Modules/Logging/Admin/LogsPage.php:586
+#: src/Modules/Logging/Admin/LogsPage.php:494
+#: src/Modules/Logging/Admin/LogsPage.php:580
 #: src/Modules/Newsletter/Admin/FormsPage.php:617
 #: src/Modules/Newsletter/Admin/FormsPage.php:655
 #: src/Modules/Newsletter/Admin/HomePage.php:327
@@ -307,9 +307,9 @@ msgstr "Envoyer un email de test"
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1215
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1237
 #: src/Modules/Newsletter/Admin/SettingsPage.php:40
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:338
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:974
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1032
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:240
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1513
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1571
 #: src/Modules/SMTP/Admin/SettingsPage.php:466
 #: src/Modules/SMTP/Admin/SettingsPage.php:523
 msgid "Close"
@@ -352,13 +352,13 @@ msgstr "Destinataire personnalisé"
 #: src/Admin/DashboardPage.php:567
 #: src/Modules/ContactForm/Admin/FormsPage.php:108
 #: src/Modules/ContactForm/Admin/FormsPage.php:578
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:826
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:838
 #: src/Modules/Newsletter/Admin/FormsPage.php:664
-#: src/Modules/Newsletter/Admin/ListsPage.php:820
+#: src/Modules/Newsletter/Admin/ListsPage.php:842
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1127
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1223
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1253
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1106
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1656
 #: src/Modules/SMTP/Admin/SettingsPage.php:507
 msgid "Cancel"
 msgstr "Annuler"
@@ -369,7 +369,7 @@ msgstr "Annuler"
 msgid "Send"
 msgstr "Envoyer"
 
-#: src/Admin/DashboardPage.php:624 src/Modules/Logging/Admin/LogsPage.php:59
+#: src/Admin/DashboardPage.php:624 src/Modules/Logging/Admin/LogsPage.php:58
 msgid "Contact form submissions"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
@@ -407,65 +407,66 @@ msgstr "Aucun email journalisé pour le moment."
 #: src/Admin/DashboardPage.php:663 src/Admin/DashboardPage.php:782
 #: src/Forms/Fields/DateField.php:19
 #: src/Modules/ContactForm/Admin/FormsPage.php:1327
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:386
-#: src/Modules/Logging/Admin/LogsPage.php:344
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:398
+#: src/Modules/Logging/Admin/LogsPage.php:352
 #: src/Modules/Logging/Admin/LogViewPage.php:100
 msgid "Date"
 msgstr "Date"
 
 #: src/Admin/DashboardPage.php:664 src/Admin/DashboardPage.php:783
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:270
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:387
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:651
-#: src/Modules/Logging/Admin/LogsPage.php:232
-#: src/Modules/Logging/Admin/LogsPage.php:345
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:281
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:399
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:663
+#: src/Modules/Logging/Admin/LogsPage.php:242
+#: src/Modules/Logging/Admin/LogsPage.php:353
 #: src/Modules/Logging/Admin/LogViewPage.php:104
 #: src/Modules/Newsletter/Admin/HomePage.php:198
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:43
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1375
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:45
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2023
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2313
 msgid "Status"
 msgstr "État"
 
 #: src/Admin/DashboardPage.php:665
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:258
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:388
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:717
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:269
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:400
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:729
 #: admin/js/contact-form-editor.js:92
 msgid "Form"
 msgstr "Formulaire"
 
 #: src/Admin/DashboardPage.php:666
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:389
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:401
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:798
 msgid "Preview"
 msgstr "Précédent"
 
 #: src/Admin/DashboardPage.php:667 src/Admin/DashboardPage.php:787
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:391
-#: src/Modules/Logging/Admin/LogsPage.php:350
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:284
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:403
+#: src/Modules/Logging/Admin/LogsPage.php:358
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1423
 msgid "Actions"
 msgstr "Actions"
 
 #. translators: %d: form id
 #: src/Admin/DashboardPage.php:678
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:416
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:556
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:628
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:744
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:786
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:428
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:568
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:640
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:756
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:798
 msgid "Deleted form #%d"
 msgstr "Supprimer le champ"
 
 #: src/Admin/DashboardPage.php:698 src/Admin/DashboardPage.php:819
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:457
-#: src/Modules/Logging/Admin/LogsPage.php:396
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:469
+#: src/Modules/Logging/Admin/LogsPage.php:404
 msgid "View"
 msgstr "Voir"
 
 #: src/Admin/DashboardPage.php:698
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:457
-#: src/Modules/Logging/Admin/LogsPage.php:405
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:469
+#: src/Modules/Logging/Admin/LogsPage.php:413
 msgid "View submission"
 msgstr "Nouvelle soumission"
 
@@ -475,17 +476,17 @@ msgid "View all submissions"
 msgstr "Nouvelle soumission"
 
 #: src/Admin/DashboardPage.php:732
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1087
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1099
 msgid "Blocked (honeypot)"
 msgstr "Bloqué (honeypot)"
 
 #: src/Admin/DashboardPage.php:735
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1093
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1105
 msgid "Blocked (captcha)"
 msgstr "Ajouter un captcha"
 
 #: src/Admin/DashboardPage.php:737
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1095
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1107
 msgid "Blocked"
 msgstr "cadenas"
 
@@ -493,34 +494,34 @@ msgstr "cadenas"
 #: src/Modules/ContactForm/Admin/FormsPage.php:705
 #: src/Modules/ContactForm/Admin/FormsPage.php:1700
 #: src/Modules/ContactForm/Admin/FormsPage.php:1750
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:274
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1098
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:285
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1110
 msgid "Delivered"
 msgstr "tous délivrés"
 
 #: src/Admin/DashboardPage.php:741
 #: src/Modules/ContactForm/Admin/FormsPage.php:1709
 #: src/Modules/ContactForm/Admin/FormsPage.php:1751
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:277
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1099
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:288
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1111
 msgid "Received"
 msgstr "Reçues"
 
 #: src/Admin/DashboardPage.php:742 src/Admin/DashboardPage.php:861
 #: src/Modules/ContactForm/Admin/FormsPage.php:1719
 #: src/Modules/ContactForm/Admin/FormsPage.php:1752
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:283
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:296
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1100
-#: src/Modules/Logging/Admin/LogsPage.php:239
-#: src/Modules/Logging/Admin/LogsPage.php:936
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:294
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:307
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1112
+#: src/Modules/Logging/Admin/LogsPage.php:249
+#: src/Modules/Logging/Admin/LogsPage.php:946
 #: src/Modules/Newsletter/Admin/HomePage.php:194
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1578
 msgid "Failed"
 msgstr "Échec"
 
 #: src/Admin/DashboardPage.php:750 src/Admin/DashboardPage.php:764
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:450
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:462
 msgid "(no content)"
 msgstr "(sans titre)"
 
@@ -529,34 +530,35 @@ msgid "Recent activity"
 msgstr "Activité récente"
 
 #: src/Admin/DashboardPage.php:784
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:310
-#: src/Modules/Logging/Admin/LogsPage.php:279
-#: src/Modules/Logging/Admin/LogsPage.php:347
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:321
+#: src/Modules/Logging/Admin/LogsPage.php:289
+#: src/Modules/Logging/Admin/LogsPage.php:355
 #: src/Modules/Logging/Admin/LogViewPage.php:115
 msgid "To"
 msgstr "À"
 
-#: src/Admin/DashboardPage.php:785 src/Modules/Logging/Admin/LogsPage.php:348
+#: src/Admin/DashboardPage.php:785 src/Modules/Logging/Admin/LogsPage.php:356
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:444
 msgid "Subject"
 msgstr "Sujet"
 
-#: src/Admin/DashboardPage.php:786 src/Modules/Logging/Admin/LogsPage.php:251
-#: src/Modules/Logging/Admin/LogsPage.php:349
+#: src/Admin/DashboardPage.php:786 src/Modules/Logging/Admin/LogsPage.php:261
+#: src/Modules/Logging/Admin/LogsPage.php:357
 #: src/Modules/Logging/Admin/LogViewPage.php:105
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:45
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1391
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:49
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2039
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2329
 msgid "Source"
 msgstr "Source"
 
-#: src/Admin/DashboardPage.php:800 src/Modules/Logging/Admin/LogsPage.php:373
+#: src/Admin/DashboardPage.php:800 src/Modules/Logging/Admin/LogsPage.php:381
 #: src/Modules/Logging/Admin/LogViewPage.php:81
 #: src/Modules/Newsletter/Send/SendAjaxController.php:303
 #: src/Modules/Newsletter/Send/SendLoop.php:88
 msgid "(no subject)"
 msgstr "(sans sujet)"
 
-#: src/Admin/DashboardPage.php:819 src/Modules/Logging/Admin/LogsPage.php:396
+#: src/Admin/DashboardPage.php:819 src/Modules/Logging/Admin/LogsPage.php:404
 msgid "View log entry"
 msgstr "Voir l'entrée du journal"
 
@@ -571,13 +573,13 @@ msgstr "Envoi…"
 
 #: src/Admin/DashboardPage.php:859
 #: src/Modules/ContactForm/Admin/FormsPage.php:1780
-#: src/Modules/Logging/Admin/LogsPage.php:583
+#: src/Modules/Logging/Admin/LogsPage.php:577
 #: src/Modules/SMTP/Admin/SettingsPage.php:602
 msgid "Something went wrong."
 msgstr "Une erreur est survenue."
 
-#: src/Admin/DashboardPage.php:860 src/Modules/Logging/Admin/LogsPage.php:236
-#: src/Modules/Logging/Admin/LogsPage.php:935
+#: src/Admin/DashboardPage.php:860 src/Modules/Logging/Admin/LogsPage.php:246
+#: src/Modules/Logging/Admin/LogsPage.php:945
 #: src/Modules/Newsletter/Admin/HomePage.php:193
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:158
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1577
@@ -742,7 +744,7 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Admin/DataPage.php:301 src/Modules/AbstractModule.php:144
 #: src/Modules/ContactForm/Admin/FormsPage.php:1906
 #: src/Modules/Logging/Admin/PageController.php:178
-#: src/Modules/Newsletter/Admin/AjaxController.php:1315
+#: src/Modules/Newsletter/Admin/AjaxController.php:1496
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1271
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1310
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1353
@@ -787,11 +789,15 @@ msgstr "Désactiver"
 msgid "Enable"
 msgstr "Activer"
 
+#: src/Admin/PerPagePicker.php:63
+msgid "Per page"
+msgstr ""
+
 #: src/Admin/RetentionToggle.php:43
 msgid "Auto-delete after"
 msgstr "Suppression auto après"
 
-#: src/Admin/RetentionToggle.php:61 src/Modules/Logging/Admin/LogsPage.php:533
+#: src/Admin/RetentionToggle.php:61 src/Modules/Logging/Admin/LogsPage.php:527
 #: src/Modules/Newsletter/Admin/HomePage.php:169
 msgid "days"
 msgstr "jours"
@@ -1876,7 +1882,8 @@ msgstr "Case à cocher"
 #: src/Modules/ContactForm/TemplateRegistry.php:121
 #: src/Modules/Newsletter/Admin/FormsPage.php:739
 #: src/Modules/Newsletter/Admin/HomePage.php:197
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:36
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:37
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1999
 #: src/Modules/Newsletter/FormTemplateRegistry.php:114
 #: src/Modules/Newsletter/FormTemplateRegistry.php:133
 #: src/Modules/Newsletter/SubscriberFields.php:52
@@ -1932,7 +1939,7 @@ msgstr "Nombre"
 #: src/Modules/Newsletter/Admin/FormsPage.php:741
 #: src/Modules/Newsletter/Admin/FormsPage.php:778
 #: src/Modules/Newsletter/Admin/FormsPage.php:780
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:40
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:42
 #: src/Modules/Newsletter/FormTemplateRegistry.php:117
 #: src/Modules/Newsletter/FormTemplateRegistry.php:136
 #: src/Modules/Newsletter/PrefsRenderer.php:134
@@ -2137,9 +2144,9 @@ msgstr "Vérification de sécurité échouée. Rechargez et réessayez."
 #: src/Modules/Captcha/Admin/PageController.php:41
 #: src/Modules/Captcha/Admin/SettingsPage.php:55
 #: src/Modules/Captcha/Module.php:32
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:289
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:390
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:657
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:300
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:402
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:669
 msgid "Captcha"
 msgstr "Captcha"
 
@@ -2182,7 +2189,7 @@ msgid "blocked"
 msgstr "cadenas"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:194
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1117
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1129
 msgid "passed"
 msgstr "réussis"
 
@@ -2223,17 +2230,17 @@ msgstr "Abandonner"
 #: src/Modules/ContactForm/Admin/FormsPage.php:120
 #: src/Modules/ContactForm/Admin/FormsPage.php:634
 #: src/Modules/ContactForm/Admin/FormsPage.php:1167
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:605
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:617
 #: src/Modules/ContactForm/SubmitHandler.php:771
-#: src/Modules/Logging/Admin/LogsPage.php:324
-#: src/Modules/Logging/Admin/LogsPage.php:412
-#: src/Modules/Logging/Admin/LogsPage.php:589
+#: src/Modules/Logging/Admin/LogsPage.php:320
+#: src/Modules/Logging/Admin/LogsPage.php:420
+#: src/Modules/Logging/Admin/LogsPage.php:583
 #: src/Modules/Logging/Admin/LogViewPage.php:263
 #: src/Modules/Logging/Admin/LogViewPage.php:273
 #: src/Modules/Newsletter/Admin/FormsPage.php:319
 #: src/Modules/Newsletter/Admin/FormsPage.php:667
-#: src/Modules/Newsletter/Admin/ListsPage.php:819
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:342
+#: src/Modules/Newsletter/Admin/ListsPage.php:841
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:244
 #: src/Modules/SMTP/Admin/SettingsPage.php:199
 msgid "Delete"
 msgstr "Supprimer"
@@ -2681,15 +2688,15 @@ msgstr "Soumission du commentaire bloquée"
 #: src/Modules/ContactForm/Admin/AjaxController.php:123
 #: src/Modules/ContactForm/Admin/AjaxController.php:192
 #: src/Modules/ContactForm/Admin/AjaxController.php:257
-#: src/Modules/Newsletter/Admin/AjaxController.php:1340
+#: src/Modules/Newsletter/Admin/AjaxController.php:1521
 #: src/Modules/Newsletter/Send/SendAjaxController.php:734
 msgid "Security check failed. Please reload the page."
 msgstr "Échec du contrôle de sécurité. Veuillez recharger la page."
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:103
 #: src/Modules/ContactForm/Admin/AjaxController.php:141
-#: src/Modules/Logging/Admin/AjaxController.php:123
-#: src/Modules/Newsletter/Admin/AjaxController.php:211
+#: src/Modules/Logging/Admin/AjaxController.php:118
+#: src/Modules/Newsletter/Admin/AjaxController.php:223
 msgid "Unknown setting."
 msgstr "Réglage inconnu."
 
@@ -2708,18 +2715,18 @@ msgid "Invalid structure JSON."
 msgstr "JSON de structure invalide."
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:203
-#: src/Modules/Newsletter/Admin/AjaxController.php:535
+#: src/Modules/Newsletter/Admin/AjaxController.php:547
 msgid "Unknown template."
 msgstr "Modèle inconnu."
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:213
-#: src/Modules/Newsletter/Admin/AjaxController.php:545
+#: src/Modules/Newsletter/Admin/AjaxController.php:557
 msgid "Source form not found."
 msgstr "Formulaire source introuvable."
 
 #. translators: %s: original item title being cloned (form, newsletter, template, etc.)
 #: src/Modules/ContactForm/Admin/AjaxController.php:218
-#: src/Modules/Newsletter/Admin/AjaxController.php:550
+#: src/Modules/Newsletter/Admin/AjaxController.php:562
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1470
 #: src/Modules/Newsletter/Module.php:851
 msgid "%s (copy)"
@@ -2739,12 +2746,12 @@ msgid "Mark the %d selected submissions as spam?"
 msgstr "Marquer les %d soumissions sélectionnées comme spam ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:100
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:775
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:787
 msgid "Mark this submission as spam?"
 msgstr "Marquer cette soumission comme spam ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:101
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:778
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:790
 msgid "Yes, mark as spam"
 msgstr "Oui, marquer comme spam"
 
@@ -2762,12 +2769,12 @@ msgid "Permanently delete the %d selected submissions?"
 msgstr "Supprimer définitivement les %d soumissions sélectionnées ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:105
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:774
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:786
 msgid "Delete this submission?"
 msgstr "Supprimer cette soumission ?"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:106
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:777
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:789
 msgid "Yes, delete permanently"
 msgstr "Oui, supprimer définitivement"
 
@@ -2798,41 +2805,43 @@ msgid "Something went wrong. Please try again."
 msgstr "Une erreur est survenue. Veuillez réessayer."
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:115
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:499
-#: src/Modules/Logging/Admin/LogsPage.php:431
-#: src/Modules/Logging/Admin/LogsPage.php:584
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:511
+#: src/Modules/Logging/Admin/LogsPage.php:439
+#: src/Modules/Logging/Admin/LogsPage.php:578
 #: src/Modules/Newsletter/Admin/HomePage.php:204
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:336
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:238
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1483
 msgid "Previous"
 msgstr "Précédent"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:116
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:500
-#: src/Modules/Logging/Admin/LogsPage.php:432
-#: src/Modules/Logging/Admin/LogsPage.php:585
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:512
+#: src/Modules/Logging/Admin/LogsPage.php:440
+#: src/Modules/Logging/Admin/LogsPage.php:579
 #: src/Modules/Newsletter/Admin/HomePage.php:205
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:337
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:239
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1484
 msgid "Next"
 msgstr "Suivant"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:117
-#: src/Modules/Logging/Admin/LogsPage.php:587
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:339
+#: src/Modules/Logging/Admin/LogsPage.php:581
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:241
 msgid "Loading…"
 msgstr "Chargement…"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:118
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:341
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:476
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:600
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:352
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:488
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:612
 #: src/Modules/ContactForm/SubmitHandler.php:770
 msgid "Mark as spam"
 msgstr "Marquer comme spam"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:119
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:342
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:472
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:595
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:353
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:484
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:607
 msgid "Restore from spam"
 msgstr "Restaurer du spam"
 
@@ -3070,7 +3079,7 @@ msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:431
-#: src/Modules/Newsletter/Admin/ListsPage.php:507
+#: src/Modules/Newsletter/Admin/ListsPage.php:529
 msgid "Remove"
 msgstr "Retirer"
 
@@ -3091,8 +3100,8 @@ msgid "Defaults"
 msgstr "Défauts"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:516
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:124
-#: src/Modules/Logging/Admin/LogsPage.php:52
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:125
+#: src/Modules/Logging/Admin/LogsPage.php:51
 msgid "Storage"
 msgstr "Stockage"
 
@@ -3143,7 +3152,7 @@ msgid "Delete form + %d submissions"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:709
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:280
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:291
 msgid "Spam blocked"
 msgstr "Spam bloqué"
 
@@ -3670,7 +3679,7 @@ msgid "Spam"
 msgstr "Spam"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1740
-#: src/Modules/Logging/Admin/LogsPage.php:527
+#: src/Modules/Logging/Admin/LogsPage.php:521
 msgid "Manual cleanup"
 msgstr "Nettoyage manuel"
 
@@ -3696,7 +3705,7 @@ msgid "Delete matching submissions"
 msgstr "Supprimer les soumissions correspondantes"
 
 #: src/Modules/ContactForm/Admin/FormsPage.php:1781
-#: src/Modules/Logging/Admin/LogsPage.php:579
+#: src/Modules/Logging/Admin/LogsPage.php:573
 msgid "Working…"
 msgstr "Traitement…"
 
@@ -3744,7 +3753,8 @@ msgid "No submissions selected."
 msgstr "Aucune soumission sélectionnée."
 
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:160
-#: src/Modules/Newsletter/Admin/AjaxController.php:1022
+#: src/Modules/Newsletter/Admin/AjaxController.php:1052
+#: src/Modules/Newsletter/Admin/AjaxController.php:1124
 msgid "Unknown bulk action."
 msgstr "Action groupée inconnue."
 
@@ -3770,236 +3780,240 @@ msgstr[0] "%s soumission"
 msgstr[1] "%s soumissions"
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:104
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:105
 msgid "Submission #%d marked as spam."
 msgstr "Soumission n°%d marquée comme spam."
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:107
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:108
 msgid "Submission #%d restored from spam."
 msgstr "Soumission n°%d restaurée du spam."
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:110
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:111
 msgid "Submission #%d deleted permanently."
 msgstr "Soumission n°%d supprimée définitivement."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:117
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:118
 msgid "That submission no longer exists. It may have been deleted already."
 msgstr "Cette soumission n'existe plus. Elle a peut-être déjà été supprimée."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:121
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:122
 msgid "Contact Form Submissions"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
 #. translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —".
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:131
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:132
 #: src/Modules/Newsletter/Admin/FormsPage.php:145
 #: src/Modules/Newsletter/Admin/HomePage.php:263
 msgid "Forms"
 msgstr "Formulaire"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:260
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:271
 msgid "All forms"
 msgstr "Formulaire vide"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:272
-#: src/Modules/Logging/Admin/LogsPage.php:234
-#: src/Modules/Logging/Admin/LogsPage.php:253
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:283
+#: src/Modules/Logging/Admin/LogsPage.php:244
+#: src/Modules/Logging/Admin/LogsPage.php:263
 #: src/Modules/Newsletter/Admin/HomePage.php:156
 #: src/Modules/Newsletter/Admin/HomePage.php:191
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:156
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1479
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2417
 msgid "All"
 msgstr "Tous"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:291
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:302
 msgid "Any"
 msgstr "Tous"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:293
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:304
 msgid "Passed"
 msgstr "Mot de passe"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:299
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:310
 #: src/Modules/Newsletter/Admin/HomePage.php:195
 msgid "Skipped"
 msgstr "Ignoré"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:305
-#: src/Modules/Logging/Admin/LogsPage.php:274
-#: src/Modules/Logging/Admin/LogsPage.php:346
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:316
+#: src/Modules/Logging/Admin/LogsPage.php:284
+#: src/Modules/Logging/Admin/LogsPage.php:354
 #: src/Modules/Logging/Admin/LogViewPage.php:109
 #: src/Modules/SMTP/Admin/SettingsPage.php:339
 msgid "From"
 msgstr "Expéditeur"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:315
-#: src/Modules/Logging/Admin/LogsPage.php:284
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:186
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:326
+#: src/Modules/Logging/Admin/LogsPage.php:294
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1202
 msgid "Search"
 msgstr "Rechercher"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:317
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:328
 msgid "Field values, notes…"
 msgstr "Valeurs des champs, notes…"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:322
-#: src/Modules/Logging/Admin/LogsPage.php:291
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:333
+#: src/Modules/Logging/Admin/LogsPage.php:301
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1212
 msgid "Filter"
 msgstr "Filtrer"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:325
-#: src/Modules/Logging/Admin/LogsPage.php:294
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:336
+#: src/Modules/Logging/Admin/LogsPage.php:304
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1215
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:340
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:267
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:351
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1364
 msgid "Bulk actions"
 msgstr "Actions groupées"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:343
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:480
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:354
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:492
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1023
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1235
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1256
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:270
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1232
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1375
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1872
 msgid "Delete permanently"
 msgstr "Supprimer le champ"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:346
-#: src/Modules/Logging/Admin/LogsPage.php:326
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:272
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:357
+#: src/Modules/Logging/Admin/LogsPage.php:322
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1384
 msgid "Apply"
 msgstr "Appliquer"
 
 #. translators: 1: first index, 2: last index, 3: total count
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:355
-#: src/Modules/Logging/Admin/LogsPage.php:313
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:366
+#: src/Modules/Logging/Admin/LogsPage.php:328
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1390
 msgid "Showing %1$d–%2$d of %3$d"
 msgstr "Affichage de %1$d–%2$d sur %3$d"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:383
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:395
+#: src/Modules/Logging/Admin/LogsPage.php:351
 msgid "Select all"
 msgstr "Tout sélectionner"
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:427
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:439
 msgid "Select submission #%d"
 msgstr "Sélectionner la soumission n°%d"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:467
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:589
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:479
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:601
 msgid "View outbound email"
 msgstr "Voir l'e-mail sortant"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:467
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:479
 msgid "View outbound email log"
 msgstr "Voir tous les journaux"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:480
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:492
 msgid "Delete submission"
 msgstr "Supprimer la soumission"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:507
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:519
 msgid "Submissions pagination"
 msgstr "Pagination des journaux"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:520
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:532
 msgid "No submissions match your filters."
 msgstr "Aucune entrée de journal ne correspond à vos filtres."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:523
-#: src/Modules/Logging/Admin/LogsPage.php:455
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:535
+#: src/Modules/Logging/Admin/LogsPage.php:463
 msgid "Clear filters"
 msgstr "Effacer les filtres"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:527
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:539
 msgid ""
 "No submissions yet. Once visitors send a contact form, they will appear here."
 msgstr ""
 "Aucun email pour le moment — dès que votre site commencera à envoyer, "
 "l'activité apparaîtra ici."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:538
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:550
 msgid "Submission not found"
 msgstr "Formulaire introuvable."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:540
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:552
 msgid "Back to submissions"
 msgstr "soumission"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:584
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:596
 msgid "Back"
 msgstr "Retour"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:645
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:657
 msgid "Submitted"
 msgstr "Envoyé le"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:664
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:676
 msgid "Notes"
 msgstr "Notes"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:671
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:683
 msgid "Submitted values"
 msgstr "Valeurs envoyées"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:673
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:685
 msgid "No fields recorded for this submission."
 msgstr "Aucun champ enregistré pour cette soumission."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:693
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:705
 msgid "Technical details"
 msgstr "Détails du projet"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:697
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:709
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:700
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:712
 msgid "IP hash"
 msgstr "Empreinte IP"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:703
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:715
 msgid "(raw IP not stored — enable in settings if needed)"
 msgstr "(IP brute non stockée — à activer dans les réglages si besoin)"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:708
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:720
 msgid "User agent"
 msgstr "User agent"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:713
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:725
 msgid "Referer"
 msgstr "Référent"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:721
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:733
 msgid "Outbound email"
 msgstr "Votre email"
 
 #. translators: %d: log entry id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:726
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:738
 msgid "Log entry #%d"
 msgstr "Voir l'entrée du journal"
 
 #. translators: 1: form title, 2: submission id, 3: submitted-at datetime
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:798
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:810
 msgid "Submission to \"%1$s\" — #%2$d, received %3$s."
 msgstr "Soumission à « %1$s » — n°%2$d, reçue le %3$s."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:812
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:824
 msgid "This is irreversible."
 msgstr "Cette action est irréversible."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:813
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:825
 msgid "Field data and any attached files will be permanently removed."
 msgstr ""
 "Les données du champ et tous les fichiers joints seront définitivement "
 "supprimés."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:817
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:829
 msgid ""
 "Marking as spam keeps the row in the inbox under the Spam filter. You can "
 "move it back at any time."
@@ -4007,11 +4021,11 @@ msgstr ""
 "Marquer comme spam garde la ligne dans la boîte de réception sous le filtre "
 "Spam. Vous pouvez la déplacer à tout moment."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:880
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:892
 msgid "Attached files"
 msgstr "Fichiers joints"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:883
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:895
 msgid ""
 "Files come from visitor submissions. Open with care — no malware scan is "
 "performed."
@@ -4019,17 +4033,17 @@ msgstr ""
 "Les fichiers proviennent de soumissions visiteur. Ouvrez avec précaution — "
 "aucun scan antivirus n'est effectué."
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:972
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:984
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:996
 msgid "(unnamed field)"
 msgstr "(champ sans nom)"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1050
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1061
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1062
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1073
 msgid "(empty)"
 msgstr "(vide)"
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1090
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1102
 msgid "Blocked (time-trap)"
 msgstr "Bloqué (piège temporel)"
 
@@ -4365,7 +4379,7 @@ msgstr "Envoyer le message"
 
 #: src/Modules/ContactForm/TemplateRegistry.php:117
 #: src/Modules/Newsletter/Admin/FormsPage.php:772
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:38
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:40
 #: src/Modules/Newsletter/FormTemplateRegistry.php:110
 #: src/Modules/Newsletter/FormTemplateRegistry.php:129
 #: src/Modules/Newsletter/PrefsRenderer.php:126
@@ -4375,7 +4389,7 @@ msgstr "Prénom"
 
 #: src/Modules/ContactForm/TemplateRegistry.php:118
 #: src/Modules/Newsletter/Admin/FormsPage.php:773
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:39
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:41
 #: src/Modules/Newsletter/FormTemplateRegistry.php:111
 #: src/Modules/Newsletter/FormTemplateRegistry.php:130
 #: src/Modules/Newsletter/PrefsRenderer.php:130
@@ -4495,30 +4509,30 @@ msgstr "ID de journal manquant."
 msgid "Log entry not found."
 msgstr "Entrée de journal introuvable."
 
-#: src/Modules/Logging/Admin/AjaxController.php:132
-#: src/Modules/Logging/Admin/AjaxController.php:201
+#: src/Modules/Logging/Admin/AjaxController.php:127
+#: src/Modules/Logging/Admin/AjaxController.php:196
 msgid "Invalid log entry."
 msgstr "Entrée du journal invalide."
 
-#: src/Modules/Logging/Admin/AjaxController.php:135
+#: src/Modules/Logging/Admin/AjaxController.php:130
 #: src/Modules/Logging/Admin/PageController.php:111
 msgid "Log entry deleted."
 msgstr "Entrée du journal supprimée."
 
 #. translators: %d: number of entries deleted
-#: src/Modules/Logging/Admin/AjaxController.php:149
+#: src/Modules/Logging/Admin/AjaxController.php:144
 msgid "Deleted %d entry."
 msgid_plural "Deleted %d entries."
 msgstr[0] "%d entrée supprimée."
 msgstr[1] "%d entrées supprimées."
 
-#: src/Modules/Logging/Admin/AjaxController.php:162
+#: src/Modules/Logging/Admin/AjaxController.php:157
 #: src/Modules/Logging/Admin/PageController.php:140
 msgid "Enter a positive number of days."
 msgstr "Saisissez un nombre de jours positif."
 
 #. translators: 1: number of entries deleted, 2: number of days
-#: src/Modules/Logging/Admin/AjaxController.php:170
+#: src/Modules/Logging/Admin/AjaxController.php:165
 #: src/Modules/Logging/Admin/PageController.php:147
 msgid "Deleted %1$d entry older than %2$d days."
 msgid_plural "Deleted %1$d entries older than %2$d days."
@@ -4526,41 +4540,41 @@ msgstr[0] "%1$d entrée plus ancienne que %2$d jours supprimée."
 msgstr[1] "%1$d entrées plus anciennes que %2$d jours supprimées."
 
 #. translators: %d: number of entries deleted
-#: src/Modules/Logging/Admin/AjaxController.php:188
+#: src/Modules/Logging/Admin/AjaxController.php:183
 #: src/Modules/Logging/Admin/PageController.php:161
 msgid "Deleted all %d log entry."
 msgid_plural "Deleted all %d log entries."
 msgstr[0] "%d entrée de journal supprimée (toutes)."
 msgstr[1] "%d entrées de journal supprimées (toutes)."
 
-#: src/Modules/Logging/Admin/AjaxController.php:193
+#: src/Modules/Logging/Admin/AjaxController.php:188
 #: src/Modules/Logging/Admin/PageController.php:165
 msgid "Unknown purge mode."
 msgstr "Mode de purge inconnu."
 
-#: src/Modules/Logging/Admin/AjaxController.php:205
+#: src/Modules/Logging/Admin/AjaxController.php:200
 #: src/Modules/Logging/Admin/PageController.php:87
 msgid "Email re-sent successfully."
 msgstr "Email renvoyé avec succès."
 
 #. translators: 1: number re-attached, 2: total at send time
-#: src/Modules/Logging/Admin/AjaxController.php:211
+#: src/Modules/Logging/Admin/AjaxController.php:206
 msgid "Attachments: %1$d of %2$d re-attached (others no longer on disk)."
 msgstr ""
 "Pièces jointes : %1$d sur %2$d ré-attachées (les autres ne sont plus sur le "
 "disque)."
 
-#: src/Modules/Logging/Admin/AjaxController.php:219
+#: src/Modules/Logging/Admin/AjaxController.php:214
 msgid "Resend failed."
 msgstr "Échec du renvoi."
 
-#: src/Modules/Logging/Admin/LogsPage.php:47
+#: src/Modules/Logging/Admin/LogsPage.php:46
 #: src/Modules/Logging/Admin/PageController.php:51
 #: src/Modules/Logging/Admin/PageController.php:52
 msgid "Email Logs"
 msgstr "Journaux d'emails"
 
-#: src/Modules/Logging/Admin/LogsPage.php:72
+#: src/Modules/Logging/Admin/LogsPage.php:71
 msgid ""
 "Enable email logging to capture every outgoing email and let you audit "
 "deliverability, retry failed sends, and (later) archive copies to your IMAP "
@@ -4570,78 +4584,78 @@ msgstr ""
 "vérifier la délivrabilité, relancer les envois échoués et (plus tard) "
 "archiver des copies dans votre dossier IMAP Envoyés."
 
-#: src/Modules/Logging/Admin/LogsPage.php:242
-#: src/Modules/Logging/Admin/LogsPage.php:937
+#: src/Modules/Logging/Admin/LogsPage.php:252
+#: src/Modules/Logging/Admin/LogsPage.php:947
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1575
 msgid "Sending"
 msgstr "Envoi en cours"
 
-#: src/Modules/Logging/Admin/LogsPage.php:245
-#: src/Modules/Logging/Admin/LogsPage.php:938
+#: src/Modules/Logging/Admin/LogsPage.php:255
+#: src/Modules/Logging/Admin/LogsPage.php:948
 msgid "Retried"
 msgstr "Renvoyé"
 
-#: src/Modules/Logging/Admin/LogsPage.php:264
+#: src/Modules/Logging/Admin/LogsPage.php:274
 #: src/Modules/Newsletter/NewsletterCPT.php:132
 msgid "Newsletter"
 msgstr "Newsletter"
 
-#: src/Modules/Logging/Admin/LogsPage.php:266
+#: src/Modules/Logging/Admin/LogsPage.php:276
 msgid "Hide newsletter sends"
 msgstr "Voir le formulaire de contact"
 
-#: src/Modules/Logging/Admin/LogsPage.php:267
-#: src/Modules/Newsletter/Admin/ListsPage.php:517
+#: src/Modules/Logging/Admin/LogsPage.php:277
+#: src/Modules/Newsletter/Admin/ListsPage.php:539
 msgid "Show all"
 msgstr "Afficher les préréglages"
 
-#: src/Modules/Logging/Admin/LogsPage.php:268
+#: src/Modules/Logging/Admin/LogsPage.php:278
 msgid "Newsletter only"
 msgstr "Newsletter"
 
-#: src/Modules/Logging/Admin/LogsPage.php:286
+#: src/Modules/Logging/Admin/LogsPage.php:296
 msgid "Subject, from, to…"
 msgstr "Sujet, expéditeur, destinataire…"
 
-#: src/Modules/Logging/Admin/LogsPage.php:323
+#: src/Modules/Logging/Admin/LogsPage.php:319
 msgid "Bulk action…"
 msgstr "Action groupée…"
 
-#: src/Modules/Logging/Admin/LogsPage.php:405
+#: src/Modules/Logging/Admin/LogsPage.php:413
 msgid "View contact form submission"
 msgstr "[%s] Nouvelle soumission de formulaire de contact"
 
-#: src/Modules/Logging/Admin/LogsPage.php:409
-#: src/Modules/Logging/Admin/LogsPage.php:588
+#: src/Modules/Logging/Admin/LogsPage.php:417
+#: src/Modules/Logging/Admin/LogsPage.php:582
 #: src/Modules/Logging/Admin/LogViewPage.php:254
 msgid "Resend"
 msgstr "Renvoyer"
 
-#: src/Modules/Logging/Admin/LogsPage.php:409
+#: src/Modules/Logging/Admin/LogsPage.php:417
 msgid "Resend email"
 msgstr "Renvoyer l'email"
 
-#: src/Modules/Logging/Admin/LogsPage.php:412
+#: src/Modules/Logging/Admin/LogsPage.php:420
 msgid "Delete log entry"
 msgstr "Supprimer l'entrée du journal"
 
-#: src/Modules/Logging/Admin/LogsPage.php:439
+#: src/Modules/Logging/Admin/LogsPage.php:447
 msgid "Logs pagination"
 msgstr "Pagination des journaux"
 
-#: src/Modules/Logging/Admin/LogsPage.php:452
+#: src/Modules/Logging/Admin/LogsPage.php:460
 msgid "No log entries match your filters."
 msgstr "Aucune entrée de journal ne correspond à vos filtres."
 
-#: src/Modules/Logging/Admin/LogsPage.php:459
+#: src/Modules/Logging/Admin/LogsPage.php:467
 msgid "No emails logged yet."
 msgstr "Aucun email journalisé pour le moment."
 
-#: src/Modules/Logging/Admin/LogsPage.php:487
+#: src/Modules/Logging/Admin/LogsPage.php:493
 msgid "Email logs storage"
 msgstr "Stockage des journaux d'emails"
 
-#: src/Modules/Logging/Admin/LogsPage.php:494
+#: src/Modules/Logging/Admin/LogsPage.php:500
 msgid ""
 "Automatic retention, display preferences, and one-shot manual cleanup. "
 "Settings save automatically."
@@ -4649,75 +4663,67 @@ msgstr ""
 "Rétention automatique, préférences d'affichage, et nettoyage manuel "
 "ponctuel. Les réglages sont enregistrés automatiquement."
 
-#: src/Modules/Logging/Admin/LogsPage.php:504
+#: src/Modules/Logging/Admin/LogsPage.php:510
 msgid "Retention"
 msgstr "Rétention"
 
-#: src/Modules/Logging/Admin/LogsPage.php:505
+#: src/Modules/Logging/Admin/LogsPage.php:511
 msgid ""
 "Daily cron prunes older log entries. Turn off to keep every entry forever."
 msgstr ""
 "Un cron quotidien purge les anciennes entrées de journal. Désactivez pour "
 "tout garder indéfiniment."
 
-#: src/Modules/Logging/Admin/LogsPage.php:515
-msgid "Display"
-msgstr "Affichage"
-
-#: src/Modules/Logging/Admin/LogsPage.php:517
-msgid "Entries per page"
-msgstr "Entrées par page"
-
-#: src/Modules/Logging/Admin/LogsPage.php:528
+#: src/Modules/Logging/Admin/LogsPage.php:522
 msgid "One-shot deletion, independent from the retention cron above."
 msgstr "Suppression ponctuelle, indépendante du cron de rétention ci-dessus."
 
-#: src/Modules/Logging/Admin/LogsPage.php:531
+#: src/Modules/Logging/Admin/LogsPage.php:525
 msgid "Delete logs older than"
 msgstr "Supprimer les journaux plus anciens que"
 
-#: src/Modules/Logging/Admin/LogsPage.php:537
+#: src/Modules/Logging/Admin/LogsPage.php:531
 msgid "Delete matching logs"
 msgstr "Supprimer les journaux correspondants"
 
-#: src/Modules/Logging/Admin/LogsPage.php:566
+#: src/Modules/Logging/Admin/LogsPage.php:560
 #: src/Modules/Logging/Admin/LogViewPage.php:261
 msgid "Delete this log entry?"
 msgstr "Supprimer cette entrée du journal ?"
 
 #. translators: %d: number of selected log entries
-#: src/Modules/Logging/Admin/LogsPage.php:569
+#: src/Modules/Logging/Admin/LogsPage.php:563
 msgid "Delete %d selected log entries?"
 msgstr "Supprimer %d entrées de journal sélectionnées ?"
 
-#: src/Modules/Logging/Admin/LogsPage.php:571
+#: src/Modules/Logging/Admin/LogsPage.php:565
 msgid "Resend this email now?"
 msgstr "Renvoyer cet email maintenant ?"
 
 #. translators: %d: number of days
-#: src/Modules/Logging/Admin/LogsPage.php:574
+#: src/Modules/Logging/Admin/LogsPage.php:568
 msgid "Delete every log entry older than %d days? This cannot be undone."
 msgstr ""
 "Supprimer toutes les entrées de journal plus anciennes que %d jours ? Cette "
 "action est irréversible."
 
-#: src/Modules/Logging/Admin/LogsPage.php:576
+#: src/Modules/Logging/Admin/LogsPage.php:570
 msgid "Select at least one entry."
 msgstr "Sélectionnez au moins une entrée."
 
-#: src/Modules/Logging/Admin/LogsPage.php:577
+#: src/Modules/Logging/Admin/LogsPage.php:571
 msgid "Pick an action first."
 msgstr "Choisissez d'abord une action."
 
-#: src/Modules/Logging/Admin/LogsPage.php:578
+#: src/Modules/Logging/Admin/LogsPage.php:572
 msgid "Resending…"
 msgstr "Renvoi en cours…"
 
-#: src/Modules/Logging/Admin/LogsPage.php:966
+#: src/Modules/Logging/Admin/LogsPage.php:976
 msgid "Email logging is now active."
 msgstr "La journalisation des emails est maintenant active."
 
-#: src/Modules/Logging/Admin/LogsPage.php:967
+#: src/Modules/Logging/Admin/LogsPage.php:977
 msgid "Email logging is now off. Existing logs are preserved."
 msgstr ""
 "La journalisation des emails est maintenant désactivée. Les journaux "
@@ -4746,7 +4752,7 @@ msgid "Sent at"
 msgstr "Envoyé le"
 
 #: src/Modules/Logging/Admin/LogViewPage.php:107
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1311
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2249
 #: src/Modules/SMTP/Admin/SettingsPage.php:476
 msgid "Identity"
 msgstr "Identité"
@@ -4773,7 +4779,7 @@ msgid "Custom headers"
 msgstr "En-têtes personnalisés"
 
 #: src/Modules/Logging/Admin/LogViewPage.php:141
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:37
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:38
 msgid "Name"
 msgstr "Nom"
 
@@ -4849,60 +4855,60 @@ msgid_plural "%s log entries"
 msgstr[0] "%s entrée de journal"
 msgstr[1] "%s entrées de journal"
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:264
-#: src/Modules/Newsletter/Admin/AjaxController.php:510
+#: src/Modules/Newsletter/Admin/AjaxController.php:276
+#: src/Modules/Newsletter/Admin/AjaxController.php:522
 msgid "Unsupported setting."
 msgstr "Réglage inconnu."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:278
+#: src/Modules/Newsletter/Admin/AjaxController.php:290
 msgid "List name is required."
 msgstr "Le libellé est requis."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:283
+#: src/Modules/Newsletter/Admin/AjaxController.php:295
 msgid "Pick a rule provider for the WP users list."
 msgstr "Choisissez un fournisseur de règle pour la liste d'utilisateurs WP."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:289
+#: src/Modules/Newsletter/Admin/AjaxController.php:301
 msgid "Could not create the list (the slug may collide with an existing one)."
 msgstr "Impossible de créer la liste (le slug est peut-être déjà utilisé)."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:316
+#: src/Modules/Newsletter/Admin/AjaxController.php:328
 msgid "Missing list id or name."
 msgstr "Structure manquante."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:321
+#: src/Modules/Newsletter/Admin/AjaxController.php:333
 msgid "Built-in lists can't be renamed."
 msgstr "Les listes système ne peuvent pas être renommées."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:325
+#: src/Modules/Newsletter/Admin/AjaxController.php:337
 msgid "Could not rename the list."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:336
+#: src/Modules/Newsletter/Admin/AjaxController.php:348
 msgid "Could not delete the list."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:353
+#: src/Modules/Newsletter/Admin/AjaxController.php:365
 msgid "Missing or invalid visibility value."
 msgstr "Valeur de visibilité manquante ou invalide."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:357
+#: src/Modules/Newsletter/Admin/AjaxController.php:369
 msgid "Could not change this list's visibility (system lists are admin-only)."
 msgstr ""
 "Impossible de changer la visibilité de cette liste (les listes système sont "
 "réservées à l'admin)."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:373
-#: src/Modules/Newsletter/Admin/AjaxController.php:838
-#: src/Modules/Newsletter/Admin/AjaxController.php:893
+#: src/Modules/Newsletter/Admin/AjaxController.php:385
+#: src/Modules/Newsletter/Admin/AjaxController.php:859
+#: src/Modules/Newsletter/Admin/AjaxController.php:914
 msgid "Missing list id."
 msgstr "ID de liste manquant."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:378
+#: src/Modules/Newsletter/Admin/AjaxController.php:390
 msgid "Built-in lists have a fixed rule."
 msgstr "Les listes système ont une règle fixe."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:386
+#: src/Modules/Newsletter/Admin/AjaxController.php:398
 msgid ""
 "This list has no rule provider — it's a Subscribers list, not a WP users "
 "list."
@@ -4910,37 +4916,37 @@ msgstr ""
 "Cette liste n'a pas de fournisseur de règle — c'est une liste d'abonnés, pas "
 "une liste d'utilisateurs WP."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:390
-#: src/Modules/Newsletter/Admin/AjaxController.php:791
+#: src/Modules/Newsletter/Admin/AjaxController.php:402
+#: src/Modules/Newsletter/Admin/AjaxController.php:812
 msgid "Unknown rule provider."
 msgstr "Fournisseur de règle inconnu."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:422
+#: src/Modules/Newsletter/Admin/AjaxController.php:434
 msgid "Invalid structure payload."
 msgstr "JSON de structure invalide."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:454
+#: src/Modules/Newsletter/Admin/AjaxController.php:466
 msgid "Unknown setting key."
 msgstr "Réglage inconnu."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:555
+#: src/Modules/Newsletter/Admin/AjaxController.php:567
 msgid "Untitled subscribe form"
 msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:569
+#: src/Modules/Newsletter/Admin/AjaxController.php:581
 msgid "Could not create the subscribe form."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:580
-#: src/Modules/Newsletter/Admin/AjaxController.php:620
+#: src/Modules/Newsletter/Admin/AjaxController.php:592
+#: src/Modules/Newsletter/Admin/AjaxController.php:632
 msgid "Missing subscriber id."
 msgstr "Structure manquante."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:592
+#: src/Modules/Newsletter/Admin/AjaxController.php:604
 msgid "Could not restore — the subscriber may no longer be in trash."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:603
+#: src/Modules/Newsletter/Admin/AjaxController.php:615
 msgid ""
 "Only trashed subscribers can be permanently deleted. Move the row to trash "
 "first."
@@ -4948,49 +4954,88 @@ msgstr ""
 "Seuls les abonnés à la corbeille peuvent être supprimés définitivement. "
 "Mettez-les d'abord à la corbeille."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:624
-#: src/Modules/Newsletter/Admin/AjaxController.php:1083
+#: src/Modules/Newsletter/Admin/AjaxController.php:636
+#: src/Modules/Newsletter/Admin/AjaxController.php:1258
 msgid "Subscriber not found."
 msgstr "Abonné introuvable."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:655
+#: src/Modules/Newsletter/Admin/AjaxController.php:670
 msgid "Missing template id."
 msgstr "ID de template manquant."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:659
+#: src/Modules/Newsletter/Admin/AjaxController.php:674
 msgid "Could not update the default template."
 msgstr "Impossible de mettre à jour le template par défaut."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:877
+#: src/Modules/Newsletter/Admin/AjaxController.php:898
 msgid "Missing list/user id."
 msgstr "ID de liste ou d'utilisateur manquant."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1019
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:343
-msgid "Select at least one subscriber."
-msgstr "Sélectionnez au moins un abonné."
+#: src/Modules/Newsletter/Admin/AjaxController.php:1049
+#, fuzzy
+msgid "Select at least one recipient."
+msgstr "Sélectionnez au moins une entrée."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1081
+#: src/Modules/Newsletter/Admin/AjaxController.php:1103
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:271
+#, fuzzy
+msgid "Pick a list first."
+msgstr "Choisissez d'abord une action."
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1108
+#: src/Modules/Newsletter/Admin/AjaxController.php:1198
+#, fuzzy
+msgid "List not found."
+msgstr "Formulaire introuvable."
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1111
+msgid "That list doesn't accept manual memberships."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1168
+#, fuzzy
+msgid "WP user not found."
+msgstr "Formulaire introuvable."
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1194
+#, fuzzy
+msgid "Missing or invalid user/list id."
+msgstr "Valeur de visibilité manquante ou invalide."
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1201
+msgid "This list isn't toggleable per-user."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1222
+#, fuzzy
+msgid "User not found."
+msgstr "Formulaire introuvable."
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1256
 msgid "That email already belongs to another subscriber."
 msgstr "Cet email appartient déjà à un autre abonné."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1082
+#: src/Modules/Newsletter/Admin/AjaxController.php:1257
 msgid "Invalid value."
 msgstr "Valeur invalide."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1085
+#: src/Modules/Newsletter/Admin/AjaxController.php:1260
 msgid "Could not update."
 msgstr "Mise à jour impossible."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1095
+#: src/Modules/Newsletter/Admin/AjaxController.php:1270
 msgid "Missing subscriber or list id."
 msgstr "ID d'abonné ou de liste manquant."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1100
+#: src/Modules/Newsletter/Admin/AjaxController.php:1275
 msgid "Subscriber or list not found."
 msgstr "Abonné ou liste introuvable."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1123
+#: src/Modules/Newsletter/Admin/AjaxController.php:1281
+msgid "This list isn't toggleable per-subscriber."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/AjaxController.php:1304
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1314
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1357
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1392
@@ -5001,20 +5046,20 @@ msgstr "Abonné ou liste introuvable."
 msgid "Newsletter not found."
 msgstr "Formulaire source introuvable."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1133
+#: src/Modules/Newsletter/Admin/AjaxController.php:1314
 msgid "Unknown newsletter setting key."
 msgstr "Réglage inconnu."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1273
+#: src/Modules/Newsletter/Admin/AjaxController.php:1454
 msgid "Unsupported newsletter setting."
 msgstr "Réglage inconnu."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1319
+#: src/Modules/Newsletter/Admin/AjaxController.php:1500
 #: src/Modules/Newsletter/SubmitHandler.php:75
 msgid "Subscribe form not found."
 msgstr "Formulaire source introuvable."
 
-#: src/Modules/Newsletter/Admin/AjaxController.php:1348
+#: src/Modules/Newsletter/Admin/AjaxController.php:1529
 msgid "Newsletter form not found."
 msgstr "Formulaire source introuvable."
 
@@ -5023,7 +5068,7 @@ msgstr "Formulaire source introuvable."
 #: src/Modules/Newsletter/Admin/HomePage.php:371
 #: src/Modules/Newsletter/Admin/HomePage.php:607
 #: src/Modules/Newsletter/Admin/ListsPage.php:98
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:141
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:130
 msgid "Newsletters — %s"
 msgstr "Newsletters — %s"
 
@@ -5118,15 +5163,17 @@ msgstr "−%s opt-out"
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:486
 #: src/Modules/Newsletter/Admin/ListsPage.php:165
-#: src/Modules/Newsletter/Admin/ListsPage.php:852
+#: src/Modules/Newsletter/Admin/ListsPage.php:874
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:735
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1172
 msgid "Subscribers lists"
 msgstr "Listes d'abonnés"
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:487
 #: src/Modules/Newsletter/Admin/ListsPage.php:166
-#: src/Modules/Newsletter/Admin/ListsPage.php:851
+#: src/Modules/Newsletter/Admin/ListsPage.php:873
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:736
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1173
 msgid "WP users lists"
 msgstr "Listes d'utilisateurs WP"
 
@@ -5168,7 +5215,7 @@ msgid "Text (name, etc.)"
 msgstr "Texte (nom, etc.)"
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:742
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:41
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:43
 #: src/Modules/Newsletter/Fields/GenderField.php:35
 #: src/Modules/Newsletter/Fields/GenderField.php:57
 #: src/Modules/Newsletter/FormTemplateRegistry.php:137
@@ -5197,7 +5244,7 @@ msgid "First + Last name"
 msgstr "Prénom + Nom"
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:785
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1326
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2264
 #: src/Modules/Newsletter/PrefsRenderer.php:151
 msgid "Postal address"
 msgstr "Adresse postale"
@@ -5296,6 +5343,7 @@ msgid "force include"
 msgstr "inclusion forcée"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:151
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1197
 msgid "Exclude"
 msgstr "Exclure"
 
@@ -5312,10 +5360,14 @@ msgid "skipped"
 msgstr "ignoré"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:157
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:46
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2172
 msgid "Opted-in"
 msgstr "Inscrits"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:158
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:47
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2173
 msgid "Opted-out"
 msgstr "Désinscrits"
 
@@ -5439,8 +5491,8 @@ msgid "Refresh"
 msgstr "Rafraîchir"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:192
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1480
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1494
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2418
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2432
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:54
 msgid "Pending"
 msgstr "Envoi en cours"
@@ -5486,13 +5538,13 @@ msgid "Settings"
 msgstr "Réglages"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:262
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:141
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:130
 msgid "Subscribers"
 msgstr "S'inscrire"
 
 #: src/Modules/Newsletter/Admin/HomePage.php:264
 #: src/Modules/Newsletter/Admin/HomePage.php:603
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1108
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1658
 msgid "Import"
 msgstr "Import"
 
@@ -5618,8 +5670,9 @@ msgid "Manage subscriber lists"
 msgstr "Gérer les listes d'abonnés"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:98
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:46
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1417
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:50
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1369
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2355
 msgid "Lists"
 msgstr "Listes"
 
@@ -5656,7 +5709,18 @@ msgstr ""
 "Aucune liste pour le moment. Ajoutez-en une ci-dessus pour regrouper vos "
 "abonnés."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:246
+#. translators: %s: number of members on this list (already formatted)
+#: src/Modules/Newsletter/Admin/ListsPage.php:245
+msgid "%s member"
+msgid_plural "%s members"
+msgstr[0] "%s membre"
+msgstr[1] "%s membres"
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:267
+msgid "View these subscribers in the Subscribers admin."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/ListsPage.php:272
 msgid ""
 "Manually-added members. Rule matches resolve at send time and aren't counted "
 "here."
@@ -5664,19 +5728,8 @@ msgstr ""
 "Membres ajoutés manuellement. Les correspondances de règle sont résolues à "
 "l'envoi et ne sont pas comptées ici."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:247
-msgid "Subscribers on this list."
-msgstr "Abonnés présents dans cette liste."
-
-#. translators: %s: number of members on this list (already formatted)
-#: src/Modules/Newsletter/Admin/ListsPage.php:250
-msgid "%s member"
-msgid_plural "%s members"
-msgstr[0] "%s membre"
-msgstr[1] "%s membres"
-
-#: src/Modules/Newsletter/Admin/ListsPage.php:261
-#: src/Modules/Newsletter/Admin/ListsPage.php:465
+#: src/Modules/Newsletter/Admin/ListsPage.php:283
+#: src/Modules/Newsletter/Admin/ListsPage.php:487
 msgid ""
 "Public — subscribers can join or leave this list themselves from the "
 "preferences page. Click to make private."
@@ -5684,8 +5737,8 @@ msgstr ""
 "Publique — les abonnés peuvent rejoindre ou quitter cette liste eux-mêmes "
 "depuis leur page de préférences. Cliquez pour la rendre privée."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:262
-#: src/Modules/Newsletter/Admin/ListsPage.php:466
+#: src/Modules/Newsletter/Admin/ListsPage.php:284
+#: src/Modules/Newsletter/Admin/ListsPage.php:488
 msgid ""
 "Private — admin-managed. Subscribers don't see this list on the preferences "
 "page. Click to make public."
@@ -5693,56 +5746,56 @@ msgstr ""
 "Privée — gérée par l'administrateur. Les abonnés ne voient pas cette liste "
 "sur leur page de préférences. Cliquez pour la rendre publique."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:266
-#: src/Modules/Newsletter/Admin/ListsPage.php:463
+#: src/Modules/Newsletter/Admin/ListsPage.php:288
+#: src/Modules/Newsletter/Admin/ListsPage.php:485
 msgid "Public"
 msgstr "Publique"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:267
-#: src/Modules/Newsletter/Admin/ListsPage.php:464
+#: src/Modules/Newsletter/Admin/ListsPage.php:289
+#: src/Modules/Newsletter/Admin/ListsPage.php:486
 msgid "Private"
 msgstr "Privée"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:276
-#: src/Modules/Newsletter/Admin/ListsPage.php:277
+#: src/Modules/Newsletter/Admin/ListsPage.php:298
+#: src/Modules/Newsletter/Admin/ListsPage.php:299
 msgid "Set rules"
 msgstr "Définir les règles"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:286
-#: src/Modules/Newsletter/Admin/ListsPage.php:287
-#: src/Modules/Newsletter/Admin/ListsPage.php:416
+#: src/Modules/Newsletter/Admin/ListsPage.php:308
+#: src/Modules/Newsletter/Admin/ListsPage.php:309
+#: src/Modules/Newsletter/Admin/ListsPage.php:438
 msgid "Manage exclusions"
 msgstr "Gérer les exclusions"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:297
-#: src/Modules/Newsletter/Admin/ListsPage.php:298
+#: src/Modules/Newsletter/Admin/ListsPage.php:319
+#: src/Modules/Newsletter/Admin/ListsPage.php:320
 msgid "Delete list"
 msgstr "Supprimer la liste"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:344
+#: src/Modules/Newsletter/Admin/ListsPage.php:366
 msgid "Search a product by name or SKU…"
 msgstr "Rechercher un produit par nom ou SKU…"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:371
+#: src/Modules/Newsletter/Admin/ListsPage.php:393
 msgid ""
 "This option is no longer available on this site — uncheck or save to drop it."
 msgstr ""
 "Cette option n'est plus disponible sur ce site — décochez ou enregistrez "
 "pour la supprimer."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:379
+#: src/Modules/Newsletter/Admin/ListsPage.php:401
 msgid "(missing)"
 msgstr "(manquant)"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:409
+#: src/Modules/Newsletter/Admin/ListsPage.php:431
 msgid "Preview matches"
 msgstr "Aperçu des correspondances"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:423
+#: src/Modules/Newsletter/Admin/ListsPage.php:445
 msgid "Excluded users"
 msgstr "Utilisateurs exclus"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:424
+#: src/Modules/Newsletter/Admin/ListsPage.php:446
 msgid ""
 "These WP users are skipped even when the rule matches them. Type to search "
 "by name or email."
@@ -5750,42 +5803,42 @@ msgstr ""
 "Ces utilisateurs WP sont ignorés même si la règle leur correspond. Tapez "
 "pour rechercher par nom ou email."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:430
+#: src/Modules/Newsletter/Admin/ListsPage.php:452
 msgid "Search a WP user…"
 msgstr "Rechercher un utilisateur WP…"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:508
+#: src/Modules/Newsletter/Admin/ListsPage.php:530
 msgid "No matches."
 msgstr "Aucun résultat."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:509
-#: src/Modules/Newsletter/Admin/ListsPage.php:925
+#: src/Modules/Newsletter/Admin/ListsPage.php:531
+#: src/Modules/Newsletter/Admin/ListsPage.php:947
 msgid "Searching…"
 msgstr "Recherche…"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:510
+#: src/Modules/Newsletter/Admin/ListsPage.php:532
 msgid "Resolving…"
 msgstr "Résolution…"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:511
+#: src/Modules/Newsletter/Admin/ListsPage.php:533
 msgid "No users match this rule."
 msgstr "Aucun utilisateur ne correspond à cette règle."
 
 #. translators: %d: total number of users matched by the rule
-#: src/Modules/Newsletter/Admin/ListsPage.php:514
+#: src/Modules/Newsletter/Admin/ListsPage.php:536
 msgid "%d user(s) match — showing"
 msgstr "%d utilisateur(s) trouvé(s) — affichage"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:516
+#: src/Modules/Newsletter/Admin/ListsPage.php:538
 msgid "Load more"
 msgstr "Charger plus"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:814
+#: src/Modules/Newsletter/Admin/ListsPage.php:836
 msgid "Could not save the rule."
 msgstr "Impossible d'enregistrer la règle."
 
 #. translators: %s: list name
-#: src/Modules/Newsletter/Admin/ListsPage.php:817
+#: src/Modules/Newsletter/Admin/ListsPage.php:839
 msgid ""
 "Delete the \"%s\" list? Subscribers stay on the system but lose their "
 "membership."
@@ -5793,23 +5846,23 @@ msgstr ""
 "Supprimer la liste « %s » ? Les abonnés restent en base mais perdent leur "
 "appartenance à cette liste."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:821
+#: src/Modules/Newsletter/Admin/ListsPage.php:843
 msgid "Added"
 msgstr "Ajouté"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:822
+#: src/Modules/Newsletter/Admin/ListsPage.php:844
 msgid "Could not delete"
 msgstr "Suppression impossible"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:923
+#: src/Modules/Newsletter/Admin/ListsPage.php:945
 msgid "No exclusions yet."
 msgstr "Aucune exclusion pour l'instant."
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:924
+#: src/Modules/Newsletter/Admin/ListsPage.php:946
 msgid "Remove from exclusions"
 msgstr "Retirer des exclusions"
 
-#: src/Modules/Newsletter/Admin/ListsPage.php:926
+#: src/Modules/Newsletter/Admin/ListsPage.php:948
 msgid "No users match."
 msgstr "Aucun utilisateur ne correspond."
 
@@ -5826,8 +5879,8 @@ msgstr "En préparation"
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:159
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1052
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1059
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:340
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1242
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:242
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1882
 msgid "Trash"
 msgstr "Corbeille"
 
@@ -5853,7 +5906,7 @@ msgstr[1] ""
 "est irréversible."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:199
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:191
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1401
 msgid "Empty trash"
 msgstr "Vider la corbeille"
 
@@ -6309,8 +6362,8 @@ msgid "Scheduled for %1$s (overdue — %2$s)."
 msgstr "Programmé pour %1$s (en retard — %2$s)."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1015
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:341
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1223
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:243
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1863
 msgid "Restore"
 msgstr "Restaurer"
 
@@ -6390,7 +6443,7 @@ msgstr "Rechercher des destinataires"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1234
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1255
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:268
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1373
 msgid "Move to trash"
 msgstr "Déplacer dans la corbeille"
 
@@ -6454,9 +6507,9 @@ msgid "Aborted"
 msgstr "Annulé"
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1580
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1459
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1486
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1499
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2397
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2424
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2437
 msgid "Trashed"
 msgstr "À la corbeille"
 
@@ -6622,38 +6675,45 @@ msgstr "Jours entre les rappels"
 msgid "Wait this long between subsequent reminders. Default: 7."
 msgstr "Délai entre les rappels suivants. Par défaut : 7."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:42
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1396
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:39
+#, fuzzy
+msgid "Type"
+msgstr "Types"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:44
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2334
 #: src/Modules/Newsletter/SubscriberFields.php:64
 msgid "Language"
 msgstr "Langue"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:44
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:48
 msgid "Created"
 msgstr "Créer"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:47
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:51
 msgid "Opens"
 msgstr "Ouvertures"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:48
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:52
 msgid "Clicks"
 msgstr "Clics"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:49
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1401
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:53
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2043
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2339
 msgid "Sends"
 msgstr "Envois"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:50
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1386
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1481
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1495
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:54
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2034
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2324
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2419
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2433
 msgid "Confirmed"
 msgstr "Confirmé"
 
 #. translators: %s: subscriber email address
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:134
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:123
 msgid ""
 "Move %s to trash? They will stop receiving emails. You can restore them "
 "later."
@@ -6662,40 +6722,28 @@ msgstr ""
 "restaurer plus tard."
 
 #. translators: %s: subscriber email address
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:136
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:125
 msgid "Permanently delete %s? This cannot be undone."
 msgstr ""
 "Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
 
 #. translators: %d: count of trashed subscribers
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:138
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:127
 msgid "Permanently delete all %d trashed subscribers? This cannot be undone."
 msgstr ""
 "Supprimer le formulaire de contact « %s » ? Cette action est irréversible."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:139
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:128
 msgid "Could not complete the action."
 msgstr "Impossible de créer le formulaire."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:143
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1031
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:132
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1570
 msgid "Add subscribers"
 msgstr "Ajouter des abonnés"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:153
-msgid ""
-"Email-only subscribers managed by this module. WordPress users are "
-"recipients too but appear under Users, not here."
-msgstr ""
-"Abonnés (email uniquement) gérés par ce module. Les utilisateurs WordPress "
-"sont aussi des destinataires mais apparaissent sous Utilisateurs, pas ici."
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:184
-msgid "Search email or name"
-msgstr "Modèles de démarrage"
-
 #. translators: %d: cold threshold (sends without engagement)
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:201
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:174
 msgid ""
 "Recipients whose last engagement (click, or open when enabled) was %d send "
 "or more ago. Adjust the threshold + open-counts-as-engagement in Settings."
@@ -6712,7 +6760,7 @@ msgstr[1] ""
 "ouvertures dans les Réglages."
 
 #. translators: %d: number of days.
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:220
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:193
 msgid ""
 "Trashed subscribers are automatically deleted after %d day. Adjust this in "
 "Settings."
@@ -6726,7 +6774,7 @@ msgstr[1] ""
 "Les abonnés à la corbeille sont automatiquement supprimés après %d jours. "
 "Ajustez ce délai dans les Réglages."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:230
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:203
 msgid ""
 "Trashed subscribers stay here until you empty the trash manually. Enable "
 "auto-purge in Settings to remove old rows automatically."
@@ -6735,11 +6783,145 @@ msgstr ""
 "manuellement. Activez la purge automatique dans les Réglages pour les "
 "retirer automatiquement."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:238
-msgid "No subscribers match this search."
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:232
+msgid "Trash this subscriber?"
+msgstr "Mettre cet abonné à la corbeille ?"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:234
+msgid "Delete permanently?"
+msgstr "Supprimer définitivement ?"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:236
+msgid "Empty trash?"
+msgstr "Vider la corbeille ?"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:245
+msgid "Select at least one subscriber."
+msgstr "Sélectionnez au moins un abonné."
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:246
+msgid "Pick a bulk action first."
+msgstr "Choisissez d'abord une action groupée."
+
+#. translators: %d: count of selected subscribers
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:249
+msgid "Move %d subscribers to trash?"
+msgstr "Mettre %d abonnés à la corbeille ?"
+
+#. translators: %d: count of selected (already trashed) subscribers
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:253
+msgid "Permanently delete %d trashed subscribers? This cannot be undone."
+msgstr ""
+"Supprimer définitivement %d abonnés en corbeille ? Cette action est "
+"irréversible."
+
+#. translators: %d: count of selected trashed subscribers to restore
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:257
+msgid "Restore %d subscribers from trash?"
+msgstr "Restaurer %d abonnés depuis la corbeille ?"
+
+#. translators: %d: count of recipients to opt-in
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:261
+#, fuzzy
+msgid "Opt-in %d recipients?"
+msgstr "Ajouter un destinataire"
+
+#. translators: %d: count of recipients to opt-out
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:265
+#, fuzzy
+msgid "Opt-out %d recipients?"
+msgstr "Destinataire personnalisé"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:267
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1365
+msgid "Opt-in / Opt-out"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:268
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1366
+msgid "Opt-in"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:269
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1367
+#, fuzzy
+msgid "Opt-out"
+msgstr "Désinscrits"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:270
+msgid ""
+"That action applies to subscribers only — none of the selected rows are "
+"subscribers."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:272
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:277
+#, fuzzy
+msgid "Add to list"
+msgstr "Ajouter une identité"
+
+#. translators: %d: count of recipients to add to a list
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:275
+msgid "Add %d recipients to the selected list?"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1010
+msgid "1 subscriber detected"
+msgstr "1 abonné détecté"
+
+#. translators: %d: number of subscribers parsed from paste/CSV
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1013
+msgid "%d subscribers detected"
+msgstr "%d abonnés détectés"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1030
+msgid "Importing…"
+msgstr "Import en cours…"
+
+#. translators: 1: new rows, 2: existing rows updated, 3: rows skipped (bad/missing email)
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1056
+msgid "Done — added %1$d, updated %2$d, skipped %3$d."
+msgstr "Terminé — %1$d ajouté(s), %2$d mis à jour, %3$d ignoré(s)."
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1167
+#, fuzzy
+msgid "List"
+msgstr "Listes"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1169
+#, fuzzy
+msgid "All lists"
+msgstr "Ajouter une identité"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1193
+#, fuzzy
+msgid "WP users"
+msgstr "Liste d'utilisateurs WP"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1195
+#, fuzzy
+msgid "Include"
+msgstr "Exclure"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1196
+msgid "Only"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1207
+msgid "Search email or name"
+msgstr "Modèles de démarrage"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1343
+msgid ""
+"That list targets WordPress users, not subscribers — no rows to show here."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1345
+#, fuzzy
+msgid "No subscribers match these filters."
 msgstr "Aucun abonné ne correspond à cette recherche."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:240
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1347
 msgid ""
 "No subscribers yet. They appear once visitors submit one of your subscribe "
 "forms."
@@ -6747,91 +6929,54 @@ msgstr ""
 "Aucun abonné pour le moment. Ils apparaîtront dès que des visiteurs "
 "soumettront l'un de vos formulaires."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:242
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1349
 msgid "No subscribers with this status."
 msgstr "Aucun abonné avec ce statut."
 
-#. translators: %d: count of selected subscribers
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:254
-msgid "Select all (%d on this page)"
-msgstr "Tout sélectionner (%d sur cette page)"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1370
+#, fuzzy
+msgid "Add to list…"
+msgstr "Ajouter une identité"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:261
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:262
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:973
-msgid "Columns"
-msgstr "Colonnes"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1372
+#, fuzzy
+msgid "Subscribers only"
+msgstr "S'inscrire"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:269
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1374
 msgid "Restore from trash"
 msgstr "Restaurer depuis la corbeille"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:330
-msgid "Trash this subscriber?"
-msgstr "Mettre cet abonné à la corbeille ?"
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:332
-msgid "Delete permanently?"
-msgstr "Supprimer définitivement ?"
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:334
-msgid "Empty trash?"
-msgstr "Vider la corbeille ?"
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:344
-msgid "Pick a bulk action first."
-msgstr "Choisissez d'abord une action groupée."
-
-#. translators: %d: count of selected subscribers
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:347
-msgid "Move %d subscribers to trash?"
-msgstr "Mettre %d abonnés à la corbeille ?"
-
-#. translators: %d: count of selected (already trashed) subscribers
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:351
-msgid "Permanently delete %d trashed subscribers? This cannot be undone."
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1379
+msgid "Pick a list…"
 msgstr ""
-"Supprimer définitivement %d abonnés en corbeille ? Cette action est "
-"irréversible."
 
-#. translators: %d: count of selected trashed subscribers to restore
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:355
-msgid "Restore %d subscribers from trash?"
-msgstr "Restaurer %d abonnés depuis la corbeille ?"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1407
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1408
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1512
+msgid "Columns"
+msgstr "Colonnes"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:891
-msgid "1 subscriber detected"
-msgstr "1 abonné détecté"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1491
+#, fuzzy
+msgid "Subscribers pagination"
+msgstr "Pagination des journaux"
 
-#. translators: %d: number of subscribers parsed from paste/CSV
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:894
-msgid "%d subscribers detected"
-msgstr "%d abonnés détectés"
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:911
-msgid "Importing…"
-msgstr "Import en cours…"
-
-#. translators: 1: new rows, 2: existing rows updated, 3: rows skipped (bad/missing email)
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:937
-msgid "Done — added %1$d, updated %2$d, skipped %3$d."
-msgstr "Terminé — %1$d ajouté(s), %2$d mis à jour, %3$d ignoré(s)."
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:980
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1519
 msgid "Pick which columns appear in the Subscribers table. Saved per-admin."
 msgstr ""
 "Choisissez les colonnes affichées dans le tableau des abonnés. Sauvegardé "
 "par administrateur."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1000
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1539
 msgid "Reset to defaults"
 msgstr "Réinitialiser aux défauts"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1002
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1541
 msgid "Done"
 msgstr "Terminé"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1038
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1577
 msgid ""
 "Add subscribers in bulk. Existing email addresses are merged into the "
 "existing row (status is preserved unless they were trashed/refused/"
@@ -6841,24 +6986,24 @@ msgstr ""
 "la ligne existante (le statut est conservé sauf s'ils étaient en corbeille/"
 "refusés/désinscrits, auquel cas ils sont réactivés)."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1042
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1581
 msgid "Paste"
 msgstr "Coller"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1043
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1582
 msgid "CSV upload"
 msgstr "Upload CSV"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1047
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1586
 msgid "One per line — email only, or \"email, name\"."
 msgstr "Un par ligne — email seul, ou « email, nom »."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1057
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1596
 msgid "Pick a CSV file"
 msgstr "Choisir un fichier CSV"
 
 #. translators: %s: comma-separated list of supported CSV column names
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1064
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1603
 msgid ""
 "Accepts a CSV with an \"email\" column (required) plus any of: %s. Header "
 "row auto-detected; commas, semicolons, and tabs all supported as separators."
@@ -6867,123 +7012,221 @@ msgstr ""
 "de : %s. La ligne d'en-tête est détectée automatiquement ; virgules, points-"
 "virgules et tabulations sont supportés comme séparateurs."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1074
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1613
 msgid "Initial status"
 msgstr "Statut initial"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1077
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1616
 msgid "Pending — they'll get the confirmation email"
 msgstr "En attente — ils recevront l'email de confirmation"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1081
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1620
 msgid "Confirmed — they've already opted in elsewhere"
 msgstr "Confirmé — ils ont déjà donné leur accord ailleurs"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1087
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1637
 msgid "Add to lists (optional)"
 msgstr "Ajouter aux listes (optionnel)"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1136
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1687
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1688
+#, fuzzy
+msgid "WordPress user"
+msgstr "Utilisateurs WordPress"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1695
 msgid "(no email)"
 msgstr "(aucun email)"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1213
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1703
+#, fuzzy
+msgid "WP user"
+msgstr "Liste d'utilisateurs WP"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1703
+#, fuzzy
+msgid "Subscriber"
+msgstr "S'inscrire"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1835
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1853
 msgid "View / edit"
 msgstr "Voir / modifier"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1214
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1836
+#, fuzzy
+msgid "View WP user details"
+msgstr "Voir les détails de l'abonné"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1843
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1844
+#, fuzzy
+msgid "Open in WordPress user editor"
+msgstr "Utilisateurs WordPress"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1854
 msgid "View subscriber details"
 msgstr "Voir les détails de l'abonné"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1224
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1864
 msgid "Restore subscriber"
 msgstr "Restaurer l'abonné"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1233
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1873
 msgid "Delete subscriber permanently"
 msgstr "Supprimer l'abonné définitivement"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1243
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1883
 msgid "Move subscriber to trash"
 msgstr "Mettre l'abonné à la corbeille"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1266
-msgid "(unknown subscriber)"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1950
+#, fuzzy
+msgid "(unknown WP user)"
 msgstr "(abonné inconnu)"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1316
-msgid "Names"
-msgstr "Noms"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:1996
+#, fuzzy
+msgid "Identity (WP user)"
+msgstr "Identité (source)"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1321
-msgid "Contact"
-msgstr "Contact"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2003
+#, fuzzy
+msgid "Display name"
+msgstr "Affichage"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1352
-msgid "— (not set)"
-msgstr "— (non défini)"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2007
+#, fuzzy
+msgid "Role(s)"
+msgstr "Rôles"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1381
-msgid "Subscribed"
-msgstr "Abonné"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2014
+#, fuzzy
+msgid "Edit identity fields in the WordPress user editor →"
+msgstr "Utilisateurs WordPress"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1405
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2029
+#, fuzzy
+msgid "Registered"
+msgstr "tous délivrés"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2047
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2343
 msgid "Opens / Clicks"
 msgstr "Ouvertures / Clics"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1410
-msgid "Sends since engagement"
-msgstr "Envois depuis le dernier engagement"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2053
+#: src/Modules/Newsletter/ProfileSection.php:41
+#: admin/js/newsletter-prefs-block-editor.js:34
+#: admin/js/newsletter-prefs-block-editor.js:42
+msgid "Newsletter preferences"
+msgstr "Newsletter"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1419
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2059
+#, fuzzy
+msgid "Receive newsletter emails (opt-in)"
+msgstr "Voir le formulaire de contact"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2062
+msgid ""
+"WP users are opt-out by default — uncheck to stop sending. Transactional "
+"emails (password resets, etc.) are unaffected."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2067
+msgid "Manual list memberships"
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2069
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2357
 msgid "No lists yet — open Manage lists from the header to create one."
 msgstr ""
 "Aucune liste pour l'instant — ouvrez Gérer les listes depuis l'en-tête pour "
 "en créer une."
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1442
-msgid "Details"
-msgstr "Détails"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2089
+msgid ""
+"Rule-based (WP users) lists auto-include this user when the rule matches at "
+"send time — not shown here."
+msgstr ""
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1444
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2095
+#, fuzzy
+msgid "Engagement"
+msgstr "Dernier engagement"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2097
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2382
 msgid "Bounce count"
 msgstr "Nombre de rebonds"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1446
-msgid "Reminders sent"
-msgstr "Relances envoyées"
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1451
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2100
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2389
 msgid "Last send"
 msgstr "Dernier envoi"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1455
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2104
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2393
 msgid "Last engagement"
 msgstr "Dernier engagement"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1465
-msgid "Prefs token"
-msgstr "Jeton de préférences"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2174
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2423
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2436
+msgid "Bounced"
+msgstr "Bounce"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1482
-msgid "Cold"
-msgstr "Inactifs"
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1483
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1496
-#: src/Modules/Newsletter/PrefsHandler.php:162
-msgid "Unsubscribed"
-msgstr "S'inscrire"
-
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1484
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1497
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2175
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2422
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2435
 msgid "Refused"
 msgstr "Refusé"
 
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1485
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:1498
-msgid "Bounced"
-msgstr "Bounce"
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2194
+msgid "(unknown subscriber)"
+msgstr "(abonné inconnu)"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2254
+msgid "Names"
+msgstr "Noms"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2259
+msgid "Contact"
+msgstr "Contact"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2290
+msgid "— (not set)"
+msgstr "— (non défini)"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2319
+msgid "Subscribed"
+msgstr "Abonné"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2348
+msgid "Sends since engagement"
+msgstr "Envois depuis le dernier engagement"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2380
+msgid "Details"
+msgstr "Détails"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2384
+msgid "Reminders sent"
+msgstr "Relances envoyées"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2403
+msgid "Prefs token"
+msgstr "Jeton de préférences"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2420
+msgid "Cold"
+msgstr "Inactifs"
+
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2421
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2434
+#: src/Modules/Newsletter/PrefsHandler.php:162
+msgid "Unsubscribed"
+msgstr "S'inscrire"
 
 #. translators: %s: site name.
 #: src/Modules/Newsletter/ConfirmationDispatcher.php:73
@@ -7690,12 +7933,6 @@ msgstr ""
 #: src/Modules/Newsletter/PrefsRenderer.php:285
 msgid "Forget me entirely"
 msgstr "M'oublier complètement"
-
-#: src/Modules/Newsletter/ProfileSection.php:41
-#: admin/js/newsletter-prefs-block-editor.js:34
-#: admin/js/newsletter-prefs-block-editor.js:42
-msgid "Newsletter preferences"
-msgstr "Newsletter"
 
 #: src/Modules/Newsletter/ProfileSection.php:43
 msgid ""

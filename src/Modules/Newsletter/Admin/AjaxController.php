@@ -81,6 +81,14 @@ final class AjaxController
 
     public const ACTION_SUBSCRIBERS_BULK         = 'lrob_etk_nl_subscribers_bulk';
 
+    public const ACTION_SUBSCRIBERS_LIST_FILTER  = 'lrob_etk_nl_subscribers_list_filter';
+
+    public const ACTION_WP_USER_OPT_TOGGLE       = 'lrob_etk_nl_wp_user_opt_toggle';
+
+    public const ACTION_WP_USER_DETAIL           = 'lrob_etk_nl_wp_user_detail';
+
+    public const ACTION_WP_USER_LIST_TOGGLE      = 'lrob_etk_nl_wp_user_list_toggle';
+
     public const ACTION_WC_PRODUCT_SEARCH        = 'lrob_etk_nl_wc_product_search';
 
     public const ACTION_WP_USER_SEARCH           = 'lrob_etk_nl_wp_user_search';
@@ -191,6 +199,10 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_SUBSCRIBER_UPDATE,     [$this, 'handle_subscriber_update']);
         add_action('wp_ajax_' . self::ACTION_SUBSCRIBERS_COLUMNS_PREF, [$this, 'handle_subscribers_columns_pref']);
         add_action('wp_ajax_' . self::ACTION_SUBSCRIBERS_BULK,         [$this, 'handle_subscribers_bulk']);
+        add_action('wp_ajax_' . self::ACTION_SUBSCRIBERS_LIST_FILTER,  [$this, 'handle_subscribers_list_filter']);
+        add_action('wp_ajax_' . self::ACTION_WP_USER_OPT_TOGGLE,       [$this, 'handle_wp_user_opt_toggle']);
+        add_action('wp_ajax_' . self::ACTION_WP_USER_DETAIL,           [$this, 'handle_wp_user_detail']);
+        add_action('wp_ajax_' . self::ACTION_WP_USER_LIST_TOGGLE,      [$this, 'handle_wp_user_list_toggle']);
         add_action('wp_ajax_' . self::ACTION_WC_PRODUCT_SEARCH,        [$this, 'handle_wc_product_search']);
         add_action('wp_ajax_' . self::ACTION_WP_USER_SEARCH,           [$this, 'handle_wp_user_search']);
         add_action('wp_ajax_' . self::ACTION_EMPTY_TRASH,        [$this, 'handle_empty_trash']);
@@ -623,12 +635,15 @@ final class AjaxController
         if ($row === null) {
             wp_send_json_error(['message' => __('Subscriber not found.', 'lrob-email-toolkit')], 404);
         }
-        $page = new SubscribersPage(new SubscriberRepository());
+        $page = new SubscribersPage(new SubscriberRepository(), new \LRob\EmailToolkit\Modules\Newsletter\WpUserRepository());
         ob_start();
         $page->render_detail_body($row);
         $html = (string) ob_get_clean();
+        // `type` discriminates subscriber vs WP user so the unified
+        // modal's afterFetch can adapt the action buttons.
         wp_send_json_success([
             'id'     => $id,
+            'type'   => 'subscriber',
             'status' => (string) ($row['status'] ?? ''),
             'title'  => $page->detail_title($row),
             'html'   => $html,
@@ -698,11 +713,17 @@ final class AjaxController
 
         $subs = new SubscriberRepository();
         $lists = new ListRepository();
+        // Only manual-membership subscribers-kind lists accept new
+        // subscribers via this import path. Users-kind + system rows
+        // (incl. all_subscribers pseudo-kind) are silently dropped.
         $valid_list_ids = [];
         foreach ($list_ids as $lid) {
-            if ($lid > 0 && $lists->find($lid) !== null) {
-                $valid_list_ids[] = $lid;
-            }
+            if ($lid <= 0) continue;
+            $row = $lists->find($lid);
+            if ($row === null) continue;
+            if (ListRepository::kind_of($row) !== ListRepository::KIND_SUBSCRIBERS) continue;
+            if (ListRepository::is_system($row)) continue;
+            $valid_list_ids[] = $lid;
         }
 
         // Profile-column whitelist: every row's keys are intersected
@@ -1011,37 +1032,96 @@ final class AjaxController
     {
         $this->guard();
         $op = isset($_POST['op']) ? sanitize_key(wp_unslash((string) $_POST['op'])) : '';
-        $ids = isset($_POST['ids']) && is_array($_POST['ids'])
+        // Subscribers (legacy `ids[]` for back-compat) + the split arrays
+        // (`subscriber_ids[]` / `wp_user_ids[]`) the unified table sends.
+        $legacy_ids = isset($_POST['ids']) && is_array($_POST['ids'])
             ? array_values(array_unique(array_map('intval', wp_unslash($_POST['ids']))))
             : [];
-        $ids = array_values(array_filter($ids, static fn ($n) => $n > 0));
-        if ($ids === []) {
-            wp_send_json_error(['message' => __('Select at least one subscriber.', 'lrob-email-toolkit')], 400);
+        $sub_ids = isset($_POST['subscriber_ids']) && is_array($_POST['subscriber_ids'])
+            ? array_values(array_unique(array_map('intval', wp_unslash($_POST['subscriber_ids']))))
+            : [];
+        $wpu_ids = isset($_POST['wp_user_ids']) && is_array($_POST['wp_user_ids'])
+            ? array_values(array_unique(array_map('intval', wp_unslash($_POST['wp_user_ids']))))
+            : [];
+        $sub_ids = array_values(array_filter(array_merge($legacy_ids, $sub_ids), static fn ($n) => $n > 0));
+        $wpu_ids = array_values(array_filter($wpu_ids, static fn ($n) => $n > 0));
+        if ($sub_ids === [] && $wpu_ids === []) {
+            wp_send_json_error(['message' => __('Select at least one recipient.', 'lrob-email-toolkit')], 400);
         }
-        if (!in_array($op, ['trash', 'restore', 'delete'], true)) {
+        if (!in_array($op, ['trash', 'restore', 'delete', 'opt_in', 'opt_out', 'add_to_list'], true)) {
             wp_send_json_error(['message' => __('Unknown bulk action.', 'lrob-email-toolkit')], 400);
         }
         $repo = new SubscriberRepository();
         $applied = 0;
-        foreach ($ids as $id) {
-            switch ($op) {
-                case 'trash':
-                    $repo->trash($id, 'admin_bulk');
-                    $applied++;
-                    break;
-                case 'restore':
-                    if ($repo->restore($id)) {
+        // Subscriber-only ops.
+        if (in_array($op, ['trash', 'restore', 'delete'], true)) {
+            foreach ($sub_ids as $id) {
+                switch ($op) {
+                    case 'trash':
+                        $repo->trash($id, 'admin_bulk');
                         $applied++;
-                    }
-                    break;
-                case 'delete':
-                    if ($repo->permanently_delete($id)) {
-                        $applied++;
-                    }
-                    break;
+                        break;
+                    case 'restore':
+                        if ($repo->restore($id)) $applied++;
+                        break;
+                    case 'delete':
+                        if ($repo->permanently_delete($id)) $applied++;
+                        break;
+                }
             }
+            wp_send_json_success(['applied' => $applied, 'total' => count($sub_ids)]);
         }
-        wp_send_json_success(['applied' => $applied, 'total' => count($ids)]);
+        // Opt-in / opt-out — applies to both subscribers AND WP users.
+        if ($op === 'opt_in' || $op === 'opt_out') {
+            $want_in = ($op === 'opt_in');
+            // Subscribers: map to status. Opt-in = confirmed (preserves
+            // pending → confirmed flow); opt-out = unsubscribed.
+            foreach ($sub_ids as $id) {
+                $row = $repo->find_by_id($id);
+                if ($row === null) continue;
+                if ($want_in) {
+                    $repo->update_status($id, 'confirmed', current_time('mysql', true));
+                } else {
+                    $repo->update_status($id, 'unsubscribed');
+                }
+                $applied++;
+            }
+            // WP users: write UserMeta::OPTED_IN directly.
+            foreach ($wpu_ids as $uid) {
+                if (get_userdata($uid) === false) continue;
+                update_user_meta($uid, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::OPTED_IN, $want_in ? '1' : '0');
+                $applied++;
+            }
+            wp_send_json_success(['applied' => $applied, 'total' => count($sub_ids) + count($wpu_ids)]);
+        }
+        // add_to_list — both kinds get a list_members row keyed on the
+        // matching recipient_kind. List must be subscribers-kind +
+        // non-system (same eligibility rule everywhere).
+        if ($op === 'add_to_list') {
+            $list_id = isset($_POST['list_id']) ? (int) wp_unslash((string) $_POST['list_id']) : 0;
+            if ($list_id <= 0) {
+                wp_send_json_error(['message' => __('Pick a list first.', 'lrob-email-toolkit')], 400);
+            }
+            $list_repo = new ListRepository();
+            $list = $list_repo->find($list_id);
+            if ($list === null) {
+                wp_send_json_error(['message' => __('List not found.', 'lrob-email-toolkit')], 404);
+            }
+            if (ListRepository::kind_of($list) !== ListRepository::KIND_SUBSCRIBERS || ListRepository::is_system($list)) {
+                wp_send_json_error(['message' => __('That list doesn\'t accept manual memberships.', 'lrob-email-toolkit')], 400);
+            }
+            foreach ($sub_ids as $id) {
+                $list_repo->add_member($list_id, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::KIND_SUBSCRIBER, $id);
+                $applied++;
+            }
+            foreach ($wpu_ids as $uid) {
+                if (get_userdata($uid) === false) continue;
+                $list_repo->add_member($list_id, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::KIND_USER, $uid);
+                $applied++;
+            }
+            wp_send_json_success(['applied' => $applied, 'total' => count($sub_ids) + count($wpu_ids)]);
+        }
+        wp_send_json_error(['message' => __('Unknown bulk action.', 'lrob-email-toolkit')], 400);
     }
 
     public function handle_subscribers_columns_pref(): void
@@ -1054,6 +1134,101 @@ final class AjaxController
         $clean = array_values(array_intersect($raw, $allowed));
         update_user_meta(get_current_user_id(), SubscribersPage::USER_META_COLUMNS, wp_json_encode($clean));
         wp_send_json_success(['columns' => $clean]);
+    }
+
+    /**
+     * AJAX-swappable list region for the Subscribers admin view.
+     * Mirrors the Logs / CF Submissions endpoint contract: returns
+     * `{ html }` containing the bulk-toolbar + table + pagination
+     * (or the empty state). The page-side JS calls this via
+     * `lrobEtkListFilter.attach`.
+     */
+    public function handle_subscribers_list_filter(): void
+    {
+        $this->guard();
+        $filters = SubscribersPage::parse_filters($_POST);
+        $page = isset($_POST['paged']) ? max(1, (int) $_POST['paged']) : 1;
+
+        $page_renderer = new SubscribersPage(new SubscriberRepository(), new \LRob\EmailToolkit\Modules\Newsletter\WpUserRepository());
+        ob_start();
+        $page_renderer->render_list_region_for_filters($filters, $page);
+        $html = (string) ob_get_clean();
+
+        wp_send_json_success(['html' => $html]);
+    }
+
+    /** Detail-modal body for a WP user. Returns { id, title, html }. */
+    public function handle_wp_user_detail(): void
+    {
+        $this->guard();
+        $id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $repo = new \LRob\EmailToolkit\Modules\Newsletter\WpUserRepository();
+        $row = $repo->find_by_id($id);
+        if ($row === null) {
+            wp_send_json_error(['message' => __('WP user not found.', 'lrob-email-toolkit')], 404);
+        }
+        $page = new SubscribersPage(new SubscriberRepository(), $repo);
+        ob_start();
+        $page->render_wp_user_detail_body($row);
+        $html = (string) ob_get_clean();
+        wp_send_json_success([
+            'id'    => $id,
+            'type'  => 'user',
+            'title' => $page->wp_user_detail_title($row),
+            'html'  => $html,
+        ]);
+    }
+
+    /**
+     * Per-WP-user manual list-membership toggle. Same eligibility rule
+     * as the subscriber-side toggle: only manual-membership
+     * subscribers-kind non-system lists are toggleable here.
+     */
+    public function handle_wp_user_list_toggle(): void
+    {
+        $this->guard();
+        $user_id = isset($_POST['id']) ? (int) wp_unslash((string) $_POST['id']) : 0;
+        $list_id = isset($_POST['list_id']) ? (int) wp_unslash((string) $_POST['list_id']) : 0;
+        $add = isset($_POST['add']) ? (string) wp_unslash((string) $_POST['add']) : '';
+        if ($user_id <= 0 || $list_id <= 0 || get_userdata($user_id) === false) {
+            wp_send_json_error(['message' => __('Missing or invalid user/list id.', 'lrob-email-toolkit')], 400);
+        }
+        $list = (new ListRepository())->find($list_id);
+        if ($list === null) {
+            wp_send_json_error(['message' => __('List not found.', 'lrob-email-toolkit')], 404);
+        }
+        if (ListRepository::kind_of($list) !== ListRepository::KIND_SUBSCRIBERS || ListRepository::is_system($list)) {
+            wp_send_json_error(['message' => __('This list isn\'t toggleable per-user.', 'lrob-email-toolkit')], 400);
+        }
+        $repo = new ListRepository();
+        if ($add === '1' || $add === 'true' || $add === 'on') {
+            $repo->add_member($list_id, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::KIND_USER, $user_id);
+        } else {
+            $repo->remove_member($list_id, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::KIND_USER, $user_id);
+        }
+        wp_send_json_success();
+    }
+
+    /**
+     * Per-row WP user opt-in toggle. Writes UserMeta::OPTED_IN to '1' or
+     * '0'. Returns the new effective-status label so the row can refresh
+     * its pill in place.
+     */
+    public function handle_wp_user_opt_toggle(): void
+    {
+        $this->guard();
+        $user_id = isset($_POST['user_id']) ? (int) wp_unslash((string) $_POST['user_id']) : 0;
+        if ($user_id <= 0 || get_userdata($user_id) === false) {
+            wp_send_json_error(['message' => __('User not found.', 'lrob-email-toolkit')], 404);
+        }
+        $opted = isset($_POST['opted_in']) ? (string) wp_unslash((string) $_POST['opted_in']) : '0';
+        $value = ($opted === '1' || $opted === 'true' || $opted === 'on') ? '1' : '0';
+        update_user_meta($user_id, \LRob\EmailToolkit\Modules\Newsletter\UserMeta::OPTED_IN, $value);
+        $row = \LRob\EmailToolkit\Modules\Newsletter\WpUserRepository::row_from_user(new \WP_User($user_id));
+        wp_send_json_success([
+            'effective' => $row['effective_status'],
+            'label'     => SubscribersPage::translate_effective_label($row['effective_status']),
+        ]);
     }
 
     public function handle_subscriber_update(): void
@@ -1098,6 +1273,12 @@ final class AjaxController
         $list = (new ListRepository())->find($list_id);
         if ($subscriber === null || $list === null) {
             wp_send_json_error(['message' => __('Subscriber or list not found.', 'lrob-email-toolkit')], 404);
+        }
+        // POST-tamper defence: only manual-membership subscribers-kind
+        // lists accept a per-subscriber toggle. Users-kind + system
+        // (incl. pseudo-kind all_subscribers) ignored.
+        if (ListRepository::kind_of($list) !== ListRepository::KIND_SUBSCRIBERS || ListRepository::is_system($list)) {
+            wp_send_json_error(['message' => __('This list isn\'t toggleable per-subscriber.', 'lrob-email-toolkit')], 400);
         }
         $repo = new ListRepository();
         if ($add === '1' || $add === 'true' || $add === 'on') {

@@ -7,6 +7,54 @@ For **how to build / conventions**, see [CLAUDE.md](./CLAUDE.md).
 
 ---
 
+## 🗺️ Roadmap to 1.0
+
+Sequence locked with the user. Each milestone is a meaty chunk; items inside a milestone can ship in any order. Bounce / suppression / universal-tracking / outbound-customize and a few others stay in 1.x — see *Essential / Nice to have* below.
+
+### v0.4.x — Captcha enrichment + CSS cleanup + LRob branding
+- **Captcha — Cloudflare Turnstile + Google reCAPTCHA providers.** Drop into `Providers/`, auto-discovered. Mirror the hCaptcha shape (credential_fields, validate_credentials, logo_html, render, verify).
+- **Captcha — invisible mode + theme / size customization.** hCaptcha + Turnstile support invisible (no widget; verified at submit). Per-identity admin fields for `display_mode` (visible / invisible), `theme` (light / dark / auto), `size` (normal / compact). Probably extends `ProviderInterface` with an optional `display_fields()` next to `credential_fields()`.
+- **CSS cleanup — eliminate hardcoded chrome values plugin-wide.** The token system (`--etk-text-*`, `--etk-space-*`, etc.) is in place but historical hardcoded values still litter `admin-newsletter.css` (status pills, gaps, paddings), `admin-components.css`, and per-module sheets. Prerequisite for the theme system + density setting in v0.5.x. Risk: visual regressions — do it as a careful sweep with eyeball checks. See memory `feedback_css_tokens_no_hardcode`.
+- **LRob branding.** Subliminal "made by LRob.fr" placements in empty states, footers, and module About panels — inspired by [wp-lrob-qrcode-maker](https://github.com/LRob-FR/wp-lrob-qrcode-maker) (consult before implementing to mirror the style). Plugin readme / Author URI / lrob.fr links polished. Strategic: this is how the 15 days of dev work get amortized.
+- **Quick cleanups:** drop the "optionally archive a copy to your IMAP Sent folder" text from the Logging dashboard (feature deferred, misleading promise). Make the cron-diagnostic panel at the bottom of Newsletters expand-on-demand instead of always-visible.
+
+### v0.5.x — Theme system + density + accessibility
+- **Theme system: Light / Dark / Auto / LRob / Contrast.** Settings radio. Auto follows `prefers-color-scheme`. LRob = branded palette (user provides colors). Contrast = colorblind-safe palette + reinforced WCAG ratios. Each theme is a CSS-variable swap on top of the v0.4.x-cleaned tokens.
+- **Density setting: Compact / Comfortable / Spacious.** Single setting flips the `--etk-text-*` + `--etk-space-*` scale. Accessibility win.
+- **Accessibility audit pass.** Focus rings, keyboard nav, ARIA labels on icon buttons, screen-reader-friendly status pills, color-only-information audit (paired with Contrast theme).
+
+### v0.6.x — Contact form visual personalization
+- **Contact form personalization (real this time).** Per-form: background-on-hover, color presets + custom color picker, animations (button click: ripple/scale/bounce; send success: fade/checkmark/confetti). Replaces the currently-useless "preset" picker with something actually configurable. See memory `project_contact_form_visual_polish` (needs to be fleshed out into specs first).
+
+### v0.7.x — Send-rate throttling + per-domain limits (deliverability foundations)
+- **Per-identity (sender-side) cap.** Already-deferred backlog item. New `send_cap_rate` int + `send_cap_window` enum (`per_minute` / `per_hour`) on SMTP identity. SendLoop checks before claiming next batch; skips tick when cap reached. Use cases: "this Mailjet plan allows 2000/h max", "OVH SMTP throttles at 100/min".
+- **Per-destination-domain throttle — 3 levels, with /min OR /h units.** Every rate carries both a `count` and a `window` (`per_minute` / `per_hour`) — some ISPs publish their limits in minutes, others in hours, and getting the unit wrong breaks the whole protection.
+  1. **Global default** rate per recipient-domain (e.g. 60/h to any one domain by default).
+  2. **Hardcoded overrides** for known-strict ISPs as a default map in code: e.g. laposte.net (typically 30/h), free.fr (10/min in some sources, 60/h in others — verify before hardcoding), orange.fr, gmail.com (200/h is conservative), etc. Each entry = `{domain, count, window}`. Admin can disable individual entries but not edit them (they reflect ISP reality).
+  3. **User-configurable overrides** in admin: admin adds `{domain, count, window}` rows. Persists in option. UI in dedicated "Deliverability" sub-page (or under SMTP/Newsletter settings).
+  - **Implementation note:** SendLoop tracks send-count-per-domain in a rolling window (transient keyed by `{domain, bucket}` where bucket = `floor(now / window_seconds)`); next batch skips recipients whose domain has hit cap *for the current bucket*; remaining recipients spill to next tick (or next bucket boundary). Per-minute windows mean the rolling-bucket math needs to be precise — a sloppy 60-second window that drifts will under-deliver. Consider testing with a synthetic 5/min limit to validate before shipping.
+- **Bounce handling.** NDR parsing. Two ingestion paths: **(1) IMAP polling** — admin configures bounce-mailbox creds, cron polls every 5min; **(2) Webhook** — providers like Mailgun/Postmark/SendGrid push events to `/lrob-etk/v1/bounces`. Classify hard (mailbox-not-found, domain-not-found) vs soft (mailbox-full, deferred). Hard → auto-unsubscribe + add to suppression list. Soft → increment `bounce_count`, unsubscribe after N consecutive.
+- **Suppression list.** Global "do not email" scoped to the site. Sources: hard bounces (auto), complaints / FBL, manual additions. Pre-send filter drops suppressed emails regardless of list membership. New table `wp_lrob_etk_nl_suppression(email, reason, added_at, source)`.
+
+### v0.8.x — GDPR Toolkit
+- Data export (JSON of everything for an email)
+- Delete request (hard-delete + anonymisation marker preserving aggregate stats)
+- Consent log (IP anonymised, timestamp, source, the consent label text **at signup time**)
+- Per-category retention controls
+- Privacy-policy integration helpers
+- Strategic: marketing argument "cloud souverain / EU-friendly".
+
+### v0.9.x — Beta hardening + bug bash
+- User-cycle testing, bug fixes, polish.
+
+### v1.0.0 — stable
+
+---
+
+**Deferred to 1.x+** (still essential but post-1.0): universal email tracking (Logs "Opened" column), one-shot composer, drip/automation workflows, in-house email builder, WooCommerce integration, subscriber custom fields + tags, customize WP default emails + outbound blocklist, statistics overhaul, "view online" link.
+
+---
+
 ## ⚡ Priority — sooner is better
 
 These are foundational or carry strategic weight. Do them before chasing more features.
@@ -46,7 +94,7 @@ Real features, well worth doing, but the plugin isn't materially worse without t
 
 ### Newsletter polish
 - **Subscriber self-edit (profile + email-change confirm flow).** Pairs with the public/private visibility flag shipped in v0.3.4 (Categories → Lists merge). Subscribers edit their own profile (name/phone/address/gender) from the prefs page; email change requires a click-to-confirm token sent to the new address. Parity with the Newsletter plugin (import compat). See memory `project_lists_private_public`.
-- **Subscribers — filter by list + bulk "Add to list…".** Lists modal shows a member count per row but no quick "see who" link yet. Plan: `?list=<id>` URL param on the Subscribers page (JOIN list_members in the query), surface as a removable filter chip, then a "See N members →" link on each Lists-modal row that opens the filtered Subscribers view. Adjacent: an "Add to list…" bulk action so admins can attach existing subscribers to a list without going through each detail modal.
+- **Subscribers — bulk "Add to list…" action.** The filter-by-list half shipped in v0.3.5 (URL `&list_id=`, dropdown in filter bar, cross-link from Lists-modal count badge). Remaining piece: a "Add to list…" bulk action so admins can attach the currently-selected subscribers to a list in one go, without opening each detail modal. Same bulk-toolbar mechanics as the existing Trash / Restore / Delete actions.
 - **WooCommerce (non-Subscriptions) order-based list rule provider.** Provider matching customers by order history: "ordered product X within/after N months", "bought product X but not Y", "lifetime spend > N". Builds on the existing AJAX product picker + WC order/HPOS queries.
 - **Advanced rule composition (AND / OR / NOT).** Single-provider rules cover simple cases; segmentation queries like "active WC subscription on product X **and not** on product Y" need a composite layer. Likely a `RuleComposite` over the existing single-provider model, with a tree UI.
 - **Campaigns system — design conversation.** Open question: are list-rules the right place for advanced WC/Subscriptions targeting, or should a separate Campaigns module own composable segments + drip + event-triggered sends? Pair this with the marketing automation backlog before committing.

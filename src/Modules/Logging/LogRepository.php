@@ -100,7 +100,11 @@ final class LogRepository
         $offset = ($page - 1) * $per_page;
 
         [$where, $params] = $this->build_where($filters);
-        $sql = "SELECT * FROM `" . Schema::table_name() . "` $where ORDER BY id DESC LIMIT %d OFFSET %d";
+        $orderby = self::sanitize_orderby((string) ($filters['orderby'] ?? ''));
+        $order = (string) ($filters['order'] ?? '') === 'asc' ? 'ASC' : 'DESC';
+        // `orderby` came through `sanitize_orderby` which only emits whitelisted column names —
+        // safe to interpolate. `order` is constrained to ASC/DESC above.
+        $sql = "SELECT * FROM `" . Schema::table_name() . "` $where ORDER BY $orderby $order LIMIT %d OFFSET %d";
         $params[] = $per_page;
         $params[] = $offset;
 
@@ -336,6 +340,20 @@ final class LogRepository
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_col("SELECT DISTINCT source FROM `" . Schema::table_name() . "` ORDER BY source ASC");
         return is_array($rows) ? array_values(array_filter($rows, static fn ($r): bool => is_string($r) && $r !== '')) : [];
+    }
+
+    /**
+     * Whitelist `orderby` to a stored column name; fall back to the
+     * default `id` (newest-first) when unknown. Keeps SQL injection out
+     * of the ORDER BY interpolation in `paginate()`.
+     */
+    private static function sanitize_orderby(string $key): string
+    {
+        // `to_emails` is a TEXT column storing the comma/json-joined
+        // recipient list — sort sorts lexically on the raw payload
+        // (i.e. by the first listed recipient most of the time).
+        $allowed = ['id', 'created_at', 'status', 'from_email', 'to_emails', 'subject', 'source'];
+        return in_array($key, $allowed, true) ? $key : 'id';
     }
 
     /**

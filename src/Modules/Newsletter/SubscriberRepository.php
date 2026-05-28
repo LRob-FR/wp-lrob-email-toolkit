@@ -420,15 +420,19 @@ final class SubscriberRepository
      * Paginated listing for the Subscribers admin view. `$status` filters
      * by exact status; empty string returns every status EXCEPT trashed
      * (the trashed tab uses status='trashed' explicitly). `$search` is a
-     * `LIKE '%term%'` match on email + name; empty disables it.
+     * `LIKE '%term%'` match on email + name; empty disables it. `$list_id`
+     * > 0 narrows to subscribers that are explicit members of that list
+     * (the caller resolves system / all_subscribers / users-kind cases
+     * before passing here — `all_subscribers` should pass 0 + force
+     * status='confirmed'; users-kind should never reach this method).
      *
      * @return array<int, array<string, mixed>>
      */
-    public function list_with_filters(string $status, string $search, int $limit, int $offset): array
+    public function list_with_filters(string $status, string $search, int $limit, int $offset, int $list_id = 0): array
     {
         global $wpdb;
         $table = Schema::subscribers_table();
-        [$where_sql, $where_args] = self::build_where($status, $search);
+        [$where_sql, $where_args] = self::build_where($status, $search, $list_id);
         $sql = "SELECT * FROM `$table` $where_sql ORDER BY created_at DESC LIMIT %d OFFSET %d";
         $args = array_merge($where_args, [$limit, $offset]);
         return (array) $wpdb->get_results(
@@ -438,11 +442,11 @@ final class SubscriberRepository
         );
     }
 
-    public function count_with_filters(string $status, string $search): int
+    public function count_with_filters(string $status, string $search, int $list_id = 0): int
     {
         global $wpdb;
         $table = Schema::subscribers_table();
-        [$where_sql, $where_args] = self::build_where($status, $search);
+        [$where_sql, $where_args] = self::build_where($status, $search, $list_id);
         $sql = "SELECT COUNT(*) FROM `$table` $where_sql";
         if ($where_args === []) {
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -695,7 +699,7 @@ final class SubscriberRepository
     /**
      * @return array{0:string,1:array<int,mixed>} `[$where_sql,$args]`
      */
-    private static function build_where(string $status, string $search): array
+    private static function build_where(string $status, string $search, int $list_id = 0): array
     {
         $clauses = [];
         $args = [];
@@ -710,6 +714,14 @@ final class SubscriberRepository
             $clauses[] = '(email LIKE %s OR name LIKE %s)';
             $args[] = $like;
             $args[] = $like;
+        }
+        if ($list_id > 0) {
+            $members = Schema::list_members_table();
+            $clauses[] = "EXISTS (SELECT 1 FROM `$members` lm
+                                   WHERE lm.list_id = %d
+                                     AND lm.recipient_kind = 'subscriber'
+                                     AND lm.recipient_id = " . Schema::subscribers_table() . ".id)";
+            $args[] = $list_id;
         }
         return ['WHERE ' . implode(' AND ', $clauses), $args];
     }

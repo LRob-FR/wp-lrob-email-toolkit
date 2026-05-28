@@ -141,6 +141,21 @@
     --etk-icon-size:       16px;
     --etk-icon-size-sm:    14px;
 
+    /* Text-size presets — density-tunable. Reference these instead of
+     * hardcoding `font-size: 11px` / `12px` / etc. on chrome elements
+     * so a future density flip (compact / spacious) flows everywhere.
+     *   - xxs  : tiny glyphs (sort arrows, badge numerals)
+     *   - xs   : table headers, secondary chrome labels
+     *   - sm   : count badges, muted chrome text
+     *   - md   : default chrome / input text (alias of input-font-size)
+     *   - lg   : body / detail-modal body text
+     */
+    --etk-text-xxs: 10px;
+    --etk-text-xs:  11px;
+    --etk-text-sm:  12px;
+    --etk-text-md:  13px;
+    --etk-text-lg:  14px;
+
     /* Motion */
     --etk-transition:       0.15s ease;
     --etk-transition-slow:  0.30s ease;
@@ -155,6 +170,15 @@
     margin: 32px 0 12px;
     padding-top: 16px;
     border-top: 1px solid var(--etk-line);
+}
+/* When the first section-title on a page immediately follows the page
+ * header (optionally with just the empty flash placeholder between),
+ * suppress its top border so we don't stack two divider lines. */
+.lrob-etk .lrob-etk-page-header + .lrob-etk-section-title,
+.lrob-etk .lrob-etk-page-header + .lrob-etk-flash:empty + .lrob-etk-section-title {
+    border-top: 0;
+    padding-top: 0;
+    margin-top: 8px;
 }
 
 /* Reduce form-table breathing room inside our wrap */

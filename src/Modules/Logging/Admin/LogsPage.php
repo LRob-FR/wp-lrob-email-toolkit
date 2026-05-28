@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging\Admin;
 
-use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Admin\RetentionToggle;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage as ContactFormSubmissionsPage;
@@ -87,8 +86,9 @@ final class LogsPage
     private function render_logs_view(): void
     {
         $filters = self::parse_filters();
-        $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
-        $per_page = max(5, min(500, $per_page));
+        // Inline session-cookie picker (Admin\PerPagePicker) replaces the
+        // former admin-level OPTION_PER_PAGE setting.
+        $per_page = \LRob\EmailToolkit\Admin\PerPagePicker::parse('logs', AjaxController::DEFAULT_PER_PAGE);
         $page = max(1, isset($_GET['paged']) ? (int) $_GET['paged'] : 1);
         $total = $this->repository->count($filters);
         $total_pages = max(1, (int) ceil($total / $per_page));
@@ -128,8 +128,9 @@ final class LogsPage
     /** Public render entry point for the AJAX list-filter endpoint. */
     public function render_list_region_for_filters(array $filters, int $page): void
     {
-        $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
-        $per_page = max(5, min(500, $per_page));
+        // Inline session-cookie picker (Admin\PerPagePicker) replaces the
+        // former admin-level OPTION_PER_PAGE setting.
+        $per_page = \LRob\EmailToolkit\Admin\PerPagePicker::parse('logs', AjaxController::DEFAULT_PER_PAGE);
         $total = $this->repository->count($filters);
         $total_pages = max(1, (int) ceil($total / $per_page));
         if ($page > $total_pages) {
@@ -202,6 +203,15 @@ final class LogsPage
             : '';
         if (in_array($mode, ['include', 'only'], true)) {
             $f['newsletter_mode'] = $mode;
+        }
+        if (!empty($src['orderby']) && is_string($src['orderby'])) {
+            $f['orderby'] = sanitize_key((string) $src['orderby']);
+        }
+        if (!empty($src['order']) && is_string($src['order'])) {
+            $o = sanitize_key((string) $src['order']);
+            if (in_array($o, ['asc', 'desc'], true)) {
+                $f['order'] = $o;
+            }
         }
         return $f;
     }
@@ -304,26 +314,24 @@ final class LogsPage
         $last = min($total, $page * $per_page);
         ?>
         <div class="lrob-etk-bulk-toolbar">
-            <div class="lrob-etk-bulk-selection">
-                <label>
-                    <input type="checkbox" id="lrob-etk-select-all">
-                    <span class="lrob-etk-bulk-count"><?php
-                        printf(
-                            /* translators: 1: first index, 2: last index, 3: total count */
-                            esc_html__('Showing %1$d–%2$d of %3$d', 'lrob-email-toolkit'),
-                            $first,
-                            $last,
-                            $total
-                        );
-                    ?></span>
-                </label>
-            </div>
             <div class="lrob-etk-bulk-action">
                 <select id="lrob-etk-bulk-select" class="lrob-etk-select">
                     <option value=""><?php esc_html_e('Bulk action…', 'lrob-email-toolkit'); ?></option>
                     <option value="delete"><?php esc_html_e('Delete', 'lrob-email-toolkit'); ?></option>
                 </select>
                 <button type="button" id="lrob-etk-bulk-apply" class="button"><?php esc_html_e('Apply', 'lrob-email-toolkit'); ?></button>
+            </div>
+            <div class="lrob-etk-bulk-action">
+                <span class="lrob-etk-bulk-count"><?php
+                    printf(
+                        /* translators: 1: first index, 2: last index, 3: total count */
+                        esc_html__('Showing %1$d–%2$d of %3$d', 'lrob-email-toolkit'),
+                        $first,
+                        $last,
+                        $total
+                    );
+                ?></span>
+                <?php \LRob\EmailToolkit\Admin\PerPagePicker::render('logs', $per_page); ?>
             </div>
         </div>
         <?php
@@ -340,13 +348,13 @@ final class LogsPage
             <table class="lrob-etk-data-table">
                 <thead>
                     <tr>
-                        <th class="col-check"></th>
-                        <th class="col-date"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-from"><?php esc_html_e('From', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-to"><?php esc_html_e('To', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-subject"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></th>
-                        <th class="col-source"><?php esc_html_e('Source', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-check"><input type="checkbox" id="lrob-etk-select-all" aria-label="<?php esc_attr_e('Select all', 'lrob-email-toolkit'); ?>"></th>
+                        <th class="col-date" data-sort-key="created_at"><?php esc_html_e('Date', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-status" data-sort-key="status"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-from" data-sort-key="from_email"><?php esc_html_e('From', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-to" data-sort-key="to_emails"><?php esc_html_e('To', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-subject" data-sort-key="subject"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></th>
+                        <th class="col-source" data-sort-key="source"><?php esc_html_e('Source', 'lrob-email-toolkit'); ?></th>
                         <th class="col-actions"><?php esc_html_e('Actions', 'lrob-email-toolkit'); ?></th>
                     </tr>
                 </thead>
@@ -467,18 +475,16 @@ final class LogsPage
      * Cleanup popovers. Three sections, all on one auto-saving card:
      *
      *   - Retention  : Admin\RetentionToggle (checkbox + days, 0 = off)
-     *   - Display    : entries-per-page combobox
      *   - Cleanup    : one-shot delete-older-than action (explicit button
      *                  because it's destructive — no auto-save here)
+     *
+     * Per-page picker is rendered inline above the table by
+     * `Admin\PerPagePicker` (session-cookie persisted) — no longer
+     * surfaced as an admin-level setting here.
      */
     private function render_storage_modal(): void
     {
         $retention = (int) get_option(RetentionCron::OPTION_RETENTION_DAYS, RetentionCron::DEFAULT_RETENTION_DAYS);
-        $per_page = (int) get_option(AjaxController::OPTION_PER_PAGE, AjaxController::DEFAULT_PER_PAGE);
-        $per_page_options = [];
-        foreach ([10, 20, 50, 100, 200] as $opt) {
-            $per_page_options[] = ['value' => (string) $opt, 'label' => (string) $opt];
-        }
         ?>
         <div class="lrob-etk-modal" id="lrob-etk-logs-storage-modal" role="dialog" aria-modal="true" aria-labelledby="lrob-etk-logs-storage-title" hidden>
             <div class="lrob-etk-modal-backdrop" data-modal-close></div>
@@ -510,18 +516,6 @@ final class LogsPage
                                         'auto_save_marker' => 'lrob-etk-logs-field',
                                         'default_days'     => RetentionCron::DEFAULT_RETENTION_DAYS,
                                     ]); ?>
-                                </div>
-
-                                <h4 class="lrob-etk-popover-section-title"><?php esc_html_e('Display', 'lrob-email-toolkit'); ?></h4>
-                                <div class="lrob-etk-field">
-                                    <label><?php esc_html_e('Entries per page', 'lrob-email-toolkit'); ?></label>
-                                    <?php Combobox::render_fixed_select(
-                                        'per_page',
-                                        (string) $per_page,
-                                        $per_page_options,
-                                        '',
-                                        'lrob-etk-logs-field'
-                                    ); ?>
                                 </div>
 
                                 <h4 class="lrob-etk-popover-section-title"><?php esc_html_e('Manual cleanup', 'lrob-email-toolkit'); ?></h4>
@@ -742,13 +736,29 @@ final class LogsPage
 
     whenReady(function () {
     // ---- Live filter (shared etk-list-filter helper) ----
+    var filterApi = null;
     if (window.lrobEtkListFilter) {
-        window.lrobEtkListFilter.attach({
+        filterApi = window.lrobEtkListFilter.attach({
             formSelector:   '[data-etk-list-form]',
             regionSelector: '[data-etk-list-region]',
             ajaxUrl:        L.ajaxUrl,
             nonce:          L.nonce,
             action:         L.actions.listFilter,
+        });
+    }
+    if (window.lrobEtkSortable) {
+        window.lrobEtkSortable.attach({
+            cookieKey:      'lrob_etk_sort_logs',
+            formSelector:   '[data-etk-list-form]',
+            regionSelector: '[data-etk-list-region]',
+            filterApi:      filterApi,
+        });
+    }
+    if (window.lrobEtkPerPage) {
+        window.lrobEtkPerPage.attach({
+            slug:         'logs',
+            formSelector: '[data-etk-list-form]',
+            filterApi:    filterApi,
         });
     }
 

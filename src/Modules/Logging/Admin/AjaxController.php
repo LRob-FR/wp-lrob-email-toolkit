@@ -114,11 +114,6 @@ final class AjaxController
                 update_option(\LRob\EmailToolkit\Modules\Logging\RetentionCron::OPTION_RETENTION_DAYS, $days);
                 wp_send_json_success(['key' => $key, 'stored' => $days]);
 
-            case 'per_page':
-                $per = max(5, min(500, (int) $raw));
-                update_option(self::OPTION_PER_PAGE, $per);
-                wp_send_json_success(['key' => $key, 'stored' => $per]);
-
             default:
                 wp_send_json_error(['message' => __('Unknown setting.', 'lrob-email-toolkit')], 400);
         }

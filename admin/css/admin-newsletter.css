@@ -316,6 +316,14 @@
     font-size: 11px;
     font-weight: 500;
     white-space: nowrap;
+    text-decoration: none;
+    transition: background var(--etk-transition), color var(--etk-transition);
+}
+a.lrob-etk-nl-list-count-badge:hover,
+a.lrob-etk-nl-list-count-badge:focus {
+    background: var(--etk-accent);
+    color: var(--etk-input-bg);
+    text-decoration: none;
 }
 .lrob-etk-nl-list-visibility-chip {
     flex: 0 0 auto;
@@ -864,26 +872,8 @@
  * .lrob-etk-section-tabs primitive from admin-components.css — no more
  * Newsletter-specific styling. */
 
-.lrob-etk-nl-subscribers-toolbar {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin: 0 0 1rem;
-    flex-wrap: wrap;
-}
-
-.lrob-etk-nl-search {
-    padding: 0.4rem 0.6rem;
-    border: 1px solid var(--etk-line);
-    border-radius: var(--etk-radius-sm);
-    min-width: 18rem;
-}
-
-.lrob-etk-nl-empty-trash {
-    margin-left: auto;
-    color: var(--lrob-etk-color-danger, var(--etk-danger)) !important;
-    border-color: var(--lrob-etk-color-danger, var(--etk-danger)) !important;
-}
+/* .lrob-etk-nl-empty-trash is a JS hook only — the danger styling comes
+ * from .lrob-etk-btn--danger on the same button. */
 
 .lrob-etk-nl-trash-note {
     margin: 0 0 1rem;
@@ -993,12 +983,6 @@
 .lrob-etk-nl-import-result.is-success { background: var(--etk-success-bg); color: var(--etk-text-success); }
 .lrob-etk-nl-import-result.is-failure { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
 
-.lrob-etk-bulk-toolbar-right {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--etk-space-2);
-}
 .col-bulk-check {
     width: 28px;
     text-align: center;
@@ -1203,32 +1187,42 @@
 .lrob-etk-nl-status-sent         { background: #e1f6e6; color: #155724; }
 .lrob-etk-nl-status-failed       { background: var(--etk-danger-bg); color: var(--etk-text-danger); }
 .lrob-etk-nl-status-aborted      { background: #e6e6e6; color: var(--etk-muted); }
+/* `opted_in` / `opted_out` reuse the `confirmed` / `unsubscribed` pill
+ * visuals — mapped in PHP at render time (SubscribersPage::status_pill_class)
+ * to avoid duplicating colour values. */
 
-.lrob-etk-nl-pagination {
-    display: flex;
-    gap: 0.25rem;
+/* Inline opt-in toggle on the WP-users tab: checkbox + status pill on one
+ * row. Click anywhere flips the checkbox; pill colour follows the
+ * effective-status class. */
+.lrob-etk-nl-opt-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--etk-space-2);
+    cursor: pointer;
+}
+.lrob-etk-nl-opt-toggle input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Small inline glyph next to a row's email/name to flag the recipient
+ * type at a glance (admin-users icon for WP users). The Type column
+ * pill is the primary indicator; the glyph is the always-on subtle
+ * one. */
+.lrob-etk-nl-type-glyph {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    margin: 1.25rem 0;
+    width: var(--etk-icon-size);
+    height: var(--etk-icon-size);
+    margin-right: var(--etk-space-1);
+    vertical-align: middle;
+    color: var(--etk-accent);
 }
-
-.lrob-etk-nl-pagenum {
-    padding: 0.35rem 0.7rem;
-    border: 1px solid var(--etk-line);
-    border-radius: var(--etk-radius-sm);
-    color: var(--lrob-etk-color-primary, var(--etk-accent));
-    text-decoration: none;
-    font-size: 0.88rem;
-}
-
-.lrob-etk-nl-pagenum:hover,
-.lrob-etk-nl-pagenum:focus {
-    background: rgba(34, 113, 177, 0.08);
-}
-
-.lrob-etk-nl-pagenum.is-active {
-    background: var(--lrob-etk-color-primary, var(--etk-accent));
-    border-color: var(--lrob-etk-color-primary, var(--etk-accent));
-    color: #fff;
+.lrob-etk-nl-type-glyph .dashicons {
+    font-size: var(--etk-icon-size);
+    width: var(--etk-icon-size);
+    height: var(--etk-icon-size);
+    line-height: 1;
 }
 
 /* -------------------------------------------------------------------------

@@ -41,6 +41,21 @@
                 action:         DATA.actionFilter || 'lrob_etk_cf_submissions_filter',
             });
         }
+        if (window.lrobEtkSortable) {
+            window.lrobEtkSortable.attach({
+                cookieKey:      'lrob_etk_sort_cf_submissions',
+                formSelector:   '[data-etk-list-form]',
+                regionSelector: '[data-etk-list-region]',
+                filterApi:      filterApi,
+            });
+        }
+        if (window.lrobEtkPerPage) {
+            window.lrobEtkPerPage.attach({
+                slug:         'cf_submissions',
+                formSelector: '[data-etk-list-form]',
+                filterApi:    filterApi,
+            });
+        }
         bindDelegatedHandlers();
     }
     // Thin wrapper so callers that fired the old in-file reloadList don't

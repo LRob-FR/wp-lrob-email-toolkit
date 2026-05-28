@@ -78,8 +78,11 @@
 /* ---------- Plugin-wide confirm prompt (replaces window.confirm() so
  *            the look stays consistent + popup blockers don't bite). */
 
+/* Keep the modal's flexbox centering (display: flex from .lrob-etk-modal)
+ * instead of replacing it with block — `display: block` would left-anchor
+ * the dialog at the top of the viewport. */
 .lrob-etk-confirm-prompt.is-open {
-    display: block;
+    display: flex;
 }
 .lrob-etk-confirm-prompt-message {
     margin: 0;
@@ -1146,6 +1149,33 @@ body.lrob-etk-modal-open {
     border-bottom: 1px solid var(--etk-line);
     white-space: nowrap;
 }
+/* Sortable column headers — clickable, with a ▲/▼ glyph on the active
+ * column. Driven by etk-sortable.js via .is-sort-asc / .is-sort-desc.
+ * Hover swap is instant (no transition) — a transition fires on first
+ * paint and produces a visible flicker until the browser has cached
+ * the from-state of the pseudo-class. */
+.lrob-etk-data-table thead th[data-sort-key] {
+    cursor: pointer;
+    user-select: none;
+}
+.lrob-etk-data-table thead th[data-sort-key]:hover {
+    background: var(--etk-line);
+    color: var(--etk-fg);
+}
+.lrob-etk-data-table thead th[data-sort-key].is-sort-asc,
+.lrob-etk-data-table thead th[data-sort-key].is-sort-desc {
+    color: var(--etk-accent);
+}
+.lrob-etk-data-table thead th[data-sort-key].is-sort-asc::after {
+    content: ' ▲';
+    font-size: var(--etk-text-xxs);
+    opacity: 0.85;
+}
+.lrob-etk-data-table thead th[data-sort-key].is-sort-desc::after {
+    content: ' ▼';
+    font-size: var(--etk-text-xxs);
+    opacity: 0.85;
+}
 .lrob-etk-data-table tbody td {
     padding: 10px 12px;
     border-top: 1px solid var(--etk-soft);
@@ -1200,26 +1230,22 @@ body.lrob-etk-modal-open {
     border-radius: var(--etk-radius-md) var(--etk-radius-md) 0 0;
     flex-wrap: wrap;
 }
-.lrob-etk-bulk-selection {
-    display: flex;
-    align-items: center;
-    gap: var(--etk-space-2);
-}
-.lrob-etk-bulk-selection label {
+.lrob-etk-bulk-count {
     display: inline-flex;
     align-items: center;
     gap: var(--etk-space-2);
-    cursor: pointer;
-    font-size: 12px;
     color: var(--etk-muted);
+    font-size: var(--etk-text-sm);
 }
-.lrob-etk-bulk-count {
-    color: var(--etk-muted);
-    font-size: 12px;
-}
+/* Generic in-toolbar cluster — flex+gap. Used for BOTH the left
+ * action group (bulk-action dropdown + Apply) and any right cluster
+ * (count + per-page select + icon buttons). Stays the only horizontal
+ * grouping primitive inside `.lrob-etk-bulk-toolbar`. */
 .lrob-etk-bulk-action {
     display: flex;
-    gap: 6px;
+    align-items: center;
+    gap: var(--etk-space-2);
+    flex-wrap: wrap;
 }
 
 /* ---------- Pagination ---------- */

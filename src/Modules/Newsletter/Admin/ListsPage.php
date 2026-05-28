@@ -240,17 +240,39 @@ final class ListsPage
                                 // so a "live" rule-resolved count would need a per-row
                                 // Materializer dry-run (too expensive for an index view).
                                 if (!$is_users_kind || $member_count > 0) :
+                                    $count_text = sprintf(
+                                        /* translators: %s: number of members on this list (already formatted) */
+                                        _n('%s member', '%s members', $member_count, 'lrob-email-toolkit'),
+                                        number_format_i18n($member_count)
+                                    );
+                                    // Cross-link to the Subscribers admin filtered by this
+                                    // list — only meaningful when the list actually holds
+                                    // subscribers (subscribers-kind + all_subscribers
+                                    // system list). users-kind lists target WP users and
+                                    // have nothing to show on this page.
+                                    $cross_link = !$is_users_kind
+                                        ? add_query_arg(
+                                            [
+                                                'page'    => PageController::SLUG,
+                                                'view'    => HomePage::VIEW_SUBSCRIBERS,
+                                                'list_id' => $id,
+                                            ],
+                                            admin_url('admin.php')
+                                          )
+                                        : '';
                                     ?>
-                                    <span class="lrob-etk-nl-list-count-badge"
-                                          title="<?php echo $is_users_kind
-                                              ? esc_attr__('Manually-added members. Rule matches resolve at send time and aren\'t counted here.', 'lrob-email-toolkit')
-                                              : esc_attr__('Subscribers on this list.', 'lrob-email-toolkit'); ?>">
-                                        <?php echo esc_html(sprintf(
-                                            /* translators: %s: number of members on this list (already formatted) */
-                                            _n('%s member', '%s members', $member_count, 'lrob-email-toolkit'),
-                                            number_format_i18n($member_count)
-                                        )); ?>
-                                    </span>
+                                    <?php if ($cross_link !== '') : ?>
+                                        <a class="lrob-etk-nl-list-count-badge"
+                                           href="<?php echo esc_url($cross_link); ?>"
+                                           title="<?php esc_attr_e('View these subscribers in the Subscribers admin.', 'lrob-email-toolkit'); ?>">
+                                            <?php echo esc_html($count_text); ?>
+                                        </a>
+                                    <?php else : ?>
+                                        <span class="lrob-etk-nl-list-count-badge"
+                                              title="<?php esc_attr_e('Manually-added members. Rule matches resolve at send time and aren\'t counted here.', 'lrob-email-toolkit'); ?>">
+                                            <?php echo esc_html($count_text); ?>
+                                        </span>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <?php if ($show_visibility) : ?>
                                     <button type="button"

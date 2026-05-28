@@ -2,9 +2,13 @@
 
 Guidance for Claude Code sessions working in this repository.
 
-**Project status & history → [completed.md](./completed.md). Backlog → [todo.md](./todo.md).** Read those when planning new work or claiming something's shipped.
+## 📖 READ THIS FIRST, EVERY SESSION
 
-**Keep these two files in sync as you work.** Whenever a feature lands or a backlog item gains/loses scope, update `todo.md` and `completed.md` in the same change — don't defer to "later". Stale entries (e.g. *working tree; pending release* on something already shipped, or a backlog bullet for something now in `completed.md`) are bugs in the docs.
+**Before touching any code or suggesting any feature work, READ [todo.md](./todo.md) — specifically its "🗺️ Roadmap to 1.0" section at the top.** The user has locked the milestone sequence to 1.0 (v0.4.x → v0.5.x → … → v1.0.0). **Do not propose work from a later milestone before the current one ships.** Do not invent new priorities — if it's not in the roadmap, ask before building it.
+
+**Then check [completed.md](./completed.md)** for what's already shipped (so you don't reinvent or duplicate). Also load memory `project_1_0_release_prerequisites` — it's the short-form pointer to the roadmap with status flags on the original 1.0 gates.
+
+**Keep `todo.md` and `completed.md` in sync as you work.** When a feature lands or a backlog item gains/loses scope, update both files in the same change — don't defer to "later". Stale entries (e.g. *working tree; pending release* on something already shipped, or a backlog bullet for something now in `completed.md`) are bugs in the docs. Also: when a milestone ships, update the roadmap section in `todo.md` to flag it shipped + move the line items to `completed.md`.
 
 ## Project
 
@@ -93,7 +97,7 @@ Admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table
 
 ### Design tokens (admin-base.css)
 
-Single source for every color, radius, shadow, spacing, transition. Hardcoding these is forbidden — if you need a new value, add a token. Adapting one (dark mode, compact mode, roundness preset) then ripples everywhere.
+Single source for every color, radius, shadow, spacing, transition, **and text size**. **Hardcoding chrome values is forbidden** — `font-size: 12px`, `gap: 6px`, `padding: 8px`, `color: #eee`, `border-radius: 4px` all belong to a token. If a needed value isn't tokenized yet, **add a token to admin-base.css first**, then reference it. Adapting one (dark mode, compact density, roundness preset) then ripples everywhere. The same rule applies to **reuse**: before forking a new class, grep for similar existing primitives — extend rather than duplicate (see memory `feedback_css_tokens_no_hardcode`).
 
 | Token family | Values |
 |---|---|
@@ -102,10 +106,13 @@ Single source for every color, radius, shadow, spacing, transition. Hardcoding t
 | Surfaces | `--etk-card-bg` (warm off-white), `--etk-input-bg` (pure white) |
 | Radii | `--etk-radius-{sm,md,lg,xl,pill}` (4 / 6 / 8 / 12 / 999px). Legacy alias `--etk-radius` = md. |
 | Shadows | `--etk-shadow-{sm,md,lg,modal,menu}` |
-| Spacing | `--etk-space-{1..6}` (4 / 8 / 12 / 16 / 24 / 32px) |
-| Inputs | `--etk-input-height` (30px), `--etk-input-height-sm` (28px), `--etk-input-font-size` (13px) |
+| Spacing | `--etk-space-{1..6}` (4 / 8 / 12 / 16 / 24 / 32px). Snap to grid — don't add `--etk-space-1-5` for 6px, round to 4px or 8px. |
+| Text sizes | `--etk-text-{xxs,xs,sm,md,lg}` (10 / 11 / 12 / 13 / 14px). Density-tunable — every chrome `font-size` references one of these. |
+| Inputs | `--etk-input-height` (30px), `--etk-input-height-sm` (28px), `--etk-input-font-size` (13px, aliases `--etk-text-md`) |
 | Icons | `--etk-icon-size` (16px), `--etk-icon-size-sm` (14px) |
 | Motion | `--etk-transition` (0.15s ease), `--etk-transition-slow` (0.30s ease) |
+
+**Pre-existing tech debt note:** historical hardcoded values (`font-size: 12px` in old `.lrob-etk-nl-status-*` pills, `padding: 8px 12px` on table heads, etc.) predate the token system — don't mass-refactor them mid-feature, risk of visual regression. Add tokens cleanly to NEW additions; the user will ask for an explicit cleanup pass when migrating the old ones.
 
 ### Shared PHP renderers (src/Admin/)
 
