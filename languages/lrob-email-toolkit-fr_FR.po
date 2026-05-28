@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-28T00:29:11+00:00\n"
+"POT-Creation-Date: 2026-05-28T01:11:02+00:00\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #. Plugin Name of the plugin
@@ -791,7 +791,7 @@ msgstr "Activer"
 
 #: src/Admin/PerPagePicker.php:63
 msgid "Per page"
-msgstr ""
+msgstr "Par page"
 
 #: src/Admin/RetentionToggle.php:43
 msgid "Auto-delete after"
@@ -4972,44 +4972,38 @@ msgid "Missing list/user id."
 msgstr "ID de liste ou d'utilisateur manquant."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1049
-#, fuzzy
 msgid "Select at least one recipient."
-msgstr "Sélectionnez au moins une entrée."
+msgstr "Sélectionnez au moins un destinataire."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1103
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:271
-#, fuzzy
 msgid "Pick a list first."
-msgstr "Choisissez d'abord une action."
+msgstr "Choisissez d'abord une liste."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1108
 #: src/Modules/Newsletter/Admin/AjaxController.php:1198
-#, fuzzy
 msgid "List not found."
-msgstr "Formulaire introuvable."
+msgstr "Liste introuvable."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1111
 msgid "That list doesn't accept manual memberships."
-msgstr ""
+msgstr "Cette liste n'accepte pas les adhésions manuelles."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1168
-#, fuzzy
 msgid "WP user not found."
-msgstr "Formulaire introuvable."
+msgstr "Utilisateur WP introuvable."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1194
-#, fuzzy
 msgid "Missing or invalid user/list id."
-msgstr "Valeur de visibilité manquante ou invalide."
+msgstr "ID utilisateur ou liste manquant ou invalide."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1201
 msgid "This list isn't toggleable per-user."
-msgstr ""
+msgstr "Cette liste n'est pas modifiable par utilisateur."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1222
-#, fuzzy
 msgid "User not found."
-msgstr "Formulaire introuvable."
+msgstr "Utilisateur introuvable."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1256
 msgid "That email already belongs to another subscriber."
@@ -5033,7 +5027,7 @@ msgstr "Abonné ou liste introuvable."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1281
 msgid "This list isn't toggleable per-subscriber."
-msgstr ""
+msgstr "Cette liste n'est pas modifiable par abonné."
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1304
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1314
@@ -5718,7 +5712,7 @@ msgstr[1] "%s membres"
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:267
 msgid "View these subscribers in the Subscribers admin."
-msgstr ""
+msgstr "Voir ces abonnés dans l'admin Abonnés."
 
 #: src/Modules/Newsletter/Admin/ListsPage.php:272
 msgid ""
@@ -6676,9 +6670,8 @@ msgid "Wait this long between subsequent reminders. Default: 7."
 msgstr "Délai entre les rappels suivants. Par défaut : 7."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:39
-#, fuzzy
 msgid "Type"
-msgstr "Types"
+msgstr "Type"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:44
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2334
@@ -6822,48 +6815,46 @@ msgstr "Restaurer %d abonnés depuis la corbeille ?"
 
 #. translators: %d: count of recipients to opt-in
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:261
-#, fuzzy
 msgid "Opt-in %d recipients?"
-msgstr "Ajouter un destinataire"
+msgstr "Opt-in pour %d destinataires ?"
 
 #. translators: %d: count of recipients to opt-out
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:265
-#, fuzzy
 msgid "Opt-out %d recipients?"
-msgstr "Destinataire personnalisé"
+msgstr "Opt-out pour %d destinataires ?"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:267
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1365
 msgid "Opt-in / Opt-out"
-msgstr ""
+msgstr "Opt-in / Opt-out"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:268
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1366
 msgid "Opt-in"
-msgstr ""
+msgstr "Opt-in"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:269
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1367
-#, fuzzy
 msgid "Opt-out"
-msgstr "Désinscrits"
+msgstr "Opt-out"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:270
 msgid ""
 "That action applies to subscribers only — none of the selected rows are "
 "subscribers."
 msgstr ""
+"Cette action ne s'applique qu'aux abonnés — aucune des lignes sélectionnées "
+"n'est un abonné."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:272
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:277
-#, fuzzy
 msgid "Add to list"
-msgstr "Ajouter une identité"
+msgstr "Ajouter à la liste"
 
 #. translators: %d: count of recipients to add to a list
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:275
 msgid "Add %d recipients to the selected list?"
-msgstr ""
+msgstr "Ajouter %d destinataires à la liste sélectionnée ?"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1010
 msgid "1 subscriber detected"
@@ -6884,28 +6875,24 @@ msgid "Done — added %1$d, updated %2$d, skipped %3$d."
 msgstr "Terminé — %1$d ajouté(s), %2$d mis à jour, %3$d ignoré(s)."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1167
-#, fuzzy
 msgid "List"
-msgstr "Listes"
+msgstr "Liste"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1169
-#, fuzzy
 msgid "All lists"
-msgstr "Ajouter une identité"
+msgstr "Toutes les listes"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1193
-#, fuzzy
 msgid "WP users"
-msgstr "Liste d'utilisateurs WP"
+msgstr "Utilisateurs WP"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1195
-#, fuzzy
 msgid "Include"
-msgstr "Exclure"
+msgstr "Inclure"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1196
 msgid "Only"
-msgstr ""
+msgstr "Uniquement"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1207
 msgid "Search email or name"
@@ -6915,11 +6902,12 @@ msgstr "Modèles de démarrage"
 msgid ""
 "That list targets WordPress users, not subscribers — no rows to show here."
 msgstr ""
+"Cette liste cible des utilisateurs WordPress, pas des abonnés — aucune ligne "
+"à afficher ici."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1345
-#, fuzzy
 msgid "No subscribers match these filters."
-msgstr "Aucun abonné ne correspond à cette recherche."
+msgstr "Aucun abonné ne correspond à ces filtres."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1347
 msgid ""
@@ -6934,14 +6922,12 @@ msgid "No subscribers with this status."
 msgstr "Aucun abonné avec ce statut."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1370
-#, fuzzy
 msgid "Add to list…"
-msgstr "Ajouter une identité"
+msgstr "Ajouter à une liste…"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1372
-#, fuzzy
 msgid "Subscribers only"
-msgstr "S'inscrire"
+msgstr "Abonnés uniquement"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1374
 msgid "Restore from trash"
@@ -6949,7 +6935,7 @@ msgstr "Restaurer depuis la corbeille"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1379
 msgid "Pick a list…"
-msgstr ""
+msgstr "Choisir une liste…"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1407
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1408
@@ -6958,9 +6944,8 @@ msgid "Columns"
 msgstr "Colonnes"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1491
-#, fuzzy
 msgid "Subscribers pagination"
-msgstr "Pagination des journaux"
+msgstr "Pagination des abonnés"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1519
 msgid "Pick which columns appear in the Subscribers table. Saved per-admin."
@@ -7030,23 +7015,20 @@ msgstr "Ajouter aux listes (optionnel)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1687
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1688
-#, fuzzy
 msgid "WordPress user"
-msgstr "Utilisateurs WordPress"
+msgstr "Utilisateur WordPress"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1695
 msgid "(no email)"
 msgstr "(aucun email)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1703
-#, fuzzy
 msgid "WP user"
-msgstr "Liste d'utilisateurs WP"
+msgstr "Utilisateur WP"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1703
-#, fuzzy
 msgid "Subscriber"
-msgstr "S'inscrire"
+msgstr "Abonné"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1835
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1853
@@ -7054,15 +7036,13 @@ msgid "View / edit"
 msgstr "Voir / modifier"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1836
-#, fuzzy
 msgid "View WP user details"
-msgstr "Voir les détails de l'abonné"
+msgstr "Voir les détails de l'utilisateur WP"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1843
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1844
-#, fuzzy
 msgid "Open in WordPress user editor"
-msgstr "Utilisateurs WordPress"
+msgstr "Ouvrir dans l'éditeur d'utilisateur WordPress"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1854
 msgid "View subscriber details"
@@ -7081,34 +7061,29 @@ msgid "Move subscriber to trash"
 msgstr "Mettre l'abonné à la corbeille"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1950
-#, fuzzy
 msgid "(unknown WP user)"
-msgstr "(abonné inconnu)"
+msgstr "(utilisateur WP inconnu)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1996
-#, fuzzy
 msgid "Identity (WP user)"
-msgstr "Identité (source)"
+msgstr "Identité (utilisateur WP)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2003
-#, fuzzy
 msgid "Display name"
-msgstr "Affichage"
+msgstr "Nom affiché"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2007
-#, fuzzy
 msgid "Role(s)"
-msgstr "Rôles"
+msgstr "Rôle(s)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2014
-#, fuzzy
 msgid "Edit identity fields in the WordPress user editor →"
-msgstr "Utilisateurs WordPress"
+msgstr ""
+"Modifier les champs d'identité dans l'éditeur d'utilisateur WordPress →"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2029
-#, fuzzy
 msgid "Registered"
-msgstr "tous délivrés"
+msgstr "Inscrit le"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2047
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2343
@@ -7123,19 +7098,21 @@ msgid "Newsletter preferences"
 msgstr "Newsletter"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2059
-#, fuzzy
 msgid "Receive newsletter emails (opt-in)"
-msgstr "Voir le formulaire de contact"
+msgstr "Recevoir les emails de newsletter (opt-in)"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2062
 msgid ""
 "WP users are opt-out by default — uncheck to stop sending. Transactional "
 "emails (password resets, etc.) are unaffected."
 msgstr ""
+"Les utilisateurs WP sont opt-in par défaut — décochez pour arrêter l'envoi. "
+"Les emails transactionnels (réinitialisation de mot de passe, etc.) ne sont "
+"pas affectés."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2067
 msgid "Manual list memberships"
-msgstr ""
+msgstr "Adhésions manuelles aux listes"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2069
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2357
@@ -7149,11 +7126,13 @@ msgid ""
 "Rule-based (WP users) lists auto-include this user when the rule matches at "
 "send time — not shown here."
 msgstr ""
+"Les listes basées sur des règles (utilisateurs WP) incluent automatiquement "
+"cet utilisateur quand la règle correspond au moment de l'envoi — non montré "
+"ici."
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2095
-#, fuzzy
 msgid "Engagement"
-msgstr "Dernier engagement"
+msgstr "Engagement"
 
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2097
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2382
