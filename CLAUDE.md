@@ -29,6 +29,18 @@ No PHPUnit, PHPCS, or PHPStan config yet — don't invent commands.
 
 **Translation workflow.** Don't translate per commit — too much churn. Run the translation pass at **milestone boundaries only**. To add a new locale, drop `lrob-email-toolkit-<locale>.po` next to `fr_FR.po` and run release.sh. To edit a `.po`, use Edit/sed directly (do not write Python parsing scripts). Fuzzy entries are flagged but NOT compiled into `.mo` until manually cleared or `msgattrib --clear-fuzzy`.
 
+### 🚫 RELEASE GATE — translations are non-negotiable before tagging
+
+**Before any `gh release create` / `gh release upload`, the `./release.sh` output's `msgfmt` line MUST read `N translated, 0 fuzzy, 0 untranslated`.** A release shipped with partial French is a broken release — users hit English fragments mid-flow. Recovery procedure + full checklist in memory `feedback_translations_before_every_release`. Quick steps:
+
+1. Run `./release.sh` — look at the msgfmt line.
+2. If `X fuzzy` > 0 or `Y untranslated` > 0, **STOP**. Don't tag.
+3. List the gap: `msgattrib --untranslated languages/lrob-email-toolkit-fr_FR.po | grep "^msgid \""` (same with `--only-fuzzy`).
+4. Write `/tmp/fixes_vX.Y.Z.po` with proper French, merge via `msgcat --use-first /tmp/fixes_vX.Y.Z.po languages/lrob-email-toolkit-fr_FR.po -o /tmp/m.po`, then `msgattrib --clear-fuzzy /tmp/m.po -o languages/lrob-email-toolkit-fr_FR.po`.
+5. Rebuild — verify `0 fuzzy, 0 untranslated`. Commit the i18n update. Then release.
+
+Already-shipped release with broken i18n? `gh release upload <tag> ../releases/lrob-email-toolkit-X.Y.Z.zip --clobber` refreshes the asset on the same tag (no version bump needed if caught early).
+
 ## Versioning
 
 Two cadences:
