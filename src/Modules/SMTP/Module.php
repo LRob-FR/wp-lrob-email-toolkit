@@ -37,7 +37,7 @@ final class Module extends AbstractModule
     public function description(): string
     {
         return __(
-            'Route outgoing emails through one or more SMTP servers, with per-source identity routing.',
+            'Send emails through your own SMTP servers.',
             'lrob-email-toolkit'
         );
     }
@@ -56,7 +56,7 @@ final class Module extends AbstractModule
      */
     public function db_version_int(): int
     {
-        return 3;
+        return 4;
     }
 
     /** Forward every migration to install() — Schema::install handles each transition idempotently. */

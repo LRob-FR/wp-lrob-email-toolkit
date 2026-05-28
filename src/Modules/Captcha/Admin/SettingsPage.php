@@ -6,6 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha\Admin;
 
 use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Admin\PageHeader;
+use LRob\EmailToolkit\Modules\Captcha\Appearance;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Identity;
 use LRob\EmailToolkit\Modules\Captcha\Providers\ProviderInterface;
@@ -47,7 +48,7 @@ final class SettingsPage
         $identities = $this->service->identity_repository()->all();
         $map = Routing::context_map();
         $default_route = isset($map[Routing::KEY_DEFAULT]) ? $map[Routing::KEY_DEFAULT] : Routing::ROUTE_NONE;
-        $this->stats_breakdown = (new StatsRepository())->breakdown_by_route(30);
+        $this->stats_breakdown = (new StatsRepository())->breakdown_by_route();
 
         ?>
         <div class="wrap lrob-etk lrob-etk-captcha-page">
@@ -64,7 +65,7 @@ final class SettingsPage
 
             <?php $this->render_builtins_section($homemade); ?>
             <?php $this->render_providers_section($providers, $identities); ?>
-            <?php $this->render_routing_section($default_route, $map); ?>
+            <?php $this->render_protection_section($default_route, $map); ?>
             <?php $this->render_diagnostics_section($identities, $map); ?>
 
             <?php $this->render_master_card_template($providers); ?>
@@ -94,22 +95,29 @@ final class SettingsPage
             <ul class="lrob-etk-captcha-builtins">
                 <?php foreach ($homemade as $slug => $challenge) :
                     $route = Routing::homemade($slug);
-                    $stats = $this->stats_breakdown[$route] ?? null;
                     $is_default = $default_route === $route;
                     ?>
                     <li>
-                        <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
-                        <div>
-                            <strong><?php echo esc_html($challenge->label()); ?></strong>
-                            <p><?php echo esc_html($challenge->description()); ?></p>
-                            <?php if ($stats !== null && $stats['total'] > 0) : ?>
+                        <div class="lrob-etk-captcha-builtin-head">
+                            <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                            <div class="lrob-etk-captcha-builtin-text">
+                                <strong><?php echo esc_html($challenge->label()); ?></strong>
+                                <p><?php echo esc_html($challenge->description()); ?></p>
                                 <p class="lrob-etk-captcha-route-stats">
-                                    <?php $this->render_route_counter($stats); ?>
+                                    <?php $this->render_route_counter($this->route_stats($route)); ?>
                                 </p>
-                            <?php endif; ?>
+                            </div>
+                            <div class="lrob-etk-card-footer-default">
+                                <?php self::render_default_marker($route, $is_default); ?>
+                            </div>
                         </div>
-                        <div class="lrob-etk-card-footer-default">
-                            <?php self::render_default_marker($route, $is_default); ?>
+                        <div class="lrob-etk-captcha-builtin-preview">
+                            <div class="lrob-etk-captcha-card-preview-head"><?php esc_html_e('Preview', 'lrob-email-toolkit'); ?></div>
+                            <?php
+                            // The challenge renders the exact frontend markup a
+                            // visitor sees (self-contained, no external script).
+                            echo $challenge->render(['context' => 'preview']); // phpcs:ignore WordPress.Security.EscapeOutput — challenge render escapes internally.
+                            ?>
                         </div>
                     </li>
                 <?php endforeach; ?>
@@ -183,19 +191,18 @@ final class SettingsPage
     private function render_route_counter(array $stats): void
     {
         ?>
-        <span class="lrob-etk-captcha-stat" title="<?php esc_attr_e('Captcha activity over the last 30 days', 'lrob-email-toolkit'); ?>">
-            <span class="lrob-etk-captcha-stat-blocked">
-                <strong><?php echo esc_html(number_format_i18n($stats['failed'])); ?></strong>
-                <?php esc_html_e('blocked', 'lrob-email-toolkit'); ?>
-            </span>
+        <span class="lrob-etk-captcha-stat" title="<?php esc_attr_e('Captcha activity since this challenge was first used', 'lrob-email-toolkit'); ?>">
+            <strong><?php echo esc_html(number_format_i18n($stats['failed'])); ?></strong> <?php esc_html_e('blocked', 'lrob-email-toolkit'); ?>
             <span class="lrob-etk-captcha-stat-sep">·</span>
-            <span class="lrob-etk-captcha-stat-passed">
-                <strong><?php echo esc_html(number_format_i18n($stats['passed'])); ?></strong>
-                <?php esc_html_e('passed', 'lrob-email-toolkit'); ?>
-            </span>
-            <span class="lrob-etk-captcha-stat-window"><?php esc_html_e('(30d)', 'lrob-email-toolkit'); ?></span>
+            <strong><?php echo esc_html(number_format_i18n($stats['passed'])); ?></strong> <?php esc_html_e('passed', 'lrob-email-toolkit'); ?>
         </span>
         <?php
+    }
+
+    /** @return array{passed:int, failed:int, total:int} */
+    private function route_stats(string $route): array
+    {
+        return $this->stats_breakdown[$route] ?? ['passed' => 0, 'failed' => 0, 'total' => 0];
     }
 
     /**
@@ -242,6 +249,8 @@ final class SettingsPage
         $is_active = $identity ? $identity->is_active : true;
         $derived_slug = $identity?->derived_slug() ?? '';
         $can_swap_provider = $is_new && count($providers) > 1;
+        $theme = $identity?->theme ?? Appearance::THEME_AUTO;
+        $size  = $identity?->size ?? Appearance::SIZE_NORMAL;
 
         // Site key is public-by-design — encoded in the rendered widget HTML
         // for visitors anyway — so it's safe to surface as a data attribute
@@ -298,11 +307,7 @@ final class SettingsPage
                     </span>
                     <?php
                     if ($identity !== null) {
-                        $route = Routing::identity((int) $identity->id);
-                        $stats = $this->stats_breakdown[$route] ?? null;
-                        if ($stats !== null && $stats['total'] > 0) {
-                            $this->render_route_counter($stats);
-                        }
+                        $this->render_route_counter($this->route_stats(Routing::identity((int) $identity->id)));
                     }
                     ?>
                 </div>
@@ -324,6 +329,17 @@ final class SettingsPage
 
                 <div class="lrob-etk-captcha-card-body" data-fields-container>
                     <?php $this->render_credential_fields($provider, $is_new, $identity); ?>
+                </div>
+
+                <div class="lrob-etk-captcha-card-appearance">
+                    <div class="lrob-etk-captcha-card-appearance-field">
+                        <label><?php esc_html_e('Theme', 'lrob-email-toolkit'); ?></label>
+                        <?php Combobox::render_fixed_select('theme', $theme, Appearance::theme_options(), '', ''); ?>
+                    </div>
+                    <div class="lrob-etk-captcha-card-appearance-field">
+                        <label><?php esc_html_e('Size', 'lrob-email-toolkit'); ?></label>
+                        <?php Combobox::render_fixed_select('size', $size, Appearance::size_options(), '', ''); ?>
+                    </div>
                 </div>
 
                 <div class="lrob-etk-captcha-card-preview" data-preview-container <?php echo $is_new ? 'hidden' : ''; ?>>
@@ -562,66 +578,83 @@ final class SettingsPage
         return $route;
     }
 
-    /** @param array<string, string> $map */
-    private function render_routing_section(string $default_route, array $map): void
+    /**
+     * Captcha protection: a prominent site-wide default + per-context
+     * overrides split into two groups — this plugin's own forms (inherit by
+     * default) and WordPress-native sections (off by default, opt-in).
+     * Per-identity widget appearance lives on each identity card instead.
+     *
+     * @param array<string, string> $map
+     */
+    private function render_protection_section(string $default_route, array $map): void
     {
-        $default_label = $this->resolve_route_label($default_route);
+        $default_options = $this->route_options_for_combobox(false, false);
+        // Plugin forms can inherit the site default; WordPress sections can't
+        // (they're opt-in), so their "off" reads "Off (default)" and there's
+        // no "Use default" option.
+        $plugin_options = $this->route_options_for_combobox(true, true);
+        $wp_options = $this->route_options_for_combobox(false, true, __('Off (default)', 'lrob-email-toolkit'));
         ?>
-        <section class="lrob-etk-captcha-section lrob-etk-captcha-routing">
-            <h2 class="lrob-etk-section-title"><?php esc_html_e('Captcha assignments', 'lrob-email-toolkit'); ?></h2>
-            <p class="description" style="max-width: 720px;">
-                <?php esc_html_e('Pick the default challenge for the whole site, then pick a per-context override below — leave a context on "None" to skip the captcha there.', 'lrob-email-toolkit'); ?>
-            </p>
+        <section class="lrob-etk-captcha-section lrob-etk-captcha-protection">
+            <h2 class="lrob-etk-section-title"><?php esc_html_e('Captcha protection', 'lrob-email-toolkit'); ?></h2>
 
-            <div class="lrob-etk-captcha-routing-grid">
-                <?php
-                $default_options = $this->route_options_for_combobox(false, false, '');
-                ?>
-                <div class="lrob-etk-captcha-routing-row lrob-etk-captcha-routing-default"
-                     data-routing-key="<?php echo esc_attr(Routing::KEY_DEFAULT); ?>">
-                    <span class="lrob-etk-captcha-routing-context-label">
-                        <?php esc_html_e('Default challenge for the whole site', 'lrob-email-toolkit'); ?>
-                    </span>
-                    <?php Combobox::render_fixed_select('lrob_etk_captcha_route__' . Routing::KEY_DEFAULT, $default_route, $default_options, '', ''); ?>
+            <div class="lrob-etk-captcha-default" data-routing-key="<?php echo esc_attr(Routing::KEY_DEFAULT); ?>">
+                <div class="lrob-etk-captcha-default-text">
+                    <strong><?php esc_html_e('Default challenge', 'lrob-email-toolkit'); ?></strong>
+                    <span class="description"><?php esc_html_e('Used on this plugin\'s forms unless you override them below.', 'lrob-email-toolkit'); ?></span>
                 </div>
+                <?php Combobox::render_fixed_select('lrob_etk_captcha_route__' . Routing::KEY_DEFAULT, $default_route, $default_options, '', ''); ?>
+            </div>
 
-                <?php foreach (Routing::known_contexts() as $context) :
-                    $current = $map[$context] ?? Routing::ROUTE_NONE;
-                    $options = $this->route_options_for_combobox(true, true, $default_label);
-                    ?>
-                    <div class="lrob-etk-captcha-routing-row"
-                         data-routing-key="<?php echo esc_attr($context); ?>">
-                        <span class="lrob-etk-captcha-routing-context-label">
-                            <?php echo esc_html(Routing::context_label($context)); ?>
-                        </span>
-                        <?php Combobox::render_fixed_select('lrob_etk_captcha_route__' . $context, $current, $options, Routing::ROUTE_INHERIT, ''); ?>
-                    </div>
+            <div class="lrob-etk-captcha-overrides">
+                <span class="lrob-etk-captcha-overrides-title"><?php esc_html_e('This plugin\'s forms', 'lrob-email-toolkit'); ?></span>
+                <?php foreach (Routing::plugin_contexts() as $context) : ?>
+                    <?php $this->render_override_row($context, $map[$context] ?? Routing::ROUTE_INHERIT, $plugin_options, Routing::ROUTE_INHERIT); ?>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="lrob-etk-captcha-overrides">
+                <span class="lrob-etk-captcha-overrides-title"><?php esc_html_e('WordPress sections', 'lrob-email-toolkit'); ?></span>
+                <p class="description lrob-etk-captcha-overrides-hint">
+                    <?php esc_html_e('Off by default — turn on captcha per WordPress section as needed.', 'lrob-email-toolkit'); ?>
+                </p>
+                <?php foreach (Routing::wp_native_contexts() as $context) : ?>
+                    <?php $this->render_override_row($context, $map[$context] ?? Routing::ROUTE_NONE, $wp_options, Routing::ROUTE_NONE); ?>
                 <?php endforeach; ?>
             </div>
         </section>
         <?php
     }
 
+    /** @param array<int, array{value:string, label:string}> $options */
+    private function render_override_row(string $context, string $current, array $options, string $inherit_value): void
+    {
+        ?>
+        <div class="lrob-etk-captcha-override-row" data-routing-key="<?php echo esc_attr($context); ?>">
+            <span class="lrob-etk-captcha-override-label"><?php echo esc_html(Routing::context_label($context)); ?></span>
+            <?php Combobox::render_fixed_select('lrob_etk_captcha_route__' . $context, $current, $options, $inherit_value, ''); ?>
+        </div>
+        <?php
+    }
+
     /**
-     * Combobox option list for the routing pickers.
+     * Combobox option list for the routing pickers. The "Use default"
+     * (inherit) and "Off" (none) entries are static — the resolved default
+     * challenge is shown once in the prominent default row above.
      *
      * @return array<int, array{value:string, label:string}>
      */
-    private function route_options_for_combobox(bool $include_inherit, bool $include_none, string $default_label): array
+    private function route_options_for_combobox(bool $include_inherit, bool $include_none, string $none_label = ''): array
     {
         $options = [];
         if ($include_inherit) {
-            $inherit_label = $default_label !== ''
-                ? sprintf(
-                    /* translators: %s: human-readable label of the currently-default challenge (e.g. "Math challenge", "hCaptcha: Production") */
-                    __('Inherit default (%s)', 'lrob-email-toolkit'),
-                    $default_label
-                )
-                : __('Inherit default', 'lrob-email-toolkit');
-            $options[] = ['value' => Routing::ROUTE_INHERIT, 'label' => $inherit_label];
+            $options[] = ['value' => Routing::ROUTE_INHERIT, 'label' => __('Use default', 'lrob-email-toolkit')];
         }
         if ($include_none) {
-            $options[] = ['value' => Routing::ROUTE_NONE, 'label' => __('None — no captcha here', 'lrob-email-toolkit')];
+            $options[] = [
+                'value' => Routing::ROUTE_NONE,
+                'label' => $none_label !== '' ? $none_label : __('Off — no captcha here', 'lrob-email-toolkit'),
+            ];
         }
         $builtin_prefix = __('Built-in', 'lrob-email-toolkit');
         foreach ($this->service->homemade_challenges() as $slug => $challenge) {
@@ -648,38 +681,6 @@ final class SettingsPage
         return $options;
     }
 
-    /**
-     * Resolve a route key to a human-readable label, used by the
-     * "Inherit default (X)" hint so admins see what they're inheriting.
-     * Returns an empty string for 'none' / 'inherit' / unresolvable routes.
-     */
-    private function resolve_route_label(string $route): string
-    {
-        if ($route === Routing::ROUTE_NONE || $route === Routing::ROUTE_INHERIT) {
-            return '';
-        }
-        $parsed = Routing::parse($route);
-        if ($parsed['kind'] === Routing::KIND_HOMEMADE) {
-            $homemade = $this->service->homemade_challenges();
-            $slug = $parsed['value'];
-            return isset($homemade[$slug]) ? (string) $homemade[$slug]->label() : '';
-        }
-        if ($parsed['kind'] === Routing::KIND_IDENTITY) {
-            $id = (int) $parsed['value'];
-            $providers = $this->service->hosted_providers();
-            foreach ($this->service->identity_repository()->all() as $identity) {
-                if ((int) $identity->id !== $id) {
-                    continue;
-                }
-                $provider = $providers[$identity->provider_slug] ?? null;
-                $type = $provider !== null ? (string) $provider->label() : $identity->provider_slug;
-                $name = $identity->label !== '' ? $identity->label : $type;
-                return sprintf('%s: %s', $type, $name);
-            }
-        }
-        return '';
-    }
-
     /** @return array<string, array<int, Identity>> */
     private function identities_grouped(): array
     {
@@ -700,10 +701,20 @@ final class SettingsPage
         // dynamically. Falls out by reflection so new providers plug in
         // without touching this method.
         $provider_scripts = [];
+        $provider_widgets = [];
         foreach ($this->service->hosted_providers() as $slug => $provider) {
             $cls = $provider::class;
             if (defined($cls . '::SCRIPT_URL')) {
                 $provider_scripts[$slug] = (string) constant($cls . '::SCRIPT_URL');
+            }
+            // Widget metadata so the preview JS stays provider-agnostic:
+            // the container class it renders into + the JS global exposing
+            // render(). New providers plug in with zero JS edits.
+            if (defined($cls . '::WIDGET_CLASS') && defined($cls . '::WIDGET_GLOBAL')) {
+                $provider_widgets[$slug] = [
+                    'class'  => (string) constant($cls . '::WIDGET_CLASS'),
+                    'global' => (string) constant($cls . '::WIDGET_GLOBAL'),
+                ];
             }
         }
         ?>
@@ -725,6 +736,7 @@ final class SettingsPage
                 setDefault:     <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_SET_DEFAULT)); ?>
             },
             providerScripts: <?php echo wp_json_encode($provider_scripts); ?>,
+            providerWidgets: <?php echo wp_json_encode($provider_widgets); ?>,
             i18n: {
                 saving:          <?php echo wp_json_encode(__('Saving…', 'lrob-email-toolkit')); ?>,
                 saved:           <?php echo wp_json_encode(__('Saved', 'lrob-email-toolkit')); ?>,
@@ -734,10 +746,7 @@ final class SettingsPage
                 previewUnsaved:  <?php echo wp_json_encode(__('Save your credentials to load the captcha widget here.', 'lrob-email-toolkit')); ?>,
                 testing:         <?php echo wp_json_encode(__('Verifying…', 'lrob-email-toolkit')); ?>,
                 testWorks:       <?php echo wp_json_encode(__('✓ Captcha works', 'lrob-email-toolkit')); ?>,
-                testFailed:      <?php echo wp_json_encode(__('✗ Verification failed', 'lrob-email-toolkit')); ?>,
-                /* translators: %s: human-readable label of the currently-default challenge (e.g. "Math challenge", "hCaptcha: Production") */
-                inheritLabelTemplate: <?php echo wp_json_encode(__('Inherit default (%s)', 'lrob-email-toolkit')); ?>,
-                inheritLabelEmpty:    <?php echo wp_json_encode(__('Inherit default (none — site-wide default is off)', 'lrob-email-toolkit')); ?>
+                testFailed:      <?php echo wp_json_encode(__('✗ Verification failed', 'lrob-email-toolkit')); ?>
             }
         };
         <?php

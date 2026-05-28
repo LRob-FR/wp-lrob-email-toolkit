@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Support;
 
 /**
- * Symmetric encryption for sensitive plugin data (SMTP passwords, IMAP
- * credentials, etc.). Uses AES-256-GCM with a key derived from WordPress's
- * AUTH_KEY via HKDF-SHA256.
+ * Symmetric encryption for sensitive plugin data (SMTP passwords,
+ * captcha-provider credentials, etc.). Uses AES-256-GCM with a key derived
+ * from WordPress's AUTH_KEY via HKDF-SHA256.
  *
  * Output format (base64-encoded): version(1) || iv(12) || tag(16) || ciphertext
  *

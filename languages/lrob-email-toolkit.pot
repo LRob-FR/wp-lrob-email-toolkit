@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LRob - Email Toolkit 0.3.5\n"
+"Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-28T01:11:02+00:00\n"
+"POT-Creation-Date: 2026-05-28T14:19:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -23,7 +23,7 @@ msgid "https://www.lrob.fr/wordpress/plugins/lrob-email-toolkit/"
 msgstr ""
 
 #. Description of the plugin
-msgid "All-in-one modular email plugin: SMTP routing, email logging with IMAP \"Save to Sent\" archiving, contact forms, newsletters, and webhook integrations. Each module is independently activatable."
+msgid "All-in-one modular email plugin: SMTP routing, email logging, contact forms, newsletters, captcha, and webhook integrations. Each module is independently activatable."
 msgstr ""
 
 #. Author of the plugin
@@ -35,31 +35,31 @@ msgid "https://www.lrob.fr"
 msgstr ""
 
 #: src/Admin/Assets.php:138
-#: src/Modules/Captcha/Admin/SettingsPage.php:729
-#: src/Modules/ContactForm/Admin/FormsPage.php:147
-#: src/Modules/Logging/Admin/LogsPage.php:574
+#: src/Modules/Captcha/Admin/SettingsPage.php:741
+#: src/Modules/ContactForm/Admin/FormsPage.php:157
+#: src/Modules/Logging/Admin/LogsPage.php:580
 #: src/Modules/Newsletter/Admin/HomePage.php:101
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:673
-#: src/Modules/SMTP/Admin/SettingsPage.php:593
+#: src/Modules/SMTP/Admin/SettingsPage.php:605
 msgid "Saving…"
 msgstr ""
 
 #: src/Admin/Assets.php:139
-#: src/Modules/Captcha/Admin/SettingsPage.php:730
-#: src/Modules/ContactForm/Admin/FormsPage.php:148
-#: src/Modules/Logging/Admin/LogsPage.php:575
+#: src/Modules/Captcha/Admin/SettingsPage.php:742
+#: src/Modules/ContactForm/Admin/FormsPage.php:158
+#: src/Modules/Logging/Admin/LogsPage.php:581
 #: src/Modules/Newsletter/Admin/HomePage.php:102
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:685
-#: src/Modules/SMTP/Admin/SettingsPage.php:594
+#: src/Modules/SMTP/Admin/SettingsPage.php:606
 msgid "Saved"
 msgstr ""
 
 #: src/Admin/Assets.php:140
-#: src/Modules/Captcha/Admin/SettingsPage.php:731
-#: src/Modules/ContactForm/Admin/FormsPage.php:149
-#: src/Modules/Logging/Admin/LogsPage.php:576
+#: src/Modules/Captcha/Admin/SettingsPage.php:743
+#: src/Modules/ContactForm/Admin/FormsPage.php:159
+#: src/Modules/Logging/Admin/LogsPage.php:582
 #: src/Modules/Newsletter/Admin/HomePage.php:103
-#: src/Modules/SMTP/Admin/SettingsPage.php:595
+#: src/Modules/SMTP/Admin/SettingsPage.php:607
 msgid "Save failed"
 msgstr ""
 
@@ -75,8 +75,8 @@ msgstr ""
 #: src/Admin/DataPage.php:61
 #: src/Admin/DataPage.php:297
 #: src/Modules/AbstractModule.php:140
-#: src/Modules/Captcha/Admin/AjaxController.php:333
-#: src/Modules/Captcha/Admin/PageController.php:65
+#: src/Modules/Captcha/Admin/AjaxController.php:338
+#: src/Modules/Captcha/Admin/PageController.php:73
 #: src/Modules/ContactForm/Admin/AjaxController.php:93
 #: src/Modules/ContactForm/Admin/AjaxController.php:117
 #: src/Modules/ContactForm/Admin/AjaxController.php:187
@@ -84,25 +84,25 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/EmailActions.php:84
 #: src/Modules/ContactForm/Admin/EmailActions.php:101
 #: src/Modules/ContactForm/Admin/EmailActions.php:120
-#: src/Modules/ContactForm/Admin/FormsPage.php:485
-#: src/Modules/ContactForm/Admin/FormsPage.php:1901
+#: src/Modules/ContactForm/Admin/FormsPage.php:495
+#: src/Modules/ContactForm/Admin/FormsPage.php:1911
 #: src/Modules/ContactForm/Admin/SubmissionsAjax.php:216
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:54
 #: src/Modules/Logging/Admin/AjaxController.php:221
-#: src/Modules/Logging/Admin/PageController.php:62
-#: src/Modules/Logging/Admin/PageController.php:174
+#: src/Modules/Logging/Admin/PageController.php:54
+#: src/Modules/Logging/Admin/PageController.php:118
 #: src/Modules/Newsletter/Admin/AjaxController.php:1491
 #: src/Modules/Newsletter/Admin/AjaxController.php:1513
 #: src/Modules/Newsletter/Admin/HomePage.php:213
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1267
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1305
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1348
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1383
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1409
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1457
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1171
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1209
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1252
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1287
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1313
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1361
 #: src/Modules/Newsletter/Module.php:836
-#: src/Modules/Newsletter/Send/SendAjaxController.php:730
-#: src/Modules/SMTP/Admin/AjaxController.php:385
+#: src/Modules/Newsletter/Send/SendAjaxController.php:720
+#: src/Modules/SMTP/Admin/AjaxController.php:388
 #: src/Modules/SMTP/Admin/PageController.php:50
 msgid "Insufficient permissions."
 msgstr ""
@@ -171,9 +171,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Admin/DashboardPage.php:328
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1130
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:473
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:603
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1057
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:377
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:507
 msgid "failed"
 msgid_plural "failed"
 msgstr[0] ""
@@ -257,7 +257,7 @@ msgid "Disabled"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:451
-#: src/Modules/SMTP/Admin/SettingsPage.php:196
+#: src/Modules/SMTP/Admin/SettingsPage.php:208
 msgid "Test email"
 msgstr ""
 
@@ -287,33 +287,33 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:523
 #: src/Admin/DashboardPage.php:525
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1081
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:985
 msgid "Send test email"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:526
-#: src/Modules/ContactForm/Admin/FormsPage.php:109
-#: src/Modules/ContactForm/Admin/FormsPage.php:566
-#: src/Modules/ContactForm/Admin/FormsPage.php:1190
-#: src/Modules/ContactForm/Admin/FormsPage.php:1438
-#: src/Modules/ContactForm/Admin/FormsPage.php:1643
+#: src/Modules/ContactForm/Admin/FormsPage.php:119
+#: src/Modules/ContactForm/Admin/FormsPage.php:576
+#: src/Modules/ContactForm/Admin/FormsPage.php:1200
+#: src/Modules/ContactForm/Admin/FormsPage.php:1448
+#: src/Modules/ContactForm/Admin/FormsPage.php:1653
 #: src/Modules/Logging/Admin/LogsPage.php:494
-#: src/Modules/Logging/Admin/LogsPage.php:580
+#: src/Modules/Logging/Admin/LogsPage.php:586
 #: src/Modules/Newsletter/Admin/FormsPage.php:617
 #: src/Modules/Newsletter/Admin/FormsPage.php:655
 #: src/Modules/Newsletter/Admin/HomePage.php:327
 #: src/Modules/Newsletter/Admin/ListsPage.php:38
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1082
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1151
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1186
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1215
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1237
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:986
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1055
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1090
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1119
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1141
 #: src/Modules/Newsletter/Admin/SettingsPage.php:40
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:240
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1513
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1571
-#: src/Modules/SMTP/Admin/SettingsPage.php:466
-#: src/Modules/SMTP/Admin/SettingsPage.php:523
+#: src/Modules/SMTP/Admin/SettingsPage.php:478
+#: src/Modules/SMTP/Admin/SettingsPage.php:535
 msgid "Close"
 msgstr ""
 
@@ -326,21 +326,21 @@ msgid " (default)"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:545
-#: src/Modules/SMTP/Admin/SettingsPage.php:488
+#: src/Modules/SMTP/Admin/SettingsPage.php:500
 msgid "Recipient"
 msgstr ""
 
 #. translators: %s: current user's email address
 #: src/Admin/DashboardPage.php:549
-#: src/Modules/ContactForm/Admin/FormsPage.php:367
-#: src/Modules/SMTP/Admin/SettingsPage.php:491
+#: src/Modules/ContactForm/Admin/FormsPage.php:377
+#: src/Modules/SMTP/Admin/SettingsPage.php:503
 msgid "Me (%s)"
 msgstr ""
 
 #. translators: %s: site admin email address
 #: src/Admin/DashboardPage.php:554
-#: src/Modules/ContactForm/Admin/FormsPage.php:355
-#: src/Modules/SMTP/Admin/SettingsPage.php:493
+#: src/Modules/ContactForm/Admin/FormsPage.php:365
+#: src/Modules/SMTP/Admin/SettingsPage.php:505
 msgid "Site admin (%s)"
 msgstr ""
 
@@ -349,21 +349,21 @@ msgid "Custom…"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:561
-#: src/Modules/SMTP/Admin/SettingsPage.php:499
+#: src/Modules/SMTP/Admin/SettingsPage.php:511
 msgid "Custom recipient"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:567
-#: src/Modules/ContactForm/Admin/FormsPage.php:108
-#: src/Modules/ContactForm/Admin/FormsPage.php:578
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:838
+#: src/Modules/ContactForm/Admin/FormsPage.php:118
+#: src/Modules/ContactForm/Admin/FormsPage.php:588
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:765
 #: src/Modules/Newsletter/Admin/FormsPage.php:664
 #: src/Modules/Newsletter/Admin/ListsPage.php:842
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1031
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1127
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1223
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1253
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1157
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1656
-#: src/Modules/SMTP/Admin/SettingsPage.php:507
+#: src/Modules/SMTP/Admin/SettingsPage.php:519
 msgid "Cancel"
 msgstr ""
 
@@ -415,21 +415,21 @@ msgstr ""
 #: src/Admin/DashboardPage.php:663
 #: src/Admin/DashboardPage.php:782
 #: src/Forms/Fields/DateField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1327
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:398
+#: src/Modules/ContactForm/Admin/FormsPage.php:1337
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:392
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:33
 #: src/Modules/Logging/Admin/LogsPage.php:352
-#: src/Modules/Logging/Admin/LogViewPage.php:100
 msgid "Date"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:664
 #: src/Admin/DashboardPage.php:783
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:281
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:399
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:663
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:275
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:393
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:590
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:37
 #: src/Modules/Logging/Admin/LogsPage.php:242
 #: src/Modules/Logging/Admin/LogsPage.php:353
-#: src/Modules/Logging/Admin/LogViewPage.php:104
 #: src/Modules/Newsletter/Admin/HomePage.php:198
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:45
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2023
@@ -438,22 +438,23 @@ msgid "Status"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:665
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:269
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:400
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:729
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:263
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:394
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:656
 #: admin/js/contact-form-editor.js:92
 msgid "Form"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:666
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:401
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:798
+#: src/Modules/Captcha/Admin/SettingsPage.php:115
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:395
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:702
 msgid "Preview"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:667
 #: src/Admin/DashboardPage.php:787
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:403
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:397
 #: src/Modules/Logging/Admin/LogsPage.php:358
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1423
 msgid "Actions"
@@ -461,81 +462,80 @@ msgstr ""
 
 #. translators: %d: form id
 #: src/Admin/DashboardPage.php:678
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:428
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:568
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:640
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:756
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:798
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:422
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:567
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:683
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:725
 msgid "Deleted form #%d"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:698
 #: src/Admin/DashboardPage.php:819
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:469
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:463
 #: src/Modules/Logging/Admin/LogsPage.php:404
 msgid "View"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:698
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:469
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:463
 #: src/Modules/Logging/Admin/LogsPage.php:413
 msgid "View submission"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:709
-#: src/Modules/ContactForm/Admin/FormsPage.php:698
+#: src/Modules/ContactForm/Admin/FormsPage.php:708
 msgid "View all submissions"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:732
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1099
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1026
 msgid "Blocked (honeypot)"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:735
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1105
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1032
 msgid "Blocked (captcha)"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:737
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1107
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1034
 msgid "Blocked"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:740
-#: src/Modules/ContactForm/Admin/FormsPage.php:705
-#: src/Modules/ContactForm/Admin/FormsPage.php:1700
-#: src/Modules/ContactForm/Admin/FormsPage.php:1750
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:285
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1110
+#: src/Modules/ContactForm/Admin/FormsPage.php:715
+#: src/Modules/ContactForm/Admin/FormsPage.php:1710
+#: src/Modules/ContactForm/Admin/FormsPage.php:1760
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:279
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1037
 msgid "Delivered"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:741
-#: src/Modules/ContactForm/Admin/FormsPage.php:1709
-#: src/Modules/ContactForm/Admin/FormsPage.php:1751
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:288
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1111
+#: src/Modules/ContactForm/Admin/FormsPage.php:1719
+#: src/Modules/ContactForm/Admin/FormsPage.php:1761
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:282
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1038
 msgid "Received"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:742
 #: src/Admin/DashboardPage.php:861
-#: src/Modules/ContactForm/Admin/FormsPage.php:1719
-#: src/Modules/ContactForm/Admin/FormsPage.php:1752
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:294
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:307
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1112
+#: src/Modules/ContactForm/Admin/FormsPage.php:1729
+#: src/Modules/ContactForm/Admin/FormsPage.php:1762
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:288
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:301
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1039
 #: src/Modules/Logging/Admin/LogsPage.php:249
-#: src/Modules/Logging/Admin/LogsPage.php:946
+#: src/Modules/Logging/Admin/LogsPage.php:955
 #: src/Modules/Newsletter/Admin/HomePage.php:194
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1578
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1482
 msgid "Failed"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:750
 #: src/Admin/DashboardPage.php:764
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:462
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:456
 msgid "(no content)"
 msgstr ""
 
@@ -544,23 +544,23 @@ msgid "Recent activity"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:784
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:321
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:315
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:48
 #: src/Modules/Logging/Admin/LogsPage.php:289
 #: src/Modules/Logging/Admin/LogsPage.php:355
-#: src/Modules/Logging/Admin/LogViewPage.php:115
 msgid "To"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:785
 #: src/Modules/Logging/Admin/LogsPage.php:356
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:444
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:348
 msgid "Subject"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:786
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:38
 #: src/Modules/Logging/Admin/LogsPage.php:261
 #: src/Modules/Logging/Admin/LogsPage.php:357
-#: src/Modules/Logging/Admin/LogViewPage.php:105
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:49
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2039
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2329
@@ -568,8 +568,8 @@ msgid "Source"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:800
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:19
 #: src/Modules/Logging/Admin/LogsPage.php:381
-#: src/Modules/Logging/Admin/LogViewPage.php:81
 #: src/Modules/Newsletter/Send/SendAjaxController.php:303
 #: src/Modules/Newsletter/Send/SendLoop.php:88
 msgid "(no subject)"
@@ -586,23 +586,23 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:857
 #: src/Modules/ContactForm/Frontend.php:52
-#: src/Modules/SMTP/Admin/SettingsPage.php:597
+#: src/Modules/SMTP/Admin/SettingsPage.php:609
 msgid "Sending…"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:859
-#: src/Modules/ContactForm/Admin/FormsPage.php:1780
-#: src/Modules/Logging/Admin/LogsPage.php:577
-#: src/Modules/SMTP/Admin/SettingsPage.php:602
+#: src/Modules/ContactForm/Admin/FormsPage.php:1790
+#: src/Modules/Logging/Admin/LogsPage.php:583
+#: src/Modules/SMTP/Admin/SettingsPage.php:614
 msgid "Something went wrong."
 msgstr ""
 
 #: src/Admin/DashboardPage.php:860
 #: src/Modules/Logging/Admin/LogsPage.php:246
-#: src/Modules/Logging/Admin/LogsPage.php:945
+#: src/Modules/Logging/Admin/LogsPage.php:954
 #: src/Modules/Newsletter/Admin/HomePage.php:193
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:158
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1577
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1481
 msgid "Sent"
 msgstr ""
 
@@ -726,15 +726,15 @@ msgstr ""
 
 #: src/Admin/DataPage.php:301
 #: src/Modules/AbstractModule.php:144
-#: src/Modules/ContactForm/Admin/FormsPage.php:1906
-#: src/Modules/Logging/Admin/PageController.php:178
+#: src/Modules/ContactForm/Admin/FormsPage.php:1916
+#: src/Modules/Logging/Admin/PageController.php:122
 #: src/Modules/Newsletter/Admin/AjaxController.php:1496
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1271
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1310
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1353
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1388
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1413
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1462
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1175
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1214
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1257
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1292
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1317
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1366
 #: src/Modules/Newsletter/Module.php:840
 msgid "Security check failed. Please retry."
 msgstr ""
@@ -746,25 +746,25 @@ msgid "Dashboard"
 msgstr ""
 
 #: src/Admin/ModuleToggle.php:55
-#: src/Modules/Captcha/Admin/SettingsPage.php:283
-#: src/Modules/Captcha/Admin/SettingsPage.php:286
-#: src/Modules/Captcha/Admin/SettingsPage.php:288
-#: src/Modules/Captcha/Admin/SettingsPage.php:450
+#: src/Modules/Captcha/Admin/SettingsPage.php:292
+#: src/Modules/Captcha/Admin/SettingsPage.php:295
+#: src/Modules/Captcha/Admin/SettingsPage.php:297
+#: src/Modules/Captcha/Admin/SettingsPage.php:466
 #: src/Modules/Newsletter/Admin/HomePage.php:442
 #: src/Modules/Newsletter/Admin/HomePage.php:497
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:53
-#: src/Modules/SMTP/Admin/SettingsPage.php:156
-#: src/Modules/SMTP/Admin/SettingsPage.php:158
-#: src/Modules/SMTP/Admin/SettingsPage.php:603
+#: src/Modules/SMTP/Admin/SettingsPage.php:159
+#: src/Modules/SMTP/Admin/SettingsPage.php:161
+#: src/Modules/SMTP/Admin/SettingsPage.php:615
 msgid "Active"
 msgstr ""
 
 #: src/Admin/ModuleToggle.php:56
-#: src/Modules/Captcha/Admin/SettingsPage.php:286
-#: src/Modules/Captcha/Admin/SettingsPage.php:289
-#: src/Modules/SMTP/Admin/SettingsPage.php:156
+#: src/Modules/Captcha/Admin/SettingsPage.php:295
+#: src/Modules/Captcha/Admin/SettingsPage.php:298
 #: src/Modules/SMTP/Admin/SettingsPage.php:159
-#: src/Modules/SMTP/Admin/SettingsPage.php:604
+#: src/Modules/SMTP/Admin/SettingsPage.php:162
+#: src/Modules/SMTP/Admin/SettingsPage.php:616
 msgid "Inactive"
 msgstr ""
 
@@ -799,14 +799,14 @@ msgid "Modular all-in-one email plugin: SMTP routing, email logging, contact for
 msgstr ""
 
 #: src/Forms/CaptchaField.php:47
-#: src/Modules/ContactForm/Admin/FormsPage.php:255
+#: src/Modules/ContactForm/Admin/FormsPage.php:265
 msgid "Anti-spam challenge"
 msgstr ""
 
 #. translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers
 #: src/Forms/CaptchaField.php:127
 #: src/Forms/CaptchaField.php:289
-#: src/Modules/ContactForm/Admin/FormsPage.php:1314
+#: src/Modules/ContactForm/Admin/FormsPage.php:1324
 #: src/Modules/Newsletter/Admin/FormsPage.php:517
 #: admin/js/contact-form-editor.js:44
 msgid "Default (%s)"
@@ -815,10 +815,10 @@ msgstr ""
 #: src/Forms/CaptchaField.php:130
 #: src/Forms/CaptchaField.php:280
 #: src/Forms/StylePresets.php:29
-#: src/Modules/Captcha/Admin/SettingsPage.php:127
-#: src/Modules/Captcha/Admin/SettingsPage.php:498
-#: src/Modules/ContactForm/Admin/FormsPage.php:220
-#: src/Modules/ContactForm/Admin/FormsPage.php:256
+#: src/Modules/Captcha/Admin/SettingsPage.php:135
+#: src/Modules/Captcha/Admin/SettingsPage.php:514
+#: src/Modules/ContactForm/Admin/FormsPage.php:230
+#: src/Modules/ContactForm/Admin/FormsPage.php:266
 #: src/Modules/Newsletter/Admin/FormsPage.php:841
 #: admin/js/contact-form-editor.js:70
 msgid "Default"
@@ -831,16 +831,16 @@ msgstr ""
 #: src/Forms/CaptchaField.php:160
 #: src/Forms/CaptchaField.php:219
 #: src/Forms/CaptchaField.php:302
-#: src/Modules/ContactForm/Admin/FormsPage.php:917
-#: src/Modules/ContactForm/Admin/FormsPage.php:920
-#: src/Modules/SMTP/Admin/SettingsPage.php:313
+#: src/Modules/ContactForm/Admin/FormsPage.php:927
+#: src/Modules/ContactForm/Admin/FormsPage.php:930
+#: src/Modules/SMTP/Admin/SettingsPage.php:325
 msgid "None"
 msgstr ""
 
 #: src/Forms/CaptchaField.php:167
 #: src/Forms/CaptchaField.php:308
-#: src/Modules/Captcha/Admin/SettingsPage.php:626
-#: src/Modules/ContactForm/Admin/FormsPage.php:923
+#: src/Modules/Captcha/Admin/SettingsPage.php:659
+#: src/Modules/ContactForm/Admin/FormsPage.php:933
 msgid "Built-in"
 msgstr ""
 
@@ -1842,33 +1842,33 @@ msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:168
 #: src/Forms/FieldRenderHelpers.php:356
-#: src/Modules/ContactForm/Admin/FormsPage.php:251
+#: src/Modules/ContactForm/Admin/FormsPage.php:261
 #: src/Modules/Newsletter/Admin/FormsPage.php:835
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:202
-#: src/Modules/ContactForm/Admin/FormsPage.php:211
+#: src/Modules/ContactForm/Admin/FormsPage.php:221
 #: src/Modules/Newsletter/Admin/FormsPage.php:825
 msgid "Required"
 msgstr ""
 
 #: src/Forms/FieldRenderHelpers.php:210
-#: src/Modules/ContactForm/Admin/FormsPage.php:250
+#: src/Modules/ContactForm/Admin/FormsPage.php:260
 #: src/Modules/Newsletter/Admin/FormsPage.php:834
 msgid "(optional helper text)"
 msgstr ""
 
 #: src/Forms/Fields/CheckboxField.php:20
-#: src/Modules/ContactForm/Admin/FormsPage.php:1330
+#: src/Modules/ContactForm/Admin/FormsPage.php:1340
 msgid "Checkbox"
 msgstr ""
 
 #: src/Forms/Fields/EmailField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1075
-#: src/Modules/ContactForm/Admin/FormsPage.php:1323
-#: src/Modules/ContactForm/Admin/FormsPage.php:1506
+#: src/Modules/ContactForm/Admin/FormsPage.php:1085
+#: src/Modules/ContactForm/Admin/FormsPage.php:1333
+#: src/Modules/ContactForm/Admin/FormsPage.php:1516
 #: src/Modules/ContactForm/TemplateRegistry.php:121
 #: src/Modules/Newsletter/Admin/FormsPage.php:739
 #: src/Modules/Newsletter/Admin/HomePage.php:197
@@ -1881,7 +1881,7 @@ msgid "Email"
 msgstr ""
 
 #: src/Forms/Fields/FileUploadField.php:23
-#: src/Modules/ContactForm/Admin/FormsPage.php:1331
+#: src/Modules/ContactForm/Admin/FormsPage.php:1341
 msgid "File upload"
 msgstr ""
 
@@ -1893,18 +1893,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Forms/Fields/FileUploadField.php:115
-#: src/Modules/ContactForm/Admin/FormsPage.php:235
+#: src/Modules/ContactForm/Admin/FormsPage.php:245
 msgid "Choose a file"
 msgstr ""
 
 #. translators: 1: max size per file MB, 2: comma-separated extension list
 #: src/Forms/Fields/FileUploadField.php:127
-#: src/Modules/ContactForm/Admin/FormsPage.php:239
+#: src/Modules/ContactForm/Admin/FormsPage.php:249
 msgid "Max %1$d MB per file — %2$s"
 msgstr ""
 
 #: src/Forms/Fields/FileUploadField.php:129
-#: src/Modules/ContactForm/Admin/FormsPage.php:240
+#: src/Modules/ContactForm/Admin/FormsPage.php:250
 msgid "no file type restriction"
 msgstr ""
 
@@ -1913,12 +1913,12 @@ msgid "“Save submissions” is off — files from this field will be attached 
 msgstr ""
 
 #: src/Forms/Fields/NumberField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1325
+#: src/Modules/ContactForm/Admin/FormsPage.php:1335
 msgid "Number"
 msgstr ""
 
 #: src/Forms/Fields/PhoneField.php:21
-#: src/Modules/ContactForm/Admin/FormsPage.php:1326
+#: src/Modules/ContactForm/Admin/FormsPage.php:1336
 #: src/Modules/ContactForm/TemplateRegistry.php:102
 #: src/Modules/ContactForm/TemplateRegistry.php:122
 #: src/Modules/Newsletter/Admin/FormsPage.php:741
@@ -1941,7 +1941,7 @@ msgid "Radio buttons"
 msgstr ""
 
 #: src/Forms/Fields/SelectField.php:20
-#: src/Modules/ContactForm/Admin/FormsPage.php:1328
+#: src/Modules/ContactForm/Admin/FormsPage.php:1338
 msgid "Dropdown"
 msgstr ""
 
@@ -1955,7 +1955,7 @@ msgid "Multi-line text"
 msgstr ""
 
 #: src/Forms/Fields/TextField.php:19
-#: src/Modules/ContactForm/Admin/FormsPage.php:1322
+#: src/Modules/ContactForm/Admin/FormsPage.php:1332
 msgid "Text"
 msgstr ""
 
@@ -1978,7 +1978,7 @@ msgid "Add a field here"
 msgstr ""
 
 #: src/Forms/FormEditorRenderer.php:167
-#: src/Modules/ContactForm/Admin/FormsPage.php:254
+#: src/Modules/ContactForm/Admin/FormsPage.php:264
 #: src/Modules/Newsletter/Admin/FormsPage.php:838
 msgid "Field"
 msgstr ""
@@ -2058,307 +2058,335 @@ msgstr ""
 msgid "Custom (advanced)"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:64
+#: src/Modules/Captcha/Admin/AjaxController.php:65
 msgid "Solve the captcha first to run a test."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:69
+#: src/Modules/Captcha/Admin/AjaxController.php:70
 msgid "Identity not found."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:74
+#: src/Modules/Captcha/Admin/AjaxController.php:75
 msgid "Provider class not available."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:93
+#: src/Modules/Captcha/Admin/AjaxController.php:94
 msgid "Captcha works!"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:95
+#: src/Modules/Captcha/Admin/AjaxController.php:96
 msgid "Verification failed."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:106
+#: src/Modules/Captcha/Admin/AjaxController.php:107
 msgid "Unknown captcha provider."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:114
 #: src/Modules/Captcha/Admin/AjaxController.php:115
-#: src/Modules/Captcha/Admin/SettingsPage.php:733
+#: src/Modules/Captcha/Admin/AjaxController.php:116
+#: src/Modules/Captcha/Admin/SettingsPage.php:745
 #: src/Modules/SMTP/Admin/AjaxController.php:101
 msgid "Label is required."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:160
-#: src/Modules/SMTP/Admin/AjaxController.php:172
+#: src/Modules/Captcha/Admin/AjaxController.php:161
+#: src/Modules/SMTP/Admin/AjaxController.php:173
 msgid "Please fix the highlighted fields."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:202
+#: src/Modules/Captcha/Admin/AjaxController.php:207
 msgid "Captcha created."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:203
+#: src/Modules/Captcha/Admin/AjaxController.php:208
 msgid "Captcha saved."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:214
-#: src/Modules/SMTP/Admin/AjaxController.php:217
-#: src/Modules/SMTP/Admin/AjaxController.php:229
+#: src/Modules/Captcha/Admin/AjaxController.php:219
+#: src/Modules/SMTP/Admin/AjaxController.php:219
+#: src/Modules/SMTP/Admin/AjaxController.php:231
 msgid "Invalid identity."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:240
-#: src/Modules/SMTP/Admin/AjaxController.php:220
+#: src/Modules/Captcha/Admin/AjaxController.php:245
+#: src/Modules/SMTP/Admin/AjaxController.php:222
 msgid "Identity deleted."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:264
+#: src/Modules/Captcha/Admin/AjaxController.php:269
 msgid "Routing saved."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:314
+#: src/Modules/Captcha/Admin/AjaxController.php:319
 msgid "Invalid challenge."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/AjaxController.php:348
-#: src/Modules/SMTP/Admin/AjaxController.php:378
+#: src/Modules/Captcha/Admin/AjaxController.php:353
+#: src/Modules/SMTP/Admin/AjaxController.php:381
 msgid "Security check failed. Please reload and retry."
 msgstr ""
 
 #: src/Modules/Captcha/Admin/PageController.php:40
 #: src/Modules/Captcha/Admin/PageController.php:41
-#: src/Modules/Captcha/Admin/SettingsPage.php:55
+#: src/Modules/Captcha/Admin/SettingsPage.php:56
 #: src/Modules/Captcha/Module.php:32
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:300
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:402
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:669
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:294
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:396
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:596
 msgid "Captcha"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:57
+#: src/Modules/Captcha/Admin/SettingsPage.php:58
 #: src/Modules/SMTP/Admin/SettingsPage.php:44
 msgid "New identity"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:93
+#: src/Modules/Captcha/Admin/SettingsPage.php:94
 msgid "Built-in challenges"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:136
-#: src/Modules/SMTP/Admin/SettingsPage.php:183
+#: src/Modules/Captcha/Admin/SettingsPage.php:144
+#: src/Modules/SMTP/Admin/SettingsPage.php:195
 msgid "Set as default"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:150
+#: src/Modules/Captcha/Admin/SettingsPage.php:158
 msgid "Hosted providers"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:153
+#: src/Modules/Captcha/Admin/SettingsPage.php:161
 msgid "No hosted providers are registered yet."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:157
+#: src/Modules/Captcha/Admin/SettingsPage.php:165
 msgid "No captchas configured yet. Click \"Add captcha\" to set one up."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:186
-msgid "Captcha activity over the last 30 days"
+#: src/Modules/Captcha/Admin/SettingsPage.php:194
+msgid "Captcha activity since this challenge was first used"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:189
-#: src/Modules/ContactForm/Admin/FormsPage.php:617
-#: src/Modules/ContactForm/Admin/FormsPage.php:1051
+#: src/Modules/Captcha/Admin/SettingsPage.php:195
+#: src/Modules/ContactForm/Admin/FormsPage.php:627
+#: src/Modules/ContactForm/Admin/FormsPage.php:1061
 msgid "blocked"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:194
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1129
+#: src/Modules/Captcha/Admin/SettingsPage.php:197
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1056
 msgid "passed"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:196
-msgid "(30d)"
-msgstr ""
-
-#: src/Modules/Captcha/Admin/SettingsPage.php:280
+#: src/Modules/Captcha/Admin/SettingsPage.php:289
 msgid "e.g. Main site"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:313
-#: src/Modules/Captcha/Admin/SettingsPage.php:448
+#: src/Modules/Captcha/Admin/SettingsPage.php:318
+#: src/Modules/Captcha/Admin/SettingsPage.php:464
 msgid "Provider"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:331
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:804
+#: src/Modules/Captcha/Admin/SettingsPage.php:336
+msgid "Theme"
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:340
+msgid "Size"
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:347
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:708
 msgid "Test"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:332
+#: src/Modules/Captcha/Admin/SettingsPage.php:348
 msgid "Solve below to verify your credentials."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:349
-#: src/Modules/SMTP/Admin/SettingsPage.php:190
-#: src/Modules/SMTP/Admin/SettingsPage.php:605
+#: src/Modules/Captcha/Admin/SettingsPage.php:365
+#: src/Modules/SMTP/Admin/SettingsPage.php:202
+#: src/Modules/SMTP/Admin/SettingsPage.php:617
 msgid "Create"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:352
-#: src/Modules/SMTP/Admin/SettingsPage.php:193
+#: src/Modules/Captcha/Admin/SettingsPage.php:368
+#: src/Modules/SMTP/Admin/SettingsPage.php:205
 msgid "Discard"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:355
-#: src/Modules/ContactForm/Admin/FormsPage.php:120
-#: src/Modules/ContactForm/Admin/FormsPage.php:634
-#: src/Modules/ContactForm/Admin/FormsPage.php:1167
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:617
+#: src/Modules/Captcha/Admin/SettingsPage.php:371
+#: src/Modules/ContactForm/Admin/FormsPage.php:130
+#: src/Modules/ContactForm/Admin/FormsPage.php:644
+#: src/Modules/ContactForm/Admin/FormsPage.php:1177
 #: src/Modules/ContactForm/SubmitHandler.php:771
 #: src/Modules/Logging/Admin/LogsPage.php:320
 #: src/Modules/Logging/Admin/LogsPage.php:420
-#: src/Modules/Logging/Admin/LogsPage.php:583
-#: src/Modules/Logging/Admin/LogViewPage.php:263
-#: src/Modules/Logging/Admin/LogViewPage.php:273
+#: src/Modules/Logging/Admin/LogsPage.php:589
 #: src/Modules/Newsletter/Admin/FormsPage.php:319
 #: src/Modules/Newsletter/Admin/FormsPage.php:667
 #: src/Modules/Newsletter/Admin/ListsPage.php:841
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:244
-#: src/Modules/SMTP/Admin/SettingsPage.php:199
+#: src/Modules/SMTP/Admin/SettingsPage.php:211
 msgid "Delete"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:437
+#: src/Modules/Captcha/Admin/SettingsPage.php:453
 msgid "Diagnostics"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:440
+#: src/Modules/Captcha/Admin/SettingsPage.php:456
 msgid "Stored identities"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:442
+#: src/Modules/Captcha/Admin/SettingsPage.php:458
 msgid "No identities saved."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:447
+#: src/Modules/Captcha/Admin/SettingsPage.php:463
 msgid "ID"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:449
+#: src/Modules/Captcha/Admin/SettingsPage.php:465
 msgid "Label"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:451
+#: src/Modules/Captcha/Admin/SettingsPage.php:467
 msgid "Blob (chars)"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:452
+#: src/Modules/Captcha/Admin/SettingsPage.php:468
 msgid "Decrypt"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:453
+#: src/Modules/Captcha/Admin/SettingsPage.php:469
 msgid "Keys present"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:466
+#: src/Modules/Captcha/Admin/SettingsPage.php:482
 msgid "(decoded but empty)"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:487
+#: src/Modules/Captcha/Admin/SettingsPage.php:503
 msgid "Routing resolution"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:491
+#: src/Modules/Captcha/Admin/SettingsPage.php:507
 msgid "Context"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:492
+#: src/Modules/Captcha/Admin/SettingsPage.php:508
 msgid "Stored route"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:493
+#: src/Modules/Captcha/Admin/SettingsPage.php:509
 msgid "Resolves to"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:527
+#: src/Modules/Captcha/Admin/SettingsPage.php:543
 msgid "No challenge"
 msgstr ""
 
 #. translators: %s: homemade challenge slug
-#: src/Modules/Captcha/Admin/SettingsPage.php:536
+#: src/Modules/Captcha/Admin/SettingsPage.php:552
 msgid "Unknown built-in challenge \"%s\""
 msgstr ""
 
 #. translators: %d: identity row id that no longer exists
-#: src/Modules/Captcha/Admin/SettingsPage.php:543
+#: src/Modules/Captcha/Admin/SettingsPage.php:559
 msgid "Identity #%d (not found)"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:549
+#: src/Modules/Captcha/Admin/SettingsPage.php:565
 msgid "decoded empty"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:551
+#: src/Modules/Captcha/Admin/SettingsPage.php:567
 msgid "decrypt failed"
 msgstr ""
 
 #. translators: 1: identity id, 2: provider label, 3: identity label, 4: creds summary
-#: src/Modules/Captcha/Admin/SettingsPage.php:555
+#: src/Modules/Captcha/Admin/SettingsPage.php:571
 msgid "Identity #%1$d · %2$s · %3$s (%4$s)"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:571
-msgid "Captcha assignments"
+#: src/Modules/Captcha/Admin/SettingsPage.php:596
+msgid "Off (default)"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:573
-msgid "Pick the default challenge for the whole site, then pick a per-context override below — leave a context on \"None\" to skip the captcha there."
+#: src/Modules/Captcha/Admin/SettingsPage.php:599
+msgid "Captcha protection"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:583
-msgid "Default challenge for the whole site"
+#: src/Modules/Captcha/Admin/SettingsPage.php:603
+msgid "Default challenge"
 msgstr ""
 
-#. translators: %s: human-readable label of the currently-default challenge (e.g. "Math challenge", "hCaptcha: Production")
+#: src/Modules/Captcha/Admin/SettingsPage.php:604
+msgid "Used on this plugin's forms unless you override them below."
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:610
+msgid "This plugin's forms"
+msgstr ""
+
 #: src/Modules/Captcha/Admin/SettingsPage.php:617
-#: src/Modules/Captcha/Admin/SettingsPage.php:739
-msgid "Inherit default (%s)"
+msgid "WordPress sections"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:620
-msgid "Inherit default"
+#: src/Modules/Captcha/Admin/SettingsPage.php:619
+msgid "Off by default — turn on captcha per WordPress section as needed."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:624
-msgid "None — no captcha here"
+#: src/Modules/Captcha/Admin/SettingsPage.php:651
+msgid "Use default"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:732
+#: src/Modules/Captcha/Admin/SettingsPage.php:656
+msgid "Off — no captcha here"
+msgstr ""
+
+#: src/Modules/Captcha/Admin/SettingsPage.php:744
 msgid "Delete this captcha?"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:734
+#: src/Modules/Captcha/Admin/SettingsPage.php:746
 msgid "Save your credentials to load the captcha widget here."
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:735
+#: src/Modules/Captcha/Admin/SettingsPage.php:747
 msgid "Verifying…"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:736
+#: src/Modules/Captcha/Admin/SettingsPage.php:748
 msgid "✓ Captcha works"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:737
+#: src/Modules/Captcha/Admin/SettingsPage.php:749
 msgid "✗ Verification failed"
 msgstr ""
 
-#: src/Modules/Captcha/Admin/SettingsPage.php:740
-msgid "Inherit default (none — site-wide default is off)"
+#: src/Modules/Captcha/Appearance.php:44
+msgid "Auto (follow visitor system)"
 msgstr ""
 
-#: src/Modules/Captcha/CaptchaService.php:223
+#: src/Modules/Captcha/Appearance.php:45
+msgid "Light"
+msgstr ""
+
+#: src/Modules/Captcha/Appearance.php:46
+msgid "Dark"
+msgstr ""
+
+#: src/Modules/Captcha/Appearance.php:54
+#: src/Modules/ContactForm/TemplateRegistry.php:142
+msgid "Normal"
+msgstr ""
+
+#: src/Modules/Captcha/Appearance.php:55
+msgid "Compact"
+msgstr ""
+
+#: src/Modules/Captcha/CaptchaService.php:247
 msgid "Anti-spam check is unavailable right now. Please try again later or contact the site administrator."
 msgstr ""
 
@@ -2388,7 +2416,7 @@ msgstr ""
 #: src/Modules/Captcha/Challenges/ImageChallenge.php:125
 #: src/Modules/Captcha/Challenges/MathChallenge.php:74
 #: src/Modules/Captcha/Challenges/MathChallenge.php:83
-#: src/Modules/Captcha/Providers/HCaptcha.php:214
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:172
 #: src/Modules/Captcha/WpHooks.php:125
 #: src/Modules/Captcha/WpHooks.php:140
 #: src/Modules/Captcha/WpHooks.php:155
@@ -2506,110 +2534,121 @@ msgid "How much is %1$d %3$s %2$d?"
 msgstr ""
 
 #: src/Modules/Captcha/Module.php:37
-msgid "Anti-bot challenges shared across modules. Homemade challenges (math, image) ship by default; hosted providers (hCaptcha, Turnstile, reCAPTCHA) plug in here."
+msgid "Protect your forms against spam and bots."
 msgstr ""
 
-#: src/Modules/Captcha/Module.php:157
+#: src/Modules/Captcha/Module.php:191
 msgid "Default (site-wide)"
 msgstr ""
 
-#: src/Modules/Captcha/Module.php:165
+#: src/Modules/Captcha/Module.php:199
 msgid "Captcha misconfiguration"
 msgstr ""
 
 #. translators: %s: comma-separated list of affected captcha contexts (e.g. "Default (site-wide), Contact forms")
-#: src/Modules/Captcha/Module.php:168
+#: src/Modules/Captcha/Module.php:202
 msgid "The captcha route is broken for: %s. Affected forms will reject all submissions until you fix this — open the Captcha settings page to pick a working challenge or re-enter credentials."
 msgstr ""
 
-#: src/Modules/Captcha/Module.php:172
+#: src/Modules/Captcha/Module.php:206
 msgid "Open Captcha settings"
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:43
-msgid "hCaptcha"
-msgstr ""
-
-#: src/Modules/Captcha/Providers/HCaptcha.php:48
-msgid "Privacy-respecting hosted captcha. Visitors see a checkbox widget; bots are filtered by hCaptcha's risk engine. Requires a free or paid hCaptcha account."
-msgstr ""
-
-#: src/Modules/Captcha/Providers/HCaptcha.php:67
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:46
 msgid "Site key"
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:70
-msgid "Public \"Site key\" from your hCaptcha dashboard."
+#. translators: %s: provider name (e.g. hCaptcha, Cloudflare)
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:51
+msgid "Public \"Site key\" from your %s dashboard."
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:74
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:57
 msgid "Secret key"
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:77
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:60
 msgid "Private \"Secret key\", stored AES-256-encrypted at rest."
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:89
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:72
 msgid "Site key is required."
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:94
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:77
 msgid "Secret key is required."
 msgstr ""
 
-#. translators: %d: number of credential keys present
-#: src/Modules/Captcha/Providers/HCaptcha.php:126
-msgid "CaptchaService passed %d credential key(s) but no site_key. Either the stored credentials were saved with a different key name, or decryption returned an empty array (AUTH_KEY may have changed since save)."
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:146
+msgid "Please complete the anti-spam challenge."
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:129
-msgid "CaptchaService did NOT inject credentials. The routing key probably resolves to a homemade challenge slug rather than an identity row — pick an \"hCaptcha · &lt;name&gt;\" entry in the Captcha settings instead of the generic provider name."
-msgstr ""
-
-#: src/Modules/Captcha/Providers/HCaptcha.php:131
-msgid "hCaptcha: site key is empty."
-msgstr ""
-
-#: src/Modules/Captcha/Providers/HCaptcha.php:153
-msgid "hCaptcha widget will appear here"
-msgstr ""
-
-#: src/Modules/Captcha/Providers/HCaptcha.php:183
-msgid "Please complete the hCaptcha challenge."
-msgstr ""
-
-#: src/Modules/Captcha/Providers/HCaptcha.php:191
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:154
 msgid "Anti-spam check is misconfigured (missing secret key)."
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:209
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:169
 msgid "Anti-spam check could not be reached. Please retry."
 msgstr ""
 
-#: src/Modules/Captcha/Providers/HCaptcha.php:219
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:177
 msgid "Wrong answer to the anti-spam challenge."
 msgstr ""
 
-#: src/Modules/Captcha/Routing.php:65
+#. translators: %d: number of credential keys present
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:200
+msgid "CaptchaService passed %d credential key(s) but no site_key. Either the stored credentials were saved with a different key name, or decryption returned an empty array (AUTH_KEY may have changed since save)."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:203
+msgid "CaptchaService did NOT inject credentials. The routing key probably resolves to a homemade challenge slug rather than an identity row — pick a hosted-provider entry in the Captcha settings instead of the generic provider name."
+msgstr ""
+
+#. translators: %s: provider name
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:208
+msgid "%s: site key is empty."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/HCaptcha.php:37
+#: src/Modules/Captcha/Providers/HCaptcha.php:47
+msgid "hCaptcha"
+msgstr ""
+
+#: src/Modules/Captcha/Providers/HCaptcha.php:42
+msgid "Privacy-respecting hosted captcha. Visitors see a checkbox widget; bots are filtered by hCaptcha's risk engine. Requires a free or paid hCaptcha account."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Turnstile.php:37
+msgid "Cloudflare Turnstile"
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Turnstile.php:42
+msgid "Privacy-friendly, often invisible captcha from Cloudflare. No puzzles for most visitors; bots are filtered by Cloudflare's risk engine. Requires a free Cloudflare account."
+msgstr ""
+
+#: src/Modules/Captcha/Providers/Turnstile.php:47
+msgid "Cloudflare"
+msgstr ""
+
+#: src/Modules/Captcha/Routing.php:88
 msgid "Contact forms"
 msgstr ""
 
-#: src/Modules/Captcha/Routing.php:66
+#: src/Modules/Captcha/Routing.php:89
 msgid "Blog comments"
 msgstr ""
 
-#: src/Modules/Captcha/Routing.php:67
+#: src/Modules/Captcha/Routing.php:90
 #: admin/js/newsletter-block-editor.js:103
 #: admin/js/newsletter-block-editor.js:114
 msgid "Newsletter subscribe"
 msgstr ""
 
-#: src/Modules/Captcha/Routing.php:68
+#: src/Modules/Captcha/Routing.php:91
 msgid "Lost password"
 msgstr ""
 
-#: src/Modules/Captcha/Routing.php:69
+#: src/Modules/Captcha/Routing.php:92
 msgid "User registration"
 msgstr ""
 
@@ -2622,7 +2661,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:192
 #: src/Modules/ContactForm/Admin/AjaxController.php:257
 #: src/Modules/Newsletter/Admin/AjaxController.php:1521
-#: src/Modules/Newsletter/Send/SendAjaxController.php:734
+#: src/Modules/Newsletter/Send/SendAjaxController.php:724
 msgid "Security check failed. Please reload the page."
 msgstr ""
 
@@ -2660,7 +2699,7 @@ msgstr ""
 #. translators: %s: original item title being cloned (form, newsletter, template, etc.)
 #: src/Modules/ContactForm/Admin/AjaxController.php:218
 #: src/Modules/Newsletter/Admin/AjaxController.php:562
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1470
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1374
 #: src/Modules/Newsletter/Module.php:851
 msgid "%s (copy)"
 msgstr ""
@@ -2674,340 +2713,338 @@ msgid "Could not create form."
 msgstr ""
 
 #. translators: %d: count of selected submissions
-#: src/Modules/ContactForm/Admin/FormsPage.php:99
+#: src/Modules/ContactForm/Admin/FormsPage.php:109
 msgid "Mark the %d selected submissions as spam?"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:100
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:787
+#: src/Modules/ContactForm/Admin/FormsPage.php:110
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:714
 msgid "Mark this submission as spam?"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:101
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:790
+#: src/Modules/ContactForm/Admin/FormsPage.php:111
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:717
 msgid "Yes, mark as spam"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:102
+#: src/Modules/ContactForm/Admin/FormsPage.php:112
 msgid "Spam-marked submissions stay in the inbox under the Spam filter — you can restore them at any time."
 msgstr ""
 
 #. translators: %d: count of selected submissions
-#: src/Modules/ContactForm/Admin/FormsPage.php:104
+#: src/Modules/ContactForm/Admin/FormsPage.php:114
 msgid "Permanently delete the %d selected submissions?"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:105
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:786
+#: src/Modules/ContactForm/Admin/FormsPage.php:115
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:713
 msgid "Delete this submission?"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:106
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:789
+#: src/Modules/ContactForm/Admin/FormsPage.php:116
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:716
 msgid "Yes, delete permanently"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:107
+#: src/Modules/ContactForm/Admin/FormsPage.php:117
 msgid "This is irreversible. Field data and any attached files will be permanently removed."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:110
+#: src/Modules/ContactForm/Admin/FormsPage.php:120
 msgid "Select at least one submission first."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:111
+#: src/Modules/ContactForm/Admin/FormsPage.php:121
 msgid "Choose a bulk action first."
 msgstr ""
 
 #. translators: %d: count of selected submissions
-#: src/Modules/ContactForm/Admin/FormsPage.php:113
+#: src/Modules/ContactForm/Admin/FormsPage.php:123
 msgid "%d selected"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:114
+#: src/Modules/ContactForm/Admin/FormsPage.php:124
 #: src/Modules/ContactForm/Frontend.php:53
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:115
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:511
+#: src/Modules/ContactForm/Admin/FormsPage.php:125
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:505
 #: src/Modules/Logging/Admin/LogsPage.php:439
-#: src/Modules/Logging/Admin/LogsPage.php:578
+#: src/Modules/Logging/Admin/LogsPage.php:584
 #: src/Modules/Newsletter/Admin/HomePage.php:204
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:238
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1483
 msgid "Previous"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:116
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:512
+#: src/Modules/ContactForm/Admin/FormsPage.php:126
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:506
 #: src/Modules/Logging/Admin/LogsPage.php:440
-#: src/Modules/Logging/Admin/LogsPage.php:579
+#: src/Modules/Logging/Admin/LogsPage.php:585
 #: src/Modules/Newsletter/Admin/HomePage.php:205
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:239
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1484
 msgid "Next"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:117
-#: src/Modules/Logging/Admin/LogsPage.php:581
+#: src/Modules/ContactForm/Admin/FormsPage.php:127
+#: src/Modules/Logging/Admin/LogsPage.php:587
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:241
 msgid "Loading…"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:118
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:352
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:488
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:612
+#: src/Modules/ContactForm/Admin/FormsPage.php:128
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:346
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:482
 #: src/Modules/ContactForm/SubmitHandler.php:770
 msgid "Mark as spam"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:119
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:353
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:484
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:607
+#: src/Modules/ContactForm/Admin/FormsPage.php:129
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:347
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:478
 msgid "Restore from spam"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:150
-#: src/Modules/ContactForm/Admin/FormsPage.php:439
+#: src/Modules/ContactForm/Admin/FormsPage.php:160
+#: src/Modules/ContactForm/Admin/FormsPage.php:449
 msgid "Add recipient"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:151
-#: src/Modules/ContactForm/Admin/FormsPage.php:431
+#: src/Modules/ContactForm/Admin/FormsPage.php:161
+#: src/Modules/ContactForm/Admin/FormsPage.php:441
 msgid "Remove this recipient"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:152
-#: src/Modules/ContactForm/Admin/FormsPage.php:427
+#: src/Modules/ContactForm/Admin/FormsPage.php:162
+#: src/Modules/ContactForm/Admin/FormsPage.php:437
 msgid "Pick a known email"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:153
-#: src/Modules/ContactForm/Admin/FormsPage.php:1458
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1106
+#: src/Modules/ContactForm/Admin/FormsPage.php:163
+#: src/Modules/ContactForm/Admin/FormsPage.php:1468
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1010
 msgid "email@example.com"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:207
+#: src/Modules/ContactForm/Admin/FormsPage.php:217
 #: src/Modules/Newsletter/Admin/FormsPage.php:821
 msgid "Add field"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:208
+#: src/Modules/ContactForm/Admin/FormsPage.php:218
 #: src/Modules/Newsletter/Admin/FormsPage.php:822
 msgid "Field options"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:209
+#: src/Modules/ContactForm/Admin/FormsPage.php:219
 #: src/Modules/Newsletter/Admin/FormsPage.php:823
 msgid "Field slug"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:210
+#: src/Modules/ContactForm/Admin/FormsPage.php:220
 #: src/Modules/Newsletter/Admin/FormsPage.php:824
 msgid "Helper text"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:212
+#: src/Modules/ContactForm/Admin/FormsPage.php:222
 #: src/Modules/Newsletter/Admin/FormsPage.php:826
 msgid "Placeholder"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:213
+#: src/Modules/ContactForm/Admin/FormsPage.php:223
 #: src/Modules/Newsletter/Admin/FormsPage.php:827
 msgid "Max length"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:214
+#: src/Modules/ContactForm/Admin/FormsPage.php:224
 msgid "Rows"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:215
+#: src/Modules/ContactForm/Admin/FormsPage.php:225
 msgid "Min"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:216
+#: src/Modules/ContactForm/Admin/FormsPage.php:226
 msgid "Max"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:217
+#: src/Modules/ContactForm/Admin/FormsPage.php:227
 msgid "Step"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:218
+#: src/Modules/ContactForm/Admin/FormsPage.php:228
 #: src/Modules/Newsletter/Admin/FormsPage.php:839
 msgid "Regex pattern"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:219
+#: src/Modules/ContactForm/Admin/FormsPage.php:229
 #: src/Modules/Newsletter/Admin/FormsPage.php:840
 msgid "Country code picker"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:221
+#: src/Modules/ContactForm/Admin/FormsPage.php:231
 #: src/Modules/Newsletter/Admin/FormsPage.php:842
 msgid "Auto-detect from browser"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:222
+#: src/Modules/ContactForm/Admin/FormsPage.php:232
 #: src/Modules/Newsletter/Admin/FormsPage.php:843
 msgid "Auto (locale)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:223
-#: src/Modules/ContactForm/Admin/FormsPage.php:243
+#: src/Modules/ContactForm/Admin/FormsPage.php:233
+#: src/Modules/ContactForm/Admin/FormsPage.php:253
 msgid "Multiple choices"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:224
+#: src/Modules/ContactForm/Admin/FormsPage.php:234
 msgid "Multiple files"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:225
+#: src/Modules/ContactForm/Admin/FormsPage.php:235
 msgid "Max files"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:226
+#: src/Modules/ContactForm/Admin/FormsPage.php:236
 msgid "Max MB per file"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:227
+#: src/Modules/ContactForm/Admin/FormsPage.php:237
 msgid "Max MB total"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:228
+#: src/Modules/ContactForm/Admin/FormsPage.php:238
 msgid "Types"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:229
+#: src/Modules/ContactForm/Admin/FormsPage.php:239
 msgid "Custom (e.g. pdf, jpg)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:230
+#: src/Modules/ContactForm/Admin/FormsPage.php:240
 msgid "Strip image metadata"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:231
+#: src/Modules/ContactForm/Admin/FormsPage.php:241
 msgid "I understand the risks (allow scripts / executables)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:232
+#: src/Modules/ContactForm/Admin/FormsPage.php:242
 msgid "Delivery"
 msgstr ""
 
 #. translators: %d: max number of MB the host server allows per upload (computed live).
-#: src/Modules/ContactForm/Admin/FormsPage.php:234
+#: src/Modules/ContactForm/Admin/FormsPage.php:244
 msgid "(server max %d MB)"
 msgstr ""
 
 #. translators: %d: max number of files the field allows.
-#: src/Modules/ContactForm/Admin/FormsPage.php:237
+#: src/Modules/ContactForm/Admin/FormsPage.php:247
 msgid "Choose files (max %d)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:241
+#: src/Modules/ContactForm/Admin/FormsPage.php:251
 msgid "Options"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:242
+#: src/Modules/ContactForm/Admin/FormsPage.php:252
 msgid "Add option"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:244
+#: src/Modules/ContactForm/Admin/FormsPage.php:254
 #: src/Modules/Newsletter/Admin/FormsPage.php:828
 msgid "Alignment"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:245
+#: src/Modules/ContactForm/Admin/FormsPage.php:255
 #: src/Modules/Newsletter/Admin/FormsPage.php:829
 msgid "Left"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:246
+#: src/Modules/ContactForm/Admin/FormsPage.php:256
 #: src/Modules/Newsletter/Admin/FormsPage.php:830
 msgid "Center"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:247
+#: src/Modules/ContactForm/Admin/FormsPage.php:257
 #: src/Modules/Newsletter/Admin/FormsPage.php:831
 msgid "Right"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:248
+#: src/Modules/ContactForm/Admin/FormsPage.php:258
 #: src/Modules/Newsletter/Admin/FormsPage.php:832
 msgid "Full width"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:249
+#: src/Modules/ContactForm/Admin/FormsPage.php:259
 #: src/Modules/Newsletter/Admin/FormsPage.php:833
 msgid "Toggle required"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:252
-#: src/Modules/ContactForm/Admin/FormsPage.php:1260
+#: src/Modules/ContactForm/Admin/FormsPage.php:262
+#: src/Modules/ContactForm/Admin/FormsPage.php:1270
 #: src/Modules/Newsletter/Admin/FormsPage.php:546
 #: src/Modules/Newsletter/Admin/FormsPage.php:836
 #: src/Modules/Newsletter/Admin/HomePage.php:153
 msgid "Undo"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:253
-#: src/Modules/ContactForm/Admin/FormsPage.php:1268
+#: src/Modules/ContactForm/Admin/FormsPage.php:263
+#: src/Modules/ContactForm/Admin/FormsPage.php:1278
 #: src/Modules/Newsletter/Admin/FormsPage.php:554
 #: src/Modules/Newsletter/Admin/FormsPage.php:837
 msgid "Redo"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:257
+#: src/Modules/ContactForm/Admin/FormsPage.php:267
 msgid "None — no anti-spam challenge"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:258
+#: src/Modules/ContactForm/Admin/FormsPage.php:268
 msgid "Uses the form's default challenge (set in Advanced settings)."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:259
+#: src/Modules/ContactForm/Admin/FormsPage.php:269
 msgid "No anti-spam challenge will be shown to visitors."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:260
+#: src/Modules/ContactForm/Admin/FormsPage.php:270
 msgid "Option"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:261
+#: src/Modules/ContactForm/Admin/FormsPage.php:271
 msgid "Remove option"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:262
+#: src/Modules/ContactForm/Admin/FormsPage.php:272
 msgid "Use as default"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:263
+#: src/Modules/ContactForm/Admin/FormsPage.php:273
 msgid "Remove as default"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:264
+#: src/Modules/ContactForm/Admin/FormsPage.php:274
 msgid "Placeholder text"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:265
+#: src/Modules/ContactForm/Admin/FormsPage.php:275
 msgid "Single checkbox — no options needed."
 msgstr ""
 
 #. translators: 1: admin display name, 2: admin email
-#: src/Modules/ContactForm/Admin/FormsPage.php:386
+#: src/Modules/ContactForm/Admin/FormsPage.php:396
 msgid "%1$s (%2$s)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:431
+#: src/Modules/ContactForm/Admin/FormsPage.php:441
 #: src/Modules/Newsletter/Admin/ListsPage.php:529
 msgid "Remove"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:501
+#: src/Modules/ContactForm/Admin/FormsPage.php:511
 #: src/Modules/ContactForm/Admin/PageController.php:59
 #: src/Modules/ContactForm/Admin/PageController.php:60
 #: src/Modules/ContactForm/CPT.php:99
@@ -3016,514 +3053,514 @@ msgstr ""
 msgid "Contact Forms"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:504
+#: src/Modules/ContactForm/Admin/FormsPage.php:514
 msgid "New form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:510
+#: src/Modules/ContactForm/Admin/FormsPage.php:520
 msgid "Defaults"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:516
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:125
+#: src/Modules/ContactForm/Admin/FormsPage.php:526
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:119
 #: src/Modules/Logging/Admin/LogsPage.php:51
 msgid "Storage"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:523
-#: src/Modules/ContactForm/Admin/FormsPage.php:696
+#: src/Modules/ContactForm/Admin/FormsPage.php:533
+#: src/Modules/ContactForm/Admin/FormsPage.php:706
 msgid "Submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:538
+#: src/Modules/ContactForm/Admin/FormsPage.php:548
 msgid "Enable the Contact Form module to start building forms."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:573
+#: src/Modules/ContactForm/Admin/FormsPage.php:583
 msgid "This form has no submissions yet. Deleting is final."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:581
+#: src/Modules/ContactForm/Admin/FormsPage.php:591
 msgid "Delete form only"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:584
+#: src/Modules/ContactForm/Admin/FormsPage.php:594
 msgid "Delete form + submissions"
 msgstr ""
 
 #. translators: %s: contact form title
-#: src/Modules/ContactForm/Admin/FormsPage.php:609
+#: src/Modules/ContactForm/Admin/FormsPage.php:619
 msgid "Delete contact form \"%s\"?"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:615
-#: src/Modules/ContactForm/Admin/FormsPage.php:616
-#: src/Modules/ContactForm/Admin/FormsPage.php:1045
+#: src/Modules/ContactForm/Admin/FormsPage.php:625
+#: src/Modules/ContactForm/Admin/FormsPage.php:626
+#: src/Modules/ContactForm/Admin/FormsPage.php:1055
 msgid "received"
 msgid_plural "received"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %1$d total submissions, %2$s breakdown
-#: src/Modules/ContactForm/Admin/FormsPage.php:620
+#: src/Modules/ContactForm/Admin/FormsPage.php:630
 msgid "This form has %1$d submissions (%2$s). What should happen to them?"
 msgstr ""
 
 #. translators: %d: number of submissions
-#: src/Modules/ContactForm/Admin/FormsPage.php:628
+#: src/Modules/ContactForm/Admin/FormsPage.php:638
 msgid "Delete form + %d submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:709
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:291
+#: src/Modules/ContactForm/Admin/FormsPage.php:719
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:285
 msgid "Spam blocked"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:714
+#: src/Modules/ContactForm/Admin/FormsPage.php:724
 msgid "Failed to send"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:719
+#: src/Modules/ContactForm/Admin/FormsPage.php:729
 msgid "Total (all time)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:737
+#: src/Modules/ContactForm/Admin/FormsPage.php:747
 msgid "Defaults saved."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:739
+#: src/Modules/ContactForm/Admin/FormsPage.php:749
 msgid "Form deleted."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:750
+#: src/Modules/ContactForm/Admin/FormsPage.php:760
 msgid "Your contact forms"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:755
+#: src/Modules/ContactForm/Admin/FormsPage.php:765
 msgid "Create my first contact form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:757
+#: src/Modules/ContactForm/Admin/FormsPage.php:767
 msgid "Pick a starter template or build from scratch. Stacked anti-spam is on by default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:760
+#: src/Modules/ContactForm/Admin/FormsPage.php:770
 msgid "Create a contact form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:835
+#: src/Modules/ContactForm/Admin/FormsPage.php:845
 msgid "Default — SMTP routing"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:850
-#: src/Modules/ContactForm/Admin/FormsPage.php:951
-#: src/Modules/ContactForm/Admin/FormsPage.php:1423
+#: src/Modules/ContactForm/Admin/FormsPage.php:860
+#: src/Modules/ContactForm/Admin/FormsPage.php:961
+#: src/Modules/ContactForm/Admin/FormsPage.php:1433
 msgid "None — no Reply-To header"
 msgstr ""
 
 #. translators: %s: form field slug used as the auto-default.
-#: src/Modules/ContactForm/Admin/FormsPage.php:856
+#: src/Modules/ContactForm/Admin/FormsPage.php:866
 msgid "Auto (%s — first email field)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:860
+#: src/Modules/ContactForm/Admin/FormsPage.php:870
 msgid "No email field yet"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:865
-#: src/Modules/ContactForm/Admin/FormsPage.php:1430
+#: src/Modules/ContactForm/Admin/FormsPage.php:875
+#: src/Modules/ContactForm/Admin/FormsPage.php:1440
 msgid "[Site] New submission from {title}"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:871
-#: src/Modules/ContactForm/Admin/FormsPage.php:1431
+#: src/Modules/ContactForm/Admin/FormsPage.php:881
+#: src/Modules/ContactForm/Admin/FormsPage.php:1441
 #: src/Modules/ContactForm/Frontend.php:54
 #: src/Modules/ContactForm/Settings.php:206
 msgid "Thanks! Your message has been sent."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:888
-#: src/Modules/ContactForm/Admin/FormsPage.php:893
 #: src/Modules/ContactForm/Admin/FormsPage.php:898
 #: src/Modules/ContactForm/Admin/FormsPage.php:903
-#: src/Modules/ContactForm/Admin/FormsPage.php:1406
-#: src/Modules/ContactForm/Admin/FormsPage.php:1629
+#: src/Modules/ContactForm/Admin/FormsPage.php:908
+#: src/Modules/ContactForm/Admin/FormsPage.php:913
+#: src/Modules/ContactForm/Admin/FormsPage.php:1416
+#: src/Modules/ContactForm/Admin/FormsPage.php:1639
 msgid "On"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:889
-#: src/Modules/ContactForm/Admin/FormsPage.php:894
 #: src/Modules/ContactForm/Admin/FormsPage.php:899
 #: src/Modules/ContactForm/Admin/FormsPage.php:904
-#: src/Modules/ContactForm/Admin/FormsPage.php:1407
-#: src/Modules/ContactForm/Admin/FormsPage.php:1630
+#: src/Modules/ContactForm/Admin/FormsPage.php:909
+#: src/Modules/ContactForm/Admin/FormsPage.php:914
+#: src/Modules/ContactForm/Admin/FormsPage.php:1417
+#: src/Modules/ContactForm/Admin/FormsPage.php:1640
 msgid "Off"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:986
+#: src/Modules/ContactForm/Admin/FormsPage.php:996
 #: src/Modules/Newsletter/Admin/FormsPage.php:237
 msgid "Form name"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:989
+#: src/Modules/ContactForm/Admin/FormsPage.php:999
 #: src/Modules/Newsletter/Admin/FormsPage.php:240
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1573
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1477
 msgid "Draft"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:996
-#: src/Modules/ContactForm/Admin/FormsPage.php:1455
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:637
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1185
+#: src/Modules/ContactForm/Admin/FormsPage.php:1006
+#: src/Modules/ContactForm/Admin/FormsPage.php:1465
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:541
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1089
 msgid "Recipients"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1000
+#: src/Modules/ContactForm/Admin/FormsPage.php:1010
 msgid "No recipient is set anywhere — submissions will only be saved on this site, no email will be sent. Add at least one recipient below, or set a global default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1006
-#: src/Modules/ContactForm/Admin/FormsPage.php:1463
+#: src/Modules/ContactForm/Admin/FormsPage.php:1016
+#: src/Modules/ContactForm/Admin/FormsPage.php:1473
 msgid "SMTP identity"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1012
-#: src/Modules/ContactForm/Admin/FormsPage.php:1469
+#: src/Modules/ContactForm/Admin/FormsPage.php:1022
+#: src/Modules/ContactForm/Admin/FormsPage.php:1479
 #: src/Modules/Newsletter/Admin/FormsPage.php:284
 #: admin/js/contact-form-editor.js:106
 msgid "Style"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1014
-#: src/Modules/ContactForm/Admin/FormsPage.php:1472
+#: src/Modules/ContactForm/Admin/FormsPage.php:1024
+#: src/Modules/ContactForm/Admin/FormsPage.php:1482
 #: src/Modules/Newsletter/Admin/FormsPage.php:286
 #: admin/js/contact-form-editor.js:108
 msgid "Preset"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1024
-#: src/Modules/ContactForm/Admin/FormsPage.php:1529
+#: src/Modules/ContactForm/Admin/FormsPage.php:1034
+#: src/Modules/ContactForm/Admin/FormsPage.php:1539
 #: src/Modules/Newsletter/Admin/FormsPage.php:296
 msgid "Success message"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1025
+#: src/Modules/ContactForm/Admin/FormsPage.php:1035
 msgid "Shown to the visitor right after they submit the form. Open the dropdown to insert the site-language default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1061
+#: src/Modules/ContactForm/Admin/FormsPage.php:1071
 msgid "Advanced settings"
 msgstr ""
 
 #. translators: %s: localized creation date
-#: src/Modules/ContactForm/Admin/FormsPage.php:1066
+#: src/Modules/ContactForm/Admin/FormsPage.php:1076
 msgid "Since %s"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1079
-#: src/Modules/ContactForm/Admin/FormsPage.php:1510
+#: src/Modules/ContactForm/Admin/FormsPage.php:1089
+#: src/Modules/ContactForm/Admin/FormsPage.php:1520
 msgid "Reply-To field"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1080
+#: src/Modules/ContactForm/Admin/FormsPage.php:1090
 msgid "Which form field's email address is set as the Reply-To header on the notification. Pick \"None\" if you don't want a Reply-To header — some mail providers flag a Reply-To different from the From address as spam."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1086
-#: src/Modules/ContactForm/Admin/FormsPage.php:1517
+#: src/Modules/ContactForm/Admin/FormsPage.php:1096
+#: src/Modules/ContactForm/Admin/FormsPage.php:1527
 msgid "Subject template"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1087
+#: src/Modules/ContactForm/Admin/FormsPage.php:1097
 msgid "Subject line of the notification email. Tokens like {title} are replaced with form values. Open the dropdown to insert the default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1100
-#: src/Modules/ContactForm/Admin/FormsPage.php:1543
+#: src/Modules/ContactForm/Admin/FormsPage.php:1110
+#: src/Modules/ContactForm/Admin/FormsPage.php:1553
 msgid "Anti-spam"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1104
-#: src/Modules/ContactForm/Admin/FormsPage.php:1547
+#: src/Modules/ContactForm/Admin/FormsPage.php:1114
+#: src/Modules/ContactForm/Admin/FormsPage.php:1557
 msgid "Honeypot"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1105
+#: src/Modules/ContactForm/Admin/FormsPage.php:1115
 msgid "A hidden field invisible to humans. If anything fills it, the submission is silently treated as spam. Effective against most automated bots; no impact on real visitors."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1111
-#: src/Modules/ContactForm/Admin/FormsPage.php:1554
+#: src/Modules/ContactForm/Admin/FormsPage.php:1121
+#: src/Modules/ContactForm/Admin/FormsPage.php:1564
 msgid "Challenge"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1112
+#: src/Modules/ContactForm/Admin/FormsPage.php:1122
 msgid "Anti-bot prompt visitors see (e.g. a tiny math question). Configured globally in the Captcha settings page; override here per form if needed."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1118
-#: src/Modules/ContactForm/Admin/FormsPage.php:1663
+#: src/Modules/ContactForm/Admin/FormsPage.php:1128
+#: src/Modules/ContactForm/Admin/FormsPage.php:1673
 msgid "Save submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1119
+#: src/Modules/ContactForm/Admin/FormsPage.php:1129
 msgid "Archive received submissions to the database. When off, the notification email still goes out but no row is written and this form drops out of the Submissions inbox."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1125
-#: src/Modules/ContactForm/Admin/FormsPage.php:1571
+#: src/Modules/ContactForm/Admin/FormsPage.php:1135
+#: src/Modules/ContactForm/Admin/FormsPage.php:1581
 msgid "Throttling"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1126
+#: src/Modules/ContactForm/Admin/FormsPage.php:1136
 msgid "Server-side rate limit per submitter (identified by IP hash). Blocks the same address from re-submitting more than Max times within Window minutes."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1130
-#: src/Modules/ContactForm/Admin/FormsPage.php:1576
+#: src/Modules/ContactForm/Admin/FormsPage.php:1140
+#: src/Modules/ContactForm/Admin/FormsPage.php:1586
 msgid "Max per IP"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1140
-#: src/Modules/ContactForm/Admin/FormsPage.php:1585
+#: src/Modules/ContactForm/Admin/FormsPage.php:1150
+#: src/Modules/ContactForm/Admin/FormsPage.php:1595
 msgid "Window (min)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1161
-#: src/Modules/ContactForm/Admin/FormsPage.php:1217
+#: src/Modules/ContactForm/Admin/FormsPage.php:1171
+#: src/Modules/ContactForm/Admin/FormsPage.php:1227
 #: src/Modules/Newsletter/Admin/FormsPage.php:313
 msgid "(no title)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1189
+#: src/Modules/ContactForm/Admin/FormsPage.php:1199
 msgid "Start a new contact form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1196
+#: src/Modules/ContactForm/Admin/FormsPage.php:1206
 #: src/Modules/Newsletter/Admin/FormsPage.php:623
 msgid "Starter templates"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1199
+#: src/Modules/ContactForm/Admin/FormsPage.php:1209
 #: src/Modules/Newsletter/Admin/FormsPage.php:626
 msgid "Blank form"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1200
+#: src/Modules/ContactForm/Admin/FormsPage.php:1210
 msgid "Start with no fields and build from scratch."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1213
+#: src/Modules/ContactForm/Admin/FormsPage.php:1223
 msgid "From your existing forms"
 msgstr ""
 
 #. translators: %s: submission count
-#: src/Modules/ContactForm/Admin/FormsPage.php:1221
+#: src/Modules/ContactForm/Admin/FormsPage.php:1231
 msgid "Clone this form (%s submissions so far)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1251
-#: src/Modules/ContactForm/Admin/FormsPage.php:1252
+#: src/Modules/ContactForm/Admin/FormsPage.php:1261
+#: src/Modules/ContactForm/Admin/FormsPage.php:1262
 #: src/Modules/Newsletter/Admin/FormsPage.php:537
 #: src/Modules/Newsletter/Admin/FormsPage.php:538
 msgid "Add a field"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1259
+#: src/Modules/ContactForm/Admin/FormsPage.php:1269
 #: src/Modules/Newsletter/Admin/FormsPage.php:545
 msgid "Undo (Ctrl+Z)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1267
+#: src/Modules/ContactForm/Admin/FormsPage.php:1277
 #: src/Modules/Newsletter/Admin/FormsPage.php:553
 msgid "Redo (Ctrl+Shift+Z)"
 msgstr ""
 
 #. translators: %s: current default value, shown as "Default — X" in placeholders and Default-identity labels
-#: src/Modules/ContactForm/Admin/FormsPage.php:1301
-#: src/Modules/SMTP/Admin/SettingsPage.php:375
-#: src/Modules/SMTP/Admin/SettingsPage.php:396
+#: src/Modules/ContactForm/Admin/FormsPage.php:1311
+#: src/Modules/SMTP/Admin/SettingsPage.php:387
+#: src/Modules/SMTP/Admin/SettingsPage.php:408
 msgid "Default — %s"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1324
+#: src/Modules/ContactForm/Admin/FormsPage.php:1334
 msgid "Long text"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1329
+#: src/Modules/ContactForm/Admin/FormsPage.php:1339
 msgid "Radio"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1349
+#: src/Modules/ContactForm/Admin/FormsPage.php:1359
 msgid "Save on web server"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1350
+#: src/Modules/ContactForm/Admin/FormsPage.php:1360
 msgid "Attach to email"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1351
+#: src/Modules/ContactForm/Admin/FormsPage.php:1361
 msgid "Both — save + attach"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1396
+#: src/Modules/ContactForm/Admin/FormsPage.php:1406
 msgid "SMTP routing decides"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1437
+#: src/Modules/ContactForm/Admin/FormsPage.php:1447
 msgid "Default settings for new forms"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1444
+#: src/Modules/ContactForm/Admin/FormsPage.php:1454
 msgid "Apply to every form unless overridden in the form's settings. Changes save automatically."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1476
+#: src/Modules/ContactForm/Admin/FormsPage.php:1486
 msgid "Accent color"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1481
+#: src/Modules/ContactForm/Admin/FormsPage.php:1491
 msgid "Inherit from theme"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1484
+#: src/Modules/ContactForm/Admin/FormsPage.php:1494
 msgid "Corner roundness"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1492
+#: src/Modules/ContactForm/Admin/FormsPage.php:1502
 msgid "Font size"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1511
+#: src/Modules/ContactForm/Admin/FormsPage.php:1521
 msgid "Slug of an email field on the form whose value becomes the Reply-To header. Forms override this individually."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1518
+#: src/Modules/ContactForm/Admin/FormsPage.php:1528
 msgid "Subject line of the notification email. Tokens like {title} are replaced with form values."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1530
+#: src/Modules/ContactForm/Admin/FormsPage.php:1540
 msgid "Message shown to the visitor after a successful submission."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1548
+#: src/Modules/ContactForm/Admin/FormsPage.php:1558
 msgid "A hidden field invisible to humans. If anything fills it, the submission is silently treated as spam."
 msgstr ""
 
 #. translators: %s: URL to the Captcha settings page
-#: src/Modules/ContactForm/Admin/FormsPage.php:1561
+#: src/Modules/ContactForm/Admin/FormsPage.php:1571
 msgid "Configured on the <a href=\"%s\">Captcha settings page</a> under \"Contact forms\". Each form can still override this default."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1572
+#: src/Modules/ContactForm/Admin/FormsPage.php:1582
 msgid "Server-side rate limit per submitter (IP hash). Blocks more than Max submissions within Window minutes."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1633
+#: src/Modules/ContactForm/Admin/FormsPage.php:1643
 msgid "Hash only (recommended)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1634
+#: src/Modules/ContactForm/Admin/FormsPage.php:1644
 msgid "Store raw IP"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1642
+#: src/Modules/ContactForm/Admin/FormsPage.php:1652
 msgid "Submissions storage"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1649
+#: src/Modules/ContactForm/Admin/FormsPage.php:1659
 msgid "What gets kept when a form is submitted, for how long, and how IPs are recorded. Changes save automatically."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1659
+#: src/Modules/ContactForm/Admin/FormsPage.php:1669
 msgid "Archive policy"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1664
+#: src/Modules/ContactForm/Admin/FormsPage.php:1674
 msgid "Master switch. When off, the notification email still goes out but nothing is archived (captcha + honeypot still run). All other settings below are inert."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1670
+#: src/Modules/ContactForm/Admin/FormsPage.php:1680
 msgid "IP storage"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1671
+#: src/Modules/ContactForm/Admin/FormsPage.php:1681
 msgid "Hashed by default for privacy / GDPR friendliness. Storing the raw IP makes abuse investigation easier but requires a lawful basis in some jurisdictions."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1677
+#: src/Modules/ContactForm/Admin/FormsPage.php:1687
 msgid "Spam recording"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1678
+#: src/Modules/ContactForm/Admin/FormsPage.php:1688
 msgid "Even when archiving is on, you can skip these bot-blocked rows so the inbox stays clean."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1682
+#: src/Modules/ContactForm/Admin/FormsPage.php:1692
 msgid "Save honeypot / time-trap"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1683
+#: src/Modules/ContactForm/Admin/FormsPage.php:1693
 msgid "Almost always bots — keep off unless you're debugging your forms."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1689
+#: src/Modules/ContactForm/Admin/FormsPage.php:1699
 msgid "Save captcha-failed"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1690
+#: src/Modules/ContactForm/Admin/FormsPage.php:1700
 msgid "Captcha can fail for legitimate users (typos, slow connections). Keep on so you can recover their messages."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1696
+#: src/Modules/ContactForm/Admin/FormsPage.php:1706
 msgid "Automatic retention"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1697
+#: src/Modules/ContactForm/Admin/FormsPage.php:1707
 msgid "Older rows are deleted daily by a cron event. Each bucket has its own toggle — turn it on only for rows you want auto-pruned."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1720
+#: src/Modules/ContactForm/Admin/FormsPage.php:1730
 msgid "Failed sends often hold useful debug info (rejected mailboxes, SMTP errors). Auto-deleting them is usually undesirable."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1730
-#: src/Modules/ContactForm/Admin/FormsPage.php:1753
+#: src/Modules/ContactForm/Admin/FormsPage.php:1740
+#: src/Modules/ContactForm/Admin/FormsPage.php:1763
 msgid "Spam"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1740
+#: src/Modules/ContactForm/Admin/FormsPage.php:1750
 #: src/Modules/Logging/Admin/LogsPage.php:521
 msgid "Manual cleanup"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1741
+#: src/Modules/ContactForm/Admin/FormsPage.php:1751
 msgid "One-shot deletion. Pick an age + the statuses to include, then run. Works on existing rows even when archiving is off."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1744
+#: src/Modules/ContactForm/Admin/FormsPage.php:1754
 msgid "Delete submissions older than"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1746
+#: src/Modules/ContactForm/Admin/FormsPage.php:1756
 msgid "days, in:"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1758
+#: src/Modules/ContactForm/Admin/FormsPage.php:1768
 msgid "Delete matching submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1781
-#: src/Modules/Logging/Admin/LogsPage.php:573
+#: src/Modules/ContactForm/Admin/FormsPage.php:1791
+#: src/Modules/Logging/Admin/LogsPage.php:579
 msgid "Working…"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/FormsPage.php:1782
+#: src/Modules/ContactForm/Admin/FormsPage.php:1792
 msgid "Tick at least one status."
 msgstr ""
 
 #. translators: %d: number of days
-#: src/Modules/ContactForm/Admin/FormsPage.php:1785
+#: src/Modules/ContactForm/Admin/FormsPage.php:1795
 msgid "Delete every submission older than %d days in the selected statuses? This cannot be undone."
 msgstr ""
 
@@ -3586,40 +3623,40 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:105
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:99
 msgid "Submission #%d marked as spam."
 msgstr ""
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:108
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:102
 msgid "Submission #%d restored from spam."
 msgstr ""
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:111
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:105
 msgid "Submission #%d deleted permanently."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:118
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:112
 msgid "That submission no longer exists. It may have been deleted already."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:122
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:116
 msgid "Contact Form Submissions"
 msgstr ""
 
 #. translators: %s: sub-page name (e.g. "Forms", "Subscribers") shown after "Newsletters —".
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:132
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:126
 #: src/Modules/Newsletter/Admin/FormsPage.php:145
 #: src/Modules/Newsletter/Admin/HomePage.php:263
 msgid "Forms"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:271
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:265
 msgid "All forms"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:283
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:277
 #: src/Modules/Logging/Admin/LogsPage.php:244
 #: src/Modules/Logging/Admin/LogsPage.php:263
 #: src/Modules/Newsletter/Admin/HomePage.php:156
@@ -3629,214 +3666,209 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:302
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:296
 msgid "Any"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:304
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:298
 msgid "Passed"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:310
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:304
 #: src/Modules/Newsletter/Admin/HomePage.php:195
 msgid "Skipped"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:316
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:310
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:42
 #: src/Modules/Logging/Admin/LogsPage.php:284
 #: src/Modules/Logging/Admin/LogsPage.php:354
-#: src/Modules/Logging/Admin/LogViewPage.php:109
-#: src/Modules/SMTP/Admin/SettingsPage.php:339
+#: src/Modules/SMTP/Admin/SettingsPage.php:351
 msgid "From"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:326
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:320
 #: src/Modules/Logging/Admin/LogsPage.php:294
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1202
 msgid "Search"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:328
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:322
 msgid "Field values, notes…"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:333
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:327
 #: src/Modules/Logging/Admin/LogsPage.php:301
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1212
 msgid "Filter"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:336
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:330
 #: src/Modules/Logging/Admin/LogsPage.php:304
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1215
 msgid "Reset"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:351
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:345
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1364
 msgid "Bulk actions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:354
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:492
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1023
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1235
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1256
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:348
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:486
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:927
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1139
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1160
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1375
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1872
 msgid "Delete permanently"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:357
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:351
 #: src/Modules/Logging/Admin/LogsPage.php:322
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1384
 msgid "Apply"
 msgstr ""
 
 #. translators: 1: first index, 2: last index, 3: total count
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:366
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:360
 #: src/Modules/Logging/Admin/LogsPage.php:328
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1390
 msgid "Showing %1$d–%2$d of %3$d"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:395
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:389
 #: src/Modules/Logging/Admin/LogsPage.php:351
 msgid "Select all"
 msgstr ""
 
 #. translators: %d: submission id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:439
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:433
 msgid "Select submission #%d"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:479
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:601
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:473
 msgid "View outbound email"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:479
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:473
 msgid "View outbound email log"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:492
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:486
 msgid "Delete submission"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:519
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:513
 msgid "Submissions pagination"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:532
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:526
 msgid "No submissions match your filters."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:535
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:529
 #: src/Modules/Logging/Admin/LogsPage.php:463
 msgid "Clear filters"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:539
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:533
 msgid "No submissions yet. Once visitors send a contact form, they will appear here."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:550
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:544
 msgid "Submission not found"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:552
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:546
 msgid "Back to submissions"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:596
-msgid "Back"
-msgstr ""
-
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:657
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:584
 msgid "Submitted"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:676
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:603
 msgid "Notes"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:683
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:610
 msgid "Submitted values"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:685
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:612
 msgid "No fields recorded for this submission."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:705
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:632
 msgid "Technical details"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:709
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:636
 msgid "IP address"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:712
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:639
 msgid "IP hash"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:715
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:642
 msgid "(raw IP not stored — enable in settings if needed)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:720
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:647
 msgid "User agent"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:725
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:652
 msgid "Referer"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:733
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:660
 msgid "Outbound email"
 msgstr ""
 
 #. translators: %d: log entry id
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:738
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:665
 msgid "Log entry #%d"
 msgstr ""
 
 #. translators: 1: form title, 2: submission id, 3: submitted-at datetime
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:810
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:737
 msgid "Submission to \"%1$s\" — #%2$d, received %3$s."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:824
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:751
 msgid "This is irreversible."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:825
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:752
 msgid "Field data and any attached files will be permanently removed."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:829
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:756
 msgid "Marking as spam keeps the row in the inbox under the Spam filter. You can move it back at any time."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:892
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:819
 msgid "Attached files"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:895
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:822
 msgid "Files come from visitor submissions. Open with care — no malware scan is performed."
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:984
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:996
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:911
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:923
 msgid "(unnamed field)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1062
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1073
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:989
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1000
 msgid "(empty)"
 msgstr ""
 
-#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1102
+#: src/Modules/ContactForm/Admin/SubmissionsPage.php:1029
 msgid "Blocked (time-trap)"
 msgstr ""
 
@@ -3920,7 +3952,7 @@ msgid "Combined size exceeds the limit"
 msgstr ""
 
 #: src/Modules/ContactForm/Module.php:58
-msgid "Build customizable contact forms with stacked anti-spam and the existing SMTP identity routing."
+msgid "Drag-and-drop contact forms with built-in anti-spam."
 msgstr ""
 
 #. translators: %d: number of contact forms.
@@ -4200,10 +4232,6 @@ msgstr ""
 msgid "Low — when you can"
 msgstr ""
 
-#: src/Modules/ContactForm/TemplateRegistry.php:142
-msgid "Normal"
-msgstr ""
-
 #: src/Modules/ContactForm/TemplateRegistry.php:143
 msgid "High — blocking"
 msgstr ""
@@ -4298,7 +4326,6 @@ msgid "Invalid log entry."
 msgstr ""
 
 #: src/Modules/Logging/Admin/AjaxController.php:130
-#: src/Modules/Logging/Admin/PageController.php:111
 msgid "Log entry deleted."
 msgstr ""
 
@@ -4310,13 +4337,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/Logging/Admin/AjaxController.php:157
-#: src/Modules/Logging/Admin/PageController.php:140
+#: src/Modules/Logging/Admin/PageController.php:84
 msgid "Enter a positive number of days."
 msgstr ""
 
 #. translators: 1: number of entries deleted, 2: number of days
 #: src/Modules/Logging/Admin/AjaxController.php:165
-#: src/Modules/Logging/Admin/PageController.php:147
+#: src/Modules/Logging/Admin/PageController.php:91
 msgid "Deleted %1$d entry older than %2$d days."
 msgid_plural "Deleted %1$d entries older than %2$d days."
 msgstr[0] ""
@@ -4324,19 +4351,18 @@ msgstr[1] ""
 
 #. translators: %d: number of entries deleted
 #: src/Modules/Logging/Admin/AjaxController.php:183
-#: src/Modules/Logging/Admin/PageController.php:161
+#: src/Modules/Logging/Admin/PageController.php:105
 msgid "Deleted all %d log entry."
 msgid_plural "Deleted all %d log entries."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/Logging/Admin/AjaxController.php:188
-#: src/Modules/Logging/Admin/PageController.php:165
+#: src/Modules/Logging/Admin/PageController.php:109
 msgid "Unknown purge mode."
 msgstr ""
 
 #: src/Modules/Logging/Admin/AjaxController.php:200
-#: src/Modules/Logging/Admin/PageController.php:87
 msgid "Email re-sent successfully."
 msgstr ""
 
@@ -4349,24 +4375,93 @@ msgstr ""
 msgid "Resend failed."
 msgstr ""
 
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:27
+msgid "Send failed:"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:35
+#: src/Modules/Newsletter/Admin/HomePage.php:199
+msgid "Sent at"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:40
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:2249
+#: src/Modules/SMTP/Admin/SettingsPage.php:488
+msgid "Identity"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:50
+msgid "Cc"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:53
+msgid "Bcc"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:56
+#: src/Modules/SMTP/Admin/SettingsPage.php:418
+msgid "Reply-to"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:60
+msgid "Attachments"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:70
+msgid "Custom headers"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:74
+#: src/Modules/Newsletter/Admin/SubscribersPage.php:38
+msgid "Name"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:75
+msgid "Value"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:110
+msgid "(no path — inline content)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:112
+msgid "(file missing — won't re-send)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:114
+msgid "(still on disk)"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:157
+msgid "HTML body"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:171
+msgid "Plain-text alternative"
+msgstr ""
+
+#: src/Modules/Logging/Admin/LogDetailRenderer.php:172
+msgid "Plain-text body"
+msgstr ""
+
 #: src/Modules/Logging/Admin/LogsPage.php:46
-#: src/Modules/Logging/Admin/PageController.php:51
-#: src/Modules/Logging/Admin/PageController.php:52
+#: src/Modules/Logging/Admin/PageController.php:43
+#: src/Modules/Logging/Admin/PageController.php:44
 msgid "Email Logs"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:71
-msgid "Enable email logging to capture every outgoing email and let you audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder."
+msgid "Enable email logging to capture every outgoing email and let you audit deliverability and retry failed sends."
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:252
-#: src/Modules/Logging/Admin/LogsPage.php:947
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1575
+#: src/Modules/Logging/Admin/LogsPage.php:956
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1479
 msgid "Sending"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:255
-#: src/Modules/Logging/Admin/LogsPage.php:948
+#: src/Modules/Logging/Admin/LogsPage.php:957
 msgid "Retried"
 msgstr ""
 
@@ -4401,8 +4496,7 @@ msgid "View contact form submission"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:417
-#: src/Modules/Logging/Admin/LogsPage.php:582
-#: src/Modules/Logging/Admin/LogViewPage.php:254
+#: src/Modules/Logging/Admin/LogsPage.php:588
 msgid "Resend"
 msgstr ""
 
@@ -4454,146 +4548,45 @@ msgstr ""
 msgid "Delete matching logs"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:560
-#: src/Modules/Logging/Admin/LogViewPage.php:261
+#: src/Modules/Logging/Admin/LogsPage.php:566
 msgid "Delete this log entry?"
 msgstr ""
 
 #. translators: %d: number of selected log entries
-#: src/Modules/Logging/Admin/LogsPage.php:563
+#: src/Modules/Logging/Admin/LogsPage.php:569
 msgid "Delete %d selected log entries?"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:565
+#: src/Modules/Logging/Admin/LogsPage.php:571
 msgid "Resend this email now?"
 msgstr ""
 
 #. translators: %d: number of days
-#: src/Modules/Logging/Admin/LogsPage.php:568
+#: src/Modules/Logging/Admin/LogsPage.php:574
 msgid "Delete every log entry older than %d days? This cannot be undone."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:570
+#: src/Modules/Logging/Admin/LogsPage.php:576
 msgid "Select at least one entry."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:571
+#: src/Modules/Logging/Admin/LogsPage.php:577
 msgid "Pick an action first."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:572
+#: src/Modules/Logging/Admin/LogsPage.php:578
 msgid "Resending…"
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:976
+#: src/Modules/Logging/Admin/LogsPage.php:985
 msgid "Email logging is now active."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogsPage.php:977
+#: src/Modules/Logging/Admin/LogsPage.php:986
 msgid "Email logging is now off. Existing logs are preserved."
 msgstr ""
 
-#: src/Modules/Logging/Admin/LogViewPage.php:23
-msgid "Log entry not found"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:26
-#: src/Modules/Logging/Admin/LogViewPage.php:47
-msgid "Back to logs"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:60
-msgid "View source submission"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:94
-msgid "Send failed:"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:102
-#: src/Modules/Newsletter/Admin/HomePage.php:199
-msgid "Sent at"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:107
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:2249
-#: src/Modules/SMTP/Admin/SettingsPage.php:476
-msgid "Identity"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:117
-msgid "Cc"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:120
-msgid "Bcc"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:123
-#: src/Modules/SMTP/Admin/SettingsPage.php:406
-msgid "Reply-to"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:127
-msgid "Attachments"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:137
-msgid "Custom headers"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:141
-#: src/Modules/Newsletter/Admin/SubscribersPage.php:38
-msgid "Name"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:142
-msgid "Value"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:177
-msgid "(no path — inline content)"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:179
-msgid "(file missing — won't re-send)"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:181
-msgid "(still on disk)"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:224
-msgid "HTML body"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:238
-msgid "Plain-text alternative"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:239
-msgid "Plain-text body"
-msgstr ""
-
-#: src/Modules/Logging/Admin/LogViewPage.php:262
-msgid "Delete?"
-msgstr ""
-
-#: src/Modules/Logging/Admin/PageController.php:89
-msgid "Attachments were not re-sent (the original files are no longer available)."
-msgstr ""
-
-#: src/Modules/Logging/Admin/PageController.php:93
-#: src/Modules/SMTP/Admin/AjaxController.php:339
-msgid "Unknown error."
-msgstr ""
-
-#. translators: %s: error message
-#: src/Modules/Logging/Admin/PageController.php:96
-msgid "Resend failed: %s"
-msgstr ""
-
-#: src/Modules/Logging/Admin/PageController.php:123
+#: src/Modules/Logging/Admin/PageController.php:67
 msgid "Logging settings saved."
 msgstr ""
 
@@ -4602,7 +4595,7 @@ msgid "Email Logging"
 msgstr ""
 
 #: src/Modules/Logging/Module.php:32
-msgid "Log every outgoing email and optionally archive a copy to your IMAP Sent folder."
+msgid "Log every outgoing email."
 msgstr ""
 
 #. translators: %s: number of log entries (already formatted with i18n thousands separator).
@@ -4777,13 +4770,13 @@ msgid "This list isn't toggleable per-subscriber."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/AjaxController.php:1304
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1314
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1357
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1392
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1466
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1218
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1261
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1296
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1370
 #: src/Modules/Newsletter/Send/SendAjaxController.php:272
 #: src/Modules/Newsletter/Send/SendAjaxController.php:294
-#: src/Modules/Newsletter/Send/SendAjaxController.php:611
+#: src/Modules/Newsletter/Send/SendAjaxController.php:601
 msgid "Newsletter not found."
 msgstr ""
 
@@ -4832,8 +4825,8 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/FormsPage.php:217
 #: src/Modules/Newsletter/Admin/FormsPage.php:508
 #: src/Modules/Newsletter/Admin/HomePage.php:454
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:823
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1001
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:727
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:905
 msgid "(untitled)"
 msgstr ""
 
@@ -4852,12 +4845,12 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:272
 #: src/Modules/Newsletter/Admin/ListsPage.php:84
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:640
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:544
 msgid "Manage lists"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:273
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:641
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:545
 msgid "Manage lists →"
 msgstr ""
 
@@ -4877,26 +4870,26 @@ msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:455
 #: src/Modules/Newsletter/Admin/ListsPage.php:231
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:702
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:606
 msgid "Built-in list — cannot be renamed or deleted."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:456
 #: src/Modules/Newsletter/Admin/ListsPage.php:232
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:703
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:607
 msgid "System"
 msgstr ""
 
 #. translators: %s: number of opted-out users (already formatted).
 #: src/Modules/Newsletter/Admin/FormsPage.php:470
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:718
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:622
 msgid "−%s opt-out"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/FormsPage.php:486
 #: src/Modules/Newsletter/Admin/ListsPage.php:165
 #: src/Modules/Newsletter/Admin/ListsPage.php:874
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:735
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:639
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1172
 msgid "Subscribers lists"
 msgstr ""
@@ -4904,7 +4897,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/FormsPage.php:487
 #: src/Modules/Newsletter/Admin/ListsPage.php:166
 #: src/Modules/Newsletter/Admin/ListsPage.php:873
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:736
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:640
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1173
 msgid "WP users lists"
 msgstr ""
@@ -5036,12 +5029,12 @@ msgid "Could not load the preview."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:144
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1204
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1108
 msgid "Computing recipient set…"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:145
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:663
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:567
 msgid "recipients"
 msgstr ""
 
@@ -5137,13 +5130,13 @@ msgstr ""
 
 #. translators: %1$s: relative time span (e.g. "2 days"), %2$s: absolute datetime
 #: src/Modules/Newsletter/Admin/HomePage.php:172
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:939
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:843
 msgid "Scheduled to send in %1$s — %2$s"
 msgstr ""
 
 #. translators: %s: absolute datetime
 #: src/Modules/Newsletter/Admin/HomePage.php:174
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:932
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:836
 msgid "Schedule set for %s — click Schedule to commit."
 msgstr ""
 
@@ -5157,7 +5150,7 @@ msgid "Abort send"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:178
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:863
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:767
 msgid "Abort"
 msgstr ""
 
@@ -5188,7 +5181,7 @@ msgid "Drop this scheduled send back to draft? The date stays saved so you can r
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:187
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:837
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:741
 msgid "Unschedule"
 msgstr ""
 
@@ -5201,7 +5194,6 @@ msgid "second"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/HomePage.php:190
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:297
 msgid "Refresh"
 msgstr ""
 
@@ -5526,7 +5518,7 @@ msgid "No users match."
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:101
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:121
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:122
 #: src/Modules/Newsletter/NewsletterCPT.php:136
 msgid "New newsletter"
 msgstr ""
@@ -5536,8 +5528,8 @@ msgid "In preparation"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:159
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1052
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1059
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:956
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:963
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:242
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1882
 msgid "Trash"
@@ -5580,477 +5572,377 @@ msgstr ""
 msgid "No newsletters yet. Start one to send to your subscribers."
 msgstr ""
 
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:248
+msgid "The newsletter cron event is not scheduled. Disable and re-enable the Newsletter module to fix this."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:251
+msgid "WordPress pseudo-cron is disabled and the server cron has not run yet. Enable the server cron from the WordPress Toolkit in Plesk (one click), or ask your host's support team."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:254
+msgid "The cron is scheduled but has not run yet. Wait a couple of minutes or load any page on your site to trigger it."
+msgstr ""
+
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:257
+msgid "Cron has not fired in over 5 minutes — scheduled sends will stall. Enable the server cron from the WordPress Toolkit in Plesk, or set up a system cron hitting wp-cron.php every minute."
+msgstr ""
+
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:260
-msgid "The send-tick cron event is not scheduled. Disable and re-enable the Newsletter module to register it again."
+msgid "Cron is firing slowly — sends may stall during low-traffic periods. For reliability, enable the server cron from the WordPress Toolkit in Plesk."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:263
-msgid "DISABLE_WP_CRON is set and nothing has triggered the tick yet. You need an external trigger (system cron or a service hitting wp-cron.php)."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:266
-msgid "The cron is scheduled but has not run yet. Wait a couple of minutes or load any front-end page to fire pseudo-cron."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:269
-msgid "Cron has not fired in more than 5 minutes. Scheduled newsletters and crash-recovery ticks will NOT run automatically. Set up a system cron (every minute) hitting wp-cron.php, or use a service like cron-job.org."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:272
-msgid "Cron is firing but slowly — sends may stall during low-traffic periods. Consider a system cron for reliability."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:275
-msgid "Cron is healthy."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:284
-msgid "Cron healthy"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:285
-msgid "Cron slow"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:286
-msgid "Cron stalled"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:291
-msgid "WP-Cron health"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:292
-msgid "A cron is a task that runs on a schedule — every minute, every hour, etc. WordPress uses one to fire off scheduled work like sending queued newsletters, cleaning up trash, or running maintenance. By default it's triggered by visitors loading any page on your site (called \"pseudo-cron\"); a real server cron is more reliable, especially during quiet hours."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:295
-msgid "Re-fetch cron health + every card state."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:299
-msgid "Poll the server every 10 seconds. Off by default — turn it on while diagnosing or watching a send."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:301
-msgid "Auto-refresh"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:305
-msgid "Last observed tick"
-msgstr ""
-
-#. translators: 1: relative time span (e.g. "30 seconds"), 2: absolute datetime
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:311
-msgid "%1$s ago — %2$s"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:317
-msgid "never"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:320
-msgid "Next scheduled tick"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:323
-msgid "not scheduled"
-msgstr ""
-
-#. translators: 1: relative time span (e.g. "30 seconds"), 2: absolute datetime
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:328
-msgid "in %1$s — %2$s"
-msgstr ""
-
-#. translators: %s: relative time span (how long the tick has been overdue)
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:337
-msgid "overdue by %s"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:343
-msgid "DISABLE_WP_CRON"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:344
-msgid "yes — pseudo-cron is off, you need an external trigger"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:344
-msgid "no — pseudo-cron runs on page hits"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:346
-msgid "ALTERNATE_WP_CRON"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:347
-msgid "yes"
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:353
-msgid "Tip:"
-msgstr ""
-
-#. translators: %s: <a href="…">LRob</a> link to lrob.fr
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:358
-msgid "You can use %s to switch to a server cron instead."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:363
-msgid "Server crons run every minute regardless of traffic — more reliable for scheduled sends on low-traffic sites, and no per-page loopback HTTP request. LRob configures this in a click (or assists at no extra cost) and ships with 2000 mails/h enabled by default (more on demand)."
-msgstr ""
-
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:456
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:360
 msgid "Subject — used as both the title and the email's subject line"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:472
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:598
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:376
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:502
 msgid "sent"
 msgstr ""
 
 #. translators: %s: label of the SMTP identity used when no override is picked
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:489
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:393
 msgid "Automatic (%s)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:492
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:396
 msgid "Automatic (no default configured)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:508
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:412
 msgid "Short description (preview text)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:511
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:415
 msgid "The snippet shown next to the subject in the recipient's inbox. Most email clients show the first ~90 characters. Used to entice the recipient to open — write a teaser, not a recap. Some clients show none of this; treat it as a bonus, not a guaranteed surface."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:518
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:422
 msgid "Inbox preview snippet (~90 chars visible)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:523
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:427
 msgid "Sender identity"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:526
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:430
 msgid "The mailbox this newsletter goes out from. From-name, From-email, and Reply-to are all controlled by the picked identity — to change any of those, edit the identity itself rather than per-newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:530
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:434
 msgid "Manage identities →"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:585
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:489
 msgid "Stats"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:589
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:493
 msgid "targeted"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:591
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:740
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:495
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:644
 msgid "Show list"
 msgstr ""
 
 #. translators: %d: open rate as integer percent
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:611
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:515
 msgid "opens (%d%%)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:615
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:519
 msgid "opens"
 msgstr ""
 
 #. translators: %d: click-through rate as integer percent
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:623
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:527
 msgid "clicks (%d%%)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:627
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:531
 msgid "clicks"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:655
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:669
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:559
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:573
 msgid "no list picked — pick one to send"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:665
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:569
 msgid "(opt-outs bypassed)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:714
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:618
 msgid "Matching users who opted out — not sent unless you bypass opt-outs for this newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:724
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:628
 msgid "Opted-in members reachable in this list."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:749
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:653
 msgid "Schedule send for later"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:752
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:656
 msgid "Send at"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:764
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:668
 msgid "Track opens"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:770
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:674
 msgid "Track clicks"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:776
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:680
 msgid "Log every send"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:785
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:689
 msgid "Restore this newsletter to edit its content."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:786
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:690
 msgid "Content is locked once the newsletter has been sent or is being sent. Duplicate to start a new one."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:788
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:793
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:692
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:697
 msgid "Content"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:802
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:706
 msgid "Test sends are disabled once the newsletter is sending or done. Duplicate to start a new one."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:802
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:706
 msgid "Restore this newsletter to send tests."
 msgstr ""
 
 #. translators: %s: newsletter title in confirmation prompt
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:825
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:729
 msgid "Send \"%s\" to every targeted recipient? This cannot be undone once it starts."
 msgstr ""
 
 #. translators: %s: newsletter title in confirmation prompt
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:827
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:731
 msgid "Schedule \"%s\" to be sent at the configured time? You can still edit or cancel it before sending starts."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:829
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:844
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:733
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:748
 msgid "Schedule"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:830
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:843
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:734
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:747
 msgid "Send now"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:853
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:757
 msgid "Pause"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:856
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:760
 msgid "Resume"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:861
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:765
 msgid "Abort this newsletter? Pending recipients will be skipped."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:875
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:779
 msgid "Re-queue every failed recipient for another send attempt."
 msgstr ""
 
 #. translators: %d: number of failed recipients
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:878
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:782
 msgid "Retry failed (%d)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:887
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:791
 msgid "SMTP looks unhealthy — sending paused."
 msgstr ""
 
 #. translators: %d: consecutive-failure threshold
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:892
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:796
 msgid "We hit %d consecutive failed sends in a row. Fix your SMTP identity, then click Resume — the next tick will re-test and either continue or pause again."
 msgstr ""
 
 #. translators: %1$s: relative time span (e.g. "5 hours"), %2$s: absolute datetime
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:908
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:812
 msgid "Sent %1$s ago, on %2$s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:915
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:819
 msgid "This send failed. Duplicate and retry if needed."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:918
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:822
 msgid "This send was aborted."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:960
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:864
 msgid "the cron tick is not scheduled — re-enable the Newsletter module to fix"
 msgstr ""
 
 #. translators: %s: relative time span until next cron tick (e.g. "30 seconds")
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:964
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:868
 msgid "next cron tick in %s"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:968
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:872
 msgid "cron tick firing imminently"
 msgstr ""
 
 #. translators: %s: relative time span (how long ago the cron should have run)
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:972
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:876
 msgid "cron stalled — the tick was due %s ago, pseudo-cron isn't firing on this site"
 msgstr ""
 
 #. translators: %1$s: absolute datetime of the scheduled send, %2$s: cron-tick info
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:979
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:883
 msgid "Scheduled for %1$s (overdue — %2$s)."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1015
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:919
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:243
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1863
 msgid "Restore"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1043
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:947
 msgid "Duplicate"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1058
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:962
 msgid "Abort the send first, then this can be moved to trash."
 msgstr ""
 
 #. translators: %s: current admin email
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1093
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:997
 msgid "Send to me (%s)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1102
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1006
 msgid "Send to a specific address"
 msgstr ""
 
 #. translators: %s: configured test list name
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1117
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1021
 msgid "Send to test list (%s)"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1129
-#: src/Modules/SMTP/Admin/SettingsPage.php:509
-#: src/Modules/SMTP/Admin/SettingsPage.php:607
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1033
+#: src/Modules/SMTP/Admin/SettingsPage.php:521
+#: src/Modules/SMTP/Admin/SettingsPage.php:619
 msgid "Send test"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1139
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1043
 msgid "Email preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1140
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1044
 msgid "Viewport size"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1141
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1045
 msgid "Desktop"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1141
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1045
 msgid "Desktop preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1144
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1048
 msgid "Tablet"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1144
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1048
 msgid "Tablet preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1147
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1051
 msgid "Mobile"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1147
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1051
 msgid "Mobile preview"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1195
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1099
 msgid "Recipient status filter"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1199
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1103
 msgid "Search email or name…"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1200
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1104
 msgid "Search recipients"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1234
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1255
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1138
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1159
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1373
 msgid "Move to trash"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1243
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1147
 msgid "Move this newsletter to trash?"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1244
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1148
 msgid "Permanently delete this newsletter?"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1248
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1152
 msgid "You can restore it from the Trash tab. Already-sent recipients are not affected."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1249
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1153
 msgid "This cannot be undone. Already-sent recipients are not affected."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1276
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1473
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1180
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1377
 msgid "Untitled newsletter"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1280
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1184
 msgid "Could not create the newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1323
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1227
 msgid "This newsletter is currently sending. Abort the send before trashing it."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1395
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1299
 msgid "Move this newsletter to trash before permanently deleting it."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1483
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1387
 msgid "Could not duplicate the newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1574
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1478
 msgid "Scheduled"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1576
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1480
 msgid "Paused"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1579
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1483
 msgid "Aborted"
 msgstr ""
 
-#: src/Modules/Newsletter/Admin/NewslettersPage.php:1580
+#: src/Modules/Newsletter/Admin/NewslettersPage.php:1484
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2397
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2424
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2437
@@ -6922,7 +6814,7 @@ msgid "Roles"
 msgstr ""
 
 #: src/Modules/Newsletter/Module.php:63
-msgid "Send newsletters to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline."
+msgid "Send newsletters to your subscribers and WordPress users."
 msgstr ""
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
@@ -7255,7 +7147,7 @@ msgstr ""
 
 #: src/Modules/Newsletter/Send/SendAjaxController.php:268
 #: src/Modules/Newsletter/Send/SendAjaxController.php:290
-#: src/Modules/Newsletter/Send/SendAjaxController.php:607
+#: src/Modules/Newsletter/Send/SendAjaxController.php:597
 msgid "Missing newsletter id."
 msgstr ""
 
@@ -7287,11 +7179,11 @@ msgstr ""
 msgid "Only a scheduled newsletter can be unscheduled."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:568
+#: src/Modules/Newsletter/Send/SendAjaxController.php:558
 msgid "No failed recipients to retry for this newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:574
+#: src/Modules/Newsletter/Send/SendAjaxController.php:564
 msgid "No failed recipients to retry."
 msgstr ""
 
@@ -7517,35 +7409,39 @@ msgstr ""
 msgid "Reply-to is not a valid email address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:204
+#: src/Modules/SMTP/Admin/AjaxController.php:206
 msgid "Identity saved."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:232
+#: src/Modules/SMTP/Admin/AjaxController.php:234
 msgid "Default identity updated."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:241
+#: src/Modules/SMTP/Admin/AjaxController.php:243
 msgid "PHP mail() transport has nothing to authenticate against."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:325
+#: src/Modules/SMTP/Admin/AjaxController.php:328
 msgid "Pick an identity and a valid recipient."
 msgstr ""
 
 #. translators: %s: recipient email
-#: src/Modules/SMTP/Admin/AjaxController.php:333
+#: src/Modules/SMTP/Admin/AjaxController.php:336
 msgid "Test email sent to %s."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:364
+#: src/Modules/SMTP/Admin/AjaxController.php:342
+msgid "Unknown error."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/AjaxController.php:367
 msgid "Routing rules saved."
 msgstr ""
 
 #: src/Modules/SMTP/Admin/PageController.php:39
 #: src/Modules/SMTP/Admin/PageController.php:40
 #: src/Modules/SMTP/Admin/SettingsPage.php:41
-#: src/Modules/SMTP/Admin/SettingsPage.php:138
+#: src/Modules/SMTP/Admin/SettingsPage.php:141
 #: src/Modules/SMTP/Module.php:34
 msgid "SMTP"
 msgstr ""
@@ -7558,237 +7454,245 @@ msgstr ""
 msgid "No SMTP identities yet — click \"New identity\" to start."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:136
+#: src/Modules/SMTP/Admin/SettingsPage.php:139
 msgid "Send via"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:150
+#: src/Modules/SMTP/Admin/SettingsPage.php:153
 msgid "Identity name"
 msgstr ""
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:178
+msgid "Save attachments locally"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:180
+msgid "Keep a copy of each attachment sent through this identity on the server, so you can re-send the email later with its files intact. Copies are removed when the log entry is deleted."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:190
 msgid "Default identity"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:217
+#: src/Modules/SMTP/Admin/SettingsPage.php:229
 msgid "Mailbox login"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:218
+#: src/Modules/SMTP/Admin/SettingsPage.php:230
 msgid "Credentials your mail server uses to authenticate this site — usually the same as logging into webmail."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:220
+#: src/Modules/SMTP/Admin/SettingsPage.php:232
 msgid "Authentication"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:223
+#: src/Modules/SMTP/Admin/SettingsPage.php:235
 msgid "Auth"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:230
+#: src/Modules/SMTP/Admin/SettingsPage.php:242
 msgid "Username / email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:238
+#: src/Modules/SMTP/Admin/SettingsPage.php:250
 msgid "Password"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:240
+#: src/Modules/SMTP/Admin/SettingsPage.php:252
 msgid "Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:267
+#: src/Modules/SMTP/Admin/SettingsPage.php:279
 msgid "SMTP server"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:268
+#: src/Modules/SMTP/Admin/SettingsPage.php:280
 msgid "Pick your domain's mail server. \"Custom\" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:274
+#: src/Modules/SMTP/Admin/SettingsPage.php:286
 msgid "Host"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:287
+#: src/Modules/SMTP/Admin/SettingsPage.php:299
 msgid "Show host presets"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:296
-#: src/Modules/SMTP/Admin/SettingsPage.php:606
+#: src/Modules/SMTP/Admin/SettingsPage.php:308
+#: src/Modules/SMTP/Admin/SettingsPage.php:618
 msgid "Test connection"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:297
+#: src/Modules/SMTP/Admin/SettingsPage.php:309
 msgid "Test SMTP connection"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:306
+#: src/Modules/SMTP/Admin/SettingsPage.php:318
 msgid "Encryption & port"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:307
+#: src/Modules/SMTP/Admin/SettingsPage.php:319
 msgid "STARTTLS upgrades a plain connection to encrypted (port 587 — most common). TLS connects encrypted from the start (port 465). None sends plaintext on port 25 — almost always blocked by hosting providers."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:316
+#: src/Modules/SMTP/Admin/SettingsPage.php:328
 msgid "Port"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:322
+#: src/Modules/SMTP/Admin/SettingsPage.php:334
 msgid "Plaintext SMTP on port 25 is almost always blocked by web hosts. Use STARTTLS or TLS."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:340
+#: src/Modules/SMTP/Admin/SettingsPage.php:352
 msgid "The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:345
+#: src/Modules/SMTP/Admin/SettingsPage.php:357
 msgid "Override other apps' sender"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:346
+#: src/Modules/SMTP/Admin/SettingsPage.php:358
 msgid "Decides how aggressively this identity wins against a From address set by another plugin (WooCommerce, contact forms, etc.). \"Only when none is set\" leaves explicit choices alone but kicks in on emails that didn't pick a sender themselves."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:353
+#: src/Modules/SMTP/Admin/SettingsPage.php:365
 msgid "Always override"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:354
+#: src/Modules/SMTP/Admin/SettingsPage.php:366
 msgid "Only when no sender is set"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:355
+#: src/Modules/SMTP/Admin/SettingsPage.php:367
 msgid "Never override"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:366
+#: src/Modules/SMTP/Admin/SettingsPage.php:378
 msgid "From email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:375
-#: src/Modules/SMTP/Admin/SettingsPage.php:717
+#: src/Modules/SMTP/Admin/SettingsPage.php:387
+#: src/Modules/SMTP/Admin/SettingsPage.php:729
 msgid "Default — uses mailbox login"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:378
-#: src/Modules/SMTP/Admin/SettingsPage.php:399
+#: src/Modules/SMTP/Admin/SettingsPage.php:390
+#: src/Modules/SMTP/Admin/SettingsPage.php:411
 msgid "Show presets"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:387
+#: src/Modules/SMTP/Admin/SettingsPage.php:399
 msgid "From name"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:406
+#: src/Modules/SMTP/Admin/SettingsPage.php:418
 msgid "(optional)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:424
+#: src/Modules/SMTP/Admin/SettingsPage.php:436
 msgid "Routing rules"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:425
+#: src/Modules/SMTP/Admin/SettingsPage.php:437
 msgid "Each source can use a specific identity. Sources without a rule fall back to the default."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:438
+#: src/Modules/SMTP/Admin/SettingsPage.php:450
 msgid "— Use default —"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:449
+#: src/Modules/SMTP/Admin/SettingsPage.php:461
 msgid "Save routing rules"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:465
+#: src/Modules/SMTP/Admin/SettingsPage.php:477
 msgid "Send a test email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:494
+#: src/Modules/SMTP/Admin/SettingsPage.php:506
 msgid "Custom address…"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:520
+#: src/Modules/SMTP/Admin/SettingsPage.php:532
 msgid "Connection test result"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:522
+#: src/Modules/SMTP/Admin/SettingsPage.php:534
 msgid "Connection test"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:534
+#: src/Modules/SMTP/Admin/SettingsPage.php:546
 msgid "Run again"
 msgstr ""
 
 #. translators: %s: the SMTP identity's display name
-#: src/Modules/SMTP/Admin/SettingsPage.php:590
+#: src/Modules/SMTP/Admin/SettingsPage.php:602
 msgid "Delete the identity \"%s\"?"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:592
+#: src/Modules/SMTP/Admin/SettingsPage.php:604
 msgid "Unsaved changes"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:596
+#: src/Modules/SMTP/Admin/SettingsPage.php:608
 msgid "Testing…"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:598
+#: src/Modules/SMTP/Admin/SettingsPage.php:610
 msgid "✓ resolves"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:599
+#: src/Modules/SMTP/Admin/SettingsPage.php:611
 msgid "✗ cannot resolve"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:600
+#: src/Modules/SMTP/Admin/SettingsPage.php:612
 msgid "Domain differs from the mailbox login. Most servers will reject or rewrite this — only use with relays that support arbitrary senders."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:601
+#: src/Modules/SMTP/Admin/SettingsPage.php:613
 msgid "Local part differs from the mailbox login. Some servers may rewrite the From address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:716
-#: src/Modules/SMTP/Admin/SettingsPage.php:759
-#: src/Modules/SMTP/Admin/SettingsPage.php:763
+#: src/Modules/SMTP/Admin/SettingsPage.php:728
+#: src/Modules/SMTP/Admin/SettingsPage.php:771
+#: src/Modules/SMTP/Admin/SettingsPage.php:775
 msgid "Default — "
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:761
+#: src/Modules/SMTP/Admin/SettingsPage.php:773
 msgid "Use automatic (uses mailbox login)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:764
+#: src/Modules/SMTP/Admin/SettingsPage.php:776
 msgid "Use automatic (uses site title)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1296
+#: src/Modules/SMTP/Admin/SettingsPage.php:1308
 msgid "Overridden by a wp-config.php constant — value here is ignored at runtime."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1305
+#: src/Modules/SMTP/Admin/SettingsPage.php:1317
 msgid "Default emails"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1308
+#: src/Modules/SMTP/Admin/SettingsPage.php:1320
 msgid "WooCommerce emails"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1321
+#: src/Modules/SMTP/Admin/SettingsPage.php:1333
 msgid "AUTH_KEY is missing or unset in wp-config.php."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1322
+#: src/Modules/SMTP/Admin/SettingsPage.php:1334
 msgid "SMTP passwords cannot be encrypted at rest until you configure AUTH_KEY. Generate one at https://api.wordpress.org/secret-key/1.1/salt/ and add it to wp-config.php."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1335
+#: src/Modules/SMTP/Admin/SettingsPage.php:1347
 msgid "Email routing is now active."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1336
+#: src/Modules/SMTP/Admin/SettingsPage.php:1348
 msgid "Email routing is now off. Your configuration is preserved."
 msgstr ""
 
@@ -7817,7 +7721,7 @@ msgid "Connection successful (no authentication tested)."
 msgstr ""
 
 #: src/Modules/SMTP/Module.php:39
-msgid "Route outgoing emails through one or more SMTP servers, with per-source identity routing."
+msgid "Send emails through your own SMTP servers."
 msgstr ""
 
 #. translators: %d: number of SMTP identities.

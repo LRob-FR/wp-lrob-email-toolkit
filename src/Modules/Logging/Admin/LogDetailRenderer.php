@@ -4,88 +4,21 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging\Admin;
 
-use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage as ContactFormSubmissionsPage;
-use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository as ContactFormSubmissions;
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
 
 /**
- * Per-entry detail view. Compact metadata grid + sandboxed body preview.
+ * Renders the body markup for a single log entry — error banner +
+ * metadata grid + custom headers + sandboxed body preview. Consumed by
+ * the AJAX detail endpoint that powers the in-page modal on the logs list.
  */
-final class LogViewPage
+final class LogDetailRenderer
 {
-    public function render(?LogEntry $entry): void
-    {
-        $list_url = admin_url('admin.php?page=' . PageController::SLUG);
-
-        if (!$entry instanceof LogEntry) {
-            ?>
-            <div class="wrap lrob-etk">
-                <h1 class="lrob-etk-page-title"><?php esc_html_e('Log entry not found', 'lrob-email-toolkit'); ?></h1>
-                <p>
-                    <a href="<?php echo esc_url($list_url); ?>" class="button">
-                        <?php esc_html_e('Back to logs', 'lrob-email-toolkit'); ?>
-                    </a>
-                </p>
-            </div>
-            <?php
-            return;
-        }
-
-        $notice = PageController::pop_flash('notice');
-        $errors = PageController::pop_flash('errors');
-        $action_url = admin_url('admin-post.php');
-        ?>
-        <div class="wrap lrob-etk">
-            <h1 class="lrob-etk-page-title">
-                <?php echo esc_html($this->detail_title($entry)); ?>
-            </h1>
-
-            <?php $this->render_flash($notice, $errors); ?>
-
-            <p>
-                <a href="<?php echo esc_url($list_url); ?>" class="button button-link">
-                    ← <?php esc_html_e('Back to logs', 'lrob-email-toolkit'); ?>
-                </a>
-                <?php
-                if (class_exists(ContactFormSubmissions::class)) {
-                    $submission = (new ContactFormSubmissions())->find_by_log_id($entry->id);
-                    if ($submission !== null) {
-                        $submission_url = add_query_arg(
-                            ['action' => 'view', 'id' => $submission->id],
-                            ContactFormSubmissionsPage::base_url()
-                        );
-                        ?>
-                        <a href="<?php echo esc_url($submission_url); ?>" class="button">
-                            <span class="dashicons dashicons-feedback"></span>
-                            <?php esc_html_e('View source submission', 'lrob-email-toolkit'); ?>
-                        </a>
-                        <?php
-                    }
-                }
-                ?>
-            </p>
-
-            <?php $this->render_detail_body($entry); ?>
-
-            <div class="lrob-etk-form-actions">
-                <?php $this->render_resend_form($entry, $action_url); ?>
-                <?php $this->render_delete_form($entry, $action_url); ?>
-            </div>
-        </div>
-        <?php
-    }
-
-    /** Modal-friendly title for a log entry. */
+    /** Modal title for a log entry. */
     public function detail_title(LogEntry $entry): string
     {
         return $entry->subject !== '' ? $entry->subject : __('(no subject)', 'lrob-email-toolkit');
     }
 
-    /**
-     * The "body" content of the log detail — error banner + metadata
-     * grid + custom headers + email body. Reused by the AJAX detail
-     * endpoint that powers the in-page modal on the logs list.
-     */
     public function render_detail_body(LogEntry $entry): void
     {
         ?>
@@ -241,53 +174,6 @@ final class LogViewPage
                 <pre><?php echo esc_html((string) $entry->body_text); ?></pre>
             </div>
             <?php
-        }
-    }
-
-    private function render_resend_form(LogEntry $entry, string $action_url): void
-    {
-        ?>
-        <form method="post" action="<?php echo esc_url($action_url); ?>" style="display:inline">
-            <input type="hidden" name="action" value="<?php echo esc_attr(PageController::ACTION_RESEND); ?>">
-            <input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
-            <?php wp_nonce_field(PageController::ACTION_RESEND, '_lrob_etk_nonce'); ?>
-            <button type="submit" class="button button-primary"><?php esc_html_e('Resend', 'lrob-email-toolkit'); ?></button>
-        </form>
-        <?php
-    }
-
-    private function render_delete_form(LogEntry $entry, string $action_url): void
-    {
-        $msg = __('Delete this log entry?', 'lrob-email-toolkit');
-        $title = __('Delete?', 'lrob-email-toolkit');
-        $label = __('Delete', 'lrob-email-toolkit');
-        ?>
-        <form method="post" action="<?php echo esc_url($action_url); ?>" style="display:inline"
-              data-etk-confirm-form
-              data-confirm-title="<?php echo esc_attr($title); ?>"
-              data-confirm-message="<?php echo esc_attr($msg); ?>"
-              data-confirm-label="<?php echo esc_attr($label); ?>">
-            <input type="hidden" name="action" value="<?php echo esc_attr(PageController::ACTION_DELETE); ?>">
-            <input type="hidden" name="id" value="<?php echo (int) $entry->id; ?>">
-            <?php wp_nonce_field(PageController::ACTION_DELETE, '_lrob_etk_nonce'); ?>
-            <button type="submit" class="button button-link-delete"><?php esc_html_e('Delete', 'lrob-email-toolkit'); ?></button>
-        </form>
-        <?php
-    }
-
-    /**
-     * @param string|array<int, string>|null $notice
-     * @param string|array<int, string>|null $errors
-     */
-    private function render_flash($notice, $errors): void
-    {
-        if (is_string($notice) && $notice !== '') {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($notice) . '</p></div>';
-        }
-        if (is_array($errors)) {
-            foreach ($errors as $error) {
-                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html((string) $error) . '</p></div>';
-            }
         }
     }
 }

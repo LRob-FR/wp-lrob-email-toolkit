@@ -45,6 +45,7 @@ final class Schema
             reply_to_email varchar(190) DEFAULT NULL,
             is_default tinyint(1) NOT NULL DEFAULT 0,
             is_active tinyint(1) NOT NULL DEFAULT 1,
+            save_attachments tinyint(1) NOT NULL DEFAULT 0,
             created_at datetime NOT NULL,
             updated_at datetime NOT NULL,
             PRIMARY KEY  (id),

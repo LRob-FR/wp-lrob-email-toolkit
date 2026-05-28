@@ -7,21 +7,16 @@ namespace LRob\EmailToolkit\Modules\Logging\Admin;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\Menu as MainMenu;
 use LRob\EmailToolkit\Modules\Logging\LogRepository;
-use LRob\EmailToolkit\Modules\Logging\Resender;
 use LRob\EmailToolkit\Modules\Logging\RetentionCron;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
 /**
- * Logging admin submenu. Routes between the list view and per-entry detail
- * view based on the `action` query arg; POST actions go through admin-post.php.
+ * Logging admin submenu. Renders the list view; the per-entry detail is an
+ * in-page modal (no full page). POST actions go through admin-post.php.
  */
 final class PageController
 {
     public const SLUG = 'lrob-etk-logs';
-
-    public const ACTION_RESEND = 'lrob_etk_logging_resend';
-
-    public const ACTION_DELETE = 'lrob_etk_logging_delete';
 
     public const ACTION_SAVE_SETTINGS = 'lrob_etk_logging_save_settings';
 
@@ -30,7 +25,6 @@ final class PageController
     public function __construct(
         private ModuleInterface $module,
         private LogRepository $repository,
-        private Resender $resender,
     ) {
     }
 
@@ -38,8 +32,6 @@ final class PageController
     {
         add_action('admin_menu', [$this, 'add_submenu'], 21);
 
-        add_action('admin_post_' . self::ACTION_RESEND,        [$this, 'handle_resend']);
-        add_action('admin_post_' . self::ACTION_DELETE,        [$this, 'handle_delete']);
         add_action('admin_post_' . self::ACTION_SAVE_SETTINGS, [$this, 'handle_save_settings']);
         add_action('admin_post_' . self::ACTION_PURGE,         [$this, 'handle_purge']);
     }
@@ -62,55 +54,7 @@ final class PageController
             wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
         }
 
-        $action = isset($_GET['action']) ? sanitize_key((string) $_GET['action']) : '';
-        if ($action === 'view') {
-            $id = isset($_GET['id']) ? max(0, (int) $_GET['id']) : 0;
-            $entry = $id > 0 ? $this->repository->find($id) : null;
-            (new LogViewPage())->render($entry);
-            return;
-        }
-
         (new LogsPage($this->module, $this->repository))->render();
-    }
-
-    public function handle_resend(): void
-    {
-        $this->guard(self::ACTION_RESEND);
-
-        $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
-        if ($id <= 0) {
-            $this->redirect_to_list();
-        }
-
-        $result = $this->resender->resend($id);
-        if ($result['success']) {
-            $msg = __('Email re-sent successfully.', 'lrob-email-toolkit');
-            if ($result['attachments_dropped']) {
-                $msg .= ' ' . __('Attachments were not re-sent (the original files are no longer available).', 'lrob-email-toolkit');
-            }
-            $this->store_flash('notice', $msg);
-        } else {
-            $error = $result['error'] ?? __('Unknown error.', 'lrob-email-toolkit');
-            $this->store_flash('errors', [sprintf(
-                /* translators: %s: error message */
-                __('Resend failed: %s', 'lrob-email-toolkit'),
-                $error
-            )]);
-        }
-
-        $this->redirect_to_view($id);
-    }
-
-    public function handle_delete(): void
-    {
-        $this->guard(self::ACTION_DELETE);
-
-        $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
-        if ($id > 0) {
-            $this->repository->delete($id);
-            $this->store_flash('notice', __('Log entry deleted.', 'lrob-email-toolkit'));
-        }
-        $this->redirect_to_list();
     }
 
     public function handle_save_settings(): void
@@ -182,16 +126,6 @@ final class PageController
     private function redirect_to_list(): void
     {
         wp_safe_redirect(admin_url('admin.php?page=' . self::SLUG));
-        exit;
-    }
-
-    private function redirect_to_view(int $id): void
-    {
-        $url = add_query_arg(
-            ['page' => self::SLUG, 'action' => 'view', 'id' => $id],
-            admin_url('admin.php')
-        );
-        wp_safe_redirect($url);
         exit;
     }
 

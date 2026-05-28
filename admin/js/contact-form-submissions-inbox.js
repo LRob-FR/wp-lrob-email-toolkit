@@ -57,6 +57,11 @@
             });
         }
         bindDelegatedHandlers();
+
+        // Direct link (?detail=N) → open the detail modal on load.
+        if (DATA.autoOpen && DATA.autoOpen > 0) {
+            openDetailModal(DATA.autoOpen);
+        }
     }
     // Thin wrapper so callers that fired the old in-file reloadList don't
     // need to change. The helper owns the actual fetch + region swap.
@@ -262,39 +267,28 @@
                 if (!resp || !resp.success) {
                     throw new Error('bad-response');
                 }
-                // List page: refresh the region with current filters so the
+                // Refresh the list region with current filters so the
                 // affected rows disappear (delete) or move statuses (spam /
-                // unspam). Detail page: redirect back to the inbox with a
-                // notice so the user sees a clear confirmation — the detail
-                // page no longer represents reality after a delete anyway.
+                // unspam). If the detail modal is open AND the action
+                // targets the row being viewed, refresh / close it too:
+                // spam/unspam keeps the modal open and reflects the new
+                // status; delete closes it since the row is gone.
                 var form = document.querySelector('[data-etk-list-form]');
-                if (form) {
-                    // If the detail modal is currently open AND the action
-                    // targets the row being viewed, refresh / close the
-                    // modal accordingly. Spam/unspam keeps the modal open
-                    // and reflects the new status; delete closes it since
-                    // the row no longer exists.
-                    var modalOpen = detailEl && detailEl.classList.contains('is-open');
-                    var actsOnViewed = modalOpen && ids.length === 1 && ids[0] === detailCurrentId;
-                    var reload = reloadList(form, 1, true);
-                    if (actsOnViewed) {
-                        if (op === 'delete') {
-                            closeDetailModal();
+                var modalOpen = detailEl && detailEl.classList.contains('is-open');
+                var actsOnViewed = modalOpen && ids.length === 1 && ids[0] === detailCurrentId;
+                var reload = reloadList(form, 1, true);
+                if (actsOnViewed) {
+                    if (op === 'delete') {
+                        closeDetailModal();
+                    } else {
+                        // Re-fetch when the list reload finishes so the
+                        // visible-row list (for prev/next) is up to date.
+                        if (reload && reload.then) {
+                            reload.then(function () { fetchDetail(detailCurrentId); });
                         } else {
-                            // Re-fetch when the list reload finishes so the
-                            // visible-row list (for prev/next) is up to date.
-                            if (reload && reload.then) {
-                                reload.then(function () { fetchDetail(detailCurrentId); });
-                            } else {
-                                fetchDetail(detailCurrentId);
-                            }
+                            fetchDetail(detailCurrentId);
                         }
                     }
-                } else {
-                    var noticeMap = { spam: 'spam', unspam: 'unspam', delete: 'deleted' };
-                    var redirect = (DATA.baseUrl || '') + (DATA.baseUrl && DATA.baseUrl.indexOf('?') !== -1 ? '&' : '?')
-                        + 'notice=' + encodeURIComponent(noticeMap[op] || '') + '&id=' + encodeURIComponent(String(ids[0] || 0));
-                    window.location.href = redirect;
                 }
             })
             .catch(function () {

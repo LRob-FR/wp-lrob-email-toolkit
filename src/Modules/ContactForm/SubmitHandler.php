@@ -697,7 +697,7 @@ final class SubmitHandler
                 $file_text_items = [];
                 if ($stored_files !== []) {
                     $admin_base = add_query_arg(
-                        ['page' => 'lrob-etk-cform', 'view' => 'submissions', 'action' => 'view', 'id' => $submission_id],
+                        ['page' => 'lrob-etk-cform', 'view' => 'submissions', 'detail' => $submission_id],
                         admin_url('admin.php')
                     );
                     foreach ($stored_files as $file) {
@@ -756,7 +756,7 @@ final class SubmitHandler
         $actions_html = '';
         if ($submission_id > 0) {
             $view_url = add_query_arg(
-                ['page' => 'lrob-etk-cform', 'view' => 'submissions', 'action' => 'view', 'id' => $submission_id],
+                ['page' => 'lrob-etk-cform', 'view' => 'submissions', 'detail' => $submission_id],
                 admin_url('admin.php')
             );
             // Email buttons land on a confirm page (mirrors WP comment

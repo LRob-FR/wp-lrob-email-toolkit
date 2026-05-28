@@ -670,7 +670,7 @@ final class DashboardPage
                     <tbody>
                         <?php foreach ($recent as $sub) :
                             $view_url = add_query_arg(
-                                ['action' => 'view', 'id' => $sub->id],
+                                ['detail' => $sub->id],
                                 ContactFormSubmissionsPage::base_url()
                             );
                             $form_title = $form_titles[$sub->form_id] ?? sprintf(
@@ -790,7 +790,7 @@ final class DashboardPage
                 <tbody>
                     <?php foreach ($recent as $entry) :
                         $view_url = add_query_arg(
-                            ['page' => LogsPageController::SLUG, 'action' => 'view', 'id' => $entry->id],
+                            ['page' => LogsPageController::SLUG, 'detail' => $entry->id],
                             admin_url('admin.php')
                         );
                         $to_summary = implode(', ', array_slice($entry->to_emails, 0, 2));

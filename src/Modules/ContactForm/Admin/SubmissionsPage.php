@@ -22,8 +22,8 @@ use LRob\EmailToolkit\Plugin;
  * not its own admin slug.
  *
  *   - List + filter + paginate (default)
- *   - Detail (&action=view&id=<n>)  — read-only in this slice; reply
- *     composer ships in slice 2.
+ *   - Detail is an in-page modal; a direct link (&detail=<n>) lands on
+ *     the list and auto-opens it.
  *
  * Filter shape and table chrome mirror `LogsPage` so the two pages feel
  * uniform. Cross-links: each row links to its outbound email log when
@@ -54,16 +54,6 @@ final class SubmissionsPage
             wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
         }
         $action = isset($_GET['action']) ? sanitize_key((string) $_GET['action']) : '';
-        if ($action === 'view') {
-            $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-            $submission = $this->repository->find($id);
-            if ($submission === null) {
-                $this->render_not_found();
-                return;
-            }
-            $this->render_detail($submission);
-            return;
-        }
         if ($action === 'spam-confirm' || $action === 'delete-confirm') {
             $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
             $submission = $this->repository->find($id);
@@ -74,6 +64,10 @@ final class SubmissionsPage
             $this->render_confirm($submission, $action === 'delete-confirm' ? 'delete' : 'spam');
             return;
         }
+        // The submission detail is an in-page modal now (no full page). A
+        // direct link (?detail=N from the dashboard, an email "View" link,
+        // or the logs cross-link) lands here on the list and auto-opens
+        // the modal via JS (FormsPage enqueue → lrobEtkCfInbox.autoOpen).
         $this->render_list();
     }
 
@@ -417,7 +411,7 @@ final class SubmissionsPage
     private function render_table_row(Submission $entry, array $form_titles): void
     {
         $view_url = add_query_arg(
-            ['page' => FormsPage::SLUG, 'view' => FormsPage::VIEW_SUBMISSIONS, 'action' => 'view', 'id' => $entry->id],
+            ['page' => FormsPage::SLUG, 'view' => FormsPage::VIEW_SUBMISSIONS, 'detail' => $entry->id],
             admin_url('admin.php')
         );
         $form_title = $form_titles[$entry->form_id] ?? '';
@@ -472,7 +466,7 @@ final class SubmissionsPage
                 <?php if ($entry->log_id !== null) : ?>
                     <?php
                     $log_url = add_query_arg(
-                        ['page' => LogsPageController::SLUG, 'action' => 'view', 'id' => $entry->log_id],
+                        ['page' => LogsPageController::SLUG, 'detail' => $entry->log_id],
                         admin_url('admin.php')
                     );
                     ?>
@@ -558,77 +552,10 @@ final class SubmissionsPage
         <?php
     }
 
-    private function render_detail(Submission $entry): void
-    {
-        $form = get_post($entry->form_id);
-        $form_title = $form instanceof \WP_Post && $form->post_type === CPT::POST_TYPE
-            ? $form->post_title
-            : sprintf(
-                /* translators: %d: form id */
-                __('Deleted form #%d', 'lrob-email-toolkit'),
-                $entry->form_id
-            );
-        $index = [];
-        if ($form instanceof \WP_Post) {
-            $index = FormStructure::fields_index(FormStructure::load($entry->form_id));
-        }
-        $back_url = wp_get_referer();
-        if (!is_string($back_url) || $back_url === '') {
-            $back_url = self::base_url();
-        }
-        $log_url = null;
-        if ($entry->log_id !== null) {
-            $log_url = add_query_arg(
-                ['page' => LogsPageController::SLUG, 'action' => 'view', 'id' => $entry->log_id],
-                admin_url('admin.php')
-            );
-        }
-        ?>
-        <div class="wrap lrob-etk lrob-etk-cf-submissions-page lrob-etk-cf-submission-detail">
-            <header class="lrob-etk-page-header">
-                <h1 class="lrob-etk-page-title">
-                    <?php echo esc_html($form_title); ?>
-                    <span class="lrob-etk-page-subtitle">#<?php echo (int) $entry->id; ?></span>
-                </h1>
-                <div class="lrob-etk-page-header-actions">
-                    <a href="<?php echo esc_url($back_url); ?>" class="button">
-                        <span class="dashicons dashicons-arrow-left-alt"></span>
-                        <?php esc_html_e('Back', 'lrob-email-toolkit'); ?>
-                    </a>
-                    <?php if ($log_url !== null) : ?>
-                        <a href="<?php echo esc_url($log_url); ?>" class="button">
-                            <span class="dashicons dashicons-email-alt"></span>
-                            <?php esc_html_e('View outbound email', 'lrob-email-toolkit'); ?>
-                        </a>
-                    <?php endif; ?>
-                    <?php if ($entry->status === SubmissionRepository::STATUS_SPAM_BLOCKED) : ?>
-                        <button type="button" class="button" data-cf-row-action="unspam" data-cf-row-id="<?php echo (int) $entry->id; ?>">
-                            <span class="dashicons dashicons-undo" aria-hidden="true"></span>
-                            <?php esc_html_e('Restore from spam', 'lrob-email-toolkit'); ?>
-                        </button>
-                    <?php else : ?>
-                        <button type="button" class="button lrob-etk-btn--spam" data-cf-row-action="spam" data-cf-row-id="<?php echo (int) $entry->id; ?>">
-                            <span class="dashicons dashicons-flag" aria-hidden="true"></span>
-                            <?php esc_html_e('Mark as spam', 'lrob-email-toolkit'); ?>
-                        </button>
-                    <?php endif; ?>
-                    <button type="button" class="button lrob-etk-btn--danger" data-cf-row-action="delete" data-cf-row-id="<?php echo (int) $entry->id; ?>">
-                        <span class="dashicons dashicons-trash" aria-hidden="true"></span>
-                        <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
-                    </button>
-                </div>
-            </header>
-
-            <?php $this->render_detail_body($entry); ?>
-        </div>
-        <?php
-    }
-
     /**
-     * The body markup of a submission detail — everything below the page
-     * header (strip + payload + attached files + tech details). Public
-     * so the AJAX detail endpoint can call it directly when populating
-     * the in-page modal.
+     * The body markup of a submission detail — strip + payload + attached
+     * files + tech details. Public so the AJAX detail endpoint can call it
+     * directly when populating the in-page modal.
      */
     public function render_detail_body(Submission $entry): void
     {
@@ -647,7 +574,7 @@ final class SubmissionsPage
         $log_url = null;
         if ($entry->log_id !== null) {
             $log_url = add_query_arg(
-                ['page' => LogsPageController::SLUG, 'action' => 'view', 'id' => $entry->log_id],
+                ['page' => LogsPageController::SLUG, 'detail' => $entry->log_id],
                 admin_url('admin.php')
             );
         }

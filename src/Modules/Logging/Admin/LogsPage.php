@@ -68,7 +68,7 @@ final class LogsPage
 
             <?php if (!$enabled && $log_count === 0) : ?>
                 <p class="lrob-etk-disabled-message">
-                    <?php esc_html_e('Enable email logging to capture every outgoing email and let you audit deliverability, retry failed sends, and (later) archive copies to your IMAP Sent folder.', 'lrob-email-toolkit'); ?>
+                    <?php esc_html_e('Enable email logging to capture every outgoing email and let you audit deliverability and retry failed sends.', 'lrob-email-toolkit'); ?>
                 </p>
             <?php else : ?>
                 <?php $this->render_logs_view(); ?>
@@ -371,7 +371,7 @@ final class LogsPage
     private function render_table_row(LogEntry $entry, ?int $submission_id = null): void
     {
         $view_url = add_query_arg(
-            ['page' => PageController::SLUG, 'action' => 'view', 'id' => $entry->id],
+            ['page' => PageController::SLUG, 'detail' => $entry->id],
             admin_url('admin.php')
         );
         $to_summary = implode(', ', array_slice($entry->to_emails, 0, 2));
@@ -406,7 +406,7 @@ final class LogsPage
                 </a>
                 <?php if ($submission_id !== null) :
                     $submission_url = add_query_arg(
-                        ['action' => 'view', 'id' => $submission_id],
+                        ['detail' => $submission_id],
                         ContactFormSubmissionsPage::base_url()
                     );
                     ?>
@@ -543,10 +543,16 @@ final class LogsPage
 
     private function print_inline_js(): void
     {
+        // A direct link (dashboard preview, email "View" link, cross-link)
+        // lands here as ?detail=N. We render the list and tell JS to
+        // auto-open the detail modal for that entry — there is no
+        // full-page detail view anymore.
+        $auto_open_id = isset($_GET['detail']) ? max(0, (int) $_GET['detail']) : 0;
         ?>
         window.lrobEtkLogs = {
             ajaxUrl: <?php echo wp_json_encode(admin_url('admin-ajax.php')); ?>,
             nonce: <?php echo wp_json_encode(wp_create_nonce(AjaxController::NONCE_ACTION)); ?>,
+            autoOpenId: <?php echo (int) $auto_open_id; ?>,
             actions: {
                 delete:       <?php echo wp_json_encode(AjaxController::ACTION_DELETE); ?>,
                 bulkDelete:   <?php echo wp_json_encode(AjaxController::ACTION_BULK_DELETE); ?>,
@@ -764,9 +770,8 @@ final class LogsPage
 
     // ---- Detail modal (shared etk-detail-modal helper) ----
     // Click on the subject link or the eye icon in a row opens the
-    // modal instead of navigating to the full-page detail view. The
-    // full page still works for direct URLs (back-button, bookmarks,
-    // email "View in admin" links).
+    // modal. Direct links (dashboard, email "View" links, cross-links)
+    // land here as ?detail=N and auto-open the same modal.
     if (window.lrobEtkDetailModal) {
         var detailModal = window.lrobEtkDetailModal.create({
             actionsHtml: ''
@@ -846,20 +851,24 @@ final class LogsPage
             },
         });
 
+        function openDetail(id) {
+            $$('tr.is-active').forEach(function (tr) { tr.classList.remove('is-active'); });
+            var tr = document.querySelector('tr[data-log-id="' + id + '"]');
+            if (tr) tr.classList.add('is-active');
+            detailModal.open(id);
+        }
+
         // Highlight the active row + close on outside row click.
         document.addEventListener('click', function (e) {
             var trig = e.target.closest && e.target.closest('[data-etk-open-detail]');
             if (!trig) return;
             e.preventDefault();
             var id = parseInt(trig.getAttribute('data-etk-row-id') || '0', 10);
-            if (id > 0) {
-                // Mark the active row to keep spatial orientation.
-                $$('tr.is-active').forEach(function (tr) { tr.classList.remove('is-active'); });
-                var tr = document.querySelector('tr[data-log-id="' + id + '"]');
-                if (tr) tr.classList.add('is-active');
-                detailModal.open(id);
-            }
+            if (id > 0) openDetail(id);
         });
+
+        // Direct link (?detail=N) → open the modal on load.
+        if (L.autoOpenId > 0) openDetail(L.autoOpenId);
     }
     }); // whenReady
 

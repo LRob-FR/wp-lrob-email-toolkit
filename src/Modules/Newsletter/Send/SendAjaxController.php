@@ -250,7 +250,7 @@ final class SendAjaxController
             $rid = (int) ($row['row_id'] ?? 0);
             if (isset($map[$rid])) {
                 $row['log_url'] = add_query_arg(
-                    ['page' => $log_page_class::SLUG, 'action' => 'view', 'id' => (int) $map[$rid]],
+                    ['page' => $log_page_class::SLUG, 'detail' => (int) $map[$rid]],
                     admin_url('admin.php')
                 );
             }
@@ -477,14 +477,13 @@ final class SendAjaxController
     /**
      * Card-states: cheap read-only batch endpoint that returns the
      * current state for every newsletter id on the page plus the
-     * cron-health timestamps. Powers the polling-based auto-refresh
-     * (admin watches a send progress in real time even when SendCron
-     * is doing the work in the background).
+     * Powers the polling-based auto-refresh (admin watches a send
+     * progress in real time even when SendCron is doing the work in
+     * the background).
      *
      * Returns: {
      *   newsletters: { "<id>": {status, sent, failed, total,
-     *                            pause_reason, completed_at_ts, ...}, … },
-     *   cron: { last_tick_ts, next_tick_ts, now_ts }
+     *                            pause_reason, completed_at_ts, ...}, … }
      * }
      *
      * Designed to be polled at ~20s by every open admin tab — the JS
@@ -522,17 +521,8 @@ final class SendAjaxController
             ];
         }
 
-        $last_tick_s = (string) get_option(SendCron::OPTION_LAST_TICK, '');
-        $last_tick_ts = $last_tick_s !== '' ? (int) strtotime($last_tick_s . ' UTC') : 0;
-        $next_tick = wp_next_scheduled(SendCron::CRON_HOOK);
-
         wp_send_json_success([
             'newsletters' => $newsletters,
-            'cron' => [
-                'last_tick_ts' => $last_tick_ts,
-                'next_tick_ts' => $next_tick !== false ? (int) $next_tick : 0,
-                'now_ts'       => time(),
-            ],
         ]);
     }
 

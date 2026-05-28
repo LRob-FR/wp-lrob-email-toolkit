@@ -8,9 +8,9 @@ namespace LRob\EmailToolkit\Modules\Logging;
  * Owns the Logging module's database schema. dbDelta SQL is hand-formatted —
  * two spaces before PRIMARY KEY, lowercase column types, no IF NOT EXISTS.
  *
- * Columns reserved for future modules (newsletter_id, recipient_id, message_id,
- * provider) are present from v1 so we don't need a migration once Newsletter
- * and IMAP-save land — they just start populating those columns.
+ * Columns reserved for future modules (newsletter_id, recipient_id, message_id)
+ * are present from v1 so we don't need a migration once a consuming module
+ * lands — it just starts populating those columns.
  */
 final class Schema
 {
@@ -90,8 +90,6 @@ final class Schema
             message_id varchar(190) DEFAULT NULL,
             error_message text DEFAULT NULL,
             retry_count int(11) NOT NULL DEFAULT 0,
-            imap_saved tinyint(1) NOT NULL DEFAULT 0,
-            imap_error text DEFAULT NULL,
             PRIMARY KEY  (id),
             KEY status_created (status, created_at),
             KEY source (source),

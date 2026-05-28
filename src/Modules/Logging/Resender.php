@@ -143,10 +143,10 @@ final class Resender
 
     /**
      * Defense-in-depth: strip CR/LF from any value we're about to embed
-     * into an email header. PHPMailer normalises on the way out, but the
-     * planned IMAP-save / mail-receive features will introduce attacker-
-     * controlled data into the logs columns this method reads — stripping
-     * here closes the header-injection vector before that data ships.
+     * into an email header. PHPMailer normalises on the way out, but a
+     * future mail-receive feature could introduce attacker-controlled data
+     * into the logs columns this method reads — stripping here closes the
+     * header-injection vector before that data ships.
      */
     private static function strip_crlf(string $value): string
     {

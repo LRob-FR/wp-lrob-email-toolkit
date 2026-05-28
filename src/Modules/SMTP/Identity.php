@@ -62,6 +62,7 @@ final class Identity
         public readonly ?string $reply_to_email,
         public readonly bool $is_default,
         public readonly bool $is_active,
+        public readonly bool $save_attachments,
         public readonly ?\DateTimeImmutable $created_at = null,
         public readonly ?\DateTimeImmutable $updated_at = null,
     ) {
@@ -122,6 +123,7 @@ final class Identity
                 : null,
             is_default: !empty($row['is_default']),
             is_active: !empty($row['is_active']),
+            save_attachments: !empty($row['save_attachments']),
             created_at: self::parse_datetime($row['created_at'] ?? null),
             updated_at: self::parse_datetime($row['updated_at'] ?? null),
         );
@@ -210,6 +212,7 @@ final class Identity
             reply_to_email: $merged['reply_to_email'],
             is_default: $merged['is_default'],
             is_active: $merged['is_active'],
+            save_attachments: $merged['save_attachments'],
             created_at: $merged['created_at'],
             updated_at: $merged['updated_at'],
         );
@@ -235,6 +238,7 @@ final class Identity
             'reply_to_email'          => $this->reply_to_email,
             'is_default'              => $this->is_default,
             'is_active'               => $this->is_active,
+            'save_attachments'        => $this->save_attachments,
             'created_at'              => $this->created_at,
             'updated_at'              => $this->updated_at,
         ];

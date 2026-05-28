@@ -27,15 +27,24 @@
     max-width: 880px;
 }
 .lrob-etk-captcha-builtins li {
-    display: flex;
+    /* Subgrid over [head, preview] rows so every card's preview starts at
+     * the same Y across the row, regardless of description length. Degrades
+     * to a normal 2-row stack where subgrid is unsupported. */
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 2;
     gap: 10px;
-    align-items: flex-start;
     padding: 10px 12px;
     background: #fff;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
 }
-.lrob-etk-captcha-builtins li > div:first-of-type {
+.lrob-etk-captcha-builtin-head {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+.lrob-etk-captcha-builtin-text {
     flex: 1;
 }
 .lrob-etk-captcha-builtins .dashicons-yes-alt {
@@ -43,7 +52,9 @@
     flex-shrink: 0;
     margin-top: 2px;
 }
-.lrob-etk-captcha-builtins strong {
+/* Challenge title only — NOT the <strong> numbers inside the stat pill
+ * (which must stay inline, or they stack into an ugly circle). */
+.lrob-etk-captcha-builtin-text > strong {
     display: block;
     font-size: 14px;
 }
@@ -51,6 +62,15 @@
     margin: 2px 0 0;
     color: var(--etk-muted);
     font-size: 12px;
+}
+/* Live preview of the rendered challenge — ISO with the hosted-provider
+ * card preview below it. */
+.lrob-etk-captcha-builtin-preview {
+    border-top: 1px solid var(--etk-soft);
+    padding-top: 10px;
+}
+.lrob-etk-captcha-builtin-preview .lrob-etk-cf-field {
+    margin: 0;
 }
 
 /* --- Identity cards --- */
@@ -257,37 +277,95 @@
     margin: 0;
 }
 
-/* --- Routing grid --- */
-.lrob-etk-captcha-routing-grid {
-    display: grid;
-    gap: 8px;
-    margin-top: 8px;
+/* --- Captcha protection (default + appearance + per-context overrides) --- */
+.lrob-etk-captcha-protection {
     max-width: 720px;
 }
-.lrob-etk-captcha-routing-row {
-    display: grid;
-    grid-template-columns: 220px 1fr;
+
+/* Prominent site-wide default */
+.lrob-etk-captcha-default {
+    display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
-    background: #fff;
-    border: 1px solid var(--etk-line);
-    border-radius: var(--etk-radius);
+    justify-content: space-between;
+    gap: var(--etk-space-3);
+    padding: var(--etk-space-3) var(--etk-space-4);
+    background: var(--etk-accent-bg);
+    border: 1px solid var(--etk-line-strong);
+    border-radius: var(--etk-radius-md);
+    margin-bottom: var(--etk-space-3);
 }
-.lrob-etk-captcha-routing-row label {
-    font-weight: 500;
-    font-size: 13px;
+.lrob-etk-captcha-default-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
-.lrob-etk-captcha-routing-row .lrob-etk-combo {
-    width: 100%;
+.lrob-etk-captcha-default-text strong {
+    font-size: var(--etk-text-md);
 }
-.lrob-etk-captcha-routing-default {
-    background: var(--etk-soft);
-    border-color: var(--etk-line-strong);
+.lrob-etk-captcha-default-text .description {
+    font-size: var(--etk-text-xs);
+    color: var(--etk-muted);
+    margin: 0;
 }
-.lrob-etk-captcha-routing-default .lrob-etk-captcha-routing-context-label {
+.lrob-etk-captcha-default .lrob-etk-combo {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+/* Per-identity widget appearance (theme/size) — inside each identity card */
+.lrob-etk-captcha-card-appearance {
+    display: flex;
+    gap: var(--etk-space-3);
+    flex-wrap: wrap;
+    padding: var(--etk-space-3) 18px;
+    margin-top: var(--etk-space-2);
+    border-top: 1px solid var(--etk-soft);
+}
+.lrob-etk-captcha-card-appearance-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 160px;
+}
+.lrob-etk-captcha-card-appearance-field > label {
+    font-size: var(--etk-text-xs);
     font-weight: 600;
+    color: var(--etk-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
+
+/* Per-context overrides — compact list, grouped (plugin forms / WP sections) */
+.lrob-etk-captcha-overrides {
+    margin-top: var(--etk-space-3);
+}
+.lrob-etk-captcha-overrides-title {
+    display: block;
+    font-size: var(--etk-text-xs);
+    font-weight: 600;
+    color: var(--etk-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--etk-space-2);
+}
+.lrob-etk-captcha-overrides-hint {
+    margin: 0 0 var(--etk-space-2);
+    font-size: var(--etk-text-xs);
+    color: var(--etk-muted);
+}
+.lrob-etk-captcha-override-row {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    align-items: center;
+    gap: var(--etk-space-3);
+    padding: var(--etk-space-2) 0;
+    border-bottom: 1px solid var(--etk-soft);
+}
+.lrob-etk-captcha-override-row:last-child { border-bottom: 0; }
+.lrob-etk-captcha-override-label {
+    font-size: var(--etk-text-md);
+}
+.lrob-etk-captcha-override-row .lrob-etk-combo { width: 100%; }
 
 
 /* hCaptcha widget is 303×78px (normal) and the iframe doesn't shrink to
@@ -299,8 +377,11 @@
     overflow-x: auto;
     max-width: 100%;
 }
-.lrob-etk-hcaptcha .h-captcha {
+.lrob-etk-form-field--challenge .h-captcha {
     min-width: 303px;
+}
+.lrob-etk-form-field--challenge .cf-turnstile {
+    min-width: 300px;
 }
 
 /* Diagnostics: collapsed by default, surfaces stored state for routing
@@ -359,7 +440,12 @@
 }
 
 @media (max-width: 600px) {
-    .lrob-etk-captcha-routing-row {
+    .lrob-etk-captcha-default {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .lrob-etk-captcha-default .lrob-etk-combo { width: 100%; }
+    .lrob-etk-captcha-override-row {
         grid-template-columns: 1fr;
         gap: 4px;
     }
@@ -371,10 +457,11 @@
     margin: 6px 0 0;
     font-size: 12px;
 }
+/* inline-block (not flex) + nowrap so the "N blocked · N passed" text never
+ * splits across lines, even in the narrow built-in-challenge cells. */
 .lrob-etk-captcha-stat {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
+    display: inline-block;
+    white-space: nowrap;
     padding: 3px 10px;
     background: var(--etk-soft);
     border-radius: var(--etk-radius-pill);
@@ -382,8 +469,5 @@
     font-size: 12px;
 }
 .lrob-etk-captcha-stat strong { color: var(--etk-text); font-weight: 600; }
-.lrob-etk-captcha-stat-blocked strong { color: var(--etk-text); }
-.lrob-etk-captcha-stat-passed strong { color: var(--etk-text); }
-.lrob-etk-captcha-stat-sep { opacity: 0.5; }
-.lrob-etk-captcha-stat-window { opacity: 0.7; font-style: italic; }
+.lrob-etk-captcha-stat-sep { margin: 0 4px; opacity: 0.5; }
 .lrob-etk-captcha-card-meta .lrob-etk-captcha-stat { margin-left: 8px; }

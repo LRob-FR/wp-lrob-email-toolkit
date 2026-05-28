@@ -87,13 +87,23 @@ final class FormsPage
             self::asset_version('admin/js/contact-form-submissions-inbox.js'),
             true
         );
+        // A direct link to a submission (?view=submissions&detail=N from the
+        // dashboard, an email "View" link, or the logs cross-link) lands on
+        // the inbox; the JS auto-opens the detail modal for it.
+        $auto_open = 0;
+        if (
+            isset($_GET['view'], $_GET['detail'])
+            && sanitize_key((string) $_GET['view']) === self::VIEW_SUBMISSIONS
+        ) {
+            $auto_open = max(0, (int) $_GET['detail']);
+        }
         wp_localize_script('lrob-etk-cf-submissions-inbox', 'lrobEtkCfInbox', [
             'ajaxUrl'       => admin_url('admin-ajax.php'),
             'nonce'         => wp_create_nonce(SubmissionsAjax::NONCE_ACTION),
             'actionFilter'  => SubmissionsAjax::ACTION_FILTER,
             'actionBulk'    => SubmissionsAjax::ACTION_BULK,
             'actionDetail'  => SubmissionsAjax::ACTION_DETAIL,
-            'baseUrl'       => SubmissionsPage::base_url(),
+            'autoOpen'      => $auto_open,
             'i18n'          => [
                 /* translators: %d: count of selected submissions */
                 'confirmSpam'      => __('Mark the %d selected submissions as spam?', 'lrob-email-toolkit'),

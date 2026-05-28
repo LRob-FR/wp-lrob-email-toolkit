@@ -50,6 +50,8 @@ final class Schema
             label varchar(190) NOT NULL,
             credentials_encrypted text NOT NULL,
             is_active tinyint(1) NOT NULL DEFAULT 1,
+            theme varchar(10) NOT NULL DEFAULT 'auto',
+            size varchar(10) NOT NULL DEFAULT 'normal',
             created_at datetime NOT NULL,
             updated_at datetime NOT NULL,
             PRIMARY KEY  (id),

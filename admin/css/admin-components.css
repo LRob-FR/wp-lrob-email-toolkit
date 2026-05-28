@@ -1681,3 +1681,36 @@ body.lrob-etk-modal-open {
     margin: 12px 0;
     gap: 20px;
 }
+
+/* --- Banner (warning / error) --- */
+.lrob-etk-banner-warning,
+.lrob-etk-banner-error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-2) var(--etk-space-3);
+    margin: 0 0 var(--etk-space-2);
+    border-radius: var(--etk-radius-sm);
+    font-size: var(--etk-text-sm);
+    line-height: 1.4;
+}
+.lrob-etk-banner-warning .dashicons,
+.lrob-etk-banner-error .dashicons {
+    flex: 0 0 auto;
+    font-size: var(--etk-icon-size);
+    width: var(--etk-icon-size);
+    height: var(--etk-icon-size);
+    margin-top: 1px;
+}
+.lrob-etk-banner-warning {
+    background: var(--etk-warning-bg);
+    border-left: 3px solid var(--etk-warning);
+    color: var(--etk-text-warning);
+}
+.lrob-etk-banner-warning .dashicons { color: var(--etk-warning); }
+.lrob-etk-banner-error {
+    background: var(--etk-danger-bg);
+    border-left: 3px solid var(--etk-danger);
+    color: var(--etk-text-danger);
+}
+.lrob-etk-banner-error .dashicons { color: var(--etk-danger); }

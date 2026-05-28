@@ -58,7 +58,7 @@ In both cases, **all modules are disabled** after activation. You opt in to each
 
 ## Security notes
 
-- SMTP / IMAP / captcha-provider credentials are stored in the database encrypted with AES-256-GCM, using a key derived from your WordPress `AUTH_KEY` via HKDF-SHA256. Without a valid `AUTH_KEY` in `wp-config.php`, the plugin refuses to encrypt secrets.
+- SMTP and captcha-provider credentials are stored in the database encrypted with AES-256-GCM, using a key derived from your WordPress `AUTH_KEY` via HKDF-SHA256. Without a valid `AUTH_KEY` in `wp-config.php`, the plugin refuses to encrypt secrets.
 - Newsletter tracking tokens are HMAC-SHA256 signatures of the URL parameters — tampering invalidates the token and the endpoint refuses to record / redirect.
 - Recipient IPs in tracking events are anonymised before storage (IPv4 → /24, IPv6 → /48). User-agents are not stored by default; opt-in per newsletter.
 - All credential fields can be overridden by `wp-config.php` constants for ops teams who want secrets out of the database entirely.

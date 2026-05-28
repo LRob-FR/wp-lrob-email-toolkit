@@ -125,6 +125,9 @@ final class SettingsPage
             'reply_to_email'  => $identity?->reply_to_email ?? '',
             'is_default'      => $identity?->is_default ?? false,
             'is_active'       => $identity ? $identity->is_active : true,
+            // New identities default ON; existing ones keep their stored
+            // value (migrated rows are OFF so we don't surprise upgrades).
+            'save_attachments' => $identity ? $identity->save_attachments : true,
             'has_password'    => $identity ? $identity->smtp_password_encrypted !== '' : false,
         ];
         ?>
@@ -167,6 +170,15 @@ final class SettingsPage
             </div>
 
             <?php $this->render_from_section($overridden, $f, $site_title); ?>
+
+            <div class="lrob-etk-smtp-attachments-field">
+                <label class="lrob-etk-section-switch">
+                    <input type="checkbox" name="save_attachments" class="lrob-etk-field-save-attachments" value="1" <?php checked($f['save_attachments']); ?>>
+                    <span class="lrob-etk-switch-track lrob-etk-switch-track--sm"></span>
+                    <span class="lrob-etk-section-switch-label"><?php esc_html_e('Save attachments locally', 'lrob-email-toolkit'); ?></span>
+                </label>
+                <?php Tooltip::render(__('Keep a copy of each attachment sent through this identity on the server, so you can re-send the email later with its files intact. Copies are removed when the log entry is deleted.', 'lrob-email-toolkit')); ?>
+            </div>
 
             <div class="lrob-etk-field-errors lrob-etk-card-error" hidden></div>
 

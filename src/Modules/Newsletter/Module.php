@@ -61,7 +61,7 @@ final class Module extends AbstractModule
     public function description(): string
     {
         return __(
-            'Send newsletters to your WordPress users and email-only subscribers, with rule-based segments, per-category opt-outs, and a throttled AJAX+Cron send pipeline.',
+            'Send newsletters to your subscribers and WordPress users.',
             'lrob-email-toolkit'
         );
     }

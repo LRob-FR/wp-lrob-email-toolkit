@@ -89,24 +89,34 @@ final class StatsRepository
 
     /**
      * Per-route breakdown for the captcha settings page. Returns one row per
-     * route_key seen in the window, with passed/failed/total counters.
+     * route_key seen, with passed/failed/total counters. `$days = null`
+     * (default) sums the whole history; pass an int to window to N days.
      *
      * @return array<string, array{passed:int, failed:int, total:int}>
      */
-    public function breakdown_by_route(int $days = 30): array
+    public function breakdown_by_route(?int $days = null): array
     {
         global $wpdb;
         $table = Schema::stats_table();
-        $cutoff = gmdate('Y-m-d', time() - ($days * DAY_IN_SECONDS));
-        $rows = $wpdb->get_results(
-            $wpdb->prepare(
+        if ($days === null) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared — no user input.
+            $rows = $wpdb->get_results(
                 "SELECT route_key, outcome, SUM(n) AS total FROM `$table`
-                 WHERE day_date >= %s
                  GROUP BY route_key, outcome",
-                $cutoff
-            ),
-            ARRAY_A
-        );
+                ARRAY_A
+            );
+        } else {
+            $cutoff = gmdate('Y-m-d', time() - ($days * DAY_IN_SECONDS));
+            $rows = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT route_key, outcome, SUM(n) AS total FROM `$table`
+                     WHERE day_date >= %s
+                     GROUP BY route_key, outcome",
+                    $cutoff
+                ),
+                ARRAY_A
+            );
+        }
         if (!is_array($rows)) {
             return [];
         }

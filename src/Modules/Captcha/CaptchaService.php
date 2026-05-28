@@ -194,7 +194,31 @@ final class CaptchaService
         if ($credentials !== []) {
             $context['credentials'] = $credentials;
         }
+        // Per-identity widget appearance (theme/size). Hosted providers read
+        // it; homemade challenges ignore it.
+        $context['display'] = $this->resolve_display($context);
         return $challenge->render($context);
+    }
+
+    /**
+     * Resolve the widget appearance (theme/size) for the active route. Only
+     * hosted-provider identities carry appearance; homemade challenges and
+     * unresolvable routes return [].
+     *
+     * @param array<string, mixed> $context
+     * @return array{theme?:string, size?:string}
+     */
+    private function resolve_display(array $context): array
+    {
+        $parsed = Routing::parse($this->resolve_route($context));
+        if ($parsed['kind'] !== Routing::KIND_IDENTITY) {
+            return [];
+        }
+        $identity = $this->identities->find((int) $parsed['value']);
+        if ($identity === null) {
+            return [];
+        }
+        return ['theme' => $identity->theme, 'size' => $identity->size];
     }
 
     /**

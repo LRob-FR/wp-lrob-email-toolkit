@@ -35,7 +35,7 @@ final class Module extends AbstractModule
     public function description(): string
     {
         return __(
-            'Anti-bot challenges shared across modules. Homemade challenges (math, image) ship by default; hosted providers (hCaptcha, Turnstile, reCAPTCHA) plug in here.',
+            'Protect your forms against spam and bots.',
             'lrob-email-toolkit'
         );
     }
@@ -67,23 +67,57 @@ final class Module extends AbstractModule
     }
 
     /**
-     * Schema version 4 = identities table + context map + stats table.
+     * Schema version 6 = identities table + context map + stats table +
+     * per-identity widget appearance (theme/size) columns + WP-native
+     * contexts flipped off.
      *
      * v3 was the recovery bump from a broken v0.1.0 first-release migration
-     * that set version=2 without creating the table. v4 adds the stats table
-     * (day_date, route_key, outcome, n). migrate() forwards every call back
-     * into install(), which is idempotent — dbDelta CREATE TABLE for both
-     * tables + a "seed if missing" guard for the context map.
+     * that set version=2 without creating the table. v4 added the stats table
+     * (day_date, route_key, outcome, n). v5 added the `theme` + `size` columns
+     * to the identities table. v6 flips WordPress-native contexts that were
+     * on 'inherit' to 'none' (opt-in model). migrate() forwards every call
+     * back into install(), which is idempotent — dbDelta CREATE TABLE for
+     * both tables (and ALTERs the new columns onto existing rows with their
+     * defaults) + a "seed if missing" guard + the WP-native off flip.
      */
     public function db_version_int(): int
     {
-        return 4;
+        return 6;
     }
 
     public function install(): void
     {
         Schema::install();
         self::seed_context_map_if_missing();
+        self::migrate_wp_native_contexts_off_once();
+    }
+
+    /**
+     * Align existing installs with the opt-in model: WordPress-native
+     * contexts (comments / lost-password / registration) left on the
+     * ambiguous 'inherit' (or empty) by an earlier seed get flipped to
+     * 'none'. Explicit per-context challenge choices are left untouched —
+     * only the "follow the default" state is treated as "not opted in yet".
+     * Idempotent: after the flip those contexts are 'none', so re-runs
+     * change nothing (the UI no longer offers 'inherit' for them).
+     */
+    private static function migrate_wp_native_contexts_off_once(): void
+    {
+        $map = Routing::context_map();
+        if ($map === []) {
+            return;
+        }
+        $changed = false;
+        foreach (Routing::wp_native_contexts() as $context) {
+            $value = $map[$context] ?? '';
+            if ($value === '' || $value === Routing::ROUTE_INHERIT) {
+                $map[$context] = Routing::ROUTE_NONE;
+                $changed = true;
+            }
+        }
+        if ($changed) {
+            Routing::replace_map($map);
+        }
     }
 
     /**
@@ -252,15 +286,12 @@ final class Module extends AbstractModule
             ? Routing::homemade('math')
             : Routing::homemade($legacy_active);
 
-        // Form contexts inherit the site default so freshly-created
-        // contact forms / newsletter subscribe forms get captcha out of
-        // the box. WP-form contexts (comments / lost-password /
+        // This plugin's own form contexts inherit the site default so
+        // freshly-created contact / newsletter forms get captcha out of the
+        // box. WordPress-native contexts (comments / lost-password /
         // registration) start as 'none' so adding the WpHooks doesn't
-        // surprise the admin — they opt in explicitly per context.
-        $inherit_contexts = [
-            Routing::CONTEXT_CONTACT_FORM,
-            Routing::CONTEXT_NEWSLETTER,
-        ];
+        // surprise the admin — they opt in explicitly per section.
+        $inherit_contexts = Routing::plugin_contexts();
         $map = [Routing::KEY_DEFAULT => $default];
         foreach (Routing::known_contexts() as $context) {
             $map[$context] = in_array($context, $inherit_contexts, true)

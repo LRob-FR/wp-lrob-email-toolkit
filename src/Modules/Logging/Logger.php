@@ -94,6 +94,14 @@ final class Logger
                 $changes['recipient_id'] = $rcp_id;
             }
 
+            // When the sending SMTP identity has "Save attachments locally"
+            // on, persist a durable copy of each file-path attachment so a
+            // later resend can re-attach it (wp_mail's temp files are gone
+            // by then). Rewrite the entry's attachment paths to the copies.
+            if (!empty($this->pending_sending_event['save_attachments']) && $entry->attachments !== []) {
+                $changes['attachments'] = $this->persist_attachments($entry->attachments);
+            }
+
             if ($changes !== []) {
                 $entry = $entry->with($changes);
             }
@@ -149,6 +157,31 @@ final class Logger
             error_log('[lrob-etk] Logger update_status failed: ' . $e->getMessage());
         }
         $this->reset_current();
+    }
+
+    /**
+     * Copy each file-path attachment into the durable AttachmentStore and
+     * return the attachment list with paths pointing at the copies. Inline
+     * (path-less) attachments and copy failures fall back to the original.
+     *
+     * @param  array<int, array{name: string, path: ?string}> $attachments
+     * @return array<int, array{name: string, path: ?string}>
+     */
+    private function persist_attachments(array $attachments): array
+    {
+        $out = [];
+        foreach ($attachments as $a) {
+            $path = $a['path'] ?? null;
+            if ($path !== null && $path !== '') {
+                $copy = AttachmentStore::persist($path, (string) ($a['name'] ?? ''));
+                if ($copy !== null) {
+                    $out[] = ['name' => (string) ($a['name'] ?? ''), 'path' => $copy];
+                    continue;
+                }
+            }
+            $out[] = $a;
+        }
+        return $out;
     }
 
     /**

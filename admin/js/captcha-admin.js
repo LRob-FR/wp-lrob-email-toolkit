@@ -11,7 +11,7 @@
     function init() {
         wireAddButton();
         wireIdentityCards(document);
-        wireRoutingSelects();
+        wireProtectionSection();
         wireSetDefault();
         renderAllPreviews();
     }
@@ -50,6 +50,11 @@
         var clone = tpl.content.firstElementChild.cloneNode(true);
         container.appendChild(clone);
         wireIdentityCard(clone);
+        // Bind the cloned card's appearance comboboxes (theme / size).
+        // initCombos is idempotent (skips already-bound combos).
+        if (window.lrobEtkControls && window.lrobEtkControls.initCombos) {
+            window.lrobEtkControls.initCombos();
+        }
         // Sync fields container against the dropdown's default value.
         applyProviderToCard(clone, clone.dataset.provider);
         var firstInput = clone.querySelector('.lrob-etk-field-label');
@@ -98,6 +103,12 @@
         form.addEventListener('change', function (e) {
             if (e.target.name === 'is_active') {
                 updateActiveLabel(e.target);
+                if (card.dataset.state === 'existing') scheduleSave(card);
+                return;
+            }
+            // Appearance comboboxes (theme / size) post their value via a
+            // hidden .lrob-etk-combo-value input that fires `change` on pick.
+            if (e.target.classList && e.target.classList.contains('lrob-etk-combo-value')) {
                 if (card.dataset.state === 'existing') scheduleSave(card);
             }
         });
@@ -359,18 +370,38 @@
         // hCaptcha auto-renders any .h-captcha div on the page once its
         // script loads, but we want a per-card callback for auto-testing.
         // Register a per-card global callback name + emit the widget div.
+        // Provider-agnostic: read the widget container class + JS global
+        // from the localized metadata so every hosted provider (hCaptcha,
+        // Turnstile, …) renders its preview the same way.
         var id = card.dataset.identityId;
-        if (providerSlug === 'hcaptcha') {
+        var widgets = CFG.providerWidgets || {};
+        var w = widgets[providerSlug];
+        if (w && w.class) {
             var cbName = 'lrobEtkCaptchaTest_' + id;
             window[cbName] = function (token) { autoTestCard(card, token); };
-            widgetSlot.innerHTML = '<div class="h-captcha" data-sitekey="' + escAttr(siteKey)
-                + '" data-callback="' + escAttr(cbName) + '"></div>';
-            // If hCaptcha already loaded once, manually render the new widget.
-            if (window.hcaptcha && typeof window.hcaptcha.render === 'function') {
-                try { window.hcaptcha.render(widgetSlot.querySelector('.h-captcha')); }
+            widgetSlot.innerHTML = '<div class="' + escAttr(w.class) + '" data-sitekey="' + escAttr(siteKey)
+                + '" data-callback="' + escAttr(cbName) + '"' + previewAppearanceAttrs(card) + '></div>';
+            // If the vendor script already loaded once, render the new widget.
+            var g = w.global ? window[w.global] : null;
+            if (g && typeof g.render === 'function') {
+                try { g.render(widgetSlot.querySelector('.' + w.class)); }
                 catch (e) { /* already rendered */ }
             }
         }
+    }
+
+    // Reflect the card's saved theme/size on the preview widget. "auto" is
+    // resolved here from the admin's OS colour scheme (the widget has no
+    // native auto), matching the frontend behaviour.
+    function previewAppearanceAttrs(card) {
+        var themeEl = card.querySelector('.lrob-etk-combo-value[name="theme"]');
+        var sizeEl = card.querySelector('.lrob-etk-combo-value[name="size"]');
+        var theme = themeEl && themeEl.value ? themeEl.value : 'auto';
+        var size = sizeEl && sizeEl.value === 'compact' ? 'compact' : 'normal';
+        if (theme === 'auto') {
+            theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        }
+        return ' data-size="' + escAttr(size) + '" data-theme="' + escAttr(theme) + '"';
     }
 
     function ensureProviderScript(slug, url) {
@@ -410,70 +441,28 @@
         });
     }
 
-    function wireRoutingSelects() {
-        document.querySelectorAll('.lrob-etk-captcha-routing-row').forEach(function (row) {
-            row.addEventListener('change', function (e) {
-                if (!e.target.classList || !e.target.classList.contains('lrob-etk-combo-value')) return;
-                if (row.dataset.routingKey === 'default') {
-                    refreshInheritLabels();
-                }
-                saveRouting();
-            });
+    // One delegated change listener on the protection section: any combo
+    // value change (default / per-context override / appearance) autosaves
+    // the whole section in one POST.
+    function wireProtectionSection() {
+        var section = document.querySelector('.lrob-etk-captcha-protection');
+        if (!section) return;
+        section.addEventListener('change', function (e) {
+            if (e.target.classList && e.target.classList.contains('lrob-etk-combo-value')) {
+                saveProtection();
+            }
         });
     }
 
-    function saveRouting() {
+    function saveProtection() {
         var data = new FormData();
         data.append('action', CFG.actions.saveRouting);
         data.append('_nonce', CFG.nonce);
-        document.querySelectorAll('.lrob-etk-captcha-routing-row[data-routing-key]').forEach(function (row) {
+        document.querySelectorAll('.lrob-etk-captcha-protection [data-routing-key]').forEach(function (row) {
             var hidden = row.querySelector('.lrob-etk-combo-value');
             data.append('routing[' + row.dataset.routingKey + ']', hidden ? hidden.value : 'none');
         });
         request(data).catch(function () {});
-    }
-
-    function refreshInheritLabels() {
-        var defaultRow = document.querySelector('.lrob-etk-captcha-routing-row[data-routing-key="default"]');
-        if (!defaultRow) return;
-        var defaultCombo = defaultRow.querySelector('.lrob-etk-combo');
-        var bare = defaultCombo ? labelFromCombo(defaultCombo) : '';
-        var template = CFG.i18n.inheritLabelTemplate || 'Inherit default (%s)';
-        var emptyLabel = CFG.i18n.inheritLabelEmpty || 'Inherit default';
-        var newLabel = bare !== '' ? template.replace('%s', bare) : emptyLabel;
-        document.querySelectorAll('.lrob-etk-captcha-routing-row[data-routing-key]').forEach(function (row) {
-            if (row.dataset.routingKey === 'default') return;
-            var combo = row.querySelector('.lrob-etk-combo');
-            if (combo) updateInheritOptionLabel(combo, newLabel);
-        });
-    }
-
-    function labelFromCombo(combo) {
-        var input = combo.querySelector('.lrob-etk-combo-input');
-        if (input && input.value) return input.value;
-        var hidden = combo.querySelector('.lrob-etk-combo-value');
-        if (!hidden) return '';
-        var options;
-        try { options = JSON.parse(combo.getAttribute('data-options') || '[]'); } catch (e) { return ''; }
-        var hit = options.find(function (o) { return String(o.value) === String(hidden.value); });
-        return hit ? hit.label : '';
-    }
-
-    function updateInheritOptionLabel(combo, newLabel) {
-        var options;
-        try { options = JSON.parse(combo.getAttribute('data-options') || '[]'); } catch (e) { return; }
-        var changed = false;
-        options.forEach(function (opt) {
-            if (opt.value === 'inherit') { opt.label = newLabel; changed = true; }
-        });
-        if (!changed) return;
-        combo.setAttribute('data-options', JSON.stringify(options));
-        var input = combo.querySelector('.lrob-etk-combo-input');
-        var hidden = combo.querySelector('.lrob-etk-combo-value');
-        if (input && hidden && hidden.value === 'inherit') {
-            input.setAttribute('placeholder', newLabel);
-        }
-        combo.setAttribute('data-default-placeholder', newLabel);
     }
 
     // --- Utilities ---

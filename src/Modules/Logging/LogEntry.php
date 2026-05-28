@@ -52,8 +52,6 @@ final class LogEntry
         public readonly ?string $message_id,
         public readonly ?string $error_message,
         public readonly int $retry_count,
-        public readonly bool $imap_saved,
-        public readonly ?string $imap_error,
     ) {
     }
 
@@ -126,8 +124,6 @@ final class LogEntry
             message_id: $mailer->MessageID !== '' ? (string) $mailer->MessageID : null,
             error_message: null,
             retry_count: 0,
-            imap_saved: false,
-            imap_error: null,
         );
     }
 
@@ -161,8 +157,6 @@ final class LogEntry
             message_id: isset($row['message_id']) && $row['message_id'] !== '' ? (string) $row['message_id'] : null,
             error_message: isset($row['error_message']) && $row['error_message'] !== '' ? (string) $row['error_message'] : null,
             retry_count: isset($row['retry_count']) ? (int) $row['retry_count'] : 0,
-            imap_saved: !empty($row['imap_saved']),
-            imap_error: isset($row['imap_error']) && $row['imap_error'] !== '' ? (string) $row['imap_error'] : null,
         );
     }
 
@@ -193,8 +187,6 @@ final class LogEntry
             message_id: $merged['message_id'],
             error_message: $merged['error_message'],
             retry_count: $merged['retry_count'],
-            imap_saved: $merged['imap_saved'],
-            imap_error: $merged['imap_error'],
         );
     }
 
@@ -224,8 +216,6 @@ final class LogEntry
             'message_id'    => $this->message_id,
             'error_message' => $this->error_message,
             'retry_count'   => $this->retry_count,
-            'imap_saved'    => $this->imap_saved,
-            'imap_error'    => $this->imap_error,
         ];
     }
 

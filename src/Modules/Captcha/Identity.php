@@ -22,6 +22,8 @@ final class Identity
         public readonly string $label,
         public readonly string $credentials_encrypted,
         public readonly bool $is_active,
+        public readonly string $theme = Appearance::THEME_AUTO,
+        public readonly string $size = Appearance::SIZE_NORMAL,
         public readonly ?\DateTimeImmutable $created_at = null,
         public readonly ?\DateTimeImmutable $updated_at = null,
     ) {
@@ -38,6 +40,8 @@ final class Identity
             label: (string) ($row['label'] ?? ''),
             credentials_encrypted: (string) ($row['credentials_encrypted'] ?? ''),
             is_active: !empty($row['is_active']),
+            theme: Appearance::normalize_theme((string) ($row['theme'] ?? '')),
+            size: Appearance::normalize_size((string) ($row['size'] ?? '')),
             created_at: self::parse_datetime($row['created_at'] ?? null),
             updated_at: self::parse_datetime($row['updated_at'] ?? null),
         );
@@ -102,6 +106,8 @@ final class Identity
             label: $merged['label'],
             credentials_encrypted: $merged['credentials_encrypted'],
             is_active: $merged['is_active'],
+            theme: $merged['theme'],
+            size: $merged['size'],
             created_at: $merged['created_at'],
             updated_at: $merged['updated_at'],
         );
@@ -116,6 +122,8 @@ final class Identity
             'label'                 => $this->label,
             'credentials_encrypted' => $this->credentials_encrypted,
             'is_active'             => $this->is_active,
+            'theme'                 => $this->theme,
+            'size'                  => $this->size,
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,
         ];

@@ -30,7 +30,7 @@ final class Module extends AbstractModule
     public function description(): string
     {
         return __(
-            'Log every outgoing email and optionally archive a copy to your IMAP Sent folder.',
+            'Log every outgoing email.',
             'lrob-email-toolkit'
         );
     }
@@ -121,7 +121,7 @@ final class Module extends AbstractModule
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
 
             $resender = new Resender($repository);
-            (new PageController($this, $repository, $resender))->register();
+            (new PageController($this, $repository))->register();
             (new AjaxController($repository, $resender))->register();
         }
     }

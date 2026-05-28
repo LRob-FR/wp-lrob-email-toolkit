@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Captcha\Admin;
 
 use LRob\EmailToolkit\Activator;
+use LRob\EmailToolkit\Modules\Captcha\Appearance;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Identity;
 use LRob\EmailToolkit\Modules\Captcha\IdentityRepository;
@@ -165,6 +166,8 @@ final class AjaxController
         $clean_credentials = $validated['credentials'];
 
         $is_active = !isset($_POST['is_active']) || !empty($_POST['is_active']);
+        $theme = Appearance::normalize_theme(isset($_POST['theme']) ? (string) wp_unslash($_POST['theme']) : '');
+        $size  = Appearance::normalize_size(isset($_POST['size']) ? (string) wp_unslash($_POST['size']) : '');
 
         $identity = new Identity(
             id: $id > 0 ? $id : null,
@@ -172,6 +175,8 @@ final class AjaxController
             label: $label,
             credentials_encrypted: $existing?->credentials_encrypted ?? '',
             is_active: $is_active,
+            theme: $theme,
+            size: $size,
         );
 
         try {

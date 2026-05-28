@@ -1248,28 +1248,7 @@
 /* Recipient picker menu chrome lives in admin-components.css:
  *   .lrob-etk-menu + .lrob-etk-menu--fixed + .lrob-etk-menu-item */
 
-/* ---------- Recipient warning (no recipient set anywhere) ---------- */
-.lrob-etk-banner-warning {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 8px 10px;
-    margin: 0 0 8px;
-    background: var(--etk-warning-bg);
-    border-left: 3px solid var(--etk-warning);
-    border-radius: var(--etk-radius-sm);
-    font-size: 12px;
-    color: var(--etk-text-warning);
-    line-height: 1.4;
-}
-.lrob-etk-banner-warning .dashicons {
-    flex: 0 0 auto;
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    color: var(--etk-warning);
-    margin-top: 1px;
-}
+/* Banner styles promoted to admin-components.css */
 
 /* Make labels inside the advanced section align the tooltip neatly. */
 .lrob-etk-advanced-body .lrob-etk-field > label,
@@ -1615,12 +1594,6 @@
 }
 
 .lrob-etk-cf-submissions-page .lrob-etk-page-header { margin-bottom: 8px; }
-.lrob-etk-cf-submissions-page .lrob-etk-page-subtitle {
-    color: var(--etk-text-muted);
-    font-weight: 400;
-    font-size: 0.7em;
-    margin-left: 6px;
-}
 
 .lrob-etk-cf-submissions-table .col-form { width: 18%; }
 .lrob-etk-cf-submissions-table .col-preview { width: auto; max-width: 0; overflow: hidden; }

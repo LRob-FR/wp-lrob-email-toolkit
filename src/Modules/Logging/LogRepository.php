@@ -46,18 +46,6 @@ final class LogRepository
         $wpdb->update(Schema::table_name(), $data, ['id' => $id], $formats, ['%d']);
     }
 
-    public function update_imap_result(int $id, bool $saved, ?string $error = null): void
-    {
-        global $wpdb;
-        $wpdb->update(
-            Schema::table_name(),
-            ['imap_saved' => $saved ? 1 : 0, 'imap_error' => $error],
-            ['id' => $id],
-            ['%d', '%s'],
-            ['%d']
-        );
-    }
-
     public function find(int $id): ?LogEntry
     {
         global $wpdb;
@@ -118,6 +106,7 @@ final class LogRepository
     public function delete(int $id): void
     {
         global $wpdb;
+        $this->purge_attachments_for_ids([$id]);
         $wpdb->delete(Schema::table_name(), ['id' => $id], ['%d']);
     }
 
@@ -134,6 +123,7 @@ final class LogRepository
         if ($clean === []) {
             return 0;
         }
+        $this->purge_attachments_for_ids($clean);
         $placeholders = implode(',', array_fill(0, count($clean), '%d'));
         $deleted = $wpdb->query(
             $wpdb->prepare(
@@ -148,13 +138,63 @@ final class LogRepository
     public function delete_older_than(\DateTimeImmutable $cutoff): int
     {
         global $wpdb;
+        $table = Schema::table_name();
+        $cutoff_str = $cutoff->format('Y-m-d H:i:s');
+
+        // Remove any locally-saved attachment copies for the rows about to go.
+        $blobs = $wpdb->get_col($wpdb->prepare(
+            "SELECT attachments FROM `$table` WHERE created_at < %s AND attachments IS NOT NULL",
+            $cutoff_str
+        ));
+        foreach ($blobs as $blob) {
+            $this->purge_attachment_files((string) $blob);
+        }
+
         $deleted = $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM `" . Schema::table_name() . "` WHERE created_at < %s",
-                $cutoff->format('Y-m-d H:i:s')
-            )
+            $wpdb->prepare("DELETE FROM `$table` WHERE created_at < %s", $cutoff_str)
         );
         return is_int($deleted) ? $deleted : 0;
+    }
+
+    /**
+     * Delete locally-saved attachment copies (AttachmentStore-managed files)
+     * for the given log ids, before the rows themselves are removed. Files
+     * not under our store (e.g. transient wp_mail paths) are left untouched.
+     *
+     * @param array<int, int> $ids
+     */
+    private function purge_attachments_for_ids(array $ids): void
+    {
+        global $wpdb;
+        $clean = array_values(array_filter(array_map('intval', $ids), static fn (int $i): bool => $i > 0));
+        if ($clean === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($clean), '%d'));
+        $blobs = $wpdb->get_col($wpdb->prepare(
+            'SELECT attachments FROM `' . Schema::table_name() . "` WHERE id IN ($placeholders) AND attachments IS NOT NULL",
+            ...$clean
+        ));
+        foreach ($blobs as $blob) {
+            $this->purge_attachment_files((string) $blob);
+        }
+    }
+
+    /** Delete the AttachmentStore-managed files referenced in one row's attachments JSON. */
+    private function purge_attachment_files(string $attachments_json): void
+    {
+        if ($attachments_json === '') {
+            return;
+        }
+        $decoded = json_decode($attachments_json, true);
+        if (!is_array($decoded)) {
+            return;
+        }
+        foreach ($decoded as $a) {
+            if (is_array($a) && isset($a['path']) && is_string($a['path']) && $a['path'] !== '') {
+                AttachmentStore::delete($a['path']);
+            }
+        }
     }
 
     /**
@@ -431,8 +471,6 @@ final class LogRepository
             'message_id'    => $entry->message_id,
             'error_message' => $entry->error_message,
             'retry_count'   => $entry->retry_count,
-            'imap_saved'    => $entry->imap_saved ? 1 : 0,
-            'imap_error'    => $entry->imap_error,
         ];
     }
 
@@ -442,13 +480,13 @@ final class LogRepository
         // status, source, identity_id, newsletter_id, recipient_id,
         // from_email, from_name, to_emails, cc_emails, bcc_emails,
         // reply_to, subject, body_html, body_text, headers, attachments,
-        // message_id, error_message, retry_count, imap_saved, imap_error,
+        // message_id, error_message, retry_count,
         // then created_at, sent_at (appended in insert())
         return [
             '%s', '%s', '%d', '%d', '%d',
             '%s', '%s', '%s', '%s', '%s',
             '%s', '%s', '%s', '%s', '%s', '%s',
-            '%s', '%s', '%d', '%d', '%s',
+            '%s', '%s', '%d',
             '%s', '%s',
         ];
     }

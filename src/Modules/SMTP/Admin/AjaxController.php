@@ -167,6 +167,7 @@ final class AjaxController
         );
         $is_default = !empty($_POST['is_default']);
         $is_active = !empty($_POST['is_active']);
+        $save_attachments = !empty($_POST['save_attachments']);
 
         if ($errors !== []) {
             wp_send_json_error(['fields' => $errors, 'message' => __('Please fix the highlighted fields.', 'lrob-email-toolkit')]);
@@ -192,6 +193,7 @@ final class AjaxController
             reply_to_email: $reply_to_email,
             is_default: $is_default,
             is_active: $is_active,
+            save_attachments: $save_attachments,
         );
 
         try {
@@ -284,6 +286,7 @@ final class AjaxController
             reply_to_email: null,
             is_default: false,
             is_active: true,
+            save_attachments: false,
         );
 
         // Apply wp-config overrides so testing reflects the actual runtime config.

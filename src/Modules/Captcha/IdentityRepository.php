@@ -82,9 +82,11 @@ final class IdentityRepository
             'label'                 => $identity->label,
             'credentials_encrypted' => $ciphertext,
             'is_active'             => $identity->is_active ? 1 : 0,
+            'theme'                 => $identity->theme,
+            'size'                  => $identity->size,
             'updated_at'            => $now,
         ];
-        $formats = ['%s', '%s', '%s', '%d', '%s'];
+        $formats = ['%s', '%s', '%s', '%d', '%s', '%s', '%s'];
 
         if ($identity->id === null) {
             $data['created_at'] = $now;

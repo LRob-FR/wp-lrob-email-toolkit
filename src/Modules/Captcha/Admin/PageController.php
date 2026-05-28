@@ -50,6 +50,14 @@ final class PageController
         if (!str_contains($hook_suffix, self::SLUG)) {
             return;
         }
+        // Frontend form CSS so the built-in challenge previews (and the
+        // hCaptcha widget shell) look exactly like what visitors see.
+        wp_enqueue_style(
+            'lrob-etk-cf-frontend',
+            LROB_ETK_URL . 'assets/css/contact-form.css',
+            [],
+            Assets::asset_version_for('assets/css/contact-form.css')
+        );
         wp_enqueue_script(
             'lrob-etk-captcha-admin',
             LROB_ETK_URL . 'admin/js/captcha-admin.js',

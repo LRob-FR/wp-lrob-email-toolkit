@@ -67,7 +67,7 @@ final class AjaxController
         if ($entry === null) {
             wp_send_json_error(['message' => __('Log entry not found.', 'lrob-email-toolkit')], 404);
         }
-        $view = new LogViewPage();
+        $view = new LogDetailRenderer();
         ob_start();
         $view->render_detail_body($entry);
         $html = (string) ob_get_clean();

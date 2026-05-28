@@ -7,6 +7,33 @@ For working rules (conventions, naming, build, UI patterns), see [CLAUDE.md](./C
 
 ---
 
+## v0.4.0 — Modal-everywhere + IMAP cleanup + saved attachments + captcha enrichment (in preparation)
+
+Milestone v0.4.x in progress. Done so far in 0.4.0:
+
+### Detail views are modals everywhere (no more dedicated full pages)
+- **Email Logs + Contact Form submissions detail = in-page modal only.** The dedicated full-page detail views are gone. `LogViewPage` is now `LogDetailRenderer` (body-only, shared with the AJAX modal endpoint); `SubmissionsPage::render_detail()` removed (kept `render_detail_body()` + the spam/delete email-action confirm pages).
+- **Unified detail URL `?…&detail=N`** replaces the ambiguous `action=view&id=N`. Every caller (dashboard activity + CF previews, email "View" links, log↔submission cross-links, newsletter send-sample) uses it; the list pages read it and auto-open the modal. No remapping code.
+- Dead full-page code removed: the logging admin-post `resend`/`delete` handlers + `redirect_to_view` (modal uses the AJAX path), the CF inbox JS detail-page redirect branch, 2 orphaned CSS classes.
+
+### IMAP scaffolding purged
+- The dormant IMAP "Save to Sent" scaffolding (never built, never read) is gone: `logs.imap_saved` / `imap_error` columns, the `LogEntry` fields, `LogRepository::update_imap_result()`, and every IMAP mention in code comments + README + the plugin header description. Deferred IMAP work still tracked in todo.md.
+
+### SMTP "Save attachments locally" (per identity)
+- New per-SMTP-identity toggle (schema: `identities.save_attachments`; v3→v4). **OFF for existing identities, ON by default for new ones.** When on, `Modules/Logging/AttachmentStore` copies each sent attachment under `uploads/lrob-etk-logs/` (`.htaccess` deny, hashed paths — same armature as Contact Form uploads) and rewrites the log row's paths so `Resender::resend()` re-attaches them even after wp_mail's temp files are gone. Copies are purged when the log row is deleted (single / bulk / retention). Resend already worked on any status (incl. successful sends).
+
+### Captcha module enrichment
+- **Per-identity widget appearance** — each hosted-provider identity carries its own `theme` (auto / light / dark; auto resolves client-side from `prefers-color-scheme`) + `size` (normal / compact). Schema v4→v6 adds the columns. Rendered via `CaptchaService::resolve_display()` → provider `render()`; admin card preview reflects it live.
+- **Cloudflare Turnstile provider** added, sharing a new `Providers/AbstractHostedCaptcha` base with hCaptcha (credential fields, validation, widget render with theme/size/auto, siteverify). Concrete providers carry only constants + branding; the admin preview JS is provider-agnostic (reads widget class + global from localized metadata). reCAPTCHA + invisible mode still pending.
+- **"Captcha protection" UI reworked** — replaced the grid of 6 near-identical dropdowns with a prominent site-wide default + per-context overrides split into two groups: this plugin's forms (inherit by default) and WordPress sections (off by default, opt-in). WordPress-native contexts (comments / lost-password / registration) now flip legacy `inherit` → `none` (schema v6 migration) and read "Off (default)".
+- **Built-in challenges get a live preview** (ISO with hosted cards) — Math + Picture recognition render their actual frontend markup inline under a "Preview" label (frontend CSS enqueued on the captcha page); subgrid aligns each card's preview row.
+- **Stats are all-time** (not 30-day) and shown even at zero; the per-route counter pill is `inline-block` + `nowrap` (fixed a wrap-to-2-lines / "circle" bug from a too-broad `strong { display:block }` rule). Stats remain a tiny daily-bucketed counter table (UPSERT per verify, all contexts), not a log.
+
+### Quick cleanups
+- Logging module description trimmed (no IMAP promise). Module descriptions simplified plugin-wide for the dashboard. The always-on Newsletter cron-diagnostic panel is now a conditional banner that only shows when cron is slow/stalled, with Plesk WordPress-Toolkit guidance.
+
+---
+
 ## v0.3.x — Newsletter module (beta — feature-complete, hardening in flight)
 
 ### v0.3.5

@@ -50,10 +50,33 @@ final class Routing
     /** @return array<int, string> Known contexts shown on the settings page, in display order. */
     public static function known_contexts(): array
     {
+        return array_merge(self::plugin_contexts(), self::wp_native_contexts());
+    }
+
+    /**
+     * This plugin's own form contexts — captcha here makes sense out of the
+     * box, so they inherit the site default on a fresh install.
+     *
+     * @return array<int, string>
+     */
+    public static function plugin_contexts(): array
+    {
         return [
             self::CONTEXT_CONTACT_FORM,
-            self::CONTEXT_COMMENTS,
             self::CONTEXT_NEWSLETTER,
+        ];
+    }
+
+    /**
+     * WordPress-native contexts — captcha is OFF by default here; the admin
+     * opts in per section so adding the hooks never surprises anyone.
+     *
+     * @return array<int, string>
+     */
+    public static function wp_native_contexts(): array
+    {
+        return [
+            self::CONTEXT_COMMENTS,
             self::CONTEXT_LOST_PASSWORD,
             self::CONTEXT_REGISTRATION,
         ];

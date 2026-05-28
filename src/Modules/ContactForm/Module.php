@@ -56,7 +56,7 @@ final class Module extends AbstractModule
     public function description(): string
     {
         return __(
-            'Build customizable contact forms with stacked anti-spam and the existing SMTP identity routing.',
+            'Drag-and-drop contact forms with built-in anti-spam.',
             'lrob-email-toolkit'
         );
     }

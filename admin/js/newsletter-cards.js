@@ -710,10 +710,8 @@
     // "interesting" cards and the loop just doesn't start.
     var POLL_INTERVAL_MS = 10000;
     var POLL_MIN_GAP_MS = 8000;     // multi-tab dedup floor
-    var AUTO_REFRESH_MS = 10000;    // cron-only toggle
     var LS_LOCK = 'lrob-etk-nl-poll-lock';
     var LS_DATA = 'lrob-etk-nl-poll-data';
-    var LS_AUTOREFRESH = 'lrob-etk-nl-cron-autorefresh';
     var ACTIVE_STATUSES = ['sending', 'paused', 'scheduled'];
     var clockTimer = null;
     var pollTimer = null;
@@ -825,19 +823,6 @@
             var failedEl = card.querySelector('[data-progress-failed]');
             if (failedEl) failedEl.textContent = s.failed;
         });
-        if (payload.cron) {
-            var lastEl = document.querySelector('[data-cron-last-tick]');
-            if (lastEl && payload.cron.last_tick_ts) {
-                var lastSpan = lastEl.querySelector('[data-relative-to]');
-                if (lastSpan) lastSpan.setAttribute('data-relative-to', String(payload.cron.last_tick_ts));
-            }
-            var nextEl = document.querySelector('[data-cron-next-tick]');
-            if (nextEl && payload.cron.next_tick_ts) {
-                var nextSpan = nextEl.querySelector('[data-relative-to]');
-                if (nextSpan) nextSpan.setAttribute('data-relative-to', String(payload.cron.next_tick_ts));
-            }
-            tickRelatives();
-        }
         if (transitioned) {
             window.location.reload();
         }
@@ -901,26 +886,6 @@
         pollTimer = null;
     }
 
-    var autoRefreshTimer = null;
-
-    function isAutoRefreshOn() {
-        try { return localStorage.getItem(LS_AUTOREFRESH) === '1'; } catch (e) { return false; }
-    }
-
-    function startAutoRefresh() {
-        if (autoRefreshTimer || document.hidden) return;
-        if (!isAutoRefreshOn()) return;
-        autoRefreshTimer = setInterval(function () {
-            // force=true so cron updates even when no card is "interesting".
-            pollIfDue(true);
-        }, AUTO_REFRESH_MS);
-    }
-
-    function stopAutoRefresh() {
-        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        autoRefreshTimer = null;
-    }
-
     /**
      * Self-rescheduling clock loop. Each tick decides the next interval
      * based on how close the most-imminent future timestamp is, so a
@@ -950,12 +915,10 @@
         if (document.hidden) {
             stopPolling();
             stopClockTick();
-            stopAutoRefresh();
         } else {
             tickRelatives();
             startClockTick();
             startPolling();
-            startAutoRefresh();
         }
     });
 
@@ -964,14 +927,6 @@
     window.addEventListener('storage', function (e) {
         if (e.key !== LS_DATA || !e.newValue) return;
         try { applyState(JSON.parse(e.newValue)); } catch (err) {}
-    });
-
-    // Manual refresh on the cron-diagnostic panel: clears the lock so
-    // the next pollIfDue actually hits the server, then triggers it now.
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('[data-cron-refresh]')) return;
-        try { localStorage.removeItem(LS_LOCK); } catch (err) {}
-        pollIfDue(true);
     });
 
     // Empty-trash button on the tab nav: confirm-then-navigate. The
@@ -992,25 +947,6 @@
         }).then(function (ok) {
             if (ok) window.location.href = url;
         });
-    });
-
-    // Auto-refresh checkbox: persisted in localStorage, off by default,
-    // restored on each page load. Cross-tab synced via the storage event
-    // so toggling in one tab updates the others.
-    var autoRefreshCheckbox = document.querySelector('[data-cron-autorefresh]');
-    if (autoRefreshCheckbox) {
-        autoRefreshCheckbox.checked = isAutoRefreshOn();
-        autoRefreshCheckbox.addEventListener('change', function () {
-            try { localStorage.setItem(LS_AUTOREFRESH, this.checked ? '1' : '0'); } catch (e) {}
-            stopAutoRefresh();
-            if (this.checked) startAutoRefresh();
-        });
-    }
-    window.addEventListener('storage', function (e) {
-        if (e.key !== LS_AUTOREFRESH) return;
-        if (autoRefreshCheckbox) autoRefreshCheckbox.checked = isAutoRefreshOn();
-        stopAutoRefresh();
-        if (isAutoRefreshOn()) startAutoRefresh();
     });
 
     // -----------------------------------------------------------------
@@ -1475,5 +1411,4 @@
 
     startClockTick();
     startPolling();
-    startAutoRefresh();
 })();

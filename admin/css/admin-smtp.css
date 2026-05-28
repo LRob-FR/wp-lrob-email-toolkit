@@ -13,14 +13,15 @@
  * live in admin-components.css.
  */
 
-/* ---------- Identity edit form actions ---------- */
+/* ---------- Save-attachments toggle row ---------- */
 
-.lrob-etk-form-actions {
+.lrob-etk-smtp-attachments-field {
     display: flex;
-    gap: 8px;
     align-items: center;
-    margin: 16px 0;
-    flex-wrap: wrap;
+    gap: var(--etk-space-2);
+    margin-top: var(--etk-space-3);
+    padding-top: var(--etk-space-3);
+    border-top: 1px solid var(--etk-soft);
 }
 
 /* ---------- Routing grid ---------- */

@@ -77,10 +77,11 @@ final class MailRouter
         // filters still apply, so the user gets From/Reply-to overrides + logging.
         if ($identity->uses_mail_transport()) {
             Events::dispatch('email.sending', [
-                'identity_id'   => $identity->id,
-                'identity_slug' => $identity->slug,
-                'source'        => $this->source_resolver->resolve(),
-                'transport'     => 'mail',
+                'identity_id'      => $identity->id,
+                'identity_slug'    => $identity->slug,
+                'source'           => $this->source_resolver->resolve(),
+                'transport'        => 'mail',
+                'save_attachments' => $identity->save_attachments,
             ]);
             return;
         }
@@ -111,10 +112,11 @@ final class MailRouter
             }
 
             Events::dispatch('email.sending', [
-                'identity_id'   => $identity->id,
-                'identity_slug' => $identity->slug,
-                'source'        => $this->source_resolver->resolve(),
-                'transport'     => 'smtp',
+                'identity_id'      => $identity->id,
+                'identity_slug'    => $identity->slug,
+                'source'           => $this->source_resolver->resolve(),
+                'transport'        => 'smtp',
+                'save_attachments' => $identity->save_attachments,
             ]);
         } catch (\Throwable $e) {
             // Don't break wp_mail — let WordPress fall back to mail() transport.
