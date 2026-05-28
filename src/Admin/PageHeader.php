@@ -59,7 +59,13 @@ final class PageHeader
 
         ?>
         <header class="lrob-etk-page-header">
-            <h1 class="lrob-etk-page-title"><?php echo esc_html($title); ?></h1>
+            <h1 class="lrob-etk-page-title">
+                <?php echo esc_html($title); ?>
+                <small class="lrob-etk-page-credit"><?php
+                    /* translators: precedes the author name "LRob" in the page title credit */
+                    esc_html_e('by', 'lrob-email-toolkit');
+                ?> <a href="https://www.lrob.fr" target="_blank" rel="noopener noreferrer">LRob</a></small>
+            </h1>
             <?php if ($module !== null) { ModuleToggle::render_inline($module); } ?>
 
             <?php if ($gate && is_array($primary)) : ?>

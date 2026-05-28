@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-28T17:47:26+00:00\n"
+"POT-Creation-Date: 2026-05-28T18:12:50+00:00\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #. Plugin Name of the plugin
@@ -14,16 +14,11 @@ msgid "https://www.lrob.fr/wordpress/plugins/lrob-email-toolkit/"
 msgstr "https://www.lrob.fr/wordpress/plugins/lrob-email-toolkit/"
 
 #. Description of the plugin
-#, fuzzy
 msgid ""
 "All-in-one modular email plugin: SMTP routing, email logging, contact forms, "
 "newsletters, captcha, and webhook integrations. Each module is independently "
 "activatable."
-msgstr ""
-"Extension email tout-en-un modulaire : routage SMTP, journalisation des "
-"emails avec archivage IMAP « Enregistrer dans les Envoyés », formulaires de "
-"contact, newsletters et intégrations webhook. Chaque module est activable "
-"indépendamment."
+msgstr "Extension email tout-en-un modulaire : routage SMTP, journalisation des emails, formulaires de contact, newsletters, captcha et intégrations webhook. Chaque module est activable indépendamment."
 
 #. Author of the plugin
 msgid "LRob"
@@ -33,7 +28,7 @@ msgstr "LRob"
 msgid "https://www.lrob.fr"
 msgstr "https://www.lrob.fr"
 
-#: src/Admin/Assets.php:138 src/Modules/Captcha/Admin/SettingsPage.php:800
+#: src/Admin/Assets.php:139 src/Modules/Captcha/Admin/SettingsPage.php:800
 #: src/Modules/ContactForm/Admin/FormsPage.php:157
 #: src/Modules/Logging/Admin/LogsPage.php:580
 #: src/Modules/Newsletter/Admin/HomePage.php:101
@@ -42,7 +37,7 @@ msgstr "https://www.lrob.fr"
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: src/Admin/Assets.php:139 src/Modules/Captcha/Admin/SettingsPage.php:801
+#: src/Admin/Assets.php:140 src/Modules/Captcha/Admin/SettingsPage.php:801
 #: src/Modules/ContactForm/Admin/FormsPage.php:158
 #: src/Modules/Logging/Admin/LogsPage.php:581
 #: src/Modules/Newsletter/Admin/HomePage.php:102
@@ -51,7 +46,7 @@ msgstr "Enregistrement…"
 msgid "Saved"
 msgstr "Enregistré"
 
-#: src/Admin/Assets.php:140 src/Modules/Captcha/Admin/SettingsPage.php:802
+#: src/Admin/Assets.php:141 src/Modules/Captcha/Admin/SettingsPage.php:802
 #: src/Modules/ContactForm/Admin/FormsPage.php:159
 #: src/Modules/Logging/Admin/LogsPage.php:582
 #: src/Modules/Newsletter/Admin/HomePage.php:103
@@ -793,9 +788,82 @@ msgstr "Désactiver"
 msgid "Enable"
 msgstr "Activer"
 
+#. translators: precedes the author name "LRob" in the page title credit
+#: src/Admin/PageHeader.php:66
+msgid "by"
+msgstr "par"
+
 #: src/Admin/PerPagePicker.php:63
 msgid "Per page"
 msgstr "Par page"
+
+#: src/Admin/PromoStrip.php:30
+msgid "Your website is too slow?"
+msgstr "Votre site est trop lent ?"
+
+#: src/Admin/PromoStrip.php:31
+msgid "Get the fastest WordPress hosting"
+msgstr "Optez pour l'hébergement WordPress le plus rapide"
+
+#: src/Admin/PromoStrip.php:35
+msgid "Managing multiple websites?"
+msgstr "Vous gérez plusieurs sites ?"
+
+#: src/Admin/PromoStrip.php:36
+msgid "Centralized WordPress hosting for agencies"
+msgstr "Hébergement WordPress centralisé pour les agences"
+
+#: src/Admin/PromoStrip.php:40
+msgid "Tired of robotic support chatbots?"
+msgstr "Marre des chatbots de support robotisés ?"
+
+#: src/Admin/PromoStrip.php:41
+msgid "Get human WordPress support by LRob"
+msgstr "Bénéficiez d'un support WordPress humain par LRob"
+
+#: src/Admin/PromoStrip.php:45
+msgid "Worried about WordPress attacks?"
+msgstr "Inquiet des attaques sur WordPress ?"
+
+#: src/Admin/PromoStrip.php:46
+msgid "Hardened WordPress hosting with WAF"
+msgstr "Hébergement WordPress durci avec WAF"
+
+#: src/Admin/PromoStrip.php:50
+msgid "Backups shouldn’t be an extra."
+msgstr "Les sauvegardes ne devraient pas être une option payante."
+
+#: src/Admin/PromoStrip.php:51
+msgid "WordPress hosting with 1-year backups included"
+msgstr "Hébergement WordPress avec sauvegardes sur 1 an incluses"
+
+#: src/Admin/PromoStrip.php:55
+msgid "Going green?"
+msgstr "Envie de passer au vert ?"
+
+#: src/Admin/PromoStrip.php:56
+msgid "Eco-friendly WordPress hosting"
+msgstr "Hébergement WordPress écologique"
+
+#: src/Admin/PromoStrip.php:60
+msgid "Need data sovereignty?"
+msgstr "Besoin de souveraineté des données ?"
+
+#: src/Admin/PromoStrip.php:61
+msgid "French WordPress hosting, EU data residency"
+msgstr "Hébergement WordPress français, données hébergées dans l'UE"
+
+#: src/Admin/PromoStrip.php:65
+msgid "Stuck on a slow host?"
+msgstr "Coincé chez un hébergeur lent ?"
+
+#: src/Admin/PromoStrip.php:66
+msgid "Switch to LRob — migration included"
+msgstr "Passez à LRob — migration incluse"
+
+#: src/Admin/PromoStrip.php:78
+msgid "Sponsor message"
+msgstr "Message sponsorisé"
 
 #: src/Admin/RetentionToggle.php:43
 msgid "Auto-delete after"
@@ -2100,11 +2168,11 @@ msgstr "Échec de la vérification."
 #: src/Modules/Captcha/Admin/AjaxController.php:115
 #: src/Modules/Captcha/Providers/Recaptcha.php:275
 msgid "No token to test."
-msgstr ""
+msgstr "Aucun jeton à tester."
 
 #: src/Modules/Captcha/Admin/AjaxController.php:126
 msgid "Score test is only available for reCAPTCHA v3."
-msgstr ""
+msgstr "Le test de score n'est disponible que pour reCAPTCHA v3."
 
 #: src/Modules/Captcha/Admin/AjaxController.php:155
 msgid "Unknown captcha provider."
@@ -2165,9 +2233,8 @@ msgid "Captcha"
 msgstr "Captcha"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:58
-#, fuzzy
 msgid "New captcha"
-msgstr "Captcha"
+msgstr "Nouveau captcha"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:95
 msgid "Built-in challenges"
@@ -2188,16 +2255,12 @@ msgid "No hosted providers are registered yet."
 msgstr "Aucun fournisseur hébergé enregistré pour le moment."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:172
-#, fuzzy
 msgid "No captchas configured yet. Click \"New captcha\" to set one up."
-msgstr ""
-"Aucun captcha configuré pour le moment. Cliquez sur « Ajouter un captcha » "
-"pour en configurer un."
+msgstr "Aucun captcha configuré pour le moment. Cliquez sur « Nouveau captcha » pour en configurer un."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:198
-#, fuzzy
 msgid "Captcha activity since this challenge was first used"
-msgstr "Activité du captcha sur les 30 derniers jours"
+msgstr "Activité du captcha depuis la première utilisation de ce défi"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:199
 #: src/Modules/ContactForm/Admin/FormsPage.php:627
@@ -2211,13 +2274,12 @@ msgid "passed"
 msgstr "réussis"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:230
-#, fuzzy
 msgid "Add a captcha"
-msgstr "Captcha"
+msgstr "Ajouter un captcha"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:236
 msgid "Choose a provider to configure."
-msgstr ""
+msgstr "Choisissez un fournisseur à configurer."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:334
 msgid "e.g. Main site"
@@ -2225,11 +2287,11 @@ msgstr "ex. Site principal"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:366
 msgid "Theme"
-msgstr ""
+msgstr "Thème"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:370
 msgid "Size"
-msgstr ""
+msgstr "Taille"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:377
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:708
@@ -2361,41 +2423,36 @@ msgid "Off"
 msgstr "Désactivé"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:646
-#, fuzzy
 msgid "Captcha protection"
-msgstr "Captcha créé."
+msgstr "Protection par captcha"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:650
-#, fuzzy
 msgid "Default challenge"
-msgstr "Défis intégrés"
+msgstr "Défi par défaut"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:651
 msgid "Used on this plugin's forms unless you override them below."
-msgstr ""
+msgstr "Utilisé sur les formulaires de cette extension, sauf si vous le remplacez ci-dessous."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:657
 msgid "This plugin's forms"
-msgstr ""
+msgstr "Formulaires de cette extension"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:664
-#, fuzzy
 msgid "WordPress sections"
-msgstr "Utilisateurs WordPress"
+msgstr "Sections WordPress"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:666
 msgid "Off by default — turn on captcha per WordPress section as needed."
-msgstr ""
+msgstr "Désactivé par défaut — activez le captcha section WordPress par section selon vos besoins."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:698
-#, fuzzy
 msgid "Use default"
-msgstr "Définir par défaut"
+msgstr "Utiliser le défaut"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:703
-#, fuzzy
 msgid "Off — no captcha here"
-msgstr "Aucun — pas de captcha ici"
+msgstr "Désactivé — pas de captcha ici"
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:803
 msgid "Delete this captcha?"
@@ -2421,31 +2478,29 @@ msgstr "✗ Échec de la vérification"
 msgid ""
 "Invisible mode — no widget is shown; it runs automatically when visitors "
 "submit the form."
-msgstr ""
+msgstr "Mode invisible — aucun widget n'est affiché ; il s'exécute automatiquement lorsque les visiteurs envoient le formulaire."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:810
 msgid ""
 "reCAPTCHA v3 — no widget; a risk score is fetched and checked when visitors "
 "submit the form."
-msgstr ""
+msgstr "reCAPTCHA v3 — aucun widget ; un score de risque est récupéré et vérifié lorsque les visiteurs envoient le formulaire."
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:811
-#, fuzzy
 msgid "Test score"
-msgstr "Tester la connexion"
+msgstr "Tester le score"
 
 #: src/Modules/Captcha/Appearance.php:45
 msgid "Auto (follow visitor system)"
-msgstr ""
+msgstr "Auto (suit le système du visiteur)"
 
 #: src/Modules/Captcha/Appearance.php:46
-#, fuzzy
 msgid "Light"
-msgstr "Droite"
+msgstr "Clair"
 
 #: src/Modules/Captcha/Appearance.php:47
 msgid "Dark"
-msgstr ""
+msgstr "Sombre"
 
 #: src/Modules/Captcha/Appearance.php:59
 #: src/Modules/ContactForm/TemplateRegistry.php:142
@@ -2453,13 +2508,12 @@ msgid "Normal"
 msgstr "Normale"
 
 #: src/Modules/Captcha/Appearance.php:60
-#, fuzzy
 msgid "Compact"
-msgstr "Société"
+msgstr "Compact"
 
 #: src/Modules/Captcha/Appearance.php:63
 msgid "Invisible"
-msgstr ""
+msgstr "Invisible"
 
 #: src/Modules/Captcha/CaptchaService.php:248
 msgid ""
@@ -2627,7 +2681,7 @@ msgstr "Combien font %1$d %3$s %2$d ?"
 
 #: src/Modules/Captcha/Module.php:37
 msgid "Protect your forms against spam and bots."
-msgstr ""
+msgstr "Protégez vos formulaires contre le spam et les bots."
 
 #: src/Modules/Captcha/Module.php:191
 msgid "Default (site-wide)"
@@ -2659,9 +2713,8 @@ msgstr "Clé de site"
 
 #. translators: %s: provider name (e.g. hCaptcha, Cloudflare)
 #: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:61
-#, fuzzy
 msgid "Public \"Site key\" from your %s dashboard."
-msgstr "« Clé de site » publique depuis votre tableau de bord hCaptcha."
+msgstr "« Clé de site » publique depuis votre tableau de bord %s."
 
 #: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:67
 #: src/Modules/Captcha/Providers/Recaptcha.php:105
@@ -2685,9 +2738,8 @@ msgstr "La clé secrète est requise."
 
 #: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:184
 #: src/Modules/Captcha/Providers/Recaptcha.php:234
-#, fuzzy
 msgid "Please complete the anti-spam challenge."
-msgstr "Veuillez compléter le défi hCaptcha."
+msgstr "Veuillez compléter le défi anti-spam."
 
 #: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:192
 #: src/Modules/Captcha/Providers/Recaptcha.php:242
@@ -2716,22 +2768,16 @@ msgstr ""
 "depuis l'enregistrement)."
 
 #: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:241
-#, fuzzy
 msgid ""
 "CaptchaService did NOT inject credentials. The routing key probably resolves "
 "to a homemade challenge slug rather than an identity row — pick a hosted-"
 "provider entry in the Captcha settings instead of the generic provider name."
-msgstr ""
-"CaptchaService n'a PAS injecté d'identifiants. La clé de routage résout "
-"probablement vers un défi intégré plutôt que vers une identité — choisissez "
-"une entrée « hCaptcha · &lt;nom&gt; » dans les réglages Captcha plutôt que "
-"le nom générique du fournisseur."
+msgstr "CaptchaService n'a PAS injecté d'identifiants. La clé de routage résout probablement vers un défi intégré plutôt que vers une identité — choisissez une entrée de fournisseur hébergé dans les réglages Captcha plutôt que le nom générique du fournisseur."
 
 #. translators: %s: provider name
 #: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:246
-#, fuzzy
 msgid "%s: site key is empty."
-msgstr "hCaptcha : la clé de site est vide."
+msgstr "%s : la clé de site est vide."
 
 #: src/Modules/Captcha/Providers/HCaptcha.php:47
 #: src/Modules/Captcha/Providers/HCaptcha.php:57
@@ -2750,7 +2796,7 @@ msgstr ""
 #: src/Modules/Captcha/Providers/Recaptcha.php:68
 #: src/Modules/Captcha/Providers/Recaptcha.php:78
 msgid "Google reCAPTCHA"
-msgstr ""
+msgstr "Google reCAPTCHA"
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:73
 msgid ""
@@ -2758,90 +2804,81 @@ msgid ""
 "classic \"I'm not a robot\" checkbox (or an invisible variant). Pick the "
 "version inside the card. Requires a matching site key + secret from the "
 "Google reCAPTCHA admin console."
-msgstr ""
+msgstr "Le captcha de Google. La v3 (par défaut) évalue les visiteurs de façon invisible ; la v2 affiche la classique case « Je ne suis pas un robot » (ou une variante invisible). Choisissez la version dans la carte. Nécessite une clé de site et un secret correspondants depuis la console d'administration Google reCAPTCHA."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:86
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:91
 msgid "v3 — invisible, score-based (recommended)"
-msgstr ""
+msgstr "v3 — invisible, basée sur un score (recommandé)"
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:92
 msgid "v2 — checkbox / invisible widget"
-msgstr ""
+msgstr "v2 — case à cocher / widget invisible"
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:94
 msgid ""
 "v3 is Google's current default. v2 and v3 use different key pairs — re-enter "
 "keys if you switch."
-msgstr ""
+msgstr "La v3 est la valeur par défaut actuelle de Google. Les v2 et v3 utilisent des paires de clés différentes — ressaisissez les clés si vous changez de version."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:101
-#, fuzzy
 msgid "Public \"Site key\" from your Google reCAPTCHA admin console."
-msgstr "« Clé de site » publique depuis votre tableau de bord hCaptcha."
+msgstr "« Clé de site » publique depuis votre console d'administration Google reCAPTCHA."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:112
 msgid "Minimum score"
-msgstr ""
+msgstr "Score minimum"
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:119
 msgid ""
 "Reject submissions scoring below this. 0 = lax, 1 = strict; 0.5 is a "
 "sensible default."
-msgstr ""
+msgstr "Rejeter les envois dont le score est inférieur à cette valeur. 0 = permissif, 1 = strict ; 0,5 est une valeur par défaut raisonnable."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:148
-#, fuzzy
 msgid "Score must be between 0 and 1."
-msgstr "Le port doit être compris entre 1 et 65535."
+msgstr "Le score doit être compris entre 0 et 1."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:201
 msgid ""
 "reCAPTCHA v3 runs invisibly — no widget is shown; a risk score is checked "
 "when the form is submitted."
-msgstr ""
+msgstr "reCAPTCHA v3 s'exécute de façon invisible — aucun widget n'est affiché ; un score de risque est vérifié à l'envoi du formulaire."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:250
 #: src/Modules/Captcha/Providers/Recaptcha.php:327
-#, fuzzy
 msgid "Anti-spam verification failed."
-msgstr "Échec de la vérification."
+msgstr "Échec de la vérification anti-spam."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:256
 msgid "Your submission looks automated. Please try again."
-msgstr ""
+msgstr "Votre envoi semble automatisé. Veuillez réessayer."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:278
-#, fuzzy
 msgid "Missing secret key."
-msgstr "Structure manquante."
+msgstr "Clé secrète manquante."
 
 #: src/Modules/Captcha/Providers/Recaptcha.php:288
-#, fuzzy
 msgid "verification failed"
-msgstr "Échec de la vérification."
+msgstr "échec de la vérification"
 
 #: src/Modules/Captcha/Providers/Turnstile.php:42
 msgid "Cloudflare Turnstile"
-msgstr ""
+msgstr "Cloudflare Turnstile"
 
 #: src/Modules/Captcha/Providers/Turnstile.php:47
-#, fuzzy
 msgid ""
 "Privacy-friendly, often invisible captcha from Cloudflare. No puzzles for "
 "most visitors; bots are filtered by Cloudflare's risk engine. Requires a "
 "free Cloudflare account."
-msgstr ""
-"Captcha hébergé respectueux de la vie privée. Les visiteurs voient une case "
-"à cocher ; les bots sont filtrés par le moteur de risque de hCaptcha. "
-"Nécessite un compte hCaptcha gratuit ou payant."
+msgstr "Captcha respectueux de la vie privée, souvent invisible, par Cloudflare. Pas de puzzle pour la plupart des visiteurs ; les bots sont filtrés par le moteur de risque de Cloudflare. Nécessite un compte Cloudflare gratuit."
 
 #: src/Modules/Captcha/Providers/Turnstile.php:52
 msgid "Cloudflare"
-msgstr ""
+msgstr "Cloudflare"
 
 #: src/Modules/Captcha/Routing.php:91
 msgid "Contact forms"
@@ -2858,7 +2895,7 @@ msgstr "Inscription newsletter"
 
 #: src/Modules/Captcha/Routing.php:94
 msgid "Login (WordPress + WooCommerce)"
-msgstr ""
+msgstr "Connexion (WordPress + WooCommerce)"
 
 #: src/Modules/Captcha/Routing.php:95
 msgid "Lost password"
@@ -4297,9 +4334,8 @@ msgid "Combined size exceeds the limit"
 msgstr "Taille totale dépassée"
 
 #: src/Modules/ContactForm/Frontend.php:62
-#, fuzzy
 msgid "Anti-spam check is unavailable. Please reload and try again."
-msgstr "Échec du contrôle anti-spam."
+msgstr "Le contrôle anti-spam est indisponible. Veuillez recharger la page et réessayer."
 
 #: src/Modules/ContactForm/Frontend.php:63
 #: src/Modules/Newsletter/SubmitHandler.php:110
@@ -4308,7 +4344,7 @@ msgstr "Échec du contrôle anti-spam."
 
 #: src/Modules/ContactForm/Module.php:58
 msgid "Drag-and-drop contact forms with built-in anti-spam."
-msgstr ""
+msgstr "Formulaires de contact en glisser-déposer avec anti-spam intégré."
 
 #. translators: %d: number of contact forms.
 #: src/Modules/ContactForm/Module.php:216
@@ -4816,14 +4852,10 @@ msgid "Email Logs"
 msgstr "Journaux d'emails"
 
 #: src/Modules/Logging/Admin/LogsPage.php:71
-#, fuzzy
 msgid ""
 "Enable email logging to capture every outgoing email and let you audit "
 "deliverability and retry failed sends."
-msgstr ""
-"Activez la journalisation des emails pour capturer chaque email sortant, "
-"vérifier la délivrabilité, relancer les envois échoués et (plus tard) "
-"archiver des copies dans votre dossier IMAP Envoyés."
+msgstr "Activez la journalisation des emails pour capturer chaque email sortant, vérifier la délivrabilité et relancer les envois échoués."
 
 #: src/Modules/Logging/Admin/LogsPage.php:252
 #: src/Modules/Logging/Admin/LogsPage.php:956
@@ -4978,7 +5010,7 @@ msgstr "Journalisation des emails"
 
 #: src/Modules/Logging/Module.php:32
 msgid "Log every outgoing email."
-msgstr ""
+msgstr "Journalisez chaque email sortant."
 
 #. translators: %s: number of log entries (already formatted with i18n thousands separator).
 #: src/Modules/Logging/Module.php:101
@@ -6057,45 +6089,36 @@ msgstr ""
 "Aucune newsletter pour l'instant. Démarrez-en une pour envoyer à vos abonnés."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:248
-#, fuzzy
 msgid ""
 "The newsletter cron event is not scheduled. Disable and re-enable the "
 "Newsletter module to fix this."
-msgstr ""
-"L'événement cron du cycle d'envoi n'est pas programmé. Désactivez puis "
-"réactivez le module Newsletter pour le ré-enregistrer."
+msgstr "L'événement cron de la newsletter n'est pas programmé. Désactivez puis réactivez le module Newsletter pour corriger cela."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:251
 msgid ""
 "WordPress pseudo-cron is disabled and the server cron has not run yet. "
 "Enable the server cron from the WordPress Toolkit in Plesk (one click), or "
 "ask your host's support team."
-msgstr ""
+msgstr "Le pseudo-cron de WordPress est désactivé et le cron serveur ne s'est pas encore exécuté. Activez le cron serveur depuis le WordPress Toolkit de Plesk (en un clic), ou demandez à l'équipe support de votre hébergeur."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:254
-#, fuzzy
 msgid ""
 "The cron is scheduled but has not run yet. Wait a couple of minutes or load "
 "any page on your site to trigger it."
-msgstr ""
-"Le cron est programmé mais ne s'est pas encore exécuté. Patientez quelques "
-"minutes ou chargez une page publique pour déclencher le pseudo-cron."
+msgstr "Le cron est programmé mais ne s'est pas encore exécuté. Patientez quelques minutes ou chargez n'importe quelle page de votre site pour le déclencher."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:257
 msgid ""
 "Cron has not fired in over 5 minutes — scheduled sends will stall. Enable "
 "the server cron from the WordPress Toolkit in Plesk, or set up a system cron "
 "hitting wp-cron.php every minute."
-msgstr ""
+msgstr "Le cron ne s'est pas déclenché depuis plus de 5 minutes — les envois programmés vont caler. Activez le cron serveur depuis le WordPress Toolkit de Plesk, ou configurez un cron système appelant wp-cron.php chaque minute."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:260
-#, fuzzy
 msgid ""
 "Cron is firing slowly — sends may stall during low-traffic periods. For "
 "reliability, enable the server cron from the WordPress Toolkit in Plesk."
-msgstr ""
-"Le cron s'exécute mais lentement — les envois peuvent caler pendant les "
-"périodes creuses. Envisagez un cron système pour plus de fiabilité."
+msgstr "Le cron s'exécute lentement — les envois peuvent caler pendant les périodes creuses. Pour plus de fiabilité, activez le cron serveur depuis le WordPress Toolkit de Plesk."
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:360
 msgid "Subject — used as both the title and the email's subject line"
@@ -7537,7 +7560,7 @@ msgstr "Rôles"
 
 #: src/Modules/Newsletter/Module.php:63
 msgid "Send newsletters to your subscribers and WordPress users."
-msgstr ""
+msgstr "Envoyez des newsletters à vos abonnés et aux utilisateurs WordPress."
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
 #: src/Modules/Newsletter/Module.php:667
@@ -8293,14 +8316,14 @@ msgstr "Nom de l'identité"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:178
 msgid "Save attachments locally"
-msgstr ""
+msgstr "Enregistrer les pièces jointes localement"
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:180
 msgid ""
 "Keep a copy of each attachment sent through this identity on the server, so "
 "you can re-send the email later with its files intact. Copies are removed "
 "when the log entry is deleted."
-msgstr ""
+msgstr "Conserver sur le serveur une copie de chaque pièce jointe envoyée via cette identité, afin de pouvoir renvoyer l'email plus tard avec ses fichiers intacts. Les copies sont supprimées lorsque l'entrée de journal est supprimée."
 
 #: src/Modules/SMTP/Admin/SettingsPage.php:190
 msgid "Default identity"
@@ -8620,7 +8643,7 @@ msgstr "Connexion réussie (aucune authentification testée)."
 
 #: src/Modules/SMTP/Module.php:39
 msgid "Send emails through your own SMTP servers."
-msgstr ""
+msgstr "Envoyez vos emails via vos propres serveurs SMTP."
 
 #. translators: %d: number of SMTP identities.
 #: src/Modules/SMTP/Module.php:92

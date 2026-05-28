@@ -705,6 +705,73 @@ body.lrob-etk-modal-open {
 .lrob-etk-page-header .lrob-etk-page-title {
     margin: 0;
 }
+/* "by LRob" credit appended to every page title — brand-shared with the other
+ * LRob plugins. */
+.lrob-etk-page-credit {
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--etk-muted);
+    margin-left: var(--etk-space-2);
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+}
+.lrob-etk-page-credit a {
+    color: var(--etk-accent);
+    text-decoration: none;
+}
+.lrob-etk-page-credit a:hover {
+    text-decoration: underline;
+}
+
+/* LRob promo strip — bottom-of-page rotating sponsor message (Admin\PromoStrip
+ * + etk-promo.js), brand-shared with the other LRob plugins. Printed via
+ * admin_footer so it sits below the page content on every toolkit page. */
+.lrob-etk-promo {
+    margin: var(--etk-space-4) 0 var(--etk-space-5);
+    padding: var(--etk-space-3) var(--etk-space-4);
+    background: var(--etk-accent-bg);
+    border: 1px solid var(--etk-line);
+    border-left: 4px solid var(--etk-accent);
+    border-radius: var(--etk-radius-lg);
+    box-shadow: var(--etk-shadow-sm);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: var(--etk-space-3);
+    overflow: hidden;
+}
+.lrob-etk-promo-icon {
+    font-size: 1.4em;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.lrob-etk-promo-body {
+    flex: 1;
+    font-size: var(--etk-text-md);
+    color: var(--etk-fg);
+    line-height: 1.4;
+    transition: opacity var(--etk-transition-slow);
+}
+.lrob-etk-promo-body.is-fading {
+    opacity: 0;
+}
+.lrob-etk-promo-body a {
+    color: var(--etk-accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.lrob-etk-promo-body a:hover {
+    color: var(--etk-accent-hover);
+}
+.lrob-etk-promo-body a::after {
+    content: " →";
+    display: inline-block;
+    transition: transform var(--etk-transition);
+}
+.lrob-etk-promo-body a:hover::after {
+    transform: translateX(2px);
+}
 /* Primary "+ New X" sits flush after the title (and inline module toggle).
  * No margin-left:auto — the page-header-actions div carries it instead. */
 .lrob-etk-page-add .dashicons,

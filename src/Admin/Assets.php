@@ -39,6 +39,7 @@ final class Assets
     public const HANDLE_MODAL_JS = 'lrob-etk-modal';
     public const HANDLE_AUTOSAVE_JS = 'lrob-etk-autosave';
     public const HANDLE_CONFIRM_JS = 'lrob-etk-confirm';
+    public const HANDLE_PROMO_JS = 'lrob-etk-promo';
 
     public static function enqueue_admin(string $hook_suffix): void
     {
@@ -161,7 +162,30 @@ final class Assets
             false
         );
 
+        // LRob promo strip — rotating sponsor message at the bottom of every
+        // toolkit page (brand-shared with the other LRob plugins). Footer JS
+        // paints + rotates it from the localized pool; the <aside> host is
+        // printed via admin_footer below so it lands on every page without
+        // editing each page's render().
+        wp_enqueue_script(
+            self::HANDLE_PROMO_JS,
+            LROB_ETK_URL . 'admin/js/etk-promo.js',
+            [],
+            self::asset_version('admin/js/etk-promo.js'),
+            true
+        );
+        wp_localize_script(self::HANDLE_PROMO_JS, 'lrobEtkPromo', [
+            'messages'  => PromoStrip::messages(),
+            'authorUrl' => PromoStrip::AUTHOR_URL,
+        ]);
+
         add_action('admin_footer', [self::class, 'print_tooltip_script']);
+        // in_admin_footer (not admin_footer) so the strip prints INSIDE
+        // #wpbody-content — i.e. within the admin-menu offset + where the
+        // .lrob-etk token scope can apply. admin_footer is outside #wpcontent,
+        // which left the strip unstyled (tokens undefined) and sliding under
+        // the sidebar.
+        add_action('in_admin_footer', [PromoStrip::class, 'render']);
     }
 
     public static function print_tooltip_script(): void

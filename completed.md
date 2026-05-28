@@ -47,6 +47,10 @@ Milestone v0.4.x in progress. Done so far in 0.4.0:
 ### Quick cleanups
 - Logging module description trimmed (no IMAP promise). Module descriptions simplified plugin-wide for the dashboard. The always-on Newsletter cron-diagnostic panel is now a conditional banner that only shows when cron is slow/stalled, with Plesk WordPress-Toolkit guidance.
 
+### LRob branding (header credit + promo strip)
+- **"by LRob" credit in every page title** — `PageHeader::render()` appends `<small class="lrob-etk-page-credit">by <a href="lrob.fr">LRob</a></small>` to the H1, on every page that uses the shared header.
+- **Rotating LRob promo strip at the bottom of every toolkit page** — `Admin\PromoStrip` (message pool + `<aside>` host) + `admin/js/etk-promo.js` (random start, ~9s auto-rotate with fade, pause on hover, backlink to lrob.fr). Printed via `in_admin_footer` inside a `.wrap.lrob-etk` host (gated to toolkit pages in `Admin\Assets`) so it lands on every page without editing each `render()`, sits within the admin-menu offset, and resolves the `.lrob-etk`-scoped design tokens. Design + message pool mirror the other LRob plugins (QR Code Maker) for brand consistency; styled with plugin tokens (`--etk-accent-bg` / `--etk-accent` accent border).
+
 ---
 
 ## v0.3.x — Newsletter module (beta — feature-complete, hardening in flight)

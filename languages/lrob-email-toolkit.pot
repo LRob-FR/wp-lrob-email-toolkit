@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-28T17:47:26+00:00\n"
+"POT-Creation-Date: 2026-05-28T18:32:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -34,7 +34,7 @@ msgstr ""
 msgid "https://www.lrob.fr"
 msgstr ""
 
-#: src/Admin/Assets.php:138
+#: src/Admin/Assets.php:139
 #: src/Modules/Captcha/Admin/SettingsPage.php:800
 #: src/Modules/ContactForm/Admin/FormsPage.php:157
 #: src/Modules/Logging/Admin/LogsPage.php:580
@@ -44,7 +44,7 @@ msgstr ""
 msgid "Saving…"
 msgstr ""
 
-#: src/Admin/Assets.php:139
+#: src/Admin/Assets.php:140
 #: src/Modules/Captcha/Admin/SettingsPage.php:801
 #: src/Modules/ContactForm/Admin/FormsPage.php:158
 #: src/Modules/Logging/Admin/LogsPage.php:581
@@ -54,7 +54,7 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: src/Admin/Assets.php:140
+#: src/Admin/Assets.php:141
 #: src/Modules/Captcha/Admin/SettingsPage.php:802
 #: src/Modules/ContactForm/Admin/FormsPage.php:159
 #: src/Modules/Logging/Admin/LogsPage.php:582
@@ -777,8 +777,81 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
+#. translators: precedes the author name "LRob" in the page title credit
+#: src/Admin/PageHeader.php:66
+msgid "by"
+msgstr ""
+
 #: src/Admin/PerPagePicker.php:63
 msgid "Per page"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:30
+msgid "Your website is too slow?"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:31
+msgid "Get the fastest WordPress hosting"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:35
+msgid "Managing multiple websites?"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:36
+msgid "Centralized WordPress hosting for agencies"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:40
+msgid "Tired of robotic support chatbots?"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:41
+msgid "Get human WordPress support by LRob"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:45
+msgid "Worried about WordPress attacks?"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:46
+msgid "Hardened WordPress hosting with WAF"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:50
+msgid "Backups shouldn’t be an extra."
+msgstr ""
+
+#: src/Admin/PromoStrip.php:51
+msgid "WordPress hosting with 1-year backups included"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:55
+msgid "Going green?"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:56
+msgid "Eco-friendly WordPress hosting"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:60
+msgid "Need data sovereignty?"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:61
+msgid "French WordPress hosting, EU data residency"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:65
+msgid "Stuck on a slow host?"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:66
+msgid "Switch to LRob — migration included"
+msgstr ""
+
+#: src/Admin/PromoStrip.php:78
+msgid "Sponsor message"
 msgstr ""
 
 #: src/Admin/RetentionToggle.php:43
