@@ -29,7 +29,7 @@
     }
 
     function labelDefault(name) {
-        /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers */
+        /* translators: %s: what "Default" resolves to — a picker option name (e.g. "Math question") or the fallback email address; shown as "Default (X)" */
         return sprintf(__('Default (%s)', 'lrob-email-toolkit'), name);
     }
 

@@ -794,7 +794,7 @@ final class SettingsPage
             ajax(S.actions.checkHost, { host: host }).then(function (resp) {
                 if (resp.success && resp.data.host === host) {
                     status.hidden = false;
-                    status.className = 'lrob-etk-host-status ' + (resp.data.resolves ? 'is-ok' : 'is-bad');
+                    status.className = 'lrob-etk-host-status ' + (resp.data.resolves ? 'lrob-etk-state--on' : 'lrob-etk-state--fail');
                     status.textContent = resp.data.resolves ? S.i18n.resolves : S.i18n.noResolve;
                 }
             });

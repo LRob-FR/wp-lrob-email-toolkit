@@ -130,10 +130,10 @@ final class LogDetailRenderer
     private function status_html(string $status): string
     {
         $class = match ($status) {
-            LogEntry::STATUS_SENT    => 'lrob-etk-status--on',
-            LogEntry::STATUS_FAILED  => 'lrob-etk-status--fail',
-            LogEntry::STATUS_SENDING => 'lrob-etk-status--pending',
-            default                  => 'lrob-etk-status--off',
+            LogEntry::STATUS_SENT    => 'lrob-etk-state--on',
+            LogEntry::STATUS_FAILED  => 'lrob-etk-state--fail',
+            LogEntry::STATUS_SENDING => 'lrob-etk-state--pending',
+            default                  => 'lrob-etk-state--off',
         };
         return sprintf('<span class="lrob-etk-status %s">%s</span>', esc_attr($class), esc_html($status));
     }

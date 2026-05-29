@@ -115,8 +115,7 @@
     padding: 2px var(--etk-space-2);
     border-radius: var(--etk-radius-sm);
 }
-.lrob-etk-host-status.is-ok    { background: var(--etk-success-bg); color: var(--etk-text-success); }
-.lrob-etk-host-status.is-bad   { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
+/* Colours via the shared .lrob-etk-state--* set (resolves→on, else fail). */
 
 /* None-encryption warning */
 .lrob-etk-none-warning {

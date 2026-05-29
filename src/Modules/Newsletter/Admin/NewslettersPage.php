@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Admin\Combobox;
 use LRob\EmailToolkit\Admin\PageHeader;
+use LRob\EmailToolkit\Admin\StatusPill;
 use LRob\EmailToolkit\Admin\Tooltip;
 use LRob\EmailToolkit\Container;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
@@ -346,7 +347,7 @@ final class NewslettersPage
                     <div class="lrob-etk-nl-card-title-wrap">
                         <div class="lrob-etk-nl-card-title-row">
                             <span class="lrob-etk-nl-card-title-label"><?php esc_html_e('Subject', 'lrob-email-toolkit'); ?></span>
-                            <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($effective_status); ?>"
+                            <span class="lrob-etk-nl-status <?php echo esc_attr(StatusPill::state_class($effective_status)); ?>"
                                   data-send-status
                                   <?php echo ($is_draft && !$is_trashed) ? 'hidden' : ''; ?>>
                                 <?php echo esc_html(self::translate_status($effective_status)); ?>
@@ -803,7 +804,7 @@ final class NewslettersPage
                 <?php
                 // Status message under the action row.
                 $status_msg = '';
-                $status_msg_class = 'is-info';
+                $status_msg_class = 'info';
                 if ($status === NewsletterRepository::STATUS_SENT) {
                     $sent_ts = strtotime(((string) ($row['completed_at'] ?? $row['started_at'] ?? $created)) . ' UTC');
                     if ($sent_ts !== false) {
@@ -814,13 +815,13 @@ final class NewslettersPage
                             (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $sent_ts)
                         );
                     }
-                    $status_msg_class = 'is-sent';
+                    $status_msg_class = 'on';
                 } elseif ($status === NewsletterRepository::STATUS_FAILED) {
                     $status_msg = __('This send failed. Duplicate and retry if needed.', 'lrob-email-toolkit');
-                    $status_msg_class = 'is-error';
+                    $status_msg_class = 'fail';
                 } elseif ($status === NewsletterRepository::STATUS_ABORTED) {
                     $status_msg = __('This send was aborted.', 'lrob-email-toolkit');
-                    $status_msg_class = 'is-error';
+                    $status_msg_class = 'fail';
                 } elseif ($scheduled_local !== '' && !$is_terminal && !$is_trashed) {
                     $sched_ts = strtotime($scheduled_at . ' UTC');
                     $sched_pretty = $sched_ts !== false
@@ -836,7 +837,7 @@ final class NewslettersPage
                                 __('Schedule set for %s — click Schedule to commit.', 'lrob-email-toolkit'),
                                 $sched_pretty
                             );
-                            $status_msg_class = 'is-info';
+                            $status_msg_class = 'info';
                         } elseif ($sched_ts > time()) {
                             $status_msg = sprintf(
                                 /* translators: %1$s: relative time span (e.g. "2 days"), %2$s: absolute datetime */
@@ -876,7 +877,7 @@ final class NewslettersPage
                                     wp_kses(__('cron stalled — the tick was due %s ago, pseudo-cron isn\'t firing on this site', 'lrob-email-toolkit'), ['span' => ['data-relative-to' => true]]),
                                     self::relative_span($next_tick, time())
                                 );
-                                $status_msg_class = 'is-error';
+                                $status_msg_class = 'fail';
                             }
                             $status_msg = sprintf(
                                 /* translators: %1$s: absolute datetime of the scheduled send, %2$s: cron-tick info */
@@ -884,14 +885,14 @@ final class NewslettersPage
                                 $sched_pretty,
                                 $cron_info
                             );
-                            if (!isset($status_msg_class) || $status_msg_class === 'is-info') {
-                                $status_msg_class = 'is-warn';
+                            if (!isset($status_msg_class) || $status_msg_class === 'info') {
+                                $status_msg_class = 'pending';
                             }
                         }
                     }
                 }
                 ?>
-                <p class="lrob-etk-nl-card-status-msg <?php echo esc_attr($status_msg_class); ?>" data-status-msg <?php echo $status_msg === '' ? 'hidden' : ''; ?>>
+                <p class="lrob-etk-nl-card-status-msg lrob-etk-state--<?php echo esc_attr($status_msg_class); ?>" data-status-msg <?php echo $status_msg === '' ? 'hidden' : ''; ?>>
                     <?php
                     // Some branches inject `<span data-relative-to>` for
                     // the live clock-tick — wp_kses allows it through.

@@ -122,6 +122,7 @@ final class HomePage
         wp_localize_script($send_handle, 'lrobEtkNlSend', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce(SendAjaxController::NONCE_ACTION),
+            'statusModifiers' => \LRob\EmailToolkit\Admin\StatusPill::modifier_map(),
             'actions' => [
                 'tick'              => SendAjaxController::ACTION_TICK,
                 'test'              => SendAjaxController::ACTION_TEST_SEND,
@@ -454,9 +455,9 @@ final class HomePage
                                             <?php echo esc_html($p->post_title !== '' ? $p->post_title : __('(untitled)', 'lrob-email-toolkit')); ?>
                                         </a>
                                         <?php if ($validation['valid']) : ?>
-                                            <span class="lrob-etk-status lrob-etk-status--on"><?php esc_html_e('Valid', 'lrob-email-toolkit'); ?></span>
+                                            <span class="lrob-etk-status lrob-etk-state--on"><?php esc_html_e('Valid', 'lrob-email-toolkit'); ?></span>
                                         <?php else : ?>
-                                            <span class="lrob-etk-status lrob-etk-status--fail" title="<?php echo esc_attr(implode(' · ', $validation['issues'])); ?>">
+                                            <span class="lrob-etk-status lrob-etk-state--fail" title="<?php echo esc_attr(implode(' · ', $validation['issues'])); ?>">
                                                 <?php echo esc_html(sprintf(
                                                     /* translators: %d: number of validation issues. */
                                                     _n('%d issue', '%d issues', count($validation['issues']), 'lrob-email-toolkit'),

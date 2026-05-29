@@ -98,7 +98,7 @@ final class CaptchaField implements FieldTypeInterface
         $default_label = $this->default_label($service);
         $default_option_label = $default_label !== ''
             ? sprintf(
-                /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers */
+                /* translators: %s: what "Default" resolves to — a picker option name (e.g. "Math question") or the fallback email address; shown as "Default (X)" */
                 __('Default (%s)', 'lrob-email-toolkit'),
                 $default_label
             )
@@ -238,7 +238,7 @@ final class CaptchaField implements FieldTypeInterface
             [$default_challenge, $default_credentials] = $service->resolve(['context' => $context]);
             if ($default_challenge !== null) {
                 $default_route_label = sprintf(
-                    /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers */
+                    /* translators: %s: what "Default" resolves to — a picker option name (e.g. "Math question") or the fallback email address; shown as "Default (X)" */
                     __('Default (%s)', 'lrob-email-toolkit'),
                     $default_challenge->label()
                 );

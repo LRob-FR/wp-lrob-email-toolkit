@@ -31,10 +31,10 @@ final class LogEntry
     public static function status_class(string $status): string
     {
         return match ($status) {
-            self::STATUS_SENT    => 'lrob-etk-status--on',
-            self::STATUS_FAILED  => 'lrob-etk-status--fail',
-            self::STATUS_SENDING => 'lrob-etk-status--pending',
-            default              => 'lrob-etk-status--off',
+            self::STATUS_SENT    => 'lrob-etk-state--on',
+            self::STATUS_FAILED  => 'lrob-etk-state--fail',
+            self::STATUS_SENDING => 'lrob-etk-state--pending',
+            default              => 'lrob-etk-state--off',
         };
     }
 

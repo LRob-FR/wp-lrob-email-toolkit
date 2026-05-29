@@ -942,11 +942,11 @@ final class SubmissionsPage
     private function status_class(string $status): string
     {
         return match ($status) {
-            SubmissionRepository::STATUS_DELIVERED    => 'lrob-etk-status--on',
-            SubmissionRepository::STATUS_RECEIVED     => 'lrob-etk-status--pending',
-            SubmissionRepository::STATUS_FAILED       => 'lrob-etk-status--fail',
-            SubmissionRepository::STATUS_SPAM_BLOCKED => 'lrob-etk-status--off',
-            default                                   => 'lrob-etk-status--off',
+            SubmissionRepository::STATUS_DELIVERED    => 'lrob-etk-state--on',
+            SubmissionRepository::STATUS_RECEIVED     => 'lrob-etk-state--pending',
+            SubmissionRepository::STATUS_FAILED       => 'lrob-etk-state--fail',
+            SubmissionRepository::STATUS_SPAM_BLOCKED => 'lrob-etk-state--off',
+            default                                   => 'lrob-etk-state--off',
         };
     }
 

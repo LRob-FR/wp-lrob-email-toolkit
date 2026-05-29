@@ -254,18 +254,8 @@
     border-radius: var(--etk-radius);
     font-weight: 500;
 }
-.lrob-etk-captcha-card-test-result.is-testing {
-    background: var(--etk-soft);
-    color: var(--etk-muted);
-}
-.lrob-etk-captcha-card-test-result.is-ok {
-    background: var(--etk-success-bg);
-    color: var(--etk-text-success);
-}
-.lrob-etk-captcha-card-test-result.is-fail {
-    background: var(--etk-danger-bg);
-    color: var(--etk-text-danger);
-}
+/* Colours via the shared .lrob-etk-state--* set (captcha-admin.js picks
+ * testing→off, ok→on, fail→fail). */
 
 .lrob-etk-captcha-card-body {
     padding: var(--etk-space-3) 0 var(--etk-space-1);

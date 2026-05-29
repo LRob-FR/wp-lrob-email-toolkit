@@ -6,6 +6,12 @@
     if (!CFG.ajaxUrl || !CFG.nonce || !CFG.actions) return;
     var ACTIONS = CFG.actions;
     var I18N = CFG.i18n || {};
+    // Single source of truth for status colours — mirrors Admin\StatusPill (PHP),
+    // so client-rebuilt pills match the server-rendered ones.
+    var STATUS_MODIFIERS = CFG.statusModifiers || {};
+    function stateClass(status) {
+        return 'lrob-etk-state--' + (STATUS_MODIFIERS[status] || 'off');
+    }
 
     function post(action, fields) {
         var fd = new FormData();
@@ -26,7 +32,7 @@
     function setStatusBadge(card, status) {
         var st = card.querySelector('[data-send-status]');
         if (st && status) {
-            st.className = 'lrob-etk-nl-status lrob-etk-nl-status-' + status;
+            st.className = 'lrob-etk-nl-status ' + stateClass(status);
             st.textContent = status.charAt(0).toUpperCase() + status.slice(1);
             if (status === 'draft') {
                 st.setAttribute('hidden', '');
@@ -562,7 +568,7 @@
         // load render.
         if (status === 'draft') {
             var draftTpl = I18N.scheduleSetTemplate || 'Schedule set for %s — click Schedule to commit.';
-            msg.className = 'lrob-etk-nl-card-status-msg is-info';
+            msg.className = 'lrob-etk-nl-card-status-msg lrob-etk-state--info';
             msg.textContent = draftTpl.replace('%s', absolute);
             msg.removeAttribute('hidden');
             return;
@@ -573,7 +579,7 @@
         // countdown.
         if (deltaMin <= 0) {
             var overdueTpl = I18N.scheduledOverdueTemplate || 'Scheduled for %s (overdue — will run on the next cron tick).';
-            msg.className = 'lrob-etk-nl-card-status-msg is-warn';
+            msg.className = 'lrob-etk-nl-card-status-msg lrob-etk-state--pending';
             msg.textContent = overdueTpl.replace('%s', absolute);
             msg.removeAttribute('hidden');
             return;
@@ -588,7 +594,7 @@
             var d = Math.round(deltaMin / (60 * 24));
             relative = d + ' ' + (d === 1 ? (I18N.daySingular || 'day') : (I18N.days || 'days'));
         }
-        msg.className = 'lrob-etk-nl-card-status-msg is-info';
+        msg.className = 'lrob-etk-nl-card-status-msg lrob-etk-state--info';
         var template = I18N.scheduledTemplate || 'Scheduled to send in %1$s — %2$s';
         msg.textContent = template.replace('%1$s', relative).replace('%2$s', absolute);
         msg.removeAttribute('hidden');
@@ -1099,7 +1105,7 @@
                     '<span class="lrob-etk-nl-recipients-email-value">' + escHtml(r.email || '') + '</span>' +
                     (r.name ? '<span class="lrob-etk-nl-recipients-name"> ' + escHtml(r.name) + '</span>' : '') +
                 '</td>' +
-                '<td><span class="lrob-etk-nl-status lrob-etk-nl-status-' + escHtml(status) + '"' +
+                '<td><span class="lrob-etk-nl-status ' + stateClass(status) + '"' +
                     (failureCode ? ' title="' + escHtml(failureCode) + '"' : '') + '>' +
                     escHtml(statusLabel(status)) +
                     (failureCode ? ' <span class="lrob-etk-nl-recipients-failcode">(' + escHtml(failureCode) + ')</span>' : '') +
@@ -1217,16 +1223,16 @@
 
     function renderPreviewRow(r) {
         var deliveryBadge = r.delivery === 'sent'
-            ? '<span class="lrob-etk-nl-recipients-badge is-sent">' + escHtml(I18N.recipientsWillSend || 'will send') + '</span>'
-            : '<span class="lrob-etk-nl-recipients-badge is-skipped">' + escHtml(I18N.recipientsSkipped || 'skipped') + '</span>';
+            ? '<span class="lrob-etk-nl-recipients-badge lrob-etk-state--info">' + escHtml(I18N.recipientsWillSend || 'will send') + '</span>'
+            : '<span class="lrob-etk-nl-recipients-badge lrob-etk-state--off">' + escHtml(I18N.recipientsSkipped || 'skipped') + '</span>';
         var optoutBadge = r.was_opted_out
-            ? '<span class="lrob-etk-nl-recipients-badge is-opted-out">' + escHtml(I18N.recipientsOptedOut || 'opted out') + '</span>'
+            ? '<span class="lrob-etk-nl-recipients-badge lrob-etk-state--pending">' + escHtml(I18N.recipientsOptedOut || 'opted out') + '</span>'
             : '';
         var forceBadge = '';
         if (r.force === 'include') {
-            forceBadge = '<span class="lrob-etk-nl-recipients-badge is-forced-in">' + escHtml(I18N.recipientsForceIncluded || 'force include') + '</span>';
+            forceBadge = '<span class="lrob-etk-nl-recipients-badge lrob-etk-state--on">' + escHtml(I18N.recipientsForceIncluded || 'force include') + '</span>';
         } else if (r.force === 'exclude') {
-            forceBadge = '<span class="lrob-etk-nl-recipients-badge is-forced-out">' + escHtml(I18N.recipientsForceExcluded || 'force exclude') + '</span>';
+            forceBadge = '<span class="lrob-etk-nl-recipients-badge lrob-etk-state--fail">' + escHtml(I18N.recipientsForceExcluded || 'force exclude') + '</span>';
         }
 
         // Per-row action button — context-dependent.

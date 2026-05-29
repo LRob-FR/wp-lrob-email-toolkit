@@ -44,10 +44,15 @@
     font-weight: 600;
 }
 
-.lrob-etk-status--on      { background: var(--etk-success-bg); color: var(--etk-text-success); }
-.lrob-etk-status--off     { background: var(--etk-soft);       color: var(--etk-muted); }
-.lrob-etk-status--fail    { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
-.lrob-etk-status--pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
+/* Semantic colour states — the single source of truth, shape-agnostic.
+   Combine with any shape class (status pill, result box, badge…):
+   `class="lrob-etk-nl-status lrob-etk-state--on"`. PHP/JS pick the
+   modifier via Admin\StatusPill so server + client never drift. */
+.lrob-etk-state--on      { background: var(--etk-success-bg); color: var(--etk-text-success); }
+.lrob-etk-state--off     { background: var(--etk-soft);       color: var(--etk-muted); }
+.lrob-etk-state--fail    { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
+.lrob-etk-state--pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
+.lrob-etk-state--info    { background: var(--etk-accent-bg);  color: var(--etk-text-accent); }
 
 /* Greying veil for inactive/terminal cards (hover restores full opacity). */
 .lrob-etk-is-dimmed {

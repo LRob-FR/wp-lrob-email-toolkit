@@ -401,9 +401,9 @@ final class DashboardPage
                     <div class="lrob-etk-module-card-head">
                         <h3><?php echo esc_html($module->name()); ?></h3>
                         <?php if ($is_coming) : ?>
-                            <span class="lrob-etk-status lrob-etk-status--pending"><?php esc_html_e('Coming soon', 'lrob-email-toolkit'); ?></span>
+                            <span class="lrob-etk-status lrob-etk-state--pending"><?php esc_html_e('Coming soon', 'lrob-email-toolkit'); ?></span>
                         <?php elseif ($is_service) : ?>
-                            <span class="lrob-etk-status lrob-etk-status--on"><?php esc_html_e('Always on', 'lrob-email-toolkit'); ?></span>
+                            <span class="lrob-etk-status lrob-etk-state--on"><?php esc_html_e('Always on', 'lrob-email-toolkit'); ?></span>
                         <?php endif; ?>
                     </div>
                     <p class="lrob-etk-module-card-description"><?php echo esc_html($module->description()); ?></p>
@@ -711,11 +711,11 @@ final class DashboardPage
     private function submission_status_class(string $status): string
     {
         return match ($status) {
-            ContactFormSubmissions::STATUS_DELIVERED    => 'lrob-etk-status--on',
-            ContactFormSubmissions::STATUS_RECEIVED     => 'lrob-etk-status--pending',
-            ContactFormSubmissions::STATUS_FAILED       => 'lrob-etk-status--fail',
-            ContactFormSubmissions::STATUS_SPAM_BLOCKED => 'lrob-etk-status--off',
-            default                                     => 'lrob-etk-status--off',
+            ContactFormSubmissions::STATUS_DELIVERED    => 'lrob-etk-state--on',
+            ContactFormSubmissions::STATUS_RECEIVED     => 'lrob-etk-state--pending',
+            ContactFormSubmissions::STATUS_FAILED       => 'lrob-etk-state--fail',
+            ContactFormSubmissions::STATUS_SPAM_BLOCKED => 'lrob-etk-state--off',
+            default                                     => 'lrob-etk-state--off',
         };
     }
 

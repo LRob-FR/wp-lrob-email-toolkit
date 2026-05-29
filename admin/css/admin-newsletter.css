@@ -965,9 +965,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     border-radius: var(--etk-radius-md);
     font-weight: 500;
 }
-.lrob-etk-nl-import-result.is-pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
-.lrob-etk-nl-import-result.is-success { background: var(--etk-success-bg); color: var(--etk-text-success); }
-.lrob-etk-nl-import-result.is-failure { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
+/* Colours via the shared .lrob-etk-state--* set (pending/on/fail). */
 
 .col-bulk-check {
     width: 28px;
@@ -1162,22 +1160,8 @@ a.lrob-etk-nl-list-count-badge:focus {
     color: var(--etk-fg);
 }
 
-.lrob-etk-nl-status-pending      { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
-.lrob-etk-nl-status-confirmed    { background: var(--etk-success-bg); color: var(--etk-text-success); }
-.lrob-etk-nl-status-unsubscribed { background: var(--etk-soft); color: var(--etk-muted); }
-.lrob-etk-nl-status-refused      { background: var(--etk-danger-bg); color: var(--etk-text-danger); }
-.lrob-etk-nl-status-bounced      { background: var(--etk-danger-bg); color: var(--etk-text-danger); }
-.lrob-etk-nl-status-trashed      { background: var(--etk-soft); color: var(--etk-muted); }
-.lrob-etk-nl-status-draft        { background: var(--etk-soft); color: var(--etk-muted); }
-.lrob-etk-nl-status-scheduled    { background: var(--etk-accent-bg); color: var(--etk-text-accent); }
-.lrob-etk-nl-status-sending      { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
-.lrob-etk-nl-status-paused       { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
-.lrob-etk-nl-status-sent         { background: var(--etk-success-bg); color: var(--etk-text-success); }
-.lrob-etk-nl-status-failed       { background: var(--etk-danger-bg); color: var(--etk-text-danger); }
-.lrob-etk-nl-status-aborted      { background: var(--etk-soft); color: var(--etk-muted); }
-/* `opted_in` / `opted_out` reuse the `confirmed` / `unsubscribed` pill
- * visuals — mapped in PHP at render time (SubscribersPage::status_pill_class)
- * to avoid duplicating colour values. */
+/* Colours come from the shared .lrob-etk-state--* set (admin-components.css),
+ * picked per status value by Admin\StatusPill. */
 
 /* Inline opt-in toggle on the WP-users tab: checkbox + status pill on one
  * row. Click anywhere flips the checkbox; pill colour follows the
@@ -1871,25 +1855,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     line-height: 1.4;
 }
 
-.lrob-etk-nl-card-status-msg.is-info {
-    background: color-mix(in srgb, var(--etk-accent) 8%, transparent);
-    color: var(--etk-text-accent);
-}
-
-.lrob-etk-nl-card-status-msg.is-sent {
-    background: var(--etk-success-bg);
-    color: var(--etk-text-success);
-}
-
-.lrob-etk-nl-card-status-msg.is-warn {
-    background: var(--etk-warning-bg);
-    color: var(--etk-text-warning);
-}
-
-.lrob-etk-nl-card-status-msg.is-error {
-    background: var(--etk-danger-bg);
-    color: var(--etk-text-danger);
-}
+/* Colours via the shared .lrob-etk-state--* set (info/on/pending/fail). */
 
 .lrob-etk-nl-card-status-msg[hidden] {
     display: none;
@@ -1949,8 +1915,8 @@ button.lrob-etk-nl-field-link {
  * Recipients drawer (modal-dialog--wide variant)
  *
  * Status filter chips + email/name substring search + paginated table.
- * Reuses the .lrob-etk-nl-status-* color tokens for the per-row status
- * chip so badges match the card-header badge styling.
+ * Per-row status chips reuse the shared .lrob-etk-state--* colours
+ * (via Admin\StatusPill) so badges match the card-header badge styling.
  * ----------------------------------------------------------------------- */
 
 .lrob-etk-nl-recipients-controls {
@@ -2215,26 +2181,9 @@ button.lrob-etk-nl-field-link {
     letter-spacing: 0.02em;
     margin-left: 0.4rem;
 }
-.lrob-etk-nl-recipients-badge.is-opted-out {
-    background: var(--etk-warning-bg);
-    color: var(--etk-text-warning);
-}
-.lrob-etk-nl-recipients-badge.is-forced-in {
-    background: var(--etk-success-bg);
-    color: var(--etk-text-success);
-}
-.lrob-etk-nl-recipients-badge.is-forced-out {
-    background: var(--etk-danger-bg);
-    color: var(--etk-text-danger);
-}
-.lrob-etk-nl-recipients-badge.is-sent {
-    background: var(--etk-accent-bg);
-    color: var(--etk-accent);
-}
-.lrob-etk-nl-recipients-badge.is-skipped {
-    background: var(--etk-soft);
-    color: var(--etk-muted);
-}
+/* Colours via the shared .lrob-etk-state--* set (newsletter-cards.js picks the
+ * modifier per badge kind: forced-in→on, forced-out→fail, opted-out→pending,
+ * will-send→info, skipped→off). */
 
 /* Per-row force-include / force-exclude action button. */
 .lrob-etk-nl-recipients-row-toggle {

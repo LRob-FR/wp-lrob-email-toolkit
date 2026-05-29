@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Admin\PageHeader;
+use LRob\EmailToolkit\Admin\StatusPill;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 use LRob\EmailToolkit\Modules\Newsletter\SubscriberFields;
 use LRob\EmailToolkit\Modules\Newsletter\SubscriberRepository;
@@ -1027,7 +1028,7 @@ final class SubscribersPage
                             if (v > 0) listIds.push(v);
                         });
                         submitBtn.disabled = true;
-                        if (resultEl) { resultEl.hidden = false; resultEl.className = 'lrob-etk-nl-import-result is-pending'; resultEl.textContent = <?php echo wp_json_encode(__('Importing…', 'lrob-email-toolkit')); ?>; }
+                        if (resultEl) { resultEl.hidden = false; resultEl.className = 'lrob-etk-nl-import-result lrob-etk-state--pending'; resultEl.textContent = <?php echo wp_json_encode(__('Importing…', 'lrob-email-toolkit')); ?>; }
                         var fd = new FormData();
                         fd.append('action', actions.import);
                         fd.append('_nonce', nonce);
@@ -1049,7 +1050,7 @@ final class SubscribersPage
                             .then(function (resp) {
                                 if (resp && resp.success && resp.data) {
                                     if (resultEl) {
-                                        resultEl.className = 'lrob-etk-nl-import-result is-success';
+                                        resultEl.className = 'lrob-etk-nl-import-result lrob-etk-state--on';
                                         resultEl.textContent = '✓ ' + (
                                             <?php
                                             /* translators: 1: new rows, 2: existing rows updated, 3: rows skipped (bad/missing email) */
@@ -1062,7 +1063,7 @@ final class SubscribersPage
                                     setTimeout(function () { window.location.reload(); }, 1200);
                                 } else {
                                     if (resultEl) {
-                                        resultEl.className = 'lrob-etk-nl-import-result is-failure';
+                                        resultEl.className = 'lrob-etk-nl-import-result lrob-etk-state--fail';
                                         resultEl.textContent = '✗ ' + ((resp && resp.data && resp.data.message) || i18n.error);
                                     }
                                     submitBtn.disabled = false;
@@ -1711,12 +1712,12 @@ final class SubscribersPage
                     // defining new `-opted_in/-opted_out` rules.
                     $pill = self::status_pill_class($effective);
                     ?>
-                    <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($pill); ?>"><?php echo esc_html(self::translate_effective_label($effective)); ?></span>
+                    <span class="lrob-etk-nl-status <?php echo esc_attr(StatusPill::state_class($pill)); ?>"><?php echo esc_html(self::translate_effective_label($effective)); ?></span>
                     <?php
                 } else {
                     $status = (string) ($row['status'] ?? '');
                     ?>
-                    <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($status); ?>"><?php echo esc_html(self::translate_status($status)); ?></span>
+                    <span class="lrob-etk-nl-status <?php echo esc_attr(StatusPill::state_class($status)); ?>"><?php echo esc_html(self::translate_status($status)); ?></span>
                     <?php
                 }
                 break;
@@ -2022,7 +2023,7 @@ final class SubscribersPage
             <div class="lrob-etk-detail-strip-item">
                 <span class="lrob-etk-detail-strip-label"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></span>
                 <span class="lrob-etk-detail-strip-value">
-                    <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($effective); ?>"><?php echo esc_html(self::translate_effective_label($effective)); ?></span>
+                    <span class="lrob-etk-nl-status <?php echo esc_attr(StatusPill::state_class($effective)); ?>"><?php echo esc_html(self::translate_effective_label($effective)); ?></span>
                 </span>
             </div>
             <div class="lrob-etk-detail-strip-item">
@@ -2312,7 +2313,7 @@ final class SubscribersPage
             <div class="lrob-etk-detail-strip-item">
                 <span class="lrob-etk-detail-strip-label"><?php esc_html_e('Status', 'lrob-email-toolkit'); ?></span>
                 <span class="lrob-etk-detail-strip-value">
-                    <span class="lrob-etk-nl-status lrob-etk-nl-status-<?php echo esc_attr($status); ?>"><?php echo esc_html(self::translate_status($status)); ?></span>
+                    <span class="lrob-etk-nl-status <?php echo esc_attr(StatusPill::state_class($status)); ?>"><?php echo esc_html(self::translate_status($status)); ?></span>
                 </span>
             </div>
             <div class="lrob-etk-detail-strip-item">

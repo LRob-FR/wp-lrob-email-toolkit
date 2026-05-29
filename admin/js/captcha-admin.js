@@ -629,7 +629,7 @@
         var resultEl = card.querySelector('[data-test-result]');
         if (!resultEl) return;
         resultEl.hidden = false;
-        resultEl.className = 'lrob-etk-captcha-card-test-result is-testing';
+        resultEl.className = 'lrob-etk-captcha-card-test-result lrob-etk-state--off';
         resultEl.textContent = CFG.i18n.testing;
 
         var data = new FormData();
@@ -640,14 +640,14 @@
 
         request(data).then(function (res) {
             if (res.success) {
-                resultEl.className = 'lrob-etk-captcha-card-test-result is-ok';
+                resultEl.className = 'lrob-etk-captcha-card-test-result lrob-etk-state--on';
                 resultEl.textContent = (res.data && res.data.message) || CFG.i18n.testWorks;
             } else {
-                resultEl.className = 'lrob-etk-captcha-card-test-result is-fail';
+                resultEl.className = 'lrob-etk-captcha-card-test-result lrob-etk-state--fail';
                 resultEl.textContent = ((res.data && res.data.message) || CFG.i18n.testFailed);
             }
         }).catch(function () {
-            resultEl.className = 'lrob-etk-captcha-card-test-result is-fail';
+            resultEl.className = 'lrob-etk-captcha-card-test-result lrob-etk-state--fail';
             resultEl.textContent = CFG.i18n.testFailed;
         });
     }
@@ -657,7 +657,7 @@
         var resultEl = card.querySelector('[data-test-result]');
         if (resultEl) {
             resultEl.hidden = false;
-            resultEl.className = 'lrob-etk-captcha-card-test-result is-testing';
+            resultEl.className = 'lrob-etk-captcha-card-test-result lrob-etk-state--off';
             resultEl.textContent = CFG.i18n.testing;
         }
         if (btn) btn.disabled = true;
@@ -684,7 +684,7 @@
                                 + ' (≥ ' + Number(d.threshold).toFixed(2) + ')';
                             if (resultEl) {
                                 resultEl.hidden = false;
-                                resultEl.className = 'lrob-etk-captcha-card-test-result ' + (d.ok ? 'is-ok' : 'is-fail');
+                                resultEl.className = 'lrob-etk-captcha-card-test-result ' + (d.ok ? 'lrob-etk-state--on' : 'lrob-etk-state--fail');
                                 resultEl.textContent = msg;
                             }
                         } else {
@@ -700,7 +700,7 @@
         if (btn) btn.disabled = false;
         if (resultEl) {
             resultEl.hidden = false;
-            resultEl.className = 'lrob-etk-captcha-card-test-result is-fail';
+            resultEl.className = 'lrob-etk-captcha-card-test-result lrob-etk-state--fail';
             resultEl.textContent = msg;
         }
     }

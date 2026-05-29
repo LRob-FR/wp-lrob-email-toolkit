@@ -316,7 +316,7 @@ final class FormsPage
             $out[] = [
                 'value' => '',
                 'label' => sprintf(
-                    /* translators: %s: the email the form falls back to when no recipient is set */
+                    /* translators: %s: what "Default" resolves to — a picker option name (e.g. "Math question") or the fallback email address; shown as "Default (X)" */
                     __('Default (%s)', 'lrob-email-toolkit'),
                     $effective_default
                 ),
@@ -898,7 +898,7 @@ final class FormsPage
                         placeholder="<?php esc_attr_e('Form name', 'lrob-email-toolkit'); ?>"
                         autocomplete="off">
                     <?php if ($form['status'] === 'draft') : ?>
-                        <span class="lrob-etk-status lrob-etk-status--pending"><?php esc_html_e('Draft', 'lrob-email-toolkit'); ?></span>
+                        <span class="lrob-etk-status lrob-etk-state--pending"><?php esc_html_e('Draft', 'lrob-email-toolkit'); ?></span>
                     <?php endif; ?>
                     <span class="lrob-etk-card-status" aria-live="polite"></span>
                 </header>
@@ -1225,7 +1225,7 @@ final class FormsPage
     private static function label_default(string $value): string
     {
         return sprintf(
-            /* translators: %s: name of the value "Default" resolves to (e.g. "Math question"), shown as "Default (X)" in pickers */
+            /* translators: %s: what "Default" resolves to — a picker option name (e.g. "Math question") or the fallback email address; shown as "Default (X)" */
             __('Default (%s)', 'lrob-email-toolkit'),
             $value
         );
