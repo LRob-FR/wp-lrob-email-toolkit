@@ -35,14 +35,14 @@
 }
 
 .lrob-etk-nl-tile-value {
-    font-size: 1.75rem;
+    font-size: var(--etk-text-2xl);
     font-weight: 700;
     line-height: 1.1;
     color: var(--etk-fg);
 }
 
 .lrob-etk-nl-tile-label {
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
@@ -57,7 +57,7 @@
 }
 
 .lrob-etk-nl-placeholder-icon {
-    font-size: 2.5rem;
+    font-size: var(--etk-icon-size-xl);
     width: 1em;
     height: 1em;
     margin: 0 auto 0.75rem;
@@ -66,7 +66,7 @@
 
 .lrob-etk-nl-placeholder-title {
     margin: 0 0 0.5rem;
-    font-size: 1.25rem;
+    font-size: var(--etk-text-xl);
     font-weight: 600;
     color: var(--etk-fg);
 }
@@ -74,7 +74,6 @@
 .lrob-etk-nl-placeholder-text {
     margin: 0 auto;
     max-width: 40rem;
-    font-size: 0.95rem;
     line-height: 1.5;
 }
 
@@ -102,7 +101,7 @@
 
 .lrob-etk-nl-template-group-title {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: var(--etk-text-lg);
     font-weight: 600;
 }
 
@@ -172,7 +171,7 @@
 }
 
 .lrob-etk-nl-template-status {
-    font-size: 0.8rem;
+    font-size: var(--etk-text-xs);
     padding: 0.15rem 0.5rem;
     border-radius: var(--etk-radius-sm);
     font-weight: 500;
@@ -206,7 +205,6 @@
 .lrob-etk-nl-resource-intro {
     margin: 0.25rem 0 0;
     color: var(--etk-muted);
-    font-size: 0.9rem;
     max-width: 50rem;
 }
 
@@ -226,11 +224,11 @@
     padding: 0.4rem 0.55rem;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
-    font-size: 0.95rem;
+    font-size: var(--etk-input-font-size);
 }
 
 .lrob-etk-nl-resource-new-status {
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
@@ -276,7 +274,7 @@
     margin: 0 0 var(--etk-space-4);
 }
 .lrob-etk-nl-resource-section-title {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--etk-muted);
@@ -291,7 +289,7 @@
     background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     white-space: nowrap;
 }
@@ -301,7 +299,7 @@
     background: var(--etk-soft);
     color: var(--etk-muted);
     border-radius: var(--etk-radius-pill);
-    font-size: 10px;
+    font-size: var(--etk-text-xxs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -313,7 +311,7 @@
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     white-space: nowrap;
     text-decoration: none;
@@ -335,7 +333,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-input-bg);
     color: var(--etk-muted);
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     cursor: pointer;
     transition: var(--etk-transition);
@@ -366,14 +364,14 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 .lrob-etk-nl-resource-new-kind > span {
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-nl-resource-new-kind select {
     padding: 4px 8px;
@@ -457,12 +455,12 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-list-exclusions-email {
     color: var(--etk-muted);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     flex: 1;
 }
 .lrob-etk-nl-list-exclusions-status {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 .lrob-etk-nl-resource-row-main {
@@ -491,15 +489,15 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
 .lrob-etk-nl-list-rule-badge .dashicons {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
+    font-size: var(--etk-icon-size-sm);
+    width: var(--etk-icon-size-sm);
+    height: var(--etk-icon-size-sm);
 }
 .lrob-etk-nl-list-rule-toggle {
     margin-left: auto;
@@ -522,7 +520,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     gap: var(--etk-space-3);
 }
 .lrob-etk-nl-list-rule-status {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     margin-left: auto;
 }
 .lrob-etk-nl-list-rule-status.is-pending { color: var(--etk-text-warning); }
@@ -543,7 +541,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     gap: 4px;
 }
 .lrob-etk-nl-list-rule-field > label > span {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
@@ -569,7 +567,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-list-rule-tickboxes legend {
     padding: 0 0 4px;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
@@ -602,7 +600,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     color: var(--etk-text-warning);
 }
 .lrob-etk-nl-list-rule-tickbox.is-stale .dashicons {
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     width: 14px;
     height: 14px;
     color: var(--etk-warning);
@@ -610,7 +608,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-list-rule-tickbox.is-stale em {
     font-style: italic;
     color: var(--etk-muted);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 
 /* WC product picker — chips above + search input below + AJAX results dropdown. */
@@ -637,14 +635,14 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
 }
 .lrob-etk-nl-wc-product-chip code {
     background: var(--etk-veil-2);
     border-radius: var(--etk-radius-sm);
     padding: 0 6px;
-    font-size: 10px;
+    font-size: var(--etk-text-xxs);
 }
 .lrob-etk-nl-wc-product-search {
     width: 100%;
@@ -684,7 +682,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-wc-product-result code {
     color: var(--etk-muted);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-nl-wc-product-empty {
     padding: 6px 10px;
@@ -730,7 +728,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-list-rule-preview-email {
     color: var(--etk-muted);
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-nl-list-rule-preview-footer {
     margin-top: var(--etk-space-2);
@@ -745,7 +743,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     border: 1px solid transparent;
     border-radius: var(--etk-radius-sm);
     background: transparent;
-    font-size: 0.95rem;
+    font-size: var(--etk-input-font-size);
     font-weight: 500;
 }
 
@@ -758,13 +756,13 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-resource-slug {
     color: var(--etk-muted);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.8rem;
+    font-size: var(--etk-text-xs);
     cursor: help;
 }
 
 .lrob-etk-nl-resource-protected {
     color: var(--etk-muted);
-    font-size: 0.75rem;
+    font-size: var(--etk-text-xs);
     font-style: italic;
     padding: 0.15rem 0.5rem;
     border: 1px dashed var(--etk-line);
@@ -787,14 +785,13 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-settings-intro {
     margin: 0 0 1rem;
     color: var(--etk-muted);
-    font-size: 0.9rem;
     max-width: 50rem;
 }
 
 .lrob-etk-nl-settings-context-link {
     display: inline-block;
     margin-left: 0.4rem;
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     text-decoration: none;
     color: var(--etk-accent);
 }
@@ -813,14 +810,13 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-settings-group-title {
     margin: 0 0 0.5rem;
-    font-size: 1rem;
+    font-size: var(--etk-text-lg);
     font-weight: 600;
 }
 
 .lrob-etk-nl-settings-group-intro {
     margin: 0 0 1rem;
     color: var(--etk-muted);
-    font-size: 0.9rem;
     max-width: 50rem;
 }
 
@@ -859,7 +855,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     grid-area: help;
     margin: 0;
     color: var(--etk-muted);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
 }
 
 /* -------------------------------------------------------------------------
@@ -881,7 +877,6 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-warning-bg);
     border-left: 3px solid var(--etk-warning);
     color: var(--etk-text-warning);
-    font-size: 0.9rem;
 }
 
 /* Subscribers table chrome now consumes .lrob-etk-data-table primitive
@@ -942,7 +937,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-soft);
     border-radius: var(--etk-radius-md);
     font-family: var(--etk-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-fg);
     max-height: 160px;
     overflow: auto;
@@ -1029,7 +1024,7 @@ a.lrob-etk-nl-list-count-badge:focus {
      * a faint accent tint (hover / selected row), where bg alone would blend. */
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--etk-accent) 22%, transparent);
     border-radius: var(--etk-radius-pill);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     white-space: nowrap;
 }
@@ -1060,7 +1055,6 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-subscriber-edit-group-title {
     margin: 0 0 var(--etk-space-2);
-    font-size: 13px;
     font-weight: 600;
     color: var(--etk-fg);
 }
@@ -1077,7 +1071,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     gap: 4px;
 }
 .lrob-etk-nl-subscriber-edit-label {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
@@ -1092,7 +1086,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-nl-subscriber-edit-status {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     align-self: center;
 }
@@ -1107,7 +1101,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-subscriber-section-title {
     margin: 0 0 var(--etk-space-2);
-    font-size: 14px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     color: var(--etk-fg);
     text-transform: uppercase;
@@ -1169,7 +1163,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: inline-block;
     padding: 0.15rem 0.55rem;
     border-radius: var(--etk-radius-pill);
-    font-size: 0.78rem;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -1252,12 +1246,12 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-send-progress-text {
     margin: 0;
-    font-size: 0.82rem;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
 .lrob-etk-nl-send-test-result {
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
@@ -1296,7 +1290,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 0.4rem 0.55rem;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
-    font-size: 0.95rem;
+    font-size: var(--etk-input-font-size);
 }
 
 
@@ -1460,7 +1454,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-card-restore-link .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -1499,7 +1493,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-card-title-label {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -1515,7 +1509,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 /* Creation date sits to the right of the title (next to status). */
 .lrob-etk-nl-card-created {
-    font-size: 0.78rem;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     white-space: nowrap;
 }
@@ -1555,7 +1549,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: flex;
     align-items: center;
     gap: 0.3rem;
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
 }
 
 
@@ -1603,18 +1597,18 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-audience-summary strong {
     font-weight: 700;
-    font-size: 1.4rem;
+    font-size: var(--etk-text-xl);
     line-height: 1.1;
 }
 
 .lrob-etk-nl-audience-summary-label {
     color: var(--etk-muted);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
 }
 
 .lrob-etk-nl-audience-summary-optout {
     color: var(--etk-text-warning);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
 }
 .lrob-etk-nl-audience-summary-optout[hidden] {
@@ -1623,7 +1617,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-audience-summary-bypass {
     color: var(--etk-text-danger);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     font-style: italic;
 }
 .lrob-etk-nl-audience-summary-bypass[hidden] {
@@ -1635,7 +1629,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     flex: 1 0 100%;
     color: var(--etk-muted);
     font-style: italic;
-    font-size: 0.8rem;
+    font-size: var(--etk-text-xs);
     line-height: 1.3;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1673,7 +1667,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-audience-section-title {
     margin: 0 0 var(--etk-space-2);
     padding-bottom: 4px;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -1704,7 +1698,6 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-audience-item-name {
     flex: 1 1 auto;
     min-width: 0;
-    font-size: 13px;
 }
 
 /* Right-anchored count + opt-out wrapper. Keeps the count pinned
@@ -1723,7 +1716,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
 }
 
@@ -1732,7 +1725,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     font-style: italic;
 }
@@ -1757,21 +1750,21 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-card-recipients-count {
     font-weight: 700;
-    font-size: 1.4rem;
+    font-size: var(--etk-text-xl);
     line-height: 1.1;
     color: var(--etk-fg);
 }
 
 .lrob-etk-nl-card-recipients-label {
     color: var(--etk-muted);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
 }
 
 .lrob-etk-nl-card-recipients-show {
     margin-left: auto;
     color: var(--etk-accent);
     text-decoration: underline;
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     cursor: pointer;
 }
 
@@ -1790,7 +1783,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: flex;
     flex-direction: column;
     gap: 0.15rem;
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
@@ -1813,7 +1806,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     margin: 0 !important;
     box-shadow: none !important;
     color: var(--etk-accent) !important;
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     text-decoration: underline;
     cursor: pointer;
     min-height: 0;
@@ -1847,7 +1840,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-card-actions .button .dashicons {
     margin-right: 0.2rem;
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     line-height: 1;
     vertical-align: middle;
 }
@@ -1883,7 +1876,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     margin: 0.5rem 0 0;
     padding: 0.4rem 0.6rem;
     border-radius: var(--etk-radius-sm);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     line-height: 1.4;
 }
 
@@ -1918,7 +1911,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     margin: 0.5rem 0 0;
     padding: 0.6rem 0.8rem;
     border-radius: var(--etk-radius-sm);
-    font-size: 0.88rem;
+    font-size: var(--etk-text-xs);
     line-height: 1.45;
     display: flex;
     flex-direction: column;
@@ -1939,7 +1932,7 @@ a.lrob-etk-nl-list-count-badge:focus {
  * to stay out of the way until the admin looks for it. */
 .lrob-etk-nl-field-link {
     float: right;
-    font-size: 0.75rem;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0;
@@ -1995,7 +1988,7 @@ button.lrob-etk-nl-field-link {
     background: var(--etk-input-bg);
     border-radius: var(--etk-radius-pill);
     color: var(--etk-muted);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     cursor: pointer;
     transition: background-color var(--etk-transition), color var(--etk-transition), border-color var(--etk-transition);
 }
@@ -2020,7 +2013,7 @@ button.lrob-etk-nl-field-link {
     border-radius: var(--etk-radius-pill);
     background: var(--etk-veil-2);
     color: inherit;
-    font-size: 0.75rem;
+    font-size: var(--etk-text-xs);
     font-variant-numeric: tabular-nums;
 }
 
@@ -2033,12 +2026,11 @@ button.lrob-etk-nl-field-link {
     padding: 0.35rem 0.55rem;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
-    font-size: 0.9rem;
+    font-size: var(--etk-input-font-size);
 }
 
 .lrob-etk-nl-recipients-summary {
     margin: 0 0 0.5rem;
-    font-size: 0.95rem;
 }
 
 .lrob-etk-nl-recipients-summary-note {
@@ -2064,7 +2056,6 @@ button.lrob-etk-nl-field-link {
 .lrob-etk-nl-recipients-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
 }
 
 .lrob-etk-nl-recipients-table th,
@@ -2080,7 +2071,7 @@ button.lrob-etk-nl-field-link {
     font-weight: 600;
     color: var(--etk-muted);
     border-bottom-width: 2px;
-    font-size: 0.8rem;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -2095,7 +2086,7 @@ button.lrob-etk-nl-field-link {
     border-radius: var(--etk-radius-sm);
     background: var(--etk-veil-2);
     color: var(--etk-muted);
-    font-size: 0.72rem;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
@@ -2123,7 +2114,7 @@ button.lrob-etk-nl-field-link {
 }
 
 .lrob-etk-nl-recipients-log-link {
-    font-size: 0.85em;
+    font-size: var(--etk-text-xs);
     text-decoration: none;
     white-space: nowrap;
 }
@@ -2139,7 +2130,7 @@ button.lrob-etk-nl-field-link {
     padding: 0.6rem 0;
     margin-top: 0.5rem;
     border-top: 1px solid var(--etk-line);
-    font-size: 0.85rem;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
@@ -2155,7 +2146,7 @@ button.lrob-etk-nl-field-link {
 /* Preview-mode (pre-send) compact list. */
 .lrob-etk-nl-recipients-bykind {
     color: var(--etk-muted);
-    font-size: 0.9em;
+    font-size: var(--etk-text-xs);
     margin: 0 0 0.5rem;
 }
 
@@ -2168,7 +2159,7 @@ button.lrob-etk-nl-field-link {
     gap: 0.6rem;
     margin: 0.25rem 0;
     color: var(--etk-text-warning);
-    font-size: 0.85em;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
 }
 .lrob-etk-nl-recipients-bypass-inline {
@@ -2176,13 +2167,13 @@ button.lrob-etk-nl-field-link {
     align-items: center;
     gap: 0.25rem;
     color: var(--etk-muted);
-    font-size: 0.85em;
+    font-size: var(--etk-text-xs);
     font-weight: 400;
     cursor: pointer;
 }
 .lrob-etk-nl-recipients-bypass-warn {
     color: var(--etk-text-danger);
-    font-size: 0.85em;
+    font-size: var(--etk-text-xs);
     font-style: italic;
     background: var(--etk-danger-bg);
     padding: 6px 10px;
@@ -2207,7 +2198,7 @@ button.lrob-etk-nl-field-link {
     border-radius: var(--etk-radius-sm);
     cursor: pointer;
     color: var(--etk-muted);
-    font-size: 0.85em;
+    font-size: var(--etk-text-xs);
     transition: var(--etk-transition);
 }
 .lrob-etk-nl-recipients-tab:hover {
@@ -2227,7 +2218,7 @@ button.lrob-etk-nl-field-link {
     display: inline-block;
     padding: 1px 7px;
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     text-transform: lowercase;
     letter-spacing: 0.02em;
@@ -2261,7 +2252,7 @@ button.lrob-etk-nl-field-link {
     background: transparent;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     cursor: pointer;
     color: var(--etk-fg);
     transition: var(--etk-transition);
@@ -2294,7 +2285,7 @@ button.lrob-etk-nl-field-link {
 
 .lrob-etk-nl-recipients-sample-note {
     color: var(--etk-muted);
-    font-size: 0.85em;
+    font-size: var(--etk-text-xs);
     margin: 1rem 0 0.4rem;
 }
 
@@ -2311,7 +2302,7 @@ button.lrob-etk-nl-field-link {
 .lrob-etk-nl-recipients-preview-list li {
     padding: 0.4rem 0.6rem;
     border-bottom: 1px solid var(--etk-soft);
-    font-size: 0.9em;
+    font-size: var(--etk-text-xs);
     display: flex;
     align-items: center;
     gap: 0.5rem;

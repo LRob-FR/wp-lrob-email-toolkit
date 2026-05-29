@@ -270,6 +270,10 @@ final class AjaxController
         wp_send_json_success([
             'id'        => $saved_id,
             'route_key' => Routing::identity($saved_id),
+            // Current site-wide default after this save — deactivating the
+            // current default makes the server sweep it back to a built-in, and
+            // the client reflects that live (no reload).
+            'default_route' => Routing::default_route(),
             'slug'      => $saved !== null ? $saved->derived_slug() : '',
             'site_key'  => $site_key,
             'message'   => $is_create
@@ -311,7 +315,10 @@ final class AjaxController
             Routing::replace_map($map);
         }
 
-        wp_send_json_success(['message' => __('Identity deleted.', 'lrob-email-toolkit')]);
+        wp_send_json_success([
+            'message'       => __('Identity deleted.', 'lrob-email-toolkit'),
+            'default_route' => Routing::default_route(),
+        ]);
     }
 
     public function ajax_save_routing(): void

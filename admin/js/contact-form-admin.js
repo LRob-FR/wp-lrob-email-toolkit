@@ -87,7 +87,7 @@
         // Wire free-mode comboboxes (Subject template + Success message)
         // — same shape as the SMTP host combobox: typeable input + a
         // dropdown of suggestions (currently just the inherit default).
-        var freeCombos = card.querySelectorAll('.lrob-etk-cf-free-combo');
+        var freeCombos = card.querySelectorAll('.lrob-etk-combo--free');
         Array.prototype.forEach.call(freeCombos, function (combo) {
             if (combo.__etkBound) return;
             var options;
@@ -230,7 +230,11 @@
                 });
                 menu.appendChild(btn);
             });
-            document.body.appendChild(menu);
+            // Append inside the plugin wrapper, not <body>: the floating menu
+            // styling (bg / border / shadow / text) resolves from the --etk-*
+            // tokens, which are scoped to `.lrob-etk`. Appended to <body> they
+            // are undefined and the menu renders as unstyled text in the void.
+            (container.closest('.lrob-etk') || document.body).appendChild(menu);
             positionMenu(menu, button);
             menu.__owner = button;
             container.__pickMenu = menu;
@@ -240,13 +244,17 @@
         }
 
         function positionMenu(menu, anchor) {
-            var rect = anchor.getBoundingClientRect();
+            // Match the menu to the full combo width (like the other dropdowns),
+            // not the chevron button alone — and override the shared menu's
+            // min/max-width clamp so it tracks the field exactly.
+            var combo = anchor.closest('.lrob-etk-combo') || anchor;
+            var rect = combo.getBoundingClientRect();
             menu.style.position = 'fixed';
             menu.style.top = (rect.bottom + 4) + 'px';
-            menu.style.left = Math.max(8, rect.right - menu.offsetWidth) + 'px';
-            // Now that the menu is in the DOM we know its width; re-clamp.
-            var width = menu.getBoundingClientRect().width;
-            menu.style.left = Math.max(8, rect.right - width) + 'px';
+            menu.style.left = rect.left + 'px';
+            menu.style.minWidth = '0';
+            menu.style.maxWidth = 'none';
+            menu.style.width = rect.width + 'px';
         }
 
         function onDocMouseDown(e) {

@@ -28,22 +28,21 @@
 }
 
 .lrob-etk-cta-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
+    font-size: var(--etk-icon-size-xl);
+    width: var(--etk-icon-size-xl);
+    height: var(--etk-icon-size-xl);
     color: var(--etk-accent);
     margin: 0 auto 16px;
 }
 
 .lrob-etk-cta-title {
-    font-size: 22px;
+    font-size: var(--etk-text-xl);
     font-weight: 600;
     margin: 0 0 8px;
     color: var(--etk-fg);
 }
 
 .lrob-etk-cta-description {
-    font-size: 14px;
     line-height: 1.5;
     color: var(--etk-muted);
     margin: 0 0 24px;
@@ -55,7 +54,7 @@
     display: inline-block;
     padding: 2px 8px;
     border-radius: var(--etk-radius-pill);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
 }
 
@@ -63,6 +62,19 @@
 .lrob-etk-status--off     { background: var(--etk-soft);       color: var(--etk-muted); }
 .lrob-etk-status--fail    { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
 .lrob-etk-status--pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
+
+/* Reusable "dimmed" veil — greys a whole card/row to signal it's inactive
+ * (inactive captcha) or terminal (sent newsletter). Subtle so content stays
+ * legible; pair with a state class for stronger cues if needed. */
+.lrob-etk-is-dimmed {
+    opacity: 0.55;
+    transition: opacity var(--etk-transition);
+}
+/* Hover restores full opacity so the dimmed card/row stays fully legible +
+ * interactive (read a sent newsletter, re-enable a disabled captcha/server). */
+.lrob-etk-is-dimmed:hover {
+    opacity: 1;
+}
 
 /* ---------- Empty state ---------- */
 
@@ -86,7 +98,6 @@
 }
 .lrob-etk-confirm-prompt-message {
     margin: 0;
-    font-size: 14px;
     line-height: 1.5;
     color: var(--etk-fg);
 }
@@ -139,7 +150,7 @@
     outline: none;
 }
 .lrob-etk-tip .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -152,7 +163,7 @@
     padding: 8px 12px;
     background: var(--etk-fg);
     color: var(--etk-on-accent);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     line-height: 1.5;
     border-radius: var(--etk-radius-sm);
     z-index: 200000;  /* above modals (which sit at 100000) */
@@ -314,7 +325,7 @@ body.lrob-etk-modal-open {
     background: var(--etk-soft);
 }
 .lrob-etk-modal-title-text {
-    font-size: 14px;
+    font-size: var(--etk-text-lg);
     font-weight: 600;
     color: var(--etk-muted);
     text-transform: uppercase;
@@ -337,7 +348,7 @@ body.lrob-etk-modal-open {
 
 .lrob-etk-modal-header-status {
     margin: 0 12px 0 auto;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     transition: opacity 0.2s ease;
     min-width: 0;
@@ -380,7 +391,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-form-column h3,
 .lrob-etk-form-row-full h3 {
     margin: 0 0 10px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -400,7 +411,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-field > label {
     display: block;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     color: var(--etk-muted);
     margin-bottom: 4px;
@@ -430,7 +441,7 @@ body.lrob-etk-modal-open {
     border: none;
     padding: 4px 12px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     border-right: 1px solid var(--etk-line);
 }
@@ -456,7 +467,7 @@ body.lrob-etk-modal-open {
     border-radius: var(--etk-radius-sm);
     height: 32px;
     line-height: 1.4;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     color: var(--etk-fg);
     cursor: pointer;
     transition: border-color var(--etk-transition);
@@ -503,7 +514,7 @@ body.lrob-etk-modal-open {
     border: none;
     background: transparent;
     padding: 4px 8px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     line-height: 1.4;
     color: var(--etk-fg);
     box-shadow: none;
@@ -531,7 +542,7 @@ body.lrob-etk-modal-open {
     color: var(--etk-fg);
 }
 .lrob-etk-combo-toggle .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -573,7 +584,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-combo-menu li {
     padding: 6px 10px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     line-height: 1.4;
     color: var(--etk-fg);
     margin: 0;
@@ -612,7 +623,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-popover-header h3 {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     color: var(--etk-muted);
 }
@@ -631,7 +642,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-popover-message {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     line-height: 1.5;
 }
 .lrob-etk-popover.is-success .lrob-etk-popover-message { color: var(--etk-text-success); }
@@ -641,7 +652,7 @@ body.lrob-etk-modal-open {
     padding: 8px;
     background: var(--etk-soft);
     border-radius: var(--etk-radius-sm);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     line-height: 1.4;
     max-height: 200px;
     overflow: auto;
@@ -708,7 +719,7 @@ body.lrob-etk-modal-open {
 /* "by LRob" credit appended to every page title — brand-shared with the other
  * LRob plugins. */
 .lrob-etk-page-credit {
-    font-size: 0.55em;
+    font-size: var(--etk-text-xs);
     font-weight: 400;
     color: var(--etk-muted);
     margin-left: var(--etk-space-2);
@@ -745,13 +756,13 @@ body.lrob-etk-modal-open {
     overflow: hidden;
 }
 .lrob-etk-promo-icon {
-    font-size: 1.4em;
+    font-size: var(--etk-icon-size-lg);
     flex-shrink: 0;
     line-height: 1;
 }
 .lrob-etk-promo-body {
     flex: 1;
-    font-size: var(--etk-text-md);
+    font-size: var(--etk-input-font-size);
     color: var(--etk-fg);
     line-height: 1.4;
     transition: opacity var(--etk-transition-slow);
@@ -780,7 +791,7 @@ body.lrob-etk-modal-open {
  * No margin-left:auto — the page-header-actions div carries it instead. */
 .lrob-etk-page-add .dashicons,
 .lrob-etk-page-header-actions .button .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -864,7 +875,6 @@ body.lrob-etk-modal-open {
     border-left: 3px solid var(--etk-line-strong);
     border-radius: var(--etk-radius);
     color: var(--etk-muted);
-    font-size: 14px;
     line-height: 1.5;
 }
 
@@ -979,7 +989,7 @@ body.lrob-etk-modal-open {
     content: "★";
     color: var(--etk-warning);
     margin-left: 6px;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 
 /* ---------- Icon button ----------
@@ -1142,7 +1152,7 @@ body.lrob-etk-modal-open {
     margin: 6px 0 0;
     background: var(--etk-veil-2);
     padding: 6px;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     border-radius: var(--etk-radius-sm);
     overflow-x: auto;
     white-space: pre-wrap;
@@ -1176,7 +1186,7 @@ body.lrob-etk-modal-open {
     min-width: 220px;
 }
 .lrob-etk-filter-bar-field label {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     color: var(--etk-muted);
 }
@@ -1214,7 +1224,7 @@ body.lrob-etk-modal-open {
     background: var(--etk-soft);
     padding: 8px 12px;
     text-align: left;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     color: var(--etk-muted);
     border-bottom: 1px solid var(--etk-line);
@@ -1306,7 +1316,7 @@ body.lrob-etk-modal-open {
     align-items: center;
     gap: var(--etk-space-2);
     color: var(--etk-muted);
-    font-size: var(--etk-text-sm);
+    font-size: var(--etk-text-xs);
 }
 /* Generic in-toolbar cluster — flex+gap. Used for BOTH the left
  * action group (bulk-action dropdown + Apply) and any right cluster
@@ -1465,7 +1475,7 @@ body.lrob-etk-modal-open {
     border-radius: var(--etk-radius-pill);
     background: var(--etk-veil-2);
     color: inherit;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     line-height: 1.5;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
@@ -1508,9 +1518,9 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-empty-state-icon {
     color: var(--etk-line-strong);
-    font-size: 36px;
-    width: 36px;
-    height: 36px;
+    font-size: var(--etk-icon-size-xl);
+    width: var(--etk-icon-size-xl);
+    height: var(--etk-icon-size-xl);
     margin: 0 auto 8px;
     display: block;
 }
@@ -1546,7 +1556,7 @@ body.lrob-etk-modal-open {
     gap: 2px;
 }
 .lrob-etk-detail-strip-label {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
@@ -1567,7 +1577,7 @@ body.lrob-etk-modal-open {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-set-default {
     color: var(--etk-muted);
@@ -1589,7 +1599,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-set-default .dashicons,
 .lrob-etk-default-badge .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
 }
@@ -1599,7 +1609,7 @@ body.lrob-etk-modal-open {
     border: none;
     border-bottom: 1px solid var(--etk-line);
     background: transparent;
-    font-size: 15px;
+    font-size: var(--etk-text-lg);
     font-weight: 600;
     color: var(--etk-fg);
     padding: 4px 2px 6px;
@@ -1657,7 +1667,7 @@ body.lrob-etk-modal-open {
 }
 
 .lrob-etk-card-status {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     border-radius: var(--etk-radius-xl);
     background: transparent;
@@ -1725,7 +1735,7 @@ body.lrob-etk-modal-open {
     background: transparent;
     border: none;
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     text-decoration: underline;
     cursor: pointer;
     padding: 4px 6px;
@@ -1740,7 +1750,7 @@ body.lrob-etk-modal-open {
     margin-top: 0;
     padding-top: 0;
     border-top: none;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     letter-spacing: 0.06em;
 }
 .lrob-etk-card-form .lrob-etk-form-row-full {
@@ -1762,7 +1772,7 @@ body.lrob-etk-modal-open {
     padding: var(--etk-space-2) var(--etk-space-3);
     margin: 0 0 var(--etk-space-2);
     border-radius: var(--etk-radius-sm);
-    font-size: var(--etk-text-sm);
+    font-size: var(--etk-text-xs);
     line-height: 1.4;
 }
 .lrob-etk-banner-warning .dashicons,

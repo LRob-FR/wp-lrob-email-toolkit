@@ -56,7 +56,16 @@
 
         attachCombobox(combo, {
             mode: 'select',
-            populate: function () { return options; },
+            // Re-read data-options on every open so callers can update the list
+            // live (e.g. a captcha identity toggled active/inactive) and the
+            // menu reflects it without a reload. Falls back to the setup-time
+            // snapshot if the attribute is ever malformed.
+            populate: function () {
+                try {
+                    var live = JSON.parse(combo.getAttribute('data-options') || 'null');
+                    return Array.isArray(live) ? live : options;
+                } catch (e) { return options; }
+            },
             getValue: function () { return hidden.value; },
             setValue: function (value, label) {
                 hidden.value = value;

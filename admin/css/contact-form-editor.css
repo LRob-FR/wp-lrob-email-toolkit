@@ -44,6 +44,6 @@
 }
 .lrob-etk-embed-preview .description {
     color: var(--etk-muted);
-    font-size: var(--etk-text-sm);
+    font-size: var(--etk-text-xs);
     margin: 0;
 }

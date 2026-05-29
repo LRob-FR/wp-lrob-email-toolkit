@@ -29,7 +29,6 @@
     display: flex;
     gap: var(--etk-space-2);
     align-items: baseline;
-    font-size: var(--etk-input-font-size);
     line-height: 1.4;
 }
 .lrob-etk-log-meta-row .label {

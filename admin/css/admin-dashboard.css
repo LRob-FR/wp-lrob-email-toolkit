@@ -57,7 +57,7 @@
 }
 
 .lrob-etk-stat-label {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     margin: 0;
     font-weight: 500;
@@ -73,20 +73,20 @@
     margin: 0;
 }
 .lrob-etk-stat-value {
-    font-size: 26px;
+    font-size: var(--etk-text-2xl);
     font-weight: 700;
     color: var(--etk-fg);
     line-height: 1.1;
     margin: 0;
 }
 .lrob-etk-stat-unit {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
 .lrob-etk-stat-sub {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 .lrob-etk-stat-sub strong {
@@ -100,7 +100,7 @@
     color: var(--etk-danger);
 }
 .lrob-etk-stat-rate {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     margin-left: 4px;
 }
@@ -136,13 +136,13 @@
     gap: 8px;
 }
 .lrob-etk-chart-range label {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     font-weight: 500;
 }
 .lrob-etk-chart-range .lrob-etk-select {
     height: 28px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     padding-right: 22px;
 }
 .lrob-etk-chart-type {
@@ -169,7 +169,7 @@
     color: var(--etk-on-accent);
 }
 .lrob-etk-chart-type .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -193,7 +193,7 @@
 }
 .lrob-etk-chart-axis {
     fill: var(--etk-muted);
-    font-size: 10px;
+    font-size: var(--etk-text-xxs);
     font-family: inherit;
 }
 .lrob-etk-chart-bar-failed-svg { fill: var(--etk-danger); }
@@ -230,7 +230,7 @@
     color: var(--etk-on-accent);
     padding: 6px 8px;
     border-radius: var(--etk-radius-sm);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     line-height: 1.5;
     pointer-events: none;
     box-shadow: var(--etk-shadow-menu);
@@ -260,7 +260,6 @@
     margin: 24px 0;
     text-align: center;
     color: var(--etk-muted);
-    font-size: 13px;
 }
 
 /* ---------- Module card test button ---------- */
@@ -275,7 +274,7 @@
     gap: 4px;
 }
 .lrob-etk-module-test-btn .dashicons {
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     width: 14px;
     height: 14px;
     line-height: 1;
@@ -295,16 +294,15 @@
     border-radius: var(--etk-radius);
 }
 .lrob-etk-failure-banner .dashicons {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    font-size: var(--etk-icon-size-lg);
+    width: var(--etk-icon-size-lg);
+    height: var(--etk-icon-size-lg);
     color: var(--etk-danger);
     flex-shrink: 0;
 }
 .lrob-etk-failure-banner > div {
     flex: 1;
     color: var(--etk-text-danger);
-    font-size: 13px;
     line-height: 1.4;
 }
 .lrob-etk-failure-banner strong {
@@ -346,11 +344,10 @@
 }
 .lrob-etk-module-card-head h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--etk-text-lg);
     flex: 1;
 }
 .lrob-etk-module-card-description {
-    font-size: 13px;
     color: var(--etk-muted);
     margin: 0;
     flex: 1;
@@ -397,7 +394,7 @@
 
 /* ---------- Module card: inline summary line (Contact Form) ---------- */
 .lrob-etk-module-card-summary {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     display: inline-flex;
     align-items: baseline;
@@ -438,7 +435,6 @@
     gap: 16px;
     padding: 6px 0;
     border-bottom: 1px solid var(--etk-soft);
-    font-size: 13px;
 }
 .lrob-etk-data-summary-list li:last-child {
     border-bottom: none;
@@ -453,7 +449,6 @@
 .lrob-etk-data-summary-empty {
     margin: 0;
     color: var(--etk-muted);
-    font-size: 13px;
 }
 .lrob-etk-data-summary-actions {
     margin-top: 12px;

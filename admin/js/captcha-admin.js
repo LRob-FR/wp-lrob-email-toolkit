@@ -28,7 +28,7 @@
             data.append('_nonce', CFG.nonce);
             data.append('route', route);
             request(data).then(function (res) {
-                if (res && res.success) window.location.reload();
+                if (res && res.success) applyDefaultEverywhere((res.data && res.data.route) || route);
             });
         });
     }
@@ -141,6 +141,7 @@
         form.addEventListener('change', function (e) {
             if (e.target.name === 'is_active') {
                 updateActiveLabel(e.target);
+                card.classList.toggle('lrob-etk-is-dimmed', !e.target.checked);
                 if (card.dataset.state === 'existing') scheduleSave(card);
                 return;
             }
@@ -340,29 +341,158 @@
         if (res.data.site_key !== undefined) {
             card.dataset.siteKey = res.data.site_key || '';
         }
-        refreshDefaultSlot(card, res.data.route_key);
+        // Stamp the (possibly just-created) card's route onto its default slot,
+        // then reflect the current global default everywhere — this handles the
+        // "deactivate the current default → server sweeps it to Math" case live.
+        var defaultSlot = card.querySelector('.lrob-etk-card-footer-default');
+        if (defaultSlot && res.data.route_key) defaultSlot.setAttribute('data-route', res.data.route_key);
+        refreshRoutingMenus();
+        if (res.data.default_route) applyDefaultEverywhere(res.data.default_route);
         renderPreview(card);
     }
 
-    // Keep the footer's default marker consistent after an in-place save:
-    // an active saved identity offers "Set as default"; an inactive one can't
-    // be the default (the server sweeps it), so clear any marker.
-    function refreshDefaultSlot(card, route) {
-        var slot = card.querySelector('.lrob-etk-card-footer-default');
-        if (!slot) return;
-        var activeEl = card.querySelector('input[name="is_active"]');
-        var isActive = !activeEl || activeEl.checked;
-        if (!isActive) {
-            slot.innerHTML = '';
-            return;
-        }
-        // Leave an existing "Default" badge / button untouched; only seed a
-        // Set-as-default button when the slot is empty (e.g. just-created card).
-        if (slot.querySelector('.lrob-etk-default-badge, .lrob-etk-set-default')) return;
+    // Reflect the current site-wide default across the whole page without a
+    // reload: rebuild every card's footer marker (Default badge on the match,
+    // "Set as default" on other active cards, nothing on inactive ones) and
+    // sync the "Default challenge" dropdown. Driven by each slot's data-route.
+    function applyDefaultEverywhere(route) {
         if (!route) return;
-        slot.innerHTML = '<button type="button" class="lrob-etk-set-default" data-set-default-route="' + escAttr(route) + '">'
+        var slots = document.querySelectorAll('.lrob-etk-card-footer-default[data-route]');
+        Array.prototype.forEach.call(slots, function (slot) {
+            var cardRoute = slot.getAttribute('data-route');
+            if (!cardRoute) { slot.innerHTML = ''; return; }
+            var card = slot.closest('.lrob-etk-captcha-card');
+            var activeEl = card && card.querySelector('input[name="is_active"]');
+            var isActive = !activeEl || activeEl.checked; // built-in cards have no toggle
+            if (cardRoute === route) {
+                slot.innerHTML = '<span class="lrob-etk-default-badge">'
+                    + '<span class="dashicons dashicons-star-filled" aria-hidden="true"></span> '
+                    + escText(CFG.i18n.defaultLabel || 'Default') + '</span>';
+            } else if (isActive) {
+                slot.innerHTML = setDefaultBtnHtml(cardRoute);
+            } else {
+                slot.innerHTML = '';
+            }
+        });
+        syncDefaultDropdown(route);
+    }
+
+    function setDefaultBtnHtml(route) {
+        return '<button type="button" class="lrob-etk-set-default" data-set-default-route="' + escAttr(route) + '">'
             + '<span class="dashicons dashicons-star-empty" aria-hidden="true"></span> '
             + escText(CFG.i18n.setDefaultLabel || 'Set as default') + '</button>';
+    }
+
+    // Display-only sync of the "Default challenge" dropdown — the server has
+    // already persisted the new default; this just mirrors it visually.
+    function syncDefaultDropdown(route) {
+        var container = document.querySelector('[data-routing-key="default"]');
+        var combo = container && container.querySelector('.lrob-etk-combo');
+        if (!combo) return;
+        var hidden = combo.querySelector('.lrob-etk-combo-value');
+        var input = combo.querySelector('.lrob-etk-combo-input');
+        if (hidden) hidden.value = route;
+        var label = null;
+        try {
+            var opts = JSON.parse(combo.getAttribute('data-options') || '[]');
+            for (var i = 0; i < opts.length; i++) {
+                if (String(opts[i].value) === String(route)) { label = opts[i].label; break; }
+            }
+        } catch (e) {}
+        // Not in the page-load option list — e.g. an identity that was inactive
+        // when the page rendered and was just activated + set as default. Derive
+        // its display name from its card so the title shows the proper name
+        // ("Provider: Label") instead of the raw route code (identity:N).
+        if (label === null) label = labelFromCard(route) || route;
+        if (input) input.value = label;
+    }
+
+    // Build the dropdown label for a route from its card, matching the server's
+    // "<provider>: <identity label>" format (route_options_for_combobox).
+    function labelFromCard(route) {
+        var slots = document.querySelectorAll('.lrob-etk-card-footer-default[data-route]');
+        for (var i = 0; i < slots.length; i++) {
+            if (slots[i].getAttribute('data-route') !== route) continue;
+            var card = slots[i].closest('.lrob-etk-captcha-card');
+            if (!card) return '';
+            var provEl = card.querySelector('[data-provider-label]');
+            var labelEl = card.querySelector('input[name="label"]');
+            var prov = provEl ? provEl.textContent.trim() : '';
+            var name = (labelEl && labelEl.value.trim()) || prov;
+            return prov ? (prov + ': ' + name) : name;
+        }
+        return '';
+    }
+
+    // Current active identities as routing options ("<provider>: <label>"),
+    // read live from the cards — mirrors the server's route_options_for_combobox.
+    function activeIdentityOptions() {
+        var out = [];
+        document.querySelectorAll('.lrob-etk-captcha-card[data-state="existing"]').forEach(function (card) {
+            var activeEl = card.querySelector('input[name="is_active"]');
+            if (activeEl && !activeEl.checked) return;
+            var id = card.getAttribute('data-identity-id');
+            if (!id || id === '0') return;
+            var provEl = card.querySelector('[data-provider-label]');
+            var labelEl = card.querySelector('input[name="label"]');
+            var prov = provEl ? provEl.textContent.trim() : '';
+            var name = (labelEl && labelEl.value.trim()) || prov;
+            out.push({ value: 'identity:' + id, label: prov ? (prov + ': ' + name) : name });
+        });
+        return out;
+    }
+
+    // Rebuild the identity portion of every routing dropdown (default + each
+    // per-context override) from the live set of active identities, so the
+    // menus stay in sync after activate / deactivate / create / delete — no
+    // reload. Specials (Use default / Off) and built-in challenges are left
+    // untouched. A combo whose selected identity is gone is reset to match the
+    // server's sweep (per-context → inherit; the default combo is handled by
+    // applyDefaultEverywhere right after).
+    function refreshRoutingMenus() {
+        var idOpts = activeIdentityOptions();
+        var activeLabels = {};
+        idOpts.forEach(function (o) { activeLabels[o.value] = o.label; });
+
+        document.querySelectorAll('[data-routing-key] .lrob-etk-combo').forEach(function (combo) {
+            var opts;
+            try { opts = JSON.parse(combo.getAttribute('data-options') || '[]'); } catch (e) { return; }
+            var kept = opts.filter(function (o) { return String(o.value).indexOf('identity:') !== 0; });
+            combo.setAttribute('data-options', JSON.stringify(kept.concat(idOpts)));
+
+            var hidden = combo.querySelector('.lrob-etk-combo-value');
+            if (!hidden) return;
+            var selected = String(hidden.value);
+            if (selected.indexOf('identity:') !== 0) return;
+            var keyEl = combo.closest('[data-routing-key]');
+            var routingKey = keyEl ? keyEl.getAttribute('data-routing-key') : '';
+            if (!activeLabels[selected]) {
+                // Selected identity no longer active — server swept it. The
+                // default combo is re-synced by applyDefaultEverywhere; others
+                // fall back to inherit.
+                if (routingKey !== 'default') setComboValue(combo, 'inherit');
+            } else {
+                // Still active — keep the visible label fresh (label may have
+                // been edited).
+                var input = combo.querySelector('.lrob-etk-combo-input');
+                if (input) input.value = activeLabels[selected];
+            }
+        });
+    }
+
+    function setComboValue(combo, value) {
+        var hidden = combo.querySelector('.lrob-etk-combo-value');
+        var input = combo.querySelector('.lrob-etk-combo-input');
+        if (hidden) hidden.value = value;
+        var label = value;
+        try {
+            var opts = JSON.parse(combo.getAttribute('data-options') || '[]');
+            for (var i = 0; i < opts.length; i++) {
+                if (String(opts[i].value) === String(value)) { label = opts[i].label; break; }
+            }
+        } catch (e) {}
+        var inheritVal = combo.getAttribute('data-inherit-value');
+        if (input) input.value = (inheritVal !== null && String(value) === String(inheritVal)) ? '' : label;
     }
 
     function updateSlugChip(card, slug) {
@@ -411,7 +541,11 @@
         data.append('id', String(id));
 
         request(data).then(function (res) {
-            if (res.success) window.location.reload();
+            if (!res.success) return;
+            card.parentNode && card.parentNode.removeChild(card);
+            maybeShowEmpty();
+            refreshRoutingMenus();
+            if (res.data && res.data.default_route) applyDefaultEverywhere(res.data.default_route);
         });
     }
 
@@ -433,6 +567,14 @@
         var widgetSlot = card.querySelector('[data-preview-widget]');
         var previewContainer = card.querySelector('[data-preview-container]');
         if (!widgetSlot || !previewContainer) return;
+        // Inactive identity: no live preview/test — clear any mounted widget so
+        // a disabled captcha doesn't keep rendering in the background.
+        var activeEl = card.querySelector('input[name="is_active"]');
+        if (activeEl && !activeEl.checked) {
+            widgetSlot.innerHTML = '';
+            previewContainer.hidden = true;
+            return;
+        }
         var siteKey = card.dataset.siteKey || '';
         var providerSlug = card.dataset.provider || '';
 

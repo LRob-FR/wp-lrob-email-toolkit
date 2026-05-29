@@ -388,8 +388,8 @@ final class LogsPage
                 <?php echo esc_html($entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
             </td>
             <td class="col-status">
-                <span class="lrob-etk-status <?php echo esc_attr($this->status_class($entry->status)); ?>">
-                    <?php echo esc_html($this->status_label($entry->status)); ?>
+                <span class="lrob-etk-status <?php echo esc_attr(LogEntry::status_class($entry->status)); ?>">
+                    <?php echo esc_html(LogEntry::status_label($entry->status)); ?>
                 </span>
             </td>
             <td class="col-from"><?php echo esc_html($entry->from_email); ?></td>
@@ -937,27 +937,6 @@ final class LogsPage
         <?php
     }
 
-    private function status_class(string $status): string
-    {
-        return match ($status) {
-            LogEntry::STATUS_SENT    => 'lrob-etk-status--on',
-            LogEntry::STATUS_FAILED  => 'lrob-etk-status--fail',
-            LogEntry::STATUS_SENDING => 'lrob-etk-status--pending',
-            LogEntry::STATUS_RETRIED => 'lrob-etk-status--off',
-            default                  => 'lrob-etk-status--off',
-        };
-    }
-
-    private function status_label(string $status): string
-    {
-        return match ($status) {
-            LogEntry::STATUS_SENT    => __('Sent', 'lrob-email-toolkit'),
-            LogEntry::STATUS_FAILED  => __('Failed', 'lrob-email-toolkit'),
-            LogEntry::STATUS_SENDING => __('Sending', 'lrob-email-toolkit'),
-            LogEntry::STATUS_RETRIED => __('Retried', 'lrob-email-toolkit'),
-            default                  => $status,
-        };
-    }
 
     /**
      * @param string|array<int, string>|null $notice

@@ -41,7 +41,7 @@ final class ImageChallenge implements ChallengeInterface
 
     public function description(): string
     {
-        return __('Visitors click one icon out of six (e.g. "Click the picture of a tree"). More resistant to OCR than text, picks from a pool of 20 concepts. Not accessible to screen-reader users — pick the math challenge if accessibility matters.', 'lrob-email-toolkit');
+        return __('Click one icon out of six (e.g. "Click the tree"). OCR-resistant, no third-party calls — but not screen-reader friendly.', 'lrob-email-toolkit');
     }
 
     public function render(array $context = []): string

@@ -86,7 +86,7 @@ final class SettingsPage
     private function render_identity_card(Identity $identity): void
     {
         ?>
-        <article class="lrob-etk-card lrob-etk-card--container lrob-etk-identity-card" data-identity-id="<?php echo (int) $identity->id; ?>" data-state="existing">
+        <article class="lrob-etk-card lrob-etk-card--container lrob-etk-identity-card<?php echo $identity->is_active ? '' : ' lrob-etk-is-dimmed'; ?>" data-identity-id="<?php echo (int) $identity->id; ?>" data-state="existing">
             <?php $this->render_card_form($identity); ?>
         </article>
         <?php
@@ -703,11 +703,14 @@ final class SettingsPage
             div.style.display = authOn ? '' : 'none';
         });
 
-        // Active label
+        // Active label + dim the whole card when disabled.
         var activeEl = card.querySelector('.lrob-etk-inline-switch-label');
         var activeChk = field(card, 'is-active');
         if (activeEl && activeChk) {
             activeEl.textContent = activeChk.checked ? S.i18n.active : S.i18n.inactive;
+        }
+        if (activeChk && card.getAttribute('data-state') !== 'new') {
+            card.classList.toggle('lrob-etk-is-dimmed', !activeChk.checked);
         }
 
         // None warning

@@ -100,32 +100,31 @@ final class SettingsPage
                     ?>
                     <li>
                         <div class="lrob-etk-captcha-builtin-head">
-                            <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
-                            <div class="lrob-etk-captcha-builtin-text">
-                                <strong><?php echo esc_html($challenge->label()); ?></strong>
-                                <p><?php echo esc_html($challenge->description()); ?></p>
-                                <p class="lrob-etk-captcha-route-stats">
-                                    <?php $this->render_route_counter($this->route_stats($route)); ?>
-                                </p>
-                            </div>
-                            <div class="lrob-etk-card-footer-default">
-                                <?php self::render_default_marker($route, $is_default); ?>
-                            </div>
+                            <span class="dashicons dashicons-shield" aria-hidden="true"></span>
+                            <strong><?php echo esc_html($challenge->label()); ?></strong>
                         </div>
+                        <p class="lrob-etk-captcha-builtin-desc"><?php echo esc_html($challenge->description()); ?></p>
                         <div class="lrob-etk-captcha-builtin-preview">
                             <div class="lrob-etk-captcha-card-preview-head"><?php esc_html_e('Preview', 'lrob-email-toolkit'); ?></div>
                             <?php
                             // Render inside a .lrob-etk-form host so the frontend
                             // CSS vars (theme-adaptive colours, radii) resolve here
                             // exactly as they do on the live form — the preview
-                            // then mirrors what a visitor sees.
-                            // The challenge emits the exact frontend markup a
-                            // visitor sees (self-contained, no external script).
+                            // then mirrors what a visitor sees (self-contained,
+                            // no external script).
                             ?>
                             <div class="lrob-etk-form">
                                 <?php echo $challenge->render(['context' => 'preview']); // phpcs:ignore WordPress.Security.EscapeOutput — challenge render escapes internally. ?>
                             </div>
                         </div>
+                        <footer class="lrob-etk-card-footer">
+                            <div class="lrob-etk-card-footer-default" data-route="<?php echo esc_attr($route); ?>">
+                                <?php self::render_default_marker($route, $is_default); ?>
+                            </div>
+                            <p class="lrob-etk-captcha-route-stats">
+                                <?php $this->render_route_counter($this->route_stats($route)); ?>
+                            </p>
+                        </footer>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -312,7 +311,7 @@ final class SettingsPage
             }
         }
         ?>
-        <article class="lrob-etk-card lrob-etk-captcha-card<?php echo $is_new ? ' is-new' : ''; ?>"
+        <article class="lrob-etk-card lrob-etk-captcha-card<?php echo $is_new ? ' is-new' : ''; ?><?php echo (!$is_new && !$is_active) ? ' lrob-etk-is-dimmed' : ''; ?>"
                  data-identity-id="<?php echo (int) $id; ?>"
                  data-provider="<?php echo esc_attr($provider->slug()); ?>"
                  data-state="<?php echo $is_new ? 'new' : 'existing'; ?>"
@@ -334,7 +333,7 @@ final class SettingsPage
                         placeholder="<?php esc_attr_e('e.g. Main site', 'lrob-email-toolkit'); ?>"
                         autocomplete="off">
                     <span class="lrob-etk-card-status" aria-live="polite"></span>
-                    <label class="lrob-etk-inline-switch" title="<?php esc_attr_e('Active', 'lrob-email-toolkit'); ?>">
+                    <label class="lrob-etk-inline-switch lrob-etk-captcha-card-active" title="<?php esc_attr_e('Active', 'lrob-email-toolkit'); ?>">
                         <input type="checkbox" name="is_active" value="1" <?php checked($is_active); ?>>
                         <span class="lrob-etk-switch-track"></span>
                         <span class="lrob-etk-inline-switch-label" data-on="<?php esc_attr_e('Active', 'lrob-email-toolkit'); ?>" data-off="<?php esc_attr_e('Inactive', 'lrob-email-toolkit'); ?>">
@@ -343,6 +342,9 @@ final class SettingsPage
                                 : esc_html__('Inactive', 'lrob-email-toolkit'); ?>
                         </span>
                     </label>
+                    <button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger lrob-etk-captcha-card-trash" data-action="delete" data-id="<?php echo (int) $id; ?>" title="<?php esc_attr_e('Delete this captcha', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Delete this captcha', 'lrob-email-toolkit'); ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
+                        <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                    </button>
                 </header>
 
                 <div class="lrob-etk-captcha-card-meta">
@@ -350,11 +352,6 @@ final class SettingsPage
                         <span class="dashicons dashicons-tag" aria-hidden="true"></span>
                         <code><?php echo esc_html($derived_slug); ?></code>
                     </span>
-                    <?php
-                    if ($identity !== null) {
-                        $this->render_route_counter($this->route_stats(Routing::identity((int) $identity->id)));
-                    }
-                    ?>
                 </div>
 
                 <div class="lrob-etk-captcha-card-body" data-fields-container>
@@ -372,7 +369,7 @@ final class SettingsPage
                     </div>
                 </div>
 
-                <div class="lrob-etk-captcha-card-preview" data-preview-container <?php echo $is_new ? 'hidden' : ''; ?>>
+                <div class="lrob-etk-captcha-card-preview" data-preview-container <?php echo ($is_new || !$is_active) ? 'hidden' : ''; ?>>
                     <div class="lrob-etk-captcha-card-preview-head">
                         <?php esc_html_e('Test', 'lrob-email-toolkit'); ?>
                         <span class="description"><?php esc_html_e('Solve below to verify your credentials.', 'lrob-email-toolkit'); ?></span>
@@ -382,7 +379,7 @@ final class SettingsPage
                 </div>
 
                 <footer class="lrob-etk-card-footer">
-                    <div class="lrob-etk-card-footer-default">
+                    <div class="lrob-etk-card-footer-default" data-route="<?php echo $identity !== null ? esc_attr(Routing::identity((int) $identity->id)) : ''; ?>">
                         <?php
                         if (!$is_new && $identity !== null && $identity->is_active) {
                             $route = Routing::identity((int) $identity->id);
@@ -397,9 +394,11 @@ final class SettingsPage
                         <button type="button" class="button lrob-etk-card-discard" data-action="discard" <?php echo $is_new ? '' : 'hidden'; ?>>
                             <?php esc_html_e('Discard', 'lrob-email-toolkit'); ?>
                         </button>
-                        <button type="button" class="lrob-etk-card-delete-link" data-action="delete" data-id="<?php echo (int) $id; ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
-                            <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
-                        </button>
+                        <?php
+                        if (!$is_new && $identity !== null) {
+                            $this->render_route_counter($this->route_stats(Routing::identity((int) $identity->id)));
+                        }
+                        ?>
                     </div>
                 </footer>
             </form>
@@ -809,7 +808,8 @@ final class SettingsPage
                 invisibleNote:   <?php echo wp_json_encode(__('Invisible mode — no widget is shown; it runs automatically when visitors submit the form.', 'lrob-email-toolkit')); ?>,
                 recaptchaV3Note: <?php echo wp_json_encode(__('reCAPTCHA v3 — no widget; a risk score is fetched and checked when visitors submit the form.', 'lrob-email-toolkit')); ?>,
                 testScore:       <?php echo wp_json_encode(__('Test score', 'lrob-email-toolkit')); ?>,
-                setDefaultLabel: <?php echo wp_json_encode(__('Set as default', 'lrob-email-toolkit')); ?>
+                setDefaultLabel: <?php echo wp_json_encode(__('Set as default', 'lrob-email-toolkit')); ?>,
+                defaultLabel:    <?php echo wp_json_encode(__('Default', 'lrob-email-toolkit')); ?>
             }
         };
         <?php

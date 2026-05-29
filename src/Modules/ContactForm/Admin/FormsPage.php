@@ -357,6 +357,24 @@ final class FormsPage
         $out = [];
         $seen = [];
         $admin = (string) get_option('admin_email');
+
+        // "Default" entry (empty value): picking it clears the row so the field
+        // stays unset and inherits the global default recipient at send time —
+        // kept live rather than freezing an address into the form. Mirrors the
+        // Subject / Success-message dropdowns' "Default" behaviour.
+        $global_recipient = trim((string) (Settings::all()[Settings::KEY_RECIPIENT] ?? ''));
+        $effective_default = $global_recipient !== '' ? $global_recipient : $admin;
+        if ($effective_default !== '') {
+            $out[] = [
+                'value' => '',
+                'label' => sprintf(
+                    /* translators: %s: the email the form falls back to when no recipient is set */
+                    __('Default (%s)', 'lrob-email-toolkit'),
+                    $effective_default
+                ),
+            ];
+        }
+
         if ($admin !== '' && is_email($admin)) {
             $out[] = [
                 'value' => $admin,
@@ -1032,12 +1050,15 @@ final class FormsPage
                     <div class="lrob-etk-field">
                         <label>
                             <?php esc_html_e('Success message', 'lrob-email-toolkit'); ?>
-                            <?php Tooltip::render(__('Shown to the visitor right after they submit the form. Open the dropdown to insert the site-language default.', 'lrob-email-toolkit')); ?>
+                            <?php Tooltip::render(__('Shown to the visitor right after they submit the form. Leave empty to use the site-language default (it then updates automatically if the site language changes) — the dropdown resets to that default.', 'lrob-email-toolkit')); ?>
                         </label>
                         <?php self::render_free_combobox(
                             CPT::META_SUCCESS_MESSAGE,
                             $meta['success'],
-                            [['value' => $success_default, 'label' => $success_placeholder]],
+                            // Empty value = keep the field unset so it inherits the
+                            // live site-language default (dynamic), instead of
+                            // freezing today's default text into the field.
+                            [['value' => '', 'label' => $success_placeholder]],
                             $success_placeholder
                         ); ?>
                     </div>
@@ -1099,7 +1120,7 @@ final class FormsPage
                                     <?php self::render_free_combobox(
                                         CPT::META_SUBJECT_TEMPLATE,
                                         $meta['subject'],
-                                        [['value' => $subject_default, 'label' => $subject_placeholder]],
+                                        [['value' => '', 'label' => $subject_placeholder]],
                                         $subject_placeholder
                                     ); ?>
                                 </div>

@@ -15,7 +15,12 @@
     --lrob-etk-cf-radius:      8px;
     --lrob-etk-cf-spacing:     1rem;
     --lrob-etk-cf-accent:      var(--wp--preset--color--primary, #2563eb);
-    --lrob-etk-cf-accent-fg:   var(--wp--preset--color--base, #fff);
+    /* Text/icon on the accent-filled submit button. Fixed light default so it
+     * matches the admin preview (which has no WP color presets and falls back
+     * to white) — keying it off `--wp--preset--color--base` made the frontend
+     * pick up the theme's (often non-white) base and clash. Still a var, so a
+     * per-form theme can override it for a light accent. */
+    --lrob-etk-cf-accent-fg:   #fff;
     --lrob-etk-cf-border:      var(--wp--preset--color--tertiary, #cbd5e1);
     --lrob-etk-cf-border-focus: var(--lrob-etk-cf-accent);
     --lrob-etk-cf-bg:          var(--wp--preset--color--base, #fff);

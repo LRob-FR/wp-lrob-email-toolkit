@@ -47,7 +47,7 @@
     gap: 4px;
 }
 .lrob-etk-form-card .lrob-etk-card-footer .button .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -56,7 +56,7 @@
     color: var(--etk-danger);
     text-decoration: none;
     padding: 6px 8px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-form-card .lrob-etk-card-delete-link:hover {
     text-decoration: underline;
@@ -125,7 +125,7 @@
     box-sizing: border-box;
 }
 .lrob-etk-defaults-inline-pair label {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     color: var(--etk-muted);
     text-transform: none;
@@ -214,13 +214,13 @@
     color: var(--etk-accent);
 }
 .lrob-etk-form-editor-toolbar-btn .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
 }
 .lrob-etk-form-editor-status {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     min-width: 0;
     text-align: right;
@@ -331,7 +331,7 @@
     transform: translateY(-4px);
     transition: opacity var(--etk-transition), transform var(--etk-transition);
     z-index: 5;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-form-overlay--row   { top: -12px; left: 8px; }
 /* Col overlay was at the same top-right corner as the field overlay below
@@ -377,7 +377,7 @@
     height: 22px;
     padding: 0;
     box-sizing: border-box;
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     line-height: 1;
     /* The dashicons glyph is a Unicode character — without this, the browser
      * treats it as text and prefers a text-selection start over a drag when
@@ -407,7 +407,7 @@
 }
 .lrob-etk-form-overlay-btn--delete:hover { color: var(--etk-danger); }
 .lrob-etk-form-overlay-btn .dashicons {
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     width: 14px;
     height: 14px;
     line-height: 1;
@@ -435,7 +435,7 @@
     justify-content: center;
     gap: 4px;
     color: var(--etk-accent);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -524,7 +524,7 @@
     border-radius: var(--etk-radius-sm);
 }
 .lrob-etk-form-insert-plus {
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     font-weight: 700;
     line-height: 1;
 }
@@ -693,7 +693,7 @@
     display: none;
     align-items: center;
     gap: 4px;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -725,7 +725,7 @@
     background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
     border-radius: var(--etk-radius-sm);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 
 /* --- Inline settings strip ---
@@ -777,7 +777,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     margin: 0;
 }
@@ -793,7 +793,7 @@
     min-width: 60px;
     max-width: 160px;
     padding: 2px 6px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     line-height: 1.3;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
@@ -811,7 +811,7 @@
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
@@ -830,7 +830,7 @@
     background: var(--etk-input-bg);
     color: var(--etk-muted);
     padding: 2px 8px;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     cursor: pointer;
     border-right: 1px solid var(--etk-line);
 }
@@ -841,11 +841,11 @@
     display: inline-flex;
     width: 200px;
     max-width: 100%;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-inline-combo .lrob-etk-combo-input {
     padding: 2px 6px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 
 /* --- Per-option Default star (select only) ---
@@ -859,7 +859,7 @@
     border: 0;
     color: var(--etk-muted);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     line-height: 1;
     width: 22px;
     height: 22px;
@@ -933,7 +933,7 @@
     border: 0;
     padding: 6px 10px;
     text-align: left;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     cursor: pointer;
     border-radius: var(--etk-radius-sm);
     color: var(--etk-fg);
@@ -959,7 +959,7 @@
 }
 .lrob-etk-form-type-picker-section-label {
     grid-column: 1 / -1;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
@@ -973,7 +973,7 @@
 }
 .lrob-etk-form-type-picker-preset .dashicons {
     color: var(--etk-accent);
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     width: 14px;
     height: 14px;
 }
@@ -1010,7 +1010,7 @@
 }
 .lrob-etk-cf-new-picker-inner header h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--etk-text-lg);
 }
 .lrob-etk-cf-new-picker-inner section {
     margin-bottom: 18px;
@@ -1020,7 +1020,7 @@
 }
 .lrob-etk-cf-new-picker-inner section h4 {
     margin: 0 0 8px 0;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--etk-muted);
@@ -1054,12 +1054,12 @@
     cursor: progress;
 }
 .lrob-etk-cf-picker-card strong {
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     font-weight: 600;
     color: var(--etk-fg);
 }
 .lrob-etk-cf-picker-card span {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     line-height: 1.4;
 }
@@ -1079,21 +1079,21 @@
     margin-bottom: 24px;
 }
 .lrob-etk-cf-onboard-icon {
-    font-size: 40px;
+    font-size: var(--etk-icon-size-xl);
     width: 40px;
     height: 40px;
     color: var(--etk-accent);
 }
 .lrob-etk-cf-onboard-title {
     margin: 0;
-    font-size: 18px;
+    font-size: var(--etk-text-xl);
     font-weight: 600;
     color: var(--etk-fg);
 }
 .lrob-etk-cf-onboard-text {
     margin: 0;
     color: var(--etk-muted);
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     max-width: 540px;
     line-height: 1.55;
 }
@@ -1126,7 +1126,7 @@
     margin: 0 0 8px;
     padding-top: 0;
     border-top: none;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -1155,7 +1155,6 @@
     display: inline-block;
     color: var(--etk-muted);
     transition: transform var(--etk-transition);
-    font-size: 12px;
     width: 12px;
     text-align: center;
 }
@@ -1164,14 +1163,14 @@
 }
 .lrob-etk-advanced-label {
     font-weight: 600;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
 }
 .lrob-etk-advanced-meta {
     margin-left: auto;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 .lrob-etk-advanced-meta strong {
@@ -1226,7 +1225,7 @@
     background: var(--etk-danger-bg);
 }
 .lrob-etk-recipient-remove .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     line-height: 1;
@@ -1239,7 +1238,7 @@
     gap: 4px;
 }
 .lrob-etk-recipient-add .dashicons {
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     width: 14px;
     height: 14px;
     line-height: 1;
@@ -1291,7 +1290,7 @@
  * italic so it doesn't compete with the input itself. */
 .lrob-etk-default-hint {
     margin: 4px 0 0;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     font-style: italic;
     line-height: 1.4;
@@ -1354,7 +1353,7 @@
 }
 .lrob-etk-form-captcha-stub-icon {
     color: var(--etk-accent);
-    font-size: 18px;
+    font-size: var(--etk-icon-size-lg);
     width: 18px;
     height: 18px;
     flex: 0 0 auto;
@@ -1362,7 +1361,7 @@
 .lrob-etk-form-captcha-stub-label {
     font-weight: 600;
     color: var(--etk-fg);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     flex: 0 0 auto;
@@ -1376,7 +1375,7 @@
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
     background: var(--etk-card-bg);
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     color: var(--etk-fg);
 }
 .lrob-etk-form-captcha-pick:focus {
@@ -1396,7 +1395,7 @@
 .lrob-etk-form-captcha-stub-empty {
     margin: 0;
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-style: italic;
 }
 
@@ -1441,7 +1440,7 @@
     align-items: center;
     gap: 6px;
     color: var(--etk-fg);
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     min-width: 0;
 }
 .lrob-etk-form.is-editor .lrob-etk-form-option[data-inline-option] > label {
@@ -1485,7 +1484,7 @@
     border: 0;
     color: var(--etk-muted);
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     line-height: 1;
     height: 22px;
     border-radius: var(--etk-radius-sm);
@@ -1519,7 +1518,7 @@
     color: var(--etk-muted);
     padding: 0 12px;
     border-radius: var(--etk-radius-pill);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
     cursor: pointer;
@@ -1564,7 +1563,7 @@
     border-radius: var(--etk-radius-pill);
     background: var(--etk-soft);
     color: var(--etk-fg);
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     text-decoration: none;
     border: 1px solid transparent;
     transition: border-color var(--etk-transition), background var(--etk-transition);
@@ -1589,7 +1588,7 @@
     border-radius: var(--etk-radius-pill);
     background: var(--etk-veil-2);
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-style: italic;
 }
 
@@ -1606,7 +1605,7 @@
 .lrob-etk-cf-submissions-table .col-captcha {
     width: 14%;
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 
 .lrob-etk-detail-card {
@@ -1616,7 +1615,7 @@
     padding: 16px 18px;
 }
 .lrob-etk-detail-card h2 {
-    font-size: 14px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
@@ -1628,7 +1627,7 @@
     column-gap: 12px;
     row-gap: 6px;
     margin: 0;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-detail-meta dt {
     color: var(--etk-muted);
@@ -1638,7 +1637,7 @@
     margin: 0;
     word-break: break-word;
 }
-.lrob-etk-detail-meta code { font-size: 12px; }
+.lrob-etk-detail-meta code { font-size: var(--etk-text-xs); }
 .lrob-etk-detail-meta .lrob-etk-ua-code {
     display: inline-block;
     max-width: 100%;
@@ -1654,7 +1653,7 @@
 .lrob-etk-detail-payload dt {
     color: var(--etk-muted);
     font-weight: 600;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin-top: 4px;
@@ -1662,7 +1661,7 @@
 .lrob-etk-detail-payload dt:first-child { margin-top: 0; }
 .lrob-etk-detail-payload dd {
     margin: 0 0 6px;
-    font-size: 14px;
+    font-size: var(--etk-input-font-size);
     word-break: break-word;
 }
 .lrob-etk-detail-textarea {
@@ -1673,7 +1672,7 @@
     word-break: break-word;
     margin: 2px 0 0;
     font-family: inherit;
-    font-size: 14px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-detail-list {
     margin: 0;
@@ -1733,12 +1732,12 @@
     color: var(--etk-text-danger);
 }
 .lrob-etk-cf-submissions-stat-value {
-    font-size: 20px;
+    font-size: var(--etk-text-xl);
     font-weight: 700;
     line-height: 1.1;
 }
 .lrob-etk-cf-submissions-stat-label {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -1785,11 +1784,11 @@
 .lrob-etk-detail-row dt {
     color: var(--etk-muted);
     font-weight: 600;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-detail-row dd {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--etk-input-font-size);
     word-break: break-word;
 }
 @media (max-width: 720px) {
@@ -1806,7 +1805,7 @@
     cursor: pointer;
     list-style: none;
     color: var(--etk-muted);
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1870,7 +1869,7 @@
 
 /* Inline chip suffix (e.g. "(server max 8 MB)" next to the max-size input). */
 .lrob-etk-form.is-editor .lrob-etk-form-inline-chip-suffix {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted, var(--etk-muted));
     margin-left: 4px;
     white-space: nowrap;
@@ -1890,11 +1889,11 @@
     border: 1px solid var(--etk-warning);
     border-radius: var(--etk-radius-md);
     color: var(--etk-text-warning);
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-detail-card--files .lrob-etk-files-warning .dashicons {
     color: var(--etk-text-warning);
-    font-size: 18px;
+    font-size: var(--etk-icon-size-lg);
     width: 18px;
     height: 18px;
 }
@@ -1906,7 +1905,7 @@
 }
 .lrob-etk-files-group-label {
     margin: 0 0 8px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     font-weight: 600;
     color: var(--etk-muted);
     text-transform: uppercase;
@@ -1959,7 +1958,7 @@
     gap: 6px;
     color: var(--etk-fg);
     text-decoration: none;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1970,13 +1969,13 @@
 .lrob-etk-file-name .dashicons {
     flex: 0 0 auto;
     color: var(--etk-muted);
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
 }
 .lrob-etk-file-size {
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     flex: 0 0 auto;
 }
 
@@ -1995,7 +1994,7 @@
 }
 .lrob-etk-confirm-summary {
     margin: 0 0 12px;
-    font-size: 14px;
+    font-size: var(--etk-input-font-size);
     color: var(--etk-fg);
 }
 .lrob-etk-confirm-preview {
@@ -2006,7 +2005,7 @@
     border-radius: 0 6px 6px 0;
     color: var(--etk-muted);
     font-style: italic;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-confirm-warn {
     margin: 0 0 20px;
@@ -2018,11 +2017,11 @@
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-confirm-warn .dashicons {
     color: var(--etk-text-danger);
-    font-size: 18px;
+    font-size: var(--etk-icon-size-lg);
     width: 18px;
     height: 18px;
     flex: 0 0 auto;
@@ -2035,7 +2034,7 @@
     border: 1px solid var(--etk-warning);
     border-radius: var(--etk-radius-md);
     color: var(--etk-text-warning);
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-confirm-actions {
     display: flex;
@@ -2061,14 +2060,14 @@
     border: 1px solid var(--etk-warning);
     border-radius: var(--etk-radius-md);
     color: var(--etk-text-warning);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     line-height: 1.4;
 }
 .lrob-etk-form-card[data-save-effective-off="1"]
     .lrob-etk-form-edit-shell[data-field-type="file_upload"]:not([data-attr-delivery="attachment"])
     .lrob-etk-form-file-warning .dashicons {
     color: var(--etk-text-warning);
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
     flex: 0 0 auto;
@@ -2119,7 +2118,7 @@
     min-width: 160px;
 }
 .lrob-etk-bulk-selected-count {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     background: var(--etk-soft);
     padding: 2px 8px;
@@ -2184,14 +2183,14 @@
 }
 .lrob-etk-confirm-modal-title {
     margin: 0 0 12px;
-    font-size: 16px;
+    font-size: var(--etk-text-lg);
     font-weight: 600;
     color: var(--etk-fg);
 }
 .lrob-etk-confirm-modal-body {
     margin: 0 0 20px;
     color: var(--etk-muted);
-    font-size: 14px;
+    font-size: var(--etk-input-font-size);
     line-height: 1.5;
     white-space: pre-line;
 }
@@ -2242,7 +2241,7 @@
 .lrob-etk-detail-modal-title {
     flex: 1 1 auto;
     margin: 0;
-    font-size: 15px;
+    font-size: var(--etk-text-lg);
     font-weight: 600;
     color: var(--etk-fg);
     text-align: left;
@@ -2272,7 +2271,7 @@
     line-height: 1.4;
 }
 .lrob-etk-detail-modal-action.button .dashicons {
-    font-size: 16px;
+    font-size: var(--etk-icon-size);
     width: 16px;
     height: 16px;
 }
@@ -2330,7 +2329,7 @@
     text-align: center;
     color: var(--etk-muted);
     padding: 40px 0;
-    font-size: 14px;
+    font-size: var(--etk-input-font-size);
 }
 
 /* Active row highlight while the detail modal is open */
@@ -2351,7 +2350,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-cleanup-statuses {
     display: flex;
@@ -2363,14 +2362,14 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-cleanup-actions {
     margin-top: 10px;
 }
 .lrob-etk-popover-section-title {
     margin: 8px 0 6px;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;

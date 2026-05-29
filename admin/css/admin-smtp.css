@@ -43,7 +43,7 @@
 }
 .lrob-etk-routing-row label code {
     color: var(--etk-muted);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     background: var(--etk-soft);
     padding: 1px 5px;
     border-radius: var(--etk-radius-sm);
@@ -88,7 +88,7 @@
     gap: 6px;
 }
 .lrob-etk-port-input label {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     color: var(--etk-muted);
     white-space: nowrap;
@@ -103,7 +103,6 @@
     margin-top: 6px;
     padding: 6px 10px;
     border-radius: var(--etk-radius-sm);
-    font-size: 12px;
     line-height: 1.4;
 }
 .lrob-etk-from-warning.is-warning {
@@ -137,7 +136,7 @@
 /* Host resolve indicator */
 .lrob-etk-host-status {
     margin-top: 4px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     display: inline-block;
     padding: 2px 8px;
     border-radius: var(--etk-radius-sm);
@@ -153,14 +152,13 @@
     color: var(--etk-text-warning);
     border-left: 3px solid var(--etk-warning);
     border-radius: var(--etk-radius-sm);
-    font-size: 12px;
     line-height: 1.4;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 .lrob-etk-none-warning .dashicons {
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     width: 14px;
     height: 14px;
     color: var(--etk-warning);
@@ -169,7 +167,7 @@
 /* Transport segmented control (now sits inline in card header) */
 
 .lrob-etk-transport-segmented {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-transport-segmented button {
     padding: 3px 10px;
@@ -213,6 +211,6 @@
 .lrob-etk-label-hint {
     color: var(--etk-line-strong);
     font-weight: normal;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 

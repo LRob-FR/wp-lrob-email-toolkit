@@ -9,7 +9,7 @@
 
 .lrob-etk-captcha-section .lrob-etk-section-title {
     margin: 0 0 10px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--etk-muted);
@@ -23,54 +23,78 @@
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 10px;
+    gap: var(--etk-space-2);
     max-width: 880px;
 }
+/* Vertical stack, equal-height per row (grid stretch) so "Set as default"
+ * pins to the bottom of every card uniformly. */
 .lrob-etk-captcha-builtins li {
-    /* Subgrid over [head, preview] rows so every card's preview starts at
-     * the same Y across the row, regardless of description length. Degrades
-     * to a normal 2-row stack where subgrid is unsupported. */
-    display: grid;
-    grid-template-rows: subgrid;
-    grid-row: span 2;
-    gap: 10px;
-    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-3);
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
 }
+/* Header: a rounded pill carrying the captcha icon + title — mirrors the
+ * hosted-provider chip so built-in and provider cards read consistently. */
 .lrob-etk-captcha-builtin-head {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: var(--etk-space-2);
+    padding: 4px 12px 4px 8px;
+    background: var(--etk-soft);
+    border-radius: var(--etk-radius-pill);
 }
-.lrob-etk-captcha-builtin-text {
-    flex: 1;
+.lrob-etk-captcha-builtin-head .dashicons {
+    color: var(--etk-accent);
+    font-size: var(--etk-icon-size);
+    width: var(--etk-icon-size);
+    height: var(--etk-icon-size);
 }
-.lrob-etk-captcha-builtins .dashicons-yes-alt {
-    color: var(--etk-success);
-    flex-shrink: 0;
-    margin-top: 2px;
+.lrob-etk-captcha-builtin-head strong {
+    font-size: var(--etk-text-lg);
+    color: var(--etk-fg);
 }
-/* Challenge title only — NOT the <strong> numbers inside the stat pill
- * (which must stay inline, or they stack into an ugly circle). */
-.lrob-etk-captcha-builtin-text > strong {
-    display: block;
-    font-size: 14px;
-}
-.lrob-etk-captcha-builtins p {
-    margin: 2px 0 0;
+.lrob-etk-captcha-builtin-desc {
+    margin: 0;
     color: var(--etk-muted);
-    font-size: 12px;
 }
 /* Live preview of the rendered challenge — ISO with the hosted-provider
  * card preview below it. */
 .lrob-etk-captcha-builtin-preview {
     border-top: 1px solid var(--etk-soft);
-    padding-top: 10px;
+    padding-top: var(--etk-space-3);
 }
 .lrob-etk-captcha-builtin-preview .lrob-etk-cf-field {
     margin: 0;
+}
+/* Footer (Set-as-default left · stats right) pinned to the card bottom,
+ * aligned across the row. */
+.lrob-etk-captcha-builtins li .lrob-etk-card-footer {
+    margin-top: auto;
+}
+.lrob-etk-captcha-builtins li .lrob-etk-card-footer-default {
+    justify-content: flex-start;
+}
+/* passed/blocked stat sits bottom-right in every card footer. */
+.lrob-etk-card-footer .lrob-etk-captcha-route-stats {
+    margin: 0;
+}
+/* Active/Inactive label stacked under the toggle to save header width. */
+.lrob-etk-captcha-card-active {
+    flex-direction: column;
+    gap: 2px;
+}
+.lrob-etk-captcha-card-active .lrob-etk-inline-switch-label {
+    font-size: var(--etk-text-xs);
+}
+/* Trash sits at the top of the header row — level with the toggle track,
+ * not vertically centred against the stacked track + Active/Inactive label. */
+.lrob-etk-captcha-card-trash {
+    align-self: flex-start;
 }
 
 /* --- Identity cards --- */
@@ -113,7 +137,6 @@
     background: var(--etk-soft);
     color: var(--etk-fg);
     border-radius: var(--etk-radius-xl);
-    font-size: 13px;
     font-weight: 600;
     flex-shrink: 0;
 }
@@ -138,10 +161,10 @@
     align-items: center;
     gap: 4px;
     color: var(--etk-muted);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-captcha-card-slug .dashicons {
-    font-size: 14px;
+    font-size: var(--etk-icon-size-sm);
     width: 14px;
     height: 14px;
     line-height: 14px;
@@ -149,7 +172,7 @@
 .lrob-etk-captcha-card-slug code {
     background: transparent;
     padding: 0;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
@@ -197,7 +220,7 @@
     color: var(--etk-fg);
 }
 .lrob-etk-captcha-provider-pick-text span {
-    font-size: var(--etk-text-sm);
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     line-height: 1.4;
 }
@@ -209,7 +232,7 @@
     border-top: 1px solid var(--etk-soft);
 }
 .lrob-etk-captcha-card-preview-head {
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--etk-muted);
@@ -223,7 +246,7 @@
     text-transform: none;
     letter-spacing: 0;
     font-weight: 400;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 .lrob-etk-captcha-card-preview-widget {
@@ -235,7 +258,7 @@
 .lrob-etk-captcha-card-preview-widget .description {
     margin: 0;
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-style: italic;
 }
 /* reCAPTCHA v3: note + "Test score" button stacked (the widget slot itself
@@ -251,7 +274,6 @@
     margin-top: 8px;
     padding: 6px 10px;
     border-radius: var(--etk-radius);
-    font-size: 13px;
     font-weight: 500;
 }
 .lrob-etk-captcha-card-test-result.is-testing {
@@ -279,7 +301,7 @@
     gap: 4px;
 }
 .lrob-etk-captcha-card-body label {
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     font-weight: 600;
     color: var(--etk-muted);
     text-transform: uppercase;
@@ -289,11 +311,11 @@
 .lrob-etk-captcha-card-body input[type="password"] {
     width: 100%;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 13px;
+    font-size: var(--etk-input-font-size);
 }
 .lrob-etk-captcha-card-body .description {
     color: var(--etk-muted);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     margin: 0;
 }
 .lrob-etk-captcha-card-body .lrob-etk-required {
@@ -302,7 +324,7 @@
 }
 .lrob-etk-captcha-card-body [data-field-error] {
     color: var(--etk-danger);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     margin: 0;
 }
 
@@ -349,9 +371,6 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-}
-.lrob-etk-captcha-default-text strong {
-    font-size: var(--etk-text-md);
 }
 .lrob-etk-captcha-default-text .description {
     font-size: var(--etk-text-xs);
@@ -413,9 +432,6 @@
     border-bottom: 1px solid var(--etk-soft);
 }
 .lrob-etk-captcha-override-row:last-child { border-bottom: 0; }
-.lrob-etk-captcha-override-label {
-    font-size: var(--etk-text-md);
-}
 .lrob-etk-captcha-override-row .lrob-etk-combo { width: 100%; }
 
 
@@ -440,7 +456,7 @@
  * troubleshooting aid, not a primary surface. */
 .lrob-etk-captcha-diag summary {
     cursor: pointer;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--etk-muted);
@@ -460,7 +476,7 @@
 }
 .lrob-etk-captcha-diag-body h3 {
     margin: 0 0 6px;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
@@ -468,7 +484,7 @@
 .lrob-etk-captcha-diag-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-captcha-diag-table th,
 .lrob-etk-captcha-diag-table td {
@@ -479,7 +495,7 @@
 .lrob-etk-captcha-diag-table th {
     color: var(--etk-muted);
     font-weight: 600;
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -487,7 +503,7 @@
     background: var(--etk-soft);
     padding: 1px 4px;
     border-radius: var(--etk-radius-sm);
-    font-size: 11px;
+    font-size: var(--etk-text-xs);
 }
 
 @media (max-width: 600px) {
@@ -506,7 +522,7 @@
  * Reads from wp_lrob_etk_captcha_stats (30-day window). */
 .lrob-etk-captcha-route-stats {
     margin: 6px 0 0;
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 /* inline-block (not flex) + nowrap so the "N blocked · N passed" text never
  * splits across lines, even in the narrow built-in-challenge cells. */
@@ -517,7 +533,7 @@
     background: var(--etk-soft);
     border-radius: var(--etk-radius-pill);
     color: var(--etk-muted);
-    font-size: 12px;
+    font-size: var(--etk-text-xs);
 }
 .lrob-etk-captcha-stat strong { color: var(--etk-fg); font-weight: 600; }
 .lrob-etk-captcha-stat-sep { margin: 0 4px; opacity: 0.5; }

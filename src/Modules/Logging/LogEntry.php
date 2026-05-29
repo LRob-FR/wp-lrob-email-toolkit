@@ -22,6 +22,27 @@ final class LogEntry
 
     public const STATUS_RETRIED = 'retried';
 
+    public static function status_label(string $status): string
+    {
+        return match ($status) {
+            self::STATUS_SENT    => __('Sent', 'lrob-email-toolkit'),
+            self::STATUS_FAILED  => __('Failed', 'lrob-email-toolkit'),
+            self::STATUS_SENDING => __('Sending', 'lrob-email-toolkit'),
+            self::STATUS_RETRIED => __('Retried', 'lrob-email-toolkit'),
+            default              => $status,
+        };
+    }
+
+    public static function status_class(string $status): string
+    {
+        return match ($status) {
+            self::STATUS_SENT    => 'lrob-etk-status--on',
+            self::STATUS_FAILED  => 'lrob-etk-status--fail',
+            self::STATUS_SENDING => 'lrob-etk-status--pending',
+            default              => 'lrob-etk-status--off',
+        };
+    }
+
     /**
      * @param array<int, string>                                $to_emails
      * @param array<int, string>                                $cc_emails

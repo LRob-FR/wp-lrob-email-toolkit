@@ -804,8 +804,8 @@ final class DashboardPage
                                 <?php echo esc_html($entry->created_at->setTimezone(wp_timezone())->format('Y-m-d H:i:s')); ?>
                             </td>
                             <td class="col-status">
-                                <span class="lrob-etk-status <?php echo esc_attr($this->status_class($entry->status)); ?>">
-                                    <?php echo esc_html($entry->status); ?>
+                                <span class="lrob-etk-status <?php echo esc_attr(LogEntry::status_class($entry->status)); ?>">
+                                    <?php echo esc_html(LogEntry::status_label($entry->status)); ?>
                                 </span>
                             </td>
                             <td class="col-to"><?php echo esc_html($to_summary); ?></td>
@@ -832,16 +832,6 @@ final class DashboardPage
             </a>
         </p>
         <?php
-    }
-
-    private function status_class(string $status): string
-    {
-        return match ($status) {
-            LogEntry::STATUS_SENT    => 'lrob-etk-status--on',
-            LogEntry::STATUS_FAILED  => 'lrob-etk-status--fail',
-            LogEntry::STATUS_SENDING => 'lrob-etk-status--pending',
-            default                  => 'lrob-etk-status--off',
-        };
     }
 
     /** @param array{ranges: array, default: string, empty: bool}|null $chart_payload */

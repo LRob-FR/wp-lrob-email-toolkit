@@ -27,7 +27,7 @@
 /* ---------- Card-internal headings ----------
  * Inside `.lrob-etk-card-form` we want compact, dense settings — WP's
  * default h3 (1.17em, ~18.7px) is too big for an in-card section
- * title. The card primitive keeps its own 14px scale here. Page-level
+ * title. The card primitive uses a 15px title size here. Page-level
  * h1/h2/h3 outside cards follow WP admin defaults — fewer plugin-
  * specific overrides to maintain across WP updates.
  */
@@ -69,7 +69,7 @@
     font-size: var(--etk-text-xs);
 }
 .lrob-etk-card-form .lrob-etk-field > label {
-    font-size: var(--etk-text-sm);
+    font-size: var(--etk-text-xs);
     font-weight: 500;
     color: var(--etk-muted);
     margin-bottom: var(--etk-space-1);
@@ -161,21 +161,27 @@
     --etk-input-font-size: 13px;
     --etk-icon-size:       16px;
     --etk-icon-size-sm:    14px;
+    --etk-icon-size-lg:    18px;   /* accent / warning inline icons */
+    --etk-icon-size-xl:    40px;   /* big decorative empty-state / onboarding icons */
 
-    /* Text-size presets — density-tunable. Reference these instead of
-     * hardcoding `font-size: 11px` / `12px` / etc. on chrome elements
-     * so a future density flip (compact / spacious) flows everywhere.
-     *   - xxs  : tiny glyphs (sort arrows, badge numerals)
-     *   - xs   : table headers, secondary chrome labels
-     *   - sm   : count badges, muted chrome text
-     *   - md   : default chrome / input text (alias of input-font-size)
-     *   - lg   : body / detail-modal body text
-     */
-    --etk-text-xxs: 10px;
+    /* Text sizes — one base + a tight scale, density-tunable. Reference
+     * these everywhere; no bare px font-sizes in chrome (display included).
+     * Base is 13px, set on `.lrob-etk` (= the WP-admin default): normal-flow
+     * text inherits it, so DON'T re-declare 13 on plain text — let it inherit.
+     *   - xxs ( 9px) : micro — badge numerals, sort glyphs, tiny counters
+     *   - xs  (11px) : secondary/muted — captions, slugs, helper, table heads
+     *   - (13)       : base body — inherit, don't declare
+     *   - lg  (15px) : titles — card / modal / group / section headings
+     *   - xl  (20px) : prominent headings (CTA, empty-state) + big counts
+     *   - 2xl (28px) : hero stat numbers
+     * Form controls (input/select/textarea/button) and headings normalized
+     * down do NOT inherit font-size — they keep an explicit size
+     * (--etk-input-font-size for controls; a deliberate value on headings). */
+    --etk-text-xxs: 9px;
     --etk-text-xs:  11px;
-    --etk-text-sm:  12px;
-    --etk-text-md:  13px;
-    --etk-text-lg:  14px;
+    --etk-text-lg:  15px;
+    --etk-text-xl:  20px;
+    --etk-text-2xl: 28px;
 
     /* Motion */
     --etk-transition:       0.15s ease;
@@ -212,7 +218,7 @@
 }
 .lrob-etk .form-table .description {
     margin-top: var(--etk-space-1);
-    font-size: var(--etk-text-sm);
+    font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
 
@@ -233,6 +239,6 @@
     padding-top: var(--etk-space-4);
     border-top: 1px solid var(--etk-line);
     color: var(--etk-muted);
-    font-size: var(--etk-text-sm);
+    font-size: var(--etk-text-xs);
     text-align: center;
 }

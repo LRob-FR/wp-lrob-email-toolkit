@@ -337,7 +337,7 @@ final class NewslettersPage
         // decisions.
         $effective_status = $is_trashed ? 'trashed' : $status;
         ?>
-        <article class="lrob-etk-card lrob-etk-nl-card<?php echo $is_trashed ? ' is-trashed' : ''; ?><?php echo ($_GET['created'] ?? '') === (string) $post_id ? ' is-just-created' : ''; ?>" data-newsletter-status="<?php echo esc_attr((string) ($row['status'] ?? 'draft')); ?>"
+        <article class="lrob-etk-card lrob-etk-nl-card<?php echo $is_trashed ? ' is-trashed' : ''; ?><?php echo (!$is_trashed && $status === NewsletterRepository::STATUS_SENT) ? ' lrob-etk-is-dimmed' : ''; ?><?php echo ($_GET['created'] ?? '') === (string) $post_id ? ' is-just-created' : ''; ?>" data-newsletter-status="<?php echo esc_attr((string) ($row['status'] ?? 'draft')); ?>"
                  data-newsletter-id="<?php echo $post_id; ?>"
                  data-status="<?php echo esc_attr($effective_status); ?>"
                  id="newsletter-<?php echo $post_id; ?>">

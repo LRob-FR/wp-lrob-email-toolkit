@@ -4,7 +4,7 @@
 
 ## Status
 
-**Public beta — v0.4.0 finalizing** (latest published release: v0.3.5). Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. Schema is stable, surfaces are stable; the toolkit drives real sends on production sites. v0.4.0 adds the full captcha provider lineup (hCaptcha / Turnstile / reCAPTCHA, incl. invisible + score-based v3), in-place modal detail views everywhere, resend-safe saved attachments, LRob branding, a fully tokenized admin colour system (theming groundwork), and a French i18n quality pass. Bug reports + UX feedback welcome on GitHub issues.
+**Public beta — v0.4.0 finalizing** (latest published release: v0.3.5). Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. Schema is stable, surfaces are stable; the toolkit drives real sends on production sites. v0.4.0 adds the full captcha provider lineup (hCaptcha / Turnstile / reCAPTCHA, incl. invisible + score-based v3), in-place modal detail views everywhere, resend-safe saved attachments, LRob branding, a fully tokenized admin design system (colour + typography — theming groundwork), live no-reload captcha state management, and a French i18n correctness pass (systemic mis-translation sweep). Bug reports + UX feedback welcome on GitHub issues.
 
 Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning).
 

@@ -2542,68 +2542,72 @@
      * away with the innerHTML swap; any internal references hCaptcha
      * holds become garbage on the next solve/page nav.
      */
+    // Hosted-captcha preview mounting — provider-agnostic (hCaptcha /
+    // Turnstile / reCAPTCHA). Each provider's preview div is PHP-rendered with
+    // a data-sitekey; we explicit-render it once its vendor script has loaded.
+    // Explicit mode (vs auto-render) avoids the vendors firing a second render
+    // ("only one captcha per container" warnings). Vendor URLs are stable
+    // constants (mirrored from the PHP providers' SCRIPT_URL).
+    var CAPTCHA_VENDORS = {
+        'h-captcha':    { src: 'https://js.hcaptcha.com/1/api.js?render=explicit', global: 'hcaptcha' },
+        'cf-turnstile': { src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', global: 'turnstile' },
+        'g-recaptcha':  { src: 'https://www.google.com/recaptcha/api.js?render=explicit', global: 'grecaptcha' }
+    };
+    var captchaVendorState = {};
+
     function mountCaptchaPreview(previewEl) {
         if (!previewEl) return;
-        var widgets = previewEl.querySelectorAll('.h-captcha:not([data-etk-mounted])');
-        if (widgets.length === 0) return;
-        ensureHCaptchaScript(function () {
-            widgets.forEach(function (el) {
-                if (el.hasAttribute('data-etk-mounted')) return;
-                if (!window.hcaptcha || typeof window.hcaptcha.render !== 'function') return;
-                try {
-                    window.hcaptcha.render(el);
+        Object.keys(CAPTCHA_VENDORS).forEach(function (cls) {
+            var widgets = previewEl.querySelectorAll('.' + cls + ':not([data-etk-mounted])');
+            if (widgets.length === 0) return;
+            var global = CAPTCHA_VENDORS[cls].global;
+            ensureCaptchaScript(cls, function () {
+                widgets.forEach(function (el) {
+                    if (el.hasAttribute('data-etk-mounted')) return;
+                    var g = window[global];
+                    if (!g || typeof g.render !== 'function') return;
+                    try { g.render(el); } catch (e) { /* already rendered — fine */ }
                     el.setAttribute('data-etk-mounted', '1');
-                } catch (e) {
-                    // Already rendered (auto-render kicked in first) — fine.
-                    el.setAttribute('data-etk-mounted', '1');
-                }
+                });
             });
         });
     }
 
     /**
-     * Lazy-load the hCaptcha vendor script the first time the editor needs
-     * it, in EXPLICIT render mode (?render=explicit&onload=…). Explicit mode
-     * stops the vendor auto-rendering the .h-captcha previews — we render them
-     * ourselves in mountCaptchaPreview, and letting auto-render also fire is
-     * what triggers "Only one captcha is permitted per parent container" plus
-     * the "render before api fully loaded" console warning. The poll backs up
-     * the onload callback in case a cached non-explicit api.js is already on
-     * the page.
+     * Lazy-load a vendor captcha script in EXPLICIT render mode the first time
+     * a preview of that kind appears, then fire the callback once its global
+     * is ready. Polls for the global so a cached script already on the page
+     * still resolves. Per-vendor loading state lets all three coexist.
      */
-    var hCaptchaLoading = false;
-    var hCaptchaCallbacks = [];
-    function flushHCaptchaCallbacks() {
-        var fns = hCaptchaCallbacks.splice(0);
-        fns.forEach(function (fn) { try { fn(); } catch (e) {} });
-    }
-    function ensureHCaptchaScript(callback) {
-        if (window.hcaptcha && typeof window.hcaptcha.render === 'function') {
+    function ensureCaptchaScript(cls, callback) {
+        var vendor = CAPTCHA_VENDORS[cls];
+        if (!vendor) return;
+        if (window[vendor.global] && typeof window[vendor.global].render === 'function') {
             callback();
             return;
         }
-        hCaptchaCallbacks.push(callback);
-        if (hCaptchaLoading) return;
-        hCaptchaLoading = true;
+        var st = captchaVendorState[cls] || (captchaVendorState[cls] = { loading: false, cbs: [] });
+        st.cbs.push(callback);
+        if (st.loading) return;
+        st.loading = true;
 
-        window.lrobEtkHcaptchaOnload = flushHCaptchaCallbacks;
-        if (!document.querySelector('script[src*="js.hcaptcha.com"]')) {
+        if (!document.querySelector('script[data-etk-captcha="' + cls + '"]')) {
             var s = document.createElement('script');
-            s.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=lrobEtkHcaptchaOnload';
+            s.src = vendor.src;
             s.async = true;
             s.defer = true;
+            s.setAttribute('data-etk-captcha', cls);
             document.head.appendChild(s);
         }
         var attempts = 0;
         var poll = setInterval(function () {
-            if (window.hcaptcha && typeof window.hcaptcha.render === 'function') {
+            if (window[vendor.global] && typeof window[vendor.global].render === 'function') {
                 clearInterval(poll);
-                flushHCaptchaCallbacks();
+                var fns = st.cbs.splice(0);
+                fns.forEach(function (fn) { try { fn(); } catch (e) {} });
             } else if (++attempts > 100) {
-                // 10s ceiling; give up rather than poll forever on a
-                // blocked network.
-                clearInterval(poll);
-                hCaptchaCallbacks.length = 0;
+                clearInterval(poll); // 10s ceiling on a blocked network
+                st.cbs.length = 0;
             }
         }, 100);
     }
