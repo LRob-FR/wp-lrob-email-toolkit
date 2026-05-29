@@ -105,6 +105,9 @@
     --etk-space-4: 16px;
     --etk-space-5: 24px;
     --etk-space-6: 32px;
+    --etk-space-7: 40px;   /* empty-state / hero block padding — scales with density */
+    --etk-space-8: 48px;
+    --etk-space-9: 60px;
 
     --etk-input-height:    30px;
     --etk-input-height-sm: 28px;

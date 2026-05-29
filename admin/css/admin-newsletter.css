@@ -102,14 +102,14 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--etk-space-1);
 }
 
 .lrob-etk-nl-template-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
+    gap: var(--etk-space-3);
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-soft);
     border: 1px solid transparent;
     border-radius: var(--etk-radius-md);
@@ -146,7 +146,7 @@
 }
 
 .lrob-etk-nl-template-group-footer {
-    margin-top: 10px;
+    margin-top: var(--etk-space-2);
     display: flex;
     justify-content: flex-end;
 }
@@ -271,12 +271,12 @@
     color: var(--etk-muted);
     font-weight: 600;
     margin: 0 0 var(--etk-space-2);
-    padding-bottom: 4px;
+    padding-bottom: var(--etk-space-1);
     border-bottom: 1px solid var(--etk-line);
 }
 .lrob-etk-nl-list-provider-badge {
     flex: 0 0 auto;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
     border-radius: var(--etk-radius-pill);
@@ -286,7 +286,7 @@
 }
 .lrob-etk-nl-list-system-badge {
     flex: 0 0 auto;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     background: var(--etk-soft);
     color: var(--etk-muted);
     border-radius: var(--etk-radius-pill);
@@ -298,7 +298,7 @@
 }
 .lrob-etk-nl-list-count-badge {
     flex: 0 0 auto;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
@@ -318,8 +318,8 @@ a.lrob-etk-nl-list-count-badge:focus {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 2px 8px 2px 4px;
+    gap: var(--etk-space-1);
+    padding: 2px var(--etk-space-2) 2px var(--etk-space-1);
     border: 1px solid var(--etk-line);
     background: var(--etk-input-bg);
     color: var(--etk-muted);
@@ -354,7 +354,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-resource-new-kind {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
@@ -365,7 +365,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-size: var(--etk-text-xs);
 }
 .lrob-etk-nl-resource-new-kind select {
-    padding: 4px 8px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
     background: var(--etk-input-bg);
@@ -394,7 +394,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-list-exclusions-search {
     width: 100%;
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     background: var(--etk-input-bg);
@@ -403,7 +403,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-list-exclusions-results {
     list-style: none;
     margin: 0;
-    padding: 4px;
+    padding: var(--etk-space-1);
     position: absolute;
     top: 100%;
     left: 0;
@@ -422,15 +422,15 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
     max-height: 240px;
     overflow: auto;
 }
 .lrob-etk-nl-list-exclusions-list li {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px 8px;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-1) var(--etk-space-2);
     background: var(--etk-input-bg);
     border-radius: var(--etk-radius-sm);
     font-size: var(--etk-input-font-size);
@@ -450,7 +450,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     flex: 1;
 }
 .lrob-etk-nl-list-exclusions-status {
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
 }
@@ -468,15 +468,15 @@ a.lrob-etk-nl-list-count-badge:focus {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     margin-left: auto;
 }
 
 .lrob-etk-nl-list-rule-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
+    gap: var(--etk-space-1);
+    padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
@@ -497,7 +497,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     margin-right: 2px;
 }
 .lrob-etk-nl-list-rule-editor {
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
     padding: var(--etk-space-3);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-md);
@@ -518,18 +518,18 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-list-rule-status.is-success { color: var(--etk-text-success); }
 .lrob-etk-nl-list-rule-status.is-failure { color: var(--etk-text-danger); }
 .lrob-etk-nl-list-rule-config .description {
-    margin: 0 0 8px;
+    margin: 0 0 var(--etk-space-2);
     color: var(--etk-muted);
 }
 .lrob-etk-nl-list-rule-field {
-    margin: 6px 0;
+    margin: var(--etk-space-1) 0;
 }
 /* Direct-child only — tickbox labels are nested inside <fieldset> and
  * must NOT inherit the field-label stacking + uppercase chrome. */
 .lrob-etk-nl-list-rule-field > label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-nl-list-rule-field > label > span {
     font-size: var(--etk-text-xs);
@@ -541,7 +541,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-list-rule-field select,
 .lrob-etk-nl-list-rule-field input[type="text"] {
     width: 100%;
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     background: var(--etk-input-bg);
@@ -557,7 +557,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     gap: 1px;
 }
 .lrob-etk-nl-list-rule-tickboxes legend {
-    padding: 0 0 4px;
+    padding: 0 0 var(--etk-space-1);
     font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -567,8 +567,8 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-list-rule-tickbox {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 2px 4px;
+    gap: var(--etk-space-2);
+    padding: 2px var(--etk-space-1);
     cursor: pointer;
     border-radius: var(--etk-radius-sm);
     transition: background var(--etk-transition);
@@ -607,8 +607,8 @@ a.lrob-etk-nl-list-count-badge:focus {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-top: 4px;
+    gap: var(--etk-space-1);
+    margin-top: var(--etk-space-1);
 }
 .lrob-etk-nl-wc-product-chips {
     list-style: none;
@@ -616,13 +616,13 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-nl-wc-product-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 2px 4px 2px 10px;
+    gap: var(--etk-space-1);
+    padding: 2px var(--etk-space-1) 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
@@ -632,12 +632,12 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-wc-product-chip code {
     background: var(--etk-veil-2);
     border-radius: var(--etk-radius-sm);
-    padding: 0 6px;
+    padding: 0 var(--etk-space-1);
     font-size: var(--etk-text-xxs);
 }
 .lrob-etk-nl-wc-product-search {
     width: 100%;
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     background: var(--etk-input-bg);
@@ -646,7 +646,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-wc-product-results {
     list-style: none;
     margin: 0;
-    padding: 4px;
+    padding: var(--etk-space-1);
     position: absolute;
     top: 100%;
     left: 0;
@@ -662,8 +662,8 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-wc-product-result {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-1) var(--etk-space-2);
     border-radius: var(--etk-radius-sm);
     cursor: pointer;
     font-size: var(--etk-input-font-size);
@@ -676,7 +676,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-size: var(--etk-text-xs);
 }
 .lrob-etk-nl-wc-product-empty {
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     color: var(--etk-muted);
     font-style: italic;
 }
@@ -706,7 +706,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 0;
 }
 .lrob-etk-nl-list-rule-preview-list li {
-    padding: 4px 0;
+    padding: var(--etk-space-1) 0;
     border-bottom: 1px dashed var(--etk-line);
 }
 .lrob-etk-nl-list-rule-preview-list li:last-child {
@@ -896,7 +896,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-import-pane label {
     display: block;
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: var(--etk-space-1);
 }
 .lrob-etk-nl-import-textarea {
     width: 100%;
@@ -904,14 +904,14 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-size: var(--etk-input-font-size);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
-    padding: 8px 10px;
+    padding: var(--etk-space-2) var(--etk-space-2);
     background: var(--etk-input-bg);
 }
 .lrob-etk-nl-import-file-label {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-soft);
     border: 1px dashed var(--etk-line-strong);
     border-radius: var(--etk-radius-md);
@@ -923,8 +923,8 @@ a.lrob-etk-nl-list-count-badge:focus {
     border-color: var(--etk-accent);
 }
 .lrob-etk-nl-import-csv-preview {
-    margin: 10px 0 0;
-    padding: 10px 12px;
+    margin: var(--etk-space-2) 0 0;
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-md);
     font-family: var(--etk-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -942,17 +942,17 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-import-options fieldset {
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
-    padding: 12px;
+    padding: var(--etk-space-3);
     margin: 0;
 }
 .lrob-etk-nl-import-options legend {
-    padding: 0 6px;
+    padding: 0 var(--etk-space-1);
     font-weight: 600;
     color: var(--etk-fg);
 }
 .lrob-etk-nl-import-options-status label {
     display: block;
-    margin: 4px 0;
+    margin: var(--etk-space-1) 0;
 }
 .lrob-etk-nl-import-count {
     margin-right: auto;
@@ -961,7 +961,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-import-result {
     margin-top: var(--etk-space-3);
-    padding: 10px 14px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     border-radius: var(--etk-radius-md);
     font-weight: 500;
 }
@@ -981,13 +981,13 @@ a.lrob-etk-nl-list-count-badge:focus {
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 4px var(--etk-space-3);
+    gap: var(--etk-space-1) var(--etk-space-3);
 }
 .lrob-etk-nl-columns-picker label {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px 6px;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-1) var(--etk-space-1);
     border-radius: var(--etk-radius-sm);
     cursor: pointer;
     transition: var(--etk-transition);
@@ -1003,12 +1003,12 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-subscriber-list-chips {
     display: inline-flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-nl-subscriber-list-chip {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     /* Inset ring keeps the chip delineated even when the row underneath turns
@@ -1038,7 +1038,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     cursor: pointer;
     font-weight: 600;
     color: var(--etk-fg);
-    padding: 4px 0;
+    padding: var(--etk-space-1) 0;
     list-style: revert;
 }
 .lrob-etk-nl-subscriber-edit-group.is-static {
@@ -1059,7 +1059,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-subscriber-edit-row label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-nl-subscriber-edit-label {
     font-size: var(--etk-text-xs);
@@ -1070,7 +1070,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-subscriber-edit-row input,
 .lrob-etk-nl-subscriber-edit-row select {
     width: 100%;
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     background: var(--etk-input-bg);
@@ -1114,8 +1114,8 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-subscriber-lists label {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-1) var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
     background: var(--etk-input-bg);
@@ -1137,7 +1137,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-subscriber-meta {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 6px var(--etk-space-3);
+    gap: var(--etk-space-1) var(--etk-space-3);
     margin: 0;
     font-size: var(--etk-input-font-size);
 }
@@ -1345,9 +1345,9 @@ a.lrob-etk-nl-list-count-badge:focus {
  * preview stays accurate while letting admins check mobile rendering. */
 .lrob-etk-nl-preview-viewport {
     display: inline-flex;
-    gap: 4px;
+    gap: var(--etk-space-1);
     margin-left: auto;
-    margin-right: 12px;
+    margin-right: var(--etk-space-3);
 }
 .lrob-etk-nl-preview-vp.is-active {
     background: var(--etk-card-bg);
@@ -1358,7 +1358,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     background: var(--etk-soft);
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 16px;
+    padding: var(--etk-space-4);
     display: flex;
     justify-content: center;
 }
@@ -1379,16 +1379,16 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-template-group-head {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 12px;
+    gap: var(--etk-space-1);
+    margin-bottom: var(--etk-space-3);
 }
 .lrob-etk-nl-template-group-purpose {
     color: var(--etk-muted);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-nl-template-reminder-schedule {
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: var(--etk-space-3);
+    padding-top: var(--etk-space-3);
     border-top: 1px dashed var(--etk-line);
 }
 .lrob-etk-nl-template-reminder-schedule .lrob-etk-nl-settings-group {
@@ -1406,8 +1406,8 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 4px;
+    gap: var(--etk-space-3);
+    margin-bottom: var(--etk-space-1);
 }
 .lrob-etk-nl-settings-head .lrob-etk-nl-settings-group-title {
     margin: 0;
@@ -1457,8 +1457,8 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-newsletter-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
-    gap: 14px;
-    margin: 16px 0;
+    gap: var(--etk-space-3);
+    margin: var(--etk-space-4) 0;
 }
 
 .lrob-etk-nl-card {
@@ -1480,7 +1480,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: var(--etk-space-2);
 }
 
 .lrob-etk-nl-card-title-label {
@@ -1525,7 +1525,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 @container (max-width: 460px) {
     .lrob-etk-nl-card .lrob-etk-modal-columns {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: var(--etk-space-2);
     }
 }
 
@@ -1641,7 +1641,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     left: 0;
     right: 0;
     z-index: 30;
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
     max-height: 320px;
     overflow-y: auto;
     padding: var(--etk-space-2);
@@ -1657,7 +1657,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-audience-section-title {
     margin: 0 0 var(--etk-space-2);
-    padding-bottom: 4px;
+    padding-bottom: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
@@ -1676,7 +1676,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: flex;
     align-items: center;
     gap: var(--etk-space-2);
-    padding: 6px 8px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border-radius: var(--etk-radius-sm);
     cursor: pointer;
     transition: var(--etk-transition);
@@ -1703,7 +1703,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-audience-item-count {
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
     color: var(--etk-accent);
     border-radius: var(--etk-radius-pill);
@@ -1712,7 +1712,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 
 .lrob-etk-nl-audience-item-optout {
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
     border-radius: var(--etk-radius-pill);
@@ -2167,7 +2167,7 @@ button.lrob-etk-nl-field-link {
     font-size: var(--etk-text-xs);
     font-style: italic;
     background: var(--etk-danger-bg);
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border-radius: var(--etk-radius-sm);
     margin: 0.5rem 0;
 }
@@ -2180,10 +2180,10 @@ button.lrob-etk-nl-field-link {
     gap: 0.3rem;
     margin: 0.75rem 0 0.25rem;
     border-bottom: 1px solid var(--etk-line);
-    padding-bottom: 4px;
+    padding-bottom: var(--etk-space-1);
 }
 .lrob-etk-nl-recipients-tab {
-    padding: 4px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     background: transparent;
     border: 0;
     border-radius: var(--etk-radius-sm);
@@ -2239,7 +2239,7 @@ button.lrob-etk-nl-field-link {
 /* Per-row force-include / force-exclude action button. */
 .lrob-etk-nl-recipients-row-toggle {
     margin-left: auto;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     background: transparent;
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);

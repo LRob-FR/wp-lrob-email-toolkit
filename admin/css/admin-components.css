@@ -6,10 +6,10 @@
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
-    padding: 48px 32px;
+    padding: var(--etk-space-8) var(--etk-space-6);
     text-align: center;
     max-width: 640px;
-    margin: 32px auto;
+    margin: var(--etk-space-6) auto;
     box-shadow: var(--etk-shadow);
 }
 
@@ -18,27 +18,27 @@
     width: var(--etk-icon-size-xl);
     height: var(--etk-icon-size-xl);
     color: var(--etk-accent);
-    margin: 0 auto 16px;
+    margin: 0 auto var(--etk-space-4);
 }
 
 .lrob-etk-cta-title {
     font-size: var(--etk-text-xl);
     font-weight: 600;
-    margin: 0 0 8px;
+    margin: 0 0 var(--etk-space-2);
     color: var(--etk-fg);
 }
 
 .lrob-etk-cta-description {
     line-height: 1.5;
     color: var(--etk-muted);
-    margin: 0 0 24px;
+    margin: 0 0 var(--etk-space-5);
 }
 
 /* ---------- Status badges ---------- */
 
 .lrob-etk-status {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     border-radius: var(--etk-radius-pill);
     font-size: var(--etk-text-xs);
     font-weight: 600;
@@ -63,10 +63,10 @@
 .lrob-etk-empty {
     background: var(--etk-card-bg);
     border: 1px dashed var(--etk-line-strong);
-    padding: 32px;
+    padding: var(--etk-space-6);
     text-align: center;
     border-radius: var(--etk-radius);
-    margin: 16px 0;
+    margin: var(--etk-space-4) 0;
 }
 
 /* ---------- Plugin-wide confirm prompt ---------- */
@@ -137,7 +137,7 @@
     position: fixed;
     width: 280px;
     max-width: calc(100vw - 24px);
-    padding: 8px 12px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-fg);
     color: var(--etk-on-accent);
     font-size: var(--etk-text-xs);
@@ -214,12 +214,12 @@ input:checked + .lrob-etk-switch-track--lg::before          { transform: transla
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--etk-space-2);
 }
 .lrob-etk-retention-toggle-check {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     margin: 0;
     cursor: pointer;
 }
@@ -248,7 +248,7 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 40px 16px;
+    padding: var(--etk-space-7) var(--etk-space-4);
     overflow-y: auto;
 }
 .lrob-etk-modal[hidden] {
@@ -282,7 +282,7 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: var(--etk-space-3) var(--etk-space-4);
     border-bottom: 1px solid var(--etk-line);
     background: var(--etk-soft);
 }
@@ -299,7 +299,7 @@ body.lrob-etk-modal-open {
     border: none;
     cursor: pointer;
     color: var(--etk-muted);
-    padding: 4px;
+    padding: var(--etk-space-1);
     border-radius: var(--etk-radius-sm);
     line-height: 1;
 }
@@ -309,7 +309,7 @@ body.lrob-etk-modal-open {
 }
 
 .lrob-etk-modal-header-status {
-    margin: 0 12px 0 auto;
+    margin: 0 var(--etk-space-3) 0 auto;
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     transition: opacity 0.2s ease;
@@ -324,16 +324,16 @@ body.lrob-etk-modal-open {
 .lrob-etk-modal-header-status.is-error  { color: var(--etk-text-danger); }
 
 .lrob-etk-modal-body {
-    padding: 16px 24px;
+    padding: var(--etk-space-4) var(--etk-space-5);
     overflow-y: auto;
     max-height: calc(100vh - 200px);
 }
 
 .lrob-etk-modal-footer {
-    padding: 12px 20px;
+    padding: var(--etk-space-3) var(--etk-space-4);
     border-top: 1px solid var(--etk-line);
     display: flex;
-    gap: 8px;
+    gap: var(--etk-space-2);
     justify-content: flex-end;
     background: var(--etk-soft);
 }
@@ -343,8 +343,8 @@ body.lrob-etk-modal-open {
 .lrob-etk-modal-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin: 16px 0;
+    gap: var(--etk-space-5);
+    margin: var(--etk-space-4) 0;
 }
 @media (max-width: 720px) {
     .lrob-etk-modal-columns { grid-template-columns: 1fr; }
@@ -352,7 +352,7 @@ body.lrob-etk-modal-open {
 
 .lrob-etk-form-column h3,
 .lrob-etk-form-row-full h3 {
-    margin: 0 0 10px;
+    margin: 0 0 var(--etk-space-2);
     font-size: var(--etk-input-font-size);
     font-weight: 600;
     text-transform: uppercase;
@@ -363,20 +363,20 @@ body.lrob-etk-modal-open {
 }
 
 .lrob-etk-form-row-full {
-    margin: 16px 0;
-    padding-top: 16px;
+    margin: var(--etk-space-4) 0;
+    padding-top: var(--etk-space-4);
     border-top: 1px solid var(--etk-soft);
 }
 
 .lrob-etk-field {
-    margin-bottom: 12px;
+    margin-bottom: var(--etk-space-3);
 }
 .lrob-etk-field > label {
     display: block;
     font-size: var(--etk-text-xs);
     font-weight: 600;
     color: var(--etk-muted);
-    margin-bottom: 4px;
+    margin-bottom: var(--etk-space-1);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -401,7 +401,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-segmented button {
     background: var(--etk-input-bg);
     border: none;
-    padding: 4px 12px;
+    padding: var(--etk-space-1) var(--etk-space-3);
     cursor: pointer;
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
@@ -447,7 +447,7 @@ body.lrob-etk-modal-open {
 
 .lrob-etk-combo-row {
     display: flex;
-    gap: 6px;
+    gap: var(--etk-space-1);
     align-items: stretch;
 }
 .lrob-etk-combo-row .lrob-etk-combo {
@@ -475,7 +475,7 @@ body.lrob-etk-modal-open {
     min-width: 0;
     border: none;
     background: transparent;
-    padding: 4px 8px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     font-size: var(--etk-input-font-size);
     line-height: 1.4;
     color: var(--etk-fg);
@@ -491,7 +491,7 @@ body.lrob-etk-modal-open {
     border: none;
     border-left: 1px solid var(--etk-soft);
     cursor: pointer;
-    padding: 0 8px;
+    padding: 0 var(--etk-space-2);
     color: var(--etk-muted);
     display: flex;
     align-items: center;
@@ -530,7 +530,7 @@ body.lrob-etk-modal-open {
     left: 0;
     right: 0;
     margin: 0;
-    padding: 4px 0;
+    padding: var(--etk-space-1) 0;
     list-style: none;
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
@@ -541,7 +541,7 @@ body.lrob-etk-modal-open {
     overflow-y: auto;
 }
 .lrob-etk-combo-menu li {
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     cursor: pointer;
     font-size: var(--etk-input-font-size);
     line-height: 1.4;
@@ -576,7 +576,7 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     border-bottom: 1px solid var(--etk-line);
     background: var(--etk-soft);
 }
@@ -591,11 +591,11 @@ body.lrob-etk-modal-open {
     border: none;
     cursor: pointer;
     color: var(--etk-muted);
-    padding: 2px 4px;
+    padding: 2px var(--etk-space-1);
 }
 .lrob-etk-popover-close:hover { color: var(--etk-fg); }
 .lrob-etk-popover-body {
-    padding: 12px;
+    padding: var(--etk-space-3);
     overflow-y: auto;
     max-height: 60vh;
 }
@@ -607,8 +607,8 @@ body.lrob-etk-modal-open {
 .lrob-etk-popover.is-success .lrob-etk-popover-message { color: var(--etk-text-success); }
 .lrob-etk-popover.is-failure .lrob-etk-popover-message { color: var(--etk-text-danger); }
 .lrob-etk-popover-debug {
-    margin: 8px 0 0;
-    padding: 8px;
+    margin: var(--etk-space-2) 0 0;
+    padding: var(--etk-space-2);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-sm);
     font-size: var(--etk-text-xs);
@@ -619,11 +619,11 @@ body.lrob-etk-modal-open {
     word-break: break-all;
 }
 .lrob-etk-popover-footer {
-    padding: 8px 12px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     border-top: 1px solid var(--etk-line);
     display: flex;
     justify-content: flex-end;
-    gap: 6px;
+    gap: var(--etk-space-1);
     background: var(--etk-soft);
 }
 
@@ -648,8 +648,8 @@ body.lrob-etk-modal-open {
 /* ---------- Form errors ---------- */
 
 .lrob-etk-field-errors {
-    margin: 12px 0;
-    padding: 8px 12px;
+    margin: var(--etk-space-3) 0;
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-danger-bg);
     border-left: 3px solid var(--etk-danger);
     color: var(--etk-text-danger);
@@ -659,16 +659,16 @@ body.lrob-etk-modal-open {
 /* ---------- Flash messages container ---------- */
 
 .lrob-etk-flash:empty { display: none; }
-.lrob-etk-flash { margin: 12px 0; }
+.lrob-etk-flash { margin: var(--etk-space-3) 0; }
 
 /* ---------- Page header with inline toggle + add button ---------- */
 
 .lrob-etk-page-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 8px 0 20px;
-    padding-bottom: 14px;
+    gap: var(--etk-space-3);
+    margin: var(--etk-space-2) 0 var(--etk-space-4);
+    padding-bottom: var(--etk-space-3);
     border-bottom: 1px solid var(--etk-line);
     flex-wrap: wrap;
 }
@@ -752,7 +752,7 @@ body.lrob-etk-modal-open {
 .lrob-etk .button:has(> .dashicons) {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk .button > .dashicons {
     margin: 0;
@@ -760,7 +760,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-page-header-actions {
     margin-left: auto;
     display: flex;
-    gap: 6px;
+    gap: var(--etk-space-1);
     align-items: center;
 }
 
@@ -768,11 +768,11 @@ body.lrob-etk-modal-open {
 .lrob-etk-page-header-actions .lrob-etk-header-group {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-page-header-actions .lrob-etk-header-tools + .lrob-etk-header-nav {
-    margin-left: 6px;
-    padding-left: 12px;
+    margin-left: var(--etk-space-1);
+    padding-left: var(--etk-space-3);
     border-left: 1px solid var(--etk-line, var(--etk-line));
 }
 .lrob-etk-page-header-actions .lrob-etk-nav-button.button {
@@ -795,7 +795,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-page-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--etk-space-2);
     cursor: pointer;
     user-select: none;
 }
@@ -811,8 +811,8 @@ body.lrob-etk-modal-open {
 /* ---------- Disabled-message line ---------- */
 
 .lrob-etk-disabled-message {
-    margin: 24px 0;
-    padding: 16px 20px;
+    margin: var(--etk-space-5) 0;
+    padding: var(--etk-space-4) var(--etk-space-4);
     background: var(--etk-soft);
     border-left: 3px solid var(--etk-line-strong);
     border-radius: var(--etk-radius);
@@ -825,7 +825,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-inline-switch {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--etk-space-2);
     cursor: pointer;
     user-select: none;
 }
@@ -862,15 +862,15 @@ body.lrob-etk-modal-open {
 .lrob-etk-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
-    gap: 14px;
-    margin: 16px 0;
+    gap: var(--etk-space-3);
+    margin: var(--etk-space-4) 0;
 }
 
 /* ---------- Floating menu (JS-positioned; .lrob-etk-combo-menu uses absolute instead) ---------- */
 
 .lrob-etk-menu {
     margin: 0;
-    padding: 4px 0;
+    padding: var(--etk-space-1) 0;
     list-style: none;
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
@@ -892,7 +892,7 @@ body.lrob-etk-modal-open {
     text-align: left;
     background: transparent;
     border: 0;
-    padding: 6px 12px;
+    padding: var(--etk-space-1) var(--etk-space-3);
     font-size: var(--etk-input-font-size);
     line-height: 1.4;
     color: var(--etk-fg);
@@ -910,7 +910,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-menu-item.is-default::after {
     content: "★";
     color: var(--etk-warning);
-    margin-left: 6px;
+    margin-left: var(--etk-space-1);
     font-size: var(--etk-text-xs);
 }
 
@@ -1051,9 +1051,9 @@ body.lrob-etk-modal-open {
     border-left: 3px solid var(--etk-danger);
 }
 .lrob-etk-test-result pre {
-    margin: 6px 0 0;
+    margin: var(--etk-space-1) 0 0;
     background: var(--etk-veil-2);
-    padding: 6px;
+    padding: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     border-radius: var(--etk-radius-sm);
     overflow-x: auto;
@@ -1070,8 +1070,8 @@ body.lrob-etk-modal-open {
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
-    padding: var(--etk-space-3) 14px;
-    margin: var(--etk-space-3) 0 14px;
+    padding: var(--etk-space-3) var(--etk-space-3);
+    margin: var(--etk-space-3) 0 var(--etk-space-3);
 }
 .lrob-etk-filter-bar-field {
     display: flex;
@@ -1095,7 +1095,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-filter-bar-actions {
     display: flex;
-    gap: 6px;
+    gap: var(--etk-space-1);
     align-items: center;
 }
 
@@ -1116,7 +1116,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-data-table thead th {
     background: var(--etk-soft);
-    padding: 8px 12px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     text-align: left;
     font-size: var(--etk-text-xs);
     font-weight: 600;
@@ -1148,7 +1148,7 @@ body.lrob-etk-modal-open {
     opacity: 0.85;
 }
 .lrob-etk-data-table tbody td {
-    padding: 10px 12px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     border-top: 1px solid var(--etk-soft);
     vertical-align: middle;
     color: var(--etk-fg);
@@ -1164,8 +1164,8 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-data-table .col-check {
     width: 32px;
-    padding-left: 14px;
-    padding-right: 4px;
+    padding-left: var(--etk-space-3);
+    padding-right: var(--etk-space-1);
 }
 .lrob-etk-data-table .col-date {
     width: 160px;
@@ -1180,7 +1180,7 @@ body.lrob-etk-modal-open {
     width: 100px;
     white-space: nowrap;
     text-align: right;
-    padding-right: 14px;
+    padding-right: var(--etk-space-3);
 }
 
 /* ---------- Bulk toolbar ---------- */
@@ -1191,7 +1191,7 @@ body.lrob-etk-modal-open {
     align-items: center;
     gap: var(--etk-space-3);
     background: var(--etk-soft);
-    padding: var(--etk-space-2) 14px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     border: 1px solid var(--etk-line);
     border-bottom: none;
     border-radius: var(--etk-radius-md) var(--etk-radius-md) 0 0;
@@ -1217,7 +1217,7 @@ body.lrob-etk-modal-open {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     margin: var(--etk-space-4) 0 var(--etk-space-5);
     flex-wrap: wrap;
 }
@@ -1227,7 +1227,7 @@ body.lrob-etk-modal-open {
     justify-content: center;
     min-width: 32px;
     height: 32px;
-    padding: 0 10px;
+    padding: 0 var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
     background: var(--etk-input-bg);
@@ -1257,33 +1257,33 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: var(--etk-space-2);
     flex-wrap: wrap;
     margin-top: var(--etk-space-1);
 }
 .lrob-etk-cleanup-row label {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-cleanup-statuses {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 14px;
+    gap: var(--etk-space-1) var(--etk-space-3);
     margin-top: var(--etk-space-2);
 }
 .lrob-etk-cleanup-statuses label {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-cleanup-actions {
-    margin-top: 10px;
+    margin-top: var(--etk-space-2);
 }
 .lrob-etk-cleanup-result {
-    margin-top: 10px;
+    margin-top: var(--etk-space-2);
 }
 
 /* ---------- Section tabs (page nav + in-page filter tabs) ---------- */
@@ -1292,15 +1292,15 @@ body.lrob-etk-modal-open {
     flex-wrap: wrap;
     gap: 2px;
     align-items: flex-end;
-    margin: 0 0 16px;
+    margin: 0 0 var(--etk-space-4);
     padding: 0;
     border-bottom: 1px solid var(--etk-line);
 }
 .lrob-etk-section-tab {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
+    gap: var(--etk-space-1);
+    padding: 7px var(--etk-space-3);
     color: var(--etk-muted);
     text-decoration: none;
     background: transparent;
@@ -1335,7 +1335,7 @@ body.lrob-etk-modal-open {
     align-items: center;
     justify-content: center;
     min-width: 1.5rem;
-    padding: 0 6px;
+    padding: 0 var(--etk-space-1);
     border-radius: var(--etk-radius-pill);
     background: var(--etk-veil-2);
     color: inherit;
@@ -1351,40 +1351,40 @@ body.lrob-etk-modal-open {
 .lrob-etk-section-tabs-end {
     margin-left: auto;
     align-self: center;
-    padding-bottom: 4px;
+    padding-bottom: var(--etk-space-1);
 }
 
 /* Breathing room for native number arrows (prevents ghost-arrows on row hover). */
 .lrob-etk input[type="number"] {
-    padding-right: 24px;
+    padding-right: var(--etk-space-5);
 }
 
 /* ---------- Empty-state card ---------- */
 .lrob-etk-empty-state {
     text-align: center;
-    padding: 32px 24px;
+    padding: var(--etk-space-6) var(--etk-space-5);
     background: var(--etk-card-bg);
     border: 1px dashed var(--etk-line-strong);
     border-radius: var(--etk-radius-lg);
     color: var(--etk-muted);
-    margin: 12px 0 16px;
+    margin: var(--etk-space-3) 0 var(--etk-space-4);
 }
 .lrob-etk-empty-state-icon {
     color: var(--etk-line-strong);
     font-size: var(--etk-icon-size-xl);
     width: var(--etk-icon-size-xl);
     height: var(--etk-icon-size-xl);
-    margin: 0 auto 8px;
+    margin: 0 auto var(--etk-space-2);
     display: block;
 }
 .lrob-etk-empty-state-text {
-    margin: 0 auto 14px;
+    margin: 0 auto var(--etk-space-3);
     max-width: 480px;
     font-size: var(--etk-input-font-size);
     line-height: 1.5;
 }
 .lrob-etk-empty-state .button {
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
 }
 
 /* ---------- Detail strip (headline metadata chip row at top of record views) ---------- */
@@ -1392,9 +1392,9 @@ body.lrob-etk-modal-open {
 .lrob-etk-detail-strip {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px 24px;
-    margin: 10px 0 18px;
-    padding: 12px 16px;
+    gap: var(--etk-space-3) var(--etk-space-5);
+    margin: var(--etk-space-2) 0 var(--etk-space-4);
+    padding: var(--etk-space-3) var(--etk-space-4);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-xl);
     font-size: var(--etk-input-font-size);
@@ -1425,7 +1425,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-default-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-set-default {
@@ -1461,7 +1461,7 @@ body.lrob-etk-modal-open {
     font-size: var(--etk-text-lg);
     font-weight: 600;
     color: var(--etk-fg);
-    padding: 4px 2px 6px;
+    padding: var(--etk-space-1) 2px var(--etk-space-1);
     margin: 0;
     box-shadow: none;
     outline: none;
@@ -1480,15 +1480,15 @@ body.lrob-etk-modal-open {
 }
 
 .lrob-etk-card-form {
-    padding: 10px 18px 14px;
+    padding: var(--etk-space-2) var(--etk-space-4) var(--etk-space-3);
 }
 
 .lrob-etk-card-form-head {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding-bottom: 6px;
-    margin-bottom: 8px;
+    gap: var(--etk-space-2);
+    padding-bottom: var(--etk-space-1);
+    margin-bottom: var(--etk-space-2);
     /* Title input is the only flex-shrinkable sibling — badge expands into the space it yields. */
     flex-wrap: nowrap;
 }
@@ -1532,7 +1532,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-card-status.is-failed {
     /* Generous cap to fit the widest localized label (fr_FR "Enregistrement…"). */
     max-width: 200px;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     opacity: 1;
 }
 .lrob-etk-card-status.is-dirty {
@@ -1557,14 +1557,14 @@ body.lrob-etk-modal-open {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    margin-top: 14px;
-    padding-top: 12px;
+    gap: var(--etk-space-2);
+    margin-top: var(--etk-space-3);
+    padding-top: var(--etk-space-3);
     border-top: 1px solid var(--etk-soft);
 }
 .lrob-etk-card-footer-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--etk-space-2);
     align-items: center;
 }
 
@@ -1575,7 +1575,7 @@ body.lrob-etk-modal-open {
     font-size: var(--etk-text-xs);
     text-decoration: underline;
     cursor: pointer;
-    padding: 4px 6px;
+    padding: var(--etk-space-1) var(--etk-space-1);
 }
 .lrob-etk-card-delete-link:hover {
     color: var(--etk-danger);
@@ -1591,13 +1591,13 @@ body.lrob-etk-modal-open {
     letter-spacing: 0.06em;
 }
 .lrob-etk-card-form .lrob-etk-form-row-full {
-    margin: 12px 0;
-    padding-top: 12px;
+    margin: var(--etk-space-3) 0;
+    padding-top: var(--etk-space-3);
     border-top: 1px solid var(--etk-soft);
 }
 .lrob-etk-card-form .lrob-etk-modal-columns {
-    margin: 12px 0;
-    gap: 20px;
+    margin: var(--etk-space-3) 0;
+    gap: var(--etk-space-4);
 }
 
 /* --- Banner (warning / error) --- */

@@ -1,11 +1,11 @@
 /* LRob - Email Toolkit — admin styles: CAPTCHA MODULE — Docs: docs/admin-ui.md */
 
 .lrob-etk-captcha-section {
-    margin-top: 24px;
+    margin-top: var(--etk-space-5);
 }
 
 .lrob-etk-captcha-section .lrob-etk-section-title {
-    margin: 0 0 10px;
+    margin: 0 0 var(--etk-space-2);
     font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -38,7 +38,7 @@
     align-self: flex-start;
     align-items: center;
     gap: var(--etk-space-2);
-    padding: 4px 12px 4px 8px;
+    padding: var(--etk-space-1) var(--etk-space-3) var(--etk-space-1) var(--etk-space-2);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-pill);
 }
@@ -87,8 +87,8 @@
 .lrob-etk-captcha-identities {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
-    gap: 16px;
-    margin-top: 8px;
+    gap: var(--etk-space-4);
+    margin-top: var(--etk-space-2);
 }
 
 .lrob-etk-captcha-card {
@@ -116,8 +116,8 @@
 .lrob-etk-captcha-card-provider {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px 4px 6px;
+    gap: var(--etk-space-1);
+    padding: var(--etk-space-1) var(--etk-space-2) var(--etk-space-1) var(--etk-space-1);
     background: var(--etk-soft);
     color: var(--etk-fg);
     border-radius: var(--etk-radius-xl);
@@ -135,13 +135,13 @@
 
 /* Slug chip: stable derived id for hook listeners / external integrations. */
 .lrob-etk-captcha-card-meta {
-    padding: 0 18px;
-    margin: 4px 0 0;
+    padding: 0 var(--etk-space-4);
+    margin: var(--etk-space-1) 0 0;
 }
 .lrob-etk-captcha-card-slug {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     color: var(--etk-muted);
     font-size: var(--etk-text-xs);
 }
@@ -207,8 +207,8 @@
 }
 
 .lrob-etk-captcha-card-preview {
-    padding: 12px 18px 4px;
-    margin-top: 8px;
+    padding: var(--etk-space-3) var(--etk-space-4) var(--etk-space-1);
+    margin-top: var(--etk-space-2);
     border-top: 1px solid var(--etk-soft);
 }
 .lrob-etk-captcha-card-preview-head {
@@ -218,9 +218,9 @@
     color: var(--etk-muted);
     font-weight: 600;
     display: flex;
-    gap: 8px;
+    gap: var(--etk-space-2);
     align-items: baseline;
-    margin-bottom: 8px;
+    margin-bottom: var(--etk-space-2);
 }
 .lrob-etk-captcha-card-preview-head .description {
     text-transform: none;
@@ -249,8 +249,8 @@
     width: 100%;
 }
 .lrob-etk-captcha-card-test-result {
-    margin-top: 8px;
-    padding: 6px 10px;
+    margin-top: var(--etk-space-2);
+    padding: var(--etk-space-1) var(--etk-space-2);
     border-radius: var(--etk-radius);
     font-weight: 500;
 }
@@ -268,15 +268,15 @@
 }
 
 .lrob-etk-captcha-card-body {
-    padding: 12px 0 4px;
+    padding: var(--etk-space-3) 0 var(--etk-space-1);
     display: grid;
-    gap: 14px;
+    gap: var(--etk-space-3);
 }
 
 .lrob-etk-captcha-card-body .lrob-etk-field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-captcha-card-body label {
     font-size: var(--etk-text-xs);
@@ -319,7 +319,7 @@
 
 .lrob-etk-captcha-providers-empty {
     background: var(--etk-soft);
-    padding: 14px 16px;
+    padding: var(--etk-space-3) var(--etk-space-4);
     border-radius: var(--etk-radius);
     color: var(--etk-muted);
     margin: 0;
@@ -360,14 +360,14 @@
     display: flex;
     gap: var(--etk-space-3);
     flex-wrap: wrap;
-    padding: var(--etk-space-3) 18px;
+    padding: var(--etk-space-3) var(--etk-space-4);
     margin-top: var(--etk-space-2);
     border-top: 1px solid var(--etk-soft);
 }
 .lrob-etk-captcha-card-appearance-field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
     flex: 1 1 160px;
 }
 .lrob-etk-captcha-card-appearance-field > label {
@@ -427,21 +427,21 @@
     letter-spacing: 0.06em;
     color: var(--etk-muted);
     font-weight: 600;
-    padding: 6px 0;
+    padding: var(--etk-space-1) 0;
 }
 .lrob-etk-captcha-diag summary .dashicons {
     vertical-align: text-bottom;
-    margin-right: 4px;
+    margin-right: var(--etk-space-1);
 }
 .lrob-etk-captcha-diag-body {
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
-    padding: 12px 16px;
-    margin-top: 6px;
+    padding: var(--etk-space-3) var(--etk-space-4);
+    margin-top: var(--etk-space-1);
 }
 .lrob-etk-captcha-diag-body h3 {
-    margin: 0 0 6px;
+    margin: 0 0 var(--etk-space-1);
     font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -455,7 +455,7 @@
 .lrob-etk-captcha-diag-table th,
 .lrob-etk-captcha-diag-table td {
     text-align: left;
-    padding: 4px 8px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border-bottom: 1px solid var(--etk-soft);
 }
 .lrob-etk-captcha-diag-table th {
@@ -467,7 +467,7 @@
 }
 .lrob-etk-captcha-diag-table code {
     background: var(--etk-soft);
-    padding: 1px 4px;
+    padding: 1px var(--etk-space-1);
     border-radius: var(--etk-radius-sm);
     font-size: var(--etk-text-xs);
 }
@@ -480,25 +480,25 @@
     .lrob-etk-captcha-default .lrob-etk-combo { width: 100%; }
     .lrob-etk-captcha-override-row {
         grid-template-columns: 1fr;
-        gap: 4px;
+        gap: var(--etk-space-1);
     }
 }
 
 /* Per-route verify stats (30-day window from wp_lrob_etk_captcha_stats). */
 .lrob-etk-captcha-route-stats {
-    margin: 6px 0 0;
+    margin: var(--etk-space-1) 0 0;
     font-size: var(--etk-text-xs);
 }
 /* inline-block + nowrap so stat text never splits, even in narrow cells. */
 .lrob-etk-captcha-stat {
     display: inline-block;
     white-space: nowrap;
-    padding: 3px 10px;
+    padding: 3px var(--etk-space-2);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-pill);
     color: var(--etk-muted);
     font-size: var(--etk-text-xs);
 }
 .lrob-etk-captcha-stat strong { color: var(--etk-fg); font-weight: 600; }
-.lrob-etk-captcha-stat-sep { margin: 0 4px; opacity: 0.5; }
-.lrob-etk-captcha-card-meta .lrob-etk-captcha-stat { margin-left: 8px; }
+.lrob-etk-captcha-stat-sep { margin: 0 var(--etk-space-1); opacity: 0.5; }
+.lrob-etk-captcha-card-meta .lrob-etk-captcha-stat { margin-left: var(--etk-space-2); }

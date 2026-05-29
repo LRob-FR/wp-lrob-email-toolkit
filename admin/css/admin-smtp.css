@@ -16,17 +16,17 @@
 .lrob-etk-routing-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 12px;
+    gap: var(--etk-space-3);
 }
 
 .lrob-etk-routing-row {
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
-    padding: 12px 16px;
+    padding: var(--etk-space-3) var(--etk-space-4);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-routing-row label code {
     color: var(--etk-muted);
@@ -34,7 +34,7 @@
     background: var(--etk-soft);
     padding: 1px 5px;
     border-radius: var(--etk-radius-sm);
-    margin-left: 6px;
+    margin-left: var(--etk-space-1);
     font-weight: normal;
 }
 
@@ -57,7 +57,7 @@
 /* Encryption + port row — select + port input side by side */
 .lrob-etk-encryption-row {
     display: flex;
-    gap: 8px;
+    gap: var(--etk-space-2);
     align-items: stretch;
 }
 .lrob-etk-encryption-row .lrob-etk-select {
@@ -67,7 +67,7 @@
 .lrob-etk-port-input {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-port-input label {
     font-size: var(--etk-text-xs);
@@ -82,8 +82,8 @@
 /* ---------- From section ---------- */
 
 .lrob-etk-from-warning {
-    margin-top: 6px;
-    padding: 6px 10px;
+    margin-top: var(--etk-space-1);
+    padding: var(--etk-space-1) var(--etk-space-2);
     border-radius: var(--etk-radius-sm);
     line-height: 1.4;
 }
@@ -103,16 +103,16 @@
 @container (max-width: 460px) {
     .lrob-etk-identity-card .lrob-etk-modal-columns {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: var(--etk-space-3);
     }
 }
 
 /* Host resolve indicator */
 .lrob-etk-host-status {
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     display: inline-block;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     border-radius: var(--etk-radius-sm);
 }
 .lrob-etk-host-status.is-ok    { background: var(--etk-success-bg); color: var(--etk-text-success); }
@@ -120,8 +120,8 @@
 
 /* None-encryption warning */
 .lrob-etk-none-warning {
-    margin-top: 8px;
-    padding: 6px 10px;
+    margin-top: var(--etk-space-2);
+    padding: var(--etk-space-1) var(--etk-space-2);
     background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
     border-left: 3px solid var(--etk-warning);
@@ -129,7 +129,7 @@
     line-height: 1.4;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-none-warning .dashicons {
     font-size: var(--etk-icon-size-sm);
@@ -144,7 +144,7 @@
     font-size: var(--etk-text-xs);
 }
 .lrob-etk-transport-segmented button {
-    padding: 3px 10px;
+    padding: 3px var(--etk-space-2);
 }
 
 /* Hide SMTP-only sections when transport is mail() — JS toggles inline display */
@@ -159,20 +159,20 @@
 .lrob-etk-add-row {
     display: flex;
     justify-content: center;
-    margin: 8px 0 24px;
+    margin: var(--etk-space-2) 0 var(--etk-space-5);
 }
 
 /* ---------- From section: Override row + 3-col grid ---------- */
 
 .lrob-etk-from-section .lrob-etk-override-row {
-    margin: 0 0 12px;
+    margin: 0 0 var(--etk-space-3);
     max-width: 360px;
 }
 .lrob-etk-from-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: var(--etk-space-3);
+    margin-bottom: var(--etk-space-3);
 }
 @media (max-width: 880px) {
     .lrob-etk-from-grid { grid-template-columns: 1fr 1fr; }

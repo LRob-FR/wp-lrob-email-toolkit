@@ -8,25 +8,25 @@
 }
 
 .lrob-etk-form-card .lrob-etk-card-form {
-    padding: 12px 18px 14px;
+    padding: var(--etk-space-3) var(--etk-space-4) var(--etk-space-3);
 }
 
 .lrob-etk-form-card .lrob-etk-card-footer {
     border-top: 1px solid var(--etk-line);
-    padding-top: 12px;
+    padding-top: var(--etk-space-3);
     margin: 0;
     display: flex;
     justify-content: flex-end;
 }
 .lrob-etk-form-card .lrob-etk-card-footer-actions {
     display: inline-flex;
-    gap: 8px;
+    gap: var(--etk-space-2);
     align-items: center;
 }
 .lrob-etk-form-card .lrob-etk-card-footer .button {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-form-card .lrob-etk-card-footer .button .dashicons {
     font-size: var(--etk-icon-size);
@@ -37,7 +37,7 @@
 .lrob-etk-form-card .lrob-etk-card-delete-link {
     color: var(--etk-danger);
     text-decoration: none;
-    padding: 6px 8px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-form-card .lrob-etk-card-delete-link:hover {
@@ -59,16 +59,16 @@
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
-    padding: 16px 20px 18px;
-    margin-top: 12px;
+    padding: var(--etk-space-4) var(--etk-space-4) var(--etk-space-4);
+    margin-top: var(--etk-space-3);
 }
 .lrob-etk-defaults-grid {
-    margin-bottom: 18px;
+    margin-bottom: var(--etk-space-4);
 }
 .lrob-etk-defaults .lrob-etk-form-column {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--etk-space-3);
 }
 .lrob-etk-defaults .lrob-etk-form-column-head {
     margin-bottom: 0;
@@ -84,12 +84,12 @@
 .lrob-etk-defaults-inline-pair {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 12px;
+    gap: var(--etk-space-3);
 }
 .lrob-etk-defaults-inline-pair > div {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
     min-width: 0;
 }
 /* Not wrapped in .lrob-etk-field so 100%/box-sizing must be explicit. */
@@ -108,13 +108,13 @@
 .lrob-etk-form-style-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
+    gap: var(--etk-space-3);
 }
 
 .lrob-etk-defaults .lrob-etk-card-footer {
     border-top: 1px solid var(--etk-line);
-    padding-top: 14px;
-    margin-top: 16px;
+    padding-top: var(--etk-space-3);
+    margin-top: var(--etk-space-4);
     display: flex;
     justify-content: flex-end;
 }
@@ -122,8 +122,8 @@
 /* ---------- Contact Form WYSIWYG editor (scoped to .lrob-etk-form.is-editor) ---------- */
 
 .lrob-etk-form-fields {
-    margin-top: 18px;
-    padding-top: 14px;
+    margin-top: var(--etk-space-4);
+    padding-top: var(--etk-space-3);
     border-top: 1px solid var(--etk-line);
 }
 
@@ -132,8 +132,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 6px 4px 10px;
+    gap: var(--etk-space-3);
+    padding: var(--etk-space-1) var(--etk-space-1) var(--etk-space-2);
     min-height: 28px;
 }
 .lrob-etk-form-editor-toolbar-actions {
@@ -146,7 +146,7 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--etk-radius-sm);
-    padding: 4px 6px;
+    padding: var(--etk-space-1) var(--etk-space-1);
     cursor: pointer;
     color: var(--etk-muted);
     display: inline-flex;
@@ -168,7 +168,7 @@
 .lrob-etk-form-editor-toolbar-btn--primary {
     color: var(--etk-accent);
     border-color: color-mix(in srgb, var(--etk-accent) 35%, transparent);
-    margin-right: 4px;
+    margin-right: var(--etk-space-1);
 }
 .lrob-etk-form-editor-toolbar-btn--primary:hover:not(:disabled),
 .lrob-etk-form-editor-toolbar-btn--primary:focus-visible:not(:disabled) {
@@ -198,7 +198,7 @@
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-lg);
-    padding: 14px 18px 18px;
+    padding: var(--etk-space-3) var(--etk-space-4) var(--etk-space-4);
 }
 
 .lrob-etk-form.is-editor .lrob-etk-form-row,
@@ -265,7 +265,7 @@
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
-    padding: 2px 4px;
+    padding: 2px var(--etk-space-1);
     box-shadow: var(--etk-shadow-md);
     opacity: 0;
     pointer-events: none;
@@ -325,7 +325,7 @@
     border: 0;
     cursor: pointer;
     color: var(--etk-muted);
-    padding: 2px 4px;
+    padding: 2px var(--etk-space-1);
     border-radius: var(--etk-radius-sm);
     display: inline-flex;
     align-items: center;
@@ -354,7 +354,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     color: var(--etk-accent);
     font-size: var(--etk-text-xs);
     font-weight: 600;
@@ -452,7 +452,7 @@
     max-width: 100%;
     height: 18px;
     margin: -9px auto;
-    padding: 0 10px;
+    padding: 0 var(--etk-space-2);
 }
 /* Column "+": trailing grid track; absent at cols=4. Smaller — position signals intent. */
 .lrob-etk-form-insert--column {
@@ -477,8 +477,8 @@
 .lrob-etk-form.is-editor .lrob-etk-form-insert--row.is-orphan,
 .lrob-etk-form.is-editor .lrob-etk-form-insert--field.is-orphan {
     height: 32px;
-    margin: 6px auto;
-    padding: 0 14px;
+    margin: var(--etk-space-1) auto;
+    padding: 0 var(--etk-space-3);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-orphan:hover {
     background: color-mix(in srgb, var(--etk-accent) 10%, transparent);
@@ -496,7 +496,7 @@
 .lrob-etk-form.is-editor [contenteditable="plaintext-only"] {
     outline: none;
     border-radius: var(--etk-radius-sm);
-    padding: 1px 4px;
+    padding: 1px var(--etk-space-1);
     margin: -1px -4px;
     border-bottom: 1px dotted transparent;
     cursor: text;
@@ -545,7 +545,7 @@
 .lrob-etk-form-required-control {
     display: inline-flex;
     align-items: center;
-    margin-left: 4px;
+    margin-left: var(--etk-space-1);
     vertical-align: baseline;
 }
 .lrob-etk-form-required-star {
@@ -563,7 +563,7 @@
 .lrob-etk-form-required-check {
     display: none;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     font-weight: 600;
     text-transform: uppercase;
@@ -590,8 +590,8 @@
 
 /* --- "No submit button" warning --- */
 .lrob-etk-form-editor-warn {
-    margin: 12px 0 0;
-    padding: 8px 12px;
+    margin: var(--etk-space-3) 0 0;
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-warning-bg);
     color: var(--etk-text-warning);
     border-radius: var(--etk-radius-sm);
@@ -603,7 +603,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px 10px;
+    gap: var(--etk-space-1) var(--etk-space-2);
     margin: 0;
     padding: 0;
     border-top: 0 dashed var(--etk-line);
@@ -621,8 +621,8 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active .lrob-etk-form-inline-settings,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within .lrob-etk-form-inline-settings {
     max-height: 200px;
-    margin-top: 4px;
-    padding: 4px 0 2px;
+    margin-top: var(--etk-space-1);
+    padding: var(--etk-space-1) 0 2px;
     border-top-width: 1px;
     opacity: 1;
     pointer-events: auto;
@@ -635,7 +635,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-inline-chip {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     margin: 0;
@@ -651,7 +651,7 @@
     width: auto;
     min-width: 60px;
     max-width: 160px;
-    padding: 2px 6px;
+    padding: 2px var(--etk-space-1);
     font-size: var(--etk-text-xs);
     line-height: 1.3;
     border: 1px solid var(--etk-line);
@@ -668,7 +668,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-inline-check {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     cursor: pointer;
     font-size: var(--etk-text-xs);
     text-transform: uppercase;
@@ -688,7 +688,7 @@
     border: 0;
     background: var(--etk-input-bg);
     color: var(--etk-muted);
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     font-size: var(--etk-text-xs);
     cursor: pointer;
     border-right: 1px solid var(--etk-line);
@@ -703,7 +703,7 @@
     font-size: var(--etk-text-xs);
 }
 .lrob-etk-form.is-editor .lrob-etk-form-inline-combo .lrob-etk-combo-input {
-    padding: 2px 6px;
+    padding: 2px var(--etk-space-1);
     font-size: var(--etk-text-xs);
 }
 
@@ -763,12 +763,12 @@
 /* --- Type picker (clone of <template> inserted by editor JS) --- */
 .lrob-etk-form-type-picker {
     position: relative;
-    margin: 4px 0;
+    margin: var(--etk-space-1) 0;
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
     box-shadow: var(--etk-shadow-menu);
-    padding: 4px;
+    padding: var(--etk-space-1);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2px;
@@ -778,7 +778,7 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 6px 10px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     text-align: left;
     font-size: var(--etk-text-xs);
     cursor: pointer;
@@ -790,7 +790,7 @@
 /* Sectioned picker (Newsletter form editor) — presets section + fields section. */
 .lrob-etk-form-type-picker:has(.lrob-etk-form-type-picker-section) {
     display: block;
-    padding: 8px;
+    padding: var(--etk-space-2);
 }
 .lrob-etk-form-type-picker-section {
     display: grid;
@@ -799,8 +799,8 @@
     margin: 0;
 }
 .lrob-etk-form-type-picker-section + .lrob-etk-form-type-picker-section {
-    margin-top: 10px;
-    padding-top: 8px;
+    margin-top: var(--etk-space-2);
+    padding-top: var(--etk-space-2);
     border-top: 1px solid var(--etk-line);
 }
 .lrob-etk-form-type-picker-section-label {
@@ -810,12 +810,12 @@
     letter-spacing: 0.04em;
     color: var(--etk-muted);
     font-weight: 600;
-    padding: 0 4px 4px;
+    padding: 0 var(--etk-space-1) var(--etk-space-1);
 }
 .lrob-etk-form-type-picker-preset {
     display: flex !important;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-form-type-picker-preset .dashicons {
     color: var(--etk-accent);
@@ -833,7 +833,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 60px 20px;
+    padding: var(--etk-space-9) var(--etk-space-4);
     z-index: 99999;
     overflow-y: auto;
 }
@@ -846,26 +846,26 @@
     box-shadow: var(--etk-shadow-modal);
     width: 100%;
     max-width: 800px;
-    padding: 20px 24px 24px;
+    padding: var(--etk-space-4) var(--etk-space-5) var(--etk-space-5);
 }
 .lrob-etk-cf-new-picker-inner header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: var(--etk-space-4);
 }
 .lrob-etk-cf-new-picker-inner header h3 {
     margin: 0;
     font-size: var(--etk-text-lg);
 }
 .lrob-etk-cf-new-picker-inner section {
-    margin-bottom: 18px;
+    margin-bottom: var(--etk-space-4);
 }
 .lrob-etk-cf-new-picker-inner section:last-child {
     margin-bottom: 0;
 }
 .lrob-etk-cf-new-picker-inner section h4 {
-    margin: 0 0 8px 0;
+    margin: 0 0 var(--etk-space-2) 0;
     font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -874,20 +874,20 @@
 .lrob-etk-cf-picker-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 8px;
+    gap: var(--etk-space-2);
 }
 .lrob-etk-cf-picker-card {
     appearance: none;
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-md);
-    padding: 12px 14px;
+    padding: var(--etk-space-3) var(--etk-space-3);
     cursor: pointer;
     text-align: left;
     transition: border-color var(--etk-transition), box-shadow var(--etk-transition), background var(--etk-transition);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
     color: var(--etk-fg);
 }
 .lrob-etk-cf-picker-card:hover {
@@ -917,12 +917,12 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 12px;
-    padding: 32px 24px;
+    gap: var(--etk-space-3);
+    padding: var(--etk-space-6) var(--etk-space-5);
     background: linear-gradient(180deg, var(--etk-card-bg), var(--etk-accent-bg));
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-xl);
-    margin-bottom: 24px;
+    margin-bottom: var(--etk-space-5);
 }
 .lrob-etk-cf-onboard-icon {
     font-size: var(--etk-icon-size-xl);
@@ -948,21 +948,21 @@
 .lrob-etk-form-essentials {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    gap: 16px;
-    margin-bottom: 14px;
+    gap: var(--etk-space-4);
+    margin-bottom: var(--etk-space-3);
 }
 @media (max-width: 720px) {
     .lrob-etk-form-essentials { grid-template-columns: 1fr; }
 }
 .lrob-etk-form-style-group {
-    margin-bottom: 14px;
-    padding-top: 12px;
+    margin-bottom: var(--etk-space-3);
+    padding-top: var(--etk-space-3);
     border-top: 1px solid var(--etk-soft);
 }
 /* Card-internal .lrob-etk-section-title: no border (parent provides separator). */
 .lrob-etk-card .lrob-etk-section-title,
 .lrob-etk-form-style-group .lrob-etk-section-title {
-    margin: 0 0 8px;
+    margin: 0 0 var(--etk-space-2);
     padding-top: 0;
     border-top: none;
     font-size: var(--etk-text-xs);
@@ -973,17 +973,17 @@
 }
 
 .lrob-etk-form-advanced {
-    margin-top: 14px;
+    margin-top: var(--etk-space-3);
     border-top: 1px solid var(--etk-line);
-    padding-top: 8px;
+    padding-top: var(--etk-space-2);
 }
 .lrob-etk-advanced-summary {
     cursor: pointer;
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 0;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-2) 0;
     color: var(--etk-fg);
     user-select: none;
 }
@@ -1017,24 +1017,24 @@
     font-weight: 600;
 }
 .lrob-etk-advanced-body {
-    padding-top: 6px;
+    padding-top: var(--etk-space-1);
 }
 
 /* ---------- Recipient list (one row per email) ---------- */
 .lrob-etk-recipient-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-recipient-list-rows {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-recipient-row {
     display: flex;
     align-items: stretch;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-recipient-row > .lrob-etk-combo {
     flex: 1;
@@ -1071,7 +1071,7 @@
     margin-top: 2px;
     display: inline-flex !important;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-recipient-add .dashicons {
     font-size: var(--etk-icon-size-sm);
@@ -1085,7 +1085,7 @@
 .lrob-etk-advanced-body .lrob-etk-form-column-head {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
 }
 
 /* minmax(0, fr) is load-bearing: bare 1fr lets min-width override the ratio. */
@@ -1108,7 +1108,7 @@
 }
 
 .lrob-etk-default-hint {
-    margin: 4px 0 0;
+    margin: var(--etk-space-1) 0 0;
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     font-style: italic;
@@ -1136,14 +1136,14 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) > .lrob-etk-form-field--captcha.is-editor-stub,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active > .lrob-etk-form-field--captcha.is-editor-stub,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within > .lrob-etk-form-field--captcha.is-editor-stub {
-    padding: 12px 14px;
+    padding: var(--etk-space-3) var(--etk-space-3);
     background: var(--etk-soft);
     border-color: var(--lrob-etk-cf-border, var(--etk-line));
 }
 .lrob-etk-form-captcha-stub-head {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--etk-space-2);
     flex-wrap: wrap;
     max-height: 0;
     margin-bottom: 0;
@@ -1157,7 +1157,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active .lrob-etk-form-captcha-stub-head,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within .lrob-etk-form-captcha-stub-head {
     max-height: 60px;
-    margin-bottom: 8px;
+    margin-bottom: var(--etk-space-2);
     opacity: 1;
     pointer-events: auto;
 }
@@ -1181,7 +1181,7 @@
     min-width: 160px;
     max-width: 280px;
     height: 30px;
-    padding: 4px 8px;
+    padding: var(--etk-space-1) var(--etk-space-2);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-sm);
     background: var(--etk-card-bg);
@@ -1194,7 +1194,7 @@
     box-shadow: 0 0 0 1px var(--etk-accent);
 }
 .lrob-etk-form-captcha-stub-preview {
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
 }
 .lrob-etk-form-captcha-stub-preview .lrob-etk-form-field {
     /* The rendered challenge brings its own .lrob-etk-form-field wrapper —
@@ -1215,8 +1215,8 @@
 .lrob-etk-form.is-editor .lrob-etk-form-options[data-options-inline] {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin: 4px 0;
+    gap: var(--etk-space-1);
+    margin: var(--etk-space-1) 0;
     min-width: 0;
 }
 /* For SELECT fields the inline option editor (contenteditable labels +
@@ -1239,8 +1239,8 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active .lrob-etk-form-field--select .lrob-etk-form-options[data-options-inline],
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within .lrob-etk-form-field--select .lrob-etk-form-options[data-options-inline] {
     max-height: 400px;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-top: var(--etk-space-1);
+    margin-bottom: var(--etk-space-1);
     opacity: 1;
     pointer-events: auto;
 }
@@ -1248,7 +1248,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-inline-option {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     color: var(--etk-fg);
     font-size: var(--etk-input-font-size);
     min-width: 0;
@@ -1256,7 +1256,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-option[data-inline-option] > label {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     flex: 1;
     min-width: 0;
     cursor: text;
@@ -1265,7 +1265,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-option-label {
     flex: 1;
     min-width: 0;
-    padding: 2px 4px;
+    padding: 2px var(--etk-space-1);
     border-radius: var(--etk-radius-sm);
     border-bottom: 1px dashed transparent;
     cursor: text;
@@ -1326,7 +1326,7 @@
     background: transparent;
     border: 1px dashed var(--etk-line-strong);
     color: var(--etk-muted);
-    padding: 0 12px;
+    padding: 0 var(--etk-space-3);
     border-radius: var(--etk-radius-pill);
     font-size: var(--etk-text-xs);
     font-weight: 600;
@@ -1346,7 +1346,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:focus-within .lrob-etk-form-option-add {
     max-height: 32px;
     margin-top: 2px;
-    padding: 4px 12px;
+    padding: var(--etk-space-1) var(--etk-space-3);
     border-width: 1px;
     opacity: 1;
     pointer-events: auto;
@@ -1366,10 +1366,10 @@
 .lrob-etk-cf-submissions-link {
     display: inline-flex;
     align-items: baseline;
-    gap: 8px;
+    gap: var(--etk-space-2);
     align-self: flex-start;
-    margin: 6px 0 12px;
-    padding: 6px 12px;
+    margin: var(--etk-space-1) 0 var(--etk-space-3);
+    padding: var(--etk-space-1) var(--etk-space-3);
     border-radius: var(--etk-radius-pill);
     background: var(--etk-soft);
     color: var(--etk-fg);
@@ -1394,7 +1394,7 @@
 
 .lrob-etk-form-deleted {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     border-radius: var(--etk-radius-pill);
     background: var(--etk-veil-2);
     color: var(--etk-muted);
@@ -1402,7 +1402,7 @@
     font-style: italic;
 }
 
-.lrob-etk-cf-submissions-page .lrob-etk-page-header { margin-bottom: 8px; }
+.lrob-etk-cf-submissions-page .lrob-etk-page-header { margin-bottom: var(--etk-space-2); }
 
 .lrob-etk-cf-submissions-table .col-form { width: 18%; }
 .lrob-etk-cf-submissions-table .col-preview { width: auto; max-width: 0; overflow: hidden; }
@@ -1422,20 +1422,20 @@
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-soft);
     border-radius: var(--etk-radius-xl);
-    padding: 16px 18px;
+    padding: var(--etk-space-4) var(--etk-space-4);
 }
 .lrob-etk-detail-card h2 {
     font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--etk-muted);
-    margin: 0 0 12px;
+    margin: 0 0 var(--etk-space-3);
 }
 .lrob-etk-detail-meta {
     display: grid;
     grid-template-columns: minmax(0, 110px) minmax(0, 1fr);
-    column-gap: 12px;
-    row-gap: 6px;
+    column-gap: var(--etk-space-3);
+    row-gap: var(--etk-space-1);
     margin: 0;
     font-size: var(--etk-input-font-size);
 }
@@ -1457,7 +1457,7 @@
 .lrob-etk-detail-payload {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px 14px;
+    gap: var(--etk-space-2) var(--etk-space-3);
     margin: 0;
 }
 .lrob-etk-detail-payload dt {
@@ -1466,18 +1466,18 @@
     font-size: var(--etk-text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
 }
 .lrob-etk-detail-payload dt:first-child { margin-top: 0; }
 .lrob-etk-detail-payload dd {
-    margin: 0 0 6px;
+    margin: 0 0 var(--etk-space-1);
     font-size: var(--etk-input-font-size);
     word-break: break-word;
 }
 .lrob-etk-detail-textarea {
     background: var(--etk-soft);
     border-radius: var(--etk-radius-md);
-    padding: 10px 12px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     white-space: pre-wrap;
     word-break: break-word;
     margin: 2px 0 0;
@@ -1486,15 +1486,15 @@
 }
 .lrob-etk-detail-list {
     margin: 0;
-    padding-left: 18px;
+    padding-left: var(--etk-space-4);
 }
 
 /* Bottom-of-Forms-page stats panel: 3-4 mini stat tiles linking into the
  * Submissions inbox filtered by status. Sits below the form cards as the
  * secondary entry point (the header button is the primary). */
 .lrob-etk-cf-submissions-panel {
-    margin-top: 28px;
-    padding: 18px 20px;
+    margin-top: var(--etk-space-5);
+    padding: var(--etk-space-4) var(--etk-space-4);
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-soft);
     border-radius: var(--etk-radius-xl);
@@ -1503,8 +1503,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 12px;
+    gap: var(--etk-space-4);
+    margin-bottom: var(--etk-space-3);
 }
 .lrob-etk-cf-submissions-panel-head h2 {
     margin: 0;
@@ -1512,13 +1512,13 @@
 .lrob-etk-cf-submissions-panel-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
+    gap: var(--etk-space-3);
 }
 .lrob-etk-cf-submissions-stat {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 12px 14px;
+    gap: var(--etk-space-1);
+    padding: var(--etk-space-3) var(--etk-space-3);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-xl);
     text-decoration: none;
@@ -1556,33 +1556,33 @@
 /* Submissions storage section in the Defaults modal (full-width row
  * after the two-column Email / Anti-spam grid). */
 .lrob-etk-cf-submissions-storage-section {
-    margin-top: 18px;
-    padding-top: 14px;
+    margin-top: var(--etk-space-4);
+    padding-top: var(--etk-space-3);
     border-top: 1px solid var(--etk-soft);
 }
 .lrob-etk-defaults-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px 18px;
+    gap: var(--etk-space-3) var(--etk-space-4);
 }
 
 /* .lrob-etk-detail-strip primitive lives in admin-components.css.
  * Detail view rework: compact metadata strip at the top, payload cards
  * below, technical metadata in a collapsed details element. */
 .lrob-etk-detail-card--payload {
-    margin-top: 6px;
+    margin-top: var(--etk-space-1);
 }
 .lrob-etk-detail-payload {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
+    gap: var(--etk-space-3);
     margin: 0;
 }
 .lrob-etk-detail-row {
     display: grid;
     grid-template-columns: minmax(140px, 220px) minmax(0, 1fr);
-    gap: 16px;
-    padding-bottom: 12px;
+    gap: var(--etk-space-4);
+    padding-bottom: var(--etk-space-3);
     border-bottom: 1px solid var(--etk-soft);
     /* Align the label baseline with the value's first text line — so a
      * textarea-wrapped value (which has its own padding shifting the
@@ -1602,12 +1602,12 @@
     word-break: break-word;
 }
 @media (max-width: 720px) {
-    .lrob-etk-detail-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .lrob-etk-detail-row { grid-template-columns: minmax(0, 1fr); gap: var(--etk-space-1); }
 }
 
 .lrob-etk-detail-tech {
-    margin-top: 20px;
-    padding: 12px 16px;
+    margin-top: var(--etk-space-4);
+    padding: var(--etk-space-3) var(--etk-space-4);
     background: var(--etk-soft);
     border-radius: var(--etk-radius-xl);
 }
@@ -1618,7 +1618,7 @@
     font-size: var(--etk-input-font-size);
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
 }
 .lrob-etk-detail-tech > summary::-webkit-details-marker { display: none; }
 .lrob-etk-detail-tech[open] .lrob-etk-detail-tech-caret { transform: rotate(90deg); }
@@ -1627,7 +1627,7 @@
     transition: transform var(--etk-transition);
 }
 .lrob-etk-detail-tech .lrob-etk-detail-meta {
-    margin-top: 10px;
+    margin-top: var(--etk-space-2);
 }
 
 /* Delete cascade modal — uses the existing modal chrome but with a
@@ -1636,7 +1636,7 @@
     max-width: 540px;
 }
 .lrob-etk-delete-summary {
-    margin: 0 0 8px;
+    margin: 0 0 var(--etk-space-2);
 }
 .lrob-etk-delete-warning {
     margin: 0;
@@ -1645,7 +1645,7 @@
 }
 .lrob-etk-delete-footer {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--etk-space-2);
 }
 
 /* Country default + auto-detect chips are only meaningful when the
@@ -1681,7 +1681,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-inline-chip-suffix {
     font-size: var(--etk-text-xs);
     color: var(--etk-muted, var(--etk-muted));
-    margin-left: 4px;
+    margin-left: var(--etk-space-1);
     white-space: nowrap;
 }
 
@@ -1692,9 +1692,9 @@
 .lrob-etk-detail-card--files .lrob-etk-files-warning {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0 0 16px;
-    padding: 10px 14px;
+    gap: var(--etk-space-2);
+    margin: 0 0 var(--etk-space-4);
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-warning-bg);
     border: 1px solid var(--etk-warning);
     border-radius: var(--etk-radius-md);
@@ -1708,13 +1708,13 @@
     height: 18px;
 }
 .lrob-etk-files-group {
-    margin-bottom: 24px;
+    margin-bottom: var(--etk-space-5);
 }
 .lrob-etk-files-group:last-child {
     margin-bottom: 0;
 }
 .lrob-etk-files-group-label {
-    margin: 0 0 8px;
+    margin: 0 0 var(--etk-space-2);
     font-size: var(--etk-input-font-size);
     font-weight: 600;
     color: var(--etk-muted);
@@ -1724,7 +1724,7 @@
 .lrob-etk-files-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 320px));
-    gap: 16px;
+    gap: var(--etk-space-4);
 }
 .lrob-etk-file-card {
     border: 1px solid var(--etk-line);
@@ -1754,10 +1754,10 @@
     display: block;
 }
 .lrob-etk-file-meta {
-    padding: 8px 12px;
+    padding: var(--etk-space-2) var(--etk-space-3);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--etk-space-2);
     border-top: 1px solid var(--etk-soft);
     background: var(--etk-soft);
 }
@@ -1765,7 +1765,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     color: var(--etk-fg);
     text-decoration: none;
     font-size: var(--etk-input-font-size);
@@ -1795,38 +1795,38 @@
  * + Confirm / Cancel. */
 .lrob-etk-confirm-card {
     max-width: 640px;
-    margin: 20px auto 0;
+    margin: var(--etk-space-4) auto 0;
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line-strong);
     border-radius: var(--etk-radius-md);
-    padding: 24px 28px;
+    padding: var(--etk-space-5) var(--etk-space-5);
     box-shadow: var(--etk-shadow-sm);
 }
 .lrob-etk-confirm-summary {
-    margin: 0 0 12px;
+    margin: 0 0 var(--etk-space-3);
     font-size: var(--etk-input-font-size);
     color: var(--etk-fg);
 }
 .lrob-etk-confirm-preview {
-    margin: 0 0 16px;
-    padding: 10px 14px;
+    margin: 0 0 var(--etk-space-4);
+    padding: var(--etk-space-2) var(--etk-space-3);
     background: var(--etk-soft);
     border-left: 3px solid var(--etk-line-strong);
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 var(--etk-radius-md) var(--etk-radius-md) 0;
     color: var(--etk-muted);
     font-style: italic;
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-confirm-warn {
-    margin: 0 0 20px;
-    padding: 12px 14px;
+    margin: 0 0 var(--etk-space-4);
+    padding: var(--etk-space-3) var(--etk-space-3);
     background: var(--etk-danger-bg);
     border: 1px solid var(--etk-danger-bg);
     border-radius: var(--etk-radius-md);
     color: var(--etk-text-danger);
     display: flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: var(--etk-space-2);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-confirm-warn .dashicons {
@@ -1838,8 +1838,8 @@
     margin-top: 1px;
 }
 .lrob-etk-confirm-info {
-    margin: 0 0 20px;
-    padding: 12px 14px;
+    margin: 0 0 var(--etk-space-4);
+    padding: var(--etk-space-3) var(--etk-space-3);
     background: var(--etk-warning-bg);
     border: 1px solid var(--etk-warning);
     border-radius: var(--etk-radius-md);
@@ -1848,7 +1848,7 @@
 }
 .lrob-etk-confirm-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--etk-space-2);
     justify-content: flex-end;
 }
 
@@ -1863,9 +1863,9 @@
     .lrob-etk-form-file-warning {
     display: flex;
     align-items: flex-start;
-    gap: 6px;
-    margin: 4px 0 0;
-    padding: 8px 10px;
+    gap: var(--etk-space-1);
+    margin: var(--etk-space-1) 0 0;
+    padding: var(--etk-space-2) var(--etk-space-2);
     background: var(--etk-warning-bg);
     border: 1px solid var(--etk-warning);
     border-radius: var(--etk-radius-md);
@@ -1900,7 +1900,7 @@
     display: none;
     align-items: flex-start;
     justify-content: center;
-    padding-top: 60px;
+    padding-top: var(--etk-space-9);
     z-index: 5;
 }
 .lrob-etk-list-region.is-loading .lrob-etk-list-loading {
@@ -1914,15 +1914,15 @@
 .lrob-etk-bulk-toolbar {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: var(--etk-space-4);
     align-items: center;
     justify-content: space-between;
-    margin: 12px 0 8px;
+    margin: var(--etk-space-3) 0 var(--etk-space-2);
 }
 .lrob-etk-bulk-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--etk-space-2);
 }
 .lrob-etk-bulk-actions .lrob-etk-select {
     min-width: 160px;
@@ -1931,7 +1931,7 @@
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
     background: var(--etk-soft);
-    padding: 2px 8px;
+    padding: 2px var(--etk-space-2);
     border-radius: var(--etk-radius-xl);
 }
 
@@ -1939,8 +1939,8 @@
 .lrob-etk-cf-submissions-table .col-check {
     width: 32px;
     text-align: center;
-    padding-left: 8px;
-    padding-right: 4px;
+    padding-left: var(--etk-space-2);
+    padding-right: var(--etk-space-1);
 }
 .lrob-etk-cf-submissions-table .col-check input[type="checkbox"] {
     margin: 0;
@@ -1986,19 +1986,19 @@
     background: var(--etk-card-bg);
     border-radius: var(--etk-radius-lg);
     box-shadow: var(--etk-shadow-modal);
-    padding: 24px 28px;
+    padding: var(--etk-space-5) var(--etk-space-5);
     max-width: 460px;
     width: calc(100% - 32px);
     z-index: 1;
 }
 .lrob-etk-confirm-modal-title {
-    margin: 0 0 12px;
+    margin: 0 0 var(--etk-space-3);
     font-size: var(--etk-text-lg);
     font-weight: 600;
     color: var(--etk-fg);
 }
 .lrob-etk-confirm-modal-body {
-    margin: 0 0 20px;
+    margin: 0 0 var(--etk-space-4);
     color: var(--etk-muted);
     font-size: var(--etk-input-font-size);
     line-height: 1.5;
@@ -2009,7 +2009,7 @@
 }
 .lrob-etk-confirm-modal-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--etk-space-2);
     justify-content: flex-end;
 }
 
@@ -2043,8 +2043,8 @@
 .lrob-etk-detail-modal-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 12px 10px 18px;
+    gap: var(--etk-space-2);
+    padding: var(--etk-space-2) var(--etk-space-3) var(--etk-space-2) var(--etk-space-4);
     border-bottom: 1px solid var(--etk-line);
     background: var(--etk-soft);
 }
@@ -2063,20 +2063,20 @@
 .lrob-etk-detail-modal-controls {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     flex: 0 0 auto;
 }
 .lrob-etk-detail-modal-controls-spacer {
     width: 1px;
     height: 22px;
     background: var(--etk-line);
-    margin: 0 6px;
+    margin: 0 var(--etk-space-1);
 }
 .lrob-etk-detail-modal-action.button {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
+    gap: var(--etk-space-1);
+    padding: var(--etk-space-1) var(--etk-space-2);
     height: auto;
     line-height: 1.4;
 }
@@ -2110,7 +2110,7 @@
 }
 .lrob-etk-detail-modal-body {
     overflow: auto;
-    padding: 20px 24px;
+    padding: var(--etk-space-4) var(--etk-space-5);
     flex: 1;
     /* Match the WP admin page background so the white cards inside the
      * detail content stand out, just like they do on the full-page
@@ -2129,7 +2129,7 @@
 .lrob-etk-detail-modal-body .lrob-etk-detail-strip,
 .lrob-etk-detail-modal-body .lrob-etk-detail-card,
 .lrob-etk-detail-modal-body .lrob-etk-detail-tech {
-    margin-bottom: 14px;
+    margin-bottom: var(--etk-space-3);
 }
 .lrob-etk-detail-modal-body > :last-child {
     margin-bottom: 0;
@@ -2138,7 +2138,7 @@
 .lrob-etk-detail-modal-error {
     text-align: center;
     color: var(--etk-muted);
-    padding: 40px 0;
+    padding: var(--etk-space-7) 0;
     font-size: var(--etk-input-font-size);
 }
 
@@ -2152,33 +2152,33 @@
 .lrob-etk-cleanup-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     flex-wrap: wrap;
-    margin-top: 4px;
+    margin-top: var(--etk-space-1);
 }
 .lrob-etk-cleanup-row label {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-cleanup-statuses {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 14px;
-    margin-top: 8px;
+    gap: var(--etk-space-1) var(--etk-space-3);
+    margin-top: var(--etk-space-2);
 }
 .lrob-etk-cleanup-statuses label {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--etk-space-1);
     font-size: var(--etk-input-font-size);
 }
 .lrob-etk-cleanup-actions {
-    margin-top: 10px;
+    margin-top: var(--etk-space-2);
 }
 .lrob-etk-popover-section-title {
-    margin: 8px 0 6px;
+    margin: var(--etk-space-2) 0 var(--etk-space-1);
     font-size: var(--etk-input-font-size);
     font-weight: 600;
     text-transform: uppercase;
