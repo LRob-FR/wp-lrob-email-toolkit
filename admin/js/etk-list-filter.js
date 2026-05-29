@@ -1,23 +1,4 @@
-/* LRob Email Toolkit — shared list-page filter helper.
- *
- * Bound to any admin list page that pairs a filter <form> with a
- * swap-able list region. Wires the form inputs (search, selects, dates)
- * to a debounced AJAX reload that replaces the region's HTML in place,
- * keeps the browser URL in sync via history.replaceState, intercepts
- * pagination links to keep them on the AJAX path, and handles back /
- * forward via popstate.
- *
- * Used by:
- *   - Contact Form submissions inbox  (contact-form-submissions-inbox.js)
- *   - Email Logs list                  (email-logs-list.js)
- *
- * Both pages mark up the same way:
- *   <form data-etk-list-form ...>
- *   <div data-etk-list-region>...</div>
- *
- * Bulk actions, row actions, detail modals stay page-specific — the
- * helper only owns the filter ⇄ region-swap loop.
- */
+/* Docs: docs/admin-ui.md */
 (function (window, document) {
     'use strict';
 
@@ -48,22 +29,18 @@
                 clearTimeout(typingTimer);
                 typingTimer = setTimeout(function () { reload(1); }, typingDelay);
             };
-            // Listen to both events so a paste, a clear, or a select all
-            // converge on the same debounced reload.
             input.addEventListener('input', debounced);
             input.addEventListener('change', debounced);
         });
 
-        // Hitting Enter inside any input would otherwise submit the form
-        // and trigger a full page reload — intercept and route to AJAX.
+        // Intercept Enter to avoid a full page reload.
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             clearTimeout(typingTimer);
             reload(1);
         });
 
-        // Optional Reset link — when present, hijack to clear the inputs
-        // without a page reload.
+        // Optional Reset link — clear inputs without a page reload.
         var reset = form.querySelector('[data-etk-list-reset], .lrob-etk-cf-reset-filters');
         if (reset) {
             reset.addEventListener('click', function (e) {
@@ -78,8 +55,7 @@
             });
         }
 
-        // Browser navigation (back/forward): restore inputs from the URL
-        // and refetch with skipUrlUpdate so we don't push a new entry.
+        // Back/forward: restore inputs from URL and refetch without pushing a new history entry.
         window.addEventListener('popstate', function () {
             var params = new URLSearchParams(window.location.search);
             Array.prototype.forEach.call(inputs, function (input) {
@@ -90,8 +66,7 @@
             reload(parseInt(params.get('paged') || '1', 10) || 1, true);
         });
 
-        // Pagination links inside the region: intercept and AJAX-load
-        // the requested page instead of a full reload.
+        // Intercept pagination links inside the region.
         document.addEventListener('click', function (e) {
             var region = currentRegion();
             if (!region) return;
@@ -109,9 +84,7 @@
 
             var fd = new FormData(form);
             fd.append('action', action);
-            // Two nonce field names sent so the helper works with both
-            // check_ajax_referer (falls back to `_ajax_nonce`) and the
-            // stricter Newsletter `$_POST['_nonce']` guard.
+            // Both nonce names: _ajax_nonce (WP standard) + _nonce (Newsletter guard).
             fd.append('_ajax_nonce', nonce);
             fd.append('_nonce', nonce);
             fd.append('paged', String(page));
@@ -138,10 +111,7 @@
                     if (next && live && live.parentNode) {
                         live.parentNode.replaceChild(next, live);
                         if (onAfterReload) onAfterReload(next);
-                        // Fan-out signal for table chrome that lives
-                        // inside the region (sortable headers, etc.) —
-                        // the swap nukes their DOM refs, so they
-                        // re-paint on this event instead.
+                        // Signal for region-local chrome (sortable headers, etc.) to reinitialize.
                         document.dispatchEvent(new CustomEvent('etk:list-region-swapped', {
                             detail: { region: next },
                         }));

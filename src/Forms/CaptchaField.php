@@ -8,24 +8,7 @@ use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Routing;
 use LRob\EmailToolkit\Plugin;
 
-/**
- * Captcha field for forms built with the shared form-builder. Renders
- * whichever challenge the Captcha module resolves for the configured
- * context, with an optional per-form override stored in post_meta.
- *
- * Configured per consumer module at registration time:
- *   - $context — the Captcha Routing context this form-CPT lives under
- *                ('contact_form', 'newsletter_subscribe', …).
- *   - $meta_key — per-form post_meta key holding the routing override
- *                 ('homemade:math', 'identity:7', 'none', or '' for
- *                 inherit). The form-builder editor's in-block picker
- *                 writes to this key via the auto-save plumbing.
- *
- * One concrete class for both modules — captcha routing semantics are
- * identical across consumers; only the context + meta key differ. CSS
- * classes use the lrob-etk-form-captcha-* namespace so both modules'
- * captcha stubs share visual styling without duplication.
- */
+// Docs: docs/forms.md
 final class CaptchaField implements FieldTypeInterface
 {
     public function __construct(
@@ -97,7 +80,6 @@ final class CaptchaField implements FieldTypeInterface
         );
     }
 
-    /** Per-form override resolver. Empty → inherit context default. */
     private function effective_route(int $form_id): string
     {
         $per_form = (string) get_post_meta($form_id, $this->meta_key, true);
@@ -107,13 +89,6 @@ final class CaptchaField implements FieldTypeInterface
         return $per_form;
     }
 
-    /**
-     * In-block picker for the WYSIWYG editor: change which challenge
-     * this form uses without leaving the editor. The select's data-key
-     * matches $this->meta_key so the auto-save script picks it up.
-     * Newly-inserted captcha blocks are rebuilt by the editor JS using
-     * the same shape via the localized captchaOptions list.
-     */
     private function editor_stub(int $form_id, string $align): string
     {
         $service = self::captcha_service();
@@ -148,11 +123,6 @@ final class CaptchaField implements FieldTypeInterface
         );
     }
 
-    /**
-     * `<option>` HTML for the picker. Three groups: special routes
-     * ("Default", "None"), homemade challenges, hosted-provider
-     * identities.
-     */
     private function options_html(string $stored, ?CaptchaService $service, string $default_option_label): string
     {
         $html = '<option value=""' . selected($stored, '', false) . '>' . esc_html($default_option_label) . '</option>'
@@ -208,7 +178,6 @@ final class CaptchaField implements FieldTypeInterface
         return $html;
     }
 
-    /** Label shown next to "Default" in the picker. */
     private function default_label(?CaptchaService $service): string
     {
         if ($service === null) {
@@ -221,12 +190,6 @@ final class CaptchaField implements FieldTypeInterface
         return $challenge->label();
     }
 
-    /**
-     * Live preview HTML for the editor stub. Identity routes can't
-     * render their real widget without credentials, so we ask the
-     * service for the preview sub-context which falls back to a
-     * placeholder for hosted providers.
-     */
     private function preview_html(string $stored, ?CaptchaService $service, int $form_id): string
     {
         if ($stored === Routing::ROUTE_NONE) {
@@ -239,8 +202,6 @@ final class CaptchaField implements FieldTypeInterface
         if ($stored !== '') {
             $context['force_route'] = $stored;
         } else {
-            // Inherit: render the context default in preview mode so the
-            // admin sees what visitors will actually face.
             $context['force_route'] = $this->context_default_route($service);
         }
         $html = $service->render($context);
@@ -250,7 +211,6 @@ final class CaptchaField implements FieldTypeInterface
         return $html;
     }
 
-    /** Routing key the configured context currently resolves to. */
     private function context_default_route(CaptchaService $service): string
     {
         $map = get_option(Routing::OPTION_CONTEXT_MAP, []);
@@ -265,13 +225,6 @@ final class CaptchaField implements FieldTypeInterface
     }
 
     /**
-     * Build the structured options list the editor JS reads from
-     * `EDITOR_DATA.captchaOptions.entries`. Each entry carries
-     * `route`, `label`, `preview` (server-rendered HTML), `optgroup`
-     * (optional), and `disabled` (optional). Same shape options_html()
-     * builds server-side, but as data so freshly-inserted captcha
-     * blocks rebuild identically without a page reload.
-     *
      * @return array{entries: array<int, array{route:string, label:string, preview:string, optgroup?:string, disabled?:bool}>}
      */
     public static function build_editor_options(string $context, ?CaptchaService $service): array

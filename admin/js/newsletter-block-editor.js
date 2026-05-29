@@ -1,12 +1,4 @@
-/* LRob Email Toolkit — Newsletter subscribe block (page editor)
- *
- * The page-side `lrob-etk/newsletter-subscribe` block — picker that
- * embeds a chosen newsletter subscribe form into any page/post.
- * Pure vanilla wp.element / wp.blocks; no JSX, no build step.
- *
- * Renders a placeholder with a form-picker dropdown in the editor;
- * server-rendered via EmbedRenderer on the front end.
- */
+/* LRob Email Toolkit — lrob-etk/newsletter-subscribe Gutenberg block. Server-rendered on front end. */
 (function (wp) {
     'use strict';
 

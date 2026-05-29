@@ -4,15 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha;
 
-/**
- * Aggregate counters for captcha verify() outcomes. Single UPSERT per verify
- * keeps the cost negligible; consumers (dashboard tile, settings counter)
- * read pre-aggregated sums.
- *
- * Stored shape: one row per (day_date, route_key, outcome). day_date is in
- * UTC — matches the convention used by submissions.submitted_at and the
- * email logs table.
- */
+// Docs: docs/captcha.md → "Schema"
 final class StatsRepository
 {
     public const OUTCOME_PASSED = 'passed';
@@ -27,10 +19,7 @@ final class StatsRepository
         global $wpdb;
         $table = Schema::stats_table();
         $day = gmdate('Y-m-d');
-        // Increment the counter atomically. Suppress wpdb output so a stale
-        // schema (table not yet migrated) can't leak HTML into the AJAX
-        // submit pipeline — submissions writes a row regardless of whether
-        // we managed to record stats.
+        // Suppress wpdb output — a stale schema must not leak HTML into the AJAX submit pipeline.
         $suppress_was = $wpdb->suppress_errors(true);
         $show_was = $wpdb->show_errors(false);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery

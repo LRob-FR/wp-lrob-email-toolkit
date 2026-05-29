@@ -8,13 +8,7 @@ use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\Module as ContactFormModule;
 
-/**
- * Mounts the single "Contact Forms" entry under the Email Toolkit top-level
- * menu. The Submissions inbox is a view of the same page (?view=submissions)
- * rather than a separate submenu — see FormsPage::render. We don't expose
- * the bare CPT list (edit.php?post_type=...) because it would duplicate the
- * custom UI and confuse users.
- */
+// Redirects edit.php?post_type=lrob_etk_cform to the custom page to avoid a duplicate CPT list.
 final class PageController
 {
     public function __construct(
@@ -30,12 +24,7 @@ final class PageController
         add_action('admin_init', [$this, 'redirect_post_type_list']);
     }
 
-    /**
-     * Intercept plain visits to `edit.php?post_type=lrob_etk_cform` (the back
-     * arrow in Gutenberg lands there) and send the user to our custom Contact
-     * Forms admin page instead. Only fires on idle GETs — bulk-action POSTs
-     * (?action=trash etc.) pass through so they keep working if they ever fire.
-     */
+    // Gutenberg's back arrow lands here; only redirect idle GETs (bulk-action POSTs pass through).
     public function redirect_post_type_list(): void
     {
         global $pagenow;
@@ -64,11 +53,7 @@ final class PageController
         );
     }
 
-    /**
-     * Keep the "Email Toolkit → Contact Forms" entry highlighted while the
-     * user is editing a contact-form post in Gutenberg. Without this, WP
-     * would highlight the (hidden) CPT menu, then nothing visible.
-     */
+    // Without this WP highlights the hidden CPT menu entry during Gutenberg editing.
     public function highlight_parent_menu(): void
     {
         global $parent_file, $submenu_file, $current_screen;

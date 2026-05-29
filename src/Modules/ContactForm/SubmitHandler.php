@@ -14,16 +14,7 @@ use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
 use LRob\EmailToolkit\Plugin;
 use LRob\EmailToolkit\Support\Events;
 
-/**
- * AJAX endpoint that processes every contact-form submission. Hangs off both
- * `wp_ajax_nopriv_lrob_etk_cf_submit` and `wp_ajax_lrob_etk_cf_submit`.
- *
- * Pipeline order matters — cheap checks before expensive ones: nonce → form
- * exists + published → honeypot (silent success so bots can't adapt) →
- * time-trap → rate limit → challenge → field validation. On success: insert
- * submission row → send via SMTP → update with log_id. Dispatches
- * contact_form.* events at every interesting transition.
- */
+// Docs: docs/contact-form.md — see § Submission pipeline for the full order.
 final class SubmitHandler
 {
     public const ACTION = 'lrob_etk_cf_submit';
@@ -78,22 +69,9 @@ final class SubmitHandler
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? (string) $_SERVER['HTTP_USER_AGENT'] : '',
             'referer'    => isset($_SERVER['HTTP_REFERER']) ? (string) $_SERVER['HTTP_REFERER'] : '',
         ];
-        // Per-form opt-out of submission persistence. Notification email
-        // still goes out (that's the form's whole point); we just don't
-        // archive. SubmitHandler routes every insert() call through this
-        // gate via $persist below.
         $persist = Settings::effective_save_submissions($form_id);
 
-        // Captcha state captured up front so every insert path (honeypot,
-        // time-trap, rate-limit, challenge-fail, happy path) records the
-        // same canonical slug. Outcome starts as "skipped" and flips to
-        // passed / failed once the challenge actually runs.
-        //
-        // Routing-key world (v0.1.0+): per-form meta stores 'none' /
-        // 'homemade:X' / 'identity:N' / '' (inherit). CaptchaService
-        // resolves whichever applies, using the contact_form context to
-        // fall back to the Captcha page's contact_form override (or its
-        // global default if that's set to 'inherit').
+        // Captcha slug captured early so every insert path records the same canonical slug.
         $captcha_route = Settings::effective_routing_key($form_id);
         $captcha_service = $this->captcha_service();
         $captcha_context = [
@@ -115,10 +93,7 @@ final class SubmitHandler
         $context['captcha_slug'] = $captcha_slug;
         $context['captcha_outcome'] = $captcha_outcome;
 
-        // Per-reason spam persistence: even when global save_submissions is
-        // on, the admin may want honeypot / time-trap rows skipped (those
-        // are bot-only, clutter the inbox). Captcha-fail is gated
-        // separately because it can also affect legitimate users.
+        // Bot-rows skipped separately; captcha-fail gated separately (can affect real users).
         $persist_bot = $persist && Settings::save_spam_bot();
 
         // Honeypot returns a successful-looking response so bots can't adapt.
@@ -183,12 +158,7 @@ final class SubmitHandler
             : 0;
         $this->rate_limiter->record($ip_hash, $form_id);
 
-        // Per-field delivery: each file_upload field carries its own mode
-        // ('webserver' | 'attachment' | 'both') in the form structure JSON.
-        // Different upload fields on the same form can choose different
-        // modes. When the form opts out of persistence (or insert failed),
-        // every field is clamped to 'attachment' — there's no submission
-        // row to anchor stored files to.
+        // When persistence is off / insert failed, all uploads clamp to 'attachment' (no submission row to anchor stored files).
         $field_deliveries = [];
         foreach ($field_blocks as $slug => $def) {
             $attrs = is_array($def['attrs'] ?? null) ? $def['attrs'] : [];
@@ -202,8 +172,6 @@ final class SubmitHandler
             $field_deliveries[$slug] = $delivery;
         }
 
-        // Pick the slugs to persist (webserver + both) and run them
-        // through storage. Slugs in attachment-only mode skip storage.
         $slugs_to_store = [];
         foreach ($field_deliveries as $slug => $delivery) {
             if (in_array($delivery, [UploadPolicy::DELIVERY_WEBSERVER, UploadPolicy::DELIVERY_BOTH], true)
@@ -215,9 +183,7 @@ final class SubmitHandler
             ? $this->store_validated_files($slugs_to_store, $submission_id, $form_id)
             : [];
 
-        // Build the wp_mail attachment list per-field. attachment mode
-        // uses the still-on-disk tmp_name; both uses the freshly-stored
-        // absolute path so wp_mail can find it after move_uploaded_file.
+        // attachment mode: use tmp_name; both mode: use stored absolute path (post move_uploaded_file).
         $email_attachments = [];
         foreach ($field_deliveries as $slug => $delivery) {
             if ($delivery === UploadPolicy::DELIVERY_ATTACHMENT) {
@@ -261,7 +227,6 @@ final class SubmitHandler
             }
         }
 
-        // Send via SMTP — push 'contact_form' source so SMTP routing rules can target it.
         $send_result = $this->send_notification_email(
             $form,
             $form_id,
@@ -277,9 +242,8 @@ final class SubmitHandler
             if ($send_result['ok']) {
                 $this->submissions->update_status($submission_id, SubmissionRepository::STATUS_DELIVERED, $send_result['log_id']);
             } else {
+                // Still return success to the user — submission is on the server; admin can resend from Logs.
                 $this->submissions->update_status($submission_id, SubmissionRepository::STATUS_FAILED, null, $send_result['error']);
-                // Still tell the user we received it — the message *is* on the
-                // server. Admin can resend from the Logs page.
             }
         }
         if ($send_result['ok']) {
@@ -335,10 +299,6 @@ final class SubmitHandler
     }
 
     /**
-     * Walk a FormStructure (rows of columns of fields) and return a slug →
-     * field descriptor map for validation + composition. The "name" key
-     * keeps the `lrob-etk/field-{type}` shape callers downstream expect.
-     *
      * @param array{rows:array<int, array{columns:array<int, array{fields:array<int, array<string, mixed>>}>}>} $structure
      * @return array<string, array{name:string, attrs:array<string, mixed>}>
      */
@@ -370,12 +330,9 @@ final class SubmitHandler
     }
 
     /**
-     * Validate each declared field against its submitted value. Returns
-     * slug → error message; empty array means valid.
-     *
      * @param array<string, array{name:string, attrs:array<string, mixed>}> $fields
      * @param array<string, mixed> $values
-     * @return array<string, string>
+     * @return array<string, string> slug → error message; empty = valid
      */
     private static function validate_fields(array $fields, array $values): array
     {
@@ -523,19 +480,12 @@ final class SubmitHandler
     }
 
     /**
-     * Build + send the notification email via wp_mail. Pushes 'contact_form'
-     * onto the SourceResolver so the SMTP module can route through routing
-     * rules. If META_RECIPIENT_IDENTITY is set on the form, that identity
-     * overrides routing for this single send.
-     *
      * @param array<string, array{name:string, attrs:array<string, mixed>}> $field_blocks
      * @param array<string, mixed> $field_values
-     * @return array{ok:bool, log_id:?int, error:?string}
-     */
-    /**
      * @param array<string, list<array{file_id:int, original_name:string, size:int, stored_path:string}>> $file_records_by_slug
      * @param array<string, list<array{original_name:string, size:int}>> $attachment_summary_by_slug
      * @param list<array{path:string, name:string}> $email_attachments
+     * @return array{ok:bool, log_id:?int, error:?string}
      */
     private function send_notification_email(
         \WP_Post $form,
@@ -566,7 +516,6 @@ final class SubmitHandler
         }
         $headers[] = 'Content-Type: text/html; charset=UTF-8';
 
-        // Force-pick the per-form (or per-module-default) identity if configured.
         $forced_router = null;
         $identity_id = Settings::effective_identity_id($form_id);
         if ($identity_id > 0 && class_exists(IdentityRepository::class) && class_exists(MailRouter::class)) {
@@ -580,11 +529,7 @@ final class SubmitHandler
             }
         }
 
-        // wp_mail's $attachments only accepts paths (display name = basename).
-        // To keep the visitor's original filenames in the email client, hook
-        // phpmailer_init and call addAttachment($path, $name) directly. The
-        // hook closure is registered + unregistered around the send so it
-        // doesn't leak to other wp_mail() calls firing inside this request.
+        // phpmailer_init hook preserves visitor filenames (wp_mail $attachments only keeps basenames).
         $attach_hook = null;
         if ($email_attachments !== []) {
             $attach_hook = static function ($phpmailer) use ($email_attachments): void {
@@ -619,19 +564,11 @@ final class SubmitHandler
             }
         }
 
-        // log_id is not directly returned by wp_mail; the Logging module fills it.
-        // We intentionally don't try to look it up here — keeping the coupling loose.
         unset($body_text); // body_text is built for future plain-part support; not used yet.
         return ['ok' => $ok, 'log_id' => null, 'error' => $ok ? null : 'wp_mail_returned_false'];
     }
 
-    /**
-     * Parse a comma-separated recipient string into a clean list of valid
-     * email addresses. Returns [] when nothing is valid (caller should fail
-     * the send and surface invalid_recipient).
-     *
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     private static function parse_recipient_list(string $raw): array
     {
         $out = [];
@@ -832,9 +769,6 @@ final class SubmitHandler
     }
 
     /**
-     * Replace {field:slug} tokens in a string template with submitted values.
-     * Also supports {title} for the form's title.
-     *
      * @param array<string, mixed> $values
      * @param array<string, array{name:string, attrs:array<string, mixed>}> $fields
      */
@@ -851,14 +785,8 @@ final class SubmitHandler
         return preg_replace('/[\r\n]+/', ' ', $out) ?? '';
     }
 
+    // For select/radio/checkbox, maps submitted value → option label so the email shows "Hello" not "hello" / "option_1".
     /**
-     * Stringify a submitted value for display in subject / body / templates.
-     * For multi-choice fields (select / radio / checkbox), the submitted
-     * scalar is the option's `value` (the HTML-form transport identifier);
-     * we look the option up in `$attrs['options']` and emit its `label`
-     * instead so the email reads as "Subject: Hello" rather than
-     * "Subject: hello" or "Subject: option_1".
-     *
      * @param array<string, mixed> $attrs
      */
     private static function value_for_display(mixed $value, array $attrs = []): string
@@ -896,11 +824,7 @@ final class SubmitHandler
     // -- File uploads --------------------------------------------------
 
     /**
-     * Inspect $_FILES for every file_upload field declared by the form.
-     * Populates $errors (slug → user-facing message) on any rejection.
-     * Returns the list of files that passed validation, keyed by field
-     * slug. Disk move happens later in store_validated_files() so a single
-     * validation failure rolls back EVERY field's files atomically.
+     * Disk move deferred to store_validated_files() so a single failure rolls back all fields atomically.
      *
      * @param array<string, array{name:string, attrs:array<string, mixed>}> $field_blocks
      * @param array<string, string> $errors  Mutated in place.
@@ -1050,12 +974,6 @@ final class SubmitHandler
     }
 
     /**
-     * Move validated files to permanent storage, run EXIF strip on images
-     * when the field requested it, and insert one cf_files row per file.
-     * Returns the freshly-created file records grouped by field slug, used
-     * by compose_body() to render the email's attachment list and by the
-     * 'both' file-delivery mode to find on-disk paths for wp_mail.
-     *
      * @param array<string, list<array{tmp_name:string, original_name:string, size:int, mime:string, ext:string, strip_exif:bool}>> $validated
      * @return array<string, list<array{file_id:int, original_name:string, size:int, stored_path:string}>>
      */
@@ -1103,13 +1021,8 @@ final class SubmitHandler
         return $out;
     }
 
-    /**
-     * Extract the upload(s) for one specific field from PHP's nested $_FILES
-     * structure. PHP arranges array-named uploads as parallel arrays of
-     * name/tmp_name/size/error; this unrolls them into a flat list.
-     *
-     * @return list<array{name:string, tmp_name:string, size:int, error:int}>
-     */
+    // PHP's multi-upload parallel arrays (name[]/tmp_name[]/size[]/error[]) unrolled into a flat list.
+    /** @return list<array{name:string, tmp_name:string, size:int, error:int}> */
     private static function extract_file_uploads(string $instance, string $field_slug, bool $multiple): array
     {
         $top = $_FILES[CPT::FIELD_NAME_PREFIX] ?? null;
@@ -1157,12 +1070,7 @@ final class SubmitHandler
         return $out;
     }
 
-    /**
-     * Re-encode an image in place to strip EXIF + other metadata. Tries
-     * Imagick first (preserves color profile better), falls back to GD,
-     * silently no-ops if neither is available — the field's strip_exif
-     * is a best-effort hint, not a guarantee.
-     */
+    // Imagick first (preserves color profile), GD fallback. Best-effort: no-ops if neither is available.
     private static function strip_exif_in_place(string $path, string $mime): void
     {
         if (class_exists('Imagick')) {

@@ -6,11 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha;
 
 use LRob\EmailToolkit\Support\Encryption;
 
-/**
- * CRUD against the lrob_etk_captcha_identities table. Mirrors SMTP's
- * IdentityRepository: rest of the codebase deals in plaintext credential
- * arrays, only this class touches Encryption directly.
- */
+// Docs: docs/captcha.md → "Identity credentials"
 final class IdentityRepository
 {
     /** @return array<int, Identity> */

@@ -1,13 +1,4 @@
-/* LRob Email Toolkit — Contact Form frontend styles
- *
- * Scoped under .lrob-etk-form so it never bleeds into surrounding theme CSS.
- * Each CSS custom property uses a fallback chain:
- *   1. The plugin variable (set inline by per-block / per-form / global settings)
- *   2. The matching WP FSE theme preset variable, where one exists
- *   3. A hardcoded sensible default
- * This way a block-theme's primary color and typography flow into the form for
- * free, but users can still pin specific values when they want.
- */
+/* LRob Email Toolkit — frontend form styles. Docs: docs/forms.md */
 
 .lrob-etk-form {
     --lrob-etk-cf-font:        inherit;
@@ -15,26 +6,14 @@
     --lrob-etk-cf-radius:      8px;
     --lrob-etk-cf-spacing:     1rem;
     --lrob-etk-cf-accent:      var(--wp--preset--color--primary, #2563eb);
-    /* Text/icon on the accent-filled submit button. Fixed light default so it
-     * matches the admin preview (which has no WP color presets and falls back
-     * to white) — keying it off `--wp--preset--color--base` made the frontend
-     * pick up the theme's (often non-white) base and clash. Still a var, so a
-     * per-form theme can override it for a light accent. */
+    /* Fixed light default — theme base color clashes on dark accents. */
     --lrob-etk-cf-accent-fg:   #fff;
     --lrob-etk-cf-border:      var(--wp--preset--color--tertiary, #cbd5e1);
     --lrob-etk-cf-border-focus: var(--lrob-etk-cf-accent);
     --lrob-etk-cf-bg:          var(--wp--preset--color--base, #fff);
-    /* Form root text (labels, helpers): inherit so the form follows
-     * whichever section it's dropped into. `--wp--preset--color--contrast`
-     * is a single FSE-wide value (not context-aware), so on a dark
-     * group/section it'd still resolve to the global contrast and clash. */
+    /* inherit — contrast preset is FSE-wide, not context-aware */
     --lrob-etk-cf-fg:          inherit;
-    /* Input chrome text (tel/email/number/select/textarea + the phone
-     * picker): inputs carry their own --lrob-etk-cf-bg (typically light),
-     * so their text MUST be readable against that — not the page bg.
-     * `--wp--preset--color--contrast` is the right hook here: it's the
-     * theme's "text-on-light-content" choice. The "contrast" form preset
-     * overrides this for explicit high-contrast wanted. */
+    /* contrast hook: inputs sit on --cf-bg (light), so needs light-content text */
     --lrob-etk-cf-input-fg:    var(--wp--preset--color--contrast, #0f172a);
     --lrob-etk-cf-muted:       #64748b;
     --lrob-etk-form-error:       #b91c1c;
@@ -64,9 +43,6 @@
     gap: var(--lrob-etk-cf-spacing);
 }
 
-/* Each form row uses CSS Grid; the column count is the editor's choice and
- * comes through as a data attribute. Collapses to a single column on narrow
- * screens so labels and inputs stay readable. */
 .lrob-etk-form .lrob-etk-form-row {
     display: grid;
     gap: var(--lrob-etk-cf-spacing);
@@ -352,16 +328,9 @@
     --lrob-etk-cf-shadow-focus: 0 0 0 3px rgba(15, 23, 42, .25);
 }
 
-/* ---------- Homemade challenge (math / picture) — shared layout ----------
- *
- * Self-contained so the rendered challenge looks identical in all three
- * places it appears: the live form (inside .lrob-etk-form), the form-builder
- * editor preview (inside .lrob-etk-form.is-editor), and the captcha-settings
- * preview (NOT inside .lrob-etk-form). None of these rules lean on the
- * `.lrob-etk-form input` scope, which is absent in the settings preview —
- * that scope-gap is exactly what used to leave the math answer glued to the
- * right of the question there. flex-column stacks label / input / helper
- * tight regardless of container. */
+/* Homemade challenge — self-contained so it renders identically inside
+ * .lrob-etk-form, the editor preview, AND the captcha-settings preview
+ * (which has no .lrob-etk-form input scope). */
 .lrob-etk-cf-challenge {
     display: flex;
     flex-direction: column;
@@ -476,10 +445,7 @@
     display: block;
 }
 
-/* hCaptcha widget is 303×78px (normal) and the iframe doesn't shrink to
- * fit narrow columns. Reserve its natural width and allow horizontal
- * scroll on the field — better than letting the iframe visually leak
- * onto adjacent columns. */
+/* hCaptcha iframe doesn't shrink — allow horizontal scroll rather than overflow. */
 .lrob-etk-form .lrob-etk-form-field--challenge {
     overflow-x: auto;
     max-width: 100%;
@@ -488,10 +454,7 @@
     min-width: 303px;
 }
 
-/* Narrow contexts (wp-login is ~270px): a full-size hosted widget (~300px)
- * overflows into a horizontal scrollbar — ugly. Scale it down to fit instead
- * (clip the layout-box overflow with overflow:hidden; the scaled content fits
- * within the column). Compact widgets already fit, so just centre them. */
+/* wp-login is ~270px; scale down full-size widgets to fit. */
 .lrob-etk-captcha-wrap--narrow .lrob-etk-form-field--challenge {
     overflow: hidden;
 }
@@ -507,9 +470,6 @@
     margin: 0 auto;
 }
 
-/* Captcha alignment wrapper — emitted by FieldRenderer::captcha around
- * whatever the provider rendered. No `stretch` variant since captcha
- * widgets are fixed-width (303px for hCaptcha). Defaults to center. */
 .lrob-etk-form .lrob-etk-form-captcha-align {
     display: flex;
     flex-direction: column;
@@ -518,11 +478,7 @@
 .lrob-etk-form .lrob-etk-form-captcha-align.is-align-center { align-items: center; }
 .lrob-etk-form .lrob-etk-form-captcha-align.is-align-right  { align-items: flex-end; }
 
-/* --- Phone field: country code picker ------------------------------
- * Composite widget: trigger button (flag + dial code + caret) glued to a
- * tel input via a single rounded border. The whole assembly behaves like
- * one form control. Opens a dropdown menu of countries with a search-as-
- * you-type filter. Enabled when the field has data-country-picker on. */
+/* --- Phone country picker --- */
 .lrob-etk-form .lrob-etk-form-phone {
     position: relative;
     display: flex;
@@ -558,8 +514,7 @@
 .lrob-etk-form .lrob-etk-form-phone-flag {
     font-size: 18px;
     line-height: 1;
-    /* Force-disable WP's emoji-img replacement on flags so the picker
-     * shows the OS-native flag glyph (not a low-res Twemoji PNG). */
+    /* Disable WP emoji-img replacement so flags render as OS glyphs. */
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
 }
 .lrob-etk-form .lrob-etk-form-phone-dial {
@@ -644,11 +599,7 @@
     font-size: 12px;
 }
 
-/* --- File upload field --------------------------------------------
- * Native <input type="file"> is hidden behind a label-button to avoid
- * the OS-default file-input chrome (which is unstyleable on most
- * browsers). The visible UI is the label-button + a list of selected
- * files. Pre-submit JS pops invalid entries with .is-invalid. */
+/* --- File upload --- */
 .lrob-etk-form .lrob-etk-form-file {
     display: flex;
     flex-direction: column;

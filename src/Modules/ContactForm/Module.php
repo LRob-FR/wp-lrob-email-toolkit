@@ -25,22 +25,7 @@ use LRob\EmailToolkit\Modules\ContactForm\Admin\PageController;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsAjax;
 use LRob\EmailToolkit\Modules\ContactForm\Admin\SubmissionsPage;
 
-/**
- * Contact Form module — customizable forms with stacked anti-spam (honeypot,
- * time-trap, rate limit, math challenge) plus a future captcha layer.
- *
- * Architecture summary (see CLAUDE.md for full detail):
- *  - Forms are stored as a CPT (`lrob_etk_contact_form`) edited in Gutenberg.
- *  - Field types are individual Gutenberg blocks registered server-side; each
- *    block has a render_callback that emits frontend HTML scoped to the
- *    current FormContext.
- *  - Page-side, a separate `lrob-etk/contact-form` block picks a form by ID
- *    and wraps its rendered blocks in a &lt;form&gt; element with per-render
- *    instance scoping.
- *  - Submissions hit a single AJAX endpoint (SubmitHandler) and persist to
- *    a dedicated submissions table. Notification email is dispatched through
- *    the SMTP module using the 'contact_form' source.
- */
+// Docs: docs/contact-form.md
 final class Module extends AbstractModule
 {
     public function slug(): string
@@ -77,26 +62,7 @@ final class Module extends AbstractModule
         self::migrate_captcha_routing_keys();
     }
 
-    /**
-     * v1 → v2: submissions table grew `captcha_slug` + `captcha_outcome`
-     * columns. dbDelta handles the additive ALTER TABLE — rerun install().
-     *
-     * v2 → v3: per-form `_lrob_etk_cf_challenge` post meta now stores
-     * captcha routing keys ('homemade:math', 'identity:7', …) instead of
-     * bare challenge slugs. The old `lrob_etk_contact_form_settings.challenge`
-     * entry is folded into the Captcha module's `lrob_etk_captcha_context_map`
-     * if the contact_form context is still set to 'inherit'. install()
-     * forwards through to migrate_captcha_routing_keys() which is fully
-     * idempotent.
-     *
-     * v3 → v4: submissions table grew an `ip_address` column. Default empty
-     * string means "raw IP not captured" (privacy-first default). dbDelta
-     * handles the additive ALTER TABLE.
-     *
-     * v4 → v5: new `lrob_etk_contact_files` table for the file-upload field
-     * type. Submission JSON references file IDs; the actual file metadata
-     * + on-disk path live here. dbDelta creates the table on existing sites.
-     */
+    // Schema version history: docs/contact-form.md § Module lifecycle.
     public function migrate(int $from_version, int $to_version): void
     {
         unset($to_version);
@@ -114,10 +80,7 @@ final class Module extends AbstractModule
         }
     }
 
-    /**
-     * One-time conversion of pre-v0.1.0 captcha settings to routing keys.
-     * Idempotent: re-runs see nothing left to convert.
-     */
+    // Idempotent: re-runs see nothing left to convert.
     private static function migrate_captcha_routing_keys(): void
     {
         // 1. Per-form meta: bare slugs → 'homemade:<slug>'. 'none' and ''
@@ -233,10 +196,7 @@ final class Module extends AbstractModule
         $this->container->set(SubmissionRepository::class, $submissions);
         $this->container->set(FileRepository::class, $files);
 
-        // Field types this CPT accepts. The shared form-builder dispatches
-        // via the registry — adding a new field type here is the entry
-        // point. Captcha is module-specific (its routing reads contact-form
-        // meta + the contact_form Captcha context); the rest are stock.
+        // Captcha is module-specific; its routing reads per-form meta + the contact_form Captcha context.
         $registry = $this->container->get(FieldTypeRegistry::class);
         if ($registry instanceof FieldTypeRegistry) {
             $registry->register(CPT::POST_TYPE, new TextField());
@@ -250,12 +210,9 @@ final class Module extends AbstractModule
             $registry->register(CPT::POST_TYPE, new CheckboxField());
             $registry->register(CPT::POST_TYPE, new FileUploadField());
             $registry->register(CPT::POST_TYPE, new SubmitField());
-            // Shared captcha field, configured for the contact_form Captcha
-            // routing context + the legacy META_CHALLENGE_KIND meta key.
             $registry->register(CPT::POST_TYPE, new SharedCaptchaField('contact_form', CPT::META_CHALLENGE_KIND));
         }
 
-        // Runtime (CPT, blocks, AJAX submit, cron) only when enabled.
         if ($this->is_enabled()) {
             (new CPT())->register();
             (new Blocks())->register();
@@ -268,9 +225,7 @@ final class Module extends AbstractModule
             $retention->schedule();
         }
 
-        // Admin chrome stays registered regardless of enabled state, so the
-        // user can land on the Contact Forms page after disabling and
-        // re-enable from there (FormsPage shows a disabled-state message).
+        // Admin chrome registered regardless of module state so the user can re-enable from the page.
         if (is_admin()) {
             add_action('admin_post_' . $this->toggle_action(), [$this, 'handle_toggle']);
             $submissions_page = new SubmissionsPage($submissions);
@@ -278,11 +233,7 @@ final class Module extends AbstractModule
             $forms_page->register();
             (new PageController($this, $forms_page))->register();
             (new AjaxController())->register();
-            // Email action buttons (view/spam/delete) — handlers fire on
-            // admin_post regardless of which admin page is showing.
             (new EmailActions($submissions, $files))->register();
-            // AJAX endpoints driving the submissions inbox: live filter
-            // updates + bulk spam/delete on selected rows.
             (new SubmissionsAjax($submissions_page, $submissions, $files))->register();
         }
     }

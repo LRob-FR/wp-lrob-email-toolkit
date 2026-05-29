@@ -11,32 +11,7 @@ use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
 use LRob\EmailToolkit\Plugin;
 use LRob\EmailToolkit\Support\Events;
 
-/**
- * AJAX endpoint that handles every subscribe-form submission. Hangs
- * off both `wp_ajax_<ACTION>` and `wp_ajax_nopriv_<ACTION>` — most
- * submissions come from logged-out visitors.
- *
- * Pipeline order matters (cheap checks first):
- *   1. Nonce.
- *   2. Form exists + published.
- *   3. Honeypot — silent success so bots can't tell they were caught.
- *   4. Time-trap — same silent success.
- *   5. Captcha verify (newsletter_subscribe context + per-form route).
- *   6. Email validation.
- *   7. Recipient resolution + state transition:
- *        - WP user with this email → opt them in directly (already
- *          email-verified at registration; no double-opt-in needed).
- *        - Existing subscriber, status=confirmed → silent success
- *          (anti-enumeration; we don't reveal that this email is
- *          already on the list).
- *        - Existing subscriber, any other status → reset to pending,
- *          regenerate token, dispatch confirmation email.
- *        - No match → create new pending subscriber row, dispatch.
- *   8. Return JSON with the user-facing success message.
- *
- * Newsletter-side honeypot + time-trap always-on; no per-form
- * override yet. Captcha override IS per-form via FormCPT::META_CAPTCHA_ROUTE.
- */
+// Docs: docs/newsletter-internals.md
 final class SubmitHandler
 {
     public const ACTION = 'lrob_etk_nl_subscribe';

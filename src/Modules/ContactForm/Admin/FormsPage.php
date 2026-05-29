@@ -27,18 +27,7 @@ use LRob\EmailToolkit\Modules\ContactForm\TemplateRegistry;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 use LRob\EmailToolkit\Plugin;
 
-/**
- * Unified Contact Form admin page: module toggle, list of forms (cards),
- * and global defaults grouped on a single screen. Replaces both the
- * separate "Add New" submenu and the standalone defaults page; users edit
- * a form by clicking it (which opens Gutenberg), create a new one via the
- * header button, and tweak global defaults in the section below the list.
- *
- * Matches the SMTP page chrome: `.lrob-etk-page-header` with inline module
- * toggle, `.lrob-etk-card-grid` card grid for entities, and
- * `.lrob-etk-modal-columns` for multi-column settings — no full-width
- * stretches.
- */
+// Docs: docs/contact-form.md
 final class FormsPage
 {
     public const SLUG = 'lrob-etk-cform';
@@ -75,11 +64,6 @@ final class FormsPage
             self::asset_version('assets/css/contact-form.css')
         );
 
-        // Inbox JS — live filter AJAX + bulk actions. Only relevant when
-        // the submissions view is showing, but it's cheap to register
-        // either way; the script guards itself by querying for the inbox
-        // root before binding anything. Depends on the plugin-wide
-        // list-filter helper enqueued by Admin\Assets.
         wp_enqueue_script(
             'lrob-etk-cf-submissions-inbox',
             LROB_ETK_URL . 'admin/js/contact-form-submissions-inbox.js',
@@ -87,9 +71,6 @@ final class FormsPage
             self::asset_version('admin/js/contact-form-submissions-inbox.js'),
             true
         );
-        // A direct link to a submission (?view=submissions&detail=N from the
-        // dashboard, an email "View" link, or the logs cross-link) lands on
-        // the inbox; the JS auto-opens the detail modal for it.
         $auto_open = 0;
         if (
             isset($_GET['view'], $_GET['detail'])
@@ -131,15 +112,8 @@ final class FormsPage
             ],
         ]);
 
-        // The frontend form JS exposes `window.lrobEtkPhone.attach()` and
-        // `window.lrobEtkForm.countries`, both required to hydrate the
-        // editor preview's phone country picker. Its submit handler binds
-        // to .lrob-etk-form but the editor wraps fields in a <div>, so the
-        // bound listener is a no-op here.
         FormFrontend::enqueue_assets();
 
-        // The shared combobox (lrob-etk-controls) is enqueued plugin-wide
-        // via Admin\Assets, so we only need our auto-save script here.
         wp_enqueue_script(
             'lrob-etk-cf-admin',
             LROB_ETK_URL . 'admin/js/contact-form-admin.js',
@@ -164,10 +138,7 @@ final class FormsPage
             ],
         ]);
 
-        // Shared WYSIWYG fields editor — hover overlays, contenteditable
-        // handlers, gear popup, "+" insertion zones, drag-drop, serializer.
-        // Lives under admin/js/form-fields-editor.js (host-neutral name) so
-        // Newsletter's form CPT can reuse the same handle + file.
+        // form-fields-editor.js is host-neutral — Newsletter reuses the same handle.
         wp_enqueue_script(
             'lrob-etk-form-fields-editor',
             LROB_ETK_URL . 'admin/js/form-fields-editor.js',
@@ -190,10 +161,6 @@ final class FormsPage
             'pageUrl' => admin_url('admin.php?page=' . self::SLUG),
         ]);
 
-        // Pass the captcha picker's option list to the editor JS so the
-        // in-block picker can build itself on field insert + swap the
-        // preview HTML on change. Shape mirrors what the server-side
-        // picker (Fields\CaptchaField::options_html) emits.
         $captcha_service = self::captcha_service();
         $captcha_options = SharedCaptchaField::build_editor_options('contact_form', $captcha_service);
         wp_localize_script('lrob-etk-form-fields-editor', 'lrobEtkFormEditor', [
@@ -206,8 +173,6 @@ final class FormsPage
             'uploadTier1Extensions' => UploadPolicy::tier1_extensions(),
             'uploadTier2Extensions' => UploadPolicy::tier2_extensions(),
             'serverMaxUploadBytes'  => (int) wp_max_upload_size(),
-            // Save plumbing for the shared editor JS. Falls back to
-            // lrobEtkCfAdmin if absent (legacy / cached pages).
             'save' => [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce'   => wp_create_nonce(AjaxController::NONCE_ACTION),
@@ -297,13 +262,6 @@ final class FormsPage
         return $version;
     }
 
-    /**
-     * Render the shared `.lrob-etk-combo` combobox in fixed-value mode.
-     * Hidden input carries the actual value and gets the `lrob-etk-cf-field`
-     * class so the auto-save picks up its `change` event.
-     *
-     * @param array<int, array{value:string|int, label:string}> $options
-     */
     /** Sentinel stored in reply_to_field when the form explicitly opts OUT of any Reply-To header. */
     public const REPLY_TO_NONE = '__none__';
 
@@ -314,9 +272,6 @@ final class FormsPage
     }
 
     /**
-     * Walk a form's structure and return the slugs of every email-type
-     * field. Used by render_form_card to populate the Reply-To picker.
-     *
      * @param array<string, mixed> $structure
      * @return array<int, string>
      */
@@ -344,14 +299,7 @@ final class FormsPage
         return array_values(array_unique($slugs));
     }
 
-    /**
-     * Known-email suggestions shown in the recipient-row chevron menu:
-     * admin email, current user email, other administrators. De-duplicated,
-     * stable order: admin first, current user second (if different), other
-     * admins after.
-     *
-     * @return array<int, array{value:string, label:string}>
-     */
+    /** @return array<int, array{value:string, label:string}> */
     private static function known_email_suggestions(): array
     {
         $out = [];
@@ -421,15 +369,7 @@ final class FormsPage
         return $out;
     }
 
-    /**
-     * Render the recipients control: stacked rows (one email each) with a
-     * "+ Add recipient" trigger, plus a hidden mirror input that carries
-     * the canonical comma-separated value to the auto-save layer. The
-     * chevron button on each row pops a small menu of known emails (admin,
-     * current user, other admins) — populated client-side from
-     * lrobEtkCfAdmin.knownEmails so we don't render the same list 20× when
-     * 20 forms share the page.
-     */
+    // Known-emails list injected client-side so it isn't repeated per card.
     private static function render_recipients(string $current_value, string $placeholder, string $key = CPT::META_RECIPIENT): void
     {
         $emails = array_filter(array_map('trim', explode(',', $current_value)));
@@ -470,38 +410,12 @@ final class FormsPage
         <?php
     }
 
-    /**
-     * Each setting picks its own "inherit" sentinel: most use '' (empty),
-     * SMTP identity uses '0', Honeypot uses 'default'. Pass that sentinel
-     * as $inherit_value so the picker knows which option's label should
-     * become the muted placeholder and when to leave the readonly input
-     * empty. This kills the "some defaults are greyed, some aren't"
-     * inconsistency the user flagged.
-     */
-    /**
-     * Free-text combobox: the input is editable AND a chevron opens a list
-     * of suggestions (typically the inheritable default value). Same shape
-     * as the SMTP host / from-email comboboxes — wired up by the auto-init
-     * in contact-form-admin.js once the card mounts.
-     *
-     * @param array<int, array{value:string, label:string}> $suggestions
-     */
-    /**
-     * Free-text combobox — thin shim over the shared Admin\Combobox so
-     * both modules render the same DOM. Auto-save marker is hardcoded
-     * to `lrob-etk-cf-field` for ContactForm.
-     *
-     * @param array<int, array{value:string, label:string}> $suggestions
-     */
+    /** @param array<int, array{value:string, label:string}> $suggestions */
     private static function render_free_combobox(string $meta_key, string $current_value, array $suggestions, string $placeholder = ''): void
     {
         Combobox::render_free_text($meta_key, $current_value, $suggestions, $placeholder, 'lrob-etk-cf-field');
     }
 
-    /**
-     * Fixed-value combobox shim — same purpose as render_free_combobox,
-     * delegated to Admin\Combobox.
-     */
     private static function render_combobox(string $meta_key, string $current_value, array $options, string $inherit_value = ''): void
     {
         Combobox::render_fixed_select($meta_key, $current_value, $options, $inherit_value, 'lrob-etk-cf-field');
@@ -513,9 +427,6 @@ final class FormsPage
             wp_die(esc_html__('Insufficient permissions.', 'lrob-email-toolkit'));
         }
 
-        // View dispatch: ?view=submissions is the Submissions inbox living
-        // under this page's slug (no separate admin URL). Keeps the cap
-        // check + sidebar highlight consistent without a hidden submenu.
         $view = isset($_GET['view']) && is_string($_GET['view']) ? sanitize_key((string) $_GET['view']) : '';
         if ($view === self::VIEW_SUBMISSIONS) {
             $this->submissions_page->render();
@@ -576,13 +487,7 @@ final class FormsPage
         <?php
     }
 
-    /**
-     * Shared confirmation modal triggered from every form card's Delete
-     * button. Wired client-side: the trigger button data-* attrs are read
-     * on click, the modal populates with the form title + count, and the
-     * orphan / cascade choice picks which pre-signed URL to navigate to.
-     * No AJAX — the URLs already carry the nonce.
-     */
+    // Two delete paths (orphan vs cascade) are pre-signed; modal JS picks one on click.
     private function render_delete_modal(): void
     {
         ?>
@@ -702,12 +607,6 @@ final class FormsPage
         <?php
     }
 
-    /**
-     * Aggregate submissions stats at the bottom of the Forms page. Doubles
-     * as the secondary entry point into the Submissions inbox — the primary
-     * being the "View submissions" header button. Hidden when nothing has
-     * ever been received.
-     */
     private function render_submissions_panel(): void
     {
         $counts = (new SubmissionRepository())->counts_by_status();
@@ -804,12 +703,6 @@ final class FormsPage
     }
 
     /**
-     * Interactive form card. Every input auto-saves on blur/change via the
-     * AjaxController endpoint. Per-form sentinel values ('', 0, 'default')
-     * mean "inherit the global default" — placeholders / "Default" options
-     * make that explicit. Edit mode (Gutenberg) is reserved for the form's
-     * field layout; settings live exclusively here.
-     *
      * @param array{id:int, title:string, status:string, created:string, submissions:int} $form
      * @param array<int, array{id:int, label:string, is_default:bool}> $identities
      * @param array<string, mixed> $globals
@@ -839,9 +732,6 @@ final class FormsPage
             : '';
         $title = $form['title'];
 
-        // Raw per-form values (sentinels included) — the JS auto-save sends
-        // these back as-is. Display-time fallback to globals is purely for
-        // showing placeholders / "Default (X)" labels.
         $meta = [
             'recipient'    => (string) get_post_meta($form_id, CPT::META_RECIPIENT, true),
             'identity_id'  => (int) get_post_meta($form_id, CPT::META_RECIPIENT_IDENTITY, true),
@@ -900,8 +790,6 @@ final class FormsPage
         }
         $success_placeholder = self::placeholder_default($success_default);
 
-        // Build the option lists for every fixed-value combobox up front, so
-        // the markup below stays declarative.
         $identity_options = [
             ['value' => '0', 'label' => $default_identity_text],
         ];
@@ -932,10 +820,6 @@ final class FormsPage
             ['value' => 'off',     'label' => __('Off', 'lrob-email-toolkit')],
         ];
 
-        // Per-form captcha picker — same routing-key options the in-block
-        // editor picker uses, surfaced as combobox entries with optgroup
-        // hints baked into the label. Lets a form override the Captcha
-        // module's contact_form context for this one form.
         $captcha_service = self::captcha_service();
         [$ch_default_challenge, ] = $captcha_service !== null
             ? $captcha_service->resolve(['context' => 'contact_form'])

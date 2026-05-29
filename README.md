@@ -4,12 +4,12 @@
 
 ## Status
 
-**Public beta — v0.4.0 finalizing** (latest published release: v0.3.5). Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. Schema is stable, surfaces are stable; the toolkit drives real sends on production sites. v0.4.0 adds the full captcha provider lineup (hCaptcha / Turnstile / reCAPTCHA, incl. invisible + score-based v3), in-place modal detail views everywhere, resend-safe saved attachments, LRob branding, a fully tokenized admin design system (colour + typography — theming groundwork), live no-reload captcha state management, and a French i18n correctness pass (systemic mis-translation sweep). Bug reports + UX feedback welcome on GitHub issues.
+**Public beta — v0.4.0 shipped.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. Schema is stable, surfaces are stable; the toolkit drives real sends on production sites. v0.4.0 added the full captcha provider lineup (hCaptcha / Turnstile / reCAPTCHA, incl. invisible + score-based v3), in-place modal detail views everywhere, resend-safe saved attachments, LRob branding, a fully tokenized admin design system (colour + typography — theming groundwork), live no-reload captcha state management, and a French i18n correctness pass (systemic mis-translation sweep). Bug reports + UX feedback welcome on GitHub issues.
 
 Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning).
 
-For the full feature history, see [`completed.md`](./completed.md).
-For the backlog, see [`todo.md`](./todo.md).
+For the full feature history, see [`docs/done.md`](./docs/done.md).
+For the backlog, see [`docs/todo.md`](./docs/todo.md).
 
 ## What it is
 
@@ -92,7 +92,7 @@ Migrations between versions are idempotent. Downgrades are not supported. `1.0.0
 
 ## Roadmap
 
-Priority order, no version commitment — see [`todo.md`](./todo.md) for the full backlog with reasoning. **Top priorities right now**:
+Priority order, no version commitment — see [`docs/todo.md`](./docs/todo.md) for the full backlog with reasoning. **Top priorities right now**:
 
 1. **UI uniformization + theme system** (Light / Dark / LRob / Auto).
 2. **Statistics overhaul** — dedicated Newsletter view + global Email Toolkit dashboard tiles.

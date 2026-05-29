@@ -4,28 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Forms;
 
-/**
- * Shared low-level helpers used by every FieldTypeInterface impl:
- *
- *  - gen_id() — short random ids for newly-created structure entries.
- *  - normalize_base_keys() — id/type/slug/nth/label/helper/placeholder/required
- *    sanitisation that's identical across every "regular" field type.
- *  - normalize_options() / normalize_defaults() — option-list cleanup for
- *    select / radio / checkbox.
- *  - wrap_field() — outer field markup (label + control + helper + error
- *    placeholder), handles editor-mode contenteditable spans.
- *  - label_html() / helper_html() / required_toggle_html() — editor-aware
- *    sub-elements that flip between contenteditable spans and plain text.
- *  - recover_unicode_escapes() — repair pre-fix "uXXXX" sequences in stored
- *    strings (legacy data from before the wp_slash compensation landed).
- *
- * Class names emitted here use the host-neutral `lrob-etk-form-*` prefix
- * (renamed from the historical `lrob-etk-cf-*` when the form-builder
- * became shared). Modules that consume the shared builder (Contact Form
- * today, Newsletter tomorrow) all emit the same `lrob-etk-form-*` classes
- * for form-builder DOM; their module-specific admin chrome keeps its own
- * prefix (`lrob-etk-cf-*` for Contact Form, `lrob-etk-nl-*` for Newsletter).
- */
+// Docs: docs/forms.md
 final class FieldRenderHelpers
 {
     public static function gen_id(string $prefix): string
@@ -34,10 +13,6 @@ final class FieldRenderHelpers
     }
 
     /**
-     * Sanitise the keys every regular field shares. Type-specific keys
-     * (maxLength, rows, options, etc.) are added by the field type's own
-     * normalize() method after merging this base.
-     *
      * @param array<string, mixed> $field
      * @return array<string, mixed>
      */
@@ -54,16 +29,13 @@ final class FieldRenderHelpers
             // stay attached to their original field across edits. 0 here
             // means "not yet assigned"; FormStructure's post-pass
             // backfills any 0 with the next free index.
+            // nth 0 = not yet assigned; FormStructure's post-pass backfills it.
             'nth'         => isset($field['nth']) ? max(0, (int) $field['nth']) : 0,
             'label'       => isset($field['label']) ? self::recover_unicode_escapes(sanitize_text_field((string) $field['label'])) : '',
             'helper'      => isset($field['helper']) ? self::recover_unicode_escapes(sanitize_text_field((string) $field['helper'])) : '',
             'placeholder' => isset($field['placeholder']) ? self::recover_unicode_escapes(sanitize_text_field((string) $field['placeholder'])) : '',
             'required'    => !empty($field['required']),
         ];
-        // Newsletter subscribe forms map fields to subscriber profile
-        // columns via `maps_to`. The value is meaningless on Contact Form
-        // (Contact Form's SubmitHandler ignores it), so passthrough is
-        // fine — we just sanitize the key.
         if (isset($field['maps_to'])) {
             $maps = sanitize_key((string) $field['maps_to']);
             if ($maps !== '') {
@@ -101,9 +73,6 @@ final class FieldRenderHelpers
     }
 
     /**
-     * Defaults list for select/radio/checkbox. Drops values not present in
-     * $options. Caps the result to one entry when $multiple is false.
-     *
      * @param array<int, array{value:string, label:string}> $options
      * @return array<int, string>
      */
@@ -129,7 +98,6 @@ final class FieldRenderHelpers
         return $out;
     }
 
-    /** Wrap a single-control field with label + helper + error markup. */
     public static function wrap_field(
         string $type_class,
         string $slug,
@@ -156,12 +124,6 @@ final class FieldRenderHelpers
         );
     }
 
-    /**
-     * Render a field label. In editor mode the text portion is wrapped in
-     * an inline-editable span and the wrapper is a <div> (no `for` attr) —
-     * otherwise the browser's label-for-input behavior steals clicks from
-     * the contenteditable span and redirects focus to the input below.
-     */
     public static function label_html(string $label, bool $required, string $for_id): string
     {
         if (FormContext::is_editor()) {
@@ -181,12 +143,6 @@ final class FieldRenderHelpers
         );
     }
 
-    /**
-     * Editor-only: paired star + checkbox marker. The star is the visual
-     * indicator of the current required state; the checkbox with its
-     * "Required" label takes over on hover so users get a labelled control
-     * instead of a tiny asterisk to guess at.
-     */
     public static function required_toggle_html(bool $required): string
     {
         return sprintf(
@@ -203,7 +159,6 @@ final class FieldRenderHelpers
         );
     }
 
-    /** Helper text below a field; in editor mode it's inline-editable. */
     public static function helper_html(string $helper): string
     {
         if (FormContext::is_editor()) {
@@ -224,7 +179,6 @@ final class FieldRenderHelpers
         return sanitize_key($raw);
     }
 
-    /** Guess a sensible browser autocomplete value for common field slugs. */
     public static function guess_autocomplete(string $input_type, string $slug): string
     {
         if ($input_type === 'email') {
@@ -250,9 +204,6 @@ final class FieldRenderHelpers
     }
 
     /**
-     * Render a plain &lt;input&gt; control wrapped in the standard field
-     * shell. Shared by text / email / number / phone / date.
-     *
      * @param array<string, mixed> $attrs
      * @param array<string, scalar|null> $extra Additional input attributes (null/empty dropped).
      */
@@ -297,16 +248,11 @@ final class FieldRenderHelpers
             $extra_html
         );
 
-        // Type class used for the wrapper's `--<type>` modifier: most input
-        // types use the HTML input type directly; tel maps to 'phone' for
-        // CSS naming consistency.
         $css_type = $input_type === 'tel' ? 'phone' : $input_type;
         return self::wrap_field($css_type, $slug, $label, $helper, $required, $control, $id);
     }
 
     /**
-     * Renders radio / multi-checkbox: a labelled group of input+label pairs.
-     *
      * @param array<string, mixed> $attrs
      */
     public static function render_option_group(string $kind, array $attrs): string
@@ -349,9 +295,6 @@ final class FieldRenderHelpers
         $helper_html = self::helper_html($helper);
         $error_html = '<p class="lrob-etk-form-error" data-field-error hidden></p>';
 
-        // Editor-mode legend: contenteditable label + required toggle. Same
-        // treatment as wrap_field() but emitted into a <legend> instead of a
-        // <label>/<div> wrapper because <fieldset> demands a <legend>.
         if (FormContext::is_editor()) {
             $shown = $label !== '' ? esc_html($label) : '<span class="lrob-etk-form-label-empty">' . esc_html__('(field label)', 'lrob-email-toolkit') . '</span>';
             $legend_inner = sprintf(
@@ -376,12 +319,7 @@ final class FieldRenderHelpers
         );
     }
 
-    /**
-     * Recover literal "uXXXX" sequences (and "\uXXXX" if any survived) that
-     * were left in stored strings by forms saved before the wp_update_post
-     * unslash compensation landed. Bounded match — neighboring alphanumerics
-     * keep naturally-occurring words untouched.
-     */
+    /** Repairs legacy uXXXX sequences from before the wp_slash compensation. */
     public static function recover_unicode_escapes(string $s): string
     {
         if ($s === '' || strpos($s, 'u') === false) {

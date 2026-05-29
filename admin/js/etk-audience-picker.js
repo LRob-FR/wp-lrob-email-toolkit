@@ -1,39 +1,4 @@
-/**
- * Shared multi-list audience picker — a dropdown of grouped checkbox
- * rows. Used by:
- *   - Newsletter card (audience for a send) → saves to target_list_ids
- *   - Newsletter form admin (default list memberships) → saves to
- *     default_list_ids on the form CPT
- *
- * DOM contract (any picker that opts-in carries these attrs):
- *   <div data-audience-picker
- *        data-audience-action="<wp_ajax action name>"
- *        data-audience-key="<meta key>"
- *        data-audience-id-param="<POST param name, e.g. newsletter_id>"
- *        data-audience-id="<entity id>"
- *        data-audience-saved-event="<optional CustomEvent name>"
- *        data-audience-saved-id-key="<optional detail key, e.g. newsletterId>"
- *        data-audience-nonce="<nonce>"
- *        data-audience-ajax-url="<admin-ajax.php URL>"
- *        data-audience-empty-label="<string shown when nothing picked>">
- *     <button data-audience-toggle aria-expanded="false">
- *       <span><strong data-recipients-count>—</strong> recipients
- *         <em data-audience-lists-summary>...</em>
- *       </span>
- *     </button>
- *     <div data-audience-menu hidden>
- *       <ul>
- *         <li><label><input type="checkbox" data-audience-list="<id>">
- *           <span class="...item-name">List name</span>
- *         </label></li>
- *       </ul>
- *     </div>
- *   </div>
- *
- * Save value shape: comma-separated list of picked IDs sent under the
- * configured key. Server-side decides whether to JSON-encode, route,
- * or fan out. The picker is dumb about persistence semantics.
- */
+/* Docs: docs/newsletter-internals.md → "audience picker" */
 (function () {
     if (window.__lrobEtkAudiencePickerBound) return;
     window.__lrobEtkAudiencePickerBound = true;

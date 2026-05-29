@@ -4,32 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
-/**
- * Newsletter module schema. This file is the canonical SQL source of truth.
- *
- *  - subscribers ........ email-only recipients (no WP account). WP users
- *                         are recipients via user_meta, never duplicated
- *                         in this table.
- *  - lists .............. unified manual + rule-based groupings.
- *  - list_members ....... explicit junction (list_id, recipient).
- *  - list_exclusions .... per-list "never send" pinned WP users.
- *  - newsletters ........ companion table keyed by newsletter post_id; holds
- *                         hot runtime counters (status, sent_count,
- *                         opens_count, …) off the postmeta hot path.
- *  - newsletter_recipients  per-send recipient state. The send loop's primary
- *                         working set; designed for chunked materialization
- *                         and crash-safe AJAX↔Cron handoff.
- *  - tracking_events .... open/click/unsubscribe timeline. IP anonymised
- *                         to /24 (IPv4) or /48 (IPv6) before insertion;
- *                         retention cron prunes by occurred_at.
- *
- * Enum-like columns are stored as `varchar(20)` rather than MySQL `ENUM` —
- * dbDelta's ENUM parsing is unreliable across MySQL versions and the app
- * layer constrains values anyway.
- *
- * dbDelta formatting rules apply (two spaces before PRIMARY KEY, lowercase
- * column types, no IF NOT EXISTS) — preserve them.
- */
+// Docs: docs/newsletter-internals.md — Schema section
 final class Schema
 {
     public const TABLE_SUBSCRIBERS           = 'lrob_etk_nl_subscribers';
@@ -104,12 +79,6 @@ final class Schema
         return $wpdb->prefix . self::TABLE_NEWSLETTER_LINKS;
     }
 
-    /**
-     * Idempotent. Versioning is owned by AbstractModule::maybe_migrate via
-     * the shared `lrob_etk_newsletter_db_version` option — Schema itself
-     * just declares the current shape. dbDelta handles additive upgrades
-     * when this is re-called on an existing install.
-     */
     public static function install(): void
     {
         global $wpdb;
@@ -125,22 +94,7 @@ final class Schema
         $newsletter_assets     = self::newsletter_assets_table();
         $newsletter_links      = self::newsletter_links_table();
 
-        // status enum: pending | confirmed | unsubscribed | refused | bounced | trashed
-        // (varchar instead of MySQL ENUM — dbDelta + ENUM is flaky).
-        // reminder_count + last_reminder_at drive the pending-followup
-        // cron: stops after the configurable max + spaces messages out
-        // by the configured interval.
-        // Lifetime engagement columns (added schema v8):
-        //   total_sent/_opened/_clicked — cumulative counters bumped at
-        //     send-materialise time and tracking-event time.
-        //   last_sent_at — UTC mysql, set when a recipient row materialises.
-        //   last_engagement_at — UTC mysql, set when the recipient opens
-        //     (if engagement_counts_opens=true) or clicks (always).
-        //   sends_since_engagement — increments on every materialise,
-        //     resets to 0 on engagement. Cold-detection compares this to
-        //     `lrob_etk_nl_cold_threshold`.
-        // Mirror keys exist on WP-user user_meta (UserMeta::*) so a
-        // unified cold-list query covers both populations.
+        // varchar(20) for status — dbDelta + MySQL ENUM is unreliable.
         $sql_subscribers = "CREATE TABLE $subscribers (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             email varchar(190) NOT NULL,
@@ -186,18 +140,6 @@ final class Schema
             KEY cold_subscribers (status, sends_since_engagement)
         ) $charset_collate;";
 
-        // kind: 'subscribers' | 'users'. Subscribers lists collect explicit
-        //   members (subscribers + legacy users via subscribe forms);
-        //   rule_json stays empty. Users lists are pure rule-based filters
-        //   over wp_users; list_members is ignored. The Materializer
-        //   branches on this column so the two list types stay
-        //   semantically distinct.
-        // rule_json: JSON `{provider, config}` describing the filter rule
-        //   on users lists. Empty for subscribers lists.
-        // visibility: 'private' | 'public'. Private = admin-managed,
-        //   hidden from subscribers. Public = surfaced on the prefs page
-        //   so subscribers can self-join/leave. System lists ignore this
-        //   (computed sets aren't subscriber-toggleable). Schema v12.
         $sql_lists = "CREATE TABLE $lists (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             name varchar(190) NOT NULL,
@@ -215,10 +157,6 @@ final class Schema
             KEY visibility (visibility)
         ) $charset_collate;";
 
-        // recipient_kind: 'user' | 'subscriber'. recipient_id is wp_users.ID
-        // or subscribers.id depending on kind. The composite UNIQUE prevents
-        // adding the same recipient to the same list twice; the recipient
-        // lookup KEY supports the deleted_user cleanup hook.
         $sql_list_members = "CREATE TABLE $list_members (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             list_id bigint(20) unsigned NOT NULL,
@@ -230,11 +168,6 @@ final class Schema
             KEY recipient_lookup (recipient_kind, recipient_id)
         ) $charset_collate;";
 
-        // Per-list exclusion list — admin marks specific WP users as
-        // "never send", regardless of whether the list's rule would match
-        // them. Applied at Materializer time, after rule resolution.
-        // Only meaningful for users-kind lists today (subscribers lists
-        // remove via the standard unsubscribe / leave-list path).
         $sql_list_exclusions = "CREATE TABLE $list_exclusions (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             list_id bigint(20) unsigned NOT NULL,
@@ -246,12 +179,8 @@ final class Schema
             KEY user_lookup (user_id)
         ) $charset_collate;";
 
-        // Keyed by post_id (1:1 with the lrob_etk_newsletter CPT post).
-        // Hot counters live here so updating sent_count++ per recipient
-        // doesn't touch the wp_postmeta hot path.
-        // status: draft | scheduled | materializing | sending | paused | sent | failed | aborted
-        // pause_reason: NULL (user-initiated pause) | smtp_unhealthy (circuit
-        //   breaker tripped on consecutive SMTP failures) | other future codes.
+        // status: draft|scheduled|materializing|sending|paused|sent|failed|aborted
+        // pause_reason: NULL=user pause, smtp_unhealthy=circuit-breaker
         $sql_newsletters = "CREATE TABLE $newsletters (
             post_id bigint(20) unsigned NOT NULL,
             status varchar(20) NOT NULL DEFAULT 'draft',
@@ -271,15 +200,7 @@ final class Schema
             KEY status (status)
         ) $charset_collate;";
 
-        // Send-loop working set. The composite (newsletter_id, status, domain)
-        // KEY supports the batch-claim query
-        //   UPDATE … SET status='sending', tick_id=?
-        //   WHERE status='pending' AND newsletter_id=? AND domain=?
-        //   LIMIT N
-        // which is the inner loop of the per-domain throttle. snapshot
-        // columns (email_snapshot, name_snapshot) freeze the recipient's
-        // identity at materialization time so a rename mid-send doesn't
-        // break logging.
+        // email_snapshot/name_snapshot freeze identity at materialisation time.
         $sql_newsletter_recipients = "CREATE TABLE $newsletter_recipients (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             newsletter_id bigint(20) unsigned NOT NULL,
@@ -302,10 +223,7 @@ final class Schema
             KEY status (status)
         ) $charset_collate;";
 
-        // kind: 'open' | 'click' | 'unsubscribe'. ip_anon is truncated /24 (v4) or /48 (v6).
-        // user_agent stays empty unless the send opts in to UA storage.
-        // Retention cron prunes rows older than the configured window using
-        // chunked DELETE … LIMIT to keep tx size bounded on big tables.
+        // ip_anon: /24 (IPv4) or /48 (IPv6). UA empty unless META_TRACK_USER_AGENT set.
         $sql_tracking_events = "CREATE TABLE $tracking_events (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             newsletter_id bigint(20) unsigned NOT NULL,
@@ -322,13 +240,7 @@ final class Schema
             KEY recipient (recipient_kind, recipient_id)
         ) $charset_collate;";
 
-        // Side-table per newsletter: every distinct media URL appearing
-        // in the rendered body, keyed by (newsletter_id, asset_id). The
-        // tracking endpoint resolves the asset_id back to the URL to
-        // redirect to. purpose='open_pixel' is the synthetic 1x1 GIF
-        // appended when the body had no <img>; everything else is
-        // 'content'. UNIQUE on (newsletter_id, url) so re-rendering the
-        // same body finds the same asset_id (idempotent registration).
+        // purpose: 'content' | 'open_pixel'. UNIQUE on url_hash — idempotent re-renders.
         $sql_newsletter_assets = "CREATE TABLE $newsletter_assets (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             newsletter_id bigint(20) unsigned NOT NULL,
@@ -342,11 +254,7 @@ final class Schema
             UNIQUE KEY newsletter_url (newsletter_id, url_hash)
         ) $charset_collate;";
 
-        // Side-table per newsletter: every distinct <a href> appearing
-        // in the rendered body. label_snippet stores a short preview of
-        // the anchor's text so admins can recognise links in tracking
-        // reports. UNIQUE on (newsletter_id, url) for the same idempotent-
-        // rewrite reason.
+        // UNIQUE on url_hash — idempotent re-renders.
         $sql_newsletter_links = "CREATE TABLE $newsletter_links (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             newsletter_id bigint(20) unsigned NOT NULL,

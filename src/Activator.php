@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit;
 
-/**
- * Runs on plugin activation. Seeds default options and grants the plugin
- * capability to administrators. Does NOT create any module tables — those are
- * created lazily by each module when it is first enabled.
- */
+// Docs: docs/core.md
 final class Activator
 {
     public const CAPABILITY = 'manage_lrob_etk';
@@ -34,11 +30,7 @@ final class Activator
         AutoUpdate\Updater::flush_cache();
     }
 
-    /**
-     * Idempotent capability self-heal. Recovers from delete+file-copy
-     * reinstalls where uninstall.php stripped the cap but the activation
-     * hook never re-fired. Hooked on admin_init.
-     */
+    /** Idempotent cap grant; self-heals file-copy reinstalls. Hooked on admin_init. */
     public static function ensure_capability(): void
     {
         self::grant_capability();
@@ -65,12 +57,6 @@ final class Activator
         }
     }
 
-    /**
-     * Seed the uninstall mode with the safest default. Existing installs
-     * (upgrading from <0.0.4) won't have this option yet; uninstall.php
-     * also defaults to 'keep' on get_option default-arg, so a delete-before-
-     * activate-after-upgrade can never lose data.
-     */
     private static function seed_uninstall_mode(): void
     {
         if (false === get_option(self::OPTION_UNINSTALL_MODE)) {

@@ -1,15 +1,4 @@
-/* LRob Email Toolkit — Contact Form embed block (page editor)
- *
- * This file used to register a Gutenberg block per field type plus a
- * PluginDocumentSettingPanel for per-form settings. Both are gone — fields
- * are edited on the Contact Forms admin page (FormsPage) by a custom
- * inline editor, and per-form settings live on the same page's cards with
- * auto-save.
- *
- * What's left here: the page-side `lrob-etk/contact-form` block — the
- * picker that lets a user embed a chosen form into any page/post. Pure
- * vanilla wp.element / wp.blocks; no JSX, no build step.
- */
+/* Docs: docs/forms.md — lrob-etk/contact-form Gutenberg embed block. */
 (function (wp) {
     'use strict';
 
@@ -128,16 +117,8 @@
             )
         );
 
-        // Block-editor needs the props from useBlockProps on the outer
-        // wrapper element. Without them Gutenberg can't tag the block in
-        // the DOM and click-to-select stops working — first click works
-        // but anything afterwards is silently ignored.
         var blockProps = useBlockProps ? useBlockProps() : {};
 
-        // Resolve the picked form (if any). When the saved formId no
-        // longer points to a published form (deleted / trashed), treat
-        // the block as orphan: render the picker so the user can swap to
-        // another form without having to delete and re-add the block.
         var picked = null;
         var isOrphan = false;
         if (attrs.formId) {

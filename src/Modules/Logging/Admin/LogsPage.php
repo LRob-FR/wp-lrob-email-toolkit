@@ -13,17 +13,11 @@ use LRob\EmailToolkit\Modules\Logging\LogRepository;
 use LRob\EmailToolkit\Modules\Logging\RetentionCron;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
-/**
- * Custom-styled logs page. Drops WP_List_Table entirely; renders its own
- * filter bar, bulk-action toolbar, table, pagination, and retention/cleanup
- * controls. Cleanup is an anchored popover from the header button.
- */
+// Docs: docs/logging.md
 final class LogsPage
 {
     public function __construct(
-        // Nullable so the AJAX list-filter endpoint can instantiate
-        // LogsPage purely for its render_list_region_for_filters output
-        // (which doesn't touch module state). render() still requires it.
+        // Nullable: AJAX list-filter endpoint uses only render_list_region_for_filters(); render() requires non-null.
         private ?ModuleInterface $module,
         private LogRepository $repository,
     ) {
@@ -34,10 +28,7 @@ final class LogsPage
         $notice = PageController::pop_flash('notice');
         $errors = PageController::pop_flash('errors');
         $enabled = $this->module->is_enabled();
-        // Count across everything (including newsletter rows) so the "no
-        // logs yet" disabled-message doesn't fire on sites that have only
-        // newsletter-failure logs (default behaviour hides those from the
-        // main view but they still exist in the table).
+        // Include newsletter rows: a site with only newsletter-failure logs should not show the "enable" empty state.
         $log_count = $this->repository->count(['newsletter_mode' => 'include']);
 
         ?>
@@ -86,8 +77,6 @@ final class LogsPage
     private function render_logs_view(): void
     {
         $filters = self::parse_filters();
-        // Inline session-cookie picker (Admin\PerPagePicker) replaces the
-        // former admin-level OPTION_PER_PAGE setting.
         $per_page = \LRob\EmailToolkit\Admin\PerPagePicker::parse('logs', AjaxController::DEFAULT_PER_PAGE);
         $page = max(1, isset($_GET['paged']) ? (int) $_GET['paged'] : 1);
         $total = $this->repository->count($filters);
@@ -102,10 +91,6 @@ final class LogsPage
     }
 
     /**
-     * Render the AJAX-swappable list region (bulk toolbar + table +
-     * pagination, OR empty state). Public so the filter AJAX endpoint
-     * can call it to return only this chunk.
-     *
      * @param array<string, mixed>  $filters
      * @param array<int, LogEntry>  $entries
      */
@@ -125,11 +110,8 @@ final class LogsPage
         <?php
     }
 
-    /** Public render entry point for the AJAX list-filter endpoint. */
     public function render_list_region_for_filters(array $filters, int $page): void
     {
-        // Inline session-cookie picker (Admin\PerPagePicker) replaces the
-        // former admin-level OPTION_PER_PAGE setting.
         $per_page = \LRob\EmailToolkit\Admin\PerPagePicker::parse('logs', AjaxController::DEFAULT_PER_PAGE);
         $total = $this->repository->count($filters);
         $total_pages = max(1, (int) ceil($total / $per_page));
@@ -143,12 +125,8 @@ final class LogsPage
 
 
     /**
-     * Batched log_id → submission_id lookup for the current page. Returns an
-     * empty map when the Contact Form module isn't installed or has no
-     * submissions table.
-     *
      * @param array<int, LogEntry> $entries
-     * @return array<int, int>
+     * @return array<int, int>  log_id → submission_id
      */
     private function submission_link_map(array $entries): array
     {
@@ -163,8 +141,7 @@ final class LogsPage
     }
 
     /**
-     * @param array<string, mixed>|null $source defaults to $_GET. AJAX
-     *        filter endpoint passes $_POST so the parser is shared.
+     * @param array<string, mixed>|null $source defaults to $_GET; pass $_POST from the AJAX filter endpoint.
      * @return array{status?: string, source?: string, search?: string, date_from?: string, date_to?: string, newsletter_id?: int, newsletter_mode?: string}
      */
     public static function parse_filters(?array $source = null): array
@@ -192,9 +169,6 @@ final class LogsPage
                 $f['date_to'] = $d . ' 23:59:59';
             }
         }
-        // Newsletter visibility — exclude by default. The recipients-drawer
-        // cross-link passes both newsletter_id and newsletter_mode=only so
-        // landing from there shows the right rows immediately.
         if (!empty($src['newsletter_id'])) {
             $f['newsletter_id'] = (int) $src['newsletter_id'];
         }
@@ -470,18 +444,6 @@ final class LogsPage
         <?php
     }
 
-    /**
-     * Unified Storage modal — replaces the earlier separate Settings +
-     * Cleanup popovers. Three sections, all on one auto-saving card:
-     *
-     *   - Retention  : Admin\RetentionToggle (checkbox + days, 0 = off)
-     *   - Cleanup    : one-shot delete-older-than action (explicit button
-     *                  because it's destructive — no auto-save here)
-     *
-     * Per-page picker is rendered inline above the table by
-     * `Admin\PerPagePicker` (session-cookie persisted) — no longer
-     * surfaced as an admin-level setting here.
-     */
     private function render_storage_modal(): void
     {
         $retention = (int) get_option(RetentionCron::OPTION_RETENTION_DAYS, RetentionCron::DEFAULT_RETENTION_DAYS);
@@ -543,10 +505,7 @@ final class LogsPage
 
     private function print_inline_js(): void
     {
-        // A direct link (dashboard preview, email "View" link, cross-link)
-        // lands here as ?detail=N. We render the list and tell JS to
-        // auto-open the detail modal for that entry — there is no
-        // full-page detail view anymore.
+        // ?detail=N: direct link (dashboard, email "View", cross-link) → auto-open detail modal.
         $auto_open_id = isset($_GET['detail']) ? max(0, (int) $_GET['detail']) : 0;
         ?>
         window.lrobEtkLogs = {
@@ -626,9 +585,6 @@ final class LogsPage
     }
 
     // ---- List-region interactions (select-all, bulk, per-row) ----
-    // These elements live inside the AJAX-swappable region, so they
-    // get replaced wholesale on every filter reload. Document-level
-    // delegation keeps the wiring alive across swaps without re-bind.
     document.addEventListener('change', function (e) {
         var sa = e.target.closest && e.target.closest('#lrob-etk-select-all');
         if (sa) {
@@ -727,11 +683,6 @@ final class LogsPage
         }
     });
 
-    // The shared helpers (etk-list-filter, etk-detail-modal) are
-    // enqueued in the footer, so they're not yet defined at the time
-    // this inline IIFE runs from mid-body. Wait for DOMContentLoaded —
-    // footer scripts are synchronous, so by then they've executed and
-    // the globals exist.
     function whenReady(fn) {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', fn);
@@ -769,9 +720,6 @@ final class LogsPage
     }
 
     // ---- Detail modal (shared etk-detail-modal helper) ----
-    // Click on the subject link or the eye icon in a row opens the
-    // modal. Direct links (dashboard, email "View" links, cross-links)
-    // land here as ?detail=N and auto-open the same modal.
     if (window.lrobEtkDetailModal) {
         var detailModal = window.lrobEtkDetailModal.create({
             actionsHtml: ''
@@ -872,10 +820,7 @@ final class LogsPage
     }
     }); // whenReady
 
-    // ---- Storage modal + autosave ---- (shared etk-modal + etk-autosave helpers)
-    // etk-autosave is footer-enqueued so we wait for DOMContentLoaded.
-    // etk-modal is head-enqueued and could bind sooner — kept in the same
-    // ready block for simplicity since the markup is identical timing.
+    // ---- Storage modal + autosave ----
     whenReady(function () {
         if (window.lrobEtkModal) {
             window.lrobEtkModal.bindHeader('lrob-etk-logs-storage-modal', 'lrob-etk-logs-storage-btn');

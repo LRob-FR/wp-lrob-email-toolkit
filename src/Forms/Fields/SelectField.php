@@ -24,9 +24,6 @@ final class SelectField implements FieldTypeInterface
     {
         $base = FieldRenderHelpers::normalize_base_keys($field, $this->slug());
         $base['options'] = FieldRenderHelpers::normalize_options($field['options'] ?? []);
-        // A native <select> is always single-choice in this plugin —
-        // multi-pick lists belong in the checkbox field type. Cap defaults
-        // at one entry regardless of what's stored.
         $base['defaults'] = FieldRenderHelpers::normalize_defaults($field['defaults'] ?? [], $base['options'], false);
         return $base;
     }
@@ -52,9 +49,6 @@ final class SelectField implements FieldTypeInterface
         $id = FormContext::field_id($slug);
         $name = FormContext::field_name($slug);
 
-        // Resolve which option (if any) starts selected. The placeholder
-        // option is ALWAYS emitted so the user can pick "nothing" to clear
-        // any default — selecting it amounts to "no default chosen".
         $selected_value = '';
         foreach ($defaults as $v) {
             $exists = false;

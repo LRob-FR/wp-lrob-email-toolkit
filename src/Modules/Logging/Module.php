@@ -8,13 +8,7 @@ use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\Logging\Admin\AjaxController;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController;
 
-/**
- * Logging module — captures every outgoing email and exposes browse / search
- * / resend in the admin.
- *
- * Admin page is always registered. The wp_mail/phpmailer_init/wp_mail_failed
- * hooks only fire when the module is enabled.
- */
+// Docs: docs/logging.md
 final class Module extends AbstractModule
 {
     public function slug(): string
@@ -40,27 +34,13 @@ final class Module extends AbstractModule
         return '0.0.1';
     }
 
-    /**
-     * Bumped to 2 when `Schema::install()` started doing the v1→v2 ALTER
-     * (renaming the placeholder `campaign_id` column to `newsletter_id`
-     * for the Newsletter module's vocabulary rename). Without this bump
-     * `maybe_migrate()` short-circuits at the AbstractModule default of
-     * 1 and the schema upgrade never fires on already-installed sites —
-     * which is what caused the "Unknown column 'newsletter_id'" SQL
-     * error on the dashboard after step 8 landed.
-     */
+    // db_version=2: bump from the AbstractModule default of 1 so maybe_migrate() triggers the campaign_id→newsletter_id ALTER on upgrade sites.
     public function db_version_int(): int
     {
         return 2;
     }
 
-    /**
-     * Always forward to install(): both `Schema::install()` and the
-     * cron-schedule call are idempotent (Schema short-circuits via its
-     * own `lrob_etk_logging_db_version` option; wp_schedule_event no-ops
-     * when the hook is already queued). Mirrors the
-     * [[project-service-module-migrate-trap]] guidance.
-     */
+    // Forward to install(): Schema::install() and wp_schedule_event are both idempotent.
     public function migrate(int $from_version, int $to_version): void
     {
         unset($from_version, $to_version);

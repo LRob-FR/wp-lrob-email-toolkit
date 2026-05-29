@@ -4,25 +4,11 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging;
 
-/**
- * Owns the Logging module's database schema. dbDelta SQL is hand-formatted —
- * two spaces before PRIMARY KEY, lowercase column types, no IF NOT EXISTS.
- *
- * Columns reserved for future modules (newsletter_id, recipient_id, message_id)
- * are present from v1 so we don't need a migration once a consuming module
- * lands — it just starts populating those columns.
- */
+// Docs: docs/logging.md
 final class Schema
 {
     public const TABLE = 'lrob_etk_logs';
 
-    /**
-     * Schema versions:
-     *   1 — initial install with placeholder columns for future modules.
-     *   2 — rename `campaign_id` column → `newsletter_id` to align with
-     *       the Newsletter module's class/CPT rename (the column was
-     *       reserved but never written to; rename is data-safe).
-     */
     private const SCHEMA_VERSION = '2';
 
     private const VERSION_OPTION = 'lrob_etk_logging_db_version';

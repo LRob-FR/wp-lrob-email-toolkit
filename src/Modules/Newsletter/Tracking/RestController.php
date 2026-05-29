@@ -12,47 +12,11 @@ use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
 use LRob\EmailToolkit\Support\TrackingToken;
 
-/**
- * Public REST endpoints for the tracking pipeline. Two routes:
- *
- *   GET /lrob-etk/v1/nl/track/img/<token>?n=&r=&a=
- *     Image-load handler. Verifies the HMAC against the URL parameters,
- *     records an `open` event, redirects 302 to the original asset URL
- *     (or serves a 1x1 transparent GIF for purpose='open_pixel'). On
- *     invalid token: serves the GIF anyway so the email client doesn't
- *     surface a broken image — but skips all bookkeeping (no event
- *     row, no counter bump). Don't leak token validity to the client.
- *
- *   GET /lrob-etk/v1/nl/track/click/<token>?n=&r=&l=
- *     Click handler. Verifies the HMAC, records a `click` event +
- *     implicit `open` if none exists for this recipient yet (recovers
- *     signal from image-blocking clients). Redirects 302 to the
- *     original href. On invalid token: 400 — we don't want to become
- *     an open redirect.
- *
- * Counter semantics:
- *   - newsletter_recipients.opens/clicks bumped on every event.
- *   - newsletters.opens_count/clicks_count bumped on every event;
- *     opens_unique/clicks_unique bumped only when the per-recipient
- *     counter was 0 pre-bump. Tiny race window between the SELECT and
- *     UPDATE could overcount uniques by ±1 under burst load —
- *     acceptable for stats-display purposes.
- *   - Subscriber / user lifetime stats: total_opened++ / total_clicked++,
- *     last_engagement_at set. sends_since_engagement resets to 0
- *     on click always; on open only when
- *     `lrob_etk_nl_engagement_counts_opens` is true (default false —
- *     Apple MPP server-side image loads would otherwise poison
- *     cold-detection).
- *
- * IP anonymisation: IPv4 → /24, IPv6 → /48 before storage. User-agent
- * stored only when the newsletter opts in via
- * `_lrob_etk_nl_track_user_agent` post meta.
- */
+// Docs: docs/newsletter-internals.md → "Tracking"
 final class RestController
 {
     public const OPTION_ENGAGEMENT_COUNTS_OPENS = 'lrob_etk_nl_engagement_counts_opens';
 
-    /** Per-newsletter meta key (currently opt-in for power users; no admin UI yet). */
     public const META_TRACK_USER_AGENT = '_lrob_etk_nl_track_user_agent';
 
     /** 35-byte transparent 1x1 GIF — smallest reliable cross-client open pixel. */
@@ -118,7 +82,6 @@ final class RestController
         );
 
         if (!$valid) {
-            // Don't leak token validity — serve the pixel either way.
             self::send_pixel();
             return;
         }
@@ -156,8 +119,6 @@ final class RestController
         );
 
         if (!$valid) {
-            // 400 — don't 302 with a bad signature, that would turn the
-            // endpoint into an open redirect.
             self::send_400();
             return;
         }
@@ -172,11 +133,6 @@ final class RestController
         self::redirect_to((string) $link['url']);
     }
 
-    /**
-     * Record an open event. Inserts a row in tracking_events, bumps the
-     * recipient + newsletter + subscriber-lifetime counters, dispatches
-     * the `newsletter.tracking.open` event.
-     */
     private function record_open(int $newsletter_id, string $kind, int $rid): void
     {
         $is_first = $this->bump_recipient_open($newsletter_id, $kind, $rid);
@@ -193,8 +149,6 @@ final class RestController
 
     private function record_click(int $newsletter_id, string $kind, int $rid, int $link_id, string $url): void
     {
-        // Clicks imply opens — if this recipient has no open event
-        // yet, synthesise one so opens stay >= clicks.
         $had_open_before = $this->recipient_open_count($newsletter_id, $kind, $rid) > 0;
         if (!$had_open_before) {
             $this->record_open($newsletter_id, $kind, $rid);
@@ -217,8 +171,6 @@ final class RestController
     {
         global $wpdb;
         $table = Schema::newsletter_recipients_table();
-        // SELECT-then-UPDATE: small race window for the "is first open"
-        // detection. Documented in the class-level comment.
         $current = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT opens FROM `$table`
               WHERE newsletter_id = %d AND recipient_kind = %s AND recipient_id = %d
@@ -279,10 +231,6 @@ final class RestController
         ));
     }
 
-    /**
-     * Aggregate counter bump on the newsletters companion row. Pass 0
-     * for the dimensions you don't want to change.
-     */
     private function bump_newsletter_counters(
         int $newsletter_id,
         int $opens = 0,
@@ -326,13 +274,7 @@ final class RestController
         ], ['%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s']);
     }
 
-    /**
-     * Bump the lifetime engagement stats on the recipient's source row
-     * (subscribers table or wp_users user_meta). `sends_since_engagement`
-     * resets to 0 on click; on open only when the admin opted in via
-     * `lrob_etk_nl_engagement_counts_opens` — Apple MPP server-side
-     * image loads would otherwise poison cold-detection.
-     */
+    // sends_since_engagement resets on click; on open only when engagement_counts_opens=true (Apple MPP guard).
     private function bump_subscriber_lifetime(string $kind, int $rid, bool $opened, bool $clicked): void
     {
         if ($rid <= 0) {
@@ -382,9 +324,6 @@ final class RestController
 
     private static function client_ip(): string
     {
-        // No proxy-header trust by default; admin can wire one via
-        // server config if they're behind a reverse proxy. Keeps the
-        // anonymised value honest in default WP deployments.
         return (string) ($_SERVER['REMOTE_ADDR'] ?? '');
     }
 
@@ -415,7 +354,6 @@ final class RestController
 
     private static function redirect_to(string $url): void
     {
-        // No-cache so the tracking endpoint always fires on subsequent loads.
         nocache_headers();
         wp_redirect(esc_url_raw($url), 302);
         exit;

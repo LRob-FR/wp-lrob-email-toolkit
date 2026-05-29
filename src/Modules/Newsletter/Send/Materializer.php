@@ -10,26 +10,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
 
-/**
- * Resolves a newsletter's target_spec into rows in
- * `wp_lrob_etk_nl_newsletter_recipients`. One-time per newsletter —
- * once a row exists for a newsletter in the recipients table,
- * materialize() is a no-op (the existence check uses the
- * (newsletter_id, kind, id) UNIQUE so re-runs are safe but pointless).
- *
- * Filters at materialization time:
- *   - WP users: lrob_etk_nl_opted_in = '1' AND status user_meta NOT in
- *     {bounced, refused, unsubscribed}.
- *   - Subscribers: status = 'confirmed'.
- *   - List target: only members of that list, intersected with the
- *     above filters.
- *
- * Inserts use chunked multi-value INSERTs (50 rows per query) to
- * keep wpdb prepared-statement size bounded on big targets.
- *
- * On success: flips newsletter status to `sending`, sets total_recipients,
- * stamps started_at, fires `newsletter.started`.
- */
+// Docs: docs/newsletter-internals.md → "Send pipeline"
 final class Materializer
 {
     private const INSERT_CHUNK = 50;
@@ -40,11 +21,6 @@ final class Materializer
     ) {
     }
 
-    /**
-     * Materialize the recipient set for a newsletter. Returns the
-     * resulting total_recipients count. Returns 0 (and is a no-op)
-     * when the newsletter already has rows in newsletter_recipients.
-     */
     public function materialize(int $newsletter_id): int
     {
         $post = get_post($newsletter_id);
@@ -68,9 +44,6 @@ final class Materializer
 
         $overrides = self::read_overrides($newsletter_id);
 
-        // Multi-list union: iterate list_ids[], collect every recipient,
-        // dedupe by (kind, id). Single-list (legacy) goes through the
-        // original code path.
         if ($target_kind === NewsletterCPT::TARGET_KIND_LISTS) {
             $seen = [];
             $recipients = [];
@@ -87,23 +60,11 @@ final class Materializer
             $recipients = $this->resolve_recipients($target_kind, $list_id, $overrides['ignore_optouts']);
         }
 
-        // Per-newsletter force-include / force-exclude overlays.
-        // Excludes win against everything (audience + force-include);
-        // includes get fetched even if not in the resolved audience.
         $recipients = self::apply_force_overrides($recipients, $overrides);
-
-        // Email-level dedup: when the same email is both a WP user and
-        // a subscriber row, the WP user wins (they have a real identity,
-        // login, and a stable prefs token). Without this the recipient
-        // gets the newsletter twice. Two passes: first collect WP-user
-        // emails, then strip duplicate subscribers.
+        // WP user wins over subscriber row for same email (avoids double-send).
         $recipients = self::dedupe_by_email($recipients);
         $total = $this->insert_recipients($newsletter_id, $recipients);
 
-        // Sender-side lifetime stat bump per recipient. We do this *after*
-        // the chunked inserts succeed so a failed materialize doesn't
-        // inflate counters. Cheap: total_sent + sends_since_engagement +
-        // last_sent_at on the subscriber row OR matching user_meta keys.
         $this->bump_send_lifetime($recipients);
 
         global $wpdb;
@@ -128,25 +89,13 @@ final class Materializer
         return $total;
     }
 
-    /**
-     * Resolve the newsletter's target_spec into a flat list of
-     * `[kind, id, email, name, prefs_token]` rows ready for insertion.
-     * `$ignore_optouts` flips the opt-out / unsubscribed filters off
-     * — set by the per-newsletter override toggle for operational
-     * communications.
-     *
-     * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
-     */
+    /** @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> */
     private function resolve_recipients(string $target_kind, int $list_id, bool $ignore_optouts = false): array
     {
         global $wpdb;
         $subscribers_table = Schema::subscribers_table();
         $list_members_table = Schema::list_members_table();
 
-        // When targeting a list, read its kind once so subscriber/user
-        // sides know to skip themselves. Subscribers lists never resolve
-        // users-side; users lists never resolve subscribers-side. This
-        // keeps the two list types semantically distinct.
         $list_kind = '';
         if ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_id > 0) {
             $list_row = (new \LRob\EmailToolkit\Modules\Newsletter\ListRepository())->find($list_id);
@@ -155,10 +104,6 @@ final class Materializer
 
         $out = [];
 
-        // Subscriber side — when target is ALL / ALL_SUBSCRIBERS, or
-        // a LIST whose kind is subscribers (manual membership) OR the
-        // pseudo-kind `all_subscribers` (the "All subscribers" system
-        // list — resolves to every confirmed subscriber).
         $is_all_subs_pseudo = ($target_kind === NewsletterCPT::TARGET_KIND_LIST
             && $list_kind === \LRob\EmailToolkit\Modules\Newsletter\ListRepository::KIND_ALL_SUBSCRIBERS);
         $want_subscribers = $target_kind === NewsletterCPT::TARGET_KIND_ALL
@@ -167,10 +112,7 @@ final class Materializer
             || ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_kind === \LRob\EmailToolkit\Modules\Newsletter\ListRepository::KIND_SUBSCRIBERS);
 
         if ($want_subscribers) {
-            // Status filter: confirmed-only by default; ignore_optouts
-            // widens to include unsubscribed (the ones who explicitly
-            // opted out) but never bounced / trashed / refused (those
-            // are operational rejections, not user preferences).
+            // ignore_optouts widens to include unsubscribed; never bounced/trashed/refused.
             $status_clause = $ignore_optouts
                 ? "s.status IN ('confirmed', 'unsubscribed')"
                 : "s.status = 'confirmed'";
@@ -235,20 +177,10 @@ final class Materializer
         return $out;
     }
 
-    /**
-     * Pull opted-in WP users (with optional list-membership filter).
-     * Uses get_users so the user query respects multisite scoping.
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    /** @return array<int, array<string, mixed>> */
     private function fetch_opted_in_users(string $target_kind, int $list_id, bool $ignore_optouts = false): array
     {
-        // WP users are opt-OUT, not opt-in: a user without the
-        // OPTED_IN user_meta (every pre-existing site member) counts
-        // as eligible. The PrefsHandler explicitly writes '0' when
-        // someone opts out; everyone else is in. ignore_optouts drops
-        // the meta_query filter entirely so even explicit '0' opt-outs
-        // are returned — admin override for operational messages.
+        // WP users are opt-OUT: absent OPTED_IN = eligible. PrefsHandler writes '0' to opt out.
         $args = ['fields' => ['ID', 'user_email', 'display_name'], 'number' => -1];
         if (!$ignore_optouts) {
             $args['meta_query'] = [
@@ -271,10 +203,6 @@ final class Materializer
         ], is_array($users) ? $users : []);
 
         if ($target_kind === NewsletterCPT::TARGET_KIND_LIST && $list_id > 0) {
-            // Users-kind list: rule resolves the audience; legacy
-            // recipient_kind='user' rows in list_members are honoured
-            // too so v9 sites with mixed entries don't lose them.
-            // Exclusions are already applied by resolve_rule_user_ids.
             global $wpdb;
             $list_members_table = Schema::list_members_table();
             $member_ids = (array) $wpdb->get_col($wpdb->prepare(
@@ -288,9 +216,6 @@ final class Materializer
             $rows = array_filter($rows, static fn ($r) => isset($member_set[$r['ID']]));
         }
 
-        // Filter out bounced / refused via user_meta status flag.
-        // 'unsubscribed' status survives when ignore_optouts is on
-        // (mirrors the subscriber-side status widen above).
         $skip_statuses = $ignore_optouts ? ['bounced', 'refused'] : ['bounced', 'unsubscribed', 'refused'];
         $out = [];
         foreach ($rows as $r) {
@@ -303,13 +228,7 @@ final class Materializer
         return $out;
     }
 
-    /**
-     * Chunked INSERT of the resolved recipient list. Returns the
-     * count actually inserted (UNIQUE skips deduplicate within a
-     * single materialize, so repeat targets don't double-count).
-     *
-     * @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients
-     */
+    /** @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients */
     private function insert_recipients(int $newsletter_id, array $recipients): int
     {
         if ($recipients === []) {
@@ -344,13 +263,7 @@ final class Materializer
         return $inserted;
     }
 
-    /**
-     * Sender-side lifetime stats. Subscribers go through SubscriberRepo;
-     * WP users get matching user_meta updates. Skips silently when no
-     * SubscriberRepository was injected (back-compat for ad-hoc callers).
-     *
-     * @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients
-     */
+    /** @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients */
     private function bump_send_lifetime(array $recipients): void
     {
         if ($recipients === []) {
@@ -378,25 +291,10 @@ final class Materializer
     }
 
     /**
-     * Dry-run resolution: returns the targeted recipient set
-     * WITHOUT inserting into `newsletter_recipients`. Computes the
-     * FULL matched audience (ignoring opt-outs) + tracks which IDs
-     * are opt-outs, then builds a unified sample where each
-     * recipient appears exactly once with two orthogonal flags:
+     * Dry-run resolution without INSERT. Each row has `was_opted_out`, `delivery` ('sent'|'skipped'),
+     * `force` ('none'|'include'|'exclude'). Returns total, by_kind, opted_out, ignore_optouts, sample.
      *
-     *   - **was_opted_out** (bool): the user's stated preference,
-     *     regardless of bypass. The Show List tabs filter on this.
-     *   - **delivery** ('sent'|'skipped'): the actual decision,
-     *     factoring in the bypass + force overrides.
-     *
-     * Plus a `force` flag ('none'|'include'|'exclude') so the row
-     * UI can show the per-recipient override is active.
-     *
-     * @return array{
-     *   total:int, by_kind:array<string,int>, opted_out:int,
-     *   ignore_optouts:bool,
-     *   sample:array<int, array{kind:string, id:int, email:string, name:string, was_opted_out:bool, delivery:string, force:string}>
-     * }
+     * @return array{total:int, by_kind:array<string,int>, opted_out:int, ignore_optouts:bool, sample:array<int, array{kind:string, id:int, email:string, name:string, was_opted_out:bool, delivery:string, force:string}>}
      */
     public function preview_recipients(int $newsletter_id, int $sample_limit = 50): array
     {
@@ -414,13 +312,7 @@ final class Materializer
 
         $overrides = self::read_overrides($newsletter_id);
 
-        // Resolve the FULL audience once with ignore_optouts=true:
-        // this gives us every matched user/subscriber regardless of
-        // opt-out state. We then tag each row with its opt-out
-        // status using the canonical opted-out lookup.
         $full = $this->resolve_for_preview($target_kind, $list_id, $list_ids, true);
-
-        // Single indexed query: every WP user with OPTED_IN='0'. Cheap.
         $opted_out_user_ids = (new \LRob\EmailToolkit\Modules\Newsletter\ListRepository())->opted_out_user_ids();
         $optout_set = array_flip($opted_out_user_ids);
         // Subscriber side: 'unsubscribed' status is the opt-out
@@ -452,12 +344,6 @@ final class Materializer
             $force_exclude_keys[$e['kind'] . ':' . $e['id']] = true;
         }
 
-        // Single pass: tag each row with was_opted_out + delivery + force.
-        // Delivery logic:
-        //   - force_exclude → skipped (always)
-        //   - force_include → sent (always)
-        //   - opted_out: sent if bypass on, else skipped
-        //   - normal: sent
         $tagged = [];
         $delivered_count = 0;
         $optout_count = 0;
@@ -505,8 +391,6 @@ final class Materializer
             ];
         }
 
-        // Force-include entries not in the audience need fetching +
-        // appending so the sample reflects the override fully.
         $audience_keys = [];
         foreach ($tagged as $t) {
             $audience_keys[$t['kind'] . ':' . $t['id']] = true;
@@ -531,9 +415,7 @@ final class Materializer
             if (isset($by_kind[$r['kind']])) $by_kind[$r['kind']]++;
         }
 
-        // Bound the sample. Sort to prioritise: skipped rows (admin
-        // wants to see what's NOT being sent) + force-flagged rows
-        // first, then the rest.
+        // skipped + force-flagged rows first in the sample.
         usort($tagged, static function ($a, $b) {
             $a_priority = ($a['force'] !== 'none' ? 0 : ($a['delivery'] === 'skipped' ? 1 : 2));
             $b_priority = ($b['force'] !== 'none' ? 0 : ($b['delivery'] === 'skipped' ? 1 : 2));
@@ -551,11 +433,6 @@ final class Materializer
     }
 
     /**
-     * Shared resolution path for preview_recipients — same shape as
-     * materialize() (LISTS branch unions, single-list / all-* go
-     * through resolve_recipients directly), with the email-level
-     * dedup applied.
-     *
      * @param array<int, int> $list_ids
      * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
      */
@@ -588,12 +465,7 @@ final class Materializer
         )) > 0;
     }
 
-    /**
-     * Decode the three opt-out override post_meta keys into a single
-     * struct. Defaults are safe-everywhere (no override).
-     *
-     * @return array{ignore_optouts:bool, force_include:array<int, array{kind:string,id:int}>, force_exclude:array<int, array{kind:string,id:int}>}
-     */
+    /** @return array{ignore_optouts:bool, force_include:array<int, array{kind:string,id:int}>, force_exclude:array<int, array{kind:string,id:int}>} */
     private static function read_overrides(int $newsletter_id): array
     {
         $ignore = !empty(get_post_meta($newsletter_id, NewsletterCPT::META_IGNORE_OPTOUTS, true));
@@ -606,10 +478,7 @@ final class Materializer
         ];
     }
 
-    /**
-     * Tolerate malformed JSON; drop entries missing kind+id.
-     * @return array<int, array{kind:string,id:int}>
-     */
+    /** @return array<int, array{kind:string,id:int}> */
     private static function decode_recipient_set(string $json): array
     {
         if ($json === '') {
@@ -635,20 +504,12 @@ final class Materializer
     }
 
     /**
-     * Apply the per-newsletter force-include / force-exclude overlays
-     * to a resolved recipient list. Excludes are applied first (they
-     * win over both audience matches AND force-includes — admin can
-     * always say "no, drop X" with no escape hatch). Force-includes
-     * then union with whatever survived, fetching recipient details
-     * for IDs not already in the audience.
-     *
      * @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients
      * @param array{ignore_optouts:bool, force_include:array<int, array{kind:string,id:int}>, force_exclude:array<int, array{kind:string,id:int}>} $overrides
      * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
      */
     private function apply_force_overrides(array $recipients, array $overrides): array
     {
-        // Index by (kind, id) for O(1) collision checks.
         $by_key = [];
         foreach ($recipients as $r) {
             $by_key[$r['kind'] . ':' . $r['id']] = $r;
@@ -675,11 +536,6 @@ final class Materializer
     }
 
     /**
-     * Bulk-fetch recipient details for force-include IDs that didn't
-     * land in the regular audience query. Issues one query per kind
-     * (one to subscribers, one to wp_users) regardless of how many
-     * IDs — bounded by admin attention so the IN-list stays small.
-     *
      * @param array<int, array{kind:string,id:int}> $entries
      * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
      */
@@ -760,12 +616,6 @@ final class Materializer
     }
 
     /**
-     * Dedupe a recipient list by email — WP user rows beat subscriber
-     * rows for the same email. Same email registered both ways = sent
-     * once (to the WP user). Comparison is case-insensitive (emails
-     * are normalised lowercase here for the dedup key only; the
-     * stored email_snapshot keeps the original casing).
-     *
      * @param array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}> $recipients
      * @return array<int, array{kind:string, id:int, email:string, name:string, prefs_token:string}>
      */

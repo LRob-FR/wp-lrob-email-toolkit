@@ -1,20 +1,5 @@
 /* LRob — Email Toolkit · Newsletter cards send pipeline
- *
- * Drives Send-now / Pause / Resume / Abort / Test-send on each
- * newsletter card in the Newsletters admin view. One delegated
- * listener for all cards on the page (no N inline scripts).
- *
- * State the global config carries (window.lrobEtkNlSend, set up via
- * wp_localize_script in HomePage::enqueue_assets):
- *
- *   ajaxUrl   string — admin-ajax.php endpoint
- *   nonce     string — nonce for the SendAjaxController NONCE_ACTION
- *   actions   { tick, test, pause, resume, abort }
- *   i18n      copy strings used in alerts / status text
- *
- * Each newsletter card has a per-card stopRequested flag tracked on
- * its root element so pause/abort can break the loop locally without
- * waiting for the next server response.
+ * Docs: docs/newsletter-internals.md → "Admin JS overview"
  */
 (function () {
     var CFG = window.lrobEtkNlSend || {};
@@ -43,8 +28,6 @@
         if (st && status) {
             st.className = 'lrob-etk-nl-status lrob-etk-nl-status-' + status;
             st.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-            // 'draft' badge is intentionally hidden — that's the
-            // default state, no need to label every new card.
             if (status === 'draft') {
                 st.setAttribute('hidden', '');
             } else {
@@ -63,10 +46,8 @@
         if (resumeBtn) resumeBtn[paused ? 'removeAttribute' : 'setAttribute']('hidden', '');
         if (abortBtn) abortBtn[(sending || paused) ? 'removeAttribute' : 'setAttribute']('hidden', '');
         if (sendNowBtn) sendNowBtn.disabled = (terminal || sending || paused);
-        // Lock/unlock the settings fieldset.
         var settingsFs = card.querySelector('.lrob-etk-nl-card-settings');
         if (settingsFs) settingsFs.disabled = (sending || paused || terminal);
-        // Title input lives outside the fieldset; disable separately.
         var titleInput = card.querySelector('.lrob-etk-title-input');
         if (titleInput) titleInput.disabled = (sending || paused || terminal);
     }

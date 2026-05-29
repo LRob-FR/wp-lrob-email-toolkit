@@ -1,14 +1,4 @@
-/* LRob Email Toolkit — Newsletter preferences block (page editor)
- *
- * The page-side `lrob-etk/newsletter-preferences` block. Embeds the
- * preferences UI on any page/post — typically a publicly linked
- * `/newsletter-preferences/` page. No attributes (the block always
- * shows the prefs for whoever is viewing).
- *
- * Vanilla wp.element / wp.blocks; server-rendered on the front end.
- * In the editor we render a static placeholder describing what the
- * block does, since the actual UI depends on the visitor's identity.
- */
+/* LRob Email Toolkit — lrob-etk/newsletter-preferences Gutenberg block. Server-rendered on front end. */
 (function (wp) {
     'use strict';
 

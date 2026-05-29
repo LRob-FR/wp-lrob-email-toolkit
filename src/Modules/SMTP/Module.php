@@ -8,20 +8,7 @@ use LRob\EmailToolkit\Modules\AbstractModule;
 use LRob\EmailToolkit\Modules\SMTP\Admin\AjaxController;
 use LRob\EmailToolkit\Modules\SMTP\Admin\PageController;
 
-/**
- * SMTP module — reconfigures the WordPress-bundled PHPMailer to route
- * wp_mail() through configured SMTP identities, with per-source routing.
- *
- * Admin pages always register so the toggle/CTA UX works; the actual
- * phpmailer_init wiring only activates when the module is enabled.
- *
- * Public services exposed via Container:
- *   - IdentityRepository::class
- *   - SourceResolver::class
- *   - RoutingRules::class
- *   - ConstantOverrides::class
- *   - MailRouter::class (only when enabled)
- */
+// Docs: docs/smtp.md
 final class Module extends AbstractModule
 {
     public function slug(): string
@@ -47,13 +34,6 @@ final class Module extends AbstractModule
         return '0.0.1';
     }
 
-    /**
-     * Schema version. AbstractModule's maybe_migrate writes this to the
-     * `lrob_etk_smtp_db_version` option — same option Schema used to
-     * track internally. Without this override, maybe_migrate would
-     * silently overwrite Schema's '2' / '3' string with int(1) and
-     * skip future migrations.
-     */
     public function db_version_int(): int
     {
         return 4;

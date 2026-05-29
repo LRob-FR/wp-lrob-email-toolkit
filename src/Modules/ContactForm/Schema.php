@@ -4,18 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
-/**
- * Owns the Contact Form module's database schema.
- *
- *  - `lrob_etk_contact_submissions` archives every submission so users can
- *    browse them in admin and so we can correlate them with outbound logs.
- *  - `lrob_etk_contact_rate` tracks per-IP-per-form submission counts within
- *    rolling windows. Pruned daily by RateLimiter::gc(). Transients were
- *    rejected here because they silently disappear on object-cache hosts.
- *
- * dbDelta formatting rules apply (two spaces before PRIMARY KEY, lowercase
- * column types, no IF NOT EXISTS) — preserve them.
- */
+// Docs: docs/contact-form.md
+// dbDelta rules: two spaces before PRIMARY KEY, lowercase column types, no IF NOT EXISTS.
 final class Schema
 {
     public const TABLE_SUBMISSIONS = 'lrob_etk_contact_submissions';
@@ -42,13 +32,6 @@ final class Schema
         return $wpdb->prefix . self::TABLE_FILES;
     }
 
-    /**
-     * Idempotent. Versioning is owned by AbstractModule::maybe_migrate via
-     * the shared `lrob_etk_contact_form_db_version` option — Schema itself
-     * just declares the current shape. dbDelta handles additive upgrades
-     * (added columns / new indexes) when this is called on an existing
-     * install.
-     */
     public static function install(): void
     {
         global $wpdb;

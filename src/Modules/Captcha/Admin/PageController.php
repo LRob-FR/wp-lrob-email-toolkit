@@ -10,10 +10,6 @@ use LRob\EmailToolkit\Admin\Menu as MainMenu;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
-/**
- * Registers the "Captcha" submenu and wires its AJAX controller. All CRUD
- * runs through AjaxController; this class is mostly a router.
- */
 final class PageController
 {
     public const SLUG = 'lrob-etk-captcha';

@@ -4,15 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha\Providers;
 
-/**
- * Cloudflare Turnstile provider. Same drop-in-widget + siteverify shape as
- * hCaptcha (all plumbing in AbstractHostedCaptcha); only the vendor
- * constants + branding differ.
- *
- * Vendor references:
- *  - Widget: https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/
- *  - Verify: https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
- */
+// Docs: docs/captcha.md — widget: https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/  verify: https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
 final class Turnstile extends AbstractHostedCaptcha
 {
     public const SLUG = 'turnstile';

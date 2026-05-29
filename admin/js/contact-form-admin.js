@@ -1,13 +1,4 @@
-/* LRob Email Toolkit — Contact Form admin page
- *
- * Auto-save for every input inside a .lrob-etk-form-card. Each field has a
- * data-key attribute that tells the server which setting to update. Saves
- * debounce on text inputs (after typing pauses + on blur), fire immediately
- * on selects, and surface a small per-card status indicator.
- *
- * Vanilla JS, no deps. Matches the SMTP card pattern in spirit but is its
- * own implementation — the server endpoint is simpler (single meta save).
- */
+/* Docs: docs/contact-form.md */
 (function () {
     'use strict';
 
@@ -24,10 +15,6 @@
         if (card.__lrobEtkCfBound) return;
         card.__lrobEtkCfBound = true;
 
-        // Track the live save_submissions tri-state combo so the CSS rule
-        // on data-save-effective-off can flip the warning under any
-        // file_upload field in the same card without a page reload. The
-        // hidden combo-value carries 'default' | 'on' | 'off'.
         var saveCombo = card.querySelector('input.lrob-etk-combo-value[data-key="_lrob_etk_cf_save_submissions"]');
         if (saveCombo) {
             var resync = function () {
@@ -42,17 +29,11 @@
             resync();
         }
 
-        // The global Defaults card uses data-defaults-card="1" and writes
-        // to the contact-form settings option via a different AJAX action.
-        // Per-form cards have data-form-id and write to post_meta.
         var isDefaults = card.getAttribute('data-defaults-card') === '1';
         var formId = parseInt(card.getAttribute('data-form-id'), 10) || 0;
         if (!isDefaults && !formId) return;
 
-        // Hand the per-key autosave plumbing to the shared helper. We
-        // supply the field selector, a value reader (minutes → seconds
-        // conversion for rate-limit window), and a save function that
-        // knows which AJAX action + extra form_id to send.
+        // readValue hook converts rate-limit window minutes → seconds before posting.
         if (window.lrobEtkAutosave) {
             window.lrobEtkAutosave.attach(card, {
                 fieldSelector: '.lrob-etk-cf-field',
@@ -84,9 +65,6 @@
             });
         }
 
-        // Wire free-mode comboboxes (Subject template + Success message)
-        // — same shape as the SMTP host combobox: typeable input + a
-        // dropdown of suggestions (currently just the inherit default).
         var freeCombos = card.querySelectorAll('.lrob-etk-combo--free');
         Array.prototype.forEach.call(freeCombos, function (combo) {
             if (combo.__etkBound) return;
@@ -101,14 +79,9 @@
             }
         });
 
-        // Wire up any recipient-list widgets in this card.
         var lists = card.querySelectorAll('[data-recipient-input]');
         Array.prototype.forEach.call(lists, bindRecipientList);
 
-        // Live-update the WYSIWYG preview when the style preset changes —
-        // so the admin sees the form's actual look without reloading. The
-        // preset value is the hidden mirror behind the combobox; auto-save
-        // is already wired separately.
         var presetHidden = card.querySelector('input[data-key="_lrob_etk_cf_style_preset"]');
         var previewForm = card.querySelector('.lrob-etk-cf-form.is-editor');
         if (presetHidden && previewForm) {
@@ -119,13 +92,6 @@
         }
     }
 
-    /**
-     * Swap the .lrob-etk-form-preset--X class on the preview form so the
-     * editor reflects the active style. Empty value = use whatever the
-     * defaults section is rendering (no class — frontend CSS picks the
-     * default look). The slug is also stored on a data-attr so future
-     * style knobs can read it.
-     */
     function applyPreset(previewForm, slug) {
         // Strip any previous preset class.
         var toRemove = [];
@@ -141,12 +107,6 @@
         previewForm.setAttribute('data-preset', slug || '');
     }
 
-    /**
-     * Stack of single-email rows that serializes back into the hidden
-     * comma-separated mirror input. Chevron menu offers the known emails
-     * shipped via lrobEtkCfAdmin.knownEmails. Empty rows are skipped on
-     * serialize so an in-progress edit doesn't push trailing commas.
-     */
     function bindRecipientList(container) {
         if (container.__lrobEtkCfBound) return;
         container.__lrobEtkCfBound = true;
@@ -230,10 +190,7 @@
                 });
                 menu.appendChild(btn);
             });
-            // Append inside the plugin wrapper, not <body>: the floating menu
-            // styling (bg / border / shadow / text) resolves from the --etk-*
-            // tokens, which are scoped to `.lrob-etk`. Appended to <body> they
-            // are undefined and the menu renders as unstyled text in the void.
+            // Must be inside .lrob-etk so --etk-* tokens resolve (body = out of scope).
             (container.closest('.lrob-etk') || document.body).appendChild(menu);
             positionMenu(menu, button);
             menu.__owner = button;
@@ -244,9 +201,6 @@
         }
 
         function positionMenu(menu, anchor) {
-            // Match the menu to the full combo width (like the other dropdowns),
-            // not the chevron button alone — and override the shared menu's
-            // min/max-width clamp so it tracks the field exactly.
             var combo = anchor.closest('.lrob-etk-combo') || anchor;
             var rect = combo.getBoundingClientRect();
             menu.style.position = 'fixed';

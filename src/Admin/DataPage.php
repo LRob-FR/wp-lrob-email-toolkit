@@ -9,20 +9,8 @@ use LRob\EmailToolkit\Modules\ModuleInterface;
 use LRob\EmailToolkit\Modules\ModuleManager;
 
 /**
- * Plugin-wide data management page. Three sections:
- *
- *   1. Per-module data wipe — call $module->uninstall() to drop tables +
- *      options for one module, then disable that module so the user must
- *      re-enable to recreate fresh state. Confirm requires typing the
- *      module slug.
- *   2. Reset entire plugin — same but for every module, plus options /
- *      capability / cron events. Confirm requires typing the plugin slug.
- *   3. Uninstall behaviour — picks the lrob_etk_uninstall_mode option
- *      (keep / archive / wipe) that uninstall.php branches on.
- *
- * Service modules (Captcha) appear in the list but their wipe action only
- * resets their settings option; tables, if any, are scoped by the same
- * uninstall() pattern.
+ * Data management page (hidden view of Dashboard). Per-module wipe, full-plugin reset,
+ * uninstall mode selection. Rendered at ?page=lrob-etk&view=data.
  */
 final class DataPage
 {

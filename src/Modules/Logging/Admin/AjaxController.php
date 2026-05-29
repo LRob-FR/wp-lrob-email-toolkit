@@ -8,10 +8,7 @@ use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\Logging\LogRepository;
 use LRob\EmailToolkit\Modules\Logging\Resender;
 
-/**
- * admin-ajax endpoints for the Logging module. One shared nonce; JSON
- * responses drive the redesigned logs page.
- */
+// Docs: docs/logging.md
 final class AjaxController
 {
     public const NONCE_ACTION = 'lrob_etk_logging_ajax';
@@ -52,10 +49,6 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_DETAIL,        [$this, 'ajax_detail']);
     }
 
-    /**
-     * Render the body markup for a single log entry, for the in-page
-     * detail modal on the logs list. Returns { id, status, title, html }.
-     */
     public function ajax_detail(): void
     {
         $this->guard();
@@ -79,11 +72,6 @@ final class AjaxController
         ]);
     }
 
-    /**
-     * Renders the AJAX-swappable list region for the Email Logs page,
-     * using the filter parameters from the POSTed form data. Mirrors the
-     * Contact Form submissions inbox endpoint — same shape, same usage.
-     */
     public function ajax_list_filter(): void
     {
         $this->guard();
@@ -98,10 +86,6 @@ final class AjaxController
         wp_send_json_success(['html' => $html]);
     }
 
-    /**
-     * Per-key auto-save for the Storage modal. Whitelist-routed so an
-     * arbitrary `key` POST value can never write to unrelated options.
-     */
     public function ajax_save_setting(): void
     {
         $this->guard();

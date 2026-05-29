@@ -6,15 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha\Challenges;
 
 use LRob\EmailToolkit\Forms\FormContext;
 
-/**
- * Trivial arithmetic challenge: "How much is a + b?" with a stateless,
- * HMAC-signed token. The expected answer is NOT sent to the client; the
- * server recomputes it from the token's a/b values and compares.
- *
- * Token format: base64url("$a:$b:$op") || '.' || hex(HMAC-SHA256). Signing
- * key derives from AUTH_KEY (then NONCE_SALT, then a stable fallback) so the
- * form doesn't crash on a misconfigured wp-config.
- */
+// Docs: docs/captcha.md → "Homemade challenge tokens"
 final class MathChallenge implements ChallengeInterface
 {
     public const TOKEN_FIELD = '_lrob_etk_cf_math_token';

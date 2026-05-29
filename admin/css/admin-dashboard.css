@@ -1,13 +1,4 @@
-/* LRob - Email Toolkit — admin styles: DASHBOARD
- *
- * Loaded on every toolkit page but only used on the dashboard. Owns: stat
- * cards, SVG activity chart (with grid, axis, bars, lines, dots, hover,
- * tooltip), module card test button, failure banner, "Test email" section,
- * recent activity footer, modules grid + module cards.
- *
- * Module-specific dashboard *widgets* (e.g. Contact Form's onboarding/
- * summary block) live with their owning module's CSS, not here.
- */
+/* LRob - Email Toolkit — admin styles: DASHBOARD — Docs: docs/admin-ui.md */
 
 /* ---------- Dashboard: stat cards ---------- */
 
@@ -18,9 +9,7 @@
     margin: 12px 0 20px;
 }
 
-/* Stat cards are clickable anchors that deep-link into the Logs page with
- * the matching date range pre-filled. Reset WP's default anchor look so
- * the card surface keeps the same hand-built chrome. */
+/* Clickable anchors deep-linking into Logs with date range pre-filled. */
 .lrob-etk-stat-card {
     display: flex;
     flex-direction: column;
@@ -364,11 +353,7 @@
     margin: 0;
 }
 
-/* ---------- Email activity layout (stats + chart, side-by-side) ----------
- *
- * Stats on the left as a 2x2 grid, chart on the right. Both under the
- * single "Email activity" h2. On narrow viewports the two columns stack —
- * stats first, then chart — so the chart never gets dangerously squished. */
+/* ---------- Email activity layout (stats left, chart right; stacks on narrow) ---------- */
 .lrob-etk-activity-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
@@ -386,7 +371,6 @@
 .lrob-etk-activity-layout .lrob-etk-chart-wrap {
     margin: 0;
 }
-/* Chart canvas can shrink with its column without the SVG breaking. */
 .lrob-etk-activity-layout .lrob-etk-chart-svg {
     height: 100%;
     min-height: 200px;
@@ -410,10 +394,7 @@
     margin: 0 2px;
 }
 
-/* ---------- Plugin data dashboard card ----------
- *
- * Compact card listing what each module stores ("412 log entries",
- * "3 identities", etc.) with a CTA to the (menu-hidden) Data page. */
+/* ---------- Plugin data dashboard card ---------- */
 .lrob-etk-data-summary-card {
     background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
@@ -456,9 +437,6 @@
     justify-content: flex-end;
 }
 
-/* Contact-form panel on the dashboard: two stat cards (delivered + spam
- * blocked) above a "recent submissions" mini-table. Re-uses .lrob-etk-stat-card
- * for chrome consistency. */
 .lrob-etk-stat-grid {
     margin-top: 8px;
     margin-bottom: 16px;

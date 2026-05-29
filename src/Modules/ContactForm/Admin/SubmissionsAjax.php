@@ -8,20 +8,7 @@ use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\ContactForm\FileRepository;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
 
-/**
- * AJAX endpoints for the Submissions inbox:
- *
- *  - `lrob_etk_cf_submissions_filter` — re-renders the swap-able list region
- *    (summary + table + pagination, or empty state) for the current filter
- *    set. Lets the inbox page update without a full reload.
- *  - `lrob_etk_cf_submissions_bulk` — performs spam or delete on a list of
- *    submission IDs. Delete cascades to attached files via FileRepository.
- *
- * Both share `lrob_etk_cf_submissions_ajax` as the nonce action and require
- * `manage_lrob_etk`. Heavy operations are wrapped in a transaction-like
- * pattern (best-effort: files deleted before rows so a partial failure
- * leaves orphan rows rather than orphan files).
- */
+// Docs: docs/contact-form.md — files deleted before rows so partial failure leaves orphan rows, not orphan disk files.
 final class SubmissionsAjax
 {
     public const ACTION_FILTER   = 'lrob_etk_cf_submissions_filter';
@@ -45,15 +32,6 @@ final class SubmissionsAjax
         add_action('wp_ajax_' . self::ACTION_PURGE,    [$this, 'handle_purge']);
     }
 
-    /**
-     * One-shot manual cleanup. POST params:
-     *   - days (int, >= 1)
-     *   - statuses (array of slugs: 'received', 'delivered', 'failed', 'spam_blocked')
-     *
-     * Deletes all submissions in the chosen statuses older than $days,
-     * cascading file deletion as the retention cron does. Returns the
-     * total count purged.
-     */
     public function handle_purge(): void
     {
         $this->guard();
@@ -99,13 +77,6 @@ final class SubmissionsAjax
         ]);
     }
 
-    /**
-     * Render the body markup for a single submission, used by the
-     * in-page detail modal (prev/next navigation). Returns
-     *   { id, status, title, html, prev_label, next_label }
-     * — the surrounding modal chrome is JS-built; we just supply the
-     * inner content + a few hints for the header strip.
-     */
     public function handle_detail(): void
     {
         $this->guard();

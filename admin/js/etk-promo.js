@@ -1,9 +1,4 @@
-/* LRob Email Toolkit — admin promo strip.
- *
- * Paints the bottom-of-page LRob sponsor strip(s) (.lrob-etk-promo) from the
- * localized message pool, starts on a random message, auto-rotates every ~9s
- * with a short fade, and pauses while hovered so the reader can click through.
- * Brand-shared with the other LRob plugins. */
+/* Docs: docs/admin-ui.md */
 (function () {
     'use strict';
 
@@ -18,13 +13,7 @@
         var bodyContent = document.getElementById('wpbody-content');
 
         Array.prototype.forEach.call(hosts, function (host) {
-            // `in_admin_footer` injects the strip inside #wpfooter, which is
-            // position:absolute in the WP admin layout (WP only reserves ~65px
-            // of padding for its own small footer). Our taller strip therefore
-            // overflows upward and paints over the bottom of the page content
-            // (most visibly on card grids). Relocate the strip's .wrap into
-            // #wpbody-content's normal flow so it reserves its own height and
-            // the footer sits cleanly below it.
+            // #wpfooter is position:absolute — relocate into #wpbody-content so height is reserved.
             var wrap = host.closest('.wrap') || host.parentElement;
             if (bodyContent && wrap && wrap.parentElement !== bodyContent) {
                 bodyContent.appendChild(wrap);
@@ -60,10 +49,7 @@
             }
         });
 
-        // After the strip is out of #wpfooter, the footer holds only WP's
-        // small default text. Shrink #wpbody-content's reserved bottom padding
-        // to exactly that height so the relocated strip sits flush above the
-        // footer instead of floating over a big empty gap.
+        // Adjust paddingBottom so strip sits flush above the WP footer.
         var wpfooter = document.getElementById('wpfooter');
         if (bodyContent && wpfooter) {
             bodyContent.style.paddingBottom = wpfooter.offsetHeight + 'px';

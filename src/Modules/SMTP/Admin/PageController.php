@@ -11,10 +11,7 @@ use LRob\EmailToolkit\Modules\SMTP\ConstantOverrides;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 use LRob\EmailToolkit\Modules\SMTP\RoutingRules;
 
-/**
- * Registers the "SMTP" submenu and renders the single page. All CRUD goes
- * through AjaxController; this class is now mostly a router stub.
- */
+// Docs: docs/smtp.md
 final class PageController
 {
     public const SLUG = 'lrob-etk-smtp';

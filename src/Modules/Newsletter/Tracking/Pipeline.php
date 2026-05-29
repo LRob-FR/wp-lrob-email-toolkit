@@ -8,29 +8,7 @@ use LRob\EmailToolkit\Modules\Newsletter\NewsletterCPT;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\TrackingToken;
 
-/**
- * Per-recipient tracking rewriter pipeline.
- *
- * Called once per (recipient, newsletter) at send time, after the body
- * has been rendered and tokens substituted. Three rewrite passes:
- *
- *   1. Image rewriter — every `<img src>` gets routed through the
- *      tracking endpoint, so the email client loading the image fires
- *      the open signal. URL registered once per newsletter in
- *      newsletter_assets; the per-recipient token + recipient identity
- *      live in the URL itself (no per-recipient row to maintain).
- *   2. Open-pixel fallback — if the body had zero `<img>` after the
- *      pass, append a 1x1 transparent GIF at the end so the open
- *      signal is at least possible. asset_id is reserved (0) so a
- *      pixel never collides with a real asset.
- *   3. Link rewriter — every `<a href>` (except mailto / tel / anchor /
- *      data-lrob-etk-no-track / prefs URLs) gets the same treatment;
- *      the click endpoint inserts a click event and 302s to the real URL.
- *
- * Per-newsletter tracking toggles (META_TRACK_OPENS / META_TRACK_CLICKS)
- * gate each pass independently. Test sends bypass the pipeline entirely
- * — see SendLoop where the `is_test` flag is wired.
- */
+// Docs: docs/newsletter-internals.md → "Tracking / Rewrite pipeline"
 final class Pipeline
 {
     public const REST_NAMESPACE = 'lrob-etk/v1';
@@ -87,9 +65,6 @@ final class Pipeline
             $src        = (string) $m[3];
             $after_src  = $m[4];
             if (!self::should_track_src($src)) {
-                // Still count it for the open-pixel-fallback decision —
-                // a cid:/data: image at least gives some open signal in
-                // clients that don't strip them.
                 $count++;
                 return $m[0];
             }
@@ -106,9 +81,6 @@ final class Pipeline
 
     private function rewrite_links(string $html, int $newsletter_id, string $kind, int $rid): string
     {
-        // <a …href="URL" …>…</a> — non-greedy on inner content. We don't
-        // care about nested HTML inside the anchor for the rewrite itself
-        // (only the href is replaced + inner is harvested for the label).
         $pattern = '/<a\b([^>]*?)\bhref=(["\'])(.*?)\2([^>]*)>(.*?)<\/a>/is';
         return (string) preg_replace_callback($pattern, function (array $m) use ($newsletter_id, $kind, $rid): string {
             $before_href = $m[1];
@@ -195,10 +167,7 @@ final class Pipeline
         if (self::is_own_tracking_url($href)) {
             return false;
         }
-        // Preferences / unsubscribe URLs carry the recipient's prefs_token
-        // — rewriting them through the click endpoint would break the
-        // List-Unsubscribe one-click flow and leak the token into the
-        // event log. Skip anything carrying the well-known query keys.
+        // Never wrap prefs/unsub URLs — would break one-click and leak the prefs token.
         if (stripos($href, 'lrob-etk-nl-prefs=') !== false
             || stripos($href, 'lrob-etk-nl-unsub=') !== false) {
             return false;
@@ -218,20 +187,11 @@ final class Pipeline
             || stripos($url, '/' . self::REST_ROUTE_CLICK . '/') !== false;
     }
 
-    /**
-     * Synthetic URL used as the open-pixel asset row's stored URL so
-     * the UNIQUE (newsletter_id, url_hash) doesn't collide with any
-     * real asset URL.
-     */
     private static function open_pixel_marker_url(): string
     {
         return 'lrob-etk-internal://open-pixel';
     }
 
-    /**
-     * Read the per-newsletter tracking toggle. Default is enabled when
-     * the meta is unset (= newsletter created before the toggle existed).
-     */
     private static function track_flag(int $newsletter_id, string $meta_key): bool
     {
         $raw = get_post_meta($newsletter_id, $meta_key, true);

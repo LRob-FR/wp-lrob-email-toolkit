@@ -6,30 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha;
 
 use LRob\EmailToolkit\Modules\ContactForm\Frontend;
 
-/**
- * Wires the Captcha service into WP's built-in form surfaces:
- *
- *  - Comments       → comment_form_after_fields (render) + preprocess_comment (verify)
- *  - Lost password  → lostpassword_form         (render) + lostpassword_post  (verify)
- *  - Registration   → register_form             (render) + registration_errors (verify)
- *
- * Each context is conditionally registered: if the admin has set the
- * context route to `none` (the default), we skip the hooks entirely so
- * the captcha service does zero work on those forms. The check happens
- * at boot time (register()), so toggling the route requires no manual
- * action beyond saving the settings page.
- *
- * Admin bypasses:
- *  - Comments: users with the `moderate_comments` capability skip the
- *    captcha (admins, editors). Logged-out commenters always see it.
- *  - Registration: no bypass — registration is for logged-out users by
- *    definition. Also short-circuits when `users_can_register` is off.
- *  - Lost password: no bypass — logged-in users wouldn't normally hit
- *    this form, and password-reset is the textbook bot-replay target.
- *
- * Multisite signup (`wpmu_signup_*`) is a backlog item — single-site
- * only for v1.
- */
+// Docs: docs/captcha.md → "WP-native context hooks"
 final class WpHooks
 {
     public function __construct(private CaptchaService $service)
@@ -43,11 +20,7 @@ final class WpHooks
         $this->maybe_register_lost_password();
         $this->maybe_register_registration();
 
-        // The captcha output reuses the frontend form CSS (homemade-challenge
-        // tiles, hosted-widget constraints, theme vars). WP-native surfaces
-        // don't otherwise load it, so enqueue it where a captcha will show —
-        // without it the picture-recognition radios show raw, options span
-        // full width, and hosted widgets overflow.
+        // Frontend form CSS not loaded by WP-native surfaces — enqueue where captcha shows.
         if (Routing::effective_route(Routing::CONTEXT_COMMENTS) !== Routing::ROUTE_NONE) {
             add_action('wp_enqueue_scripts', [$this, 'enqueue_comment_style']);
         }
@@ -60,12 +33,7 @@ final class WpHooks
         }
     }
 
-    /**
-     * Login is opt-in like the other WP-native contexts, but it's a *new*
-     * context — older installs have no map entry for it, and a bare
-     * `effective_route()` would fall through to the site default and silently
-     * turn login captcha on everywhere. So treat absent / 'none' as off.
-     */
+    /** Read raw map instead of effective_route() — absent entry must not fall through to the site default. */
     private function login_context_active(): bool
     {
         $map = Routing::context_map();
@@ -84,11 +52,9 @@ final class WpHooks
         if (!$this->login_context_active()) {
             return;
         }
-        // wp-login.php sign-in form.
         add_action('login_form', [$this, 'render_login_captcha']);
         add_filter('authenticate', [$this, 'verify_login_captcha'], 30, 1);
-        // WooCommerce account login (front). These hooks never fire without
-        // WooCommerce, so registering them unconditionally is harmless.
+        // WooCommerce hooks never fire without WC — safe to register unconditionally.
         add_action('woocommerce_login_form', [$this, 'render_wc_login_captcha']);
         add_filter('woocommerce_process_login_errors', [$this, 'verify_wc_login_captcha'], 10, 1);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_wc_login_style']);
@@ -135,9 +101,7 @@ final class WpHooks
             return;
         }
         add_action('comment_form_after_fields', [$this, 'render_comment_captcha']);
-        // Logged-in users skip the after-fields hook (it doesn't fire),
-        // so we attach a second renderer to the logged-in equivalent so
-        // either way the captcha shows. Admin-bypass logic in both.
+        // after_fields doesn't fire for logged-in users; this hook covers both.
         add_action('comment_form_logged_in_after', [$this, 'render_comment_captcha']);
         add_action('pre_comment_on_post', [$this, 'verify_comment_captcha']);
     }
@@ -174,8 +138,6 @@ final class WpHooks
         }
         $html = $this->service->render(['context' => Routing::CONTEXT_COMMENTS]);
         if ($html !== '') {
-            // .lrob-etk-form host so the challenge/widget gets the same layout,
-            // theme vars and width constraints as the plugin's own forms.
             echo '<div class="lrob-etk-form lrob-etk-captcha-wrap lrob-etk-captcha-wrap--comments">' . $html . '</div>';
         }
     }
@@ -191,8 +153,6 @@ final class WpHooks
 
     public function render_wc_login_captcha(): void
     {
-        // WooCommerce account login lives on a normal front page (wider column),
-        // so no --narrow scaling here.
         $html = $this->service->render(['context' => Routing::CONTEXT_LOGIN]);
         if ($html !== '') {
             echo '<div class="lrob-etk-form lrob-etk-captcha-wrap lrob-etk-captcha-wrap--wc-login">' . $html . '</div>';
@@ -219,10 +179,6 @@ final class WpHooks
     // Verify hooks
     // -----------------------------------------------------------------
 
-    /**
-     * Verify before WP processes the comment. wp_die on failure — same
-     * pattern WP itself uses for required-field misses. Skips admins.
-     */
     public function verify_comment_captcha(): void
     {
         if (current_user_can('moderate_comments')) {
@@ -239,12 +195,7 @@ final class WpHooks
     }
 
     /**
-     * Login verify on the `authenticate` filter. Gated to a real wp-login.php
-     * credential POST (the form posts `log`/`pwd`) so it never touches
-     * XML-RPC / application-password / REST auth — and WooCommerce login,
-     * which posts `username`/`password`, is handled separately below. On
-     * failure return a WP_Error so WP blocks the sign-in.
-     *
+     * Gated to wp-login.php POST (`log`/`pwd`) — never touches XML-RPC / REST / app passwords.
      * @param \WP_User|\WP_Error|null $user
      * @return \WP_User|\WP_Error|null
      */
@@ -263,13 +214,7 @@ final class WpHooks
         return $user;
     }
 
-    /**
-     * WooCommerce account-login verify. WC runs this filter before wp_signon;
-     * add our error to the running WP_Error and WC halts the login.
-     *
-     * @param \WP_Error $validation_error
-     * @return \WP_Error
-     */
+    /** @param \WP_Error $validation_error @return \WP_Error */
     public function verify_wc_login_captcha(\WP_Error $validation_error): \WP_Error
     {
         [$ok, $error] = $this->service->verify($_POST, ['context' => Routing::CONTEXT_LOGIN]);
@@ -279,10 +224,6 @@ final class WpHooks
         return $validation_error;
     }
 
-    /**
-     * Lost-password verify: WP passes a WP_Error by reference so we
-     * just add our error to it; the form re-renders with the message.
-     */
     public function verify_lost_password_captcha(\WP_Error $errors): void
     {
         [$ok, $error] = $this->service->verify($_POST, ['context' => Routing::CONTEXT_LOST_PASSWORD]);
@@ -291,13 +232,7 @@ final class WpHooks
         }
     }
 
-    /**
-     * Registration verify: filter on registration_errors — add our
-     * error to the WP_Error and WP halts registration + re-renders
-     * with the message.
-     *
-     * @return \WP_Error
-     */
+    /** @return \WP_Error */
     public function verify_registration_captcha(\WP_Error $errors): \WP_Error
     {
         [$ok, $error] = $this->service->verify($_POST, ['context' => Routing::CONTEXT_REGISTRATION]);

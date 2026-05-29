@@ -4,14 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
-/**
- * Value object for one row of `lrob_etk_contact_submissions`. Decoded from
- * the raw row by ::from_row(). Field values live in `fields` as decoded
- * key→value pairs ready for rendering.
- *
- * Renderers are responsible for escaping — values stored here are verbatim
- * user input.
- */
+// Renderers are responsible for escaping — field values are verbatim user input.
 final class Submission
 {
     /** @param array<string, mixed> $fields */

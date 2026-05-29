@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit;
 
-/**
- * Tiny service locator. Modules register their shared services here so other
- * modules can read them without globals. Not a full DI container by design.
- */
+// Docs: docs/core.md
 final class Container
 {
     /** @var array<class-string, object> */

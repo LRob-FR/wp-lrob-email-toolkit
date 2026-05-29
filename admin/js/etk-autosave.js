@@ -1,37 +1,4 @@
-/**
- * Shared per-key autosave for any settings card (.lrob-etk-card-status
- * badge included).
- *
- * Each card declares its fields with a CSS class that the consuming
- * module picks (e.g. `.lrob-etk-cf-field` for Contact Form,
- * `.lrob-etk-logs-field` for Logs). Every field carries `data-key`. The
- * shared helper handles:
- *
- *   - Iterating the fields, binding the right event per input type
- *     (input + blur for text/textarea with debounce; change for
- *     selects/checkboxes/hidden mirrors).
- *   - lastSent tracking so identical blur values don't re-fire saves.
- *   - Status badge state machine (saving / saved / error) using the
- *     existing `.lrob-etk-card-status` markup.
- *
- * The consuming module supplies a `save(field)` callback that knows how
- * to send the value to its endpoint and returns a Promise resolving to
- * `{ success: bool, message?: string }`. The helper handles the rest.
- *
- * Usage:
- *   window.lrobEtkAutosave.attach(cardElement, {
- *       fieldSelector: '.lrob-etk-cf-field',
- *       readValue:     function (field) { return field.value; }, // optional
- *       save:          function (field, value) {
- *           return fetch(ajaxUrl, {...}).then(r => r.json());
- *       },
- *       i18n: { saving: 'Saving…', saved: 'Saved', error: 'Save failed' },
- *       debounceMs: 600 // optional, default 600 for text inputs
- *   });
- *
- * No AJAX shape is hardcoded — each consumer wires its own fetch call
- * because endpoints differ in action / extra params / nonce.
- */
+/* Docs: docs/admin-ui.md */
 (function () {
     'use strict';
 
@@ -55,10 +22,7 @@
         var lastSent = new WeakMap();
 
         function setStatus(state, detail) {
-            // Also bubble a save-status event so any enclosing
-            // .lrob-etk-modal can mirror it on its header badge
-            // (etk-modal.js listens). Cheap: a single CustomEvent
-            // dispatch, no DOM walking on this side.
+            // Bubble save-status so enclosing modal can mirror it (etk-modal.js listens).
             if (card && card.dispatchEvent) {
                 card.dispatchEvent(new CustomEvent('lrob-etk:save-status', {
                     bubbles: true,
@@ -108,13 +72,10 @@
         }
 
         Array.prototype.forEach.call(fields, function (field) {
-            // Initialize "what's already on the server" so blur doesn't
-            // fire a no-op save.
+            // Seed lastSent so initial blur doesn't fire a no-op save.
             lastSent.set(field, String(readValue(field)));
 
-            // Sibling "Using default: …" hint hides as soon as the user
-            // types. The convention is a sibling .lrob-etk-default-hint
-            // immediately after the field.
+            // .lrob-etk-default-hint sibling hides as soon as the user types.
             var hintEl = field.nextElementSibling;
             if (!hintEl || !hintEl.classList || !hintEl.classList.contains('lrob-etk-default-hint')) {
                 hintEl = null;
@@ -133,9 +94,7 @@
                 || (tag === 'input' && TEXT_TYPES.indexOf(type) !== -1);
 
             if (isHidden) {
-                // Hidden mirror inputs (combobox carriers, recipient list,
-                // retention toggle) dispatch 'change' when their widget
-                // updates the canonical value. Save on that.
+                // Hidden mirror inputs (combobox, recipient list, retention toggle) fire 'change'.
                 field.addEventListener('change', function () { flush(field); });
             } else if (isText && debounceMs > 0) {
                 field.addEventListener('input', function () {

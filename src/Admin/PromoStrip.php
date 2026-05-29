@@ -4,24 +4,12 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Admin;
 
-/**
- * LRob promo strip shown at the bottom of every toolkit admin page. A small
- * rotating sponsor message with a backlink to lrob.fr — the same component
- * (and message pool) the other LRob plugins ship, for brand consistency. The
- * `<aside>` is an empty host; admin/js/etk-promo.js paints + rotates the
- * messages client-side from the localized pool (see Admin\Assets).
- */
+/** Rotating sponsor strip at page bottom. Painted client-side by etk-promo.js. */
 final class PromoStrip
 {
     public const AUTHOR_URL = 'https://www.lrob.fr';
 
-    /**
-     * Marketing message pool. One is picked at random on load and the strip
-     * auto-rotates through them; each carries a different anchor keyword so the
-     * backlink weight spreads across phrases rather than a single one.
-     *
-     * @return array<int, array{icon:string, text:string, link:string}>
-     */
+    /** @return array<int, array{icon:string, text:string, link:string}> */
     public static function messages(): array
     {
         return [
@@ -70,9 +58,7 @@ final class PromoStrip
 
     public static function render(): void
     {
-        // .wrap → standard WP page margins (aligns with the page content above,
-        // clears the admin menu). .lrob-etk → design-token scope so the strip's
-        // var(--etk-*) colours / spacing resolve.
+        // .wrap = WP margins; .lrob-etk = token scope.
         echo '<div class="wrap lrob-etk">'
             . '<aside class="lrob-etk-promo" data-role="lrob-etk-promo" aria-label="'
             . esc_attr__('Sponsor message', 'lrob-email-toolkit') . '"></aside>'

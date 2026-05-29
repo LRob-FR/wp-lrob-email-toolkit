@@ -5,21 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 /**
- * Shared "auto-delete after N days" widget. Renders a checkbox + number
- * input + unit label, backed by a hidden field with `data-key` that the
- * consuming module's auto-save listener picks up.
- *
- * Storage contract: the hidden value is the canonical setting.
- *   - 0  = auto-cleanup disabled (the checkbox is unchecked).
- *   - >0 = auto-cleanup enabled with that many days.
- *
- * The visible number input always shows a usable value (the stored days
- * when enabled, otherwise the renderer's default-days fallback) so admins
- * can flip the checkbox on without having to type a number first.
- *
- * Runtime in admin/js/etk-retention-toggle.js (plugin-wide). The widget
- * exposes a marker class on the checkbox + number so the JS finds them
- * via event delegation.
+ * "Auto-delete after N days" widget. 0 stored = disabled; >0 = enabled days.
+ * Runtime: admin/js/etk-retention-toggle.js. See docs/admin-ui.md.
  */
 final class RetentionToggle
 {

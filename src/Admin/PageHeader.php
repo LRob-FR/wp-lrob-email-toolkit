@@ -7,32 +7,7 @@ namespace LRob\EmailToolkit\Admin;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
 /**
- * Single source of truth for every plugin admin page's header chrome.
- *
- * Layout (left → right):
- *   [Title] [ModuleToggle?] [+ New X primary?]  …  [Tools group] | [Nav group]
- *
- * Tools sit close to the primary action; nav links (cross-page) go to the
- * far right with a vertical divider in front. This mirrors the user's
- * mental model: tools act on the current page, nav leaves it.
- *
- * Pages call:
- *   PageHeader::render([
- *       'title'   => __('Email Logs', ...),
- *       'module'  => $this->module,          // null = no inline toggle
- *       'primary' => ['label' => __('New identity', ...), 'id' => 'foo-add'],
- *       'tools'   => [ ['label' => 'Storage', 'icon' => 'dashicons-database', 'id' => 'storage-btn'], ... ],
- *       'nav'     => [ ['label' => 'Submissions', 'icon' => 'dashicons-feedback', 'href' => $url], ... ],
- *   ]);
- *
- * Button def shape:
- *   - label  (string, required)            — visible text
- *   - icon   (string|null)                  — dashicons-* class, prepended
- *   - id     (string|null)                  — DOM id (button mode)
- *   - href   (string|null)                  — link target (anchor mode)
- *   - attrs  (array<string, string|null>)   — extra HTML attributes
- *
- * Pass either id or href (or neither — bare button). Never both.
+ * Single source for every plugin page header. See docs/admin-ui.md for layout + button shape.
  */
 final class PageHeader
 {
@@ -53,8 +28,7 @@ final class PageHeader
         $primary = $args['primary'] ?? null;
         $tools   = isset($args['tools']) && is_array($args['tools']) ? $args['tools'] : [];
         $nav     = isset($args['nav']) && is_array($args['nav']) ? $args['nav'] : [];
-        // When the module is disabled, hide actions but keep the title +
-        // toggle visible. Pages can override by passing gate=true explicitly.
+        // When module is disabled, hide actions but keep title + toggle. gate=true overrides.
         $gate = array_key_exists('gate', $args) ? (bool) $args['gate'] : ($module === null || $module->is_enabled());
 
         ?>

@@ -6,11 +6,7 @@ namespace LRob\EmailToolkit\Modules\Logging\Admin;
 
 use LRob\EmailToolkit\Modules\Logging\LogEntry;
 
-/**
- * Renders the body markup for a single log entry — error banner +
- * metadata grid + custom headers + sandboxed body preview. Consumed by
- * the AJAX detail endpoint that powers the in-page modal on the logs list.
- */
+// Docs: docs/logging.md
 final class LogDetailRenderer
 {
     /** Modal title for a log entry. */

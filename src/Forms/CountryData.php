@@ -6,28 +6,10 @@ namespace LRob\EmailToolkit\Forms;
 
 use DateTimeZone;
 
-/**
- * ISO-3166-1 alpha-2 country code dataset for the phone-field country picker.
- *
- * One table, three columns per entry: dial code, short ISO-2 code (the array
- * key), and the displayable name. Names are wrapped in `__()` at the literal
- * site so `wp i18n make-pot` picks every one up for translation.
- *
- * `resolve_default()` picks a sensible per-form default from
- *   1. an explicit admin choice
- *   2. the WordPress locale (`fr_FR` → `FR`)
- *   3. the WordPress timezone (`Europe/Paris` → `FR`, via DateTimeZone::PER_COUNTRY)
- *   4. blank — visitor picks.
- *
- * Flag emoji is computed at read time from the ISO-2 code (regional
- * indicator pair), so no static char data — no glyphs to maintain.
- */
+// Docs: docs/forms.md
 final class CountryData
 {
     /**
-     * One row per country: [dial, displayable name]. Sorted by ISO-2 for
-     * editability — `all_translated()` re-sorts on the way out.
-     *
      * @return array<string, array{0:string, 1:string}>
      */
     private static function table(): array
@@ -279,10 +261,6 @@ final class CountryData
     }
 
     /**
-     * Full list, entry shape `['iso' => 'FR', 'name' => 'France', 'dial' => '33', 'flag' => '🇫🇷']`.
-     * `$sort_by` accepts `'name'` (default, locale-aware) or `'dial'`
-     * (numeric, useful for an admin reference list).
-     *
      * @return array<int, array{iso:string, name:string, dial:string, flag:string}>
      */
     public static function all_translated(string $sort_by = 'name'): array
@@ -317,11 +295,6 @@ final class CountryData
         return $row !== null ? $row[0] : '';
     }
 
-    /**
-     * Regional-indicator pair from an ISO-2 code: 'FR' → 🇫🇷. Each letter maps
-     * to U+1F1E6 + (letter index from A), so 'F' (5) + 'R' (17) builds the
-     * pair via two 4-byte UTF-8 sequences.
-     */
     public static function flag_emoji(string $iso2): string
     {
         $iso2 = strtoupper($iso2);
@@ -333,11 +306,6 @@ final class CountryData
              . mb_chr($base + ord($iso2[1]), 'UTF-8');
     }
 
-    /**
-     * Smart default for a phone field when the admin hasn't pinned one.
-     * Returns an empty string when nothing matches — the picker then sits
-     * unset and the visitor must choose.
-     */
     public static function resolve_default(string $admin_choice): string
     {
         $admin_choice = strtoupper(trim($admin_choice));
@@ -364,7 +332,7 @@ final class CountryData
         return '';
     }
 
-    /** @return array<string, string> tz id → ISO-2 */
+    /** @return array<string, string> */
     private static function tz_to_country_map(): array
     {
         static $map = null;

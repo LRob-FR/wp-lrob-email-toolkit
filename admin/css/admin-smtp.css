@@ -1,17 +1,4 @@
-/* LRob - Email Toolkit — admin styles: SMTP MODULE
- *
- * SMTP settings page. Owns: identity form actions, routing grid, inline
- * connection test button, encryption + port row, "From" section warnings,
- * "From" force row + 3-col grid, test result indicators, identity card
- * grid + identity-card states (focus-within, is-new, container queries),
- * host resolve indicator, none-encryption warning, transport segmented
- * control, hide-when-mail-transport rule, add-identity button, default-
- * identity badge + set-default action.
- *
- * Shared card primitives (.lrob-etk-title-input, .lrob-etk-card-form*,
- * .lrob-etk-card-status, .lrob-etk-card-footer, .lrob-etk-card-delete-link)
- * live in admin-components.css.
- */
+/* LRob - Email Toolkit — admin styles: SMTP MODULE — Docs: docs/admin-ui.md */
 
 /* ---------- Save-attachments toggle row ---------- */
 
@@ -51,12 +38,7 @@
     font-weight: normal;
 }
 
-/* ---------- Inline connection test button ----------
- *
- * Base styling comes from .lrob-etk-icon-btn (admin-components.css).
- * Only the state-paint variants live here — they're SMTP-specific
- * (test outcome feedback). The spinning animation is shared via
- * .is-spinning on icon-btn. */
+/* Inline connection test — state-paint only; base from .lrob-etk-icon-btn. */
 
 .lrob-etk-conn-test.is-ok {
     border-color: var(--etk-success);
@@ -116,15 +98,7 @@
     border-left: 3px solid var(--etk-danger);
 }
 
-/* Test result + identity card chrome moved to admin-components.css:
- *   .lrob-etk-test-result          — shared with Logging, Captcha
- *   .lrob-etk-card                 — shared identity-card primitive
- *   .lrob-etk-card-grid            — shared card list grid
- *   .lrob-etk-card--container      — opt-in container query
- *
- * Identity card collapses its inner 2-col (mailbox|server) when the
- * container itself narrows. Container query is identity-specific
- * because no other card has the same inner layout. */
+/* Identity card collapses its inner 2-col (mailbox|server) on narrow container. */
 
 @container (max-width: 460px) {
     .lrob-etk-identity-card .lrob-etk-modal-columns {

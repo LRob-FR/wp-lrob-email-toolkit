@@ -13,13 +13,7 @@ use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 use LRob\EmailToolkit\Modules\SMTP\RoutingRules;
 use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
 
-/**
- * SMTP page. Module toggle sits inline with the page H1. When the module is
- * off, a one-line CTA replaces the cards. When on, identities render as a
- * grid of always-editable cards with auto-save. From email/name use smart
- * placeholders (empty = auto-derived at runtime; placeholder shows what
- * auto resolves to) — no more visible Auto/Custom mode toggle.
- */
+// Docs: docs/smtp.md
 final class SettingsPage
 {
     public function __construct(
@@ -125,8 +119,6 @@ final class SettingsPage
             'reply_to_email'  => $identity?->reply_to_email ?? '',
             'is_default'      => $identity?->is_default ?? false,
             'is_active'       => $identity ? $identity->is_active : true,
-            // New identities default ON; existing ones keep their stored
-            // value (migrated rows are OFF so we don't surprise upgrades).
             'save_attachments' => $identity ? $identity->save_attachments : true,
             'has_password'    => $identity ? $identity->smtp_password_encrypted !== '' : false,
         ];
@@ -252,9 +244,6 @@ final class SettingsPage
                         <?php Tooltip::render(__('Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS.', 'lrob-email-toolkit'), 'lock'); ?>
                     </label>
                     <?php
-                    // Bullets in the placeholder when a password is stored
-                    // matches the password-manager pattern admins already
-                    // know. Empty placeholder when there's nothing to keep.
                     $password_placeholder = $f['has_password']
                         ? str_repeat("\u{2022}", 10)
                         : '';
@@ -587,8 +576,6 @@ final class SettingsPage
                 checkHost:   <?php echo wp_json_encode(AjaxController::ACTION_CHECK_HOST); ?>,
                 lookupMx:    <?php echo wp_json_encode(AjaxController::ACTION_LOOKUP_MX); ?>
             },
-            // Per-action nonces for destructive operations. Defense in
-            // depth on top of the module-wide nonce + capability gate.
             actionNonces: {
                 delete:      <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_DELETE)); ?>,
                 setDefault:  <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_SET_DEFAULT)); ?>,
@@ -636,9 +623,6 @@ final class SettingsPage
         return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').substring(0, 50);
     }
 
-    // Reverse-map of action string → per-action nonce, populated once
-    // from S.actions + S.actionNonces. Sent as `_action_nonce` alongside
-    // the module nonce on destructive operations.
     var actionNonceMap = (function () {
         var map = {};
         var nonces = S.actionNonces || {};
@@ -734,12 +718,6 @@ final class SettingsPage
     function rebuildHostPresets() { /* presets are built on demand by combobox */ }
     function updateFromEmailDefaultLabel(card) { updateFromEmailPlaceholder(card); }
 
-    /**
-     * Combobox setup — delegates open/close/click handling to the shared
-     * lrobEtkControls.attachCombobox component (admin/js/etk-controls.js).
-     * SMTP only supplies the preset-building logic and the post-select side
-     * effects (host check / from-email warning / save).
-     */
     function setupCombobox(card, name) {
         var combo = card.querySelector('.lrob-etk-combo[data-name="' + name + '"]');
         if (!combo) return;
@@ -870,10 +848,6 @@ final class SettingsPage
         field(card, 'host').addEventListener('input', function () { runHostCheck(card); });
         field(card, 'from-email').addEventListener('input', function () { syncFromWarning(card); });
 
-        // Encryption → port autofill. The encryption control is a <select>
-        // (was radio buttons in an earlier iteration — the old listener
-        // queried `input[name="smtp_encryption"]:checked` and silently
-        // matched nothing once the markup flipped to a dropdown).
         var portDefaults = { 'tls': 587, 'ssl': 465, '': 25 };
         var encSelect = card.querySelector('select[name="smtp_encryption"]');
         if (encSelect) {
@@ -884,9 +858,6 @@ final class SettingsPage
                 if (def === undefined) return;
                 var portEl = field(card, 'port');
                 var current = parseInt(portEl.value, 10);
-                // Only auto-update the port if it's empty or still on the
-                // previous encryption's default — preserves a user's
-                // explicitly-typed non-default port.
                 if (!portEl.value || current === portLast) portEl.value = def;
                 portLast = def;
             });
@@ -916,25 +887,11 @@ final class SettingsPage
         $$('input[type="radio"], input[type="checkbox"]', card).forEach(function (input) {
             input.addEventListener('change', function () { queueSave(card, 0); });
         });
-        // Combobox dispatches a bubbling `change` on its hidden
-        // .lrob-etk-combo-value when the admin picks an option; pick it
-        // up so override_mode (and any future Combobox-driven field)
-        // auto-saves like a native input.
         $$('.lrob-etk-combo-value', card).forEach(function (input) {
             input.addEventListener('change', function () { queueSave(card, 0); });
         });
     }
 
-    // Auto-save state machine. Each card carries:
-    //   _saveState        — idle | dirty | saving | saved | failed
-    //   _saveTimer        — pending debounce timeout id
-    //   _saveInFlight     — Promise of the in-flight save (or null)
-    //   _dirtyDuringFlight— bool set when input fires while a save is mid-air
-    //
-    // Race semantics: at most one fetch in flight; edits made during a save
-    // flip the dirty-during-flight flag, and a fresh save is re-scheduled
-    // as soon as the current one settles. flushSave() returns the in-flight
-    // Promise so callers (close, navigate-away) can await a clean settle.
     function queueSave(card, delay) {
         if (card.getAttribute('data-state') === 'new') return;
         if (card._saveInFlight) {
@@ -944,9 +901,6 @@ final class SettingsPage
         }
         if (card._saveTimer) clearTimeout(card._saveTimer);
         setStatus(card, 'dirty', S.i18n.dirty);
-        // Null the timer id from inside the callback so flushSave() (called
-        // on blur) doesn't see a stale positive integer and re-fire saveCard
-        // after the debounce already triggered it.
         card._saveTimer = setTimeout(function () {
             card._saveTimer = null;
             saveCard(card);
@@ -1010,9 +964,6 @@ final class SettingsPage
             })
             .then(function () {
                 card._saveInFlight = null;
-                // Edits piled up while the save was in flight — re-fire now
-                // so the latest values land. No queue: one extra save handles
-                // however many keystrokes happened during the round-trip.
                 if (card._dirtyDuringFlight) {
                     card._dirtyDuringFlight = false;
                     queueSave(card, 0);
@@ -1030,9 +981,6 @@ final class SettingsPage
         var action = btn.getAttribute('data-action');
 
         if (action === 'create') {
-            // Keep data-state='new' until saveCard's success branch flips
-            // it. The post-save reload check reads data-state to decide
-            // whether this was a fresh row that needs a page refresh.
             saveCard(card);
         } else if (action === 'discard') {
             card.parentNode.removeChild(card);

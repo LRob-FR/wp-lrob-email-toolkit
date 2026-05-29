@@ -1,23 +1,8 @@
-/* LRob - Email Toolkit — admin styles: CONTACT FORM MODULE
- *
- * Contact Form admin pages. Owns: form-card list (reusing the SMTP identity-
- * card grid with a wider min/max), per-form delivery + anti-spam editor,
- * defaults section + style section grid, WYSIWYG field editor (hover
- * overlays, "+" insertion zones, contenteditable cues, captcha stub,
- * inline settings strip, drag-and-drop indicators, type picker), new-form picker modal,
- * Contact Form dashboard widget (onboard + summary).
- *
- * The Gutenberg *block* editor's preview styles live in a separate file:
- * admin/css/contact-form-editor.css.
- */
+/* LRob - Email Toolkit — admin styles: CONTACT FORM MODULE — Docs: docs/admin-ui.md */
 
 /* ---------- Contact Form admin page ---------- */
 
-/* Form cards are interactive — the whole card is a settings editor with
- * two columns inside. Upper bound 750px lets an hCaptcha widget
- * (303px min, plus card chrome + padding) sit comfortably in a 1-col
- * row without the column scrollbar fallback. Lower bound (420px) keeps
- * the Delivery / Anti-spam columns legible before they collapse. */
+/* Upper 750px: hCaptcha (303px min + chrome) fits; lower 420px: columns stay legible. */
 .lrob-etk-card-grid--wide {
     grid-template-columns: repeat(auto-fit, minmax(420px, 750px));
 }
@@ -38,9 +23,6 @@
     gap: 8px;
     align-items: center;
 }
-/* The button itself is the flex container — same trick we used on the
- * dashboard "Test email" button so the icon and text both center on the
- * cross-axis instead of relying on a fragile margin-top hack. */
 .lrob-etk-form-card .lrob-etk-card-footer .button {
     display: inline-flex;
     align-items: center;
@@ -62,8 +44,6 @@
     text-decoration: underline;
 }
 
-/* Inputs inside the card column should always fill the column width,
- * not overflow. */
 .lrob-etk-form-card .lrob-etk-field input[type="text"],
 .lrob-etk-form-card .lrob-etk-field input[type="email"],
 .lrob-etk-form-card .lrob-etk-field input[type="number"],
@@ -74,8 +54,6 @@
     max-width: 100%;
 }
 
-/* Title input — already styled by .lrob-etk-card-form-head .lrob-etk-title-input. */
-
 /* Defaults section — wrapped in a card with column layout inside. */
 .lrob-etk-defaults {
     background: var(--etk-card-bg);
@@ -85,7 +63,6 @@
     margin-top: 12px;
 }
 .lrob-etk-defaults-grid {
-    /* Inherits .lrob-etk-modal-columns (2 cols). Style section sits full-width below. */
     margin-bottom: 18px;
 }
 .lrob-etk-defaults .lrob-etk-form-column {
@@ -115,10 +92,7 @@
     gap: 4px;
     min-width: 0;
 }
-/* These inputs aren't wrapped in `.lrob-etk-field`, so the card-wide
- * 100%/box-sizing rule doesn't reach them. Without this they take their
- * natural size (input default ≈ 150px) and the right one overflows the
- * card border when the Anti-spam column gets narrow. */
+/* Not wrapped in .lrob-etk-field so 100%/box-sizing must be explicit. */
 .lrob-etk-defaults-inline-pair input {
     width: 100%;
     max-width: 100%;
@@ -145,14 +119,7 @@
     justify-content: flex-end;
 }
 
-/* ---------- Contact Form WYSIWYG editor ---------- */
-
-/* The editor preview reuses the FRONTEND `.lrob-etk-form` styles (loaded
- * from assets/css/contact-form.css). The rules below add the editor layer
- * on top: hover-revealed overlays, "+" insertion zones, contenteditable
- * cues, captcha stub, inline settings strip, drop indicators. Everything here is
- * scoped under `.lrob-etk-form.is-editor` so it never affects published
- * forms. */
+/* ---------- Contact Form WYSIWYG editor (scoped to .lrob-etk-form.is-editor) ---------- */
 
 .lrob-etk-form-fields {
     margin-top: 18px;
@@ -160,9 +127,7 @@
     border-top: 1px solid var(--etk-line);
 }
 
-/* Toolbar sitting directly above the form preview: undo/redo + save status.
- * Putting the save feedback next to where edits happen avoids the user
- * missing a "Save failed" indicator at the very top of the card. */
+/* Toolbar: undo/redo + save status directly above the form preview. */
 .lrob-etk-form-editor-toolbar {
     display: flex;
     align-items: center;
@@ -200,8 +165,6 @@
     opacity: 0.35;
     cursor: default;
 }
-/* Primary add-field button — slightly more prominent than undo/redo so the
- * Gutenberg-style "drop a new field" action reads as the first move. */
 .lrob-etk-form-editor-toolbar-btn--primary {
     color: var(--etk-accent);
     border-color: color-mix(in srgb, var(--etk-accent) 35%, transparent);
@@ -245,11 +208,7 @@
     transition: outline-color var(--etk-transition), opacity var(--etk-transition);
 }
 
-/* The frontend uses flex `gap` between body→rows and col→fields. The editor
- * interleaves zero-height "+" insert zones between every pair, and flex
- * `gap` applies on BOTH sides of each insert — doubling the apparent
- * spacing. Switch the editor to a margin-based vertical rhythm so inserts
- * cost nothing in layout when collapsed. */
+/* Margin-based rhythm: flex gap would double spacing around zero-height inserts. */
 .lrob-etk-form.is-editor > .lrob-etk-form-body,
 .lrob-etk-form.is-editor .lrob-etk-form-col {
     gap: 0;
@@ -266,20 +225,12 @@
     outline-offset: 2px;
     border-radius: var(--etk-radius-sm);
 }
-/* Disable browser scroll-anchoring inside the editor. Without this, when
- * a hovered field grows (helper/strip/option reveals) the browser picks
- * an anchor element below and adjusts scroll to keep it stable, which
- * makes the hovered field appear to scroll UP off-screen. */
+/* Disable scroll-anchoring: field expansion would scroll the hovered field off-screen. */
 .lrob-etk-form.is-editor,
 .lrob-etk-form.is-editor * {
     overflow-anchor: none;
 }
-/* Pseudo-element extending the shell's hover hit-area ~14px below its
- * bottom edge. Lets the cursor traverse the gap between the field and
- * the "+ Field" insert pill without losing :hover on the shell —
- * combined with the `:has(+ .lrob-etk-form-insert--field:hover)` selector
- * below, this gives a stable hover zone all the way from the field's
- * body across the pill into the next shell's edge. */
+/* Extends shell hover hit-area 14px below so cursor can reach the insert pill. */
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell::after {
     content: '';
     position: absolute;
@@ -294,23 +245,13 @@
     outline-color: color-mix(in srgb, var(--etk-accent) 35%, transparent);
 }
 
-/* Single-column rows are conceptually just "a field at body level" — the
- * row and column wrappers are storage-only. Strip their chrome so the user
- * sees a flat stack of fields, and the row-overlay drag handle moves with
- * the FIELD inside (the row is what's actually being reordered).
- *
- * Multi-column rows (data-cols >= 2) keep their full chrome: row overlay
- * for delete/drag, optional column overlay for per-column ops, and the
- * trailing "+" track for adding more columns. */
+/* Single-col rows: strip row/col overlays (storage-only wrappers). Multi-col rows keep full chrome. */
 .lrob-etk-form.is-editor .lrob-etk-form-row[data-cols="1"] > .lrob-etk-form-overlay--row {
     display: none;
 }
 .lrob-etk-form.is-editor .lrob-etk-form-row[data-cols="1"] > .lrob-etk-form-col > .lrob-etk-form-overlay--col {
     display: none;
 }
-/* Single-col rows keep the trailing column "+" so the user can still promote
- * them to multi-column. (When per-field side "+" lands, this can disappear
- * for the single-col case.) */
 .lrob-etk-form.is-editor .is-dragging {
     opacity: 0.4;
 }
@@ -334,11 +275,7 @@
     font-size: var(--etk-text-xs);
 }
 .lrob-etk-form-overlay--row   { top: -12px; left: 8px; }
-/* Col overlay was at the same top-right corner as the field overlay below
- * it — even with the field-hover hide rule, the col overlay's bounding box
- * intercepted dragstarts on the TOP portion of the field's drag handle
- * (because pointer-events flicker during fast hover transitions). Move
- * it to the col's top-LEFT so it never overlaps the field overlay area. */
+/* Col overlay moved to top-LEFT so it never overlaps the field overlay area during dragstart. */
 .lrob-etk-form-overlay--col   { top: -10px; left: 4px; right: auto; }
 .lrob-etk-form-overlay--field { top: 4px; right: 4px; z-index: 10; }
 
@@ -363,10 +300,7 @@
     pointer-events: none !important;
 }
 
-/* The handle is an inline <span> by default, so its declared width/height
- * have no effect — the actual click target is just the icon glyph (~14px
- * wide). Switch to inline-flex with box-sizing so the whole 26×22 area
- * receives the dragstart, not just the rendered character. */
+/* inline-flex so the whole 26×22 area receives the dragstart (not just the glyph). */
 .lrob-etk-form-overlay-handle {
     cursor: grab;
     color: var(--etk-muted);
@@ -379,10 +313,7 @@
     box-sizing: border-box;
     font-size: var(--etk-icon-size);
     line-height: 1;
-    /* The dashicons glyph is a Unicode character — without this, the browser
-     * treats it as text and prefers a text-selection start over a drag when
-     * the mousedown lands on the "ascender" portion of the glyph (top half).
-     * Forcing user-select:none routes all mousedowns straight into dragstart. */
+    /* Prevent text-selection on the glyph so mousedown routes straight to dragstart. */
     user-select: none;
     -webkit-user-select: none;
 }
@@ -413,17 +344,7 @@
     line-height: 1;
 }
 
-/* --- "+" insertion zones ---
- *
- * Always visible, never animated. Row + field inserts are pill-shaped and
- * sized via negative vertical margins so they overlap the seam between
- * neighbors without contributing any layout height (form preview stays
- * compact). Column inserts sit in a trailing grid track on the row. No
- * cursor-distance fade, no `.is-near` expansion — the buttons don't move.
- * `.is-orphan` is the only state class; JS applies it to the sole insert
- * inside an empty container so it renders as a clear dashed drop-zone
- * instead of a thin pill.
- */
+/* --- "+" insertion zones (pill-shaped; negative margins to overlap seams at zero layout cost) --- */
 .lrob-etk-form-insert {
     appearance: none;
     border: 1px solid color-mix(in srgb, var(--etk-accent) 35%, transparent);
@@ -447,10 +368,7 @@
     pointer-events: none; /* invisible inserts shouldn't intercept stray clicks */
     transition: opacity var(--etk-transition), background var(--etk-transition), border-color var(--etk-transition);
 }
-/* Visibility rules: an insert reveals itself when the user is over a
- * neighbouring block OR over the insert itself. With opacity-only fades,
- * the form layout never shifts — when the cursor leaves the editor, the
- * preview reads exactly like the rendered output. */
+/* Opacity-only: layout never shifts; preview at rest matches rendered output. */
 .lrob-etk-form-insert:hover,
 .lrob-etk-form-insert:focus-visible,
 /* Field insert: after a hovered shell */
@@ -465,18 +383,13 @@
     opacity: 1;
     pointer-events: auto;
 }
-/* Orphan inserts (empty container's sole click target) stay visible at
- * rest so the user knows the empty slot is editable — overrides the
- * default opacity:0 above. */
+/* Orphan: sole insert in an empty container stays visible at rest. */
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-orphan {
     opacity: 1;
     pointer-events: auto;
 }
 
-/* During an active drag, inserts stay INVISIBLE (no "+ Field" pills
- * cluttering the canvas) but their hit area grows to a comfortable size
- * so cursor proximity reliably targets the right seam. Layout stays
- * neutral via matching negative margins. */
+/* During drag: invisible pills, enlarged hit area, layout-neutral via matching negative margins. */
 .lrob-etk-form.is-editor.is-drag-active .lrob-etk-form-insert--row,
 .lrob-etk-form.is-editor.is-drag-active .lrob-etk-form-insert--field {
     opacity: 0;
@@ -488,9 +401,7 @@
     max-width: none;
     padding: 0;
 }
-/* Drop-on-insert: the targeted seam renders as a chunky translucent
- * rectangle with an accent border — same visual weight as the side-drop
- * highlight, NOT the "+ Field" pill (whose content we hide). */
+/* Drop-on-insert: accent rect (pill content hidden). */
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-drop-on-insert {
     opacity: 1;
     background: color-mix(in srgb, var(--etk-accent) 18%, transparent);
@@ -502,18 +413,14 @@
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-drop-on-insert > * {
     visibility: hidden;
 }
-/* When the insert being targeted is the lone orphan inside an EMPTY column,
- * highlight the column itself too — makes it obvious that the dragged
- * payload will land inside this column rather than between cols. */
+/* Orphan drop target: also highlight the column so the landing zone is obvious. */
 .lrob-etk-form.is-editor .lrob-etk-form-col:has(> .lrob-etk-form-insert.is-drop-on-insert) {
     background: color-mix(in srgb, var(--etk-accent) 8%, transparent);
     box-shadow: inset 0 0 0 2px var(--etk-accent);
     border-radius: var(--etk-radius-sm);
 }
 
-/* Brief flash on a newly-inserted column so the user gets visible feedback
- * that the click did something — without this, a new empty column tucked
- * next to existing content can read as "nothing happened". */
+/* Flash newly-inserted column/row to confirm the click did something. */
 @keyframes lrob-etk-form-col-flash {
     0%   { background: color-mix(in srgb, var(--etk-accent) 20%, transparent); box-shadow: inset 0 0 0 1px var(--etk-accent); }
     100% { background: transparent;             box-shadow: inset 0 0 0 1px transparent; }
@@ -538,10 +445,7 @@
     outline: none;
 }
 
-/* Row + field pills: full pill height (so they're a real click target),
- * but pulled half-height into the seam above and below so they cost zero
- * vertical layout. With shells using `margin-top: 1rem` between siblings,
- * the pill sits centered in that 16px gap. */
+/* Full pill height, pulled half-height into the seam → zero vertical layout cost. */
 .lrob-etk-form-insert--row,
 .lrob-etk-form-insert--field {
     width: max-content;
@@ -550,11 +454,7 @@
     margin: -9px auto;
     padding: 0 10px;
 }
-/* Column "+" sits in a trailing grid track on the row so it has a stable
- * position to the right of the last column without ever overlapping a
- * field. When cols=4 the row has no trailing track and no "+" in DOM.
- * Smaller than the row/field pills since the position alone signals "add
- * column" — no text label needed. */
+/* Column "+": trailing grid track; absent at cols=4. Smaller — position signals intent. */
 .lrob-etk-form-insert--column {
     align-self: center;
     width: 22px;
@@ -568,10 +468,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-row[data-cols="3"] { grid-template-columns: repeat(3, 1fr) auto; }
 .lrob-etk-form.is-editor .lrob-etk-form-row[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
 
-/* Orphan: empty container's sole insert renders as a clear dashed drop
- * zone (so the user understands "click here to add something") instead of
- * the always-visible thin pill. Takes a small amount of vertical space so
- * the empty row/column doesn't visually collapse to nothing. */
+/* Orphan: dashed drop-zone instead of thin pill; reserves vertical space so the container doesn't collapse. */
 .lrob-etk-form.is-editor .lrob-etk-form-insert.is-orphan {
     background: transparent;
     border: 1px dashed var(--etk-line-strong);
@@ -589,14 +486,7 @@
     color: var(--etk-accent);
 }
 
-/* In single-col rows, the col's leading/trailing field-inserts would
- * triplicate the "+" between two body items (col-trailing of the row
- * above + body-level insert + col-leading of the row below). Hide them
- * there — the body-level "+" between rows handles those slots.
- *
- * In multi-col rows, the leading/trailing inserts stay visible (on hover)
- * because they're the only way to add a field at the very top or bottom
- * of a specific column. */
+/* Single-col: hide leading/trailing col inserts to avoid triplication (body-level insert covers them). */
 .lrob-etk-form.is-editor .lrob-etk-form-row[data-cols="1"] > .lrob-etk-form-col > .lrob-etk-form-insert--field:first-of-type:not(.is-orphan),
 .lrob-etk-form.is-editor .lrob-etk-form-row[data-cols="1"] > .lrob-etk-form-col > .lrob-etk-form-insert--field:last-of-type:not(.is-orphan) {
     display: none;
@@ -625,11 +515,7 @@
     font-style: italic;
 }
 
-/* Empty helper placeholder: at rest, collapsed to zero height with a
- * negative top margin that absorbs the field's flex gap, so the form
- * preview matches the rendered output exactly. On field hover, it slides
- * open via max-height + margin-top transitions — neighbours below get
- * pushed down smoothly rather than jumping. */
+/* Collapsed at rest (negative margin absorbs flex gap). Slides open on hover. */
 .lrob-etk-form.is-editor .lrob-etk-form-helper.lrob-etk-form-helper-empty {
     max-height: 0;
     opacity: 0;
@@ -648,29 +534,14 @@
     pointer-events: auto;
 }
 
-/* While the user is typing into an input/textarea in editor mode, the text
- * they're entering is actually the field's PLACEHOLDER (the editor swaps
- * placeholder ↔ value on focus). Render it as muted/italic to make that
- * intent obvious — it's helper text, not a real default value. */
+/* Editor swaps placeholder ↔ value on focus; muted/italic signals it's placeholder text. */
 .lrob-etk-form.is-editor input[data-etk-swapped-placeholder="1"],
 .lrob-etk-form.is-editor textarea[data-etk-swapped-placeholder="1"] {
     color: var(--etk-muted);
     font-style: italic;
 }
 
-/* --- Required toggle (star) next to the label in editor mode ---
- *
- * Resting: faint and only revealed when the field is hovered. Active
- * (`.is-on`): always full strength so the required state is unambiguous
- * regardless of cursor position. font-size: inherit prevents it from
- * pushing the label's line-height up. */
-/* --- Required marker / toggle ---
- * Two stacked siblings: a "*" star (purely visual, dim/off when not
- * required, red/on when required) and a "[checkbox] Required" label
- * that's only shown on shell hover/active. The checkbox is the actual
- * interactive control; the star itself isn't clickable. Reveal triggers
- * mirror the rest of the editor chrome (:hover / :has(+ pill:hover) /
- * .is-active / :focus-within). */
+/* --- Required marker / toggle (star at rest, checkbox on hover/active) --- */
 .lrob-etk-form-required-control {
     display: inline-flex;
     align-items: center;
@@ -704,7 +575,6 @@
 .lrob-etk-form-required-check input {
     margin: 0;
 }
-/* On shell hover/active/focus: hide the star, show the checkbox. */
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:hover .lrob-etk-form-required-star,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell:has(+ .lrob-etk-form-insert--field:hover) .lrob-etk-form-required-star,
 .lrob-etk-form.is-editor .lrob-etk-form-edit-shell.is-active .lrob-etk-form-required-star,
@@ -728,15 +598,7 @@
     font-size: var(--etk-text-xs);
 }
 
-/* --- Inline settings strip ---
- * Per-field settings used to live in a gear popup; now they live in a
- * compact strip that sits INSIDE each editor field, below the helper
- * text. At rest it collapses to zero height + zero opacity (same
- * max-height pattern as the empty-helper and "+ Add option" reveals)
- * so the editor preview matches the frontend render exactly. On
- * shell hover the strip slides open and joins the field's natural
- * hover area — the cursor can travel from the field's body straight
- * into the strip without crossing any "+ Field" insert pill. */
+/* --- Inline settings strip (collapses at rest; slides open on hover) --- */
 .lrob-etk-form.is-editor .lrob-etk-form-inline-settings {
     display: flex;
     flex-wrap: wrap;
@@ -750,10 +612,7 @@
     overflow: hidden;
     pointer-events: none;
     transition: max-height var(--etk-transition), margin-top var(--etk-transition), padding var(--etk-transition), border-top-width var(--etk-transition), opacity var(--etk-transition);
-    /* `.lrob-etk-form-field` is a flex column whose `align-items` shifts
-     * when the user picks Submit/Captcha alignment. Without this override
-     * the strip itself slides with that alignment, dragging the chip
-     * the cursor was just on. Pin it to full width regardless. */
+    /* Pin to full width regardless of parent flex-column alignment. */
     align-self: stretch;
     width: 100%;
 }
@@ -848,11 +707,7 @@
     font-size: var(--etk-text-xs);
 }
 
-/* --- Per-option Default star (select only) ---
- * Marks an option as the pre-selected default. Mirrors the × remove
- * button's hide/reveal pattern (width-collapse at rest, fades in on
- * shell hover). When `.is-on`, the star fills with the accent colour
- * even at rest so the chosen default is visible in the live preview. */
+/* --- Per-option Default star: collapsed at rest, fills accent when .is-on --- */
 .lrob-etk-form.is-editor .lrob-etk-form-option-default {
     appearance: none;
     background: transparent;
@@ -886,11 +741,7 @@
 .lrob-etk-form.is-editor .lrob-etk-form-option-default.is-on { color: var(--etk-accent); }
 .lrob-etk-form.is-editor .lrob-etk-form-option-default:hover { color: var(--etk-accent); }
 
-/* --- Drop indicators (drag-and-drop visual feedback) ---
- * Chunky accent bars at the seam where the dragged item will land. They
- * sit OUTSIDE the block's box (negative offsets) so the indicator doesn't
- * overlap the block's content. Box-shadow gives a faint glow that makes
- * the indicator easy to spot mid-drag. */
+/* --- Drop indicators (accent bars outside the block box via negative offsets) --- */
 .lrob-etk-form.is-editor .is-drop-before::before,
 .lrob-etk-form.is-editor .is-drop-after::after,
 .lrob-etk-form.is-editor .is-drop-before-h::before,
@@ -908,10 +759,6 @@
 .lrob-etk-form.is-editor .is-drop-before-h::before { top: 0; bottom: 0; left: -6px; width: 5px; }
 .lrob-etk-form.is-editor .is-drop-after-h::after   { top: 0; bottom: 0; right: -6px; width: 5px; }
 
-/* (The legacy rectangular side-drop indicators are gone — snap-to-col now
- * handles before-first / after-last column drops by targeting the
- * adjacent column directly, which gets the same accent bar as every other
- * between-blocks drop. Consistent visual language.) */
 
 /* --- Type picker (clone of <template> inserted by editor JS) --- */
 .lrob-etk-form-type-picker {
@@ -940,8 +787,7 @@
 }
 .lrob-etk-form-type-picker button:hover { background: var(--etk-soft); }
 
-/* Sectioned picker (Newsletter form editor) — presets on top, generic
- * fields below. Each section gets its own header label. */
+/* Sectioned picker (Newsletter form editor) — presets section + fields section. */
 .lrob-etk-form-type-picker:has(.lrob-etk-form-type-picker-section) {
     display: block;
     padding: 8px;
@@ -1098,12 +944,7 @@
     line-height: 1.55;
 }
 
-/* ---------- Form card: re-organised settings layout ----------
- *
- * Essentials (recipients + identity) sit at the top, Style next, then the
- * WYSIWYG editor; "Advanced" is a collapsed <details> below the editor
- * (Email + Anti-spam + Throttling sub-blocks).
- */
+/* ---------- Form card layout (Essentials → Style → Editor → Advanced) ---------- */
 .lrob-etk-form-essentials {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -1118,9 +959,7 @@
     padding-top: 12px;
     border-top: 1px solid var(--etk-soft);
 }
-/* Card-internal section title: smaller, uppercase, no border (the parent
- * section provides its own separator). The big page-level border-top
- * variant lives in admin-base.css under the same name. */
+/* Card-internal .lrob-etk-section-title: no border (parent provides separator). */
 .lrob-etk-card .lrob-etk-section-title,
 .lrob-etk-form-style-group .lrob-etk-section-title {
     margin: 0 0 8px;
@@ -1197,9 +1036,6 @@
     align-items: stretch;
     gap: 4px;
 }
-/* Input + pick now consume the shared .lrob-etk-combo / .lrob-etk-combo-toggle
- * primitive — see admin-components.css. The recipient-row only needs to
- * make the combo grow + sit next to the standalone remove button. */
 .lrob-etk-recipient-row > .lrob-etk-combo {
     flex: 1;
     min-width: 0;
@@ -1244,12 +1080,7 @@
     line-height: 1;
 }
 
-/* Recipient picker menu chrome lives in admin-components.css:
- *   .lrob-etk-menu + .lrob-etk-menu--fixed + .lrob-etk-menu-item */
-
-/* Banner styles promoted to admin-components.css */
-
-/* Make labels inside the advanced section align the tooltip neatly. */
+/* Tooltip alignment inside advanced section labels. */
 .lrob-etk-advanced-body .lrob-etk-field > label,
 .lrob-etk-advanced-body .lrob-etk-form-column-head {
     display: inline-flex;
@@ -1257,16 +1088,7 @@
     gap: 4px;
 }
 
-/* Email column wider than Anti-spam in the per-form Advanced section
- * AND in the global Defaults section.
- *
- * `minmax(0, …fr)` is load-bearing: a bare `1fr` is shorthand for
- * `minmax(auto, 1fr)`, which lets the column grow past its declared
- * fraction whenever the content's intrinsic min-width is bigger. The
- * Anti-spam column packs an inline-pair of number inputs (Max + Window)
- * whose min-width was overruling our 1fr cap, so Anti-spam ended up
- * wider than Email despite the rule. Forcing minmax(0, …) lets the
- * columns actually honour the 1.7 : 1 ratio. */
+/* minmax(0, fr) is load-bearing: bare 1fr lets min-width override the ratio. */
 .lrob-etk-form-card .lrob-etk-advanced-body .lrob-etk-modal-columns,
 .lrob-etk-defaults .lrob-etk-defaults-grid {
     grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) !important;
@@ -1285,9 +1107,6 @@
     font-family: inherit;
 }
 
-/* "Using default: …" hint below an inheriting field. Hidden as soon as
- * the user types (auto-save JS flips the hidden attribute). Smaller +
- * italic so it doesn't compete with the input itself. */
 .lrob-etk-default-hint {
     margin: 4px 0 0;
     font-size: var(--etk-text-xs);
@@ -1296,13 +1115,7 @@
     line-height: 1.4;
 }
 
-/* ---------- Captcha in-block picker (editor stub) ----------
- * Inline picker + live-swapped preview. The editor IS a live frontend
- * preview, so at rest the stub has no chrome — just the rendered
- * challenge preview underneath. The dashed frame and head row (icon +
- * Anti-spam label + challenge picker) fade in only when the field is
- * hovered. Same opacity + size-collapse pattern as the empty-helper
- * reveal (line 645) and the insert pills (line 458). */
+/* ---------- Captcha in-block picker (editor stub) ---------- */
 .lrob-etk-form.is-editor .lrob-etk-form-field--captcha.is-editor-stub {
     padding: 0;
     background: transparent;
@@ -1311,10 +1124,7 @@
     transition: padding var(--etk-transition), background var(--etk-transition), border-color var(--etk-transition);
 }
 
-/* Captcha alignment in the editor preview — applies to the widget slot
- * only so the picker head (admin chrome) stays put regardless of which
- * alignment the visitor will see. Frontend uses a different wrapper
- * (.lrob-etk-form-captcha-align in contact-form.css). */
+/* Alignment applies to widget slot only; picker head stays put regardless. */
 .lrob-etk-form.is-editor .lrob-etk-form-field--captcha .lrob-etk-form-captcha-stub-preview {
     display: flex;
     flex-direction: column;

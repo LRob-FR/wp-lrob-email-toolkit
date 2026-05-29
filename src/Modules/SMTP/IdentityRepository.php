@@ -6,12 +6,7 @@ namespace LRob\EmailToolkit\Modules\SMTP;
 
 use LRob\EmailToolkit\Support\Encryption;
 
-/**
- * CRUD against the lrob_etk_identities table. Handles the encryption boundary:
- * the rest of the codebase deals in plaintext (via Identity::decrypted_password())
- * and plain-password method arguments to save(); only this class touches the
- * Encryption support directly when persisting.
- */
+// Docs: docs/smtp.md
 final class IdentityRepository
 {
     /** @return array<int, Identity> */
@@ -77,16 +72,7 @@ final class IdentityRepository
         return (int) $wpdb->get_var("SELECT COUNT(*) FROM `$table`");
     }
 
-    /**
-     * Insert or update an identity. The password argument is the *plain*
-     * password from the form:
-     *  - null  → keep the existing ciphertext untouched (the common case when
-     *            editing an identity without retyping the password)
-     *  - ''    → clear the stored password (empty ciphertext)
-     *  - other → encrypt and store
-     *
-     * Returns the identity's id (existing on update, newly assigned on insert).
-     */
+    /** null → keep ciphertext; '' → clear; non-empty → encrypt and store. Returns saved id. */
     public function save(Identity $identity, ?string $plain_password = null): int
     {
         global $wpdb;
@@ -137,11 +123,7 @@ final class IdentityRepository
         $wpdb->delete(Schema::table_name(), ['id' => $id], ['%d']);
     }
 
-    /**
-     * Marks one identity as the default and clears the flag on every other
-     * identity. Runs in a single transaction so we never end up with zero or
-     * two defaults visible to a concurrent reader.
-     */
+    /** Transactional — prevents zero or two concurrent defaults. */
     public function set_default(int $id): void
     {
         global $wpdb;

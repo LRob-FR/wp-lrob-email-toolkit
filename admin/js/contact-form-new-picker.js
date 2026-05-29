@@ -1,10 +1,4 @@
-/* LRob Email Toolkit — Contact Form: "Start a new form" picker.
- *
- * Drives the modal opened from the page header and from the onboarding
- * empty state. Selecting a card hits the create-form AJAX endpoint and
- * navigates to the new form's anchor. Config is injected via
- * wp_localize_script as window.lrobEtkCfNewPicker (ajaxUrl, action, nonce,
- * pageUrl). */
+/* Docs: docs/contact-form.md */
 (function () {
     var cfg = window.lrobEtkCfNewPicker || {};
 
@@ -17,9 +11,6 @@
         var picker = document.getElementById('lrob-etk-cf-new-picker');
         if (!picker) return;
 
-        // The onboarding-state button only exists when there are no forms
-        // yet — but render order puts the picker before the empty state in
-        // the DOM, so binding has to wait for parse.
         var openBtns = [
             document.getElementById('lrob-etk-cf-new-form-btn'),
             document.getElementById('lrob-etk-cf-new-form-btn-empty')

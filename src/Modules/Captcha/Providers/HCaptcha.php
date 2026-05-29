@@ -4,15 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha\Providers;
 
-/**
- * hCaptcha provider — privacy-respecting alternative to Google reCAPTCHA.
- * All the widget render + siteverify plumbing lives in AbstractHostedCaptcha;
- * this class only carries hCaptcha's constants + branding.
- *
- * Vendor references:
- *  - Widget: https://docs.hcaptcha.com/configuration
- *  - Verify: https://docs.hcaptcha.com/#verify-the-user-response-server-side
- */
+// Docs: docs/captcha.md — widget: https://docs.hcaptcha.com/configuration  verify: https://docs.hcaptcha.com/#verify-the-user-response-server-side
 final class HCaptcha extends AbstractHostedCaptcha
 {
     public const SLUG = 'hcaptcha';

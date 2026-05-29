@@ -34,10 +34,6 @@ final class CheckboxField implements FieldTypeInterface
         if ($multiple) {
             return FieldRenderHelpers::render_option_group('checkbox', $attrs);
         }
-        // Single checkbox: a single boolean field with the label inline next
-        // to the input. No outer <label>+<input> wrap pattern — the label
-        // text is inside the same <label> as the checkbox so clicking the
-        // text toggles it.
         if (!FormContext::is_active()) {
             return '';
         }

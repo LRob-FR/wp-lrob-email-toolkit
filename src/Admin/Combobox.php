@@ -5,36 +5,12 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 /**
- * Shared admin combobox renderer. The runtime behavior lives in
- * admin/js/etk-controls.js (plugin-wide, loaded by Assets), which
- * reads data-options + data-inherit-value off the wrapping element
- * and drives the dropdown menu.
- *
- * Two variants:
- *   - render_fixed_select() — readonly input + dropdown with a known
- *     option list. Equivalent to a styled <select>, but matches the
- *     rest of the toolkit's admin look. Supports an "inherit" sentinel
- *     value rendered as a muted placeholder.
- *   - render_free_text() — editable input + dropdown suggesting default
- *     values. Used for "subject template" / "success message" style
- *     fields where the user types freely but can pick a suggestion.
- *
- * The marker class parameter ($auto_save_marker) lets each consumer
- * module wire its own auto-save listener. Contact Form passes
- * `lrob-etk-cf-field`; Newsletter passes `lrob-etk-nl-field`. Pass an
- * empty string when no auto-save is wanted (e.g. inside a settings
- * page that POSTs a form normally).
+ * Shared admin combobox renderer. See docs/admin-ui.md for both variants + auto-save wiring.
+ * Runtime: admin/js/etk-controls.js.
  */
 final class Combobox
 {
-    /**
-     * Fixed-value combobox: readonly input + dropdown menu of known
-     * options. The hidden input carries the canonical value (one of the
-     * option `value` strings, possibly the inherit sentinel) and is
-     * what the auto-save listener picks up.
-     *
-     * @param array<int, array{value:string, label:string}> $options
-     */
+    /** @param array<int, array{value:string, label:string}> $options */
     public static function render_fixed_select(
         string $meta_key,
         string $current_value,
@@ -83,14 +59,7 @@ final class Combobox
         <?php
     }
 
-    /**
-     * Free-text combobox: editable input + dropdown of suggested
-     * values. The visible input IS the auto-save target — no hidden
-     * mirror. Useful for "subject template" / "success message" where
-     * the user typically uses the default but may type their own.
-     *
-     * @param array<int, array{value:string, label:string}> $suggestions
-     */
+    /** @param array<int, array{value:string, label:string}> $suggestions */
     public static function render_free_text(
         string $meta_key,
         string $current_value,

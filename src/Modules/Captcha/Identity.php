@@ -6,14 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha;
 
 use LRob\EmailToolkit\Support\Encryption;
 
-/**
- * Immutable value object: one configured set of credentials for a hosted
- * captcha provider (hCaptcha "Main site", Turnstile "Staging", …). Mirrors
- * the SMTP Identity shape so an admin who knows one knows the other.
- *
- * Credentials are stored as AES-256-GCM-encrypted JSON. The provider knows
- * what keys to expect — this class just holds the blob.
- */
+// Docs: docs/captcha.md → "Identity credentials"
 final class Identity
 {
     public function __construct(
@@ -47,12 +40,6 @@ final class Identity
         );
     }
 
-    /**
-     * Human-readable stable identifier for this row, matching the Contact
-     * Form field pattern (`<type>_<sluggified-label>_<nth>`): here it's
-     * `<provider_slug>_<label-slug>_<id>`. Empty for unsaved rows since the
-     * id provides the final uniqueness component.
-     */
     public function derived_slug(): string
     {
         if ($this->id === null) {
@@ -67,14 +54,7 @@ final class Identity
         return $this->provider_slug . '_' . $label_slug . '_' . $this->id;
     }
 
-    /**
-     * Decrypt and JSON-decode the credentials blob. Returns [] when no
-     * credentials are stored. Throws RuntimeException when AUTH_KEY changed
-     * or the ciphertext is otherwise unreadable — callers should catch and
-     * prompt the admin to re-enter credentials.
-     *
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     public function decrypted_credentials(): array
     {
         if ($this->credentials_encrypted === '') {

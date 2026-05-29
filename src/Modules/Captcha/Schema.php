@@ -4,19 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha;
 
-/**
- * Captcha module schema. Two tables:
- *
- *  - `lrob_etk_captcha_identities` — credentialled provider instances
- *    (hCaptcha / Turnstile / reCAPTCHA). Homemade challenges have no row.
- *  - `lrob_etk_captcha_stats` — pre-aggregated verify counters keyed by
- *    (day_date, route_key, outcome). One UPSERT per verify() call; total
- *    rows stay tiny (≈ routes × outcomes × days). Powers the dashboard
- *    "spam blocked" tile and the per-route counter on the settings page.
- *
- * dbDelta SQL is intentionally formatted, not parameterized; preserve the
- * two-space indent before PRIMARY KEY and lowercase column types.
- */
+// Docs: docs/captcha.md → "Schema". dbDelta SQL: preserve two-space indent before PRIMARY KEY, lowercase column types.
 final class Schema
 {
     public const TABLE = 'lrob_etk_captcha_identities';
@@ -59,10 +47,6 @@ final class Schema
             KEY is_active (is_active)
         ) $charset_collate;";
 
-        // route_key is the same routing-key shape used elsewhere
-        // ('homemade:math', 'identity:7'). outcome is 'passed' or 'failed'.
-        // Primary key is the natural triple — INSERT ... ON DUPLICATE KEY
-        // UPDATE n = n + 1 makes verify() a single-row upsert.
         $sql_stats = "CREATE TABLE $stats (
             day_date date NOT NULL,
             route_key varchar(80) NOT NULL,

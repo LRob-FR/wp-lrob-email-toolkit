@@ -16,19 +16,7 @@ use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
 use LRob\EmailToolkit\Modules\Logging\Admin\PageController as LogsPageController;
 use LRob\EmailToolkit\Plugin;
 
-/**
- * Inbox for every contact-form submission (received, delivered, spam-blocked,
- * failed). Lives as a view of FormsPage (?page=lrob-etk-cform&view=submissions);
- * not its own admin slug.
- *
- *   - List + filter + paginate (default)
- *   - Detail is an in-page modal; a direct link (&detail=<n>) lands on
- *     the list and auto-opens it.
- *
- * Filter shape and table chrome mirror `LogsPage` so the two pages feel
- * uniform. Cross-links: each row links to its outbound email log when
- * `log_id` is set; the detail view exposes the reverse link too.
- */
+// Docs: docs/contact-form.md — view of FormsPage (?view=submissions); detail is an in-page modal.
 final class SubmissionsPage
 {
     public const OPTION_PER_PAGE = 'lrob_etk_cf_submissions_per_page';
@@ -64,10 +52,6 @@ final class SubmissionsPage
             $this->render_confirm($submission, $action === 'delete-confirm' ? 'delete' : 'spam');
             return;
         }
-        // The submission detail is an in-page modal now (no full page). A
-        // direct link (?detail=N from the dashboard, an email "View" link,
-        // or the logs cross-link) lands here on the list and auto-opens
-        // the modal via JS (FormsPage enqueue → lrobEtkCfInbox.autoOpen).
         $this->render_list();
     }
 
@@ -141,11 +125,6 @@ final class SubmissionsPage
 
 
     /**
-     * Render the swap-able dynamic region (summary line + bulk toolbar +
-     * table + pagination, OR empty state). Called both from full-page
-     * render_list and from the AJAX filter endpoint when only this
-     * chunk needs replacing — same markup either way.
-     *
      * @param array<string, mixed>   $filters
      * @param array<int, Submission> $entries
      * @param array<int, \WP_Post>   $forms
@@ -167,8 +146,7 @@ final class SubmissionsPage
     }
 
     /**
-     * @param array<string, mixed>|null $source defaults to $_GET (page render); the
-     *        AJAX filter endpoint passes $_POST so the same parser handles both.
+     * @param array<string, mixed>|null $source $_GET for page render; pass $_POST from AJAX filter endpoint.
      * @return array{form_ids?:array<int,int>, statuses?:array<int,string>,
      *               captcha_outcomes?:array<int,string>, search?:string,
      *               date_from?:string, date_to?:string}
@@ -213,13 +191,7 @@ final class SubmissionsPage
         return $f;
     }
 
-    /**
-     * Drive the list-region render from a filter set + page number. Used by
-     * the AJAX filter endpoint to recompute + render only the swap-able
-     * portion of the inbox without booting the rest of the page chrome.
-     *
-     * @param array<string, mixed> $filters
-     */
+    /** @param array<string, mixed> $filters */
     public function render_list_region_for_filters(array $filters, int $page): void
     {
         // Inline session-cookie picker (Admin\PerPagePicker) replaces the
@@ -552,11 +524,6 @@ final class SubmissionsPage
         <?php
     }
 
-    /**
-     * The body markup of a submission detail — strip + payload + attached
-     * files + tech details. Public so the AJAX detail endpoint can call it
-     * directly when populating the in-page modal.
-     */
     public function render_detail_body(Submission $entry): void
     {
         $form = get_post($entry->form_id);
@@ -686,25 +653,7 @@ final class SubmissionsPage
         return $form_title . ' #' . (int) $entry->id;
     }
 
-    /**
-     * Resolve a submission field slug to a display label and type. Falls
-     * back to a humanized slug (`text_your_name_2` → `Your name`) when the
-     * form's current structure no longer contains that slug (renamed,
-     * deleted, or form removed). Slug is never shown verbatim — that would
-     * surface the internal naming convention to end users.
-     *
-     * @param array<string, array{label:string, type:string}> $index
-     * @return array{0:string, 1:string}
-     */
-    /**
-     * Confirmation page for spam / delete actions reached from the email
-     * button. Renders a summary of the submission so admin knows what
-     * they're about to act on, plus an explicit Confirm button that
-     * POSTs to the admin-post handler (which carries the canonical nonce
-     * + cap check). Cancel returns to the inbox without firing anything.
-     *
-     * `$op` is one of 'spam' | 'delete'.
-     */
+    // $op: 'spam' | 'delete'
     private function render_confirm(Submission $entry, string $op): void
     {
         $is_delete = $op === 'delete';
@@ -788,15 +737,8 @@ final class SubmissionsPage
         return '';
     }
 
-    /**
-     * Render the "Attached files" section if any cf_files row exists for
-     * this submission. Files are grouped by their source field_slug, and
-     * each file is shown either as an inline preview (image thumbnail or
-     * embedded PDF) or as a download chip. All file URLs route through
-     * the gated REST endpoint — never the storage path.
-     *
-     * @param array<string, array{label:string, type:string}> $index
-     */
+    // All file URLs go through the gated REST endpoint — never the storage path.
+    /** @param array<string, array{label:string, type:string}> $index */
     private function render_attached_files(Submission $entry, array $index): void
     {
         $repo = $this->file_repository();
@@ -847,11 +789,7 @@ final class SubmissionsPage
         $name = (string) ($file['original_name'] ?? '');
         $mime = (string) ($file['mime'] ?? '');
         $size = (int) ($file['size_bytes'] ?? 0);
-        // WP REST auth via cookies requires a `wp_rest` nonce on every
-        // request — without it, even a logged-in admin clicking a plain
-        // <a href="/wp-json/...">  gets 401 rest_forbidden. Inject a
-        // fresh nonce at render time; it stays valid for the page's
-        // session lifetime.
+        // wp_rest nonce required for cookie-authenticated REST requests; fresh nonce injected at render.
         $base_url = add_query_arg(
             '_wpnonce',
             wp_create_nonce('wp_rest'),
@@ -898,13 +836,6 @@ final class SubmissionsPage
         return [$this->humanize_slug($slug), 'text'];
     }
 
-    /**
-     * Best-effort fallback when no structural label is available. Strips
-     * the field-type prefix and the trailing creation index, replaces
-     * underscores with spaces, and uppercases the first letter. Yields a
-     * label close enough to read; never returns an empty string so the
-     * detail-view dt stays non-empty.
-     */
     private function humanize_slug(string $slug): string
     {
         if ($slug === '') {

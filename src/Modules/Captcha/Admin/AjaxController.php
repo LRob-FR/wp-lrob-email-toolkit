@@ -13,14 +13,7 @@ use LRob\EmailToolkit\Modules\Captcha\Providers\ProviderInterface;
 use LRob\EmailToolkit\Modules\Captcha\Providers\Recaptcha;
 use LRob\EmailToolkit\Modules\Captcha\Routing;
 
-/**
- * admin-ajax endpoints for the Captcha settings page. One shared nonce
- * (lrob_etk_captcha_ajax); endpoints distinguish themselves by WP-AJAX
- * action name.
- *
- * Returns JSON; the SettingsPage JS auto-saves identity cards on blur and
- * routing dropdowns on change.
- */
+// Docs: docs/captcha.md → "Admin settings page structure"
 final class AjaxController
 {
     public const NONCE_ACTION = 'lrob_etk_captcha_ajax';
@@ -53,12 +46,6 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_SET_DEFAULT,     [$this, 'ajax_set_default']);
     }
 
-    /**
-     * Verify a captcha token against a saved identity's credentials. The
-     * admin solves the captcha widget rendered inside the card; JS forwards
-     * the resulting token here for siteverify. This is the "Captcha works"
-     * round-trip check.
-     */
     public function ajax_test_identity(): void
     {
         $this->guard();
@@ -100,11 +87,6 @@ final class AjaxController
         wp_send_json_error(['message' => $error ?: __('Verification failed.', 'lrob-email-toolkit')]);
     }
 
-    /**
-     * Run a real reCAPTCHA v3 siteverify for one identity and return the raw
-     * score so the admin can confirm the keys + calibrate the threshold from
-     * the settings page (the v3 widget is invisible — nothing to click-test).
-     */
     public function ajax_test_score(): void
     {
         $this->guard();
@@ -165,10 +147,7 @@ final class AjaxController
             ]);
         }
 
-        // Raw credential values come in as `credentials[<key>]`. Empty
-        // values on EDIT mean "keep what was stored" for sensitive fields
-        // (mirrors SMTP's password semantics); on CREATE empty triggers
-        // validate_credentials() and surfaces a per-field error.
+        // Empty credential values on edit = keep existing (mirrors SMTP password semantics).
         $raw_credentials = [];
         if (isset($_POST['credentials']) && is_array($_POST['credentials'])) {
             foreach ($_POST['credentials'] as $key => $value) {
@@ -233,11 +212,7 @@ final class AjaxController
             wp_send_json_error(['message' => $e->getMessage()]);
         }
 
-        // Deactivating an identity must not leave a dangling route. Any context
-        // (incl. the site-wide default) pointing at this now-inactive identity
-        // is swept back to a working challenge — the default falls to a
-        // built-in so a captcha is always active; per-context entries fall to
-        // 'inherit'. Mirrors the delete sweep.
+        // Sweep dangling routes when deactivating — mirrors delete sweep.
         if (!$is_active) {
             $this_route = Routing::identity($saved_id);
             $map = Routing::context_map();
@@ -347,22 +322,10 @@ final class AjaxController
         ]);
     }
 
-    /**
-     * Validate a routing key. Allowed shapes:
-     *  - 'none' or 'inherit'
-     *  - 'homemade:<slug>' (slug must be a registered homemade challenge)
-     *  - 'identity:<int>'  (id must point at an existing identity)
-     *
-     * `inherit` is only meaningful in per-context entries — coerce to
-     * 'none' when it appears under the 'default' key.
-     */
     private function sanitize_route(string $route, string $key): string
     {
         $is_default = $key === Routing::KEY_DEFAULT;
-        // The default row must always resolve to a real challenge: the
-        // UI doesn't offer "none" or "inherit" there, and a forged POST
-        // setting the default to either of those would silently turn
-        // captcha off site-wide. Force the math fallback.
+        // Default must always be a real challenge — forged POST could otherwise turn captcha off site-wide.
         if ($route === Routing::ROUTE_NONE) {
             return $is_default ? $this->default_fallback() : Routing::ROUTE_NONE;
         }
@@ -416,12 +379,7 @@ final class AjaxController
         check_ajax_referer(self::NONCE_ACTION, '_nonce');
     }
 
-    /**
-     * Extra per-action nonce check for destructive endpoints (delete
-     * identity, save routing, set default). Layered on top of guard()'s
-     * module-wide nonce so a nonce stolen from a non-destructive form
-     * can't be replayed against them.
-     */
+    /** Second nonce layer for destructive endpoints — prevents nonce reuse across action types. */
     private function guard_action(string $action): void
     {
         $nonce = isset($_POST['_action_nonce']) ? (string) $_POST['_action_nonce'] : '';

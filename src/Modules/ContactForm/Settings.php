@@ -4,23 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
-/**
- * Global defaults for the Contact Form module + the runtime resolver that
- * walks per-form meta → global default → hardcoded fallback. Same shape as
- * the SMTP module's `effective_*` accessors so callers never deal with
- * sentinels directly.
- *
- * Stored in option `lrob_etk_contact_form_settings`. Settings are flat:
- * recipient email, default SMTP identity id, reply-to field slug, subject
- * template, success message, rate-limit max + window (minutes), honeypot
- * default, challenge type, and style defaults (preset, accent, radius,
- * font size).
- *
- * Per-form meta uses sentinel values to mean "inherit":
- *   - '' (empty string)        for recipient / template / message / accent / radius / font / reply-to / style preset
- *   - 0                        for identity id / rate_max / rate_window
- *   - 'default'                for honeypot / challenge
- */
+// Docs: docs/contact-form.md
+// Sentinel values for "inherit global": '' for strings, 0 for ints, 'default' for honeypot/challenge.
 final class Settings
 {
     public const OPTION = 'lrob_etk_contact_form_settings';
@@ -70,11 +55,7 @@ final class Settings
             self::KEY_SAVE_SPAM_BOT         => false, // honeypot/time-trap = bots, skip the inbox clutter
             self::KEY_SAVE_SPAM_CAPTCHA     => true,  // captcha-fail can be a legit user — keep for review
             self::KEY_STORE_RAW_IP          => false, // privacy-first default
-            // Retention windows. 0 = auto-cleanup disabled (kept forever);
-            // any positive int = days before deletion. The Admin\RetentionToggle
-            // widget renders a checkbox + number input so admins never have to
-            // type 0 to mean "off". Delivered/received/failed default to off;
-            // spam defaults to 90 days because it churns fast.
+            // 0 = disabled (kept forever). Spam defaults to 90 days; others default to off.
             self::KEY_RETENTION_DELIVERED_DAYS => 0,
             self::KEY_RETENTION_RECEIVED_DAYS  => 0,
             self::KEY_RETENTION_FAILED_DAYS    => 0,
@@ -133,11 +114,6 @@ final class Settings
         };
     }
 
-    /**
-     * Sanitize a comma-separated list of email addresses. Invalid pieces are
-     * dropped silently; the result is a normalized comma-space-separated
-     * string so it round-trips cleanly in `<input type="text">`.
-     */
     private static function sanitize_recipient_list(string $raw): string
     {
         $out = [];
@@ -150,7 +126,7 @@ final class Settings
         return implode(', ', $out);
     }
 
-    // ── Effective getters: per-form meta wins, then global, then hardcoded fallback ──
+    // Effective getters: per-form meta → global option → hardcoded fallback.
 
     public static function effective_recipient(int $form_id): string
     {
@@ -237,17 +213,7 @@ final class Settings
         return (bool) (self::all()[self::KEY_HONEYPOT] ?? true);
     }
 
-    /**
-     * Per-form captcha routing key (or '' to inherit the Captcha module's
-     * contact_form context). Stored as the new Routing::ROUTE_* strings:
-     *   ''                  → inherit Captcha → contact_form
-     *   'none'              → no captcha for this form
-     *   'homemade:<slug>'   → use built-in challenge
-     *   'identity:<id>'     → use a hosted-provider identity
-     *
-     * Stage-3 migration converts the old slug-shaped values
-     * ('math', 'image_recognition', 'default') in place.
-     */
+    // '' = inherit Captcha contact_form context; 'none' = off; 'homemade:<slug>'; 'identity:<id>'.
     public static function effective_routing_key(int $form_id): string
     {
         $per_form = (string) get_post_meta($form_id, CPT::META_CHALLENGE_KIND, true);
@@ -266,17 +232,7 @@ final class Settings
         return (string) (self::all()[self::KEY_STYLE_PRESET] ?? CPT::STYLE_DEFAULT);
     }
 
-    /**
-     * Whether this form's submissions should be persisted to the database.
-     * Per-form override (`on`/`off`) beats global default. When false:
-     *
-     *   - No row is written to `lrob_etk_contact_submissions`.
-     *   - The notification email still goes out (that's the whole point of
-     *     the form). Captcha + honeypot still run.
-     *   - Spam stats for *this form* go missing because they're derived
-     *     from the submissions table. (Captcha-wide stats still update
-     *     because they live in their own counter table.)
-     */
+    // When false: no DB row, but notification email still sends and all anti-spam still runs.
     public static function effective_save_submissions(int $form_id): bool
     {
         $per_form = (string) get_post_meta($form_id, CPT::META_SAVE_SUBMISSIONS, true);

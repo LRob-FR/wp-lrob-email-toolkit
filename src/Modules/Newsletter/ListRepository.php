@@ -4,19 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
-/**
- * CRUD + membership helpers for newsletter lists. Lists are unified
- * manual / rule-based subscriber groupings. Ships with manual lists
- * only — rule_json stays empty for everything created through the
- * admin UI. Rule editor + rule evaluator land later (see todo.md
- * "subscriber custom fields + tags" + "WooCommerce integration"
- * which both extend the rule grammar).
- *
- * Memberships live in wp_lrob_etk_nl_list_members keyed by
- * (list_id, recipient_kind, recipient_id). UserHooks::on_deleted_user
- * already cleans up rows for deleted WP users — SubscriberRepository::
- * delete cleans up subscriber-side rows likewise.
- */
+// Docs: docs/newsletter-internals.md → "List repository"
 final class ListRepository
 {
     private const COUNTS_CACHE_KEY = 'lrob_etk_nl_list_counts';
@@ -94,17 +82,7 @@ final class ListRepository
         return (int) $wpdb->get_var("SELECT COUNT(*) FROM `$table`");
     }
 
-    /**
-     * Single-query lookup of every WP user explicitly opted-out of
-     * newsletter sends (lrob_etk_nl_opted_in='0' user_meta). Used by
-     * `member_counts()` to subtract the opt-outs from rule-resolved
-     * users-kind list sizes, and by the Materializer / audience
-     * preview to flag per-recipient status. Scales linearly with the
-     * count of opt-out rows, not with the user total — single
-     * indexed usermeta lookup.
-     *
-     * @return array<int, int> Flat list of opted-out WP user IDs.
-     */
+    /** @return array<int, int> Flat list of opted-out WP user IDs. */
     public function opted_out_user_ids(): array
     {
         global $wpdb;
@@ -116,18 +94,7 @@ final class ListRepository
         return is_array($rows) ? array_map('intval', $rows) : [];
     }
 
-    /**
-     * Per-list member counts. Returns `list_id => count` for every
-     * list. Three branches:
-     *   - subscribers-kind: explicit `list_members` rows (one query).
-     *   - all_subscribers pseudo-kind: confirmed-subscriber total.
-     *   - users-kind: manual list_members rows UNION rule-resolved
-     *     IDs, deduped, MINUS explicit opt-outs. Rule resolution can
-     *     be expensive on big lists (e.g. WooCommerce) — counts are
-     *     transient-cached 5 min.
-     *
-     * @return array<int, int>
-     */
+    /** @return array<int, int> list_id => count; users-kind counts are transient-cached 5 min. */
     public function member_counts(): array
     {
         $cached = get_transient(self::COUNTS_CACHE_KEY);

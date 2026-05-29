@@ -1,16 +1,4 @@
-/* LRob - Email Toolkit — admin styles: LOGGING MODULE
- *
- * Log-view-specific chrome only. All generic patterns moved to
- * admin-components.css:
- *   .lrob-etk-filter-bar              — filter input row
- *   .lrob-etk-data-table              — custom table chrome
- *   .lrob-etk-bulk-toolbar            — selection + bulk action header
- *   .lrob-etk-pagination              — page-number nav
- *   .lrob-etk-icon-btn  + --ghost     — row actions / square buttons
- *   .lrob-etk-cleanup-row             — Storage modal cleanup row
- *
- * What's left below: the single log-entry detail page (metadata grid,
- * iframe body, error banner) + attachment status indicator. */
+/* LRob - Email Toolkit — admin styles: LOGGING MODULE (log-entry detail page only) — Docs: docs/admin-ui.md */
 
 /* ---------- Log view (compact metadata) ---------- */
 

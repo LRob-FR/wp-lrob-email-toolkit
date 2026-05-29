@@ -1,29 +1,4 @@
-/**
- * Shared modal opener — drives every header-button-triggered .lrob-etk-modal
- * across the plugin (CF Defaults, CF Storage, Logs Storage, future
- * Newsletter modals).
- *
- * Contract:
- *   - The modal element is .lrob-etk-modal with id=<modalId>, normally
- *     `hidden` until opened.
- *   - The opener is a button/anchor with id=<openerId>.
- *   - Inside the modal, any element carrying `data-modal-close` (typically
- *     the × button + the backdrop) closes the dialog when clicked.
- *   - Escape closes the dialog while it's open.
- *   - Body scroll is locked while the dialog is open so the page behind
- *     doesn't drift under the cursor.
- *
- * Save feedback inside modals:
- *   - Every `.lrob-etk-modal-header` automatically gets a status badge
- *     injected on first interaction (next to the close button).
- *   - Any code can dispatch `CustomEvent('lrob-etk:save-status', { detail:
- *     { state, source }})` on its element — the bubble walks up to the
- *     nearest modal and reflects the state on the header badge.
- *   - States: `saving`, `saved`, `error` (with optional `message`).
- *
- * No CSS belongs here — the `.lrob-etk-modal` chrome lives in
- * admin-components.css. This file is JS plumbing only.
- */
+/* Docs: docs/admin-ui.md */
 (function () {
     'use strict';
 
@@ -63,10 +38,7 @@
         }
     }
 
-    // Listen plugin-wide for save-status events and reflect them on the
-    // closest enclosing modal's header badge. Lets ad-hoc save handlers
-    // (per-key autosave, rule-save, etc.) emit a single event and not
-    // worry about discovering / styling the badge themselves.
+    // Plugin-wide save-status listener — reflects on the nearest modal header badge.
     document.addEventListener('lrob-etk:save-status', function (e) {
         var source = e.target instanceof Element ? e.target : null;
         if (!source) return;
@@ -96,9 +68,7 @@
         return { open: open, close: close };
     }
 
-    // Helper for ad-hoc save handlers: pass any element inside a modal
-    // plus a state and the badge updates. Returns silently if outside a
-    // modal — same handler can be wired from page + modal contexts.
+    // Ad-hoc helper: dispatches the save-status event; returns silently outside modals.
     function reportSave(sourceEl, state, message) {
         if (!sourceEl || !sourceEl.dispatchEvent) return;
         sourceEl.dispatchEvent(new CustomEvent('lrob-etk:save-status', {

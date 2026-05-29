@@ -4,17 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Forms;
 
-/**
- * Hidden honeypot input bots happily fill but humans never see. CSS-
- * hidden + offscreen + tabindex out of order + autocomplete off, plus
- * a plausible field name (`website`) so dumb crawlers fill it.
- *
- * Host-neutral — both Contact Form and Newsletter submit pipelines
- * inject this same field. Renamed from the contact-form-specific
- * `_lrob_etk_cf_hp_website` to the neutral `_lrob_etk_form_hp_website`;
- * the honeypot renders fresh per request so no persistence
- * compatibility concern.
- */
+// Docs: docs/forms.md
 final class Honeypot
 {
     public const FIELD_NAME = '_lrob_etk_form_hp_website';
@@ -30,7 +20,6 @@ final class Honeypot
         );
     }
 
-    /** Returns true when the honeypot was triggered (i.e. submission is bot-like). */
     public static function tripped(array $post): bool
     {
         $value = $post[self::FIELD_NAME] ?? '';

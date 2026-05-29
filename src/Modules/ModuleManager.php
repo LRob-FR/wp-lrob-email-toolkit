@@ -6,14 +6,7 @@ namespace LRob\EmailToolkit\Modules;
 
 use LRob\EmailToolkit\Container;
 
-/**
- * Discovers all modules and boots them unconditionally. Each module decides,
- * inside its register() method, what to register for admin vs runtime — the
- * manager doesn't gate on enabled state any more.
- *
- * The list of available modules is hard-coded in module_classes() so adding
- * a module is an explicit code change.
- */
+// Docs: docs/core.md
 final class ModuleManager
 {
     /** @var array<string, ModuleInterface> */
@@ -61,11 +54,6 @@ final class ModuleManager
         return $this->modules[$slug] ?? null;
     }
 
-    /**
-     * Boot every module. Each module's register() is responsible for
-     * deciding what to wire up based on `$this->is_enabled()` and
-     * `is_admin()`.
-     */
     public function boot_all(): void
     {
         foreach ($this->modules as $module) {

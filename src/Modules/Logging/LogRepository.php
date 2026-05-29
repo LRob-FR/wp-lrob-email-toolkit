@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging;
 
-/**
- * CRUD against lrob_etk_logs. Handles JSON encoding/decoding for the
- * array-valued columns (to_emails, cc_emails, bcc_emails, headers, attachments)
- * so the rest of the codebase only ever deals in PHP arrays.
- */
+// Docs: docs/logging.md
 final class LogRepository
 {
     public function insert(LogEntry $entry): int
@@ -90,8 +86,6 @@ final class LogRepository
         [$where, $params] = $this->build_where($filters);
         $orderby = self::sanitize_orderby((string) ($filters['orderby'] ?? ''));
         $order = (string) ($filters['order'] ?? '') === 'asc' ? 'ASC' : 'DESC';
-        // `orderby` came through `sanitize_orderby` which only emits whitelisted column names —
-        // safe to interpolate. `order` is constrained to ASC/DESC above.
         $sql = "SELECT * FROM `" . Schema::table_name() . "` $where ORDER BY $orderby $order LIMIT %d OFFSET %d";
         $params[] = $per_page;
         $params[] = $offset;
@@ -111,9 +105,6 @@ final class LogRepository
     }
 
     /**
-     * Bulk delete by IDs. Filters non-positive ints, returns rows actually
-     * deleted. Used by the bulk-action toolbar.
-     *
      * @param array<int, int> $ids
      */
     public function bulk_delete(array $ids): int
@@ -156,13 +147,7 @@ final class LogRepository
         return is_int($deleted) ? $deleted : 0;
     }
 
-    /**
-     * Delete locally-saved attachment copies (AttachmentStore-managed files)
-     * for the given log ids, before the rows themselves are removed. Files
-     * not under our store (e.g. transient wp_mail paths) are left untouched.
-     *
-     * @param array<int, int> $ids
-     */
+    /** @param array<int, int> $ids */
     private function purge_attachments_for_ids(array $ids): void
     {
         global $wpdb;
@@ -198,12 +183,8 @@ final class LogRepository
     }
 
     /**
-     * Aggregated counts grouped by day + status, for the dashboard's bar chart.
-     * Days with no emails are still included with zero counts so the chart's
-     * x-axis has consistent spacing.
-     *
      * @return array<string, array{sent:int, failed:int, sending:int, retried:int}>
-     *         Keyed by 'Y-m-d' in the site timezone.
+     *         Keyed by 'Y-m-d'. Empty buckets are zero-filled.
      */
     public function counts_by_day(\DateTimeImmutable $from, \DateTimeImmutable $to): array
     {
@@ -244,20 +225,10 @@ final class LogRepository
         return $out;
     }
 
+    // Avoids UNIX_TIMESTAMP() session-tz instability — see docs/logging.md § counts_by_bucket.
     /**
-     * Group counts into time buckets of fixed size for the activity chart.
-     * Gap-fills empty buckets with zeros so the chart's x-axis has even spacing.
-     *
-     * Timezone note: created_at is stored as a UTC datetime string, but
-     * MySQL's UNIX_TIMESTAMP() interprets DATETIME values in the session
-     * timezone, which gives wrong unix seconds when the session is local
-     * time (very common). DST makes a single offset insufficient. We use
-     * TIMESTAMPDIFF(SECOND, ANCHOR, created_at) instead — it does pure
-     * calendar arithmetic on the string values, ignoring session tz — then
-     * add the anchor's known UTC unix ts to land on true UTC seconds.
-     *
      * @param  int $bucket_seconds e.g. 60 (1min), 3600 (1h), 86400 (1d)
-     * @return array<int, array{ts:int, sent:int, failed:int}> chronological list
+     * @return array<int, array{ts:int, sent:int, failed:int}> chronological, zero-filled
      */
     public function counts_by_bucket(\DateTimeImmutable $from, \DateTimeImmutable $to, int $bucket_seconds): array
     {
@@ -267,8 +238,6 @@ final class LogRepository
         $from_sql = $from->format('Y-m-d H:i:s');
         $to_sql = $to->format('Y-m-d H:i:s');
 
-        // 2000-01-01 00:00:00 UTC = 946684800 unix seconds. Pick any fixed
-        // anchor; this one is comfortably before any conceivable log row.
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT
@@ -286,7 +255,6 @@ final class LogRepository
             ARRAY_A
         );
 
-        // Build a zero-filled bucket map indexed by start timestamp.
         $out = [];
         $cursor = (int) (floor($from->getTimestamp() / $bucket_seconds) * $bucket_seconds);
         $stop = $to->getTimestamp();
@@ -331,13 +299,8 @@ final class LogRepository
     }
 
     /**
-     * For a given newsletter, return a map of recipient-row id → log id for
-     * any logged entry. Used by the recipients drawer to attach a "View in
-     * Logs" link to failed rows. Since the default newsletter-suppress rule
-     * deletes successes, in practice only failed rows have a match here.
-     *
      * @param array<int, int> $recipient_ids
-     * @return array<int, int>
+     * @return array<int, int>  recipient_id → newest log_id
      */
     public function log_ids_for_newsletter_recipients(int $newsletter_id, array $recipient_ids): array
     {
@@ -364,8 +327,6 @@ final class LogRepository
         foreach (is_array($rows) ? $rows : [] as $r) {
             $rid = (int) ($r['recipient_id'] ?? 0);
             $lid = (int) ($r['id'] ?? 0);
-            // ORDER BY id DESC means the first row we see per recipient is
-            // the newest log — what the admin wants to inspect.
             if ($rid > 0 && $lid > 0 && !isset($out[$rid])) {
                 $out[$rid] = $lid;
             }
@@ -382,16 +343,9 @@ final class LogRepository
         return is_array($rows) ? array_values(array_filter($rows, static fn ($r): bool => is_string($r) && $r !== '')) : [];
     }
 
-    /**
-     * Whitelist `orderby` to a stored column name; fall back to the
-     * default `id` (newest-first) when unknown. Keeps SQL injection out
-     * of the ORDER BY interpolation in `paginate()`.
-     */
+    // Whitelist prevents SQL injection in the ORDER BY interpolation in paginate().
     private static function sanitize_orderby(string $key): string
     {
-        // `to_emails` is a TEXT column storing the comma/json-joined
-        // recipient list — sort sorts lexically on the raw payload
-        // (i.e. by the first listed recipient most of the time).
         $allowed = ['id', 'created_at', 'status', 'from_email', 'to_emails', 'subject', 'source'];
         return in_array($key, $allowed, true) ? $key : 'id';
     }
@@ -428,10 +382,7 @@ final class LogRepository
             $clauses[] = 'created_at <= %s';
             $params[] = (string) $filters['date_to'];
         }
-        // Newsletter visibility — default is exclude. The Logs page exposes a
-        // tri-state dropdown so the admin can see newsletter rows when
-        // debugging without losing the clean default view. An explicit
-        // newsletter_id wins over the mode.
+        // newsletter_id wins over newsletter_mode; default mode is 'exclude' (newsletter_id IS NULL).
         if (isset($filters['newsletter_id']) && (int) $filters['newsletter_id'] > 0) {
             $clauses[] = 'newsletter_id = %d';
             $params[] = (int) $filters['newsletter_id'];
@@ -477,11 +428,6 @@ final class LogRepository
     /** @return array<int, string> */
     private function insert_formats(): array
     {
-        // status, source, identity_id, newsletter_id, recipient_id,
-        // from_email, from_name, to_emails, cc_emails, bcc_emails,
-        // reply_to, subject, body_html, body_text, headers, attachments,
-        // message_id, error_message, retry_count,
-        // then created_at, sent_at (appended in insert())
         return [
             '%s', '%s', '%d', '%d', '%d',
             '%s', '%s', '%s', '%s', '%s',

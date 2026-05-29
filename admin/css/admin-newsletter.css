@@ -1,13 +1,4 @@
-/* LRob — Email Toolkit · Newsletter admin
- *
- * Hub at ?page=lrob-etk-nl. Sub-areas are routed via &view=… on the same
- * slug (hidden-page-pattern from CLAUDE.md). Most sections are placeholders
- * for now — actual screens land across the v0.3.0 rollout.
- */
-
-/* Old per-Newsletter tab strip dropped — each sub-page now renders its
- * own PageHeader and section nav comes from the shared section-tabs
- * primitive. */
+/* LRob - Email Toolkit — admin styles: NEWSLETTER MODULE — Docs: docs/admin-ui.md */
 
 /* Dashboard view */
 .lrob-etk-nl-dashboard {

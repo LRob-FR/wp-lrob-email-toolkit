@@ -4,22 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging;
 
-/**
- * Re-sends a previously logged email by reconstructing wp_mail() arguments
- * from the stored entry. The retry produces a new log row with current
- * timestamp and its own status (sent / failed). The original entry is left
- * untouched — it represents a separate, earlier send event.
- *
- * Note: earlier versions of this class flipped the original entry's status
- * to `retried`. That made the stats undercount real activity (one resend
- * net zero in the "sent" count). The original stays as it was now.
- *
- * Attachments: we store both filename and full path for each. At resend time,
- * each attachment is re-attached if its file still exists on disk. Files that
- * are gone are skipped silently; the response reports how many were dropped.
- * Inline-string attachments (rare in wp_mail flows) have no path and are
- * never re-attachable.
- */
+// Docs: docs/logging.md
 final class Resender
 {
     public function __construct(private LogRepository $repository)
@@ -58,10 +43,6 @@ final class Resender
                 $dropped++;
             }
         }
-
-        // Do NOT touch the original entry. The new log row that wp_mail
-        // creates via the Logger represents the resend with the current
-        // timestamp and its own success/failure status.
 
         $captured_error = null;
         $capture = static function (\WP_Error $err) use (&$captured_error): void {
@@ -141,13 +122,7 @@ final class Resender
         return $headers;
     }
 
-    /**
-     * Defense-in-depth: strip CR/LF from any value we're about to embed
-     * into an email header. PHPMailer normalises on the way out, but a
-     * future mail-receive feature could introduce attacker-controlled data
-     * into the logs columns this method reads — stripping here closes the
-     * header-injection vector before that data ships.
-     */
+    // Defense-in-depth: log columns could carry attacker-controlled data from a future mail-receive feature.
     private static function strip_crlf(string $value): string
     {
         return trim((string) preg_replace('/[\r\n]+/', ' ', $value));

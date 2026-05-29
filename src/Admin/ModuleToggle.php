@@ -7,24 +7,12 @@ namespace LRob\EmailToolkit\Admin;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
 /**
- * Renders the module enable/disable UI. Three shapes:
- *
- *   - render_inline()  — compact switch placed inline with the page H1 title.
- *                        Submits on change via JS.
- *   - render_bar()     — wider toggle pill (legacy; used by Logging until it
- *                        gets the inline treatment).
- *   - render_cta()     — full-card call-to-action with a big enable button.
- *
- * All POST to admin-post.php with action = $module->toggle_action() and a
- * matching nonce; AbstractModule::handle_toggle() owns the response.
+ * Module enable/disable UI. Three shapes: render_inline, render_bar, render_cta.
+ * See docs/admin-ui.md for details.
  */
 final class ModuleToggle
 {
-    /**
-     * Inline switch + status word. Sits next to the page title. Form
-     * auto-submits on toggle change — module on/off triggers a reload anyway
-     * (hooks load/unload), so AJAX would gain little.
-     */
+    /** Inline switch next to the page title. Auto-submits on change. */
     public static function render_inline(ModuleInterface $module): void
     {
         $enabled = $module->is_enabled();
@@ -77,10 +65,7 @@ final class ModuleToggle
         <?php
     }
 
-    /**
-     * CTA card for the disabled-and-empty state. The $cta_label customizes the
-     * primary action wording ("Configure SMTP", "Enable logging", etc.).
-     */
+    /** CTA card for the disabled-and-empty state. */
     public static function render_cta(ModuleInterface $module, string $cta_label, string $description): void
     {
         $action_url = admin_url('admin-post.php');

@@ -6,16 +6,7 @@ namespace LRob\EmailToolkit\Modules\SMTP;
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-/**
- * Tests SMTP host/port/encryption/credentials without sending a message.
- * Uses PHPMailer's smtpConnect() which performs the TLS handshake, EHLO, and
- * AUTH exchange, then closes cleanly. Returns a structured result the AJAX
- * controller can pass straight to the UI.
- *
- * Designed to accept either a saved Identity (look up password from DB) or
- * pending form values (test before save), so the UI "Test connection" button
- * works at any stage of editing.
- */
+// Docs: docs/smtp.md
 final class AuthTester
 {
     private const CONNECT_TIMEOUT = 10;
@@ -32,8 +23,7 @@ final class AuthTester
             return ['ok' => false, 'message' => __('Invalid SMTP port.', 'lrob-email-toolkit'), 'debug' => null];
         }
 
-        // Bring WordPress's bundled PHPMailer into scope; usually loaded but
-        // not guaranteed in admin-ajax context.
+        // Not guaranteed loaded in admin-ajax context.
         if (!class_exists(PHPMailer::class)) {
             require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
             require_once ABSPATH . WPINC . '/PHPMailer/SMTP.php';
@@ -56,8 +46,6 @@ final class AuthTester
         }
         $mailer->Timeout = self::CONNECT_TIMEOUT;
 
-        // Capture PHPMailer's debug output so we can return a useful error
-        // line when the connection fails.
         $debug_buffer = [];
         $mailer->SMTPDebug = 1;
         $mailer->Debugoutput = function ($str) use (&$debug_buffer): void {
@@ -75,7 +63,6 @@ final class AuthTester
                 ];
             }
 
-            // Close cleanly: QUIT + drop the socket.
             $smtp = $mailer->getSMTPInstance();
             if ($smtp !== null) {
                 $smtp->quit();
@@ -107,7 +94,6 @@ final class AuthTester
         if ($filtered === []) {
             return null;
         }
-        // Keep the last few lines — those are usually the actionable ones.
         return implode("\n", array_slice($filtered, -6));
     }
 }

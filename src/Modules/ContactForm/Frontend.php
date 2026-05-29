@@ -6,17 +6,8 @@ namespace LRob\EmailToolkit\Modules\ContactForm;
 
 use LRob\EmailToolkit\Forms\CountryData;
 
-/**
- * Registers the frontend form CSS/JS. They are *registered* on
- * `wp_enqueue_scripts` but only actually *enqueued* by EmbedRenderer
- * when a contact form is rendered on the page — pages with no form
- * don't pull a kilobyte of unused JS.
- *
- * The JS file (assets/js/form-submit.js) and the localize global
- * (`window.lrobEtkForm`) are intentionally host-neutral so the
- * Newsletter module reuses the same script. Both modules register
- * the same handle — WP dedupes, and the i18n strings overlap.
- */
+// Assets registered here but enqueued by EmbedRenderer only when a form appears on the page.
+// form-submit.js is host-neutral — Newsletter reuses the same handle; WP dedupes.
 final class Frontend
 {
     public const HANDLE_CSS = 'lrob-etk-form-frontend';
@@ -68,8 +59,7 @@ final class Frontend
     public static function enqueue_assets(): void
     {
         if (!wp_style_is(self::HANDLE_CSS, 'registered')) {
-            // Block render happens late — re-run the registration if we didn't
-            // hit wp_enqueue_scripts (e.g. REST preview during block editing).
+            // Block render can fire after wp_enqueue_scripts (e.g. REST block preview).
             (new self())->register_assets();
         }
         wp_enqueue_style(self::HANDLE_CSS);

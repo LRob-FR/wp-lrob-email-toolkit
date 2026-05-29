@@ -4,13 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging;
 
-/**
- * Daily cron event that deletes log entries older than the configured
- * retention period. 0 days means "keep forever". Default: 30 days.
- *
- * The cron hook lives under the lrob_etk_ prefix so Deactivator's prefix-scan
- * cleanup catches it on plugin deactivation.
- */
+// Docs: docs/logging.md
 final class RetentionCron
 {
     public const HOOK = 'lrob_etk_logging_purge';

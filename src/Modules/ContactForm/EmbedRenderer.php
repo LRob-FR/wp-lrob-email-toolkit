@@ -10,16 +10,7 @@ use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Forms\Honeypot;
 use LRob\EmailToolkit\Plugin;
 
-/**
- * Renders the page-side `lrob-etk/contact-form` block. Loads the referenced
- * form CPT, opens a &lt;form&gt; element with a per-render instance id, walks
- * the form's parsed blocks, injects anti-bot fields (challenge before the
- * submit button; honeypot + nonce + form/instance metadata at the end), and
- * returns the resulting HTML.
- *
- * Returns an admin-visible placeholder when the referenced form is missing
- * or unpublished, and nothing on the public frontend in those cases.
- */
+// Docs: docs/contact-form.md — returns nothing on public frontend for missing/unpublished forms.
 final class EmbedRenderer
 {
     /** @param array<string, mixed> $attrs */
@@ -41,8 +32,6 @@ final class EmbedRenderer
             return self::placeholder(__('Contact form not found or not published.', 'lrob-email-toolkit'));
         }
 
-        // Block-rendering can fire after wp_enqueue_scripts has already run;
-        // call directly so the form gets its CSS/JS. wp_enqueue_* are idempotent.
         Frontend::enqueue_assets();
 
         $instance = substr(bin2hex(random_bytes(5)), 0, 10);
@@ -52,10 +41,7 @@ final class EmbedRenderer
             $structure = FormStructure::load($form_id);
             $registry = self::registry();
 
-            // Honeypot lives outside the visible structure — added once at
-            // the end no matter where the user placed (or didn't place) the
-            // captcha field. Captcha is rendered inline by the captcha field
-            // type; honeypot stays invisible and always present.
+            // Honeypot added unconditionally after all rows; captcha is rendered inline by its field type.
             $honeypot_html = Settings::effective_honeypot($form_id) ? Honeypot::render() : '';
 
             $form_attrs = self::compute_form_root_attrs($form_id, $instance, $preset, $overrides);
@@ -67,9 +53,7 @@ final class EmbedRenderer
                 $html .= self::render_row($row, $registry);
             }
 
-            // Safety net: if the user removed the submit field, the form
-            // would have no way to submit. Append a generic one via the
-            // registered submit type.
+            // Fallback: if admin removed the submit field, append a generic one.
             if (!FormStructure::has_field_of_type($structure, 'submit') && $registry !== null) {
                 $submit = $registry->get(CPT::POST_TYPE, 'submit');
                 if ($submit !== null) {
@@ -135,12 +119,7 @@ final class EmbedRenderer
         );
     }
 
-    /**
-     * Build the inline `style` for the form root. For each style var, the
-     * per-block override on this embed wins; if absent, the global default
-     * from Settings is used; if that's empty too, the CSS rule falls back to
-     * the FSE theme variable chain in contact-form.css.
-     */
+    // Per-block override → global default → CSS fallback (FSE theme variable chain in contact-form.css).
     private static function style_inline(array $overrides): string
     {
         $globals = Settings::all();
@@ -178,7 +157,7 @@ final class EmbedRenderer
         );
     }
 
-    /** Editor-only fallback. On the public frontend we render nothing. */
+    // Renders only in block editor context; returns empty string on public frontend.
     private static function placeholder(string $message): string
     {
         if (!is_admin() && !self::is_block_editor_context()) {

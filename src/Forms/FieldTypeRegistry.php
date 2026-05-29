@@ -4,16 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Forms;
 
-/**
- * Per-CPT registry of allowed field types. Each module that owns a form
- * CPT (Contact Form, Newsletter, …) registers its field types here during
- * boot — the shared FormStructure normaliser and FormEditorRenderer
- * dispatch through the registry instead of hard-coding type slugs.
- *
- * Per-CPT isolation matters: a Contact Form's text/email/textarea types
- * should not bleed into a Newsletter form's allowed types (and vice
- * versa). Same slug across CPTs is fine — each CPT has its own bucket.
- */
+// Docs: docs/forms.md
 final class FieldTypeRegistry
 {
     /** @var array<string, array<string, FieldTypeInterface>> */

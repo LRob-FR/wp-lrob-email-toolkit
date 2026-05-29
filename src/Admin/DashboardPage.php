@@ -19,13 +19,7 @@ use LRob\EmailToolkit\Modules\SMTP\Admin\AjaxController as SmtpAjaxController;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 
 /**
- * Plugin landing page. Stat cards, an SVG activity chart with adaptive
- * range + bucket size + chart type toggle, modules grid (with a Test email
- * button on the SMTP card), failure-rate banner, and recent activity.
- *
- * All chart data for every range is pre-computed server-side and embedded
- * as JSON in the page; range/type changes are handled entirely client-side
- * so they're snappy and don't roundtrip to the server.
+ * Plugin landing page. All chart data pre-computed server-side as JSON; range/type switches client-side.
  */
 final class DashboardPage
 {

@@ -1,17 +1,4 @@
-/**
- * Auto-delete-after toggle (Admin\RetentionToggle PHP renderer).
- *
- * Drives a [checkbox + number-input + hidden] triplet:
- *   - Checkbox tracks the "enabled" state.
- *   - Number input shows the days value (always visible, never 0).
- *   - Hidden input carries the canonical setting that the module's
- *     auto-save listener picks up (via its data-key + marker class).
- *
- * The hidden field gets a `change` event dispatched after every flip so
- * the module's existing save plumbing (Contact Form's `lrob-etk-cf-field`
- * listener, Logging's `lrob-etk-logs-field` listener, etc.) writes
- * automatically — no per-module wiring needed.
- */
+/* Docs: docs/admin-ui.md */
 (function () {
     'use strict';
 
@@ -19,7 +6,7 @@
         try {
             hidden.dispatchEvent(new Event('change', { bubbles: true }));
         } catch (e) {
-            // IE11-ish fallback; should never hit in modern WP admin.
+            // IE11 fallback — never hits in modern WP admin.
             var evt = document.createEvent('Event');
             evt.initEvent('change', true, true);
             hidden.dispatchEvent(evt);

@@ -1,32 +1,4 @@
-/* LRob Email Toolkit — shared list-page detail modal.
- *
- * Generic overlay opened by clicking a row trigger on any admin list
- * page (Contact Form submissions, Email Logs, …). Provides:
- *   - fixed-top layout (so prev/next stay under the cursor between
- *     submissions of different heights)
- *   - no-flicker body swap (current content stays visible, soft dim
- *     while the next is in flight; "Loading…" only on first open)
- *   - prev/next nav via ◀/▶ buttons + ← / → keyboard shortcuts
- *   - ESC + backdrop click closes
- *   - configurable header action buttons (page passes its own HTML +
- *     handler) — used for Spam/Restore/Delete (submissions) and
- *     Resend/Delete (logs).
- *
- * Carries `lrob-etk` on the root so the plugin's `.button .dashicons`
- * fix in admin-base.css applies to the modal's buttons too — they're
- * appended to <body>, outside the page's normal wrap.
- *
- * Usage:
- *   var modal = window.lrobEtkDetailModal.create({
- *       fetcher: function(id) { return Promise<{title, html, status, ...}> },
- *       actionsHtml: '<button data-action="delete">Delete</button>…',
- *       afterFetch: function(modal, resp) { ... refresh action buttons ... },
- *       onAction: function(actionKey, id, modal) { ... },
- *       getVisibleIds: function() { return [1, 4, 7]; },  // for prev/next
- *       i18n: { prev, next, close, loading, error }
- *   });
- *   triggerEl.addEventListener('click', function() { modal.open(id); });
- */
+/* Docs: docs/admin-ui.md */
 (function (window, document) {
     'use strict';
 
@@ -41,7 +13,7 @@
         var className     = (config.className || '') + ' lrob-etk lrob-etk-confirm-modal lrob-etk-detail-modal';
 
         var el = null;
-        // Init to '' rather than 0 so composite-string ids work too.
+        // '' not 0 so composite-string ids ("subscriber:42") work.
         var currentId = '';
 
         function ensure() {
@@ -81,9 +53,7 @@
                 if (actBtn && onAction && currentId > 0) {
                     e.preventDefault();
                     var key = actBtn.getAttribute('data-cf-detail-action');
-                    // Optional override: button can carry data-cf-current-op to
-                    // override the original action key when toggled (e.g.
-                    // spam ↔ unspam toggles via the same button).
+                    // data-cf-current-op overrides key when toggled (e.g. spam ↔ unspam).
                     var opOverride = actBtn.getAttribute('data-cf-current-op');
                     onAction(opOverride || key, currentId, api);
                 }
@@ -104,8 +74,7 @@
         }
         function close() {
             if (el) el.classList.remove('is-open');
-            // Reset to '' (not 0) so consumers that pass composite-string
-            // ids ("subscriber:42") don't trip the truthy check below.
+            // '' not 0 so composite-string ids don't trip the truthy check.
             currentId = '';
         }
         function fetch_(id) {
@@ -160,9 +129,7 @@
         var api = {
             open: open,
             close: close,
-            // `currentId` may be a number (legacy: Logs, CF inbox) OR a
-            // composite string like "subscriber:42" (unified Subscribers
-            // table) — truthy check covers both.
+            // Truthy covers both numeric and composite-string ids.
             refresh: function () { if (currentId) fetch_(currentId); },
             currentId: function () { return currentId; },
             element: function () { return el; },

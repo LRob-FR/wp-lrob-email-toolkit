@@ -7,6 +7,7 @@ namespace LRob\EmailToolkit\Modules;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Container;
 
+// Docs: docs/core.md
 abstract class AbstractModule implements ModuleInterface
 {
     public function __construct(protected Container $container)
@@ -18,11 +19,7 @@ abstract class AbstractModule implements ModuleInterface
         return [];
     }
 
-    /**
-     * Service modules (Captcha, future Encryption helpers, etc.) are always
-     * on and have no user-facing enable/disable toggle. The dashboard hides
-     * the toggle and shows "Always on" instead.
-     */
+    /** Service modules (always-on, no user toggle) return true. */
     public function is_service_module(): bool
     {
         return false;
@@ -76,33 +73,18 @@ abstract class AbstractModule implements ModuleInterface
         update_option($this->db_version_option_key(), $this->db_version_int());
     }
 
-    /**
-     * Current schema version for this module, as an integer. Bump when
-     * adding a new ALTER TABLE / dbDelta change, and handle the upgrade in
-     * migrate(). Starts at 1 — anything below means "never installed or
-     * pre-migration-scaffolding".
-     */
+    /** Schema version integer. Bump on each ALTER/dbDelta change; handle in migrate(). */
     public function db_version_int(): int
     {
         return 1;
     }
 
-    /**
-     * Run schema upgrade steps from $from_version (the last version the
-     * site recorded) up to $to_version (db_version_int()). Override per
-     * module with an idempotent switch on $from_version. Default no-op.
-     */
+    /** Override with an idempotent switch on $from_version. Service modules must forward to install(). */
     public function migrate(int $from_version, int $to_version): void
     {
         unset($from_version, $to_version);
     }
 
-    /**
-     * Compare the recorded schema version to db_version_int() and run the
-     * appropriate path: fresh install if never recorded, migrate() if
-     * upgrading. Called by ModuleManager on every request for enabled
-     * modules — must short-circuit cheaply when versions match.
-     */
     final public function maybe_migrate(): void
     {
         $stored = (int) get_option($this->db_version_option_key(), 0);
@@ -111,10 +93,7 @@ abstract class AbstractModule implements ModuleInterface
             return;
         }
         if ($stored === 0) {
-            // No version recorded — either a brand-new install whose
-            // enable() didn't set it yet, or a pre-migration-scaffolding
-            // install we're upgrading. install() is idempotent so re-running
-            // is safe either way.
+            // 0 = fresh install or pre-migration-scaffolding upgrade; install() is idempotent.
             $this->install();
         } else {
             $this->migrate($stored, $target);
@@ -159,11 +138,7 @@ abstract class AbstractModule implements ModuleInterface
         exit;
     }
 
-    /**
-     * URL of the module's primary admin settings page, used as the redirect
-     * target for the toggle handler. Override per module. Return null when
-     * the module has no admin page yet.
-     */
+    /** Redirect target after the toggle handler. Override per module. */
     public function admin_page_url(): ?string
     {
         return null;

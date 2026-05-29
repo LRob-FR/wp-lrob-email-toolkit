@@ -4,17 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
-/**
- * Thin CRUD over the lrob_etk_contact_submissions table. Submissions hold a
- * JSON copy of the user-submitted fields, the IP hash (never the raw IP),
- * user agent, referer, status, and an optional log_id linking back to the
- * outgoing email entry created by the Logging module.
- *
- * Stored field values are kept verbatim — any escaping happens at *render*
- * time. CSV export will need to neuter spreadsheet formula injection
- * (=, +, -, @ prefixes) before writing the file — flagged in CLAUDE.md
- * backlog. Do not pre-neuter on insert.
- */
+// Docs: docs/contact-form.md
+// Field values kept verbatim — escape at render time; CSV export must neuter formula-injection chars.
 final class SubmissionRepository
 {
     public const STATUS_RECEIVED = 'received';
@@ -72,14 +63,7 @@ final class SubmissionRepository
         return $insert_id;
     }
 
-    /**
-     * Recent captcha activity for the dashboard widget: count by
-     * (captcha_slug, captcha_outcome) over the last N days. Excludes rows
-     * with no recorded captcha (legacy submissions from before this column
-     * existed).
-     *
-     * @return array<int, array{captcha_slug:string, captcha_outcome:string, n:int}>
-     */
+    /** @return array<int, array{captcha_slug:string, captcha_outcome:string, n:int}> */
     public function captcha_breakdown(int $days = 30): array
     {
         global $wpdb;
@@ -108,22 +92,9 @@ final class SubmissionRepository
         );
     }
 
-    /**
-     * Notes-field prefix used to carry the pre-spam status across a
-     * manual spam flag. Distinguishes our marker from other diagnostic
-     * notes (`honeypot_tripped`, `wp_mail_returned_false`, …).
-     */
     private const NOTE_PRIOR_PREFIX = 'prior:';
 
-    /**
-     * Flag a submission as spam, preserving its current status inside the
-     * `notes` field as `prior:<status>` so a later restore_from_spam can
-     * roll it back accurately. No-op if already spam-flagged.
-     *
-     * Auto-spam (honeypot / captcha) bypasses this and writes its
-     * own diagnostic notes via the SubmitHandler — those rows have no
-     * prior status, and restoring them falls back to `received`.
-     */
+    // Writes `notes = 'prior:<status>'` so restore_from_spam can roll back accurately.
     public function flag_as_spam(int $id): bool
     {
         $row = $this->find($id);
@@ -139,15 +110,7 @@ final class SubmissionRepository
         return true;
     }
 
-    /**
-     * Restore a spam-flagged submission to its pre-spam status, read from
-     * the `notes` marker that flag_as_spam wrote. If the marker is
-     * missing (auto-spam, legacy rows from before this column was used
-     * for prior-status), fall back to `received`.
-     *
-     * No-op (returns false) if the row doesn't exist or isn't currently
-     * spam-flagged.
-     */
+    // Falls back to 'received' when no prior: marker exists (auto-spam rows or legacy).
     public function restore_from_spam(int $id, ?string $notes = null): bool
     {
         $row = $this->find($id);
@@ -200,13 +163,7 @@ final class SubmissionRepository
         return (int) $wpdb->get_var("SELECT COUNT(*) FROM `$table`");
     }
 
-    /**
-     * Per-form receivable + blocked counters. Used by the Forms list card
-     * to surface "N received / M blocked" at a glance. Receivable =
-     * received + delivered + failed (anything not classified as spam).
-     *
-     * @return array{received:int, blocked:int}
-     */
+    /** @return array{received:int, blocked:int} */
     public function counts_for_form_split(int $form_id): array
     {
         global $wpdb;
@@ -234,11 +191,6 @@ final class SubmissionRepository
         return ['received' => $received, 'blocked' => $blocked];
     }
 
-    /**
-     * Delete delivered + received + failed rows older than $cutoff.
-     * Spam_blocked rows are handled separately by delete_spam_older_than()
-     * so the two retention windows can differ.
-     */
     public function delete_non_spam_older_than(\DateTimeImmutable $cutoff): int
     {
         global $wpdb;
@@ -348,12 +300,7 @@ final class SubmissionRepository
         return is_int($deleted) ? $deleted : 0;
     }
 
-    /**
-     * Site-wide counts by status. Used by FormsPage's bottom stats card
-     * and the dashboard tile so we only hit the database once.
-     *
-     * @return array{received:int, delivered:int, failed:int, blocked:int, total:int}
-     */
+    /** @return array{received:int, delivered:int, failed:int, blocked:int, total:int} */
     public function counts_by_status(): array
     {
         global $wpdb;
@@ -383,11 +330,6 @@ final class SubmissionRepository
         return $out;
     }
 
-    /**
-     * Honeypot-tripped submissions in the last N days. Honeypot is a
-     * ContactForm-side block (captcha never sees it), so the dashboard
-     * tile reads this counter separately from captcha stats.
-     */
     public function count_honeypot_blocks(int $days = 30): int
     {
         global $wpdb;
@@ -487,9 +429,6 @@ final class SubmissionRepository
     }
 
     /**
-     * Batched reverse lookup: log_ids → [log_id => submission_id]. Used by
-     * the Logs page to render "View submission" links without N+1 queries.
-     *
      * @param array<int, int> $log_ids
      * @return array<int, int>
      */
@@ -526,9 +465,6 @@ final class SubmissionRepository
      */
     private static function sanitize_orderby(string $key): string
     {
-        // Match the actual `wp_lrob_etk_cf_submissions` schema: the date
-        // column is `submitted_at`, not `created_at`; from-email lives
-        // in `fields_json` (not its own column) so it isn't sortable.
         $allowed = ['id', 'submitted_at', 'status', 'form_id', 'captcha_outcome'];
         return in_array($key, $allowed, true) ? $key : 'id';
     }

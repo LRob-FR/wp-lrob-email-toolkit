@@ -1,19 +1,4 @@
-/* LRob Email Toolkit — shared confirm() replacement.
- *
- * `window.confirm()` is ugly, popup-blocker-prone, and breaks the
- * plugin's look-and-feel. This helper exposes a single function:
- *
- *   window.lrobEtkConfirm.prompt({ title, message, confirmLabel, danger })
- *     → Promise<boolean>
- *
- * On first call we lazily append a `.lrob-etk-modal` to <body>; later
- * calls reuse the same element. Escape, backdrop click, the X button,
- * and the Cancel footer button all resolve to `false`. Only the
- * primary action button resolves to `true`.
- *
- * Carries `lrob-etk` on the root so the plugin's `.button .dashicons`
- * fix applies inside the modal.
- */
+/* Docs: docs/admin-ui.md */
 (function (window, document) {
     'use strict';
 
@@ -74,7 +59,7 @@
             okBtn.classList.add(opts.danger ? 'lrob-etk-btn--danger-solid' : 'button-primary');
         }
         open(node);
-        // Focus the cancel button so an accidental Enter doesn't confirm.
+        // Focus Cancel so accidental Enter doesn't confirm.
         if (cancel) cancel.focus();
 
         return new Promise(function (resolve) {
@@ -105,13 +90,7 @@
         });
     }
 
-    // Generic intercept for server-rendered forms that used to rely on
-    // `onsubmit="return confirm(...)"`. Mark the form with
-    // [data-etk-confirm-form] and the user gets the styled prompt instead
-    // of the browser dialog. Three attrs read from the form:
-    //   data-confirm-title    (modal header)
-    //   data-confirm-message  (the question)
-    //   data-confirm-label    (text on the primary action)
+    // [data-etk-confirm-form] intercept — shows styled prompt before form submits.
     document.addEventListener('submit', function (e) {
         var form = e.target.closest && e.target.closest('[data-etk-confirm-form]');
         if (!form || form.__etkConfirmed) return;

@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\SMTP;
 
-/**
- * Owns the SMTP module's database schema. Tables are created via dbDelta on
- * module enable and dropped from plugin uninstall.php (or by an explicit reset
- * call). dbDelta requires very specific SQL formatting (two spaces before
- * PRIMARY KEY, lowercase column types, no IF NOT EXISTS) — preserve it.
- */
+// Docs: docs/smtp.md
 final class Schema
 {
     public const TABLE = 'lrob_etk_identities';
@@ -57,10 +52,7 @@ final class Schema
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
 
-        // v2 → v3 migration: replace the force_from bool with a 3-state
-        // override_mode column. dbDelta added override_mode above but
-        // won't drop force_from; do that explicitly + carry old values
-        // across. Idempotent — the column-exists check makes re-runs safe.
+        // v2→v3: drop force_from, carry values to override_mode. Idempotent.
         $has_force_from = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM information_schema.COLUMNS
               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'force_from'",

@@ -1,42 +1,9 @@
-/* LRob Email Toolkit — Contact Form WYSIWYG editor
- *
- * The form's editor DOM mirrors the frontend output exactly (same
- * FieldRenderer, same CSS). This script overlays the editing layer:
- *
- *   • Hover affordances (CSS-driven visibility, JS-driven clicks).
- *   • Click-to-edit labels, helpers, and the submit-button text via
- *     contenteditable spans.
- *   • Click-an-input → swap placeholder ↔ value so the user types the
- *     placeholder directly while editing, then it snaps back on blur.
- *   • Inline settings strip at the top of each field shell (slug + per-
- *     type knobs like maxLength, rows, min/max, multiple, alignment,
- *     placeholder presets, etc.). Hidden at rest, fades in on shell hover
- *     — the editor canvas reads as the live frontend preview.
- *   • "+" insertion zones between every pair of rows/fields and at the
- *     end of each row for new columns. Clicking opens a type picker.
- *   • Drag-and-drop reorder for rows, columns, fields (same scope as
- *     before: rows free, cols within a row, fields within a column).
- *   • Auto-save: any mutation serializes the form DOM to JSON and POSTs
- *     to lrob_etk_cf_save_structure.
- *
- * The serializer is DOM-as-source-of-truth: the editor DOM IS the form
- * state. Server-side FormStructure::normalize() drops anything malformed,
- * so a partially-bad client mutation can never wipe the form.
- */
+/* Docs: docs/form-builder.md */
 (function () {
     'use strict';
 
-    // EDITOR_DATA must be declared BEFORE SAVE_DATA — SAVE_DATA reads
-    // EDITOR_DATA.save, and although `var` hoists, the value isn't
-    // assigned until this line, so swapping order would TypeError on
-    // `.save` of undefined and kill the entire editor IIFE.
+    // EDITOR_DATA must be declared before SAVE_DATA — SAVE_DATA reads EDITOR_DATA.save.
     var EDITOR_DATA = window.lrobEtkFormEditor || {};
-    // Save plumbing is per-CPT — read from EDITOR_DATA.save so the editor
-    // works for both Contact Form (lrob_etk_cf_save_structure) and the
-    // Newsletter subscribe-form CPT (lrob_etk_nl_form_save_structure).
-    // Fall back to the contact-form auto-save admin global only for
-    // backwards compatibility with any cached page that hasn't refreshed
-    // the localize data yet.
     var SAVE_DATA = EDITOR_DATA.save || window.lrobEtkCfAdmin || {};
     var I18N = SAVE_DATA.i18n || {};
     var EDITOR_I18N = EDITOR_DATA.i18n || {};
@@ -61,8 +28,6 @@
         var form = section.querySelector('.lrob-etk-form.is-editor');
         if (!form) return;
 
-        // Status indicator + undo/redo buttons live in the toolbar directly
-        // above the form preview, so feedback sits next to the action.
         var status = section.querySelector('.lrob-etk-form-editor-status');
         var undoBtn = section.querySelector('[data-editor-action="undo"]');
         var redoBtn = section.querySelector('[data-editor-action="redo"]');
@@ -71,8 +36,6 @@
         var addFieldBtn = section.querySelector('[data-editor-action="add-field"]');
         if (addFieldBtn) {
             addFieldBtn.addEventListener('click', function () {
-                // Gutenberg-style top "+": pick a type or preset; append a
-                // single-col row (or N for a multi-field preset) at the end.
                 showTypePicker(addFieldBtn, function (choice) {
                     var body = form.querySelector('.lrob-etk-form-body');
                     if (!body) return;
@@ -92,9 +55,6 @@
             });
         }
 
-        // Resolve a picker choice into a list of ready-to-insert rows.
-        // Generic type → one row, one field. Preset → one row per
-        // descriptor (so admins can rearrange / delete individually).
         function buildRowsForChoice(choice) {
             if (!choice) return [];
             if (choice.kind === 'preset') {
@@ -115,9 +75,6 @@
             }
             return [buildRowWithField(choice.type)];
         }
-        // Keyboard shortcuts: Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z (or Y) to
-        // redo. Only fire when the keystroke is happening inside this card's
-        // editor section, so two open editors don't fight over the same Z.
         section.addEventListener('keydown', function (e) {
             var mod = e.ctrlKey || e.metaKey;
             if (!mod) return;
@@ -133,11 +90,6 @@
         var saveTimer = null;
 
         // --- Undo / redo history ------------------------------------------
-        // A snapshot is the form's full innerHTML. Each discrete user action
-        // (insert/delete/drag/toggle/blur of contenteditable) pushes one
-        // entry, so undo steps back to the state BEFORE that action. Typing
-        // inside a contenteditable doesn't snapshot per-keystroke — only on
-        // blur — so undo skips back over a whole word, not letter-by-letter.
         var HISTORY_MAX = 50;
         var history = [];
         var historyIndex = -1;
@@ -159,8 +111,6 @@
             queueSave();
         }
         function dismissOverlays() {
-            // Type picker references shells that may be replaced wholesale
-            // by an undo/redo. Close it first.
             form.querySelectorAll('.lrob-etk-form-type-picker').forEach(function (p) { p.remove(); });
         }
         function undo() {
@@ -184,8 +134,6 @@
             queueSave();
         }
         function rebindShells() {
-            // After innerHTML replacement, combobox controllers and any
-            // other JS bindings need re-attaching to the new DOM nodes.
             form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (shell) {
                 ensureInlineSettings(shell);
             });
@@ -259,12 +207,6 @@
             }
         });
 
-        /**
-         * Inline option-list mutations. Each shell stores its options in
-         * `data-attr-options`; the inline preview reads/writes those + the
-         * serializer reads them on save. Open gear popup (when relevant)
-         * has no options section anymore — inline IS the editor.
-         */
         function addInlineOption(btn) {
             var shell = btn.closest('.lrob-etk-form-edit-shell');
             if (!shell) return;
@@ -298,9 +240,6 @@
         }
 
         // --- Inline editables ---------------------------------------------
-        // Labels, helpers, submit-button text: contenteditable spans/elements
-        // tagged with data-edit. We strip the "(empty)" placeholder text on
-        // focus so the user sees their own typing on a clean slate.
         form.addEventListener('focusin', function (e) {
             var editable = e.target.closest('[data-edit]');
             if (editable && (editable.classList.contains('lrob-etk-form-helper-empty') || editable.querySelector('.lrob-etk-form-label-empty'))) {
@@ -308,8 +247,7 @@
                 editable.textContent = '';
                 editable.classList.remove('lrob-etk-form-helper-empty');
             }
-            // Inputs in editor mode: swap placeholder → value so the user
-            // edits the placeholder directly by typing.
+            // Placeholder↔value swap: user types the placeholder directly.
             var input = e.target.matches && e.target.matches('input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], textarea')
                 ? e.target : null;
             if (input && form.contains(input)) {
@@ -338,14 +276,9 @@
             }
         });
         form.addEventListener('input', function (e) {
-            // contenteditable typing → queue save; pure input typing (which
-            // is the placeholder swap path) doesn't save until blur.
             if (e.target.closest('[data-edit]')) {
                 queueSave();
             }
-            // Inline option label edits: sync labels → data-attr-options,
-            // but don't redraw the preview on every keystroke (would steal
-            // the caret). The redraw happens on blur.
             if (e.target.closest && e.target.closest('[data-option-edit]')) {
                 var shell = e.target.closest('.lrob-etk-form-edit-shell');
                 if (shell) {
@@ -356,17 +289,10 @@
         });
         form.addEventListener('blur', function (e) {
             if (!e.target || !e.target.matches) return;
-            // Redraw the preview after an inline label edit completes so
-            // values reflect the final label (the input listener can't
-            // safely redraw mid-edit without ejecting the caret).
             if (e.target.matches('[data-option-edit]')) {
                 var shell = e.target.closest('.lrob-etk-form-edit-shell');
                 if (shell) applyOptionsToPreview(shell);
             }
-            // Field-label blur: re-derive the slug from the new label so
-            // it's always `<type>_<sluggified-label>_<nth>` — the nth tail
-            // is the creation index and stays put across reorders, which
-            // keeps the slug stable when *other* fields are removed.
             if (e.target.matches('[data-edit="label"]')) {
                 var lShell = e.target.closest('.lrob-etk-form-edit-shell');
                 if (lShell) recomputeSlug(lShell);
@@ -390,15 +316,7 @@
         }
 
         // --- Sticky hover state on field shells ---------------------------
-        // Keeps a `.is-active` class on the shell whose bounding rect (or
-        // a 10px buffer around it) contains the cursor. The buffer is the
-        // whole trick: the "+ Field" insert pill in the gap below the
-        // shell is inside the buffer, so the field never collapses while
-        // the user is reaching for the pill — pill stays at its expanded
-        // position long enough to actually click. Geometric, not timed —
-        // the buffer is wide enough that human reaction time isn't a
-        // factor.
-        var STICKY_BUFFER = 10; // px around the shell's rect
+        var STICKY_BUFFER = 10; // px buffer keeps insert pill reachable
         var stickyShell = null;
         function findStickyShell(node) {
             if (!node || !node.closest) return null;
@@ -423,9 +341,6 @@
         });
         form.addEventListener('mousemove', function (e) {
             if (!stickyShell) return;
-            // Re-read the rect every move — the shell's height changes as
-            // its reveals open/close, and we need the *current* rect to
-            // know whether the cursor has actually escaped.
             var r = stickyShell.getBoundingClientRect();
             var x = e.clientX, y = e.clientY;
             if (x < r.left - STICKY_BUFFER ||
@@ -441,13 +356,6 @@
             setStickyShell(null);
         });
 
-        // --- Editor-side change handlers ---------------------------------
-        // 1) Captcha picker (in-block) — swap the preview HTML so the user
-        //    sees what visitors will see for the chosen challenge.
-        // 2) Required checkbox — mirrors data-attr-required + the star's
-        //    is-on indicator so the post-blur cosmetic state stays in sync.
-        // 3) Select preview <select> — promotes the freshly-picked option
-        //    to the field's default (placeholder option clears it).
         form.addEventListener('change', function (e) {
             var target = e.target;
             if (!target || !target.matches) return;
@@ -473,9 +381,6 @@
                 return;
             }
 
-            // Select preview: any <select> living inside a .lrob-etk-cf-
-            // field--select belongs to a dropdown field. The captcha
-            // picker is filtered out above (data-captcha-pick).
             if (target.matches('.lrob-etk-form-field--select > select')) {
                 var sShell = target.closest('.lrob-etk-form-edit-shell');
                 if (!sShell) return;
@@ -488,22 +393,12 @@
         });
 
         // --- Drag-and-drop -------------------------------------------------
-        // Drag may ONLY start from the move arrow in a row / col / field
-        // overlay. Mousedown anywhere else proactively flips `draggable`
-        // to false on every draggable ancestor for the duration of the
-        // press — so clicking into an input, dragging to select text, or
-        // mousedown-and-drag on a contenteditable label can't accidentally
-        // launch an HTML5 drag of the whole shell/row/col. Restored on
-        // mouseup (also globally, in case the mouse leaves the form).
         var dragDisabled = [];
         function restoreDraggable() {
             dragDisabled.forEach(function (el) { el.setAttribute('draggable', 'true'); });
             dragDisabled = [];
         }
         form.addEventListener('mousedown', function (e) {
-            // Defensive restore — if a previous mousedown didn't see its
-            // mouseup (cursor left the window etc.) we still want a clean
-            // slate.
             restoreDraggable();
             if (e.target.closest && e.target.closest('.lrob-etk-form-overlay-handle')) return;
             var item = e.target.closest && e.target.closest('[data-draggable-type]');
@@ -524,10 +419,7 @@
                 e.preventDefault();
                 return;
             }
-            // Substitute the field for its ROW only when the field IS the
-            // entire body block — single-col row AND the only shell in that
-            // col. If the col stacks several fields, substituting would drag
-            // all of them; the user only meant to grab the one they clicked.
+            // Single-field, single-col row: substitute the row as drag source.
             if (item.getAttribute('data-draggable-type') === 'field') {
                 var ownRow = item.closest('.lrob-etk-form-row');
                 var ownCol = item.closest('.lrob-etk-form-col');
@@ -540,19 +432,13 @@
             draggedItem = item;
             e.dataTransfer.effectAllowed = 'move';
             try { e.dataTransfer.setData('text/plain', item.getAttribute('data-draggable-type')); } catch (err) {}
-            // Explicitly set the drag image BEFORE mutating the source — if
-            // the browser implicitly captures during the opacity transition
-            // it can decide the image is invalid and abort the drag (which
-            // is what we've been chasing: dragstart fires, then dragend with
-            // zero drag events).
+            // Set drag image before mutating source — prevents browser abort (see docs/form-builder.md).
             try {
                 if (e.dataTransfer.setDragImage) {
                     var rect = item.getBoundingClientRect();
                     e.dataTransfer.setDragImage(item, e.clientX - rect.left, e.clientY - rect.top);
                 }
             } catch (err) {}
-            // Defer the class mutations to after the browser has committed
-            // the drag image, so the transition can't interfere.
             requestAnimationFrame(function () {
                 if (draggedItem === item) {
                     item.classList.add('is-dragging');
@@ -569,11 +455,6 @@
         form.addEventListener('dragover', function (e) {
             if (!draggedItem) return;
             var type = draggedItem.getAttribute('data-draggable-type');
-            // Prefer an "insert" target whenever the cursor is over one —
-            // those are the empty seams between rows/fields, including the
-            // very-bottom slot of the form. Without this branch a drop in an
-            // otherwise-empty area silently fails because the dragover
-            // handler only saw block targets.
             var insertHover = e.target.closest('.lrob-etk-form-insert');
             if (insertHover && isValidInsertTarget(insertHover, type, draggedItem)) {
                 e.preventDefault();
@@ -582,23 +463,12 @@
                 insertHover.classList.add('is-drop-on-insert');
                 return;
             }
-            // Field-drag also accepts row/col targets so the user can drop
-            // the field as a new column (side-drop, between or at edge of
-            // the row's cols) or as a new single-col row above/below.
-            // Row-drag also accepts col targets so the user can place a new
-            // column between two existing cols by dropping on the left/right
-            // half of an existing one.
             var hover = pickDropHover(e, type);
             if (!hover || hover === draggedItem || !sameScope(draggedItem, hover, type)) {
                 clearDropIndicators();
                 return;
             }
-            // Block same-element and "nest into self" targets. EXCEPT when
-            // the dragged element's own row is the hover: that's the
-            // "extract this field above/below my row" case, valid as long
-            // as the drop direction is above/below (the snap-to-col logic
-            // already prevents the middle band from picking a col target on
-            // the source's own row).
+            // Allow drop on source row (above/below) — extract case.
             if (hover === draggedItem
                 || (draggedItem.contains && draggedItem.contains(hover))) {
                 clearDropIndicators();
@@ -609,13 +479,7 @@
                     clearDropIndicators();
                     return;
                 }
-                // Hover is the dragged item's own row. pickDropHover already
-                // forced this case for any cursor position inside the source
-                // row, so cursor.y just decides above vs below — extract is
-                // always meaningful.
             }
-            // Cap check: dropping on a col target would create a new column
-            // in the target's row, so refuse if the row's already at 4.
             if (hover.classList.contains('lrob-etk-form-col') && type !== 'col') {
                 var hostRow = hover.closest('.lrob-etk-form-row');
                 if (hostRow && hostRow.querySelectorAll(':scope > .lrob-etk-form-col').length >= 4) {
@@ -639,14 +503,6 @@
                 direct = e.target.closest('[data-draggable-type="' + type + '"]');
             }
             if (!direct) return null;
-            // Any field-/row-drag landing anywhere INSIDE the dragged item's
-            // own row (the row itself, any of its cols, any of its shells)
-            // collapses to a source-row hover. computeDropDirection then
-            // returns above/below, which the drop handler turns into a
-            // clean extract — no degenerate "new col where the source col
-            // just emptied" reshuffle that looked like a no-op to the user.
-            // Col-drag is exempt: it relies on dropping onto other cols in
-            // the same row to reorder.
             var sourceRow = draggedItem ? draggedItem.closest('.lrob-etk-form-row') : null;
             if (sourceRow && (type === 'field' || type === 'row')) {
                 var inSourceRow = direct === sourceRow
@@ -657,13 +513,6 @@
                     return sourceRow;
                 }
             }
-            // Snap-to-col: when the user aims at a row's middle vertical
-            // band (intending a between-cols drop), pick a column target
-            // even if the cursor sits in the grid gap between cols. The
-            // chosen col is the FIRST one whose midX is greater than the
-            // cursor — that gives a single stable "drop before this col"
-            // target across the whole gap, so the bar doesn't flicker
-            // between cols as the cursor moves a few pixels left or right.
             if (direct.classList.contains('lrob-etk-form-row') && (type === 'row' || type === 'field')) {
                 var rowCols = direct.querySelectorAll(':scope > .lrob-etk-form-col');
                 if (rowCols.length >= 1) {
@@ -687,18 +536,11 @@
             if (!draggedItem) return;
             var type = draggedItem.getAttribute('data-draggable-type');
             var sourceCol = (type === 'field') ? draggedItem.closest('.lrob-etk-form-col') : null;
-
-            // Insert drop: place the dragged item right before the insert so
-            // it lands exactly where the "+" indicated. Field on row-insert
-            // wraps the field in a new single-col row.
             var insertHover = e.target.closest('.lrob-etk-form-insert');
             if (insertHover && isValidInsertTarget(insertHover, type, draggedItem)) {
                 e.preventDefault();
                 var insertKind = insertHover.getAttribute('data-insert');
                 if (type === 'field' && insertKind === 'row') {
-                    // Drop a field on a body row-insert → wrap it in a fresh
-                    // single-col row at that body position. The insert
-                    // itself is wiped + re-emitted by normalizeAllInserts.
                     wrapFieldAsRow(draggedItem, 'after', insertHover);
                 } else {
                     insertHover.parentNode.insertBefore(draggedItem, insertHover);
@@ -712,8 +554,6 @@
                 return;
             }
 
-            // Block-target drops. Field-drag accepts field/col/row targets;
-            // row-drag accepts col/row; col-drag stays restricted to col.
             var hover = pickDropHover(e, type);
             if (!hover || hover === draggedItem || !sameScope(draggedItem, hover, type)) {
                 clearDropIndicators();
@@ -727,9 +567,6 @@
             var dir = computeDropDirection(draggedItem, hover, e);
 
             if (hover.classList.contains('lrob-etk-form-col') && type !== 'col') {
-                // Field- or row-drag landed on a column: drop the dragged
-                // payload as a NEW col before/after the target col. This is
-                // how the user inserts between two existing columns.
                 var hostRow = hover.closest('.lrob-etk-form-row');
                 var beforeRef = (dir === 'is-drop-before-h')
                     ? hover
@@ -750,8 +587,6 @@
             } else {
                 hover.parentNode.insertBefore(draggedItem, hover.nextSibling);
             }
-            // If we just yanked the field out of a column and left it empty,
-            // collapse the column (and the row, if the column was its last).
             if (sourceCol && sourceCol !== draggedItem.parentNode) {
                 cleanupEmptyCol(sourceCol);
             }
@@ -775,12 +610,8 @@
             return false;
         }
         function wrapFieldAsRow(sourceField, position, refRow) {
-            // Build a single-col row with the field as its only content.
-            // The row inserts get rebuilt by normalizeAllInserts afterward.
             var newRow = buildRow();
             var newCol = newRow.querySelector('.lrob-etk-form-col');
-            // Drop the placeholder field-insert from the empty col template
-            // and append the actual field + a trailing insert.
             var placeholder = newCol.querySelector('.lrob-etk-form-insert--field');
             if (placeholder) placeholder.remove();
             newCol.appendChild(sourceField);
@@ -814,13 +645,8 @@
             if (!row) return;
             var rowCols = row.querySelectorAll(':scope > .lrob-etk-form-col');
             if (rowCols.length === 1) {
-                // Single-col row: the row's only column is empty → drop the
-                // whole row. (normalizeBody will re-balance the body's row
-                // inserts so the user keeps a "+" at every seam.)
                 row.remove();
             } else {
-                // Multi-col row: drop just the empty column. Restore the
-                // trailing column "+" if we're now under the 4-col cap.
                 col.remove();
                 updateRowCols(row);
                 if (row.querySelectorAll(':scope > .lrob-etk-form-col').length < 4
@@ -831,13 +657,6 @@
         }
 
         // --- Normalize insert zones ---------------------------------------
-        // After drag-drop, side-drop, and column cleanup, the row/field
-        // insert pattern can end up broken: missing trailing "+" at the very
-        // bottom, duplicate "+" between rows, or no "+" between two newly
-        // adjacent rows. Rebuild the canonical pattern from scratch — wipe
-        // the row/field inserts in each container and reinsert exactly one
-        // before every block + one trailing. The orphan/single-col-hide CSS
-        // rules then handle the visual presentation. */
         function normalizeAllInserts() {
             var body = form.querySelector(':scope > .lrob-etk-form-body');
             if (body) normalizeContainer(body, '.lrob-etk-form-row', '.lrob-etk-form-insert--row', 'row');
@@ -860,18 +679,10 @@
         function computeDropDirection(dragged, hover, e) {
             var rect = hover.getBoundingClientRect();
             var type = dragged.getAttribute('data-draggable-type');
-            // Col target: row- or field-drag aiming at an existing column
-            // (either directly or via snap-to-col on a row). Left half →
-            // insert new col before; right half → insert after.
             if (hover.classList.contains('lrob-etk-form-col')) {
                 var midX = rect.left + rect.width / 2;
                 return e.clientX < midX ? 'is-drop-before-h' : 'is-drop-after-h';
             }
-            // Row target: vertical above/below for field-drag (creates a
-            // new single-col row); same for row-drag (reorders body items).
-            // The previous "edge band side-drop" is gone — snap-to-col on
-            // multi/single-col rows now handles before-first / after-last
-            // column drops via the col target instead.
             var horizontal = type === 'col';
             var midpoint = horizontal ? rect.left + rect.width / 2 : rect.top + rect.height / 2;
             var coord = horizontal ? e.clientX : e.clientY;
@@ -886,15 +697,11 @@
                 && el.querySelectorAll(':scope > .lrob-etk-form-col').length === 1;
         }
         function insertColIntoRow(sourceCol, targetRow, beforeRef) {
-            // Generic "place this col inside this row at this position".
-            // beforeRef: a sibling element to insert before, or null for end.
-            // Skip past the trailing column "+" so it stays at the end.
             if (targetRow.querySelectorAll(':scope > .lrob-etk-form-col').length >= 4) return false;
             if (beforeRef && beforeRef.classList && beforeRef.classList.contains('lrob-etk-form-insert--column')) {
                 beforeRef = null;
             }
-            // Fall back to placing before the trailing column "+" so the
-            // trailing track stays at the row's right edge.
+            // Fall back to placing before the trailing "+" so it stays at the row's right edge.
             if (!beforeRef) {
                 beforeRef = targetRow.querySelector(':scope > .lrob-etk-form-insert--column') || null;
             }
@@ -919,12 +726,6 @@
         }
 
         // --- Insert zone state --------------------------------------------
-        // Inserts are always visible (no cursor-distance fading, no movement)
-        // — they're absolutely-sized pills that overlap the seam between
-        // neighbors via negative margins, so they cost no vertical layout
-        // space. The only stateful bit is `.is-orphan`, applied to the lone
-        // insert in an empty container so it renders as a clearly larger
-        // drop-zone instead of a thin pill.
         function refreshInserts() {
             form.querySelectorAll('.lrob-etk-form-insert').forEach(function (el) {
                 var parent = el.parentElement;
@@ -946,10 +747,6 @@
         function deleteRow(btn) {
             var row = btn.closest('.lrob-etk-form-row');
             if (!row) return;
-            // Remove both the row and the trailing insert-row zone (the "+"
-            // that sits just after this row) so we don't leave dangling
-            // zones. The first zone (above the row) acts as the surviving
-            // insertion point for that gap.
             var next = row.nextElementSibling;
             row.remove();
             if (next && next.matches && next.matches('.lrob-etk-form-insert--row')) {
@@ -963,11 +760,9 @@
             var row = col.closest('.lrob-etk-form-row');
             if (!row) return;
             var cols = row.querySelectorAll('.lrob-etk-form-col');
-            if (cols.length <= 1) return; // keep at least one column
+            if (cols.length <= 1) return;
             col.remove();
             updateRowCols(row);
-            // If insertColumn previously removed the "+" because we hit the
-            // 4-column cap, drop back below the cap means we need it back.
             if (row.querySelectorAll('.lrob-etk-form-col').length < 4
                 && !row.querySelector(':scope > .lrob-etk-form-insert--column')) {
                 row.appendChild(buildInsertZone('column'));
@@ -984,10 +779,6 @@
             if (next && next.matches && next.matches('.lrob-etk-form-insert--field')) {
                 next.remove();
             }
-            // Clean up empty containers left by the deletion. Single-col row
-            // → remove the whole row (and its trailing body insert). Multi-
-            // col row → remove just the now-empty column and update the row
-            // grid (re-adding the trailing column "+" if we dropped below 4).
             if (col && row && !col.querySelector('.lrob-etk-form-edit-shell')) {
                 var rowCols = row.querySelectorAll(':scope > .lrob-etk-form-col');
                 if (rowCols.length === 1) {
@@ -1010,9 +801,6 @@
         function handleInsert(btn) {
             var kind = btn.getAttribute('data-insert');
             if (kind === 'column') return insertColumn(btn);
-            // Both "row" (body-level) and "field" (inside a column) open the
-                // type picker. Row picks build a single-col row containing one
-                // field; field picks add a field to the surrounding column.
             return showTypePicker(btn, function (choice) {
                 if (kind === 'row') {
                     var rows = buildRowsForChoice(choice);
@@ -1053,12 +841,8 @@
             var col = buildColumn();
             row.insertBefore(col, btn);
             updateRowCols(row);
-            // Brief highlight so the user gets visible confirmation that the
-            // click did something (the new col is otherwise an empty dashed
-            // drop zone that can blend in next to the existing content).
             col.classList.add('is-just-inserted');
             setTimeout(function () { col.classList.remove('is-just-inserted'); }, 700);
-            // Remove the trailing column "+" if the row is now at the max.
             if (row.querySelectorAll(':scope > .lrob-etk-form-col').length >= 4) {
                 btn.remove();
             }
@@ -1142,13 +926,6 @@
         }
 
         // --- Inline settings strip ---------------------------------------
-        // The strip sits between the field's drag/delete overlay and the
-        // label, hidden at rest, revealed on shell hover (same pattern as
-        // the helper-empty + option-remove reveal). It holds every per-
-        // field setting (slug + type-specific knobs), replacing the gear
-        // popup. Inputs write back to data-attr-* via the form-level
-        // 'input' listener below.
-
         function inlineSettingsHtml(shell) {
             var type = shell.getAttribute('data-field-type') || '';
             var inner;
@@ -1165,21 +942,13 @@
             return '<div class="lrob-etk-form-inline-settings" data-inline-settings>' + inner + '</div>';
         }
 
+        // --- Slug derivation ---------------------------------------------
         function inlineChipHtml(key, label, control) {
             return '<label class="lrob-etk-form-inline-chip" data-inline-chip="' + key + '">'
                 + '<span class="lrob-etk-form-inline-chip-label">' + esc(label) + '</span>'
                 + control
                 + '</label>';
         }
-        // --- Slug derivation ---------------------------------------------
-        // Slugs are auto-derived from `<type>_<sluggified-label>_<nth>` and
-        // never manually editable. `nth` is the field's creation index,
-        // assigned once when the field is first added and stable across
-        // reorders / deletions so external references to the slug (Reply-To,
-        // {token}s in subject/success templates, etc.) don't shift when
-        // *other* fields are removed. The label still influences the slug,
-        // though — renaming a field intentionally rewrites its slug, and
-        // anything pointing to the old slug needs re-picking.
         function nextNth() {
             var max = 0;
             form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (s) {
@@ -1399,18 +1168,9 @@
             if (!field.querySelector(':scope > .lrob-etk-form-inline-settings')) {
                 var html = inlineSettingsHtml(shell);
                 if (html) {
-                    // Strip is an in-flow child of the field, appended
-                    // after the helper / error. It uses the same max-
-                    // height + opacity collapse pattern as the empty-
-                    // helper reveal so it takes zero space at rest. The
-                    // field's :hover naturally includes it because it
-                    // lives inside the shell.
                     field.insertAdjacentHTML('beforeend', html);
                 }
             }
-            // (Re-)attach the combobox controller after every DOM-rebuild
-            // path (initial sync, new field, undo/redo). The controller
-            // guards itself against double-binding via combo.__etkBound.
             bindPlaceholderCombo(shell);
             bindCountryCombo(shell);
             bindUploadPresetCombo(shell);
@@ -1521,8 +1281,6 @@
                     var input = combo.querySelector('.lrob-etk-combo-input');
                     if (!input) return;
                     input.value = value;
-                    // Dispatch 'input' so the form-level listener picks it up
-                    // exactly like a keyboard edit.
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                 },
             });
@@ -1551,10 +1309,6 @@
             catch (e) { return []; }
         }
 
-        // Inline-settings input handler: any [data-inline-prop] edit writes
-        // back to the shell's data-attr-* and triggers a save. Also keeps
-        // the input's value/checked ATTRIBUTE in sync with its property so
-        // undo/redo snapshots (taken via innerHTML) preserve typed values.
         form.addEventListener('input', function (e) {
             var target = e.target.closest && e.target.closest('[data-inline-prop]');
             if (!target) return;
@@ -1589,16 +1343,12 @@
             }
             queueSave();
         });
-        // The file-upload field's label is wired to open the native file
-        // picker when clicked. In the editor that's noise — admin is
-        // designing, not testing. Suppress the default and let the inline
-        // settings strip take over.
+        // Suppress file-trigger click in the editor — admin is designing, not testing.
         form.addEventListener('click', function (e) {
             var trig = e.target.closest && e.target.closest('.lrob-etk-form-file-trigger');
             if (!trig) return;
             e.preventDefault();
         });
-        // Segmented controls (submit alignment): click flips the active button.
         form.addEventListener('click', function (e) {
             var seg = e.target.closest && e.target.closest('[data-inline-seg]');
             if (!seg) return;
@@ -1613,9 +1363,6 @@
                 s.classList.toggle('is-on', s === seg);
             });
             if (key === 'align') {
-                // Submit + captcha both store the chosen alignment as
-                // `is-align-*` on the field wrapper. For captcha, the
-                // wrapper is the editor stub (.lrob-etk-form-field--captcha).
                 var alignTarget = shell.querySelector('.lrob-etk-form-field--submit')
                     || shell.querySelector('.lrob-etk-form-field--captcha')
                     || shell.querySelector('.lrob-etk-form-field--challenge');
@@ -1638,26 +1385,6 @@
                 .substring(0, 40);
             return v || 'opt';
         }
-        /**
-         * Rebuild the live preview control inside the field shell so
-         * select/radio/checkbox(multi) fields show the user's current
-         * options inline AND editable: each label is a contenteditable
-         * span with a × delete button; an inline "+ Add option" sits at
-         * the bottom. The gear popup options-list is now redundant — gear
-         * keeps slug/required/etc but options live where they render.
-         *
-         * For select, contenteditable doesn't slot into <option> labels
-         * cleanly, so we mirror the option list to a small inline editor
-         * below the select control. The select stays in the DOM so the
-         * preview reads visually correct.
-         */
-        // Swap the phone field's control between plain <input type="tel"> and
-        // the composite country picker so the editor preview matches what the
-        // visitor will see. Triggered whenever country_picker /
-        // country_default / country_auto_detect change.
-        // Refresh the file-upload preview text + hint + accept attribute
-        // when any of its admin knobs changes, so the editor visual matches
-        // what the visitor will see on the frontend.
         function applyFileUploadPreview(shell) {
             if (shell.getAttribute('data-field-type') !== 'file_upload') return;
             var fileEl = shell.querySelector('.lrob-etk-form-file');
@@ -1674,8 +1401,6 @@
             var tier1 = EDITOR_DATA.uploadTier1Extensions || [];
             var tier2 = EDITOR_DATA.uploadTier2Extensions || [];
 
-            // Resolve extension list. For known presets, pick from EDITOR_DATA.
-            // For custom, parse the raw csv from the admin.
             var rawExts;
             if (preset === 'custom') {
                 rawExts = custom.toLowerCase().split(/[,;\s]+/);
@@ -1702,12 +1427,8 @@
                 if (exts.indexOf(ext) === -1) exts.push(ext);
             }
 
-            // Update the shell flag that drives the allow_dangerous chip
-            // visibility — only show when a dangerous extension is actually
-            // in the custom whitelist.
             shell.setAttribute('data-has-dangerous-custom', (preset === 'custom' && hasDangerousInCustom) ? '1' : '0');
 
-            // Refresh trigger label + accept attribute + hint.
             var acceptAttr = exts.map(function (e) { return '.' + e; }).join(',');
             fileEl.setAttribute('data-accept-exts', exts.join(','));
             fileEl.setAttribute('data-max-count', String(multiple ? maxCount : 1));
@@ -1784,11 +1505,6 @@
                 +   '<input type="tel" id="' + escAttr(id) + '" name="' + escAttr(name) + '" autocomplete="tel-national" inputmode="tel" data-phone-number>'
                 + '</div>';
         }
-        // Look up a country in EDITOR_DATA.countries. Empty argument or
-        // unknown code triggers the locale fallback chain on the server side
-        // at render time — in the editor preview we just pretend the
-        // resolved value is whatever the admin picked (or the first entry,
-        // if blank).
         function resolvePhoneCountry(iso) {
             var list = EDITOR_DATA.countries || [];
             if (iso) {
@@ -1887,9 +1603,6 @@
             }
         }
 
-        // `withDefault`: when true (select only), each row carries a ★
-        // "use as default" toggle next to the × remove button. The toggle
-        // is hidden at rest by the same CSS that hides the ×.
         function inlineOptionEditorHtml(options, defaults, withDefault) {
             defaults = defaults || [];
             var rows = options.map(function (o) {
@@ -1913,12 +1626,7 @@
                 + '</div>';
         }
         function inlineOptionRowHtml(inputType, name, label, value) {
-            // input + span + button as siblings (NOT wrapped in <label>):
-            // wrapping in <label> made click events forward to the input
-            // and steal focus from the contenteditable span — user couldn't
-            // place their caret to edit. Same trap CLAUDE.md flags for the
-            // field-label markup. The radio/checkbox is purely visual in
-            // editor mode, so unlinked-from-its-label is fine here.
+            // Not wrapped in <label>: label click would steal focus from the contenteditable.
             return '<div class="lrob-etk-form-option" data-inline-option>'
                 + '<input type="' + inputType + '" name="' + escAttr(name) + '" value="' + escAttr(value) + '" tabindex="-1">'
                 + '<span class="lrob-etk-form-option-label" contenteditable="plaintext-only" data-option-edit spellcheck="false">' + esc(label) + '</span>'
@@ -1931,13 +1639,6 @@
                 + '</button>';
         }
 
-        /**
-         * Read every contenteditable option label inside a shell, derive
-         * value from label, write back to data-attr-options. Also remap
-         * stored defaults (select fields) when labels rename — each row
-         * tracks its OLD value via data-option-value, so we translate
-         * old→new across the rename and rewrite both attributes together.
-         */
         function syncOptionsFromInline(shell) {
             var optionsContainer = shell.querySelector('[data-options-inline]');
             if (!optionsContainer) return;
@@ -1972,7 +1673,7 @@
             }
         }
 
-        // --- DOM builders for newly-inserted elements ---------------------
+        // --- DOM builders -------------------------------------------------
         function genId(prefix) {
             return prefix + '_' + Math.random().toString(36).substr(2, 8);
         }
@@ -1990,9 +1691,6 @@
             return row;
         }
         function buildRowWithField(type) {
-            // Body-level "+ Field" → single-col row containing one field.
-            // The user thinks of this as adding a field; the row+col wrapping
-            // is the storage shape FormStructure expects.
             var row = buildRow();
             var col = row.querySelector('.lrob-etk-form-col');
             if (col) {
@@ -2003,8 +1701,6 @@
             return row;
         }
         function buildColumn() {
-            // Build via innerHTML on a wrapper — outerHTML on a detached
-            // element throws NoModificationAllowedError.
             var wrap = document.createElement('div');
             wrap.innerHTML = colHtml(genId('col'));
             return wrap.firstElementChild;
@@ -2020,9 +1716,6 @@
             var wrap = document.createElement('div');
             wrap.innerHTML = fieldShellHtml(id, type);
             var shell = wrap.firstElementChild;
-            // Inject the inline settings strip + dataset.etkInit so the
-            // initial-sync pass on next load won't try to re-scrape what we
-            // already know.
             ensureInlineSettings(shell);
             if (shell) shell.dataset.etkInit = '1';
             return shell;
@@ -2034,9 +1727,6 @@
             var inner = freshFieldInnerHtml(type, initialSlug);
             var extraAttrs = '';
             if (type === 'select' || type === 'radio' || type === 'checkbox') {
-                // Seed every new multi-choice field with two starter
-                // options — empty fields confused the user and an empty
-                // select / radio / checkbox-group is never useful.
                 var seed = [
                     { label: 'Option 1', value: 'option_1' },
                     { label: 'Option 2', value: 'option_2' },
@@ -2046,9 +1736,6 @@
                     extraAttrs += ' data-attr-placeholder="" data-attr-defaults="[]"';
                 }
                 if (type === 'checkbox') {
-                    // Checkbox defaults to MULTIPLE — that's the use case
-                    // the seed options make sense for. Single-checkbox
-                    // (consent-style) flips via the inline settings strip.
                     extraAttrs += ' data-attr-multiple="1"';
                 }
             }
@@ -2060,9 +1747,6 @@
                 + '>' + fieldOverlayHtml(type) + inner + '</div>';
         }
         function freshFieldInnerHtml(type, slug) {
-            // Minimal field stub. The user will fill in label / placeholder
-            // / options inline; the serializer reads everything from this
-            // markup on save.
             var typeLabel = FIELD_TYPES[type] || type;
             if (type === 'submit') {
                 return '<div class="lrob-etk-form-field lrob-etk-form-field--submit is-align-right">'
@@ -2075,11 +1759,6 @@
             slug = slug || defaultSlug(type);
             var labelText = typeLabel;
             var control = buildControlHtml(type, slug);
-            // Mirror FieldRenderer's editor markup: <div> (not <label>) so
-            // clicks on the contenteditable span aren't stolen by label-for.
-            // New fields are required-by-default — the user can uncheck it
-            // via the inline `[checkbox] Required` that the star morphs
-            // into on hover.
             var requiredLabel = esc(EDITOR_I18N.required || 'Required');
             return '<div class="lrob-etk-form-field lrob-etk-form-field--' + type + '" data-field="' + escAttr(slug) + '">'
                 + '<div class="lrob-etk-form-label">'
@@ -2099,9 +1778,6 @@
         }
         function buildControlHtml(type, slug) {
             var id = 'lrob-etk-form-editor-' + slug;
-            // Seed two options for multi-choice fields. Same shape that
-            // applyOptionsToPreview emits — newly-created fields are
-            // immediately inline-editable, no reload required.
             var seed = [
                 { label: 'Option 1', value: 'option_1' },
                 { label: 'Option 2', value: 'option_2' },
@@ -2109,9 +1785,6 @@
             switch (type) {
                 case 'textarea': return '<textarea id="' + id + '" rows="5"></textarea>';
                 case 'select':
-                    // New select fields have no placeholder row and no
-                    // pre-selected defaults — both knobs live in the inline
-                    // settings strip and inline editor for the user to set.
                     var selectOpts = seed.map(function (o) {
                         return '<option value="' + escAttr(o.value) + '">' + esc(o.label) + '</option>';
                     }).join('');
@@ -2144,13 +1817,6 @@
                 default:         return '<input type="text" id="' + id + '">';
             }
         }
-        /**
-         * Inline captcha picker the same shape FieldRenderer.captcha()
-         * emits server-side, so newly-inserted captcha blocks behave
-         * identically to a freshly-rendered one. The select's data-key
-         * hooks into the per-form card's auto-save plumbing — same wire
-         * the Advanced > Challenge combobox uses.
-         */
         function captchaEditorStubHtml(currentRoute, align) {
             var key = EDITOR_DATA.captchaKey || '_lrob_etk_cf_challenge';
             var entries = captchaEntries();
@@ -2159,8 +1825,7 @@
             // order so the picker matches what the server emits. Entries
             // with an `optgroup` open a fresh <optgroup> on encountering a
             // new group name.
-            var opts = '';
-            var currentGroup = '';
+            var opts = '', currentGroup = '';
             for (var i = 0; i < entries.length; i++) {
                 var e = entries[i];
                 var group = e.optgroup || '';
@@ -2169,9 +1834,9 @@
                     if (group !== '') opts += '<optgroup label="' + escAttr(group) + '">';
                     currentGroup = group;
                 }
-                var selected = (currentRoute === e.route) ? ' selected' : '';
-                var disabled = e.disabled ? ' disabled' : '';
-                opts += '<option value="' + escAttr(e.route) + '"' + selected + disabled + '>'
+                opts += '<option value="' + escAttr(e.route) + '"'
+                      + ((currentRoute === e.route) ? ' selected' : '')
+                      + (e.disabled ? ' disabled' : '') + '>'
                       + esc(e.label) + '</option>';
             }
             if (currentGroup !== '') opts += '</optgroup>';
@@ -2185,11 +1850,6 @@
                 + '<div class="lrob-etk-form-captcha-stub-preview" data-captcha-preview>' + captchaPreviewHtml(currentRoute) + '</div>'
                 + '</div>';
         }
-        /**
-         * Look up the pre-rendered preview HTML for a routing key sent over
-         * via wp_localize_script. Default ('') and none have their own
-         * entries in the list — they always exist.
-         */
         function captchaPreviewHtml(route) {
             var entries = captchaEntries();
             for (var i = 0; i < entries.length; i++) {
@@ -2221,16 +1881,12 @@
                 + '</div>';
         }
         function fieldOverlayHtml(type) {
-            // Per-field settings live inline next to the label now (see
-            // .lrob-etk-form-inline-settings); the overlay carries just drag +
-            // delete so it stays out of the way.
             return '<div class="lrob-etk-form-overlay lrob-etk-form-overlay--field" aria-hidden="true">'
                 + '<span class="lrob-etk-form-overlay-handle dashicons dashicons-move"></span>'
                 + '<button type="button" class="lrob-etk-form-overlay-btn lrob-etk-form-overlay-btn--delete" data-action="delete-field"><span class="dashicons dashicons-trash"></span></button>'
                 + '</div>';
         }
         function insertZoneHtml(kind) {
-            // Same labelling logic as FormEditorRenderer::insert_zone (PHP).
             var labelText = (kind === 'row' || kind === 'field') ? (EDITOR_I18N.fieldLabel || 'Field') : '';
             var label = labelText ? '<span class="lrob-etk-form-insert-label">' + esc(labelText) + '</span>' : '';
             return '<button type="button" class="lrob-etk-form-insert lrob-etk-form-insert--' + kind + '" data-insert="' + kind + '" aria-label="Add">'
@@ -2336,7 +1992,6 @@
                 f.defaults = parseDefaults(shell);
             }
             if (type === 'checkbox') {
-                // Default is multiple-checkboxes; only `0` flips to single.
                 f.multiple = shell.getAttribute('data-attr-multiple') !== '0';
             }
             return f;
@@ -2358,11 +2013,8 @@
         }
         function escAttr(s) { return String(s).replace(/"/g, '&quot;'); }
 
-        // --- Initial sync: copy field attrs from the existing PHP-rendered
-        // DOM into data-attr-* on each shell, so the gear popup has the
-        // current values and the serializer can read them.
+        // --- Initial sync ------------------------------------------------
         form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (shell) {
-            // Skip if we've already populated (e.g. shells we built ourselves).
             if (shell.dataset.etkInit === '1') return;
             shell.dataset.etkInit = '1';
             var input = shell.querySelector('input, textarea, select');
@@ -2373,17 +2025,10 @@
                 });
                 if (input.hasAttribute('required')) shell.setAttribute('data-attr-required', '1');
             }
-            // Slug comes from the inner field wrapper's data-field attr.
             var wrap = shell.querySelector('.lrob-etk-form-field');
             if (wrap && wrap.hasAttribute('data-field')) {
                 shell.setAttribute('data-attr-slug', wrap.getAttribute('data-field'));
             }
-            // Submit / captcha align: read from the field's class
-            // (is-align-X). Captcha has no stretch variant. For captcha,
-            // the carrier in the editor is .lrob-etk-form-field--captcha
-            // (the editor stub); .lrob-etk-form-field--challenge only
-            // appears later inside the preview slot once JS injects the
-            // live widget.
             var alignWrap = shell.querySelector('.lrob-etk-form-field--submit')
                 || shell.querySelector('.lrob-etk-form-field--captcha')
                 || shell.querySelector('.lrob-etk-form-field--challenge');
@@ -2391,10 +2036,6 @@
                 var m = alignWrap.className.match(/is-align-(left|center|right|stretch)/);
                 if (m) shell.setAttribute('data-attr-align', m[1]);
             }
-            // Required: editor mode renders a star + checkbox marker. The
-            // checkbox carries the canonical state; the legacy spans/
-            // toggle-button are still accepted in case an older PHP render
-            // is on the page.
             if (shell.querySelector('[data-required-toggle]:checked')
                 || shell.querySelector('.lrob-etk-form-required-star.is-on')
                 || shell.querySelector('.lrob-etk-form-required-toggle.is-on')
@@ -2402,10 +2043,6 @@
                 shell.setAttribute('data-attr-required', '1');
             }
 
-            // Multi-choice fields: scrape options + multiple from the PHP-
-            // rendered DOM so the inline editor (and serializer) has them
-            // after a page reload. Without this the inline editor would be
-            // empty.
             var type = shell.getAttribute('data-field-type') || '';
             if ((type === 'select' || type === 'radio' || type === 'checkbox') && !shell.hasAttribute('data-attr-options')) {
                 var scraped = [];
@@ -2436,16 +2073,10 @@
             if (type === 'select' && !shell.hasAttribute('data-attr-placeholder')) {
                 var sel2 = shell.querySelector('select');
                 var first = sel2 ? sel2.querySelector('option[value=""]') : null;
-                // The frontend renderer falls back to "— select —" when the
-                // placeholder is empty, so don't lock that fallback into
-                // the data attribute — leave it empty and let the renderer
-                // re-fall-back next time.
                 var firstText = first ? (first.textContent || '').trim() : '';
                 shell.setAttribute('data-attr-placeholder', firstText === '— select —' ? '' : firstText);
             }
             if (type === 'checkbox' && !shell.hasAttribute('data-attr-multiple')) {
-                // Multi if a fieldset / option list was rendered, single
-                // otherwise (a lone inline checkbox).
                 shell.setAttribute('data-attr-multiple',
                     shell.querySelector('.lrob-etk-form-field--checkbox-single, .lrob-etk-form-checkbox-inline') ? '0' : '1'
                 );
@@ -2465,56 +2096,28 @@
             if (type === 'file_upload') {
                 var fileEl = shell.querySelector('.lrob-etk-form-file');
                 if (fileEl) {
-                    if (fileEl.hasAttribute('data-multiple')) {
-                        shell.setAttribute('data-attr-multiple', '1');
-                    }
-                    var cp = fileEl.getAttribute('data-max-count');
-                    if (cp !== null) shell.setAttribute('data-attr-max_count', cp);
-                    var sz = fileEl.getAttribute('data-max-size-mb');
-                    if (sz !== null) shell.setAttribute('data-attr-max_size_mb', sz);
-                    var tsz = fileEl.getAttribute('data-total-size-mb');
-                    if (tsz !== null) shell.setAttribute('data-attr-total_size_mb', tsz);
-                    var pr = fileEl.getAttribute('data-admin-preset');
-                    if (pr !== null) shell.setAttribute('data-attr-accept_preset', pr);
-                    var cu = fileEl.getAttribute('data-admin-custom');
-                    if (cu !== null) shell.setAttribute('data-attr-accept_custom', cu);
-                    if (fileEl.getAttribute('data-admin-strip-exif') === '1') {
-                        shell.setAttribute('data-attr-strip_exif', '1');
-                    }
-                    if (fileEl.getAttribute('data-admin-allow-dangerous') === '1') {
-                        shell.setAttribute('data-attr-allow_dangerous', '1');
-                    }
+                    if (fileEl.hasAttribute('data-multiple')) shell.setAttribute('data-attr-multiple', '1');
+                    var cp = fileEl.getAttribute('data-max-count');       if (cp !== null) shell.setAttribute('data-attr-max_count', cp);
+                    var sz = fileEl.getAttribute('data-max-size-mb');     if (sz !== null) shell.setAttribute('data-attr-max_size_mb', sz);
+                    var tsz = fileEl.getAttribute('data-total-size-mb');  if (tsz !== null) shell.setAttribute('data-attr-total_size_mb', tsz);
+                    var pr = fileEl.getAttribute('data-admin-preset');    if (pr !== null) shell.setAttribute('data-attr-accept_preset', pr);
+                    var cu = fileEl.getAttribute('data-admin-custom');    if (cu !== null) shell.setAttribute('data-attr-accept_custom', cu);
+                    if (fileEl.getAttribute('data-admin-strip-exif') === '1') shell.setAttribute('data-attr-strip_exif', '1');
+                    if (fileEl.getAttribute('data-admin-allow-dangerous') === '1') shell.setAttribute('data-attr-allow_dangerous', '1');
                     var del = fileEl.getAttribute('data-admin-delivery');
-                    if (del !== null && del !== '') {
-                        shell.setAttribute('data-attr-delivery', del);
-                    }
-                    // Refresh preview now that data-attr-* are populated; this
-                    // also computes data-has-dangerous-custom for the
-                    // allow_dangerous chip's visibility rule.
+                    if (del !== null && del !== '') shell.setAttribute('data-attr-delivery', del);
                     applyFileUploadPreview(shell);
                 }
             }
 
-            // Replace the PHP-rendered options markup with the editable
-            // inline editor so users can rename / add / remove right on
-            // the preview.
             if (type === 'select' || type === 'radio' || type === 'checkbox') {
                 applyOptionsToPreview(shell);
             }
 
-            // Drop the inline settings strip in. Idempotent — also called
-            // by buildField for freshly-inserted shells.
             ensureInlineSettings(shell);
         });
 
-        // Assign a stable creation-order `nth` to legacy shells that lack
-        // one (forms saved before this update). Done as a second pass so
-        // existing `nth`s on the page are respected first, then any
-        // unnumbered shells slot into the next available indices in DOM
-        // order — they'll keep that index from now on, even after the
-        // user reorders or deletes other fields. Slugs left as-is on
-        // first load so external references (Reply-To, {token}s) keep
-        // matching until the user explicitly renames a field's label.
+        // Backfill nth on legacy shells (slugs left as-is to preserve external references).
         var maxNthInit = 0;
         form.querySelectorAll('.lrob-etk-form-edit-shell').forEach(function (s) {
             var n = parseInt(s.getAttribute('data-attr-nth') || '0', 10);
@@ -2526,28 +2129,10 @@
             s.setAttribute('data-attr-nth', String(maxNthInit));
         });
 
-        // Seed the history with the initial state, AFTER the data-attr sync
-        // so undo from any later mutation lands back on a complete snapshot.
         commit();
     }
 
-    /**
-     * Mount any unmounted hCaptcha widgets that live inside a preview
-     * slot. Called on initial load (for whatever PHP rendered) and after
-     * a captcha-pick dropdown change swaps fresh HTML into the slot.
-     *
-     * hCaptcha can host many widgets per page natively — each gets a
-     * unique iframe + internal widget id — so we don't worry about
-     * cleanup when a preview gets replaced. The old widget's DOM goes
-     * away with the innerHTML swap; any internal references hCaptcha
-     * holds become garbage on the next solve/page nav.
-     */
-    // Hosted-captcha preview mounting — provider-agnostic (hCaptcha /
-    // Turnstile / reCAPTCHA). Each provider's preview div is PHP-rendered with
-    // a data-sitekey; we explicit-render it once its vendor script has loaded.
-    // Explicit mode (vs auto-render) avoids the vendors firing a second render
-    // ("only one captcha per container" warnings). Vendor URLs are stable
-    // constants (mirrored from the PHP providers' SCRIPT_URL).
+    // Hosted-captcha preview mounting — explicit-render mode to avoid vendor "one per container" warnings.
     var CAPTCHA_VENDORS = {
         'h-captcha':    { src: 'https://js.hcaptcha.com/1/api.js?render=explicit', global: 'hcaptcha' },
         'cf-turnstile': { src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', global: 'turnstile' },
@@ -2573,12 +2158,6 @@
         });
     }
 
-    /**
-     * Lazy-load a vendor captcha script in EXPLICIT render mode the first time
-     * a preview of that kind appears, then fire the callback once its global
-     * is ready. Polls for the global so a cached script already on the page
-     * still resolves. Per-vendor loading state lets all three coexist.
-     */
     function ensureCaptchaScript(cls, callback) {
         var vendor = CAPTCHA_VENDORS[cls];
         if (!vendor) return;
@@ -2603,10 +2182,9 @@
         var poll = setInterval(function () {
             if (window[vendor.global] && typeof window[vendor.global].render === 'function') {
                 clearInterval(poll);
-                var fns = st.cbs.splice(0);
-                fns.forEach(function (fn) { try { fn(); } catch (e) {} });
+                st.cbs.splice(0).forEach(function (fn) { try { fn(); } catch (e) {} });
             } else if (++attempts > 100) {
-                clearInterval(poll); // 10s ceiling on a blocked network
+                clearInterval(poll); // 10 s ceiling
                 st.cbs.length = 0;
             }
         }, 100);

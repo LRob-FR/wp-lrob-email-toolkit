@@ -4,29 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Support;
 
-/**
- * HMAC-SHA256 token signer for Newsletter tracking URLs.
- *
- * Token shape (URL-safe): the first 32 characters of a base64url-encoded
- * HMAC-SHA256 of a canonical payload string. The payload is reconstructed
- * server-side from the URL query parameters; the token only proves that
- * a request to /track/{purpose}/{token} carries parameters the sender
- * actually signed. Tamper with any parameter and the recomputed HMAC
- * differs.
- *
- * The 32-character truncation gives ~190 bits of effective security
- * against forgery — plenty for an open/click endpoint where the attack
- * surface is "make our stats look weird", not "exfiltrate credentials".
- *
- * Key material: derived from AUTH_KEY via HKDF-SHA256 with the info tag
- * `lrob_etk_tracking_v1`. Separate from Encryption's `lrob_etk_v1` info
- * tag so a leaked tracking secret can't be used to decrypt credentials.
- *
- * If AUTH_KEY rotates, all in-flight tracking URLs stop validating —
- * tracking stats for already-sent newsletters become un-attributable.
- * Acceptable: AUTH_KEY rotation is rare, and the data loss is bounded
- * to "open/click events from emails sent before the rotation".
- */
+// Docs: docs/core.md
 final class TrackingToken
 {
     private const HKDF_INFO = 'lrob_etk_tracking_v1';
@@ -57,11 +35,7 @@ final class TrackingToken
         return substr(self::base64url_encode($mac), 0, self::TOKEN_LENGTH);
     }
 
-    /**
-     * Constant-time verify of a tracking token against its parameter
-     * bundle. Returns true on a valid signature; false on anything else
-     * (bad token, AUTH_KEY rotated, replayed across different params).
-     */
+    /** Constant-time verify. Returns false on bad token, AUTH_KEY rotation, or param mismatch. */
     public static function verify(
         string $token,
         string $purpose,

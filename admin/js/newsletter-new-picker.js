@@ -1,12 +1,5 @@
 /* LRob Email Toolkit — Newsletter: "Start a new subscribe form" picker.
- *
- * Mirror of contact-form-new-picker.js, scoped to the newsletter
- * subscribe-form CPT. Opens via the header button and the empty-state
- * button; selecting a card POSTs to the create-form AJAX endpoint and
- * reloads the page anchored on the new card.
- *
- * Config is injected via wp_localize_script as window.lrobEtkNlNewPicker
- * (ajaxUrl, action, nonce, pageUrl).
+ * Config: window.lrobEtkNlNewPicker (ajaxUrl, action, nonce, pageUrl)
  */
 (function () {
     var cfg = window.lrobEtkNlNewPicker || {};

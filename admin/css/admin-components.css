@@ -1,18 +1,4 @@
-/* LRob - Email Toolkit — admin styles: COMPONENTS
- *
- * Shared UI primitives reused across module pages. Owns: CTA card, status
- * badges, empty state, tooltips, toggle switch, modal, segmented control,
- * select, custom combobox + menu, anchored popover + modal variant, form
- * errors, flash messages, page header with inline toggle, disabled-message
- * line, inline switch, and "Card primitives" (title input, card-form,
- * card-form-head, card-status, card-footer, card-delete-link, tighter
- * form-section headings inside cards).
- *
- * Anything used by more than one module belongs here. SMTP-only behaviour
- * (identity-card grid, default-identity badge) lives in admin-smtp.css.
- * Don't put module-specific class names here — when in doubt, grep for it:
- * if used in only one Modules/<X>/ directory, it's not a component.
- */
+/* LRob - Email Toolkit — admin styles: COMPONENTS — Docs: docs/admin-ui.md */
 
 /* ---------- CTA card (disabled-and-empty state) ---------- */
 
@@ -63,15 +49,11 @@
 .lrob-etk-status--fail    { background: var(--etk-danger-bg);  color: var(--etk-text-danger); }
 .lrob-etk-status--pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); }
 
-/* Reusable "dimmed" veil — greys a whole card/row to signal it's inactive
- * (inactive captcha) or terminal (sent newsletter). Subtle so content stays
- * legible; pair with a state class for stronger cues if needed. */
+/* Greying veil for inactive/terminal cards (hover restores full opacity). */
 .lrob-etk-is-dimmed {
     opacity: 0.55;
     transition: opacity var(--etk-transition);
 }
-/* Hover restores full opacity so the dimmed card/row stays fully legible +
- * interactive (read a sent newsletter, re-enable a disabled captcha/server). */
 .lrob-etk-is-dimmed:hover {
     opacity: 1;
 }
@@ -87,12 +69,9 @@
     margin: 16px 0;
 }
 
-/* ---------- Plugin-wide confirm prompt (replaces window.confirm() so
- *            the look stays consistent + popup blockers don't bite). */
+/* ---------- Plugin-wide confirm prompt ---------- */
 
-/* Keep the modal's flexbox centering (display: flex from .lrob-etk-modal)
- * instead of replacing it with block — `display: block` would left-anchor
- * the dialog at the top of the viewport. */
+/* Preserve the modal's flexbox centering — display:block would top-anchor the dialog. */
 .lrob-etk-confirm-prompt.is-open {
     display: flex;
 }
@@ -102,9 +81,7 @@
     color: var(--etk-fg);
 }
 
-/* ---------- Inline confirm (replaces browser confirm() for destructive
- *            actions in modals — popup blockers + ugliness). Drop it
- *            into any row's normal flow; the JS swaps row → confirm. */
+/* ---------- Inline confirm (drop into a row; JS swaps row → confirm) ---------- */
 
 .lrob-etk-inline-confirm {
     display: flex;
@@ -180,23 +157,9 @@
     display: block;
 }
 
-/* ---------- Toggle switch ----------
- *
- * Single track + knob primitive consumed by every switch wrapper
- * (page-toggle, inline-switch, section-switch, retention-toggle, ...).
- * Default size is md (32×18 track, 14×14 knob); modifier classes
- * --sm (26×14) and --lg (36×20) override.
- *
- * Markup contract:
- *   <label class="lrob-etk-...-switch">
- *       <input type="checkbox" hidden>           (visually-hidden via parent rule)
- *       <span class="lrob-etk-switch-track [--sm|--lg]"></span>
- *       <span class="lrob-etk-..-label">…</span>
- *   </label>
- *
- * The label wrapper owns the FLEX layout + label styling only — it does
- * not redefine track dimensions.
- */
+/* ---------- Toggle switch (track + knob primitive for all switch wrappers) ----------
+ * Default md (32×18 / 14px knob). Modifiers: --sm (26×14), --lg (36×20).
+ * Label wrapper owns flex layout; track owns dimensions. */
 
 .lrob-etk-switch-track {
     position: relative;
@@ -234,8 +197,7 @@ input:checked + .lrob-etk-switch-track--sm::before          { transform: transla
 .lrob-etk-switch-track--lg::before                          { width: 16px; height: 16px; }
 input:checked + .lrob-etk-switch-track--lg::before          { transform: translateX(16px); }
 
-/* Hide the actual checkbox inside every switch wrapper — only the
- * track visual is interactive. */
+/* Hide checkbox inside switch wrappers — only the track is interactive. */
 .lrob-etk-page-toggle input[type="checkbox"],
 .lrob-etk-inline-switch input[type="checkbox"],
 .lrob-etk-section-switch input[type="checkbox"] {
@@ -551,10 +513,7 @@ body.lrob-etk-modal-open {
     transform: rotate(180deg);
 }
 
-/* Select mode: readonly input is the visible label, the hidden input is the
- * real value. WordPress admin sets `input[readonly] { background: var(--etk-soft) }`
- * by default — we override to transparent so the combobox keeps the white
- * card look users expect (no grey "disabled" tone). */
+/* WP admin greys readonly inputs — override to keep the white card look. */
 .lrob-etk-combo-input[readonly] {
     cursor: pointer;
     caret-color: transparent;
@@ -598,7 +557,7 @@ body.lrob-etk-modal-open {
     font-weight: 500;
 }
 
-/* ---------- Anchored popover (used for conn-test details + test email) ---------- */
+/* ---------- Anchored popover (SMTP conn-test details, dashboard test email) ---------- */
 
 .lrob-etk-popover {
     background: var(--etk-card-bg);
@@ -668,7 +627,7 @@ body.lrob-etk-modal-open {
     background: var(--etk-soft);
 }
 
-/* ---------- Anchored modal variant (used for test email near button) ---------- */
+/* ---------- Anchored modal variant (transparent backdrop, JS-positioned dialog) ---------- */
 
 .lrob-etk-modal[data-anchored="1"] {
     align-items: flex-start;
@@ -716,8 +675,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-page-header .lrob-etk-page-title {
     margin: 0;
 }
-/* "by LRob" credit appended to every page title — brand-shared with the other
- * LRob plugins. */
+/* "by LRob" credit appended to every page title. */
 .lrob-etk-page-credit {
     font-size: var(--etk-text-xs);
     font-weight: 400;
@@ -734,12 +692,7 @@ body.lrob-etk-modal-open {
     text-decoration: underline;
 }
 
-/* LRob promo strip — bottom-of-page rotating sponsor message (Admin\PromoStrip
- * + etk-promo.js), brand-shared with the other LRob plugins. Printed via
- * admin_footer so it sits below the page content on every toolkit page. */
-/* Hidden until etk-promo.js paints it (and relocates it out of the absolute
- * #wpfooter into normal flow) — stops an empty styled box from flickering at
- * the page bottom on load. */
+/* Promo strip — hidden until etk-promo.js paints + relocates it out of #wpfooter. */
 .lrob-etk-promo:empty { display: none; }
 .lrob-etk-promo {
     margin: var(--etk-space-4) 0 var(--etk-space-5);
@@ -787,8 +740,6 @@ body.lrob-etk-modal-open {
 .lrob-etk-promo-body a:hover::after {
     transform: translateX(2px);
 }
-/* Primary "+ New X" sits flush after the title (and inline module toggle).
- * No margin-left:auto — the page-header-actions div carries it instead. */
 .lrob-etk-page-add .dashicons,
 .lrob-etk-page-header-actions .button .dashicons {
     font-size: var(--etk-icon-size);
@@ -797,11 +748,7 @@ body.lrob-etk-modal-open {
     line-height: 1;
 }
 
-/* Universal icon-button centering. WP's `.button` is inline-block with the
- * dashicons span sitting on the baseline, which puts the glyph visibly
- * above the text. Flip any of our buttons that actually contain a dashicon
- * to inline-flex so the icon and text share a baseline. Scoped by `:has()`
- * so plain (no-icon) buttons keep their inline-block behaviour. */
+/* Flip buttons that contain a dashicon to inline-flex for baseline alignment. */
 .lrob-etk .button:has(> .dashicons) {
     display: inline-flex;
     align-items: center;
@@ -817,12 +764,7 @@ body.lrob-etk-modal-open {
     align-items: center;
 }
 
-/* Header action groups: tools (page-local — Storage, Settings, Cleanup)
- * sit on the inside; nav (links to other admin pages) on the far right,
- * with a thin vertical divider between them. Mental model: tools act on
- * the current page, nav leaves it — separation reflects that. Nav
- * buttons get a subtle muted style so they recede next to the page-tool
- * buttons. */
+/* Tools group sits inside; nav group on the far right with a divider (tools act here, nav leaves). */
 .lrob-etk-page-header-actions .lrob-etk-header-group {
     display: inline-flex;
     align-items: center;
@@ -845,7 +787,7 @@ body.lrob-etk-modal-open {
     border-color: transparent;
 }
 
-/* Page-level toggle — layout + state label only; track from shared primitive. */
+/* Page-level toggle — layout + state label only; track from .lrob-etk-switch-track. */
 .lrob-etk-page-toggle-form {
     margin: 0;
     display: inline-block;
@@ -878,8 +820,7 @@ body.lrob-etk-modal-open {
     line-height: 1.5;
 }
 
-/* ---------- Inline switch (card headers, force-row, etc.) ----------
- * Layout + label only; track visual comes from the shared primitive. */
+/* ---------- Inline switch (card headers) — layout + label only ---------- */
 
 .lrob-etk-inline-switch {
     display: inline-flex;
@@ -897,15 +838,7 @@ body.lrob-etk-modal-open {
     color: var(--etk-success);
 }
 
-/* ---------- Card primitives ----------
- *
- * Single card chrome shared by every module: SMTP identities, Contact
- * Form forms, Email Logs storage modal, Captcha identities. Each
- * consumer gets the white bg, line border, lg radius, soft shadow, and
- * focus/new highlights. Don't redefine these in per-module files —
- * extend with module-only variants (e.g. inner grid layout, header
- * actions) and let the primitive own the visual chrome.
- */
+/* ---------- Card primitives ---------- */
 
 .lrob-etk-card {
     background: var(--etk-card-bg);
@@ -926,9 +859,6 @@ body.lrob-etk-modal-open {
     container-type: inline-size;
 }
 
-/* Card grid — the canonical "list of cards" layout. Each entry is a
- * card that scales between 380 (mobile sub-row) and 540 (one per col
- * on widescreens). Used by SMTP / Captcha / CF / Newsletter. */
 .lrob-etk-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 540px));
@@ -936,12 +866,7 @@ body.lrob-etk-modal-open {
     margin: 16px 0;
 }
 
-/* ---------- Floating menu (dropdown / picker) ----------
- *
- * Single style for any JS-positioned dropdown menu — combobox options,
- * recipient picker, etc. The combobox keeps its anchored absolute
- * positioning (.lrob-etk-combo-menu); use this primitive when the menu
- * is positioned via JS (position: fixed). */
+/* ---------- Floating menu (JS-positioned; .lrob-etk-combo-menu uses absolute instead) ---------- */
 
 .lrob-etk-menu {
     margin: 0;
@@ -957,9 +882,6 @@ body.lrob-etk-modal-open {
     overflow-y: auto;
 }
 .lrob-etk-menu[hidden] { display: none; }
-/* Floating variant — used when the menu's position is JS-computed
- * relative to an arbitrary anchor (recipient picker, etc.) rather
- * than absolute-positioned inside a shell (combobox). */
 .lrob-etk-menu--fixed {
     position: fixed;
     z-index: 200000;
@@ -992,16 +914,7 @@ body.lrob-etk-modal-open {
     font-size: var(--etk-text-xs);
 }
 
-/* ---------- Icon button ----------
- *
- * Square icon-only button — table-row actions, picker triggers,
- * connection-test buttons, recipient-remove. Sizing comes from tokens
- * so a bump to --etk-icon-size flows through every consumer.
- *
- * Variants:
- *   --danger : red hover (destructive)
- *   --ghost  : no border, transparent (table-row actions)
- */
+/* ---------- Icon button (square icon-only; variants: --danger, --ghost, --spam) ---------- */
 
 .lrob-etk-icon-btn {
     flex: 0 0 auto;
@@ -1057,8 +970,6 @@ body.lrob-etk-modal-open {
     color: var(--etk-danger);
 }
 
-/* Spinner animation reused everywhere. Defined here so any icon-btn
- * can opt in via .is-spinning on either the button or the icon. */
 @keyframes lrob-etk-spin {
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }
@@ -1068,10 +979,7 @@ body.lrob-etk-modal-open {
     animation: lrob-etk-spin 0.9s linear infinite;
 }
 
-/* ---------- Button variants ----------
- *
- * Modifiers applied to WordPress's .button. Avoids creating standalone
- * button classes that have to re-implement WP's padding/font/etc. */
+/* ---------- Button variants (modifiers on WP .button) ---------- */
 
 .lrob-etk-btn--danger {
     color: var(--etk-danger) !important;
@@ -1100,9 +1008,7 @@ body.lrob-etk-modal-open {
     background: var(--etk-warning-bg) !important;
 }
 
-/* Solid variants — filled background + white text. Used by destructive
- * confirm buttons on standalone pages AND inside the JS confirm dialog;
- * the visual contract is identical so the same primitive serves both. */
+/* Solid fill — destructive confirm buttons (standalone pages + JS confirm dialog). */
 .lrob-etk-btn--danger-solid {
     background: var(--etk-text-danger) !important;
     border-color: var(--etk-text-danger) !important;
@@ -1121,11 +1027,7 @@ body.lrob-etk-modal-open {
     background: var(--etk-text-warning) !important;
 }
 
-/* ---------- Test result banner ----------
- *
- * Used by SMTP connection test, Captcha verify test, Manual cleanup
- * result, etc. The is-pending/is-success/is-failure states map to the
- * three semantic colors. */
+/* ---------- Test result banner ---------- */
 
 .lrob-etk-test-result {
     margin-top: var(--etk-space-2);
@@ -1158,11 +1060,7 @@ body.lrob-etk-modal-open {
     white-space: pre-wrap;
 }
 
-/* ---------- Filter bar ----------
- *
- * Top-of-list filter inputs shared by Email Logs and Submissions
- * inbox. Each field is a stacked label + input/select pair; the search
- * field grows to fill remaining space; actions cluster on the right. */
+/* ---------- Filter bar ---------- */
 
 .lrob-etk-filter-bar {
     display: flex;
@@ -1201,11 +1099,7 @@ body.lrob-etk-modal-open {
     align-items: center;
 }
 
-/* ---------- Data table ----------
- *
- * Replaces WP's `widefat striped`. Shared by Email Logs and the
- * Submissions inbox; nothing about the chrome is module-specific.
- * Wrap in .lrob-etk-data-table-wrap for the rounded clipping. */
+/* ---------- Data table (replaces WP widefat striped) ---------- */
 
 .lrob-etk-data-table-wrap {
     border: 1px solid var(--etk-line);
@@ -1230,11 +1124,7 @@ body.lrob-etk-modal-open {
     border-bottom: 1px solid var(--etk-line);
     white-space: nowrap;
 }
-/* Sortable column headers — clickable, with a ▲/▼ glyph on the active
- * column. Driven by etk-sortable.js via .is-sort-asc / .is-sort-desc.
- * Hover swap is instant (no transition) — a transition fires on first
- * paint and produces a visible flicker until the browser has cached
- * the from-state of the pseudo-class. */
+/* Sortable headers — no hover transition (flickers on first paint). */
 .lrob-etk-data-table thead th[data-sort-key] {
     cursor: pointer;
     user-select: none;
@@ -1293,11 +1183,7 @@ body.lrob-etk-modal-open {
     padding-right: 14px;
 }
 
-/* ---------- Bulk toolbar ----------
- *
- * Sits just above the data-table. Selection summary on the left, bulk
- * action select + apply button on the right. Connects visually to the
- * table (no bottom border, matching corners). */
+/* ---------- Bulk toolbar ---------- */
 
 .lrob-etk-bulk-toolbar {
     display: flex;
@@ -1318,10 +1204,6 @@ body.lrob-etk-modal-open {
     color: var(--etk-muted);
     font-size: var(--etk-text-xs);
 }
-/* Generic in-toolbar cluster — flex+gap. Used for BOTH the left
- * action group (bulk-action dropdown + Apply) and any right cluster
- * (count + per-page select + icon buttons). Stays the only horizontal
- * grouping primitive inside `.lrob-etk-bulk-toolbar`. */
 .lrob-etk-bulk-action {
     display: flex;
     align-items: center;
@@ -1369,11 +1251,7 @@ body.lrob-etk-modal-open {
     color: var(--etk-muted);
 }
 
-/* ---------- Cleanup row ----------
- *
- * Inline "Delete X older than N days" row used inside Storage modals
- * (Email Logs + Contact Form). Label + days input wrap together on
- * the left; primary destructive action on the right. */
+/* ---------- Cleanup row (inside Storage modals) ---------- */
 
 .lrob-etk-cleanup-row {
     display: flex;
@@ -1408,21 +1286,7 @@ body.lrob-etk-modal-open {
     margin-top: 10px;
 }
 
-/* ---------- Section tabs ----------
- *
- * Page-internal navigation strip — used for both the page-level sub-
- * section selector (Newsletter: Dashboard / Newsletters / Subscribers
- * / Forms / Import) AND for in-page filter tabs (e.g. status filter on
- * Newsletters: All / In preparation / Sent / Trash).
- *
- * Visually distinct from the cross-module nav (muted treatment on the
- * right of PageHeader for inter-module links). These
- * tabs sit *under* the PageHeader, carry a baseline border, and the
- * active tab "sits on" that border in WP-native nav-tab style.
- *
- * Stable order — never remove the current item from the list, just
- * mark it `.is-active`.
- */
+/* ---------- Section tabs (page nav + in-page filter tabs) ---------- */
 .lrob-etk-section-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -1490,23 +1354,12 @@ body.lrob-etk-modal-open {
     padding-bottom: 4px;
 }
 
-/* ---------- Number input ----------
- *
- * WP admin's native number-input arrows crowd the value and trigger
- * a confusing "ghost arrows" rendering when the row itself is
- * hovered (browser focuses the input as it bubbles). Right-padding
- * the input gives the arrows breathing room; reserving the focus
- * appearance only on actual focus avoids the perceived bug. */
+/* Breathing room for native number arrows (prevents ghost-arrows on row hover). */
 .lrob-etk input[type="number"] {
     padding-right: 24px;
 }
 
-/* ---------- Empty-state card ----------
- *
- * Used when a list / table has zero rows AND the admin needs a
- * pointer to the action that creates one. Replaces the bare `<p>` we
- * used to scatter around. Icon + title + body + optional primary CTA.
- */
+/* ---------- Empty-state card ---------- */
 .lrob-etk-empty-state {
     text-align: center;
     padding: 32px 24px;
@@ -1534,11 +1387,7 @@ body.lrob-etk-modal-open {
     margin-top: 4px;
 }
 
-/* ---------- Detail strip ----------
- *
- * Chip row at the top of a record detail view (submission, log entry,
- * newsletter, etc.) listing the headline metadata: date, status,
- * captcha outcome, etc. Each item is a label/value stack. */
+/* ---------- Detail strip (headline metadata chip row at top of record views) ---------- */
 
 .lrob-etk-detail-strip {
     display: flex;
@@ -1566,7 +1415,7 @@ body.lrob-etk-modal-open {
     font-weight: 500;
 }
 
-/* ---------- Card primitives (existing) ---------- */
+/* ---------- Card footer defaults ---------- */
 
 .lrob-etk-card-footer-default {
     display: flex;
@@ -1640,10 +1489,7 @@ body.lrob-etk-modal-open {
     gap: 10px;
     padding-bottom: 6px;
     margin-bottom: 8px;
-    /* nowrap + flex-shrink:0 on every sibling makes the title input the
-     * only element that absorbs shrinkage when the save badge expands
-     * mid-cycle. The title visually "makes room" for the badge instead
-     * of pushing it to a second line. */
+    /* Title input is the only flex-shrinkable sibling — badge expands into the space it yields. */
     flex-wrap: nowrap;
 }
 .lrob-etk-card-form-head > *:not(.lrob-etk-title-input) {
@@ -1673,11 +1519,7 @@ body.lrob-etk-modal-open {
     background: transparent;
     color: var(--etk-muted);
     white-space: nowrap;
-    /* Sits in the header's flex flow, between the title input and the
-     * active toggle. Collapsed at rest (max-width:0, no padding, faded
-     * out). When a state class is added, expands smoothly to its content
-     * width — the title input shrinks gradually to give it room since
-     * it's the only flex-shrinkable sibling. */
+    /* Collapsed at rest (max-width:0). Title input is the only shrinkable sibling. */
     overflow: hidden;
     max-width: 0;
     padding: 2px 0;
@@ -1688,9 +1530,7 @@ body.lrob-etk-modal-open {
 .lrob-etk-card-status.is-saving,
 .lrob-etk-card-status.is-saved,
 .lrob-etk-card-status.is-failed {
-    /* Generous cap — fits the widest localized label in any state
-     * (fr_FR "Enregistrement…"). Actual rendered width is content-driven
-     * thanks to white-space:nowrap. */
+    /* Generous cap to fit the widest localized label (fr_FR "Enregistrement…"). */
     max-width: 200px;
     padding: 2px 8px;
     opacity: 1;
@@ -1713,9 +1553,6 @@ body.lrob-etk-modal-open {
     color: var(--etk-text-danger);
 }
 
-/* Canonical card footer. SMTP overrides justify-content via the more-specific
- * .lrob-etk-card-footer-default selector; Contact Form overrides via
- * .lrob-etk-form-card .lrob-etk-card-footer. */
 .lrob-etk-card-footer {
     display: flex;
     align-items: center;
@@ -1744,7 +1581,7 @@ body.lrob-etk-modal-open {
     color: var(--etk-danger);
 }
 
-/* Tighter form-section headings inside cards */
+/* Tighter headings inside cards */
 .lrob-etk-card-form .lrob-etk-form-column h3,
 .lrob-etk-card-form .lrob-etk-form-row-full h3 {
     margin-top: 0;

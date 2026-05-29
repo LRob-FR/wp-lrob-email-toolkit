@@ -12,31 +12,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
 
-/**
- * Admin-AJAX endpoints driving the send pipeline from each newsletter
- * card. The shipped endpoints are:
- *
- *  - lrob_etk_nl_send_tick: materialize-if-needed, run one batch via
- *    SendLoop, return progress JSON. newsletter-cards.js loops this
- *    until `remaining === 0` (or the admin closes the tab; SendCron
- *    picks up where AJAX left off).
- *
- *  - lrob_etk_nl_test_send: render the newsletter for one or more
- *    test recipients (ad-hoc address / a "test list" / the current
- *    admin) and send via wp_mail. Does NOT write to newsletter_recipients
- *    and does NOT touch counters. Header X-Lrob-Etk-Newsletter-Test: 1
- *    flags these so future tracking + logging integrations can exclude
- *    them from stats.
- *
- *  - lrob_etk_nl_send_{pause,resume,abort}: flip companion status.
- *  - lrob_etk_nl_preview: render the body as the current admin and
- *    return HTML for the preview modal.
- *  - lrob_etk_nl_recipients_preview: snapshot if available, dry-run
- *    materialization otherwise — powers the Show-list modal.
- *
- * One shared nonce action (`lrob_etk_nl_newsletter_send`) gates them.
- * Capability check via Activator::CAPABILITY on every call.
- */
+// Docs: docs/newsletter-internals.md → "Send pipeline"
 final class SendAjaxController
 {
     public const NONCE_ACTION = 'lrob_etk_nl_newsletter_send';

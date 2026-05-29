@@ -5,23 +5,8 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 /**
- * Inline per-page picker for list/table admin views. Replaces per-table
- * admin-option settings (e.g. logs' OPTION_PER_PAGE) with a small
- * `<select>` rendered next to each table's row-count summary. The
- * choice persists in a session cookie (no `expires` → drops when the
- * browser closes), so a fresh visit falls back to the per-table
- * default and admins are never locked into a stale preference they
- * forgot they set.
- *
- * Resolution order on each request: POST > GET > cookie > default.
- *
- * Usage:
- *   $per_page = PerPagePicker::parse('subscribers', 50);
- *   PerPagePicker::render('subscribers', $per_page);
- *
- * Client-side wiring lives in `admin/js/etk-perpage.js`; consumers
- * call `window.lrobEtkPerPage.attach({slug, formSelector, filterApi})`
- * once per page.
+ * Inline per-page picker. Resolution: POST > GET > session cookie > default.
+ * Runtime: admin/js/etk-perpage.js. See docs/admin-ui.md.
  */
 final class PerPagePicker
 {
@@ -55,9 +40,6 @@ final class PerPagePicker
 
     public static function render(string $slug, int $current): void
     {
-        // Reuses existing primitives — `.lrob-etk-bulk-count` for the
-        // muted-small label typography, `.lrob-etk-select` for the
-        // standard dropdown chrome. No new class introduced.
         ?>
         <label class="lrob-etk-bulk-count">
             <?php esc_html_e('Per page', 'lrob-email-toolkit'); ?>

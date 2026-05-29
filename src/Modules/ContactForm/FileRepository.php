@@ -4,16 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
-/**
- * Read/write access to `wp_lrob_etk_contact_files`.
- *
- * Each row represents one uploaded file attached to a contact-form submission.
- * The submission's payload JSON references files by their numeric id so the
- * payload stays compact and stable across renames.
- *
- * Disk-side files are managed by `FileStorage` — every delete method here
- * ALSO removes the underlying file on disk.
- */
+// Every delete method here ALSO removes the underlying file via FileStorage.
 final class FileRepository
 {
     public function insert(

@@ -6,32 +6,7 @@ namespace LRob\EmailToolkit\Forms;
 
 use LRob\EmailToolkit\Plugin;
 
-/**
- * Owns the form's row/column/field structure. Stored as JSON in the host
- * CPT's `post_content` — single round-trip read, plays nicely with
- * revisions, survives `wp_delete_post` cleanups, host-CPT-agnostic.
- *
- * Shape (version 1):
- *   {
- *     "version": 1,
- *     "rows": [
- *       { "id": "row_…", "columns": [
- *         { "id": "col_…", "fields": [
- *           { "id": "f_…", "type": "text", "slug": "name", "label": "Your name", "required": true, ...type-specific }
- *         ]}
- *       ]}
- *     ]
- *   }
- *
- * Any post_content that doesn't decode to this shape (e.g. legacy Gutenberg
- * block markup, plain text, garbage) is treated as empty — by design.
- *
- * Field-type sanitisation is delegated to the FieldTypeInterface
- * implementations registered with FieldTypeRegistry for the form's CPT.
- * Unknown types are dropped silently rather than rejecting the whole
- * payload — that means an out-of-date editor JS or a corrupted save can
- * never lock the user out of their form.
- */
+// Docs: docs/forms.md
 final class FormStructure
 {
     public const VERSION = 1;
@@ -110,10 +85,6 @@ final class FormStructure
     }
 
     /**
-     * Flat slug → {label, type} index of every field in the structure. Used
-     * by the submissions inbox to render stored values with their human
-     * labels (submissions store slugs, not labels — labels can change).
-     *
      * @return array<string, array{label:string, type:string}>
      */
     public static function fields_index(array $structure): array
@@ -173,11 +144,6 @@ final class FormStructure
     }
 
     /**
-     * Sanitize an arbitrary input into the canonical shape. Drops invalid
-     * entries (rather than rejecting the whole payload) so a partially-bad
-     * client update doesn't wipe the form. Field-type normalization is
-     * delegated to the FieldTypeInterface registered for the CPT.
-     *
      * @param array<string, mixed> $structure
      * @return array{version:int, rows:array<int, array>}
      */
@@ -202,13 +168,6 @@ final class FormStructure
     }
 
     /**
-     * Post-pass over the normalised tree. Walks every field, assigns a
-     * creation-order `nth` to anything that doesn't have one (in DOM
-     * order), forces duplicate nths apart, and finally guarantees unique
-     * slugs by suffixing collisions with `_2`, `_3`, ... — safety net in
-     * case two fields somehow end up with the same `<type>_<label>_<nth>`
-     * shape (e.g. legacy data with hand-typed slugs).
-     *
      * @param array{rows:array<int, array{columns:array<int, array{fields:array<int, array>}>}>} $out
      */
     private static function enforce_unique_nths_and_slugs(array &$out): void
@@ -324,9 +283,6 @@ final class FormStructure
         }
         $field_type = $registry->get($cpt_slug, $type);
         if ($field_type === null) {
-            // Unknown type for this CPT — drop silently. Prevents a
-            // contact-form field type from leaking into a Newsletter form
-            // and vice versa.
             return null;
         }
         return $field_type->normalize($field);

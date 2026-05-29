@@ -11,25 +11,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Tracking\Pipeline as TrackingPipeline;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Support\Events;
 
-/**
- * One tick of the send loop: claim up to N pending recipients for a
- * newsletter, render + wp_mail each, update statuses + counters, and
- * mark the newsletter tick timestamp. Bounded per call so the admin's
- * AJAX loop stays responsive — caller decides whether to call again
- * based on the returned `remaining`.
- *
- * Minimum-viable shape today:
- *   - No per-domain throttle (step 7b polish).
- *   - Cron safety-net shipped in step 7b core (SendCron).
- *   - Sequential wp_mail (no async queueing).
- *   - Claim semantics: SELECT pending rows, then UPDATE each row to
- *     'sending'. Race-safe for the single-admin AJAX driver; concurrent
- *     ticks for the same newsletter could double-send under heavy Cron
- *     contention (mitigated by the 2-minute stale-tick threshold).
- *
- * Completion detection: when zero pending rows remain after a tick,
- * companion status → 'sent', completed_at stamped, event dispatched.
- */
+// Docs: docs/newsletter-internals.md → "Send pipeline"
 final class SendLoop
 {
     public const DEFAULT_BATCH = 25;
@@ -38,14 +20,7 @@ final class SendLoop
 
     public const HEADER_NEWSLETTER_RECIPIENT_ID = 'X-Lrob-Etk-Newsletter-Recipient-ID';
 
-    /**
-     * SMTP circuit-breaker threshold. Five consecutive wp_mail failures
-     * inside a single tick = "SMTP is down or misconfigured", abort the
-     * tick, release the still-claimed rows back to `pending`, and pause
-     * the newsletter with pause_reason='smtp_unhealthy'. A single isolated
-     * failure (e.g. one bad recipient address) doesn't trip the breaker —
-     * the counter resets to 0 on any successful send.
-     */
+    // 5 consecutive failures trips the SMTP circuit-breaker; resets to 0 on any success.
     public const CONSECUTIVE_FAILURE_THRESHOLD = 5;
 
     public const PAUSE_REASON_SMTP_UNHEALTHY = 'smtp_unhealthy';
@@ -56,12 +31,7 @@ final class SendLoop
     ) {
     }
 
-    /**
-     * Process one batch for the newsletter. Returns a progress dict:
-     *   ['sent' => int, 'failed' => int, 'remaining' => int, 'total' => int, 'status' => string]
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function tick(int $newsletter_id, int $batch_size = self::DEFAULT_BATCH): array
     {
         $post = get_post($newsletter_id);
@@ -144,10 +114,6 @@ final class SendLoop
                     'failure_code'   => 'wp_mail_failed',
                 ]);
                 if ($consecutive_failures >= self::CONSECUTIVE_FAILURE_THRESHOLD) {
-                    // SMTP is unhealthy. Stop the bleed. Any still-claimed
-                    // rows after this index were flipped to 'sending' by
-                    // claim_batch but haven't been processed — release
-                    // them back to 'pending' so resume picks them up.
                     $breaker_tripped = true;
                     for ($j = $i + 1; $j < count($claimed); $j++) {
                         $unprocessed_ids[] = (int) $claimed[$j]['id'];
@@ -196,13 +162,7 @@ final class SendLoop
         return $this->progress($newsletter_id, $sent, $failed, NewsletterRepository::STATUS_SENDING);
     }
 
-    /**
-     * Release rows that were claimed (flipped to 'sending') but never
-     * actually processed because the SMTP circuit-breaker tripped mid-tick.
-     * Resume picks them up like any other pending row.
-     *
-     * @param array<int, int> $row_ids
-     */
+    /** @param array<int, int> $row_ids */
     private function release_claimed(array $row_ids): void
     {
         if ($row_ids === []) {
@@ -217,12 +177,7 @@ final class SendLoop
         ));
     }
 
-    /**
-     * Claim up to $limit pending rows by flipping them to 'sending'
-     * one by one. Returns the rows actually claimed.
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    /** @return array<int, array<string, mixed>> */
     private function claim_batch(int $newsletter_id, int $limit): array
     {
         global $wpdb;
@@ -238,7 +193,6 @@ final class SendLoop
         if ($rows === []) {
             return [];
         }
-        // Flip each to 'sending' so a concurrent tick doesn't re-claim.
         $ids = array_map(static fn ($r) => (int) $r['id'], $rows);
         $placeholders = implode(',', array_fill(0, count($ids), '%d'));
         $wpdb->query($wpdb->prepare(
@@ -272,10 +226,6 @@ final class SendLoop
         );
     }
 
-    /**
-     * Atomic counter bump on the newsletters companion row. UPDATE
-     * with `col = col + N` so concurrent ticks don't lose increments.
-     */
     private function bump_counters(int $newsletter_id, int $sent, int $failed): void
     {
         global $wpdb;
@@ -312,9 +262,7 @@ final class SendLoop
         ]);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     private function progress(int $newsletter_id, int $sent_this_tick, int $failed_this_tick, string $status, ?string $pause_reason = null): array
     {
         $row = $this->newsletters->find_by_post_id($newsletter_id);
@@ -337,13 +285,7 @@ final class SendLoop
         ];
     }
 
-    /**
-     * Resolve the recipient's prefs_token by looking up the live row
-     * (subscribers table or wp_users user_meta). The snapshot doesn't
-     * store the token so changes (e.g. a forced rotation) propagate.
-     *
-     * @param array<string, mixed> $row
-     */
+    /** @param array<string, mixed> $row */
     private function prefs_token_for(array $row): string
     {
         $kind = (string) ($row['recipient_kind'] ?? '');
@@ -365,9 +307,7 @@ final class SendLoop
         return '';
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     private function build_headers(int $newsletter_id, int $recipient_row_id, string $prefs_token, string $from_name_override, string $reply_to): array
     {
         $headers = [

@@ -5,13 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Admin;
 
 /**
- * Renders an info-bubble tooltip: small dashicon that reveals a short
- * explanation on hover (or click — JS keeps it open after a tap).
- *
- * Usage:
- *   Tooltip::render('Encrypted at rest with AES-256-GCM (key derived from AUTH_KEY).');
- *   Tooltip::render('Most servers require this.', 'info');
- *   Tooltip::render('Locked by wp-config.php constant.', 'lock');
+ * Info-bubble tooltip (position:fixed via JS). See docs/admin-ui.md.
  */
 final class Tooltip
 {

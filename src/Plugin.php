@@ -8,9 +8,7 @@ use LRob\EmailToolkit\Admin\Menu;
 use LRob\EmailToolkit\Forms\FieldTypeRegistry;
 use LRob\EmailToolkit\Modules\ModuleManager;
 
-/**
- * Main plugin singleton. Boots the module manager and admin UI.
- */
+// Docs: docs/core.md
 final class Plugin
 {
     private static ?self $instance = null;

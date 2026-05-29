@@ -1,7 +1,4 @@
-/* Captcha admin page — built-in list + provider identity cards + routing grid.
- * Card primitives (.lrob-etk-card-form*, .lrob-etk-identity-card,
- * .lrob-etk-card-status, .lrob-etk-card-footer*) come from
- * admin-components.css. This file only adds the captcha-specific pieces. */
+/* LRob - Email Toolkit — admin styles: CAPTCHA MODULE — Docs: docs/admin-ui.md */
 
 .lrob-etk-captcha-section {
     margin-top: 24px;
@@ -26,8 +23,7 @@
     gap: var(--etk-space-2);
     max-width: 880px;
 }
-/* Vertical stack, equal-height per row (grid stretch) so "Set as default"
- * pins to the bottom of every card uniformly. */
+/* Equal-height per row so "Set as default" pins to the bottom uniformly. */
 .lrob-etk-captcha-builtins li {
     display: flex;
     flex-direction: column;
@@ -37,8 +33,6 @@
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
 }
-/* Header: a rounded pill carrying the captcha icon + title — mirrors the
- * hosted-provider chip so built-in and provider cards read consistently. */
 .lrob-etk-captcha-builtin-head {
     display: inline-flex;
     align-self: flex-start;
@@ -62,8 +56,6 @@
     margin: 0;
     color: var(--etk-muted);
 }
-/* Live preview of the rendered challenge — ISO with the hosted-provider
- * card preview below it. */
 .lrob-etk-captcha-builtin-preview {
     border-top: 1px solid var(--etk-soft);
     padding-top: var(--etk-space-3);
@@ -71,19 +63,15 @@
 .lrob-etk-captcha-builtin-preview .lrob-etk-cf-field {
     margin: 0;
 }
-/* Footer (Set-as-default left · stats right) pinned to the card bottom,
- * aligned across the row. */
 .lrob-etk-captcha-builtins li .lrob-etk-card-footer {
     margin-top: auto;
 }
 .lrob-etk-captcha-builtins li .lrob-etk-card-footer-default {
     justify-content: flex-start;
 }
-/* passed/blocked stat sits bottom-right in every card footer. */
 .lrob-etk-card-footer .lrob-etk-captcha-route-stats {
     margin: 0;
 }
-/* Active/Inactive label stacked under the toggle to save header width. */
 .lrob-etk-captcha-card-active {
     flex-direction: column;
     gap: 2px;
@@ -91,8 +79,6 @@
 .lrob-etk-captcha-card-active .lrob-etk-inline-switch-label {
     font-size: var(--etk-text-xs);
 }
-/* Trash sits at the top of the header row — level with the toggle track,
- * not vertically centred against the stacked track + Active/Inactive label. */
 .lrob-etk-captcha-card-trash {
     align-self: flex-start;
 }
@@ -110,9 +96,7 @@
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius);
     box-shadow: var(--etk-shadow-md);
-    /* Flex column so the footer can be pinned to the bottom and cards in a
-     * row stay equal height (providers differ in setting count — Google is
-     * taller), keeping "Set as default" / "Delete" aligned across cards. */
+    /* Flex column so footer pins to bottom and cards stay equal height. */
     display: flex;
     flex-direction: column;
 }
@@ -149,9 +133,7 @@
     display: block;
 }
 
-/* Slug chip: monospace identifier just under the header. Surfaces the
- * stable derived id (e.g. hcaptcha_main-site_3) so admins can paste it
- * into hook listeners or external integrations later. */
+/* Slug chip: stable derived id for hook listeners / external integrations. */
 .lrob-etk-captcha-card-meta {
     padding: 0 18px;
     margin: 4px 0 0;
@@ -176,8 +158,7 @@
     color: var(--etk-muted);
 }
 
-/* "New captcha" provider chooser modal — grid of provider cards (logo +
- * label + description), styled like the "New form" picker. */
+/* "New captcha" provider chooser modal — mirrors "New form" picker style. */
 .lrob-etk-captcha-provider-pick-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -225,7 +206,6 @@
     line-height: 1.4;
 }
 
-/* Inline widget preview + test feedback area. */
 .lrob-etk-captcha-card-preview {
     padding: 12px 18px 4px;
     margin-top: 8px;
@@ -261,8 +241,6 @@
     font-size: var(--etk-text-xs);
     font-style: italic;
 }
-/* reCAPTCHA v3: note + "Test score" button stacked (the widget slot itself
- * is a flex row). */
 .lrob-etk-captcha-v3-test-box {
     display: flex;
     flex-direction: column;
@@ -328,10 +306,7 @@
     margin: 0;
 }
 
-/* Visual cue for failed-validation inputs. Cleared on next focus
- * (handled in captcha-admin.js). The label input sits in the card
- * header so it gets the same treatment as the credentials inputs
- * inside the card body. */
+/* Failed-validation highlight (cleared on next focus by captcha-admin.js). */
 .lrob-etk-captcha-card input.is-invalid,
 .lrob-etk-captcha-card .is-invalid {
     border-color: var(--etk-danger);
@@ -355,7 +330,6 @@
     max-width: 720px;
 }
 
-/* Prominent site-wide default */
 .lrob-etk-captcha-default {
     display: flex;
     align-items: center;
@@ -382,7 +356,6 @@
     flex-shrink: 0;
 }
 
-/* Per-identity widget appearance (theme/size) — inside each identity card */
 .lrob-etk-captcha-card-appearance {
     display: flex;
     gap: var(--etk-space-3);
@@ -405,7 +378,6 @@
     letter-spacing: 0.04em;
 }
 
-/* Per-context overrides — compact list, grouped (plugin forms / WP sections) */
 .lrob-etk-captcha-overrides {
     margin-top: var(--etk-space-3);
 }
@@ -435,11 +407,7 @@
 .lrob-etk-captcha-override-row .lrob-etk-combo { width: 100%; }
 
 
-/* hCaptcha widget is 303×78px (normal) and the iframe doesn't shrink to
- * fit narrow columns. Reserve its natural width and allow horizontal
- * scroll within the field — better than letting the iframe visually
- * leak onto adjacent columns or other fields. Applies to both the
- * editor preview and the frontend form. */
+/* hCaptcha/Turnstile iframes don't shrink — overflow-x:auto prevents layout leakage. */
 .lrob-etk-form-field--challenge {
     overflow-x: auto;
     max-width: 100%;
@@ -451,9 +419,7 @@
     min-width: 300px;
 }
 
-/* Diagnostics: collapsed by default, surfaces stored state for routing
- * + per-identity credential blobs. Keep this lightweight — it's a
- * troubleshooting aid, not a primary surface. */
+/* Diagnostics: collapsed troubleshooting panel. */
 .lrob-etk-captcha-diag summary {
     cursor: pointer;
     font-size: var(--etk-text-xs);
@@ -518,14 +484,12 @@
     }
 }
 
-/* Per-route verify stats surfaced next to each challenge / identity card.
- * Reads from wp_lrob_etk_captcha_stats (30-day window). */
+/* Per-route verify stats (30-day window from wp_lrob_etk_captcha_stats). */
 .lrob-etk-captcha-route-stats {
     margin: 6px 0 0;
     font-size: var(--etk-text-xs);
 }
-/* inline-block (not flex) + nowrap so the "N blocked · N passed" text never
- * splits across lines, even in the narrow built-in-challenge cells. */
+/* inline-block + nowrap so stat text never splits, even in narrow cells. */
 .lrob-etk-captcha-stat {
     display: inline-block;
     white-space: nowrap;

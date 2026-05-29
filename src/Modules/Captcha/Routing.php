@@ -4,25 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha;
 
-/**
- * Routing keys + per-context map for the captcha service. A routing key
- * identifies which challenge or identity should handle a given submission;
- * the context map decides routing per consumer (contact_form, comments, …).
- *
- * Routing key format:
- *  - 'none'             — disable captcha for this caller
- *  - 'inherit'          — only valid in per-context entries; defer to default
- *  - 'homemade:<slug>'  — built-in challenge by slug
- *  - 'identity:<int>'   — hosted provider identity by row id
- *
- * Persisted in `lrob_etk_captcha_context_map`:
- *  [ 'default'              => 'homemade:math',
- *    'contact_form'         => 'inherit',
- *    'comments'             => 'inherit',
- *    'newsletter_subscribe' => 'inherit',
- *    'lost_password'        => 'inherit',
- *    'registration'         => 'inherit' ]
- */
+// Docs: docs/captcha.md → "Routing"
 final class Routing
 {
     public const OPTION_CONTEXT_MAP = 'lrob_etk_captcha_context_map';
@@ -55,12 +37,7 @@ final class Routing
         return array_merge(self::plugin_contexts(), self::wp_native_contexts());
     }
 
-    /**
-     * This plugin's own form contexts — captcha here makes sense out of the
-     * box, so they inherit the site default on a fresh install.
-     *
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public static function plugin_contexts(): array
     {
         return [
@@ -69,12 +46,7 @@ final class Routing
         ];
     }
 
-    /**
-     * WordPress-native contexts — captcha is OFF by default here; the admin
-     * opts in per section so adding the hooks never surprises anyone.
-     *
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public static function wp_native_contexts(): array
     {
         return [
@@ -148,10 +120,6 @@ final class Routing
         return isset($map[self::KEY_DEFAULT]) ? $map[self::KEY_DEFAULT] : self::ROUTE_NONE;
     }
 
-    /**
-     * Resolve a context's route: per-context override → default → 'none'.
-     * `inherit` and empty strings mean "fall through to default".
-     */
     public static function effective_route(string $context): string
     {
         $map = self::context_map();

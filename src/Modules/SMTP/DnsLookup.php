@@ -4,15 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\SMTP;
 
-/**
- * Cached DNS lookups for the SMTP server picker. Two queries:
- *   - resolves(host) → does A/AAAA exist?
- *   - mx_hosts(domain) → list of MX targets, ordered by preference
- *
- * Each result is cached in a WordPress transient for 1 hour. Per-user soft
- * rate-limit: a transient counter caps concurrent calls to 60/hour to avoid
- * spamming DNS when a user types fast in the host field.
- */
+// Docs: docs/smtp.md
 final class DnsLookup
 {
     private const RESOLVE_CACHE_TTL = HOUR_IN_SECONDS;
@@ -85,11 +77,6 @@ final class DnsLookup
         return $hosts;
     }
 
-    /**
-     * Best-effort throttle. Returns false if the user has burned through
-     * the budget for the current window. Avoids DNS spam while still letting
-     * the common interactive case work.
-     */
     private function rate_check(): bool
     {
         $user_id = get_current_user_id();

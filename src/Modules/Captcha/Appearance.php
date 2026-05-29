@@ -4,16 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha;
 
-/**
- * Vocabulary + normalizers for hosted-captcha widget appearance (theme +
- * size). Stored per-identity (not global) on the captcha identity row, so
- * each hCaptcha / Turnstile / reCAPTCHA account can render its own look.
- * Homemade challenges ignore appearance entirely.
- *
- * `theme = auto` follows the visitor's OS colour scheme client-side (the
- * widgets don't all support a native "auto", so the provider render resolves
- * it from `prefers-color-scheme`).
- */
+// Docs: docs/captcha.md → "Appearance"
 final class Appearance
 {
     public const THEME_AUTO  = 'auto';

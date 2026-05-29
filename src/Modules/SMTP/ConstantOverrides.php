@@ -6,32 +6,10 @@ namespace LRob\EmailToolkit\Modules\SMTP;
 
 use LRob\EmailToolkit\Support\Encryption;
 
-/**
- * Applies wp-config.php constant overrides to the *default* identity at
- * runtime. Lets ops teams keep SMTP secrets out of the database while still
- * editing the rest of the identity in the admin UI.
- *
- * Currently only the default identity is overridable. The constants are not
- * per-slug — adding LROB_ETK_SMTP_HOST_NEWSLETTER and friends is straightforward
- * later if needed.
- *
- * Constants honored:
- *   LROB_ETK_SMTP_HOST          (string)
- *   LROB_ETK_SMTP_PORT          (int)
- *   LROB_ETK_SMTP_ENCRYPTION    (string: '' | 'ssl' | 'tls')
- *   LROB_ETK_SMTP_USER          (string)
- *   LROB_ETK_SMTP_PASS          (string)  ← stored re-encrypted in memory only
- *   LROB_ETK_SMTP_AUTH          (bool/int)
- *   LROB_ETK_SMTP_FROM          (string, email)
- *   LROB_ETK_SMTP_FROM_NAME     (string)
- */
+// Docs: docs/smtp.md
 final class ConstantOverrides
 {
-    /**
-     * Map of constant name → Identity field name. Order is preserved.
-     *
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     private const MAP = [
         'LROB_ETK_SMTP_HOST'       => 'smtp_host',
         'LROB_ETK_SMTP_PORT'       => 'smtp_port',
@@ -43,12 +21,7 @@ final class ConstantOverrides
         'LROB_ETK_SMTP_FROM_NAME'  => 'from_name',
     ];
 
-    /**
-     * Return a new Identity with overridable fields replaced by their wp-config
-     * constant value, where defined. Non-default identities are returned
-     * unchanged. The original DB-loaded ciphertext is preserved on the input
-     * Identity — this returns a separate clone for use at send time only.
-     */
+    /** Non-default identities are returned unchanged. Returns a with() clone; DB row is untouched. */
     public function apply(Identity $identity): Identity
     {
         if (!$identity->is_default) {
@@ -66,13 +39,7 @@ final class ConstantOverrides
         return $changes === [] ? $identity : $identity->with($changes);
     }
 
-    /**
-     * Field names that are currently being overridden by a wp-config constant.
-     * The admin UI uses this list to show a lock notice next to those fields
-     * (the DB value is still editable, but ignored at runtime).
-     *
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function overridden_fields(): array
     {
         $fields = [];

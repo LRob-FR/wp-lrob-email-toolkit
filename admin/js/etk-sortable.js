@@ -1,27 +1,4 @@
-/* LRob Email Toolkit — shared sortable-column helper.
- *
- * Wires clicks on `<th data-sort-key="...">` cells inside a list-region
- * to cycle the sort state: asc → desc → (unsorted) → asc … The helper
- * writes hidden `orderby` + `order` inputs into the paired filter form
- * so `etk-list-filter.js` picks them up on the next reload, and
- * persists the chosen sort to a cookie so reloading the page (without a
- * URL sort param) restores the admin's last choice.
- *
- * Wire-up at page-init time:
- *
- *   var filterApi = window.lrobEtkListFilter.attach({...});
- *   window.lrobEtkSortable.attach({
- *       cookieKey:      'lrob_etk_sort_subscribers',  // unique per table
- *       formSelector:   '[data-etk-list-form]',
- *       regionSelector: '[data-etk-list-region]',
- *       filterApi:      filterApi,                    // reload trigger
- *   });
- *
- * Each `<th>` that should be sortable carries a `data-sort-key` attribute
- * matching a whitelisted column slug the server-side parse_filters knows
- * about. The helper adds `.is-sort-asc` / `.is-sort-desc` to the active
- * TH and a ▲/▼ glyph via CSS.
- */
+/* Docs: docs/admin-ui.md */
 (function (window, document) {
     'use strict';
 
@@ -31,10 +8,7 @@
         var regionSelector = opts.regionSelector || '[data-etk-list-region]';
         var filterApi      = opts.filterApi      || null;
 
-        // On boot: if no URL sort param but the cookie has one, hydrate
-        // the form's hidden inputs so the first AJAX reload (triggered
-        // by any filter change or pagination click) picks it up. The
-        // server's parse_filters reads $_POST so it'll be picked up.
+        // On boot: hydrate hidden inputs from cookie if no URL sort param.
         var urlParams = new URLSearchParams(window.location.search);
         var urlOrderby = urlParams.get('orderby') || '';
         if (!urlOrderby && cookieKey) {
@@ -51,8 +25,7 @@
             paintHeader(regionSelector, urlOrderby, urlParams.get('order') || 'asc');
         }
 
-        // Repaint after every AJAX region swap so the active-column
-        // glyph stays in sync with the URL state.
+        // Repaint glyphs after every region swap.
         document.addEventListener('etk:list-region-swapped', function () {
             var p = new URLSearchParams(window.location.search);
             paintHeader(regionSelector, p.get('orderby') || '', p.get('order') || 'asc');

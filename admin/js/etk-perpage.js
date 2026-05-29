@@ -1,20 +1,4 @@
-/* LRob Email Toolkit — per-page picker glue.
- *
- * Pairs with the server-side `Admin\PerPagePicker`. Wires changes on a
- * `<select data-per-page="<slug>">` to:
- *   1. write a session cookie (`lrob_etk_per_page_<slug>=<n>`),
- *   2. mirror the new value into a hidden `per_page` input in the
- *      paired filter form so `etk-list-filter` picks it up on reload,
- *   3. trigger the next AJAX reload (page 1) via the filter helper, or
- *      fall back to a full form submit when no filter helper is wired.
- *
- * Each consumer page calls:
- *   window.lrobEtkPerPage.attach({
- *       slug:         'subscribers',
- *       formSelector: '[data-etk-list-form]',
- *       filterApi:    filterApi,
- *   });
- */
+/* Docs: docs/admin-ui.md */
 (function (window, document) {
     'use strict';
 
@@ -31,7 +15,7 @@
             if (!sel) return;
             var n = parseInt(sel.value, 10);
             if (!n || n < 5 || n > 500) return;
-            // Session cookie — no `expires` → drops when the browser closes.
+            // Session cookie (no expires) → drops when browser closes.
             document.cookie = cookieName + '=' + n + ';path=/;SameSite=Lax';
             var form = document.querySelector(formSelector);
             if (form) {

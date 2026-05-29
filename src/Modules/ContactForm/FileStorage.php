@@ -6,18 +6,7 @@ namespace LRob\EmailToolkit\Modules\ContactForm;
 
 use RuntimeException;
 
-/**
- * Writes inbound file uploads to disk under `uploads/lrob-etk-cf/`. Generates
- * a strict `.htaccess` at the root on first write so direct HTTP access is
- * denied (Apache). For nginx hosts the gated REST download endpoint is the
- * only path to the file — the documented snippet in CLAUDE.md tells admins
- * how to mirror the deny rule.
- *
- * Path shape: `lrob-etk-cf/<form-id>/<YYYY>/<MM>/<DD>/<hex8>_<sanitized>.<ext>`
- *
- * `<hex8>` is a random hex prefix that prevents same-name collisions and
- * forecloses URL guessing in case `.htaccess` ever gets bypassed.
- */
+// Docs: docs/contact-form.md — path: lrob-etk-cf/<form-id>/<YYYY>/<MM>/<DD>/<hex8>_<sanitized>.<ext>
 final class FileStorage
 {
     public const ROOT_DIR = 'lrob-etk-cf';
@@ -41,8 +30,6 @@ final class FileStorage
         }
         $base_dir = trailingslashit((string) $uploads['basedir']) . self::ROOT_DIR;
 
-        // First-write housekeeping: ensure the root exists and that the
-        // .htaccess + index.html are in place. wp_mkdir_p is idempotent.
         if (!wp_mkdir_p($base_dir)) {
             throw new RuntimeException("Failed to create upload root: $base_dir");
         }
@@ -60,9 +47,6 @@ final class FileStorage
         }
         self::ensure_blank_index($base_dir . '/' . (int) $form_id);
 
-        // Filename: hex8 + '_' + WP-sanitised name. sanitize_file_name
-        // strips '..', null bytes, and most attack vectors. Random prefix
-        // prevents same-name collisions within the same day.
         $safe_name = sanitize_file_name($original_name);
         if ($safe_name === '' || $safe_name === '.' || $safe_name === '..') {
             $safe_name = 'upload';
@@ -70,8 +54,7 @@ final class FileStorage
         $hex   = bin2hex(random_bytes(4)); // 8 chars
         $final = $form_dir . '/' . $hex . '_' . $safe_name;
 
-        // Defense in depth: realpath sanity — file MUST end up inside the
-        // root upload dir. If somehow not, refuse.
+        // Realpath sanity: ensure destination stays inside the upload root.
         $resolved_parent = realpath($form_dir);
         $resolved_root   = realpath($base_dir);
         if ($resolved_parent === false || $resolved_root === false
@@ -115,12 +98,7 @@ final class FileStorage
         return @unlink($abs);
     }
 
-    /**
-     * Apache: deny direct HTTP, disable indexes, disable PHP engine. Belt-
-     * and-suspenders against a future host migration where the gated REST
-     * endpoint isn't the only path to the file. Written once; we skip
-     * existing files so admins can hand-tune if needed.
-     */
+    // Written once; skips existing so admins can hand-tune. Belt-and-suspenders against direct HTTP access.
     private static function ensure_htaccess(string $base_dir): void
     {
         $path = $base_dir . '/.htaccess';
@@ -150,10 +128,6 @@ final class FileStorage
         @file_put_contents($path, $contents);
     }
 
-    /**
-     * Drop a zero-byte `index.html` so directory listing on misconfigured
-     * hosts surfaces an empty page rather than the directory contents.
-     */
     private static function ensure_blank_index(string $dir): void
     {
         $path = $dir . '/index.html';

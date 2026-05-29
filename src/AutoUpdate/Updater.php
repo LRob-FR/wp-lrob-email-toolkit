@@ -4,29 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\AutoUpdate;
 
-/**
- * Self-hosted plugin updater — surfaces GitHub releases as WordPress updates.
- *
- * Two filters do the work:
- *   1. pre_set_site_transient_update_plugins — when WP decides which plugins
- *      need updating, we hit the GitHub API, compare versions, and inject our
- *      entry if a newer release is published.
- *   2. plugins_api — the "View details" modal on the Plugins / Updates screens
- *      pulls release info from GitHub (changelog from the release body,
- *      formatted via a minimal Markdown → HTML conversion).
- *
- * The GitHub API response is cached in a 1-hour transient on success
- * (vs the 12h the calendar plugin uses — this plugin is more actively
- * developed and the user wants fresher data). On the Updates page itself,
- * the cache is bypassed entirely: the admin is there *because* they want
- * to know if there are updates, so we ask GitHub directly.
- *
- * GitHub's unauthenticated rate limit is 60 req/h per IP. Even with the
- * Updates page bypassing the cache, normal admin workflows stay well under
- * that — and the cache absorbs the WP cron / background-poll traffic.
- *
- * No external library. Mirrors `wp-lrob-calendar` (the original).
- */
+// Docs: docs/core.md
 final class Updater
 {
     public const TRANSIENT_KEY      = 'lrob_etk_gh_release';
@@ -41,10 +19,6 @@ final class Updater
     }
 
     /**
-     * Inject our update notice into the transient WordPress uses to decide
-     * which plugins have updates available. Runs via wp-cron (~12h default)
-     * and on any admin page load if WP's own transient has expired.
-     *
      * @param mixed $transient
      * @return mixed
      */
@@ -95,10 +69,6 @@ final class Updater
     }
 
     /**
-     * Fill the "View version details" modal on the Plugins / Updates screens.
-     * Returns the unchanged $result for any request that isn't asking about
-     * THIS plugin.
-     *
      * @param false|object|array $result
      * @param string             $action
      * @param object             $args
@@ -147,14 +117,7 @@ final class Updater
 
     /* ─── Internals ──────────────────────────────────────────────────── */
 
-    /**
-     * Hit the GitHub API for the latest release. Cached on success +
-     * failure (both 1h). When the admin is on the Updates page (or
-     * clicked "Check again" with $_GET['force-check']), the cache is
-     * bypassed: that's the explicit "I want fresh data" signal.
-     *
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     private function get_release(): ?array
     {
         $force = $this->is_force_refresh();
@@ -192,14 +155,6 @@ final class Updater
         return $body;
     }
 
-    /**
-     * Two intent signals tell us to bypass the cache:
-     *  - $_GET['force-check'] = '1' — set by core when admin clicks "Check
-     *    again" on the Updates page (wp_update_plugins reads the same flag).
-     *  - The current screen IS the Updates page (update-core.php). Just
-     *    landing there means the admin is looking for updates *right now*;
-     *    they shouldn't have to click an extra button to bypass our cache.
-     */
     private function is_force_refresh(): bool
     {
         if (!is_admin()) {
@@ -229,14 +184,7 @@ final class Updater
         return ltrim($tag, 'vV');
     }
 
-    /**
-     * Find the plugin zip on the release. release.sh produces
-     * `lrob-email-toolkit-<version>.zip`; admin uploads it as a release
-     * asset with `gh release create`. We match by filename prefix + .zip
-     * suffix so the embedded version doesn't have to be hardcoded here.
-     *
-     * @param array<string, mixed> $release
-     */
+    /** @param array<string, mixed> $release */
     private function find_asset_url(array $release): ?string
     {
         $assets = $release['assets'] ?? [];
@@ -263,12 +211,7 @@ final class Updater
         return get_bloginfo('version');
     }
 
-    /**
-     * Minimal Markdown → HTML for the changelog modal. Covers what GitHub
-     * release notes typically use: headings, bullets, bold, code spans,
-     * links, paragraphs. Not a real parser — anything fancier renders as
-     * escaped text, which is safe.
-     */
+    /** Minimal Markdown → HTML for the changelog modal (headings, bullets, bold, code, links). */
     private function markdown_to_html(string $md): string
     {
         $md = trim($md);

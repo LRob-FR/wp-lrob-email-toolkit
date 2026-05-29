@@ -4,17 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
-/**
- * Read-side helpers for the subscribers table at this stage of the build.
- * CRUD lands when subscribe forms ship (step 3). Today this exists so:
- *   - Module::data_summary() can show a "N subscribers" tile on the toolkit
- *     dashboard;
- *   - UserHooks::on_user_register() can detect "this new WP user matches
- *     an existing subscriber row" and trigger the promotion path.
- *
- * Everything is scoped to non-trashed rows by default — the trash tab is the
- * only place trashed rows surface.
- */
+// Docs: docs/newsletter-internals.md → "Subscriber repository"
 final class SubscriberRepository
 {
     /** Total non-trashed subscribers across all statuses. */
@@ -90,13 +80,6 @@ final class SubscriberRepository
         return (int) $wpdb->insert_id;
     }
 
-    /**
-     * Resubscribe an existing row — used when someone in a non-pending
-     * state (refused, unsubscribed, bounced, trashed) signs up again
-     * via the form. Flips status to pending, regenerates the prefs
-     * token (so the old token can't be reused to confirm the new
-     * intent), and clears any previous-status / trash bookkeeping.
-     */
     public function reset_to_pending(int $id): void
     {
         global $wpdb;
@@ -125,14 +108,6 @@ final class SubscriberRepository
         $wpdb->update(Schema::subscribers_table(), $data, ['id' => $id], $formats, ['%d']);
     }
 
-    /**
-     * Admin-side rename / re-email. Returns one of:
-     *   - 'ok'          — update applied (no email change or new email free)
-     *   - 'email_taken' — the requested email already belongs to another row
-     *   - 'invalid'     — email is malformed
-     *   - 'noop'        — subscriber not found
-     * Caller is responsible for surfacing the result.
-     */
     public function update_basics(int $id, string $email, string $name): string
     {
         $row = $this->find_by_id($id);
@@ -158,14 +133,6 @@ final class SubscriberRepository
         return 'ok';
     }
 
-    /**
-     * Single-column profile-field write. Returns 'ok' / 'invalid' /
-     * 'noop' / 'email_taken'. Whitelists `$column` against
-     * `SubscriberFields::PROFILE_COLUMNS` so the caller can never reach
-     * outside the subscriber profile schema. Email writes go through the
-     * collision check + is_email validation; everything else flows through
-     * the per-column sanitiser.
-     */
     public function set_profile_field(int $id, string $column, string $value): string
     {
         $row = $this->find_by_id($id);
@@ -192,25 +159,7 @@ final class SubscriberRepository
         return 'ok';
     }
 
-    /**
-     * Stage an email-change request. Generates a single-use token, stores
-     * it alongside the requested new address + a timestamp. Caller is
-     * responsible for dispatching the confirmation message; this method
-     * only persists the request.
-     *
-     * Returns one of:
-     *   - 'ok'          — request persisted, token in second slot
-     *   - 'invalid'     — malformed email
-     *   - 'same'        — new email equals current
-     *   - 'email_taken' — another subscriber already owns the address
-     *   - 'noop'        — subscriber row not found
-     *
-     * Calling this with a different `$new_email` while a previous
-     * request is still pending overwrites it (the previous token becomes
-     * useless silently — the new request supersedes).
-     *
-     * @return array{0:string, 1:string} `[$status, $token]` (token empty unless status='ok')
-     */
+    /** @return array{0:string, 1:string} `[$status, $token]` — status: ok|invalid|same|email_taken|noop */
     public function set_pending_email_change(int $id, string $new_email): array
     {
         $row = $this->find_by_id($id);
@@ -244,14 +193,7 @@ final class SubscriberRepository
         return ['ok', $token];
     }
 
-    /**
-     * Resolve a pending-email-change token to its subscriber row.
-     * Tolerant of expired tokens (caller decides what to do based on
-     * `pending_email_requested_at`); returns null only when no row
-     * carries the token.
-     *
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     public function find_by_pending_email_token(string $token): ?array
     {
         if ($token === '') {
@@ -266,17 +208,6 @@ final class SubscriberRepository
         return is_array($row) ? $row : null;
     }
 
-    /**
-     * Apply a pending email-change: flip `email` to `pending_email`,
-     * clear the pending columns + token. Returns one of:
-     *   - 'ok'          — change applied
-     *   - 'expired'     — token TTL exceeded
-     *   - 'email_taken' — somebody else claimed the address in the meantime
-     *   - 'invalid'     — token didn't match any row, or no pending email
-     *
-     * `$ttl_seconds` caps how old `pending_email_requested_at` can be;
-     * default 24h.
-     */
     public function confirm_pending_email_change(string $token, int $ttl_seconds = DAY_IN_SECONDS): string
     {
         $row = $this->find_by_pending_email_token($token);
@@ -290,14 +221,9 @@ final class SubscriberRepository
         }
         $age = time() - (int) strtotime($requested_at . ' UTC');
         if ($age > $ttl_seconds) {
-            // Drop the stale request so the column isn't a lingering
-            // ghost for future requests.
             $this->cancel_pending_email_change((int) $row['id']);
             return 'expired';
         }
-        // Re-check the email-taken race: someone may have grabbed the
-        // address between request + confirm. Excludes the subscriber's
-        // own row from the collision check.
         $other = $this->find_by_email($new_email);
         if ($other !== null && (int) $other['id'] !== (int) $row['id']) {
             $this->cancel_pending_email_change((int) $row['id']);
@@ -366,15 +292,7 @@ final class SubscriberRepository
         return is_array($row) ? $row : null;
     }
 
-    /**
-     * Cron-friendly scan: pending subscribers whose last reminder was
-     * more than $interval_days ago (or never) AND whose reminder_count
-     * is below $max. Ordered by oldest-first so a partial-batch run
-     * picks up the longest-waiting subscribers next time. LIMIT keeps
-     * one tick bounded.
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    /** @return array<int, array<string, mixed>> */
     public function list_pending_for_reminder(int $first_after_days, int $interval_days, int $max_reminders, int $limit = 50): array
     {
         global $wpdb;
@@ -416,18 +334,7 @@ final class SubscriberRepository
         ));
     }
 
-    /**
-     * Paginated listing for the Subscribers admin view. `$status` filters
-     * by exact status; empty string returns every status EXCEPT trashed
-     * (the trashed tab uses status='trashed' explicitly). `$search` is a
-     * `LIKE '%term%'` match on email + name; empty disables it. `$list_id`
-     * > 0 narrows to subscribers that are explicit members of that list
-     * (the caller resolves system / all_subscribers / users-kind cases
-     * before passing here — `all_subscribers` should pass 0 + force
-     * status='confirmed'; users-kind should never reach this method).
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    /** @return array<int, array<string, mixed>> */
     public function list_with_filters(string $status, string $search, int $limit, int $offset, int $list_id = 0): array
     {
         global $wpdb;
@@ -456,12 +363,7 @@ final class SubscriberRepository
         return (int) $wpdb->get_var($wpdb->prepare($sql, ...$where_args));
     }
 
-    /**
-     * Returns map of `status → count` for the tab badges. `''` key holds
-     * the "all (non-trashed)" total — what the dashboard tile shows.
-     *
-     * @return array<string, int>
-     */
+    /** @return array<string, int> status→count; '' key = all non-trashed */
     public function counts_by_status(): array
     {
         global $wpdb;
@@ -492,10 +394,6 @@ final class SubscriberRepository
         return $counts;
     }
 
-    /**
-     * Admin-initiated trash. Stashes the current status into
-     * previous_status so Restore can flip back to it.
-     */
     public function trash(int $id, string $reason = 'admin'): void
     {
         $current = $this->find_by_id($id);
@@ -521,11 +419,6 @@ final class SubscriberRepository
         );
     }
 
-    /**
-     * Restore a trashed row to its previous_status (or 'pending' if the
-     * previous_status was somehow blanked). Clears the trash bookkeeping
-     * columns.
-     */
     public function restore(int $id): bool
     {
         $current = $this->find_by_id($id);
@@ -552,12 +445,7 @@ final class SubscriberRepository
         return true;
     }
 
-    /**
-     * Hard-delete one trashed row. Refuses to act on non-trashed rows
-     * — permanent delete should always be a two-step (trash → delete)
-     * to prevent admin slip-ups. The user_register promotion path uses
-     * the unconditional `delete()` method above instead.
-     */
+    // Refuses non-trashed rows — permanent delete is always a two-step (trash → delete).
     public function permanently_delete(int $id): bool
     {
         $current = $this->find_by_id($id);
@@ -568,11 +456,6 @@ final class SubscriberRepository
         return true;
     }
 
-    /**
-     * Hard-delete every trashed row. Returns the number of rows removed.
-     * No safeguard against very large batches — admins reviewing the
-     * trash know how much is in there before clicking "Empty".
-     */
     public function empty_trash(): int
     {
         global $wpdb;
@@ -580,11 +463,6 @@ final class SubscriberRepository
         return (int) $wpdb->query("DELETE FROM `$table` WHERE status = 'trashed'");
     }
 
-    /**
-     * Cron-side: hard-delete trashed rows older than `$days`. Bounded
-     * `LIMIT` keeps transaction size predictable on huge tables; the
-     * cron loops until 0 rows match.
-     */
     public function purge_old_trash(int $days, int $batch_limit = 500): int
     {
         if ($days <= 0) {
@@ -604,13 +482,6 @@ final class SubscriberRepository
         ));
     }
 
-    /**
-     * Sender-side lifetime stat bump, called from the Materializer per
-     * recipient row at send time. Increments total_sent +
-     * sends_since_engagement, stamps last_sent_at. Idempotent in the sense
-     * that it's safe to call twice — counters just rise; the cold filter
-     * tolerates both.
-     */
     public function bump_send_stats(int $id): void
     {
         if ($id <= 0) {
@@ -629,14 +500,6 @@ final class SubscriberRepository
         ));
     }
 
-    /**
-     * Engagement bump from the tracking endpoint. Either flag (opened /
-     * clicked) increments its lifetime counter; both update
-     * last_engagement_at. `reset_cold` decides whether
-     * sends_since_engagement zeroes — controlled by the caller (always
-     * resets on click, opens only when the admin trusts open signals
-     * enough to ignore Apple MPP inflation).
-     */
     public function bump_engagement(int $id, bool $opened, bool $clicked, bool $reset_cold): void
     {
         if ($id <= 0 || (!$opened && !$clicked)) {
@@ -661,13 +524,7 @@ final class SubscriberRepository
         ));
     }
 
-    /**
-     * Cold-subscribers query — anyone whose sends_since_engagement has
-     * climbed past the configured threshold without an engagement reset.
-     * Caller paginates with limit + offset.
-     *
-     * @return array<int, array<string, mixed>>
-     */
+    /** @return array<int, array<string, mixed>> */
     public function list_cold(int $threshold, int $limit = 50, int $offset = 0): array
     {
         global $wpdb;

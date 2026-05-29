@@ -4,28 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Forms\Upload;
 
-/**
- * Policy for inbound file uploads (file-upload form field type).
- *
- * Two layers of safety on top of admin configuration:
- *
- *  - **Tier 1 — permanent blacklist**: server-side executable formats that
- *    could RCE the host if the web server is misconfigured. Always rejected,
- *    no admin override.
- *  - **Tier 2 — opt-in blacklist**: formats that could XSS the admin browser
- *    (rendered as HTML/JS by content-type) or are client-side executables.
- *    Rejected unless the admin sets `allow_dangerous` on the field with an
- *    explicit "I understand" acknowledgement.
- *
- * Presets bundle sensible extension lists for common use cases so the inline
- * settings strip stays compact: admins pick a preset, optionally drop into
- * `custom` to type their own list.
- *
- * Server-side content-sniff via `wp_check_filetype_and_ext()` is the source
- * of truth for MIME — the hint maps here are advisory (used for the HTML5
- * `accept=` attribute on the file input and for sanity-check during inline
- * preview type decisions).
- */
+// Docs: docs/forms.md
 final class UploadPolicy
 {
     public const PRESET_IMAGES     = 'images';
@@ -37,19 +16,12 @@ final class UploadPolicy
     public const PRESET_ARCHIVES   = 'archives';
     public const PRESET_CUSTOM     = 'custom';
 
-    /** Per-field delivery modes — values for FileUploadField's `delivery` attr.
-     *  webserver = save to disk + email links to admin.
-     *  attachment = attach files to the notification email, no storage.
-     *  both = save AND attach (defense in depth). */
     public const DELIVERY_WEBSERVER  = 'webserver';
     public const DELIVERY_ATTACHMENT = 'attachment';
     public const DELIVERY_BOTH       = 'both';
 
     /**
-     * Server-executable formats. RCE risk if the host's web server misroutes
-     * one of these as a script (the .htaccess + gated download we ship are
-     * the first line of defense; the tier-1 reject is the second). Admin
-     * cannot override.
+     * Server-executable formats — always rejected, admin cannot override.
      *
      * @return list<string>
      */
@@ -64,10 +36,7 @@ final class UploadPolicy
     }
 
     /**
-     * Formats that can XSS the admin's browser when streamed inline, or are
-     * client-side executables (Windows binaries / installers / scripts).
-     * Override-able by admins who tick the field's `allow_dangerous`
-     * checkbox.
+     * XSS-risk / client-executable formats — allowed when `allow_dangerous` is set.
      *
      * @return list<string>
      */
@@ -100,9 +69,6 @@ final class UploadPolicy
     }
 
     /**
-     * Display label for the inline preset combobox. i18n-safe because every
-     * literal here is a __() call wrapped at this site for make-pot.
-     *
      * @return array<string, string> preset slug → translated label
      */
     public static function preset_labels(): array
@@ -120,9 +86,6 @@ final class UploadPolicy
     }
 
     /**
-     * Resolve a field config into its concrete extension whitelist.
-     * Always strips tier-1; strips tier-2 unless `$allow_dangerous` is set.
-     *
      * @return list<string> lowercase extensions, no dot prefix
      */
     public static function resolve_extensions(string $preset, string $custom_csv, bool $allow_dangerous): array
@@ -171,12 +134,6 @@ final class UploadPolicy
         return in_array(strtolower(ltrim($ext, '.')), self::tier2_extensions(), true);
     }
 
-    /**
-     * Render the HTML5 `accept` attribute value for an extensions list. We
-     * emit dotted extensions (`.pdf,.jpg`) rather than MIME globs because the
-     * extension form is more reliable across browsers and Safari has spotty
-     * support for `image/*` etc.
-     */
     public static function accept_attribute(array $exts): string
     {
         $out = [];
@@ -189,11 +146,6 @@ final class UploadPolicy
         return implode(',', $out);
     }
 
-    /**
-     * Hint mapping ext → MIME for cross-checking against
-     * `wp_check_filetype_and_ext()` results. Coarse but sufficient — content
-     * sniffing remains the truth.
-     */
     public static function mime_hint(string $ext): string
     {
         $ext = strtolower(ltrim($ext, '.'));

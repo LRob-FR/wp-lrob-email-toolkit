@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit;
 
-/**
- * Runs on plugin deactivation. Clears any scheduled cron events so they do not
- * fire and crash while the plugin's classes are unavailable. Does NOT drop any
- * data — that is handled by uninstall.php when the plugin is deleted.
- */
+// Docs: docs/core.md
 final class Deactivator
 {
     public static function deactivate(): void

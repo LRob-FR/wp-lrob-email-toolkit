@@ -6,28 +6,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 
 use LRob\EmailToolkit\Support\Events;
 
-/**
- * Public-side prefs page + one-click unsubscribe endpoint. Catches two
- * query params on init:
- *
- *   - `?lrob-etk-nl-prefs=<token>` — recipient management:
- *       GET  → render the prefs form.
- *       POST → save (or hard-unsub / forget-me for subscribers).
- *
- *   - `?lrob-etk-nl-unsub=<token>` — RFC 8058 one-click unsubscribe:
- *       POST (with body containing "List-Unsubscribe=One-Click") →
- *             flip the recipient out of everything immediately.
- *       GET  → fall back to the prefs page (some email clients open
- *             the URL in a browser tab; landing on the prefs form is
- *             friendlier than a bare "unsubscribed" page).
- *
- * Token is the opaque prefs_token stored on the subscribers row OR
- * on the WP user's lrob_etk_nl_prefs_token user_meta — the same
- * value embedded in `{{prefs_url}}` and `{{unsub_url}}` template
- * substitutions. No HMAC needed: the token itself is the secret
- * (24 random bytes, unguessable). Anyone holding it is treated as
- * the recipient.
- */
+// Docs: docs/newsletter-internals.md → "Prefs page + one-click unsubscribe"
 final class PrefsHandler
 {
     public const QUERY_PREFS = 'lrob-etk-nl-prefs';
@@ -68,13 +47,6 @@ final class PrefsHandler
         }
     }
 
-    /**
-     * Apply a pending email-change confirmation token. Four outcomes:
-     *   - ok          → flip email, dispatch the prefs page with a flash
-     *   - expired     → 24h elapsed; tell user to request again
-     *   - email_taken → race condition (rare); ask to pick another
-     *   - invalid     → unknown token; generic "link expired" page
-     */
     private function handle_confirm_email(string $token): void
     {
         $outcome = $this->subscribers->confirm_pending_email_change($token);
@@ -105,11 +77,6 @@ final class PrefsHandler
         }
     }
 
-    /**
-     * Render prefs (GET) or save updates (POST). On any submit-button
-     * we redirect back to the same URL with a flash so subsequent
-     * GETs show the post-action state without re-posting on reload.
-     */
     private function handle_prefs(string $token): void
     {
         $recipient = $this->resolve($token);
@@ -146,9 +113,6 @@ final class PrefsHandler
         $kind = $recipient['kind'];
         $id = (int) $recipient['id'];
 
-        // Hard-unsubscribe path (subscribers only) — keeps the row
-        // for audit but flips status. WP users can't reach this
-        // branch (the destructive section isn't rendered for them).
         if (isset($_POST['lrob_etk_nl_prefs_unsubscribe']) && $kind === UserMeta::KIND_SUBSCRIBER) {
             $this->subscribers->update_status($id, 'unsubscribed');
             $this->lists->detach_recipient(UserMeta::KIND_SUBSCRIBER, $id);
@@ -164,9 +128,6 @@ final class PrefsHandler
             );
         }
 
-        // Hard-delete path (subscribers only). Row goes to trashed
-        // status with previous_status recorded so the admin's Trash
-        // tab can see what happened.
         if (isset($_POST['lrob_etk_nl_prefs_forget']) && $kind === UserMeta::KIND_SUBSCRIBER) {
             $previous = (string) ($recipient['status'] ?? '');
             global $wpdb;
@@ -196,10 +157,6 @@ final class PrefsHandler
             );
         }
 
-        // Email-change paths (subscribers only). Request stages a new
-        // address + token + dispatches the dual-message confirmation;
-        // cancel drops the pending row. Both render their own status
-        // page and exit — never fall through to the list-sync save.
         if ($kind === UserMeta::KIND_SUBSCRIBER && !empty($_POST['lrob_etk_nl_request_email_change'])) {
             $this->handle_email_change_request($recipient);
         }
@@ -213,12 +170,6 @@ final class PrefsHandler
             exit;
         }
 
-        // Profile-field saves (subscribers only). The POST shape is
-        // `profile[<column>]=<value>` for every editable column. Every
-        // write goes through set_profile_field which whitelists against
-        // PROFILE_COLUMNS — POST tampering can't reach outside the
-        // profile schema. Email column is explicitly skipped here; the
-        // email-change confirm flow is the only way to flip it.
         if ($kind === UserMeta::KIND_SUBSCRIBER && isset($_POST['profile']) && is_array($_POST['profile'])) {
             $payload = wp_unslash($_POST['profile']);
             foreach ($payload as $column => $value) {
@@ -233,9 +184,6 @@ final class PrefsHandler
             }
         }
 
-        // Regular "save preferences" path: sync public-list memberships.
-        // Picker only exposes lists where visibility=public + kind=subscribers,
-        // so toggles on private / system / users lists silently no-op.
         $chosen_lists = isset($_POST['lrob_etk_nl_lists']) && is_array($_POST['lrob_etk_nl_lists'])
             ? array_map('intval', wp_unslash($_POST['lrob_etk_nl_lists']))
             : [];
@@ -246,11 +194,6 @@ final class PrefsHandler
         }
         $this->sync_public_list_memberships($kind, $id, $chosen_lists);
 
-        // Redirect back to wherever the form was rendered. The block /
-        // shortcode surfaces pass `_lrob_etk_nl_return_to` so the user
-        // lands back on the content page they came from instead of the
-        // standalone prefs page. wp_safe_redirect rejects off-host
-        // values, falling through to the home URL.
         $return_to = isset($_POST['_lrob_etk_nl_return_to'])
             ? (string) wp_unslash((string) $_POST['_lrob_etk_nl_return_to'])
             : '';
@@ -261,12 +204,6 @@ final class PrefsHandler
         exit;
     }
 
-    /**
-     * RFC 8058 one-click unsubscribe. POST means the email client
-     * fired the one-click action directly; flip the recipient out
-     * of everything. GET falls back to the prefs page so a user
-     * landing the link in a browser sees the friendlier UI.
-     */
     private function handle_unsub(string $token): void
     {
         $recipient = $this->resolve($token);
@@ -279,8 +216,6 @@ final class PrefsHandler
 
         $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
         if ($method !== 'POST') {
-            // Browser landed on the URL — show prefs UI rather than
-            // silently unsubscribing on a casual click.
             $this->render_prefs_page($recipient, $token, true);
         }
 
@@ -307,13 +242,6 @@ final class PrefsHandler
         exit;
     }
 
-    /**
-     * Stage an email-change request from the subscriber's prefs page.
-     * Validates the new address, persists the pending state + token,
-     * fires the dual-message dispatcher (confirm to new, notice to old).
-     * Renders a self-contained status page on every outcome — never
-     * falls through to the list-sync save.
-     */
     private function handle_email_change_request(array $recipient): void
     {
         $id = (int) $recipient['id'];
@@ -362,20 +290,10 @@ final class PrefsHandler
         );
     }
 
-    /**
-     * Replace the recipient's PUBLIC list memberships with the chosen
-     * set: add any new ones, remove any that were dropped. Private +
-     * system + users-kind lists are scoped out — subscribers can only
-     * toggle their own membership on lists explicitly marked
-     * visibility=public, so the picker is the trust boundary AND the
-     * sync logic guards the same set server-side.
-     */
     private function sync_public_list_memberships(string $kind, int $id, array $chosen_list_ids): void
     {
         $public_lists = $this->lists->list_public_for_subscribers();
         $public_ids = array_map(static fn ($l) => (int) $l['id'], $public_lists);
-        // Clip the chosen set to the public-visible set — anything else
-        // is either ignorance (an old form field) or tampering.
         $chosen_list_ids = array_values(array_intersect(
             array_map('intval', $chosen_list_ids),
             $public_ids
@@ -392,10 +310,6 @@ final class PrefsHandler
         }
     }
 
-    /**
-     * Build the renderer state + emit the full prefs page. Two-tone
-     * banner: green "Saved" flash on ?saved=1, neutral otherwise.
-     */
     private function render_prefs_page(array $recipient, string $token, bool $from_unsub_link = false): void
     {
         $state = $this->build_state($recipient);
@@ -472,9 +386,6 @@ final class PrefsHandler
     }
 
     /**
-     * Build the renderer state from a resolved recipient + the
-     * public list catalogue.
-     *
      * @param array<string, mixed> $recipient
      * @return array<string, mixed>
      */
@@ -491,9 +402,6 @@ final class PrefsHandler
         $lists = $this->lists->list_public_for_subscribers();
         $member_ids = $this->lists->memberships_for_recipient($kind, $id);
 
-        // Subscriber-only profile snapshot — populates the editable
-        // form fields on the prefs page. WP users edit their own
-        // profile via the WP profile page, so we skip this for them.
         $profile = [];
         $pending_email = '';
         if ($kind === UserMeta::KIND_SUBSCRIBER) {
@@ -528,14 +436,7 @@ final class PrefsHandler
         ];
     }
 
-    /**
-     * Resolve a prefs token to a recipient. Tries subscribers first
-     * (more common path, single indexed query), falls back to WP-
-     * user user_meta (less efficient but rarer). Returns null when
-     * neither matches.
-     *
-     * @return array<string, mixed>|null
-     */
+    /** @return array<string, mixed>|null */
     private function resolve(string $token): ?array
     {
         if ($token === '') {
@@ -567,10 +468,6 @@ final class PrefsHandler
         return null;
     }
 
-    /**
-     * Self-contained acknowledgment page (token expired, unsubscribe
-     * done, etc.). Same shape as ConfirmationHandler's render_page.
-     */
     private static function render_message(string $title, string $body): never
     {
         nocache_headers();

@@ -1,15 +1,5 @@
 /* LRob — Email Toolkit · Newsletter admin auto-save
- *
- * Listens to blur/change on every input/select/textarea carrying the
- * `lrob-etk-nl-field` class on the Newsletter Forms admin views. Sends
- * { form_id, key, value } to the AjaxController's save-meta endpoint
- * (or save-title via the dedicated `title` key path).
- *
- * Status indicator: each input may have a sibling `.lrob-etk-card-status`
- * element; we flash saving / saved / error states on it.
- *
- * Mirrors the Contact Form admin auto-save pattern but doesn't bundle the
- * combobox / recipient picker UI — newsletter forms don't have those.
+ * Docs: docs/newsletter-internals.md → "Admin JS overview"
  */
 (function () {
     var ADMIN = window.lrobEtkNlAdmin || {};
@@ -28,13 +18,6 @@
         var key = el.getAttribute('data-key');
         if (!key) return;
 
-        // Four save dispatches:
-        //   - newsletter-card meta: requires a [data-newsletter-id] ancestor.
-        //   - form-card meta: requires a [data-form-id] ancestor.
-        //   - resource renames (category/list): carry data-resource-id
-        //     instead, no form/newsletter id.
-        //   - module setting saves: carry their option key as the value
-        //     of data-option-key, no form/newsletter id either.
         var isResourceRename = (key === 'rename-category' || key === 'rename-list');
         var isSettingSave = (el.getAttribute('data-option-key') !== null);
         var formId = 0;
@@ -51,7 +34,6 @@
             }
         }
 
-        // Only save changed values; track on focus and compare on blur.
         if (e.type === 'blur') {
             if (typeof el.__original === 'undefined' || el.__original === el.value) {
                 el.__original = el.value;
@@ -80,8 +62,6 @@
         var optionKey = sourceEl.getAttribute('data-option-key');
         var valueToSend = sourceEl.type === 'checkbox' ? (sourceEl.checked ? '1' : '0') : sourceEl.value;
         if (optionKey) {
-            // Module setting save — option name lives on data-option-key,
-            // value is the field's current value.
             fd.append('action', 'lrob_etk_nl_setting_save');
             fd.append('_nonce', ADMIN.nonce);
             fd.append('key', optionKey);
@@ -100,7 +80,6 @@
             fd.append('id', resourceId);
             fd.append('name', sourceEl.value);
         } else if (newsletterId) {
-            // Newsletter-card meta save.
             fd.append('action', ACTIONS.saveNewsletterMeta || 'lrob_etk_nl_newsletter_save_meta');
             fd.append('_nonce', ADMIN.nonce);
             fd.append('newsletter_id', newsletterId);
@@ -120,10 +99,6 @@
                 if (resp && resp.success) {
                     sourceEl.__original = sourceEl.value;
                     setStatus(statusEl, 'saved', null, sourceEl);
-                    // Emit a save-complete event so per-card scripts can
-                    // react (e.g. refresh the recipients count after an
-                    // audience change). Detail carries newsletterId so
-                    // listeners can target the right card.
                     if (newsletterId) {
                         document.dispatchEvent(new CustomEvent('lrob-etk-nl-saved', {
                             detail: { newsletterId: newsletterId, key: key }
@@ -137,19 +112,12 @@
     }
 
     function findStatusEl(sourceEl) {
-        // Walk up to the nearest header/section/card and find the first
-        // .lrob-etk-card-status inside. Lets us share one status indicator
-        // per card without per-input data attributes.
         var ancestor = sourceEl.closest('header, section, article, .lrob-etk-nl-form-edit');
         if (!ancestor) return null;
         return ancestor.querySelector('.lrob-etk-card-status');
     }
 
     function setStatus(el, state, detail, sourceEl) {
-        // Bubble for any enclosing .lrob-etk-modal (list / category /
-        // settings modal) to mirror on its header badge. Use sourceEl
-        // when supplied (the field itself bubbles even when there's no
-        // per-card status element), falling back to the status badge.
         var emitter = sourceEl || el;
         if (emitter && emitter.dispatchEvent) {
             emitter.dispatchEvent(new CustomEvent('lrob-etk:save-status', {

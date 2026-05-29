@@ -1,15 +1,4 @@
-/* LRob Email Toolkit — frontend form submission
- *
- * Drives every form rendered with .lrob-etk-form (both Contact Form
- * and Newsletter subscribe forms). Plain vanilla JS, no deps. The
- * form's own hidden `action` input drives the WP AJAX action, so this
- * script is host-neutral — both modules emit their own AJAX endpoint
- * name and the same JS submits to whichever one the form requests.
- *
- * Submits via fetch to admin-ajax, locks the submit button while
- * in-flight, surfaces per-field errors returned by the server, and
- * shows the success / error banner above the form.
- */
+/* Docs: docs/forms.md */
 (function () {
     'use strict';
 
@@ -38,18 +27,12 @@
             return;
         }
 
-        // Invisible captcha: no visible widget — trigger the challenge now and
-        // resume submission once the vendor fires our callback with a token.
-        // On the resumed pass the response field is filled, so this guard is
-        // skipped and the normal fetch runs.
         var invisible = form.querySelector('[data-lrob-etk-invisible]');
         if (invisible && !invisibleTokenReady(form, invisible)) {
             runInvisibleCaptcha(form, invisible);
             return;
         }
 
-        // reCAPTCHA v3: no widget — fetch a score token via grecaptcha.execute()
-        // then resume. Same resume/fail plumbing as the invisible path.
         var recaptchaV3 = form.querySelector('[data-lrob-etk-recaptcha-v3]');
         if (recaptchaV3 && !recaptchaV3TokenReady(recaptchaV3)) {
             runRecaptchaV3(form, recaptchaV3);
@@ -67,7 +50,6 @@
         form.classList.add('is-busy');
 
         var fd = new FormData(form);
-        // The form already has action=lrob_etk_cf_submit as a hidden input.
         joinPhonesInto(fd, form);
 
         fetch(AJAX_URL, {
@@ -76,10 +58,6 @@
             body: fd
         })
             .then(function (r) {
-                // Read as text first so we can show what came back if it
-                // isn't JSON (e.g. PHP printed an error before the JSON
-                // body), instead of failing silently to the generic
-                // "Something went wrong" message.
                 return r.text().then(function (txt) {
                     try { return JSON.parse(txt); }
                     catch (e) {
@@ -118,8 +96,7 @@
         }
         var topMsg = data.message || I18N.unknownError || 'Error';
         showStatus(form, 'error', topMsg);
-        // reCAPTCHA v3 tokens are single-use + short-lived; drop a spent token
-        // so the next submit fetches a fresh one instead of replaying a stale one.
+        // Drop spent reCAPTCHA v3 token so the next submit fetches a fresh one.
         var v3 = form.querySelector('[data-lrob-etk-recaptcha-v3] input[type="hidden"]');
         if (v3) v3.value = '';
     }
@@ -231,18 +208,13 @@
     function discoverAndInit() {
         var forms = document.querySelectorAll('.lrob-etk-form');
         Array.prototype.forEach.call(forms, init);
-        // Country pickers can live inside .lrob-etk-form OR in the admin
-        // form-builder preview (which uses .lrob-etk-form.is-editor) —
-        // scan the whole document so both contexts are covered.
         var pickers = document.querySelectorAll('.lrob-etk-form-phone[data-country-picker]');
         Array.prototype.forEach.call(pickers, attachPicker);
-        // File-upload fields: replace the hidden native input UX with a
-        // visible button + selected-files list.
         var fileEls = document.querySelectorAll('.lrob-etk-form-file[data-file-upload]');
         Array.prototype.forEach.call(fileEls, attachFileUpload);
     }
 
-    // --- Country picker (phone field) ----------------------------------
+    // --- Country picker ---
     var COUNTRY_LIST = (DATA.countries || []).slice();
     var COUNTRY_BY_ISO = (function () {
         var m = {};
@@ -261,8 +233,6 @@
         var telInput     = el.querySelector('[data-phone-number]');
         if (!trigger || !flagEl || !dialEl || !countryInput || !telInput) return;
 
-        // Build menu lazily on first open; place a hidden container now so
-        // CSS positioning is stable on first click.
         var menu = document.createElement('div');
         menu.className = 'lrob-etk-form-phone-menu';
         menu.hidden = true;
@@ -328,8 +298,6 @@
             close();
             try { telInput.focus(); } catch (err) {}
         });
-        // Outside click — but only on real visitor pages; the editor stub
-        // is itself inside a clickable shell that we don't want to fight.
         document.addEventListener('click', function (e) {
             if (!menu.hidden && !el.contains(e.target)) close();
         });
@@ -344,16 +312,12 @@
     }
 
     function detectCountryFromBrowser() {
-        // Visitor's UI language is typically `xx-YY`; YY is the ISO-2.
         var lang = (navigator.language || '');
         var m = lang.match(/^[a-z]{2,3}-([A-Z]{2})/i);
         if (m && COUNTRY_BY_ISO[m[1].toUpperCase()]) return m[1].toUpperCase();
         return null;
     }
 
-    // On submit, prefix each picker's tel value with `+<dial>` in the
-    // outgoing FormData. The visible input keeps the user-friendly
-    // national format on-screen; only the server sees E.164.
     function joinPhonesInto(fd, form) {
         var pickers = form.querySelectorAll('.lrob-etk-form-phone[data-country-picker]');
         Array.prototype.forEach.call(pickers, function (picker) {
@@ -376,15 +340,12 @@
     }
     function escAttr(s) { return String(s).replace(/"/g, '&quot;'); }
 
-    // Expose a tiny API so the admin form-builder preview can call
-    // attachPicker on freshly-rebuilt picker shells (after toggling
-    // country_picker on/off).
     window.lrobEtkPhone = {
         attach: attachPicker,
         joinForSubmit: joinPhonesInto,
     };
 
-    // --- File upload field (client-side UX + pre-validate) -------------
+    // --- File upload ---
     function attachFileUpload(el) {
         if (el.__lrobEtkFileBound) return;
         el.__lrobEtkFileBound = true;
@@ -394,11 +355,7 @@
         var list = el.querySelector('[data-file-list]');
         if (!input || !trigger || !list) return;
 
-        // Native file input is hidden — the visible label IS the trigger,
-        // but on browsers that ignore label-for-input we wire a click too.
         trigger.addEventListener('click', function (e) {
-            // Default: <label for> already triggers the input. Avoid double-
-            // open on browsers that DO fire the label click.
             if (e.target.tagName === 'INPUT') return;
         });
 
@@ -445,7 +402,6 @@
         }
         list.innerHTML = html;
 
-        // Surface validation errors on the field's existing error placeholder.
         var fieldWrap = el.closest('.lrob-etk-form-field');
         var errEl = fieldWrap ? fieldWrap.querySelector('[data-field-error]') : null;
         if (errEl) {
@@ -467,11 +423,7 @@
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 
-    // --- Invisible captcha (hCaptcha) ----------------------------------
-    // The widget renders nothing; on submit we call the vendor's execute()
-    // and wait for its declarative callback (data-callback on the widget) to
-    // fire — at which point the response field is populated and we re-submit
-    // the form, which then sails past the invisible guard into the fetch.
+    // --- Invisible captcha ---
     var pendingInvisibleForm = null;
 
     function invisibleTokenReady(form, fieldEl) {
@@ -482,11 +434,10 @@
     }
 
     function runInvisibleCaptcha(form, fieldEl) {
-        if (pendingInvisibleForm === form) return; // already executing
+        if (pendingInvisibleForm === form) return;
         var globalName = fieldEl.getAttribute('data-lrob-etk-global');
         var api = globalName ? window[globalName] : null;
         if (!api || typeof api.execute !== 'function') {
-            // Vendor script still loading — retry briefly, then give up.
             form.__invisibleRetries = (form.__invisibleRetries || 0) + 1;
             if (form.__invisibleRetries > 25) {
                 form.__invisibleRetries = 0;
@@ -499,7 +450,7 @@
         form.__invisibleRetries = 0;
         pendingInvisibleForm = form;
         var submitBtn = form.querySelector('.lrob-etk-form-submit');
-        if (submitBtn) submitBtn.disabled = true; // brief lock during execute
+        if (submitBtn) submitBtn.disabled = true;
         var widget = fieldEl.querySelector('[data-hcaptcha-widget-id]');
         var widgetId = widget ? widget.getAttribute('data-hcaptcha-widget-id') : null;
         try {
@@ -516,7 +467,7 @@
         pendingInvisibleForm = null;
         if (!form) return;
         var submitBtn = form.querySelector('.lrob-etk-form-submit');
-        if (submitBtn) submitBtn.disabled = false; // let the real submit re-lock
+        if (submitBtn) submitBtn.disabled = false;
         if (typeof form.requestSubmit === 'function') {
             form.requestSubmit();
         } else {
@@ -533,20 +484,18 @@
         showStatus(form, 'error', I18N.captchaFailed || I18N.unknownError || 'Error');
     }
 
-    // Referenced declaratively by the widget (data-callback / -error-callback
-    // / -expired-callback) emitted in AbstractHostedCaptcha::render.
     window.lrobEtkInvisibleResolve = resumeInvisibleSubmit;
     window.lrobEtkInvisibleFailed = failInvisible;
     window.lrobEtkInvisibleExpired = function () { pendingInvisibleForm = null; };
 
-    // --- reCAPTCHA v3 (score) ------------------------------------------
+    // --- reCAPTCHA v3 ---
     function recaptchaV3TokenReady(fieldEl) {
         var hidden = fieldEl.querySelector('input[type="hidden"]');
         return !!(hidden && hidden.value);
     }
 
     function runRecaptchaV3(form, fieldEl) {
-        if (pendingInvisibleForm === form) return; // already executing
+        if (pendingInvisibleForm === form) return;
         var api = window.grecaptcha;
         if (!api || typeof api.execute !== 'function' || typeof api.ready !== 'function') {
             form.__v3Retries = (form.__v3Retries || 0) + 1;
@@ -584,7 +533,6 @@
     } else {
         discoverAndInit();
     }
-    // Also watch for forms inserted later (e.g. in modal popovers).
     if ('MutationObserver' in window) {
         new MutationObserver(function () { discoverAndInit(); })
             .observe(document.documentElement, { childList: true, subtree: true });

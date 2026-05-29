@@ -6,21 +6,7 @@ namespace LRob\EmailToolkit\Modules\Captcha\Challenges;
 
 use LRob\EmailToolkit\Forms\FormContext;
 
-/**
- * "Pick the picture of a tree" with 6 small SVG icons. The user clicks
- * one; the server verifies the chosen position matches an HMAC-signed
- * expected position. 20 concepts in the pool — target + 5 random decoys
- * picked per render, all shuffled into 6 positions.
- *
- * SVGs are inline (no separate assets), single-color (currentColor), and
- * carry no machine-readable labels (aria-hidden) so OCR/automation can't
- * just read the answer from accessibility metadata. Trade-off: this is
- * NOT accessible to screen-reader users — admins serving such audiences
- * should pick MathChallenge instead. Admin description flags this.
- *
- * Token format: base64url("$position:$nonce") || '.' || hex(HMAC-SHA256).
- * Same signing-key fallback chain as MathChallenge.
- */
+// Docs: docs/captcha.md → "Homemade challenge tokens". Not screen-reader friendly — description flags this.
 final class ImageChallenge implements ChallengeInterface
 {
     public const TOKEN_FIELD = '_lrob_etk_cf_img_token';
@@ -185,14 +171,7 @@ final class ImageChallenge implements ChallengeInterface
         return $decoded === false ? null : $decoded;
     }
 
-    /**
-     * Pool of 20 distinct concepts, each with a translatable label and an
-     * inline SVG silhouette. SVGs use `currentColor` so the editor's
-     * accent inherits the theme, viewBox 0 0 24 24 keeps them crisp at any
-     * size we display them. Adding a 21st: append here, no other changes.
-     *
-     * @return array<string, array{label:string, svg:string}>
-     */
+    /** @return array<string, array{label:string, svg:string}> */
     private function concept_pool(): array
     {
         $svg = static fn(string $body): string =>

@@ -4,21 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\SMTP;
 
-/**
- * Decides which "source" the current wp_mail() call belongs to so the
- * MailRouter can pick the right identity. Sources are open-ended strings;
- * the built-ins are the four declared as constants below. Plugins or other
- * modules can introduce new sources by pushing them on the stack or by
- * filtering `lrob_etk_smtp_source`.
- *
- * Resolution order:
- *   1. The most recently pushed explicit source (via push()/pop()), if any.
- *   2. Auto-detection (WooCommerce mail context).
- *   3. Built-in default 'default'.
- *
- * Every value is then run through the `lrob_etk_smtp_source` filter so it
- * can be overridden globally.
- */
+// Docs: docs/smtp.md
 final class SourceResolver
 {
     public const SOURCE_DEFAULT = 'default';
@@ -32,10 +18,7 @@ final class SourceResolver
     /** @var array<int, string> stack of pushed sources */
     private static array $stack = [];
 
-    /**
-     * Declare that the next wp_mail() (until pop()) belongs to a particular
-     * source. Always pair with pop() — prefer try/finally to guarantee it.
-     */
+    /** Always pair with pop() — prefer try/finally or use with(). */
     public static function push(string $source): void
     {
         self::$stack[] = $source;
@@ -47,9 +30,6 @@ final class SourceResolver
     }
 
     /**
-     * Helper: run $callback with $source pushed, automatically popping after.
-     * Use this when convenient — `SourceResolver::with('newsletter', fn() => wp_mail(...));`
-     *
      * @template T
      * @param callable(): T $callback
      * @return T
@@ -74,8 +54,6 @@ final class SourceResolver
         return is_string($filtered) && $filtered !== '' ? $filtered : self::SOURCE_DEFAULT;
     }
 
-    // Fallback when the WC-callback wrapper hasn't pushed 'woocommerce' onto
-    // the stack (e.g. mail sent from a different action lifecycle).
     private function auto_detect(): string
     {
         if (function_exists('did_action') && (

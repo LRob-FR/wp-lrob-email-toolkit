@@ -4,21 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Logging;
 
-/**
- * Persists copies of outbound email attachments under
- * `uploads/lrob-etk-logs/` so a logged email can be re-sent later with its
- * files intact (wp_mail attachments are usually transient temp files that
- * vanish after the request). Opt-in per SMTP identity via the
- * "Save attachments locally" toggle.
- *
- * Path shape: `lrob-etk-logs/<YYYY>/<MM>/<hex8>_<sanitized>`. A strict
- * `.htaccess` is written at the root on first write (Apache deny + no
- * indexes + PHP engine off), mirroring the Contact Form upload store.
- *
- * Stored absolute paths land in the log row's `attachments` JSON; the
- * Resender re-attaches by resolving each path on disk. `is_managed()` lets
- * the repository delete only files this store owns when a log row is purged.
- */
+// Docs: docs/logging.md
 final class AttachmentStore
 {
     public const ROOT_DIR = 'lrob-etk-logs';

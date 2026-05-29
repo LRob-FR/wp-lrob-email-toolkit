@@ -4,21 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
-/**
- * Stateless HMAC-signed tokens for the confirm / refuse URLs sent in
- * double-opt-in emails. Format: `<subscriber_id>.<base64url(hmac)>`.
- *
- *   - Subject of the HMAC is `<id>:<action>` where action is 'confirm'
- *     or 'refuse'. Two distinct token families per subscriber so a
- *     confirm token can't be replayed as a refuse and vice versa.
- *   - Secret derives from AUTH_KEY via HKDF-SHA256 with a newsletter-
- *     specific info tag. Rotating AUTH_KEY invalidates every
- *     outstanding token — acceptable since the recipient can request
- *     a new confirmation by re-signing up.
- *   - 30-byte signature truncated to 22 base64url chars. Plenty of
- *     entropy to make brute-force impossible within the token's life;
- *     short enough that the URL stays paste-friendly.
- */
+// Docs: docs/newsletter-internals.md → "Confirmation tokens"
 final class ConfirmationTokens
 {
     public const ACTION_CONFIRM = 'confirm';
@@ -34,12 +20,6 @@ final class ConfirmationTokens
         return $subscriber_id . '.' . $sig;
     }
 
-    /**
-     * Verify a token + action and return the subscriber id it points
-     * at, or 0 on any failure (bad format, bad signature, unknown
-     * action). hash_equals guards against timing attacks even though
-     * the secret is short.
-     */
     public static function verify(string $token, string $action): int
     {
         if ($token === '') {
@@ -69,12 +49,6 @@ final class ConfirmationTokens
         return rtrim(strtr(base64_encode($hmac), '+/', '-_'), '=');
     }
 
-    /**
-     * Derive a stable per-deployment secret from AUTH_KEY. Falls back
-     * to NONCE_SALT if AUTH_KEY is the WP-default placeholder, and
-     * raises if neither is configured — the URLs would be forgeable
-     * otherwise.
-     */
     private static function secret(): string
     {
         $material = defined('AUTH_KEY') ? (string) AUTH_KEY : '';

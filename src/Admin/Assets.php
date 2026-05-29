@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Admin;
 
-/**
- * Enqueues shared admin assets (CSS) and a tooltip driver that escapes
- * scroll/modal clipping by using position: fixed with JS-computed coordinates.
- */
+/** Enqueues shared admin assets. Load positions + version strategy in docs/admin-ui.md. */
 final class Assets
 {
     public const HANDLE_BASE       = 'lrob-etk-admin-base';
@@ -47,8 +44,7 @@ final class Assets
             return;
         }
 
-        // Chained dependencies preserve cascade order: each file lists the
-        // previous handle as a dep so WordPress enqueues them in this order.
+        // Chained deps preserve cascade order.
         $deps = [];
         foreach (self::STYLE_FILES as $handle => $relative_path) {
             wp_enqueue_style(
@@ -60,12 +56,7 @@ final class Assets
             $deps = [$handle];
         }
 
-        // Shared admin UI components (combobox). Every toolkit page may use
-        // them, so we load once here instead of per-module. Loaded in
-        // <head> — the SMTP identity card's inline <script> runs mid-body
-        // and synchronously calls lrobEtkControls.attachCombobox, so this
-        // global has to exist before the body parses. Moving back to the
-        // footer silently breaks every dropdown on the SMTP card.
+        // Head-loaded: SMTP identity card calls lrobEtkControls.attachCombobox synchronously mid-body.
         wp_enqueue_script(
             self::HANDLE_CONTROLS_JS,
             LROB_ETK_URL . 'admin/js/etk-controls.js',
@@ -74,10 +65,6 @@ final class Assets
             false
         );
 
-        // Shared filter-form ⇄ list-region AJAX helper. Used by the
-        // Submissions inbox + Email Logs list (both have a filter form
-        // and a swap-able results region with identical mechanics).
-        // ~5KB, footer-loaded.
         wp_enqueue_script(
             self::HANDLE_LIST_FILTER_JS,
             LROB_ETK_URL . 'admin/js/etk-list-filter.js',
@@ -85,10 +72,6 @@ final class Assets
             self::asset_version('admin/js/etk-list-filter.js'),
             true
         );
-        // Shared sortable-column helper. Pairs with etk-list-filter:
-        // clicks on `<th data-sort-key>` write hidden `orderby/order`
-        // inputs, the next reload picks them up. Cookie persists the
-        // chosen sort per table across page reloads.
         wp_enqueue_script(
             self::HANDLE_SORTABLE_JS,
             LROB_ETK_URL . 'admin/js/etk-sortable.js',
@@ -103,9 +86,6 @@ final class Assets
             self::asset_version('admin/js/etk-perpage.js'),
             true
         );
-        // Shared detail-modal helper (overlay opened by clicking a row).
-        // Powers both the submissions inbox modal and the email logs
-        // detail modal. Tiny vanilla JS, footer-loaded.
         wp_enqueue_script(
             self::HANDLE_DETAIL_MODAL_JS,
             LROB_ETK_URL . 'admin/js/etk-detail-modal.js',
@@ -113,10 +93,6 @@ final class Assets
             self::asset_version('admin/js/etk-detail-modal.js'),
             true
         );
-        // Shared "auto-delete after N days" widget — Admin\RetentionToggle
-        // renders it, both the Contact Form Storage modal and the Email
-        // Logs Storage modal use it. Footer-loaded; piggybacks on each
-        // module's existing data-key auto-save plumbing.
         wp_enqueue_script(
             self::HANDLE_RETENTION_TOGGLE_JS,
             LROB_ETK_URL . 'admin/js/etk-retention-toggle.js',
@@ -124,10 +100,7 @@ final class Assets
             self::asset_version('admin/js/etk-retention-toggle.js'),
             true
         );
-        // Shared modal opener — drives every header-button-triggered
-        // .lrob-etk-modal (CF Defaults, CF Storage, Logs Storage, …).
-        // Must load in head: pages inline mid-body scripts that call
-        // window.lrobEtkModal.bindHeader(...) synchronously.
+        // Head-loaded: mid-body scripts call window.lrobEtkModal.bindHeader synchronously.
         wp_enqueue_script(
             self::HANDLE_MODAL_JS,
             LROB_ETK_URL . 'admin/js/etk-modal.js',
@@ -140,9 +113,6 @@ final class Assets
             'saved'  => __('Saved', 'lrob-email-toolkit'),
             'error'  => __('Save failed', 'lrob-email-toolkit'),
         ]);
-        // Shared per-key autosave for settings cards (status badge +
-        // debounce + lastSent tracking). Footer is fine — consumers
-        // wrap their attach() call in DOMContentLoaded.
         wp_enqueue_script(
             self::HANDLE_AUTOSAVE_JS,
             LROB_ETK_URL . 'admin/js/etk-autosave.js',
@@ -150,10 +120,7 @@ final class Assets
             self::asset_version('admin/js/etk-autosave.js'),
             true
         );
-        // Shared in-modal confirm() replacement — every destructive admin
-        // action across the plugin funnels through window.lrobEtkConfirm.
-        // Head-loaded so mid-body inline scripts can use it without
-        // wrapping in DOMContentLoaded.
+        // Head-loaded: mid-body inline scripts may use window.lrobEtkConfirm.
         wp_enqueue_script(
             self::HANDLE_CONFIRM_JS,
             LROB_ETK_URL . 'admin/js/etk-confirm.js',
@@ -162,11 +129,6 @@ final class Assets
             false
         );
 
-        // LRob promo strip — rotating sponsor message at the bottom of every
-        // toolkit page (brand-shared with the other LRob plugins). Footer JS
-        // paints + rotates it from the localized pool; the <aside> host is
-        // printed via admin_footer below so it lands on every page without
-        // editing each page's render().
         wp_enqueue_script(
             self::HANDLE_PROMO_JS,
             LROB_ETK_URL . 'admin/js/etk-promo.js',
@@ -180,11 +142,7 @@ final class Assets
         ]);
 
         add_action('admin_footer', [self::class, 'print_tooltip_script']);
-        // in_admin_footer (not admin_footer) so the strip prints INSIDE
-        // #wpbody-content — i.e. within the admin-menu offset + where the
-        // .lrob-etk token scope can apply. admin_footer is outside #wpcontent,
-        // which left the strip unstyled (tokens undefined) and sliding under
-        // the sidebar.
+        // in_admin_footer (not admin_footer): inside #wpbody-content where .lrob-etk tokens apply.
         add_action('in_admin_footer', [PromoStrip::class, 'render']);
     }
 
@@ -193,14 +151,10 @@ final class Assets
         ?>
         <script>
         (function () {
-            // Tooltip handling: hover, focus, and click-to-stick.
-            // Tooltips use position:fixed with JS-computed coordinates so they
-            // escape clipping from any scrollable ancestor (modals, sidebars).
-
             function showTip(tipEl) {
                 var text = tipEl.querySelector('.lrob-etk-tip-text');
                 if (!text) return;
-                // Make visible first so we can measure
+                // Make visible first to measure dimensions.
                 text.classList.add('is-shown');
                 positionTip(tipEl, text);
             }
@@ -226,17 +180,17 @@ final class Assets
                 var vh = window.innerHeight;
                 var margin = 8;
 
-                // Vertical: prefer above; flip below if not enough room above.
+                // Prefer above; flip below if not enough room.
                 var top = iconRect.top - textRect.height - margin;
                 if (top < margin) {
                     top = iconRect.bottom + margin;
-                    // If still overflows bottom, clamp to viewport.
+
                     if (top + textRect.height > vh - margin) {
                         top = Math.max(margin, vh - textRect.height - margin);
                     }
                 }
 
-                // Horizontal: center on icon, clamp to viewport.
+                // Center horizontally on icon, clamp to viewport.
                 var left = iconRect.left + iconRect.width / 2 - textRect.width / 2;
                 if (left < margin) left = margin;
                 if (left + textRect.width > vw - margin) {
@@ -279,7 +233,7 @@ final class Assets
                     hideAll();
                 }
             });
-            // Re-position open sticky tooltips on scroll/resize so they don't drift.
+            // Reposition open sticky tooltips on scroll/resize.
             window.addEventListener('scroll', function () {
                 Array.prototype.forEach.call(document.querySelectorAll('.lrob-etk-tip.is-open'), function (tip) {
                     var text = tip.querySelector('.lrob-etk-tip-text');
@@ -302,21 +256,13 @@ final class Assets
         return str_contains($hook_suffix, 'lrob-etk');
     }
 
-    /**
-     * Cache-busting version string: plugin version + file mtime. The mtime
-     * suffix means every CSS/JS edit produces a different `?ver=…` so
-     * browsers fetch fresh — no version bump required, no stale-cache
-     * surprise when we re-zip the same release with a fix.
-     */
+    /** Version = plugin version + filemtime so every edit busts the cache without a version bump. */
     private static function asset_version(string $relative_path): string
     {
         return self::asset_version_for($relative_path);
     }
 
-    /**
-     * Public version of asset_version() so per-module enqueuers reuse the
-     * same cache-busting scheme.
-     */
+    /** Public version for per-module enqueuers. */
     public static function asset_version_for(string $relative_path): string
     {
         $version = LROB_ETK_VERSION;

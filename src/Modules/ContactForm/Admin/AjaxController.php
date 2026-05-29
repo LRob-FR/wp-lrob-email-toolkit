@@ -10,17 +10,7 @@ use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\Settings;
 use LRob\EmailToolkit\Modules\ContactForm\TemplateRegistry;
 
-/**
- * Single admin-AJAX endpoint that backs the auto-save on every interactive
- * form card. The card JS sends one field at a time — `key` says which
- * setting and `value` is the new value. We dispatch to the right post_meta
- * or post_title update.
- *
- * Whitelist-based: any unknown key is rejected so the endpoint can never
- * be coerced into writing arbitrary meta or post fields. Empty/sentinel
- * values are persisted as-is — they mean "inherit the global default"
- * (see Settings::effective_*).
- */
+// Docs: docs/contact-form.md — whitelist-only; unknown keys rejected; sentinels persisted as-is.
 final class AjaxController
 {
     public const ACTION_SAVE_META = 'lrob_etk_cf_save_meta';
@@ -80,13 +70,7 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_SAVE_DEFAULT, [$this, 'handle_save_default']);
     }
 
-    /**
-     * Auto-save endpoint for the global Defaults section. Same key/value
-     * shape as save_meta but writes to the contact-form settings option
-     * instead of post_meta. We merge into the current settings array
-     * (rather than passing just one key to Settings::save, which would
-     * reset every other key to its default).
-     */
+    // Merges into current settings (not a full-replace save) so other keys retain their stored values.
     public function handle_save_default(): void
     {
         if (!current_user_can(Activator::CAPABILITY)) {
@@ -155,10 +139,6 @@ final class AjaxController
         ]);
     }
 
-    /**
-     * Replace the entire form structure (rows / columns / fields / submit).
-     * Editor JS sends the JSON; FormStructure::save normalizes + persists.
-     */
     public function handle_save_structure(): void
     {
         [$form_id] = self::guard_request();
@@ -175,12 +155,6 @@ final class AjaxController
         wp_send_json_success(['version' => FormStructure::VERSION]);
     }
 
-    /**
-     * Create a new contact form. Source is either a built-in template
-     * (`source=template`, `slug=<template_slug>`) or another existing form
-     * (`source=form`, `form_id=<id>`). The new form starts as a draft with
-     * just the field structure copied; per-form settings reset to defaults.
-     */
     public function handle_create_form(): void
     {
         if (!current_user_can(Activator::CAPABILITY)) {
@@ -240,12 +214,7 @@ final class AjaxController
         wp_send_json_success(['form_id' => (int) $new_id]);
     }
 
-    /**
-     * Shared guard for handle_* methods that operate on an existing form.
-     * Verifies capability, nonce, and that form_id resolves to a CPT post.
-     *
-     * @return array{0:int, 1:\WP_Post}
-     */
+    /** @return array{0:int, 1:\WP_Post} */
     private static function guard_request(): array
     {
         if (!current_user_can(Activator::CAPABILITY)) {
@@ -279,13 +248,7 @@ final class AjaxController
         };
     }
 
-    /**
-     * Accept a captcha routing key for per-form `_lrob_etk_cf_challenge`.
-     * Allowed shapes: '' (inherit), 'none', 'homemade:<slug>',
-     * 'identity:<int>'. CaptchaService is the runtime source of truth for
-     * which slugs/identities actually exist, so we only enforce the shape
-     * here — an unknown value gets normalized to '' (inherit).
-     */
+    // Enforces shape only (not existence); unknown → '' (inherit). CaptchaService validates at runtime.
     private static function sanitize_challenge_route(string $value): string
     {
         if ($value === '' || $value === CPT::CHALLENGE_NONE) {
@@ -300,7 +263,6 @@ final class AjaxController
         return '';
     }
 
-    /** Comma-separated email list — drop invalid pieces, normalize spacing. */
     private static function clean_recipient_list(string $raw): string
     {
         $out = [];

@@ -7,30 +7,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\Newsletter\Admin\PageController;
 
-/**
- * Registers the `lrob_etk_newsletter` post type — newsletter posts
- * composed in Gutenberg with the same constrained block subset as the
- * system email templates. Each newsletter post has a companion row in
- * `wp_lrob_etk_nl_newsletters` (keyed by post_id) holding hot runtime
- * state (status, counters, started_at, …); the row is created on first
- * save via NewsletterRepository::ensure_row() and removed in
- * before_delete_post.
- *
- *   - lrob_etk_newsletter: 19 chars, fits WP's 20-char CPT slug limit.
- *   - non-public, show_in_menu=false (managed through the Newsletter
- *     hub's Newsletters view + per-newsletter cards, not the WP sidebar).
- *   - show_in_rest=true so Gutenberg can edit it.
- *   - capability_type='post' mapped to the toolkit's manage_lrob_etk
- *     primitive via plural caps only — avoids the singular-meta-cap
- *     collision documented in project_wp_cpt_cap_collision.md
- *     (map_meta_cap stays true; we only declare plural caps in the
- *     capabilities array).
- *
- * Step 7 ships the send pipeline; the newsletter cards refactor moved
- * settings + send actions out of metaboxes into NewslettersPage cards,
- * so this CPT registration is now plumbing only — Gutenberg edits the
- * post content, everything else lives on the card.
- */
+// Docs: docs/newsletter-internals.md
 final class NewsletterCPT
 {
     public const POST_TYPE = 'lrob_etk_newsletter';
@@ -56,32 +33,10 @@ final class NewsletterCPT
 
     public const META_LOG_ALL_SENDS      = '_lrob_etk_nl_log_all_sends';
 
-    /**
-     * Per-newsletter override of recipient opt-outs. When true, the
-     * Materializer ignores the OPTED_IN=0 user_meta filter + the
-     * 'unsubscribed' subscriber status when resolving recipients.
-     * Critical: only for operational/legal communications. The send
-     * confirm modal surfaces a count of opted-outs the send will
-     * reach when this is on.
-     */
     public const META_IGNORE_OPTOUTS     = '_lrob_etk_nl_ignore_optouts';
 
-    /**
-     * Per-newsletter manual force-include list. JSON `[{kind, id},…]`
-     * where each entry references a (recipient_kind, recipient_id)
-     * the Materializer must include regardless of opt-out / status.
-     * Independent from META_IGNORE_OPTOUTS — the global toggle
-     * applies to the whole audience, this targets individuals.
-     */
     public const META_FORCE_INCLUDE_IDS  = '_lrob_etk_nl_force_include_ids';
 
-    /**
-     * Per-newsletter manual force-exclude list. JSON `[{kind, id},…]`
-     * — the Materializer drops these recipients regardless of their
-     * opt-in state or list membership. Useful for excluding a known
-     * problematic address or someone who asked verbally to be left
-     * out of one specific send.
-     */
     public const META_FORCE_EXCLUDE_IDS  = '_lrob_etk_nl_force_exclude_ids';
 
     public const TARGET_KIND_ALL              = 'all';
@@ -95,12 +50,6 @@ final class NewsletterCPT
     /** Multi-list union: target = union of every list_id in list_ids[]. */
     public const TARGET_KIND_LISTS            = 'lists';
 
-    /**
-     * Same email-safe block subset as TemplateCPT. The CSS inliner (step
-     * 7b polish) relies on this restricted vocabulary; newsletters and
-     * templates share the inliner so they must agree on what blocks can
-     * appear.
-     */
     private const ALLOWED_BLOCKS = [
         'core/paragraph',
         'core/heading',
@@ -154,8 +103,6 @@ final class NewsletterCPT
             'rest_base'           => 'lrob-etk-nl-newsletters',
             'has_archive'         => false,
             'hierarchical'        => false,
-            // Internal-only post type: no rewrite rules, no public query
-            // var. See TemplateCPT for the same rationale.
             'rewrite'             => false,
             'query_var'           => false,
             'can_export'          => true,

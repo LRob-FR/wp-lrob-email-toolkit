@@ -4,15 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
-/**
- * Registers the page-side `lrob-etk/contact-form` Gutenberg block — the
- * picker that embeds a chosen form into any page/post via the block editor.
- *
- * Field blocks (lrob-etk/field-*) used to live here too. They were
- * removed when the form CPT moved off Gutenberg and onto the custom inline
- * editor on the Contact Forms admin page (FormsPage). The CPT itself is
- * still REST-exposed so the embed block can query it.
- */
+// Registers only the lrob-etk/contact-form embed block (CPT stays REST-exposed for block queries).
 final class Blocks
 {
     public function register(): void
@@ -26,8 +18,7 @@ final class Blocks
         register_block_type('lrob-etk/contact-form', [
             'attributes' => [
                 'formId'    => ['type' => 'integer', 'default' => 0],
-                // Empty string = inherit the per-form/global preset.
-                'preset'    => ['type' => 'string',  'default' => ''],
+                'preset'    => ['type' => 'string',  'default' => ''], // '' = inherit per-form/global preset
                 'overrides' => ['type' => 'object',  'default' => new \stdClass()],
             ],
             'render_callback' => [EmbedRenderer::class, 'render'],
@@ -46,10 +37,7 @@ final class Blocks
             self::asset_version('admin/js/contact-form-editor.js'),
             true
         );
-        // The editor canvas isn't under the admin `.lrob-etk` wrap, so the
-        // design tokens (defined in admin-base.css on `.lrob-etk`) must be
-        // loaded here too — the preview placeholder carries a `.lrob-etk`
-        // class so the `var(--etk-*)` references resolve inside the canvas.
+        // Tokens defined on .lrob-etk; the preview placeholder carries that class so var(--etk-*) resolves.
         wp_enqueue_style(
             'lrob-etk-base',
             LROB_ETK_URL . 'admin/css/admin-base.css',

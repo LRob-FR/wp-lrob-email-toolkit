@@ -1,30 +1,10 @@
-/* LRob Email Toolkit — Contact Form submissions inbox.
- *
- * Drives two interactive surfaces on the submissions list page:
- *
- *   1. Live filter UX — typing in the search box / changing any dropdown
- *      or date input triggers a debounced AJAX reload of the list region
- *      (summary + table + pagination). URL is kept in sync via
- *      history.replaceState so back/forward + bookmarks stay accurate.
- *
- *   2. Bulk selection + actions — a checkbox column + select-all in the
- *      header, plus a "Bulk actions" dropdown above the table for "Mark as
- *      spam" / "Delete permanently". Delete requires an explicit confirm
- *      (window.confirm, mirrors WP comment moderation).
- *
- * Vanilla JS, no deps. The script guards itself: if the inbox root is
- * absent on the current page it's a no-op.
- */
+/* Docs: docs/contact-form.md */
 (function () {
     'use strict';
 
     var DATA = window.lrobEtkCfInbox || {};
     var I18N = DATA.i18n || {};
 
-    // Holds the shared filter helper's API once attached. Provides
-    // `reload(page, skipUrlUpdate)` + `currentRegion()`. Falls back to
-    // a no-op shim when the helper script isn't on the page (detail
-    // page or unrelated admin screens).
     var filterApi = null;
 
     function init() {
@@ -70,9 +50,7 @@
         return filterApi.reload(page, skipUrlUpdate);
     }
 
-    // All click / change handlers below the filter form go through
-    // document-level delegation — the list region is swapped on every
-    // AJAX reload, so per-element listeners would die after the first swap.
+    // Document-level delegation: the list region is replaced on every AJAX swap.
     function bindDelegatedHandlers() {
         document.addEventListener('click', function (e) {
             // Pagination links are handled by the shared list-filter helper.
@@ -132,8 +110,6 @@
             }
         });
 
-        // Initial state sync (e.g. on page load there might be saved
-        // checkbox state from browser memory of a back-button restore).
         refreshBulkUiState();
     }
 
@@ -239,16 +215,11 @@
         };
     }
 
-    // The list region gets *replaced* on every AJAX reload, so any cached
-    // reference goes stale after one swap. Always look it up fresh.
+    // Always look up fresh — list region replaced on every AJAX reload.
     function currentRegion() {
         return document.querySelector('[data-etk-list-region]');
     }
 
-    // Live-filter / pagination / popstate now live in the shared
-    // `etk-list-filter.js` helper (attached above from init via
-    // `window.lrobEtkListFilter`). The bulk + row + modal handlers
-    // below stay page-specific.
 
     // --- Bulk + row actions execution --------------------------------
     function runBulk(op, ids) {
@@ -305,8 +276,6 @@
     }
 
     // --- Confirm modal ------------------------------------------------
-    // Single lazily-built dialog reused for spam / delete confirmations
-    // and for the rare info-only popups (nothing selected, etc.).
     var modalEl = null;
     function ensureModal() {
         if (modalEl) return modalEl;
@@ -368,26 +337,15 @@
     }
 
     // --- Detail modal -------------------------------------------------
-    // Larger modal opened by clicking a submission preview or the view
-    // eye-icon. Carries prev/next buttons to walk through the currently
-    // visible row IDs without leaving the inbox. The underlying row gets
-    // an `.is-active` class so admins can locate themselves at a glance.
     var detailEl = null;
     var detailCurrentId = 0;
     function ensureDetailModal() {
         if (detailEl) return detailEl;
         detailEl = document.createElement('div');
-        // Carry `lrob-etk` so the plugin-wide button/dashicon fixes in
-        // admin-base.css (line-height: 1 on .button .dashicons, plus the
-        // WP 7.0 dashicons override) apply to the modal's buttons too —
-        // they're appended to body, outside the page's normal wrap.
+        // lrob-etk class ensures plugin button/dashicon fixes apply (modal is appended to body).
         detailEl.className = 'lrob-etk lrob-etk-confirm-modal lrob-etk-detail-modal';
         detailEl.setAttribute('role', 'dialog');
         detailEl.setAttribute('aria-modal', 'true');
-        // Header layout: title on the left, the entire controls cluster
-        // pinned to the right — action buttons first (Spam/Restore +
-        // Delete), then nav arrows, then close. Order is intentional so
-        // arrows sit just next to the close X for easy thumb travel.
         detailEl.innerHTML = ''
             + '<div class="lrob-etk-confirm-modal-backdrop" data-cf-modal-close></div>'
             + '<div class="lrob-etk-detail-modal-panel" role="document">'
@@ -470,10 +428,6 @@
         markActiveRow(id);
         refreshDetailNav();
 
-        // No-flicker swap: keep the previous content visible, just dim
-        // the panel via `.is-loading` while the new HTML is in flight.
-        // First-open (empty body) shows a small spinner instead of a
-        // blank area.
         var body = detailEl.querySelector('[data-cf-detail-body]');
         var title = detailEl.querySelector('[data-cf-detail-title]');
         var firstOpen = body && body.childNodes.length === 0;
@@ -493,8 +447,6 @@
                 if (!resp || !resp.success || !resp.data) {
                     throw new Error('bad-response');
                 }
-                // Atomic swap — keeps the modal scroll position stable
-                // and avoids the blank flash between navigations.
                 if (title) title.textContent = resp.data.title || '';
                 if (body)  body.innerHTML = resp.data.html  || '';
                 if (body) body.scrollTop = 0;

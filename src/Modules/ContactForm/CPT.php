@@ -6,23 +6,10 @@ namespace LRob\EmailToolkit\Modules\ContactForm;
 
 use LRob\EmailToolkit\Activator;
 
-/**
- * Registers the contact form post type and its sidebar meta. The post type
- * is non-public (no frontend URL of its own): forms are surfaced exclusively
- * via the embed block. show_in_rest is on so Gutenberg can edit it.
- *
- * Sidebar settings (recipient identity, captcha override, anti-bot toggles,
- * style preset, style vars, confirmation tier) are stored as individual
- * post_meta keys so REST exposes them automatically to the editor sidebar.
- */
+// Docs: docs/contact-form.md
 final class CPT
 {
-    /**
-     * WordPress rejects post type slugs longer than 20 characters
-     * (varchar(20) on the `post_type` column), so `lrob_etk_contact_form`
-     * (21 chars) silently failed to register. `cform` keeps the meaning
-     * and stays inside the limit.
-     */
+    // 'lrob_etk_contact_form' is 21 chars — exceeds WP's 20-char post_type limit.
     public const POST_TYPE = 'lrob_etk_cform';
 
     public const META_RECIPIENT = '_lrob_etk_cf_recipient';
@@ -61,13 +48,6 @@ final class CPT
 
     public const CONFIRMATION_FULL = 'full';
 
-    /**
-     * Per-form captcha routing-key sentinel meaning "no challenge for this
-     * form". Matches Routing::ROUTE_NONE — kept here so consumers inside
-     * ContactForm don't need to import the Captcha module just for the
-     * string. Other routing keys (`homemade:<slug>`, `identity:<id>`) are
-     * free-form and don't need constants.
-     */
     public const CHALLENGE_NONE = 'none';
 
     public const STYLE_DEFAULT = 'default';
@@ -75,16 +55,10 @@ final class CPT
     /** Per-form sentinel for tri-state meta: '' / 0 / 'default' all mean "inherit the global default". */
     public const META_INHERIT = 'default';
 
-    /**
-     * `$_POST` top-level key the public form serializes under: each field
-     * is `lrob_etk_cf[<instance>][<slug>]`. EmbedRenderer passes this to
-     * FormContext at render time; SubmitHandler reads `$_POST[FIELD_NAME_PREFIX]`
-     * on submit. Newsletter has its own equivalent (`lrob_etk_nl`) so the
-     * two CPTs' submissions never collide on a single page.
-     */
+    // POST key: lrob_etk_cf[<instance>][<slug>]. Newsletter uses lrob_etk_nl to avoid collisions on the same page.
     public const FIELD_NAME_PREFIX = 'lrob_etk_cf';
 
-    /** DOM id prefix: `lrob-etk-cf-<instance>-<slug>`. Mirror of FIELD_NAME_PREFIX. */
+    // DOM id prefix: lrob-etk-cf-<instance>-<slug>.
     public const FIELD_ID_PREFIX = 'lrob-etk-cf';
 
     public function register(): void
@@ -125,14 +99,9 @@ final class CPT
             'capability_type'     => 'post',
             'map_meta_cap'        => true,
             'capabilities'        => [
-                // PLURAL primitives only. Do NOT add 'edit_post', 'read_post',
-                // 'delete_post' here — WP's _post_type_meta_capabilities()
-                // would then add `$post_type_meta_caps['manage_lrob_etk'] = 'delete_post'`,
-                // which makes every later `current_user_can('manage_lrob_etk')`
-                // recurse into the delete_post meta cap path (without a post id)
-                // and return `do_not_allow`. That silently locks every admin out
-                // of the toolkit menu. WP routes singular checks to these plural
-                // caps internally — that's all the gating we need.
+                // Plural primitives ONLY — no 'edit_post'/'read_post'/'delete_post'.
+                // Adding singular caps here makes current_user_can('manage_lrob_etk')
+                // recurse into a post-level meta cap path (no post ID) → do_not_allow.
                 'edit_posts'             => Activator::CAPABILITY,
                 'edit_others_posts'      => Activator::CAPABILITY,
                 'publish_posts'          => Activator::CAPABILITY,
@@ -145,9 +114,7 @@ final class CPT
                 'edit_published_posts'   => Activator::CAPABILITY,
                 'create_posts'           => Activator::CAPABILITY,
             ],
-            // No 'editor' support — fields are edited on the custom Contact
-            // Forms admin page, not in Gutenberg. The CPT keeps 'title' and
-            // 'revisions' so the title input still renders and history works.
+            // No 'editor' — fields live on the custom admin page, not in Gutenberg.
             'supports'            => ['title', 'revisions', 'custom-fields'],
             'menu_icon'           => 'dashicons-feedback',
         ]);
@@ -159,9 +126,7 @@ final class CPT
             return current_user_can(Activator::CAPABILITY);
         };
 
-        // All defaults are the "inherit" sentinel — Settings::effective_*()
-        // walks per-form → global → hardcoded fallback. Empty string / 0 /
-        // 'default' all mean "use the global default".
+        // Sentinels: '' / 0 / 'default' all mean "inherit global default" (Settings::effective_*).
         $defs = [
             self::META_RECIPIENT           => ['string',  '',                       $auth_callback],
             self::META_RECIPIENT_IDENTITY  => ['integer', 0,                        $auth_callback],

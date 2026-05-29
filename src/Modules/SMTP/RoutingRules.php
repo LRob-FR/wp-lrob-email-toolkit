@@ -4,14 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\SMTP;
 
-/**
- * Persists and reads the source→identity-slug routing map. Storage: one
- * lrob_etk_smtp_routing option holding an associative array.
- *
- * Sources without an explicit rule fall back to whichever identity is marked
- * as the default (is_default=1). If the resolved identity is missing or
- * inactive, the MailRouter falls back to the default identity too.
- */
+// Docs: docs/smtp.md
 final class RoutingRules
 {
     private const OPTION = 'lrob_etk_smtp_routing';
@@ -30,15 +23,7 @@ final class RoutingRules
         ) : [];
     }
 
-    /**
-     * Resolve a source name to a concrete identity, falling back through:
-     *   1. The slug mapped by the routing rules for this source
-     *   2. The slug mapped for SOURCE_DEFAULT
-     *   3. The identity marked is_default=1 (if active)
-     *
-     * Returns null when no usable identity exists — callers should let
-     * WordPress fall through to its default mail() transport.
-     */
+    /** Falls back: source rule → SOURCE_DEFAULT rule → is_default=1 identity. Returns null when none usable. */
     public function resolve(string $source): ?Identity
     {
         $rules = $this->all();
@@ -57,12 +42,7 @@ final class RoutingRules
         return $default instanceof Identity && $default->is_active ? $default : null;
     }
 
-    /**
-     * Replace the entire routing map. Empty / null values for a source remove
-     * its rule (so it falls back to default).
-     *
-     * @param array<string, ?string> $rules
-     */
+    /** @param array<string, ?string> $rules */
     public function save(array $rules): void
     {
         $clean = [];

@@ -7,6 +7,8 @@ namespace LRob\EmailToolkit\Modules\Captcha\Providers;
 use LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface;
 
 /**
+ * Adding a provider: docs/captcha.md → "To add a hosted provider".
+ *
  * Hosted captcha provider — hCaptcha, Cloudflare Turnstile, Google reCAPTCHA.
  * Extends ChallengeInterface so the same render/verify shape applies; the
  * difference from a homemade challenge is that providers need credentials

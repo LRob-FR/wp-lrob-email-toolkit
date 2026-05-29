@@ -4,15 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\ContactForm;
 
-/**
- * Per-IP, per-form sliding-window rate limiter backed by the
- * {prefix}lrob_etk_contact_rate table. Transients were rejected: on object-cache
- * hosts they can be evicted at any moment, defeating the limit.
- *
- * `record()` writes one row per submission attempt that passed earlier checks.
- * `over_limit()` counts rows for (ip_hash, form_id) in the last window.
- * `gc()` deletes rows older than 7 days; called by the daily cron.
- */
+// Docs: docs/contact-form.md — transients rejected because object-cache hosts evict them silently.
 final class RateLimiter
 {
     public const CRON_HOOK = 'lrob_etk_cf_rate_gc';
@@ -83,11 +75,7 @@ final class RateLimiter
         );
     }
 
-    /**
-     * Hash the client IP so we can rate-limit and correlate without storing
-     * raw addresses (GDPR-friendlier). Uses AUTH_KEY as a per-site salt so
-     * hashes can't be correlated across sites or precomputed.
-     */
+    // AUTH_KEY salt prevents cross-site hash correlation.
     public static function hash_ip(string $ip): string
     {
         if ($ip === '') {
@@ -97,11 +85,7 @@ final class RateLimiter
         return hash('sha256', $salt . '|' . $ip);
     }
 
-    /**
-     * Best-effort client IP. Honors trusted proxy headers only when WP is
-     * already configured to trust them (X-Forwarded-For chain → first entry).
-     * Falls back to REMOTE_ADDR.
-     */
+    // CF-Connecting-IP → X-Real-IP → X-Forwarded-For (first entry) → REMOTE_ADDR.
     public static function client_ip(): string
     {
         $headers = ['HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR'];

@@ -14,22 +14,7 @@ use LRob\EmailToolkit\Modules\Captcha\Routing;
 use LRob\EmailToolkit\Modules\Captcha\StatsRepository;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
-/**
- * Captcha settings page. Three stacked sections:
- *
- *   1. Built-in challenges  — read-only "always available" list.
- *   2. Hosted providers     — card grid; one card per configured identity,
- *                             plus a "+ Add identity" launcher when at least
- *                             one provider class is registered.
- *   3. Routing               — global default dropdown + per-context
- *                             overrides. Routes that point at unconfigured
- *                             hosted providers are surfaced as disabled
- *                             "configure first" options.
- *
- * The card UI follows the SMTP pattern: existing cards auto-save on blur,
- * new cards have an explicit Create button. Routing dropdowns auto-save
- * on change.
- */
+// Docs: docs/captcha.md → "Admin settings page structure"
 final class SettingsPage
 {
     public function __construct(
@@ -106,14 +91,7 @@ final class SettingsPage
                         <p class="lrob-etk-captcha-builtin-desc"><?php echo esc_html($challenge->description()); ?></p>
                         <div class="lrob-etk-captcha-builtin-preview">
                             <div class="lrob-etk-captcha-card-preview-head"><?php esc_html_e('Preview', 'lrob-email-toolkit'); ?></div>
-                            <?php
-                            // Render inside a .lrob-etk-form host so the frontend
-                            // CSS vars (theme-adaptive colours, radii) resolve here
-                            // exactly as they do on the live form — the preview
-                            // then mirrors what a visitor sees (self-contained,
-                            // no external script).
-                            ?>
-                            <div class="lrob-etk-form">
+                                <div class="lrob-etk-form">
                                 <?php echo $challenge->render(['context' => 'preview']); // phpcs:ignore WordPress.Security.EscapeOutput — challenge render escapes internally. ?>
                             </div>
                         </div>
@@ -208,14 +186,7 @@ final class SettingsPage
         return $this->stats_breakdown[$route] ?? ['passed' => 0, 'failed' => 0, 'total' => 0];
     }
 
-    /**
-     * Provider chooser shown when "New captcha" is clicked — a shared modal
-     * (same chrome as the other plugin modals) with one card per hosted
-     * provider, ordered by sort_order(). Picking a card spawns its identity
-     * card (JS) and closes the modal.
-     *
-     * @param array<string, ProviderInterface> $providers
-     */
+    /** @param array<string, ProviderInterface> $providers */
     private function render_provider_modal(array $providers): void
     {
         if ($providers === []) {
@@ -250,16 +221,7 @@ final class SettingsPage
         <?php
     }
 
-    /**
-     * Master card template. The "New captcha" button picks the provider
-     * (directly when there's only one, via a small menu otherwise), then JS
-     * clones this template and reconfigures it for the chosen provider —
-     * chip branding + credential fields from the matching
-     * `render_fields_template`. The placeholder provider below is just the
-     * cloned starting point; JS overwrites it immediately.
-     *
-     * @param array<string, ProviderInterface> $providers
-     */
+    /** @param array<string, ProviderInterface> $providers */
     private function render_master_card_template(array $providers): void
     {
         if ($providers === []) {
@@ -273,11 +235,6 @@ final class SettingsPage
         <?php
     }
 
-    /**
-     * Per-provider credential-fields snippet, used by JS to populate the
-     * card body when a new card is created or the provider dropdown
-     * changes on an unsaved card.
-     */
     private function render_fields_template(ProviderInterface $provider): void
     {
         ?>
@@ -408,10 +365,6 @@ final class SettingsPage
 
     private function render_credential_fields(ProviderInterface $provider, bool $is_new, ?Identity $identity = null): void
     {
-        // Decrypt once per card render so the loop can pre-populate text
-        // fields with the actual stored value (site keys are public — they
-        // ride along in the rendered widget anyway) and show a dots
-        // placeholder on password fields that already have a stored value.
         $stored_credentials = [];
         if ($identity !== null) {
             try {
@@ -431,10 +384,7 @@ final class SettingsPage
             $stored_value = isset($stored_credentials[$key]) ? (string) $stored_credentials[$key] : '';
             $has_stored = $stored_value !== '';
 
-            // Public credential (e.g. hCaptcha site key) — pre-populate the
-            // visible value so the admin can see what's saved and copy/edit
-            // it. Secret credentials stay value="" + dots placeholder; an
-            // empty submit is treated as "keep existing" server-side.
+            // Public fields pre-populate; secrets show dots placeholder + empty value = keep existing.
             $input_value = $is_secret ? '' : $stored_value;
             $placeholder = $is_secret && $has_stored && !$is_new
                 ? str_repeat("\u{2022}", 10) // ten bullets — matches password manager UI
@@ -478,15 +428,8 @@ final class SettingsPage
     }
 
     /**
-     * Diagnostic strip — collapsed by default — that surfaces what's
-     * actually stored for each identity (credentials_encrypted length,
-     * whether decryption succeeds, which keys appear) and what the
-     * resolved route is for each context. Helps the admin tell apart
-     * "credentials never persisted" / "AUTH_KEY rotated" /
-     * "routing-key points at wrong identity" without phpMyAdmin.
-     *
-     * @param array<int, Identity>   $identities
-     * @param array<string, string>  $map
+     * @param array<int, Identity>  $identities
+     * @param array<string, string> $map
      */
     private function render_diagnostics_section(array $identities, array $map): void
     {
@@ -577,11 +520,6 @@ final class SettingsPage
         <?php
     }
 
-    /**
-     * Human-readable summary of what a routing key resolves to, so the
-     * diagnostics table reads naturally ("Identity #5 (hCaptcha · Main,
-     * 132 chars stored, decrypts OK)" rather than just "identity:5").
-     */
     private function describe_resolved_route(string $route): string
     {
         if ($route === Routing::ROUTE_NONE || $route === '') {
@@ -623,14 +561,7 @@ final class SettingsPage
         return $route;
     }
 
-    /**
-     * Captcha protection: a prominent site-wide default + per-context
-     * overrides split into two groups — this plugin's own forms (inherit by
-     * default) and WordPress-native sections (off by default, opt-in).
-     * Per-identity widget appearance lives on each identity card instead.
-     *
-     * @param array<string, string> $map
-     */
+    /** @param array<string, string> $map */
     private function render_protection_section(string $default_route, array $map): void
     {
         $default_options = $this->route_options_for_combobox(false, false);
@@ -683,13 +614,7 @@ final class SettingsPage
         <?php
     }
 
-    /**
-     * Combobox option list for the routing pickers. The "Use default"
-     * (inherit) and "Off" (none) entries are static — the resolved default
-     * challenge is shown once in the prominent default row above.
-     *
-     * @return array<int, array{value:string, label:string}>
-     */
+    /** @return array<int, array{value:string, label:string}> */
     private function route_options_for_combobox(bool $include_inherit, bool $include_none, string $none_label = ''): array
     {
         $options = [];
@@ -742,10 +667,6 @@ final class SettingsPage
         $ajax_url = admin_url('admin-ajax.php');
         $nonce = wp_create_nonce(AjaxController::NONCE_ACTION);
 
-        // Each hosted provider whose class defines a SCRIPT_URL constant
-        // exposes its vendor JS so the admin preview can load the widget
-        // dynamically. Falls out by reflection so new providers plug in
-        // without touching this method.
         $provider_scripts = [];
         $provider_widgets = [];
         $provider_meta = []; // ordered list driving the "New captcha" provider menu
@@ -763,9 +684,6 @@ final class SettingsPage
             if (defined($cls . '::SCRIPT_URL')) {
                 $provider_scripts[$slug] = (string) constant($cls . '::SCRIPT_URL');
             }
-            // Widget metadata so the preview JS stays provider-agnostic:
-            // the container class it renders into + the JS global exposing
-            // render(). New providers plug in with zero JS edits.
             if (defined($cls . '::WIDGET_CLASS') && defined($cls . '::WIDGET_GLOBAL')) {
                 $provider_widgets[$slug] = [
                     'class'  => (string) constant($cls . '::WIDGET_CLASS'),

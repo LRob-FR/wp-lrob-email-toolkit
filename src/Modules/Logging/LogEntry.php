@@ -6,12 +6,7 @@ namespace LRob\EmailToolkit\Modules\Logging;
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-/**
- * Immutable log entry record. Constructed from a DB row, from a PHPMailer
- * instance at send time, or directly for tests. Multi-recipient and address
- * fields are kept as PHP arrays; JSON encoding happens in the repository at
- * the persistence boundary.
- */
+// Docs: docs/logging.md
 final class LogEntry
 {
     public const STATUS_SENDING = 'sending';
@@ -76,11 +71,6 @@ final class LogEntry
     ) {
     }
 
-    /**
-     * Build a fresh log entry from the PHPMailer object inside wp_mail().
-     * Status starts as 'sending'; the repository's update_status() flips it
-     * to 'sent' / 'failed' after the send completes.
-     */
     public static function from_phpmailer(PHPMailer $mailer): self
     {
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
@@ -106,9 +96,6 @@ final class LogEntry
 
         $attachments = [];
         foreach ($mailer->getAttachments() as $a) {
-            // PHPMailer attachment row layout:
-            //   [0] content/path, [1] name, [2] encoded_name, [3] encoding,
-            //   [4] type, [5] isString, [6] disposition, [7] cid
             $name = (string) ($a[2] ?? $a[1] ?? '');
             if ($name === '') {
                 continue;
@@ -148,11 +135,7 @@ final class LogEntry
         );
     }
 
-    /**
-     * Build from a wpdb-fetched associative row. JSON columns are decoded.
-     *
-     * @param array<string, mixed> $row
-     */
+    /** @param array<string, mixed> $row */
     public static function from_row(array $row): self
     {
         return new self(
@@ -269,11 +252,8 @@ final class LogEntry
         return is_array($decoded) ? array_values($decoded) : [];
     }
 
+    // Legacy rows stored plain filename strings; new rows store {name, path} objects.
     /**
-     * Normalize stored attachments to the canonical shape. Old rows stored
-     * plain filename strings; new rows store {name, path} objects. Both
-     * variants are accepted on read.
-     *
      * @param  array<int, mixed> $raw
      * @return array<int, array{name: string, path: ?string}>
      */

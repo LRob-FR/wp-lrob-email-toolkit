@@ -4,17 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Support;
 
-/**
- * Symmetric encryption for sensitive plugin data (SMTP passwords,
- * captcha-provider credentials, etc.). Uses AES-256-GCM with a key derived
- * from WordPress's AUTH_KEY via HKDF-SHA256.
- *
- * Output format (base64-encoded): version(1) || iv(12) || tag(16) || ciphertext
- *
- * Note: if AUTH_KEY changes (e.g. site moved + wp-config regenerated),
- * previously-encrypted values cannot be decrypted. Callers must handle the
- * resulting RuntimeException and prompt the user to re-enter the secret.
- */
+// Docs: docs/core.md
 final class Encryption
 {
     private const CIPHER = 'aes-256-gcm';

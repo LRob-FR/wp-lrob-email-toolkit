@@ -246,6 +246,7 @@ create_archive() {
     (cd "$PARENT_DIR" && find "$PLUGIN_DIR_NAME" -type f \
         ! -path "*/.git/*" ! -path "*/.github/*" ! -path "*/.claude/*" \
         ! -path "*/node_modules/*" ! -path "*/releases/*" ! -path "*/vendor/*" \
+        ! -path "*/docs/*" \
         ! -name "*.sh" ! -name "*.po" ! -name "*.pot" \
         ! -name ".gitignore" ! -name ".editorconfig" ! -name ".DS_Store" \
         ! -name "CLAUDE.md" ! -name "README.md" \

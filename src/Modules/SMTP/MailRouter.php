@@ -7,34 +7,16 @@ namespace LRob\EmailToolkit\Modules\SMTP;
 use LRob\EmailToolkit\Support\Events;
 use PHPMailer\PHPMailer\PHPMailer;
 
-/**
- * Reconfigures the WordPress-bundled PHPMailer to route through a configured
- * SMTP identity. Hooks the standard wp_mail lifecycle filters/actions and
- * dispatches the plugin's email.* events.
- *
- * Identity resolution flow per wp_mail() call:
- *   1. SourceResolver picks the source (default / woocommerce / pushed)
- *   2. RoutingRules maps source → identity (falls back to default identity)
- *   3. ConstantOverrides applies wp-config overrides on the default identity
- *
- * Resolution is cached for the duration of one wp_mail() and cleared by the
- * success/failure callback so subsequent calls re-resolve.
- */
+// Docs: docs/smtp.md
 final class MailRouter
 {
-    /** Identity for the in-flight wp_mail() call. */
     private ?Identity $current_identity = null;
 
     private bool $current_resolved = false;
 
-    /** When set, overrides routing for the very next wp_mail() resolution. */
     private ?string $forced_identity_slug = null;
 
-    /**
-     * Set by the `wp_mail` filter before the per-call filters run — tells
-     * us whether the caller passed an explicit `From:` header. Drives
-     * OVERRIDE_WHEN_DEFAULT behaviour. Reset on each wp_mail invocation.
-     */
+    /** True when the caller passed an explicit From: header; drives OVERRIDE_WHEN_DEFAULT. */
     private bool $caller_set_from = false;
 
     public function __construct(
@@ -47,10 +29,6 @@ final class MailRouter
 
     public function register(): void
     {
-        // wp_mail filter fires first and gives us $args['headers'] —
-        // sniff for a caller-set `From:` header so OVERRIDE_WHEN_DEFAULT
-        // can decide whether to step in. Filter is invoked even when the
-        // caller passes no headers; we just store false then.
         add_filter('wp_mail', [$this, 'capture_caller_from'], 1);
         add_action('phpmailer_init', [$this, 'configure_mailer'], 9);
         add_filter('wp_mail_from', [$this, 'override_from_email'], 9);
@@ -72,9 +50,6 @@ final class MailRouter
             return;
         }
 
-        // Mail() transport: skip SMTP wiring entirely; PHPMailer stays on its
-        // default mail() transport. The wp_mail_from / wp_mail_from_name
-        // filters still apply, so the user gets From/Reply-to overrides + logging.
         if ($identity->uses_mail_transport()) {
             Events::dispatch('email.sending', [
                 'identity_id'      => $identity->id,
@@ -100,9 +75,7 @@ final class MailRouter
                 $mailer->Password = $identity->decrypted_password();
             }
             $mailer->SMTPSecure = $identity->smtp_encryption;
-            // Same override-mode gate as the wp_mail_from filter pair below.
-            // Without this, configure_mailer's setFrom would stomp anything
-            // the caller set, regardless of the override_mode the admin chose.
+            // setFrom gate: must match the wp_mail_from filter pair — see docs/smtp.md.
             if ($this->should_override_sender($identity)) {
                 $mailer->setFrom($identity->effective_from_email(), $identity->effective_from_name(), false);
             }
@@ -197,11 +170,7 @@ final class MailRouter
         };
     }
 
-    /**
-     * Force the next wp_mail() to use a specific identity, bypassing routing.
-     * Used by the admin "Send test email" button to test an identity that may
-     * not be the default for any source. Pass null to clear.
-     */
+    /** Bypass routing for the next wp_mail(); used by TestSender. Pass null to clear. */
     public function force_identity(?string $slug): void
     {
         $this->forced_identity_slug = $slug;
@@ -209,10 +178,7 @@ final class MailRouter
         $this->reset_current();
     }
 
-    /**
-     * Lazily resolve the identity for the current wp_mail() call. Cached for
-     * the lifetime of one mail dispatch (reset by on_succeeded / on_failed).
-     */
+    /** Cached for the lifetime of one wp_mail() call; reset by on_succeeded / on_failed. */
     private function resolve_identity(): ?Identity
     {
         if ($this->current_resolved) {
@@ -243,10 +209,6 @@ final class MailRouter
     }
 
     /**
-     * Walk the wp_mail $args['headers'] looking for a `From:` line. Lets
-     * OVERRIDE_WHEN_DEFAULT distinguish "caller wanted a specific sender"
-     * from "caller didn't care, WordPress filled in wordpress@hostname".
-     *
      * @param array<string, mixed> $args
      * @return array<string, mixed>
      */
@@ -268,13 +230,6 @@ final class MailRouter
         return $args;
     }
 
-    /**
-     * Per-identity override gate. Three modes:
-     *  - never        — keep the caller's value (or WP default).
-     *  - when_default — keep the caller's value only if they explicitly
-     *                   set one; otherwise step in.
-     *  - always       — step in unconditionally.
-     */
     private function should_override_sender(Identity $identity): bool
     {
         $mode = $identity->override_mode;

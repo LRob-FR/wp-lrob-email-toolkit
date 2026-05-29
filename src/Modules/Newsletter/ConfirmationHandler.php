@@ -6,17 +6,7 @@ namespace LRob\EmailToolkit\Modules\Newsletter;
 
 use LRob\EmailToolkit\Support\Events;
 
-/**
- * Processes the confirm / refuse links sent in the double-opt-in
- * email. Catches `?lrob-etk-nl-confirm=<token>` and
- * `?lrob-etk-nl-refuse=<token>` on any frontend URL, verifies the
- * HMAC, flips the subscriber's status, fires the matching event,
- * and renders a small acknowledgment page.
- *
- * Hooks on `init` so we run before WordPress's template loader
- * decides what to render — the acknowledgment page replaces the
- * entire response body, no theme template needed.
- */
+// Docs: docs/newsletter-internals.md → "Confirmation tokens"
 final class ConfirmationHandler
 {
     public const QUERY_CONFIRM = 'lrob-etk-nl-confirm';
@@ -110,10 +100,6 @@ final class ConfirmationHandler
             'via'             => 'confirmation_link',
         ]);
 
-        // If the admin has a refuse_ack template configured, use its
-        // rendered content as the acknowledgment body so they can
-        // personalise the message (apology, offer to reach out, etc.).
-        // Falls back to the hardcoded short message otherwise.
         $template_id = (new TemplateRepository())->default_id_for_purpose(TemplateCPT::PURPOSE_REFUSE_ACK);
         if ($template_id > 0) {
             $template_post = get_post($template_id);
@@ -151,20 +137,6 @@ final class ConfirmationHandler
         return is_array($parts) ? (string) $parts[0] : $name;
     }
 
-    /**
-     * Render a self-contained acknowledgment page and exit. Doesn't
-     * use the site theme since this URL is hit from email clients
-     * landing on whatever page happens to be home_url() — keeping
-     * the response minimal and theme-agnostic avoids surprises.
-     */
-    /**
-     * Render an acknowledgment page using HTML produced by
-     * TemplateRenderer (so a refuse_ack template's blocks render as
-     * paragraphs / headings / etc.). The body HTML comes from our own
-     * template post + token substitution — both controlled by the
-     * admin, never from user input — so we trust it through wp_kses
-     * with the email-safe block subset.
-     */
     private static function render_template_page(string $title, string $body_html): never
     {
         nocache_headers();

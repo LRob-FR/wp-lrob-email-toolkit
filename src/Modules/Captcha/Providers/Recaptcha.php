@@ -4,26 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha\Providers;
 
-/**
- * Google reCAPTCHA — one provider, two versions chosen per identity:
- *
- *  - v3 (default): score-based, no visible widget. The script is loaded with
- *    `?render=<site_key>`; on submit the frontend calls
- *    `grecaptcha.execute(site_key, {action})`, drops the token in a hidden
- *    field, and the server checks `success` AND `score >= threshold`.
- *  - v2: the classic checkbox / invisible widget — identical drop-in shape to
- *    hCaptcha / Turnstile, so it reuses AbstractHostedCaptcha's render/verify.
- *
- * The version + v3 score threshold are non-secret per-identity config but ride
- * inside the (encrypted) credentials blob — one JSON dict, no extra schema
- * column. Google issues *separate* site/secret key pairs for v2 vs v3, so
- * switching version means re-entering keys; that's on the admin.
- *
- * Vendor references:
- *  - v2: https://developers.google.com/recaptcha/docs/display
- *  - v3: https://developers.google.com/recaptcha/docs/v3
- *  - Verify: https://developers.google.com/recaptcha/docs/verify
- */
+// Docs: docs/captcha.md → "Google reCAPTCHA specifics"
+// v2: https://developers.google.com/recaptcha/docs/display  v3: https://developers.google.com/recaptcha/docs/v3  verify: https://developers.google.com/recaptcha/docs/verify
 final class Recaptcha extends AbstractHostedCaptcha
 {
     public const SLUG = 'recaptcha';
@@ -202,8 +184,6 @@ final class Recaptcha extends AbstractHostedCaptcha
                 . '</p></div>';
         }
 
-        // The hidden field receives the token from grecaptcha.execute() (driven
-        // by form-submit.js on submit); the markers tell that script how.
         $field = sprintf(
             '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-cf-challenge lrob-etk-cf-challenge--v3" data-field="_challenge"'
                 . ' data-lrob-etk-recaptcha-v3="1" data-sitekey="%1$s" data-action="%2$s">'
@@ -260,10 +240,6 @@ final class Recaptcha extends AbstractHostedCaptcha
     }
 
     /**
-     * Admin-only: run a real v3 siteverify and surface the raw score so the
-     * settings page can show "score 0.9 — pass at 0.5" and let the admin
-     * calibrate the threshold + confirm the keys without a live form.
-     *
      * @param array<string, string> $credentials
      * @return array{ok: bool, score: float, threshold: float, error: ?string}
      */
@@ -301,12 +277,7 @@ final class Recaptcha extends AbstractHostedCaptcha
             : (float) self::DEFAULT_SCORE;
     }
 
-    /**
-     * POST to Google's siteverify. Returns [decoded payload, null] on a clean
-     * 200 JSON response, or [null, translated error] otherwise.
-     *
-     * @return array{0: ?array<string, mixed>, 1: ?string}
-     */
+    /** @return array{0: ?array<string, mixed>, 1: ?string} */
     private function siteverify(string $secret, string $token): array
     {
         $body = ['secret' => $secret, 'response' => $token];

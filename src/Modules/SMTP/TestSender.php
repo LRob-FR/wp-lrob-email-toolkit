@@ -6,17 +6,7 @@ namespace LRob\EmailToolkit\Modules\SMTP;
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-/**
- * Sends a one-off test email through a specific identity so the admin can
- * verify configuration before going live. Self-contained: registers its own
- * phpmailer_init hook at high priority (after MailRouter's normal 9) and
- * tears it down after the call, so test sends work whether or not the SMTP
- * module is enabled.
- *
- * Capture pattern: wp_mail_failed is hooked at priority 1 just for this call
- * so we can return the actual WP_Error message — wp_mail itself only returns
- * a boolean.
- */
+// Docs: docs/smtp.md
 final class TestSender
 {
     private const PRIORITY = 100;
@@ -48,9 +38,6 @@ final class TestSender
         $identity = $this->overrides->apply($identity);
 
         $configure = static function (PHPMailer $mailer) use ($identity): void {
-            // mail() transport: don't touch the mailer — PHP mail() handles it.
-            // The wp_mail_from filters below will still apply, so the
-            // test message gets the right From/From-name.
             if ($identity->uses_mail_transport()) {
                 return;
             }

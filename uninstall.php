@@ -2,20 +2,7 @@
 
 declare(strict_types=1);
 
-/**
- * Uninstaller — runs when the user deletes the plugin from the WordPress
- * admin. Behaviour is gated by the `lrob_etk_uninstall_mode` option which
- * the user picks in the Data admin page:
- *
- *   keep    (default) — drop NOTHING. Reinstalling picks up where the user
- *                       left off. Safe even on an accidental "Delete".
- *   archive          — drop options + capability + cron, keep data tables.
- *                       Settings reset on reinstall, but logs / identities /
- *                       contact forms / submissions are still there.
- *   wipe             — drop everything (tables, options, capability, cron).
- *
- * Default is `keep` so a misclick on WP's "Delete" button cannot lose data.
- */
+// Docs: docs/core.md
 
 if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
@@ -51,10 +38,7 @@ if ($mode === 'wipe') {
     }
 }
 
-// Both `archive` and `wipe` drop options + capability + cron — these are
-// configuration, not user data. The LIKE walks lrob_etk_* options AND
-// _transient_lrob_etk_*  / _transient_timeout_lrob_etk_* (transients live
-// in the options table with that underscore-prefixed name pair).
+// Also sweeps _transient_lrob_etk_* / _transient_timeout_lrob_etk_* (transients in the options table).
 $option_like  = $wpdb->esc_like('lrob_etk_') . '%';
 $transient_like_a = $wpdb->esc_like('_transient_lrob_etk_') . '%';
 $transient_like_b = $wpdb->esc_like('_transient_timeout_lrob_etk_') . '%';

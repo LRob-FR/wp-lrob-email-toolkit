@@ -8,16 +8,7 @@ use LRob\EmailToolkit\Activator;
 use LRob\EmailToolkit\Modules\ContactForm\FileRepository;
 use LRob\EmailToolkit\Modules\ContactForm\SubmissionRepository;
 
-/**
- * `admin_post.php` handlers for the action buttons embedded in the
- * notification email's footer (view / spam / delete). Each button URL
- * carries a per-submission wp_nonce; if it expires, WordPress shows its
- * standard "Are you sure?" confirmation page so admins can still proceed
- * from stale email links.
- *
- * View is a static admin URL (no action handler needed — straight link to
- * the detail page); only spam + delete actually mutate state.
- */
+// Docs: docs/contact-form.md — spam/delete require POST (GET bounces to confirm page); unspam accepts GET.
 final class EmailActions
 {
     public const ACTION_SPAM   = 'lrob_etk_cf_email_spam';
@@ -37,8 +28,6 @@ final class EmailActions
         add_action('admin_post_' . self::ACTION_DELETE, [$this, 'handle_delete']);
     }
 
-    /** Build the URL admin-post.php hits to actually perform the action.
-     *  Carries the wp_nonce; used by the confirm-page form's `action=`. */
     public static function action_url(string $action, int $submission_id): string
     {
         return wp_nonce_url(
@@ -50,9 +39,7 @@ final class EmailActions
         );
     }
 
-    /** Build the URL the email button points at — lands on the admin
-     *  confirmation page rendered by SubmissionsPage, not the action
-     *  itself. Action only fires after admin confirms. */
+    // Email buttons point here (confirm page), not directly to the action URL.
     public static function confirm_url(string $action, int $submission_id): string
     {
         $confirm_action = $action === self::ACTION_SPAM ? 'spam-confirm' : 'delete-confirm';
@@ -69,10 +56,7 @@ final class EmailActions
 
     public function handle_spam(): void
     {
-        // POST-only — bare GET means someone bypassed the confirm page
-        // (stale email link from before confirmation existed, or a manual
-        // URL craft). Bounce them through the confirm flow instead of
-        // mutating state silently.
+        // GET = stale link; bounce to confirm page rather than mutating state silently.
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
             wp_safe_redirect(self::confirm_url(self::ACTION_SPAM, $id));
@@ -92,9 +76,6 @@ final class EmailActions
 
     public function handle_unspam(): void
     {
-        // Non-destructive flip — no confirm page needed. Accepts GET too
-        // (so a single-click link from the inbox just works), but still
-        // requires a valid nonce + cap.
         $id = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0;
         check_admin_referer(self::ACTION_UNSPAM . '_' . $id);
         if (!current_user_can(Activator::CAPABILITY)) {

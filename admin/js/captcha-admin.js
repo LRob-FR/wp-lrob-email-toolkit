@@ -1,3 +1,4 @@
+/* Docs: docs/captcha.md → "Admin JS" */
 (function () {
     'use strict';
 
@@ -34,9 +35,6 @@
     }
 
     // --- New captcha button ---
-    // The provider is chosen up front in a modal (logo + label + description,
-    // like "New form") so the card is created already branded for the pick.
-    // A single registered provider skips the chooser and spawns directly.
     function wireAddButton() {
         var btn = document.getElementById('lrob-etk-captcha-add');
         if (!btn) return;
@@ -191,12 +189,6 @@
         applyVersionVisibility(card);
     }
 
-    /**
-     * Swap the credential fields in a card to match the chosen provider.
-     * Used when (a) a new card is spawned and we need to populate the
-     * fields for the dropdown's default provider, and (b) the user
-     * switches providers via the dropdown on an unsaved card.
-     */
     function applyProviderToCard(card, providerSlug) {
         if (!providerSlug) return;
         var fieldsTpl = document.querySelector('.lrob-etk-captcha-fields-template[data-provider="' + cssEscape(providerSlug) + '"]');
@@ -317,8 +309,6 @@
         });
     }
 
-    // Update the card in place — no full-page reload. Autosave should feel
-    // dynamic; reloads slam scroll position + are jarring on every edit.
     function handleSaveSuccess(card, res, isCreate) {
         var form = card.querySelector('form');
         var wasNew = isCreate || card.dataset.state === 'new';
@@ -351,10 +341,6 @@
         renderPreview(card);
     }
 
-    // Reflect the current site-wide default across the whole page without a
-    // reload: rebuild every card's footer marker (Default badge on the match,
-    // "Set as default" on other active cards, nothing on inactive ones) and
-    // sync the "Default challenge" dropdown. Driven by each slot's data-route.
     function applyDefaultEverywhere(route) {
         if (!route) return;
         var slots = document.querySelectorAll('.lrob-etk-card-footer-default[data-route]');
@@ -407,8 +393,6 @@
         if (input) input.value = label;
     }
 
-    // Build the dropdown label for a route from its card, matching the server's
-    // "<provider>: <identity label>" format (route_options_for_combobox).
     function labelFromCard(route) {
         var slots = document.querySelectorAll('.lrob-etk-card-footer-default[data-route]');
         for (var i = 0; i < slots.length; i++) {
@@ -424,8 +408,6 @@
         return '';
     }
 
-    // Current active identities as routing options ("<provider>: <label>"),
-    // read live from the cards — mirrors the server's route_options_for_combobox.
     function activeIdentityOptions() {
         var out = [];
         document.querySelectorAll('.lrob-etk-captcha-card[data-state="existing"]').forEach(function (card) {
@@ -442,13 +424,7 @@
         return out;
     }
 
-    // Rebuild the identity portion of every routing dropdown (default + each
-    // per-context override) from the live set of active identities, so the
-    // menus stay in sync after activate / deactivate / create / delete — no
-    // reload. Specials (Use default / Off) and built-in challenges are left
-    // untouched. A combo whose selected identity is gone is reset to match the
-    // server's sweep (per-context → inherit; the default combo is handled by
-    // applyDefaultEverywhere right after).
+    // Rebuild identity entries in every routing dropdown from live cards — no reload.
     function refreshRoutingMenus() {
         var idOpts = activeIdentityOptions();
         var activeLabels = {};
@@ -611,13 +587,7 @@
         var scriptUrl = CFG.providerScripts && CFG.providerScripts[providerSlug];
         ensureProviderScript(providerSlug, scriptUrl);
 
-        // hCaptcha auto-renders any .h-captcha div on the page once its
-        // script loads, but we want a per-card callback for auto-testing.
-        // Register a per-card global callback name + emit the widget div.
-        // Provider-agnostic: read the widget container class + JS global
-        // from the localized metadata so every hosted provider (hCaptcha,
-        // Turnstile, …) renders its preview the same way.
-        var id = card.dataset.identityId;
+            var id = card.dataset.identityId;
         var widgets = CFG.providerWidgets || {};
         var w = widgets[providerSlug];
         if (w && w.class) {
@@ -634,9 +604,6 @@
         }
     }
 
-    // Reflect the card's saved theme/size on the preview widget. "auto" is
-    // resolved here from the admin's OS colour scheme (the widget has no
-    // native auto), matching the frontend behaviour.
     function previewAppearanceAttrs(card) {
         var themeEl = card.querySelector('.lrob-etk-combo-value[name="theme"]');
         var sizeEl = card.querySelector('.lrob-etk-combo-value[name="size"]');
@@ -685,8 +652,6 @@
         });
     }
 
-    // reCAPTCHA v3 score test — loads api.js?render=key, executes, sends the
-    // token to the server which siteverifies and returns the raw score.
     function runV3ScoreTest(card, siteKey, btn) {
         if (!siteKey) return;
         var resultEl = card.querySelector('[data-test-result]');
@@ -765,9 +730,6 @@
         document.head.appendChild(s);
     }
 
-    // One delegated change listener on the protection section: any combo
-    // value change (default / per-context override / appearance) autosaves
-    // the whole section in one POST.
     function wireProtectionSection() {
         var section = document.querySelector('.lrob-etk-captcha-protection');
         if (!section) return;
@@ -790,10 +752,6 @@
     }
 
     // --- Utilities ---
-    // Reverse map of action string → per-action nonce for destructive
-    // operations (delete identity, save routing, set default). When
-    // request() sees one of these as the FormData's `action`, it appends
-    // `_action_nonce` automatically — callers don't have to know.
     var actionNonceMap = (function () {
         var map = {};
         var nonces = CFG.actionNonces || {};

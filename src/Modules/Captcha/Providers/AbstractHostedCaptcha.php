@@ -4,23 +4,7 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Captcha\Providers;
 
-/**
- * Shared implementation for vendor "drop-in widget + siteverify" captchas
- * (hCaptcha, Cloudflare Turnstile, Google reCAPTCHA). They differ only by a
- * handful of constants + branding; everything else — the credential fields,
- * validation, widget render (with global theme/size + auto resolution), and
- * the server-side token verification — lives here.
- *
- * Concrete providers MUST define these constants (read via late static
- * binding, and surfaced to the admin JS by reflection):
- *   - SCRIPT_URL          : vendor widget JS URL
- *   - VERIFY_URL          : vendor siteverify endpoint
- *   - POST_RESPONSE_FIELD : the form field the widget writes its token into
- *   - WIDGET_CLASS        : the container CSS class the vendor script renders into
- *   - WIDGET_GLOBAL       : the JS global exposing render() (e.g. "hcaptcha")
- *
- * …and implement slug(), label(), description(), logo_html(), vendor_label().
- */
+// Docs: docs/captcha.md → "AbstractHostedCaptcha"
 abstract class AbstractHostedCaptcha implements ProviderInterface
 {
     public const CREDENTIAL_SITE_KEY = 'site_key';
@@ -113,9 +97,7 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
         $theme = isset($display['theme']) ? (string) $display['theme'] : 'auto';
         $size  = isset($display['size'])  ? (string) $display['size']  : 'normal';
 
-        // "Invisible" is only honored by providers that support it; otherwise
-        // fall back to a normal visible widget so a mis-set size never silently
-        // disables the captcha.
+        // Fall back to normal if provider doesn't support invisible — never silently disable.
         $invisible = ($size === 'invisible') && $this->supports_invisible();
         if ($invisible) {
             $size_attr = ' data-size="invisible"';
@@ -128,10 +110,6 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
         // from prefers-color-scheme.
         $theme_attr = ($theme === 'light' || $theme === 'dark') ? ' data-theme="' . esc_attr($theme) . '"' : '';
 
-        // Invisible mode: the widget shows nothing; the frontend triggers it on
-        // submit. Declarative callbacks let the vendor populate the response
-        // field + tell form-submit.js when the token is ready / failed. The
-        // outer field carries markers so form-submit.js can find + drive it.
         $is_preview = isset($context['context']) && $context['context'] === 'preview';
         $widget_callbacks = ($invisible && !$is_preview)
             ? ' data-callback="lrobEtkInvisibleResolve"'
@@ -218,13 +196,7 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
         return [true, null];
     }
 
-    /**
-     * Admin-only inline notice when the site key is missing, with enough
-     * diagnostics to tell apart the failure modes. Visitors see nothing;
-     * verify() still fails closed.
-     *
-     * @param array<string, mixed> $context
-     */
+    /** @param array<string, mixed> $context */
     protected function render_misconfigured_notice(array $context): string
     {
         if (!current_user_can('manage_options')) {

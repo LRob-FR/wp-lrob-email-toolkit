@@ -7,19 +7,7 @@ namespace LRob\EmailToolkit\Modules\Captcha;
 use LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface;
 use LRob\EmailToolkit\Modules\Captcha\Providers\ProviderInterface;
 
-/**
- * Public API for anti-bot challenges. Other modules grab this from the
- * Container and call render()/verify() without knowing which challenge is
- * active. Consumers planned: ContactForm (live), Newsletter, comments,
- * lost-password, registration.
- *
- * Resolution happens via routing keys (see Routing) — strings like
- * 'homemade:math' or 'identity:7'. Callers may pass a `context` (one of
- * Routing::CONTEXT_*) and the service looks up the effective route in
- * the persisted context map, OR an explicit `force_route` to bypass it.
- * There is always at least one homemade challenge so a truly-empty
- * configuration still does something useful.
- */
+// Docs: docs/captcha.md
 final class CaptchaService
 {
     /** Legacy single-default option, kept for one-time migration only. */
@@ -35,13 +23,7 @@ final class CaptchaService
     /** Route is intentionally `none` (or unset) — admin opted out, no challenge to run. */
     public const STATE_NONE = 'none';
 
-    /**
-     * Route is configured but can't resolve: identity row missing/inactive,
-     * provider class not registered, or credentials un-decryptable (e.g.
-     * AUTH_KEY rotated since save). verify() must fail closed in this state
-     * — otherwise bots silently bypass the captcha while the admin UI
-     * looks fine.
-     */
+    /** Route configured but unresolvable (deleted identity, missing class, AUTH_KEY rotated). verify() fails closed. */
     public const STATE_BROKEN = 'broken';
 
     /** @var array<string, ChallengeInterface> */
@@ -94,14 +76,7 @@ final class CaptchaService
         return $this->identities;
     }
 
-    /**
-     * Resolve a routing key from a render/verify context. Priority:
-     *  1. `force_route` (explicit routing-key string)
-     *  2. `context`     (one of Routing::CONTEXT_* → effective_route)
-     *  3. Global default from the context map
-     *
-     * @param array<string, mixed> $context
-     */
+    /** @param array<string, mixed> $context */
     public function resolve_route(array $context): string
     {
         $force_route = isset($context['force_route']) && is_string($context['force_route']) ? $context['force_route'] : '';
@@ -116,19 +91,6 @@ final class CaptchaService
     }
 
     /**
-     * Resolve a route to a (challenge, credentials, state) triple. The
-     * state distinguishes:
-     *   - STATE_OK     : challenge non-null, ready to run.
-     *   - STATE_NONE   : admin intentionally turned this context off — no
-     *                    challenge expected, verify() should pass.
-     *   - STATE_BROKEN : route points at something missing/inactive/
-     *                    undecryptable. verify() must fail closed so bots
-     *                    can't bypass while the admin UI looks fine.
-     *
-     * Existing callers that destructure only the first two elements (like
-     * the diagnostics page) keep working — PHP list destructuring ignores
-     * extra elements.
-     *
      * @param array<string, mixed> $context
      * @return array{0:?ChallengeInterface, 1:array<string, string>, 2:string}
      */
@@ -178,12 +140,7 @@ final class CaptchaService
     }
 
     /**
-     * Render the resolved challenge. Returns '' when no challenge applies
-     * (either opted-out OR broken — visitors never see the difference).
-     * Admins get a separate persistent notice for broken routes via the
-     * Module's render_broken_routes_notice hook. Identity credentials, if
-     * any, are injected into $context['credentials'] before delegating.
-     *
+     * Returns '' for both opted-out and broken routes — visitors never see the difference.
      * @param array<string, mixed> $context
      */
     public function render(array $context = []): string
@@ -223,15 +180,6 @@ final class CaptchaService
     }
 
     /**
-     * Verify the resolved challenge. Three outcomes:
-     *   - Challenge resolved      → run challenge->verify()
-     *   - STATE_NONE (opted out)  → [true, null] — admin chose not to challenge
-     *   - STATE_BROKEN (misconf.) → [false, message] — fail closed so bots
-     *     can't slip past a captcha the admin thought was active. Common
-     *     trigger: AUTH_KEY rotated since credentials were saved, or an
-     *     identity row was deleted while still referenced by the routing
-     *     map.
-     *
      * @param array<string, mixed> $post
      * @param array<string, mixed> $context
      * @return array{0:bool, 1:?string}
@@ -260,10 +208,6 @@ final class CaptchaService
         return [$ok, $error];
     }
 
-    /**
-     * Persist a new default route. Convenience wrapper around Routing so
-     * callers don't have to import both classes.
-     */
     public function set_default_route(string $route): void
     {
         Routing::set_default($route);

@@ -1,14 +1,35 @@
 # CLAUDE.md
 
-Guidance for Claude Code sessions working in this repository.
+Guidance for Claude Code sessions working in this repository. **This file is the general technical guideline layer** (conventions, mandates, gotchas, naming, architecture) — always loaded into context. For the public "what the plugin does" description, see `README.md`. For deep per-subsystem code reference, see `docs/*.md` (loaded on demand — index below).
 
 ## 📖 READ THIS FIRST, EVERY SESSION
 
-**Before touching any code or suggesting any feature work, READ [todo.md](./todo.md) — specifically its "🗺️ Roadmap to 1.0" section at the top.** The user has locked the milestone sequence to 1.0 (v0.4.x → v0.5.x → … → v1.0.0). **Do not propose work from a later milestone before the current one ships.** Do not invent new priorities — if it's not in the roadmap, ask before building it.
+**Before touching any code or suggesting any feature work, READ [docs/todo.md](./docs/todo.md) — specifically its "🗺️ Roadmap to 1.0" section at the top.** The user has locked the milestone sequence to 1.0 (v0.4.x → v0.5.x → … → v1.0.0). **Do not propose work from a later milestone before the current one ships.** Do not invent new priorities — if it's not in the roadmap, ask before building it.
 
-**Then check [completed.md](./completed.md)** for what's already shipped (so you don't reinvent or duplicate). Also load memory `project_1_0_release_prerequisites` — it's the short-form pointer to the roadmap with status flags on the original 1.0 gates.
+**Then check [docs/done.md](./docs/done.md)** for what's already shipped (so you don't reinvent or duplicate). Also load memory `project_1_0_release_prerequisites` — it's the short-form pointer to the roadmap with status flags on the original 1.0 gates.
 
-**Keep `todo.md` and `completed.md` in sync as you work.** When a feature lands or a backlog item gains/loses scope, update both files in the same change — don't defer to "later". Stale entries (e.g. *working tree; pending release* on something already shipped, or a backlog bullet for something now in `completed.md`) are bugs in the docs. Also: when a milestone ships, update the roadmap section in `todo.md` to flag it shipped + move the line items to `completed.md`.
+**Keep `docs/todo.md` and `docs/done.md` in sync as you work.** When a feature lands or a backlog item gains/loses scope, update both files in the same change — don't defer to "later". Stale entries (a backlog bullet for something now in `docs/done.md`, or a ✅-done line left in the todo) are bugs in the docs. When a milestone ships, flag it shipped in the roadmap section of `docs/todo.md` + move the line items to `docs/done.md`.
+
+### Doc-sync timing — non-negotiable
+
+- **`docs/todo.md` + `docs/done.md` — update them right after every human validation that a change is functional.** The user confirms it works → in that moment, move the shipped line out of `docs/todo.md` into `docs/done.md`. Don't batch it to "later"; a validated change that's still sitting in the todo is a stale doc.
+- **`README.md`, `docs/todo.md`, `docs/done.md` must be current before every context compression AND before every build (`./release.sh`).** Treat an imminent compaction or a build as a checkpoint: reconcile these three first, so the next context window starts from accurate state and the shipped zip never reflects stale status. (`CLAUDE.md` + the relevant `docs/*.md` follow the same rule whenever conventions/architecture changed.)
+
+## Code reference docs (`docs/`, load on demand)
+
+Three-tier doc split — **`README.md`** = public (what the plugin does, for users); **`CLAUDE.md`** = general technical guidelines (always in context); **`docs/*.md`** = deep per-subsystem code reference, read only when you touch that subsystem.
+
+**When you work on a subsystem, read its doc first.** When you change one, update its doc in the same change. **Prefer the doc over a big comment header in the code** — keep code comments minimal (a one-line pointer to the doc + short inline WHY comments only; see "Conventions to follow"). When a subsystem grows enough to warrant it, **create a new `docs/<area>.md`**, add it to this index, and drop a one-line pointer comment at the top of its main source file. Don't re-fold doc detail back into `CLAUDE.md` — it's deliberately split out to keep the always-loaded hub lean (memory `feedback_docs_in_claude_md`).
+
+- **[docs/core.md](./docs/core.md)** — entry point + autoloader, lifecycle (Activator / Deactivator / `uninstall.php`), Container, ModuleManager / AbstractModule / ModuleInterface, Support (Encryption, Events, TrackingToken), AutoUpdate.
+- **[docs/admin-ui.md](./docs/admin-ui.md)** — admin design tokens, shared PHP renderers (`src/Admin/`), shared JS helpers (`admin/js/etk-*.js`), CSS primitives catalog (`admin-components.css`).
+- **[docs/forms.md](./docs/forms.md)** — shared form infrastructure (`src/Forms/`): field types + registry, renderers, structure/validation, captcha field, honeypot, upload policy; frontend `assets/js/form-submit.js` + `assets/css/contact-form.css`.
+- **[docs/form-builder.md](./docs/form-builder.md)** — the WYSIWYG form editor (`admin/js/form-fields-editor.js`): section map, serialized field shape, DOM contract, where-to-change.
+- **[docs/contact-form.md](./docs/contact-form.md)** — Contact Form module: CPT, recipients, subject/success templates, submissions inbox, the anti-spam stack.
+- **[docs/smtp.md](./docs/smtp.md)** — SMTP module: identities, routing rules, From resolution, transports, test sender, source resolver.
+- **[docs/logging.md](./docs/logging.md)** — Logging module: log repository, retention, resend, attachment store.
+- **[docs/captcha.md](./docs/captcha.md)** — adding a homemade challenge or a hosted provider.
+- **[docs/newsletter-internals.md](./docs/newsletter-internals.md)** — list kinds / system lists / visibility, rule providers, audience-picker JS contract, subscriber profile fields + form mapping, send pipeline, tracking.
 
 ## Project
 
@@ -16,14 +37,7 @@ WordPress plugin **LRob - Email Toolkit** (slug `lrob-email-toolkit`). Modular a
 
 ## Build / lint / release
 
-`./release.sh` is the single build entry point. **Run it yourself whenever needed.** Output is captured in one go — `./release.sh 2>&1 | tail -40` shows everything that matters. Steps:
-- Lints every PHP file (`php -l`) and every JS file (`node --check`).
-- Scans CSS for unreferenced `.lrob-etk-*` selectors (peel-once + 3-hyphen-min heuristic).
-- Regenerates `languages/lrob-email-toolkit.pot` via `wp i18n make-pot`.
-- `msgmerge`s POT into every `.po`, `msgattrib --no-obsolete` strips orphans.
-- Compiles `.po` → `.mo` + `.json`; `msgfmt --statistics` per language.
-- Prints file-type + LoC stats.
-- Zips into `../releases/lrob-email-toolkit-<version>.zip`.
+`./release.sh` is the single build entry point. **Run it yourself whenever needed**; `./release.sh 2>&1 | tail -40` shows everything that matters. It lints every PHP (`php -l`) + JS (`node --check`) file, scans CSS for dead `.lrob-etk-*` selectors, regenerates the POT + `msgmerge`s it into every `.po`, compiles `.mo`/`.json` (per-language `msgfmt --statistics` line), and zips into `../releases/lrob-email-toolkit-<version>.zip`. The zip excludes dev-only files (`docs/` — incl. todo/done —, `CLAUDE.md`, `README.md`, `*.sh`, `.git`, etc.).
 
 No PHPUnit, PHPCS, or PHPStan config yet — don't invent commands.
 
@@ -31,25 +45,17 @@ No PHPUnit, PHPCS, or PHPStan config yet — don't invent commands.
 
 ### 🚫 RELEASE GATE — translations are non-negotiable before tagging
 
-**Before any `gh release create` / `gh release upload`, the `./release.sh` output's `msgfmt` line MUST read `N translated, 0 fuzzy, 0 untranslated`.** A release shipped with partial French is a broken release — users hit English fragments mid-flow. Recovery procedure + full checklist in memory `feedback_translations_before_every_release`. Quick steps:
-
-1. Run `./release.sh` — look at the msgfmt line.
-2. If `X fuzzy` > 0 or `Y untranslated` > 0, **STOP**. Don't tag.
-3. List the gap: `msgattrib --untranslated languages/lrob-email-toolkit-fr_FR.po | grep "^msgid \""` (same with `--only-fuzzy`).
-4. Write `/tmp/fixes_vX.Y.Z.po` with proper French, merge via `msgcat --use-first /tmp/fixes_vX.Y.Z.po languages/lrob-email-toolkit-fr_FR.po -o /tmp/m.po`, then `msgattrib --clear-fuzzy /tmp/m.po -o languages/lrob-email-toolkit-fr_FR.po`.
-5. Rebuild — verify `0 fuzzy, 0 untranslated`. Commit the i18n update. Then release.
-
-Already-shipped release with broken i18n? `gh release upload <tag> ../releases/lrob-email-toolkit-X.Y.Z.zip --clobber` refreshes the asset on the same tag (no version bump needed if caught early).
+**Before any `gh release create` / `gh release upload`, the `./release.sh` output's `msgfmt` line MUST read `N translated, 0 fuzzy, 0 untranslated`.** A release shipped with partial French is broken — users hit English fragments mid-flow. If the line isn't clean, STOP and don't tag. **The full step-by-step recovery (gap listing → hand-authored `fixes.po` → `msgcat` + `msgattrib --clear-fuzzy` → rebuild), plus the `gh release upload <tag> … --clobber` fix for an already-shipped broken release, live in memory `feedback_translations_before_every_release`.**
 
 ## Commit / push process — do this EVERY time, without being asked
 
 When the user asks to commit (and/or push), run this whole sequence — don't make them list the steps:
 
-1. **Sync the four docs to what changed** (in the same commit, never deferred):
-   - `completed.md` — add what shipped this batch (move it out of todo).
-   - `todo.md` — delete done lines, adjust the roadmap/backlog.
+1. **Sync the docs to what changed** (in the same commit, never deferred):
+   - `docs/done.md` — add what shipped this batch (move it out of todo).
+   - `docs/todo.md` — delete done lines, adjust the roadmap/backlog.
    - `README.md` — update the Status blurb / module table / requirements if user-facing behaviour or stack changed.
-   - `CLAUDE.md` — update conventions/tokens/architecture notes if any changed.
+   - `CLAUDE.md` + the relevant `docs/*.md` — update conventions/tokens/architecture notes if any changed.
 2. **`./release.sh`** and read the output — it MUST be green: `php -l` + `node --check` clean, dead-css scan clean, and the **translation gate** `msgfmt` line = `N translated, 0 fuzzy, 0 untranslated`. If the gate isn't green, fix `fr_FR.po` (recovery procedure above) before committing — a release with partial French is broken.
 3. **Commit to `main`** — this repo's convention is WIP commits straight to `main` (don't branch). Message = the net diff vs the previous commit (see memory `feedback_commit_message_net_diff`), ending with the `Co-Authored-By:` trailer.
 4. **`git push`** when the user also asked to push.
@@ -84,7 +90,7 @@ Anything Claude adds — new option, table, hook, CSS class — **must** follow 
 
 ## Architecture
 
-**Entry point** (`lrob-email-toolkit.php`): defines constants, registers a hand-rolled PSR-4 autoloader (`LRob\EmailToolkit\Foo\Bar` → `src/Foo/Bar.php`), boots `Plugin::instance()->boot()` on `plugins_loaded`. **No Composer at runtime** by design — distrust of library bloat.
+**Entry point** (`lrob-email-toolkit.php`): defines constants, registers a hand-rolled PSR-4 autoloader (`LRob\EmailToolkit\Foo\Bar` → `src/Foo/Bar.php`), boots `Plugin::instance()->boot()` on `plugins_loaded`. **No Composer at runtime** by design — distrust of library bloat. Foundation details (lifecycle, Container, Encryption, Events) in [docs/core.md](./docs/core.md).
 
 **Lifecycle**: `Activator::activate()` grants `manage_lrob_etk` to administrator + seeds `lrob_etk_modules`. `Deactivator::deactivate()` clears every `lrob_etk_*` cron event (data preserved). `uninstall.php` drops every `{prefix}lrob_etk_*` table + every `lrob_etk_*` option/cron + the capability (belt-and-suspenders: prefix scan handles modules that forgot their own uninstall).
 
@@ -110,7 +116,7 @@ Anything Claude adds — new option, table, hook, CSS class — **must** follow 
 - **Final classes** unless explicitly meant for subclassing (AbstractModule is the exception).
 - **Constructor property promotion** — PHP 8.2+ minimum.
 - **No mock/stub/fallback code paths for things that can't happen.** Internal code trusts callers; validate only at WP REST/admin/form boundaries.
-- **One-line doc comments only where the WHY is non-obvious.** Don't narrate WHAT — names already do that. Don't restate shared conventions ("matches the X pattern", "single source of convention") — the convention either lives here or is implicit from any other call site.
+- **Comments: minimal.** One-line WHY comments only where non-obvious; never narrate WHAT (names already do that), and never restate shared conventions. **No big narrative header blocks in code** — that knowledge belongs in the file's `docs/*.md`; leave at most a one-line `// Docs: docs/<area>.md` pointer at the top. **Never strip load-bearing comments**: the WP plugin header in `lrob-email-toolkit.php`, `/* translators: */` notes, lint/tool directives, and the `// --- Section ---` navigation markers in `form-fields-editor.js`.
 - **No backwards-compat shims** while version < 1.0.0 — schema can change freely between minor versions.
 - **Don't pre-bump versions or auto-commit small changes.** Both wait for the user's cue.
 
@@ -122,68 +128,7 @@ The user runs the plugin from the release zip, not the working tree. **Every PHP
 
 Admin UI deliberately does **not** use core WP defaults (`.wrap`, `WP_List_Table`, `<select>`, `<datalist>`). Shared components live in `admin/css/admin-{base,components,dashboard,smtp,logging,contact-form,captcha,newsletter}.css` under `.lrob-etk-*` plus shared PHP renderers in `src/Admin/`. **Default to functional names + global classes** — drop module sub-prefixes (`cf-`, `smtp-`, `logs-`) when the pattern could resurface elsewhere. Reuse — don't reinvent.
 
-### Design tokens (admin-base.css)
-
-Single source for every color, radius, shadow, spacing, transition, **and text size**. **Hardcoding chrome values is forbidden** — `font-size: 12px`, `gap: 6px`, `padding: 8px`, `color: #eee`, `border-radius: 4px` all belong to a token. If a needed value isn't tokenized yet, **add a token to admin-base.css first**, then reference it. Adapting one (dark mode, compact density, roundness preset) then ripples everywhere. The same rule applies to **reuse**: before forking a new class, grep for similar existing primitives — extend rather than duplicate (see memory `feedback_css_tokens_no_hardcode`). **Tints** (glows, hover/selected backgrounds, focus rings) are NOT new tokens — derive them at the use site with `color-mix(in srgb, var(--etk-accent) N%, transparent)` (or `--etk-danger`, or a surface var) so they track the palette / any future theme automatically; the only literal left is the `%`. The frontend `assets/css/contact-form.css` is a **separate** token system (`--lrob-etk-cf-*`, user-themeable per form) — never cross the two.
-
-| Token family | Values |
-|---|---|
-| Palette | `--etk-fg`, `--etk-muted`, `--etk-soft`, `--etk-line`, `--etk-line-strong`, `--etk-accent`, `--etk-accent-hover`, `--etk-accent-bg`, `--etk-success`, `--etk-success-bg`, `--etk-warning`, `--etk-warning-bg`, `--etk-danger`, `--etk-danger-bg` |
-| Text-on-tint | `--etk-text-{success,danger,warning,accent}` (dark text on the matching `*-bg` tints). `--etk-on-accent` = light text/icon sitting ON an accent or semantic fill (primary buttons, solid badges). |
-| Surfaces | `--etk-card-bg` (warm off-white), `--etk-input-bg` (pure white) |
-| Veils / scrim | `--etk-veil-{1,2,3}` (translucent black — layered over a surface to recede / gray it out: sent/trashed rows, disabled cards, hover tints), `--etk-backdrop` (modal scrim) |
-| Radii | `--etk-radius-{sm,md,lg,xl,pill}` (4 / 6 / 8 / 12 / 999px). Legacy alias `--etk-radius` = md. |
-| Shadows | `--etk-shadow-{sm,md,lg,modal,menu}` |
-| Spacing | `--etk-space-{1..6}` (4 / 8 / 12 / 16 / 24 / 32px). Snap to grid — don't add `--etk-space-1-5` for 6px, round to 4px or 8px. |
-| Text sizes | `--etk-text-{xxs,xs,lg,xl,2xl}` = 9 / 11 / 15 / 20 / 28px. **The base body size is 13px (the WP-admin default, set on `.lrob-etk`) and is NEVER declared — normal-flow text inherits it, so DON'T write `font-size: 13px` / `var(--etk-input-font-size)` on plain text.** Only deviations get a token: `xs`=secondary/muted (captions, slugs, helper, table heads, badges, pills); `xxs`=micro glyphs (sort arrows, badge numerals); `lg`=titles; `xl`=section/CTA headings + big counts; `2xl`=hero stat numbers. Display sizes are tokenized too (no bare px in admin chrome). `em` is banned (compounding). `sm`(12)/`md`(13) are retired — defined, 0 refs; don't reintroduce. Density-tunable. |
-| Inputs | `--etk-input-height` (30px), `--etk-input-height-sm` (28px), `--etk-input-font-size` (13px). Form controls (input/select/textarea/button) + headings normalized down do NOT inherit `font-size` — they carry an explicit size (this var for controls; a deliberate value on headings). Keep those; the "don't declare 13" rule is for *normal-flow text*. |
-| Icons | `--etk-icon-size` (16px), `--etk-icon-size-sm` (14px), `--etk-icon-size-lg` (18px — accent/warning inline icons), `--etk-icon-size-xl` (40px — big decorative empty-state/onboarding icons). `.dashicons` set `font-size` = `width` = `height` to the same icon token. |
-| Motion | `--etk-transition` (0.15s ease), `--etk-transition-slow` (0.30s ease) |
-
-**Cleanup status (v0.4.0):** **colour** pass DONE (every hardcoded colour → token / `color-mix`). **font-size** pass DONE — all 9 admin sheets on the scale above: base 13 inherited (not declared), secondary→`xs`, micro→`xxs`, titles→`lg`/`xl`, hero numbers→`2xl`, icons→the `--etk-icon-size-*` family; `em` eliminated; display sizes centralized (zero bare px in admin CSS). Frontend `assets/css/contact-form.css` keeps its own `--lrob-etk-cf-*` system (untouched — never cross the two). **Still remaining for 0.4.0** (NOT deferred): tokenize **spacing/radius** (off-grid `6/10/14px` gaps → `--etk-space-*` grid; literal `border-radius` → `--etk-radius-*`), then a **structural dedup** pass (merge duplicate classes; promote `-cf-`/`-nl-`/`-smtp-` sub-prefixes → globals; drop dead selectors). Incremental + visual QA (regression risk). Add tokens cleanly to NEW additions meanwhile.
-
-### Shared PHP renderers (src/Admin/)
-
-- **`PageHeader::render($args)`** — Single source for every plugin page header. Layout: `[Title] [ModuleToggle?] [+ New X primary]   →→→   [Tools group] | [Nav group]`. Wording mandate: **`New X`** (the `dashicons-plus-alt2` icon supplies the `+`). Pass `primary`/`tools`/`nav` button arrays. Cross-page links go in `nav` (muted treatment + vertical divider).
-- **`ModuleToggle::render_inline($module)`** — toggle switch next to the H1. PageHeader auto-invokes when `module` is passed.
-- **`Combobox::render_fixed_select()` / `render_free_text()`** — `<datalist>` is banned; raw `<select>` is banned. Auto-save marker class passed in (`lrob-etk-cf-field`, etc.).
-- **`Tooltip::render($text)`** — `position: fixed` so they escape scroll/modal clipping.
-- **`RetentionToggle::render([...])`** — checkbox + days input pair (0 stored = disabled).
-
-### Shared JS helpers (admin/js/, enqueued plugin-wide via Admin\Assets)
-
-- **`etk-modal.js`** — `window.lrobEtkModal.bindHeader(modalId, openerId)`. Opens any `.lrob-etk-modal` via header button; backdrop / × / Escape all close; body scroll locks. Used by CF Defaults, CF Storage, Logs Storage.
-- **`etk-autosave.js`** — `window.lrobEtkAutosave.attach(card, opts)`. Per-key autosave with debounce, `lastSent` tracking, and `.lrob-etk-card-status` badge state machine. Consumer supplies `{ fieldSelector, save(field, value), readValue?, debounceMs?, i18n }`. Used by CF per-form cards + Defaults card, Logs Storage card.
-- **`etk-controls.js`** — combobox driver. Loads in head (SMTP cards call synchronously mid-body).
-- **`etk-list-filter.js`** — generic filter form ⇄ list region AJAX swap. Used by Email Logs + Submissions inbox.
-- **`etk-detail-modal.js`** — generic detail modal with prev/next nav.
-- **`etk-retention-toggle.js`** — RetentionToggle widget runtime.
-
-### CSS primitives (admin-components.css)
-
-Don't redefine these per module — extend with module-only variants where genuinely needed.
-
-- **`.lrob-etk-card`** (+ `--container` modifier for inline-size container queries) — every settings/identity card. Consumes `--etk-card-bg`, line border, lg radius, md shadow, focus-within highlight, `.is-new` accent. Module flavors (`.lrob-etk-identity-card` for SMTP JS hook, `.lrob-etk-form-card` for CF, `.lrob-etk-captcha-card`, `.lrob-etk-nl-card`, `.lrob-etk-logs-storage-card`) sit alongside as semantic markers, not duplicate visuals.
-- **`.lrob-etk-card-grid`** — `repeat(auto-fit, minmax(380px, 540px))`. CF form cards add `--wide` modifier (`minmax(420px, 750px)`) so hCaptcha (303px min) fits.
-- **`.lrob-etk-card-form` + `-head` + `-status` + `-footer`** — card internals. `-status` is the absolutely-positioned animated save badge.
-- **`.lrob-etk-data-table` + `-wrap`** — replaces WP `widefat striped`. Shared by Email Logs + Submissions inbox; column widths via `.col-*` modifiers.
-- **`.lrob-etk-filter-bar` + `-field` (+ `--search`) + `-actions`** — top-of-list filter row.
-- **`.lrob-etk-bulk-toolbar`, `.lrob-etk-pagination`** — list chrome below the filter bar / above results.
-- **`.lrob-etk-icon-btn`** (+ `--ghost` / `--danger` / `--spam`) — square icon-only button. Replaces every per-module row-action / picker-trigger / conn-test variant. Sizes drive off tokens.
-- **`.lrob-etk-btn--danger` / `--spam` / `--danger-solid` / `--warn-solid`** — modifiers on WP `.button`. Outline variants (`--danger`, `--spam`) for inline actions; solid-fill variants (`*-solid`) for destructive confirm buttons.
-- **`.lrob-etk-combo` + `-input` + `-toggle` + `-menu`** — input+dropdown shell. The recipient-list row uses the same input-shell idiom; the `<datalist>` ban applies.
-- **`.lrob-etk-menu` + `--fixed` + `-item`** — floating menu shared between combobox and JS-positioned pickers (recipient menu).
-- **`.lrob-etk-modal` + `-dialog` (+ `--small` / `--wide`) + `-header` + `-body` + `-footer`** — modal chrome. Opened via `window.lrobEtkModal.bindHeader()`.
-- **`.lrob-etk-popover` + `-header` + `-body` + `-footer`** — anchored popover (SMTP conn-test details, dashboard test email).
-- **`.lrob-etk-test-result`** (+ `.is-pending` / `.is-success` / `.is-failure`) — banner for SMTP conn-test / Captcha verify-test / manual-cleanup result.
-- **`.lrob-etk-detail-strip` + `-item` + `-label` + `-value`** — chip row at top of record detail views (submission, log entry).
-- **`.lrob-etk-cleanup-row` + `-statuses` + `-actions`** — manual-cleanup row inside Storage modals.
-- **`.lrob-etk-retention-toggle`** — checkbox + days widget rendered by `Admin\RetentionToggle`.
-- **`.lrob-etk-status`** (+ `--on` / `--off` / `--fail` / `--pending`) — pill badges.
-- **`.lrob-etk-is-dimmed`** — reusable greying veil (opacity, hover-restores to full). Marks a card/row inactive or terminal: inactive captcha + SMTP identities, sent newsletters. Toggle it live in JS alongside the state change.
-- **`.lrob-etk-section-title`** — page-level section title carries a `border-top`; inside `.lrob-etk-card` the border is suppressed (the parent section owns separation).
-- **`.lrob-etk-tip` + `-text`** — tooltip rendered via `Admin\Tooltip::render()`; `position: fixed` with JS coords.
-- **`.lrob-etk-card-footer-default`** slot carries `.lrob-etk-default-badge` (star-filled, "Default") or `.lrob-etk-set-default` (star-empty, click to make default).
+**The full admin-UI reference — design tokens, shared PHP renderers, shared JS helpers, the CSS primitives catalog — lives in [docs/admin-ui.md](./docs/admin-ui.md).** The non-negotiable rules are below.
 
 ### Mandates
 
@@ -191,7 +136,7 @@ Don't redefine these per module — extend with module-only variants where genui
 - **Forms / inputs**: never render a raw `<select>` or `<input>` in a settings card — always go through `Admin\Combobox` helpers.
 - **Modal opening**: never reimplement the open/close/scroll-lock dance — use `window.lrobEtkModal.bindHeader()`.
 - **Per-key autosave**: never reimplement debounce + status badge + lastSent — use `window.lrobEtkAutosave.attach()`.
-- **Colors / radii / shadows / transitions**: no hardcoded values — always reference tokens. If a needed value isn't tokenized yet, add the token in `admin-base.css`.
+- **Colors / radii / shadows / transitions / spacing / text sizes**: no hardcoded values — always reference tokens. If a needed value isn't tokenized yet, add the token in `admin-base.css` (token catalog in docs/admin-ui.md).
 - **`<datalist>`**: banned (cross-browser inconsistency). Use `Admin\Combobox::render_fixed_select()` for known options.
 - **`.lrob-etk [hidden] { display: none !important }`** — keep this. WP's `.button { display: inline-block }` has equal specificity and loads later, defeating plain `hidden`.
 
@@ -213,85 +158,21 @@ FLOOR(TIMESTAMPDIFF(SECOND, '2000-01-01 00:00:00', created_at) / %d) * %d + 9466
 
 `946684800` is the UTC epoch of `2000-01-01 00:00:00`. Used by `Modules/Logging/LogRepository::counts_by_bucket()`; copy this pattern for any new time-bucketed aggregation. Display-side: render browser-local via JS `Date`, not server-formatted strings.
 
-## Captcha module: adding a challenge / provider
+## Captcha module
 
-Two flavours coexist in `src/Modules/Captcha/`:
-
-- **Homemade challenges** (`Challenges/`) — self-contained PHP-renders-HTML + verifies-server-side. `MathChallenge`, `ImageChallenge`. No external API, no credentials.
-- **Hosted providers** (`Providers/`) — hCaptcha (shipped); Turnstile / reCAPTCHA designed to plug in. Loaded via vendor JS widget, verified via `wp_remote_post` to the vendor's verify URL. Each provider can have N **identities** stored in `wp_lrob_etk_captcha_identities` (AES-256-GCM encrypted credentials).
-
-`ProviderInterface` extends `ChallengeInterface` with `credential_fields()`, `validate_credentials()`, `logo_html()`. Routing keys: `homemade:<slug>`, `identity:<int>`, `none`, `inherit`. Per-context map (`lrob_etk_captcha_context_map`) keyed by `default` / `contact_form` / `comments` / `newsletter_subscribe` / `lost_password` / `registration`. `CaptchaService::resolve($context)` returns `[ChallengeInterface, credentials, state]`.
-
-### To add a homemade challenge
-
-Drop a class implementing `ChallengeInterface` into `Challenges/`. `Module::register_challenges()` auto-scans both `Challenges/` and `Providers/` at boot — no Module.php edit. The challenge automatically appears in every captcha picker.
-
-### To add a hosted provider
-
-Drop a class implementing `ProviderInterface` into `Providers/`. Required: `slug()`, `label()`, `description()`, `logo_html()`, `credential_fields()`, `validate_credentials()`, `render(array $context)`, `verify(array $post, array $context)`. Optional `SCRIPT_URL` and `POST_RESPONSE_FIELD` constants surface to admin JS for in-card preview. No edits to `Module.php`, `CaptchaService`, or the settings page — auto-scan picks it up.
-
-`verify()` receives the raw `$_POST` array. Use `FormContext::is_active()` / `FormContext::instance()` from ContactForm if the token name needs per-form scoping (prevents replay across forms). `MathChallenge` does this — copy that pattern for any challenge issuing a signed token.
+Two flavours in `src/Modules/Captcha/`: **homemade challenges** (`Challenges/` — self-contained PHP render + server verify, no creds) and **hosted providers** (`Providers/` — hCaptcha / Turnstile / reCAPTCHA, vendor-verified, AES-encrypted identities in `wp_lrob_etk_captcha_identities`). Both are auto-scanned at boot by `Module::register_challenges()` — dropping a class into either folder is all it takes; no `Module.php` edit. **Full how-to (interfaces, routing keys, `AbstractHostedCaptcha`, per-form token scoping) → [docs/captcha.md](./docs/captcha.md).**
 
 ### Service-module migrate trap
 
 Captcha is a **service module** (`is_service_module() === true`, always-enabled), so `maybe_migrate()` runs every boot. AbstractModule's default `db_version_int() === 1` recorded version=1 on every existing site *before* the module had install logic. Bumping to 2 makes `maybe_migrate()` take the `migrate()` branch (not `install()`) — schema never gets created on upgrade sites. **Fix**: always override `migrate()` to forward to `install()` (idempotent). If recovering from an already-shipped broken bump, bump the target one more notch so stuck sites re-take the migrate path. See memory `project_service_module_migrate_trap`.
 
-## Newsletter list kinds + system lists + visibility
+## Newsletter internals
 
-`wp_lrob_etk_nl_lists.kind` is an enum-ish column with three values:
+The Newsletter module's data-model contracts — **list kinds** (`subscribers` / `users` / `all_subscribers` pseudo-kind), **system lists** + **visibility** (private/public), the **rule-provider** extension point (`lrob_etk_nl_list_rule_providers` filter), the shared **audience-picker** JS contract, and **subscriber profile fields + form mapping** (`SubscriberFields`) — are documented in **[docs/newsletter-internals.md](./docs/newsletter-internals.md)**. The full product spec is repo-root `newsletter.md`.
 
-| kind | semantics | membership source |
-|---|---|---|
-| `subscribers` | Subscribers list — collects explicit members via `list_members` table | manual (subscribe form / contact form / admin add) |
-| `users` | WP users list — rule-based; provider locked at creation, can't be swapped post-hoc | `rule_json` → `RuleProviderInterface::resolve_user_ids()` |
-| `all_subscribers` | Pseudo-kind, system-only — resolves to every confirmed subscriber, no membership row needed | Materializer special-cases it |
+## Form-builder WYSIWYG editor
 
-`lists.is_system = 1` marks the four built-in lists seeded on install/migrate (`Module::seed_system_lists`): **All subscribers**, **All WP members**, **All WC customers**, **Active WC subscribers**. System lists refuse rename / rule edits / delete via the AjaxController guards + `ListRepository::is_system`. They **do** accept exclusions (admin can pin out specific WP users).
-
-`lists.visibility` ('private' | 'public') decides whether a list surfaces on the subscriber preferences page. **Private** (default) = admin-managed, hidden from subscribers. **Public** = subscribers self-join/leave from the prefs page. System lists hardcoded private (computed sets aren't subscriber-toggleable). `PrefsHandler::sync_public_list_memberships` + `ProfileSection::save` both clip the membership set to `visibility=public + kind=subscribers + is_system=0` server-side — POST tampering can't reach private lists.
-
-The Newsletter audience picker (`META_TARGET_SPEC`) supports `{kind: 'lists', list_ids: [1,2,3]}` for multi-list union. Materializer iterates list_ids, dedupes by (kind,id), and resolves each per its `list.kind`. Legacy `{kind: 'all'}` and friends keep working under the hood. The Materializer **no longer** filters recipients by `category_opt_outs` (categories merged into lists in v0.3.4 schema v12) — audience is purely list-membership-driven.
-
-### Categories → Lists migration (v0.3.4, schema v12 + v13)
-
-Categories were merged into Lists. v12 migrated every category to a public Subscribers-kind list + materialised list_members from `category_opt_outs`. v13 ran the destructive cleanup: dropped the `wp_lrob_etk_nl_categories` table, the `subscribers.category_opt_outs` column, and every `lrob_etk_nl_category_opt_outs` user_meta row. Both migrations chain on the same upgrade pass (v11 → v13 catches v12's data move + v13's drops in order). `CategoryRepository`, `CategoryPicker`, `seed_default_category()` all gone.
-
-## Newsletter list rule providers — adding one
-
-Lists (`wp_lrob_etk_nl_lists`) can be manual, rule-based, or both. Rule providers implement `Modules\Newsletter\Lists\RuleProviderInterface` and are surfaced via the `RuleRegistry`. Built-ins ship in `src/Modules/Newsletter/Lists/` (today: `WpUserRoleRule`).
-
-To register a third-party provider, hook the `lrob_etk_nl_list_rule_providers` filter and append your instance:
-
-```php
-add_filter('lrob_etk_nl_list_rule_providers', function (array $providers) {
-    $providers[] = new \MyPlugin\WooSubscribersRule();
-    return $providers;
-});
-```
-
-`config_fields()` returns generic field descriptors (`text` / `select` / `multiselect` / `checkbox`); the list-modal admin UI renders them automatically — no UI work to register a new provider. `sanitize_config()` is the trust boundary (the server never trusts the raw POST shape) and `resolve_user_ids()` is what the send-time Materializer calls to compute the auto-membership set. Manual memberships are unioned in by `Materializer::fetch_opted_in_users`.
-
-## Shared admin JS helpers (audience picker)
-
-`admin/js/etk-audience-picker.js` is the dropdown-of-grouped-checkboxes picker reused by the newsletter card's audience field AND by the form-card's default-list field. Parameterised purely via data attrs on the `[data-audience-picker]` shell:
-
-| Attr | Purpose |
-|---|---|
-| `data-audience-action` | `wp_ajax` action name to POST to |
-| `data-audience-key` | meta key the server should write under |
-| `data-audience-id-param` | POST param name for the entity ID (e.g. `newsletter_id`, `form_id`) |
-| `data-audience-id` | entity ID value |
-| `data-audience-nonce` | nonce string for the configured action |
-| `data-audience-ajax-url` | usually `admin-ajax.php` URL |
-| `data-audience-empty-label` | summary text when no list is picked |
-| `data-audience-saved-event` | (optional) `CustomEvent` name to dispatch on save success |
-| `data-audience-saved-id-key` | (optional) detail key under which the entity ID is published — listeners read it (newsletter-cards.js looks for `newsletterId`) |
-
-DOM contract: a `[data-audience-toggle]` button, a `[data-audience-menu]` (hidden by default), and one or more `<input type="checkbox" data-audience-list="<id>">` inside the menu. The shared module owns open/close, outside-click + Escape, summary updates, persistence. Save value shape is comma-separated IDs in the `value` POST param — server unpacks however the meta wants.
-
-Server-side: each consumer's save handler validates its own eligibility rules. Form's `default_list_ids` enforces `kind=subscribers AND is_system=0` (admin-created subscribers lists only — rule-based / computed lists make no sense as form defaults). Newsletter's `target_list_ids` accepts everything (system / users-kind / subscribers-kind all valid send targets).
-
-**Multi-instance opener**: every per-card "Manage lists →" trigger uses the class `.lrob-etk-nl-open-lists-modal` (not an `id`), with a delegated click handler in `ListsPage::render_modal`. Avoids the duplicate-ID trap when multiple cards live on the same page (`bindHeader` is ID-based and only binds the first match).
+`admin/js/form-fields-editor.js` (shared by Contact Form + Newsletter via `src/Forms/`) is a ~1900-line single-IIFE editor with a strict DOM contract mirrored by `FormEditorRenderer.php`. **Section map, serialized field shape, DOM contract, and where-to-make-common-changes → [docs/form-builder.md](./docs/form-builder.md). If you change the DOM contract on one side, change both.**
 
 ## Mandates carried by memory
 
@@ -300,80 +181,3 @@ These are enforced project-wide; the named memory file documents the why + how:
 - **No `window.confirm/alert/prompt`** (`feedback_no_browser_popups`) — every destructive admin action goes through `window.lrobEtkConfirm.prompt()` (head-loaded `admin/js/etk-confirm.js`). Server-rendered forms use `[data-etk-confirm-form]` + `data-confirm-title/-message/-label`.
 - **No explicit Save buttons** (`feedback_autosave_everywhere`) — every editable field autosaves on blur/change. The shared `lrob-etk:save-status` CustomEvent bubbles to the nearest `.lrob-etk-modal`, where `etk-modal.js` reflects state on a `[data-modal-status]` badge near the X button. Emit it from any custom save handler.
 - **Never reload from inside an open modal** (`feedback_no_modal_close_on_save`) — return the server-rendered HTML snippet from the AJAX endpoint and insert it client-side; mutate badges/state in place. Reloads slam the modal shut and lose scroll position. A reload deferred to modal-close is acceptable when the surrounding table genuinely needs a re-render (column picker).
-
-## Subscriber profile fields + form mapping
-
-`Modules\Newsletter\SubscriberFields` is the single source of truth for the subscriber profile columns:
-
-- `PROFILE_COLUMNS` — the canonical whitelist (`email`, `name`, `first_name`, `last_name`, `phone`, `address_line`, `address_line2`, `address_postcode`, `address_city`, `address_region`, `address_country`, `gender`, `language`).
-- `GENDER_VALUES` — `female` / `male` / `other` / `prefer_not_to_say`.
-- `sanitize($column, $value)` — per-column sanitiser (sanitize_email for email, ENUM check for gender, ISO-2 cap for country, etc.). Every write goes through this.
-- `SubscriberRepository::set_profile_field($id, $column, $value)` — whitelisted single-column write. Used by the detail-modal autosave (per-key AJAX path), the form-submit `write_mapped_profile`, and the CSV import handler.
-
-Form fields can declare a **`maps_to`** attribute (added via the editor's "Maps to" chip — Newsletter forms only; Contact Form gets an empty `EDITOR_DATA.mapsToTargets` and the chip stays hidden). At subscribe time, `SubmitHandler::extract_mapped_profile` walks the structure, runs values through `SubscriberFields::sanitize`, and `write_mapped_profile` fans them onto the subscriber row.
-
-The Newsletter Forms picker also ships **field presets** (`FormsPage::field_presets()`) — *Full name*, *First + Last name*, *Phone*, *Postal address* (5 sub-fields). Picking a preset drops one or more pre-mapped fields in one shot.
-
-Newsletter-specific field types live module-local under `src/Modules/Newsletter/Fields/` and are registered against `FormCPT::POST_TYPE` only (not Contact Form): `CategoryPicker` (back-compat shim, retired post-v0.3.4), `ListPicker`, `GenderField`. Shared types in `src/Forms/Fields/` (text/email/phone/select/etc) get registered into both CPTs from the respective modules. The `gender` field is a dedicated type rather than a `select+maps_to=gender` preset — options come from `SubscriberFields::GENDER_VALUES`, labels are translated at render time, and `maps_to` is locked so admin can't accidentally rewire it.
-
-## Form-builder WYSIWYG editor (`admin/js/form-fields-editor.js`)
-
-Shared between Contact Form and Newsletter via `src/Forms/`. Form-builder DOM uses the `lrob-etk-form-*` CSS prefix; module-specific admin chrome keeps its own prefix (`lrob-etk-cf-*` for Contact Form's form cards / recipients / modals, `lrob-etk-nl-*` for Newsletter's). The captcha field type is per-module — Contact Form's captcha emits `lrob-etk-cf-captcha-*` styles; Newsletter's emits its own.
-
-Single-IIFE, ~1900 lines. Section map for navigation — line numbers drift, search by the `// --- Name ---` marker:
-
-| Section | What lives here |
-|---|---|
-| Undo / redo history | Snapshot stack of `form.innerHTML`. One per discrete action. `HISTORY_MAX = 50`. Contenteditables only snapshot on blur. |
-| Save plumbing | `serialize(form)` → `FormData` → ajax `lrob_etk_cf_save_structure`. Debounced. Status states: `is-saving` / `is-saved` / `is-error`. |
-| Click dispatcher | Single delegate on `form`. Routes by `[data-insert]`, `[data-action]`, `[data-edit]`. |
-| Inline editables | Labels / helpers / submit text are `contenteditable="plaintext-only"` with `data-edit="label\|helper\|submit-text"`. |
-| Drag-and-drop | `draggedItem`, `dragType` (`field`\|`row`\|`col`). Targets via `pickDropHover()`. Snap-to-col: row middle band picks col whose `midX` > cursor. See memory `project_drag_image_gotcha`. |
-| Insert zones | Rebuilt from scratch after every mutation — canonical "one insert between every pair plus one trailing". `.is-orphan` for the sole insert in an empty container. |
-| Mutators | `addField`, `deleteField`, `addRow`, `addColumn`, `moveField`. Each commits one history snapshot. |
-| Inline settings strip | Per-field knobs (`maxLength`, `rows`, `min/max/step`, `pattern`, `placeholder` combobox for select, `multiple` for checkbox, `align` for submit) in `.lrob-etk-cf-inline-settings`. `[data-inline-prop]` inputs auto-write to `data-attr-*`. |
-| Sticky hover state | JS-managed `.is-active` class on the shell containing the cursor (or its 10px buffer). |
-| Required toggle | `.lrob-etk-cf-required-control` = visual-only star + hover-revealed checkbox. New fields default to required. |
-| Slug derivation | `<type>_<sluggified-label>_<nth>`. `nth` is the stable creation-order index. PHP `FormStructure::enforce_unique_nths_and_slugs()` is the safety net at save. |
-| Inline option editor | `select`/`radio`/`checkbox` shells render `.lrob-etk-cf-options[data-options-inline]` with `<input> + contenteditable label + remove button` per option. `inlineOptionRowHtml` deliberately does NOT wrap input in `<label>` — wrapping would steal click focus from the contenteditable. |
-| DOM builders | `buildField(type, attrs)` / `buildRow(field)` / `buildColumn()`. Adding a new field type means this section + `inlineSettingsHtml` + the serializer + the PHP side. |
-| Drag enable/disable | Mousedown anywhere except `.lrob-etk-cf-overlay-handle` flips `draggable="false"` on every `[data-draggable-type]` ancestor — so text selection inside inputs can't launch an HTML5 drag. |
-| Serializer | `serialize(form)` produces `{ version: 1, rows: [{ id, columns: [{ id, fields: [...] }] }] }`. |
-| Initial sync | First load copies attrs from PHP-rendered DOM into `data-attr-*` and backfills `data-attr-nth`. Guards via `dataset.etkInit`. |
-
-### Serialized field shape
-
-```json
-{ "id": "f7a3", "type": "text|email|number|phone|date|textarea|select|radio|checkbox|submit|captcha",
-  "slug": "text_your_name_3", "nth": 3,
-  "label": "Your name", "helper": "", "placeholder": "",
-  "required": true, "maxLength": 200,
-  "rows": 5, "min": "0", "max": "99", "step": "1", "pattern": "...",
-  "options": [{"label": "...", "value": "..."}], "defaults": ["..."], "multiple": true,
-  "text": "Send", "align": "right" }
-```
-
-Type-specific keys appear only on relevant types. `submit` and `captcha` carry `align` (no stretch for captcha). `slug` is auto-derived and never user-editable; `nth` is the stable creation index.
-
-### DOM contract the editor JS depends on
-
-| Element | Required attributes |
-|---|---|
-| `.lrob-etk-cf-form.is-editor` | `data-form-id` on the wrapping `.lrob-etk-cf-fields` |
-| `.lrob-etk-cf-row` | `data-row-id`, `data-cols` (1–4) |
-| `.lrob-etk-cf-col` | `data-col-id` |
-| `.lrob-etk-cf-edit-shell` | `data-field-id`, `data-field-type`, `data-attr-slug`, `data-attr-nth`, `data-attr-required`, optional `data-attr-*` for type-specific keys |
-| `.lrob-etk-cf-overlay--{row\|col\|field}` | Drag handle + delete |
-| `.lrob-etk-cf-insert--{row\|field\|column}` | `data-insert` action; `.is-orphan` when sole in empty container |
-| `[contenteditable="plaintext-only"]` | `data-edit` value: `label\|helper\|submit-text` |
-| `[data-inline-prop]` / `[data-required-toggle]` / `[data-action="toggle-default-option"]` | Inline-settings inputs / Required checkbox / per-option ★ toggle |
-
-`FormEditorRenderer.php` emits this DOM. **If you change the DOM contract on one side, change both.**
-
-### Where to make common changes
-
-- **Add a new field type:** `buildField()` switch + `buildControlHtml()` switch (with inline option editor seed if multi-choice) + `serialize()`'s data-attr list + `typeSpecificInlineHtml()` switch + `FieldRenderer.php` (frontend) + `FormEditorRenderer.php` (editor preview).
-- **Add a new per-field setting:** chip in `typeSpecificInlineHtml()` writing `data-inline-prop="X"` + read it in `serialize()` via `data-attr-X` + PHP side in `FieldRenderer` + schema in `FormStructure.php`.
-- **Tweak the inline option editor:** start at `applyOptionsToPreview` / `renderSelectPreview` / `renderOptionGroupPreview` / `syncOptionsFromInline`. Mirror DOM shape changes in `buildControlHtml`.
-- **Tweak drag-drop:** start at `pickDropHover()` / `computeDropDirection()` / `sameScope()`.
-- **Add an undo-able action:** wrap with `commit()` at the end. One commit per user action.

@@ -53,8 +53,6 @@ final class SubmitField implements FieldTypeInterface
             ? (string) $attrs['align']
             : 'right';
 
-        // Editor mode: don't actually submit anything (the admin "form" is a
-        // <div>, not a <form>) and make the button label inline-editable.
         if (FormContext::is_editor()) {
             return sprintf(
                 '<div class="lrob-etk-form-field lrob-etk-form-field--submit is-align-%s"><button type="button" class="lrob-etk-form-submit"><span class="lrob-etk-form-submit-label" contenteditable="plaintext-only" data-edit="submit-text">%s</span></button></div>',

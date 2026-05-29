@@ -10,10 +10,7 @@ use LRob\EmailToolkit\Modules\Logging\LogRepository;
 use LRob\EmailToolkit\Modules\Logging\RetentionCron;
 use LRob\EmailToolkit\Modules\ModuleInterface;
 
-/**
- * Logging admin submenu. Renders the list view; the per-entry detail is an
- * in-page modal (no full page). POST actions go through admin-post.php.
- */
+// Docs: docs/logging.md
 final class PageController
 {
     public const SLUG = 'lrob-etk-logs';
@@ -68,10 +65,6 @@ final class PageController
         $this->redirect_to_list();
     }
 
-    /**
-     * Manual cleanup: "delete older than X days" or "delete all". Posted from
-     * the cleanup section at the bottom of the logs page.
-     */
     public function handle_purge(): void
     {
         $this->guard(self::ACTION_PURGE);

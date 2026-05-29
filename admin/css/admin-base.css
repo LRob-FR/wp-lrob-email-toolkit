@@ -1,21 +1,4 @@
-/* LRob - Email Toolkit — admin styles: BASE
- *
- * Foundation layer. Owns: CSS variables (--etk-*), case/hierarchy
- * normalization, page chrome (h1/h2 titles), WP form-table tweaks, and the
- * generic site footer. Scoped under .lrob-etk so it never leaks into other
- * admin pages. Uses the dashboard palette (#1d2327, #2271b1, #00a32a, #d63638).
- *
- * Sibling files (loaded in this order):
- *   admin-base.css        — this file
- *   admin-components.css  — shared primitives (modals, popovers, combobox, etc.)
- *   admin-dashboard.css   — dashboard-only widgets
- *   admin-smtp.css        — SMTP page (identity cards, from section, etc.)
- *   admin-logging.css     — logs page + log view
- *   admin-contact-form.css — contact form admin + WYSIWYG editor
- *
- * Cascade order matters. If you add a rule that depends on a primitive,
- * make sure the primitive's file is enqueued before this one in Assets.php.
- */
+/* LRob - Email Toolkit — admin styles: BASE — Docs: docs/admin-ui.md */
 
 /* WordPress's `.button { display: inline-block }` has equal specificity to the
  * browser's UA `[hidden] { display: none }` and is loaded later, so plain
@@ -24,13 +7,7 @@
     display: none !important;
 }
 
-/* ---------- Card-internal headings ----------
- * Inside `.lrob-etk-card-form` we want compact, dense settings — WP's
- * default h3 (1.17em, ~18.7px) is too big for an in-card section
- * title. The card primitive uses a 15px title size here. Page-level
- * h1/h2/h3 outside cards follow WP admin defaults — fewer plugin-
- * specific overrides to maintain across WP updates.
- */
+/* ---------- Card-internal headings ---------- */
 .lrob-etk-card-form h3 {
     font-size: var(--etk-text-lg);
     font-weight: 600;
@@ -53,8 +30,7 @@
     gap: var(--etk-space-1);
 }
 
-/* Tight inline switch for section headers — layout only. Track sizing
- * comes from .lrob-etk-switch-track--sm modifier (admin-components.css). */
+/* Tight inline switch for section headers — layout only; track sizing in admin-components.css. */
 .lrob-etk-section-switch {
     display: inline-flex;
     align-items: center;
@@ -94,52 +70,28 @@
     --etk-danger-bg: #fbeaea;
     --etk-accent-bg: #f0f6fc;
 
-    /* Surface colors — distinguish cards from inputs from page body.
-     * Cards pick up a very faint warm off-white so they read as a soft
-     * surface against the WP body grey, while inputs stay pure white. */
     --etk-card-bg:  #fdfdfe;
     --etk-input-bg: #fff;
 
-    /* Text / icon color sitting on an accent or semantic fill (primary
-     * buttons, solid badges). One source so a theme can flip it. */
     --etk-on-accent: #fff;
 
-    /* Translucent veils — layer OVER a surface to recede / gray it out
-     * (sent or trashed rows, disabled cards) and to dim the page behind a
-     * modal. Black-on-content so the surface beneath still shows through and
-     * no per-state opaque color is needed. 1 = faint, 2 = recessed,
-     * 3 = disabled, backdrop = modal scrim. */
+    /* Veils: 1=faint hover, 2=recessed, 3=disabled, backdrop=modal scrim */
     --etk-veil-1:   rgba(0, 0, 0, 0.03);
     --etk-veil-2:   rgba(0, 0, 0, 0.06);
     --etk-veil-3:   rgba(0, 0, 0, 0.12);
     --etk-backdrop: rgba(0, 0, 0, 0.55);
-
-    /* Tints (accent / danger glows, hover + selected backgrounds, focus
-     * rings) are NOT stored as tokens — derive them at the use site with
-     *   color-mix(in srgb, var(--etk-accent) N%, transparent)
-     * so the hue tracks the palette (and any future theme) automatically.
-     * The only literal left is the percentage, never a color code. */
-
-    /* Text-on-tinted-background colors (the dark counterparts to the *-bg
-     * tokens — used inside .lrob-etk-status pills, test results, banners).
-     * Centralized so the dozens of inline `color: #1e6b3a` / `#8a0000` /
-     * `#735900` references collapse to one source. */
     --etk-text-success: #1e6b3a;
     --etk-text-danger:  #8a0000;
     --etk-text-warning: #735900;
-    --etk-text-accent:  #0a3978;  /* dark-blue text on accent-bg (scheduled/info pills) */
-
-    /* Radii — used in nested order: sm = inputs/buttons, md = cards,
-     * lg = modals/dialogs, pill = status badges + capsules. */
+    --etk-text-accent:  #0a3978;
     --etk-radius-sm:   4px;
-    --etk-radius:      6px;     /* legacy alias for --etk-radius-md */
+    --etk-radius:      6px;     /* legacy alias → --etk-radius-md */
     --etk-radius-md:   6px;
     --etk-radius-lg:   8px;
-    --etk-radius-xl:   12px;    /* card primitive corner, detail-strip */
+    --etk-radius-xl:   12px;
     --etk-radius-pill: 999px;
 
-    /* Shadows */
-    --etk-shadow:      0 1px 0 rgba(0,0,0,.04);   /* legacy alias of --etk-shadow-sm */
+    --etk-shadow:      0 1px 0 rgba(0,0,0,.04);   /* legacy alias → --etk-shadow-sm */
     --etk-shadow-sm:   0 1px 0 rgba(0,0,0,.04);
     --etk-shadow-md:   0 1px 3px rgba(0,0,0,.06);
     --etk-shadow-lg:   0 8px 28px rgba(0,0,0,.18);
@@ -154,29 +106,15 @@
     --etk-space-5: 24px;
     --etk-space-6: 32px;
 
-    /* Input + icon sizing — single source for every text input height,
-     * icon glyph size, and the dashicons inside trigger buttons. */
     --etk-input-height:    30px;
     --etk-input-height-sm: 28px;
     --etk-input-font-size: 13px;
     --etk-icon-size:       16px;
     --etk-icon-size-sm:    14px;
-    --etk-icon-size-lg:    18px;   /* accent / warning inline icons */
-    --etk-icon-size-xl:    40px;   /* big decorative empty-state / onboarding icons */
+    --etk-icon-size-lg:    18px;
+    --etk-icon-size-xl:    40px;
 
-    /* Text sizes — one base + a tight scale, density-tunable. Reference
-     * these everywhere; no bare px font-sizes in chrome (display included).
-     * Base is 13px, set on `.lrob-etk` (= the WP-admin default): normal-flow
-     * text inherits it, so DON'T re-declare 13 on plain text — let it inherit.
-     *   - xxs ( 9px) : micro — badge numerals, sort glyphs, tiny counters
-     *   - xs  (11px) : secondary/muted — captions, slugs, helper, table heads
-     *   - (13)       : base body — inherit, don't declare
-     *   - lg  (15px) : titles — card / modal / group / section headings
-     *   - xl  (20px) : prominent headings (CTA, empty-state) + big counts
-     *   - 2xl (28px) : hero stat numbers
-     * Form controls (input/select/textarea/button) and headings normalized
-     * down do NOT inherit font-size — they keep an explicit size
-     * (--etk-input-font-size for controls; a deliberate value on headings). */
+    /* Text scale — base 13px inherited (don't re-declare it). See docs/admin-ui.md. */
     --etk-text-xxs: 9px;
     --etk-text-xs:  11px;
     --etk-text-lg:  15px;
@@ -188,19 +126,13 @@
     --etk-transition-slow:  0.30s ease;
 }
 
-/* Page title (`.lrob-etk-page-title`) inherits WP's default `<h1>` look.
- * Section title keeps its top-border decoration (visually separates
- * page sections) but inherits WP's font-size + weight so updates to the
- * admin typography flow through. */
 .lrob-etk .lrob-etk-section-title {
     color: var(--etk-fg);
     margin: var(--etk-space-6) 0 var(--etk-space-3);
     padding-top: var(--etk-space-4);
     border-top: 1px solid var(--etk-line);
 }
-/* When the first section-title on a page immediately follows the page
- * header (optionally with just the empty flash placeholder between),
- * suppress its top border so we don't stack two divider lines. */
+/* Suppress top-border when section-title immediately follows page-header. */
 .lrob-etk .lrob-etk-page-header + .lrob-etk-section-title,
 .lrob-etk .lrob-etk-page-header + .lrob-etk-flash:empty + .lrob-etk-section-title {
     border-top: 0;
@@ -222,10 +154,7 @@
     color: var(--etk-muted);
 }
 
-/* WP 7.0 set `.wp-core-ui .button .dashicons { line-height: 1.9 }`, which
-   pushes the icon down and breaks vertical alignment for every button that
-   pairs a dashicon with text inside our pages. Same specificity (0,3,0) +
-   loads after wp-admin.css → our rule wins on tie. */
+/* WP 7.0 set line-height: 1.9 on .button .dashicons — overrides to realign. */
 .lrob-etk .button .dashicons,
 .lrob-etk .button-primary .dashicons,
 .lrob-etk .button-secondary .dashicons {

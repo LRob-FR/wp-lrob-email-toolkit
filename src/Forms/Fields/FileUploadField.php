@@ -46,8 +46,6 @@ final class FileUploadField implements FieldTypeInterface
         ];
         $base['delivery'] = in_array($delivery, $allowed_delivery, true) ? $delivery : UploadPolicy::DELIVERY_WEBSERVER;
 
-        // Single-file fields always render as max_count=1 regardless of any
-        // stale `max_count` data lingering from a previous multiple=true.
         if (!$base['multiple']) {
             $base['max_count'] = 1;
         }
@@ -82,10 +80,7 @@ final class FileUploadField implements FieldTypeInterface
         $id   = FormContext::field_id($slug);
         $name = FormContext::field_name($slug) . ($multiple ? '[]' : '');
 
-        // In editor mode, side-channel the admin's chosen preset / custom /
-        // strip-exif / allow-dangerous on the wrapper so the form-builder
-        // JS can scrape them back into data-attr-* on the shell at
-        // initial-sync. Frontend output stays lean.
+        // Editor-only: side-channel admin knobs so JS initial-sync can scrape them.
         $admin_attrs = '';
         if (FormContext::is_editor()) {
             $admin_attrs = ' data-admin-preset="' . esc_attr((string) ($attrs['accept_preset'] ?? '')) . '"'

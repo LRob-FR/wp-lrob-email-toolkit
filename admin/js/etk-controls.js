@@ -1,28 +1,4 @@
-/* LRob Email Toolkit — shared admin UI controls
- *
- * Combobox component shared by every admin page. Two modes:
- *
- *   ─ select mode (declarative, fixed value list)
- *     Markup: `<div class="lrob-etk-combo" data-options="[…JSON…]">` with a
- *     readonly `.lrob-etk-combo-input`, a `.lrob-etk-combo-toggle` button,
- *     a `<ul class="lrob-etk-combo-menu">`, and a hidden
- *     `.lrob-etk-combo-value` input. Auto-initialized on DOMContentLoaded.
- *     The hidden input carries the form value; the visible input shows the
- *     selected option's label; a `change` event fires on the hidden input
- *     when the value changes so auto-save listeners pick it up.
- *
- *   ─ free mode (imperative, dynamic preset list)
- *     Used by SMTP for host / from-email / from-name where the visible input
- *     is editable AND a button opens a list of suggested values built from
- *     the current form state. Caller invokes
- *     `lrobEtkControls.attachCombobox(comboElement, config)` where config
- *     has `populate(currentValue) → [{value, label}, …]` and an optional
- *     `onSelect(value)` callback. No hidden input; the visible
- *     `.lrob-etk-combo-input` IS the form value.
- *
- * Both modes share the same `.lrob-etk-combo*` CSS and the same outside-click
- * handler. SMTP and Contact Form get visually identical comboboxes.
- */
+/* Docs: docs/admin-ui.md */
 (function (window, document) {
     'use strict';
 
@@ -46,20 +22,13 @@
         var hidden = combo.querySelector('.lrob-etk-combo-value');
         if (!hidden) return;
 
-        // PHP labels the "inherit/default" option per setting (SMTP identity
-        // uses '0' as the sentinel, Honeypot uses 'default', most others
-        // use ''). When that sentinel is selected we leave the readonly
-        // input EMPTY so the muted placeholder ("Default — X") reads as a
-        // hint rather than a confirmed choice — uniform across settings.
+        // Inherit sentinel → leave visible input empty so placeholder renders as a hint.
         var inheritValue = combo.getAttribute('data-inherit-value');
         if (inheritValue === null) inheritValue = '';
 
         attachCombobox(combo, {
             mode: 'select',
-            // Re-read data-options on every open so callers can update the list
-            // live (e.g. a captcha identity toggled active/inactive) and the
-            // menu reflects it without a reload. Falls back to the setup-time
-            // snapshot if the attribute is ever malformed.
+            // Re-read data-options on every open so live DOM changes (e.g. captcha toggle) reflect.
             populate: function () {
                 try {
                     var live = JSON.parse(combo.getAttribute('data-options') || 'null');
@@ -85,27 +54,7 @@
 
     // --------------------------- Public manual init (both modes) ---------------------------
 
-    /**
-     * Attach combobox behavior (open / close / select / outside-click) to an
-     * already-rendered `.lrob-etk-combo` element. Both modes route through
-     * this function so they share open/close/keyboard/click semantics.
-     *
-     * @param {HTMLElement} combo    The `.lrob-etk-combo` container.
-     * @param {Object} cfg
-     * @param {string=}    cfg.mode       'select' (default) or 'free'.
-     * @param {function():Array<{value,label}>} cfg.populate
-     *        Returns the menu options. Called every time the menu opens so
-     *        callers can compute presets from current form state.
-     * @param {function():string=} cfg.getValue
-     *        Reads the current stored value. Defaults to reading the visible
-     *        input (free mode).
-     * @param {function(string,string)=} cfg.setValue
-     *        Stores a new value (and its display label). Defaults to writing
-     *        the visible input and dispatching `change` on it.
-     * @param {function(string)=} cfg.onSelect
-     *        Fired after a menu item is chosen. Useful for triggering side
-     *        effects (validation, save, etc.).
-     */
+    // Attach combobox behavior. See docs/admin-ui.md for cfg shape.
     function attachCombobox(combo, cfg) {
         if (combo.__etkBound) return;
         combo.__etkBound = true;
@@ -154,7 +103,7 @@
             if (!menu.hidden) input.focus();
         });
 
-        // In select mode the input is readonly — clicking it should open the menu.
+        // Readonly input in select mode: click opens menu.
         if (mode === 'select') {
             input.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -225,7 +174,6 @@
     }
     function escapeAttr(s) { return s.replace(/"/g, '&quot;'); }
 
-    // Single global outside-click handler — closes any open combo, both modes.
     document.addEventListener('click', function (e) {
         var open = document.querySelectorAll('.lrob-etk-combo.is-open');
         Array.prototype.forEach.call(open, function (combo) {

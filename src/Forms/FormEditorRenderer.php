@@ -6,28 +6,7 @@ namespace LRob\EmailToolkit\Forms;
 
 use LRob\EmailToolkit\Plugin;
 
-/**
- * Renders a form for the admin WYSIWYG editor. The form looks IDENTICAL to
- * the frontend (same field renderers, same CSS) — the editor JS overlays
- * hover-revealed controls and inline editing on top.
- *
- * Differences from frontend:
- *   - Wraps in `<div class="lrob-etk-form is-editor">` (not `<form>`),
- *     so the admin card is one form and the previewed contact form doesn't
- *     accidentally submit anything.
- *   - Starts FormContext with editor=true, which makes field renderers emit
- *     contenteditable labels + helpers and a `type="button"` submit.
- *   - Wraps each row / column / field with a thin shell carrying data
- *     attributes the editor JS reads to drag, delete, open the gear popup,
- *     and serialize back to JSON.
- *   - Emits "+" insertion zones between every pair of rows / fields, plus
- *     a column "+" at the end of each row when more columns are allowed.
- *   - Does NOT emit honeypot / nonce / hidden submission fields.
- *
- * Host-neutral: the caller passes its field-name prefix + DOM id prefix so
- * the editor's "preview" inputs scope correctly per-CPT (Contact Form
- * passes `lrob_etk_cf`, Newsletter will pass `lrob_etk_nl`).
- */
+// Docs: docs/forms.md — editor rendering. DOM contract: docs/form-builder.md.
 final class FormEditorRenderer
 {
     public static function render(int $form_id, string $name_prefix, string $id_prefix): string
@@ -35,8 +14,6 @@ final class FormEditorRenderer
         $structure = FormStructure::load($form_id);
         $cpt_slug = (string) get_post_type($form_id);
 
-        // Deterministic instance id so editor previews don't shift around
-        // as fields are added/removed (no submission, no need for entropy).
         $instance = 'editor';
         FormContext::start($form_id, $instance, $name_prefix, $id_prefix, true);
 
@@ -87,8 +64,6 @@ final class FormEditorRenderer
             $html .= self::render_column($col, $cpt_slug);
         }
 
-        // Column-insert "+" at the right end of the row when there's still
-        // room for another column.
         if ($cols < 4) {
             $html .= self::insert_zone('column', __('Add a column to this row', 'lrob-email-toolkit'));
         }
@@ -147,21 +122,8 @@ final class FormEditorRenderer
         );
     }
 
-    /**
-     * Insertion zone — collapsed by default, expanded by the editor JS when
-     * the cursor approaches. Row and field zones carry text labels ("+
-     * Field") so the user can tell which kind of insert they'd get; the
-     * column zone is a tighter "+" pill anchored to the row's right edge.
-     */
     private static function insert_zone(string $kind, string $aria): string
     {
-        // Body-level inserts (kind=row in DOM terms) read as "+ Field" to
-        // the user — they're inserting a field into the form; the fact that
-        // the markup wraps it in a single-column row is an implementation
-        // detail. Inside a multi-column block, kind=field has the same
-        // label since the user is also just inserting a field. The
-        // kind=column zone stays a bare "+" since it's clearly the row's
-        // add-column affordance.
         $plus = '<span class="lrob-etk-form-insert-plus" aria-hidden="true">+</span>';
         $body = match ($kind) {
             'row', 'field' => $plus . '<span class="lrob-etk-form-insert-label">' . esc_html__('Field', 'lrob-email-toolkit') . '</span>',

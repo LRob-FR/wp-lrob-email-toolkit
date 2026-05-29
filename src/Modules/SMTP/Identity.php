@@ -6,15 +6,7 @@ namespace LRob\EmailToolkit\Modules\SMTP;
 
 use LRob\EmailToolkit\Support\Encryption;
 
-/**
- * Immutable value object representing one SMTP identity (= one SMTP login
- * paired with one From address). Loaded from the database, applied to
- * PHPMailer at send time, displayed in the admin UI. Mutation goes through
- * `with()` clones; never modify a loaded identity in place.
- *
- * The password is stored as AES-256-GCM ciphertext in the database. Plain
- * text is only ever materialized on demand via decrypted_password().
- */
+// Docs: docs/smtp.md
 final class Identity
 {
     public const ENCRYPTION_NONE = '';
@@ -27,18 +19,6 @@ final class Identity
 
     public const TRANSPORT_MAIL = 'mail';
 
-    /**
-     * Override-mode tiers. Decides how aggressively this identity wins
-     * against a third-party-set From / Reply-To / sender.
-     *  - OVERRIDE_NEVER         — never override; let the caller's value pass.
-     *  - OVERRIDE_WHEN_DEFAULT  — override only when the caller didn't set a
-     *                             From: header explicitly. WordPress's
-     *                             auto-generated `wordpress@hostname` counts
-     *                             as "no caller-set From", so this is the
-     *                             pragmatic middle ground.
-     *  - OVERRIDE_ALWAYS        — always override (matches the legacy
-     *                             force_from=true behaviour).
-     */
     public const OVERRIDE_NEVER         = 'never';
 
     public const OVERRIDE_WHEN_DEFAULT  = 'when_default';
@@ -89,11 +69,7 @@ final class Identity
         return $this->transport === self::TRANSPORT_MAIL;
     }
 
-    /**
-     * Build from a raw database row (array of strings as wpdb returns).
-     *
-     * @param array<string, mixed> $row
-     */
+    /** @param array<string, mixed> $row */
     public static function from_row(array $row): self
     {
         $transport = (string) ($row['transport'] ?? self::TRANSPORT_SMTP);
@@ -113,8 +89,7 @@ final class Identity
             smtp_username: (string) ($row['smtp_username'] ?? ''),
             smtp_password_encrypted: (string) ($row['smtp_password_encrypted'] ?? ''),
             smtp_auth: !empty($row['smtp_auth']),
-            // Pre-v3 rows store force_from (tinyint); v3+ rows store override_mode.
-            // Accept either so old in-memory rows / serialized backups still load.
+            // Pre-v3 compat: accept force_from tinyint or override_mode string.
             override_mode: isset($row['override_mode'])
                 ? self::normalize_override_mode($row['override_mode'])
                 : (!empty($row['force_from']) ? self::OVERRIDE_ALWAYS : self::OVERRIDE_NEVER),
@@ -129,11 +104,7 @@ final class Identity
         );
     }
 
-    /**
-     * Materialize the password in plaintext. Returns '' when no password is
-     * stored. Throws RuntimeException if AUTH_KEY is missing or the
-     * ciphertext is corrupted (e.g. AUTH_KEY changed since encryption).
-     */
+    /** Returns '' when no password stored. Throws RuntimeException on missing/changed AUTH_KEY. */
     public function decrypted_password(): string
     {
         if ($this->smtp_password_encrypted === '') {
@@ -142,11 +113,6 @@ final class Identity
         return Encryption::decrypt($this->smtp_password_encrypted);
     }
 
-    /**
-     * Resolves the From name to send. When the stored value is empty, fall
-     * back to the site title at runtime so subsequent site renames flow
-     * through without re-saving the identity.
-     */
     public function effective_from_name(): string
     {
         if ($this->from_name !== '') {
@@ -161,11 +127,6 @@ final class Identity
         return $this->effective_from_email();
     }
 
-    /**
-     * Resolves the From email. When the stored value is empty, fall back to
-     * the SMTP username — letting users skip filling in two identical fields
-     * for the common case where From email == mailbox login.
-     */
     public function effective_from_email(): string
     {
         if ($this->from_email !== '') {
@@ -186,12 +147,7 @@ final class Identity
         return $this->from_email === '';
     }
 
-    /**
-     * Return a new Identity with one or more fields replaced. Used in place
-     * of mutation since the object is readonly.
-     *
-     * @param array<string, mixed> $changes
-     */
+    /** @param array<string, mixed> $changes */
     public function with(array $changes): self
     {
         $merged = array_merge($this->to_array(), $changes);

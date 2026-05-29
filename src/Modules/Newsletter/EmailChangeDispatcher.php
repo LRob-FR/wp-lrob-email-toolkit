@@ -4,33 +4,9 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
-/**
- * Sends the two-sided email-change confirmation for a subscriber:
- *
- *   - Confirm message → goes to the NEW address. Contains the
- *     click-to-confirm URL embedding the single-use token.
- *   - Notice message → goes to the OLD address. Lets the original
- *     owner know a change was requested + that nothing happens
- *     until the new address confirms. No "Cancel" link — they can
- *     act from their own prefs page.
- *
- * Plain-HTML wp_mail; no TemplateCPT involvement. The wording is
- * load-bearing for trust + needs to be obvious to a non-technical
- * recipient; locking it in code avoids template misconfiguration
- * blocking confirmations. If admin wants custom wording later, add
- * a `lrob_etk_nl_email_change_message` filter.
- *
- * Failure to send the OLD-address notice is non-fatal — the confirm
- * message is the load-bearing one. Both wp_mail calls are best-effort;
- * the SMTP module logs failures through its own pipeline.
- */
+// Docs: docs/newsletter-internals.md → "Prefs page / Email-change flow"
 final class EmailChangeDispatcher
 {
-    /**
-     * @return bool true when the confirm message went out (the notice
-     *              to the old address is best-effort and doesn't gate
-     *              the boolean — caller doesn't care).
-     */
     public function send(int $subscriber_id, string $old_email, string $new_email, string $token): bool
     {
         $confirm_url = add_query_arg(PrefsHandler::QUERY_CONFIRM_EMAIL, $token, home_url('/'));
@@ -62,8 +38,6 @@ final class EmailChangeDispatcher
 
         $confirm_ok = wp_mail($new_email, $confirm_subject, $confirm_body, $headers);
 
-        // Notice to the old address — best-effort, doesn't gate the
-        // return value. Skipped if the old address looks malformed.
         if (is_email($old_email)) {
             $notice_subject = sprintf(
                 /* translators: %s: site name. */
@@ -87,12 +61,6 @@ final class EmailChangeDispatcher
         return (bool) $confirm_ok;
     }
 
-    /**
-     * Tiny HTML wrap — three paragraphs. No fancy template chrome;
-     * legibility + trust matter more than branding here. Links auto-
-     * detected from "Confirm the change: <url>" so the URL is shown
-     * as a clickable anchor when possible.
-     */
     private static function format_message(string $intro, string $action, string $tail): string
     {
         return '<p>' . esc_html($intro) . '</p>'
@@ -100,10 +68,6 @@ final class EmailChangeDispatcher
             . '<p style="color:#6b7280;font-size:0.9em">' . esc_html($tail) . '</p>';
     }
 
-    /**
-     * Convert the trailing URL of `Label: https://…` into an anchor.
-     * If no URL is found, escape the whole string.
-     */
     private static function linkify(string $text): string
     {
         if (preg_match('#^(.+?:\s*)(https?://\S+)$#', $text, $m) !== 1) {

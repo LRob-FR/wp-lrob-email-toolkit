@@ -7,29 +7,7 @@ namespace LRob\EmailToolkit\Modules\Logging;
 use LRob\EmailToolkit\Support\Events;
 use PHPMailer\PHPMailer\PHPMailer;
 
-/**
- * Captures every outgoing email by hooking phpmailer_init at priority 999 —
- * after the SMTP module's MailRouter at priority 9 has run, so the PHPMailer
- * object already reflects the final From, Subject, Body, etc.
- *
- * Source / identity context, when available, comes from the SMTP module's
- * `lrob_etk_email_sending` event which fires earlier in the same hook chain.
- * Logger captures that payload into a property and includes it in the insert.
- * If the SMTP module is disabled, source defaults to 'unknown' and identity
- * stays null — basic logging still works without SMTP.
- *
- * Newsletter integration: the Newsletter module's SendLoop emits
- * `X-Lrob-Etk-Newsletter-ID` (and per-recipient `X-Lrob-Etk-Newsletter-Recipient-ID`)
- * on every send. Logger reads those headers + the test-send marker + the
- * per-newsletter `_lrob_etk_nl_log_all_sends` meta. Default behaviour for
- * newsletter sends is to log failures only and prune the row on success —
- * the bulk of newsletter sends already live in newsletter_recipients, no
- * point duplicating millions of rows in the global logs table.
- *
- * After PHPMailer::send() returns, wp_mail fires `wp_mail_succeeded` or
- * `wp_mail_failed` and Logger flips the row's status accordingly (or
- * deletes it when the newsletter-suppress rule kicks in).
- */
+// Docs: docs/logging.md
 final class Logger
 {
     public const HEADER_NEWSLETTER_ID           = 'X-Lrob-Etk-Newsletter-ID';
@@ -82,9 +60,6 @@ final class Logger
                 $changes['identity_id'] = (int) $this->pending_sending_event['identity_id'];
             }
 
-            // Newsletter headers — set on every outbound send by SendLoop /
-            // TestSender. Promote them to columns so log filtering + the
-            // recipients-drawer cross-link work.
             [$nl_id, $rcp_id, $is_test] = self::extract_newsletter_headers($entry->headers);
             if ($nl_id !== null) {
                 $changes['newsletter_id'] = $nl_id;
@@ -94,10 +69,6 @@ final class Logger
                 $changes['recipient_id'] = $rcp_id;
             }
 
-            // When the sending SMTP identity has "Save attachments locally"
-            // on, persist a durable copy of each file-path attachment so a
-            // later resend can re-attach it (wp_mail's temp files are gone
-            // by then). Rewrite the entry's attachment paths to the copies.
             if (!empty($this->pending_sending_event['save_attachments']) && $entry->attachments !== []) {
                 $changes['attachments'] = $this->persist_attachments($entry->attachments);
             }
@@ -128,9 +99,6 @@ final class Logger
             return;
         }
         try {
-            // Default for newsletter sends: don't keep success rows. Failures
-            // always update normally — the admin needs to see them. The
-            // per-newsletter `_lrob_etk_nl_log_all_sends` meta overrides this.
             if ($this->should_suppress_success_log()) {
                 $this->repository->delete($this->current_log_id);
             } else {
@@ -160,10 +128,6 @@ final class Logger
     }
 
     /**
-     * Copy each file-path attachment into the durable AttachmentStore and
-     * return the attachment list with paths pointing at the copies. Inline
-     * (path-less) attachments and copy failures fall back to the original.
-     *
      * @param  array<int, array{name: string, path: ?string}> $attachments
      * @return array<int, array{name: string, path: ?string}>
      */
@@ -185,8 +149,6 @@ final class Logger
     }
 
     /**
-     * Pulls newsletter context out of PHPMailer's custom headers.
-     *
      * @param  array<int, array{name: string, value: string}> $headers
      * @return array{0: ?int, 1: ?int, 2: bool}  [newsletter_id, recipient_id, is_test]
      */
@@ -214,8 +176,6 @@ final class Logger
         if ($this->current_newsletter_id === null) {
             return false;
         }
-        // Test sends inherit the same rule — flooding logs with [TEST]
-        // success rows isn't useful; failures still surface.
         $log_all = (string) get_post_meta($this->current_newsletter_id, self::META_LOG_ALL_SENDS, true);
         return $log_all !== '1';
     }

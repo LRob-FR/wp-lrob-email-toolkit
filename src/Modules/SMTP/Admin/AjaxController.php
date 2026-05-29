@@ -14,13 +14,7 @@ use LRob\EmailToolkit\Modules\SMTP\RoutingRules;
 use LRob\EmailToolkit\Modules\SMTP\TestSender;
 use LRob\EmailToolkit\Support\Encryption;
 
-/**
- * admin-ajax endpoints for SMTP identity management. Returns JSON; the
- * SettingsPage JS drives the modal UX from these responses.
- *
- * One shared nonce action (`lrob_etk_smtp_ajax`) — endpoints distinguish
- * themselves by their WP-AJAX action name.
- */
+// Docs: docs/smtp.md
 final class AjaxController
 {
     public const NONCE_ACTION = 'lrob_etk_smtp_ajax';
@@ -145,9 +139,6 @@ final class AjaxController
             $smtp_encryption = Identity::ENCRYPTION_STARTTLS;
         }
 
-        // From email + From name: empty = "automatic" mode (use SMTP username /
-        // site title at runtime). Smart placeholders in the UI show what auto
-        // resolves to. Validation only fires on non-empty values.
         $from_email_raw = isset($_POST['from_email']) ? (string) wp_unslash($_POST['from_email']) : '';
         $from_email = $from_email_raw === '' ? '' : sanitize_email($from_email_raw);
         if ($from_email_raw !== '' && !is_email($from_email)) {
@@ -245,9 +236,6 @@ final class AjaxController
 
         $id = isset($_POST['id']) ? max(0, (int) $_POST['id']) : 0;
 
-        // Build a transient Identity from the form's current values so the
-        // user can test before saving. Password from form if provided,
-        // otherwise from the existing record.
         $smtp_host = $this->post_str('smtp_host');
         $smtp_port = isset($_POST['smtp_port']) ? (int) $_POST['smtp_port'] : 587;
         $smtp_encryption = $this->post_str('smtp_encryption', 'tls');
@@ -288,15 +276,6 @@ final class AjaxController
             is_active: true,
             save_attachments: false,
         );
-
-        // Apply wp-config overrides so testing reflects the actual runtime config.
-        if (defined('AUTH_KEY')) {
-            // Cheap proxy for "this would be the default identity" — but we
-            // intentionally don't force is_default=true on the test identity
-            // because the user may be testing a non-default identity.
-            // Constants only override the default identity, so test sees the
-            // raw form values which is the right behaviour.
-        }
 
         $result = $this->auth_tester->test($identity);
         if ($result['ok']) {
@@ -367,13 +346,7 @@ final class AjaxController
         wp_send_json_success(['message' => __('Routing rules saved.', 'lrob-email-toolkit')]);
     }
 
-    /**
-     * Verify a per-action nonce. Layered on top of the module-wide
-     * `_nonce` check that guard() performs — destructive endpoints
-     * (delete identity, set default, save routing) require this
-     * additional gate so a nonce stolen from a non-destructive form
-     * can't be replayed against them.
-     */
+    /** Extra nonce gate on destructive endpoints (delete, set-default, save-routing). */
     private function guard_action(string $action): void
     {
         $nonce = isset($_POST['_action_nonce']) ? (string) $_POST['_action_nonce'] : '';
