@@ -1173,7 +1173,7 @@ final class DashboardPage
             sendBtn.disabled = true;
             sendBtn.textContent = D.i18n.sending;
             result.hidden = false;
-            result.className = 'lrob-etk-test-result is-pending';
+            result.className = 'lrob-etk-test-result lrob-etk-state--off';
             result.textContent = D.i18n.sending;
 
             var fd = new FormData();
@@ -1187,15 +1187,15 @@ final class DashboardPage
                 .then(function (r) { return r.json(); })
                 .then(function (resp) {
                     if (resp.success) {
-                        result.className = 'lrob-etk-test-result is-success';
+                        result.className = 'lrob-etk-test-result lrob-etk-state--on';
                         result.textContent = '✓ ' + resp.data.message;
                     } else {
-                        result.className = 'lrob-etk-test-result is-failure';
+                        result.className = 'lrob-etk-test-result lrob-etk-state--fail';
                         result.textContent = '✗ ' + ((resp.data && resp.data.message) || D.i18n.unknownError);
                     }
                 })
                 .catch(function () {
-                    result.className = 'lrob-etk-test-result is-failure';
+                    result.className = 'lrob-etk-test-result lrob-etk-state--fail';
                     result.textContent = D.i18n.unknownError;
                 })
                 .finally(function () {

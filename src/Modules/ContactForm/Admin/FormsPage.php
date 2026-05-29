@@ -1724,7 +1724,7 @@ final class FormsPage
                     if (statuses.length === 0) {
                         if (result) {
                             result.hidden = false;
-                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--fail';
                             result.textContent = '✗ ' + i18n.noStatus;
                         }
                         return;
@@ -1742,7 +1742,7 @@ final class FormsPage
                         btn.disabled = true;
                         if (result) {
                             result.hidden = false;
-                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
+                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--off';
                             result.textContent = i18n.working;
                         }
 
@@ -1758,19 +1758,19 @@ final class FormsPage
                                 btn.disabled = false;
                                 if (resp && resp.success) {
                                     if (result) {
-                                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
+                                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--on';
                                         result.textContent = '✓ ' + resp.data.message;
                                     }
                                     setTimeout(function () { window.location.reload(); }, 800);
                                 } else if (result) {
-                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--fail';
                                     result.textContent = '✗ ' + ((resp && resp.data && resp.data.message) || i18n.error);
                                 }
                             })
                             .catch(function () {
                                 btn.disabled = false;
                                 if (result) {
-                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--fail';
                                     result.textContent = '✗ ' + i18n.error;
                                 }
                             });

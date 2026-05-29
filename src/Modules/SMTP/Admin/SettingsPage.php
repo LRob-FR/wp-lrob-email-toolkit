@@ -1200,7 +1200,7 @@ final class SettingsPage
         sendBtn.addEventListener('click', function () {
             sendBtn.disabled = true; sendBtn.textContent = S.i18n.sending;
             var result = document.getElementById('lrob-etk-test-result');
-            result.hidden = false; result.className = 'lrob-etk-test-result is-pending';
+            result.hidden = false; result.className = 'lrob-etk-test-result lrob-etk-state--off';
             result.textContent = S.i18n.sending;
             var pickEl = document.getElementById('lrob-etk-test-identity-pick');
             var id = pickEl ? pickEl.value : document.getElementById('lrob-etk-test-id').value;
@@ -1210,10 +1210,10 @@ final class SettingsPage
                 recipient_custom: document.getElementById('lrob-etk-test-recipient-custom').value
             }).then(function (resp) {
                 if (resp.success) {
-                    result.className = 'lrob-etk-test-result is-success';
+                    result.className = 'lrob-etk-test-result lrob-etk-state--on';
                     result.textContent = '✓ ' + resp.data.message;
                 } else {
-                    result.className = 'lrob-etk-test-result is-failure';
+                    result.className = 'lrob-etk-test-result lrob-etk-state--fail';
                     result.textContent = '✗ ' + ((resp.data && resp.data.message) || S.i18n.unknownError);
                 }
             }).finally(function () {

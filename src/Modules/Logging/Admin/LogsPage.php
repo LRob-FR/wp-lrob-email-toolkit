@@ -859,19 +859,19 @@ final class LogsPage
                 btn.disabled = true;
                 if (result) {
                     result.hidden = false;
-                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-pending';
+                    result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--off';
                     result.textContent = L.i18n.working;
                 }
                 ajax(L.actions.purge, { mode: 'older_than', days: days }).then(function (resp) {
                     btn.disabled = false;
                     if (resp.success) {
                         if (result) {
-                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-success';
+                            result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--on';
                             result.textContent = '✓ ' + resp.data.message;
                         }
                         setTimeout(function () { window.location.reload(); }, 800);
                     } else if (result) {
-                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result is-failure';
+                        result.className = 'lrob-etk-test-result lrob-etk-cleanup-result lrob-etk-state--fail';
                         result.textContent = '✗ ' + ((resp.data && resp.data.message) || L.i18n.unknownError);
                     }
                 });

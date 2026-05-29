@@ -1041,20 +1041,7 @@ body.lrob-etk-modal-open {
     font-size: var(--etk-input-font-size);
     line-height: 1.4;
 }
-.lrob-etk-test-result.is-pending {
-    background: var(--etk-soft);
-    color: var(--etk-muted);
-}
-.lrob-etk-test-result.is-success {
-    background: var(--etk-success-bg);
-    color: var(--etk-text-success);
-    border-left: 3px solid var(--etk-success);
-}
-.lrob-etk-test-result.is-failure {
-    background: var(--etk-danger-bg);
-    color: var(--etk-text-danger);
-    border-left: 3px solid var(--etk-danger);
-}
+/* Colours via the shared .lrob-etk-state--* set (pending→off, success→on, failure→fail). */
 .lrob-etk-test-result pre {
     margin: var(--etk-space-1) 0 0;
     background: var(--etk-veil-2);
