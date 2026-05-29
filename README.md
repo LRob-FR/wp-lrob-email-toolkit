@@ -15,7 +15,7 @@ For the backlog, see [`todo.md`](./todo.md).
 
 A single plugin that replaces the typical stack of *SMTP plugin + email logger + contact-form plugin + captcha plugin + newsletter plugin (+ Mailchimp/Brevo subscription)*, with consistent design, shared SMTP routing, and a shared event vocabulary. Each module is independently activatable — only the parts you enable add code to the runtime.
 
-No external libraries at runtime: no Composer, no React, no build pipeline. Plain PHP 8.1+, vanilla JS, server-rendered admin UI. The ~780 KB release zip is the entire plugin.
+No external libraries at runtime: no Composer, no React, no build pipeline. Plain PHP 8.2+, vanilla JS, server-rendered admin UI. The ~780 KB release zip is the entire plugin.
 
 ## Modules
 
@@ -30,8 +30,8 @@ No external libraries at runtime: no Composer, no React, no build pipeline. Plai
 
 ## Requirements
 
-- PHP **8.1+**
-- WordPress **6.0+**
+- PHP **8.2+**
+- WordPress **6.8+**
 - WooCommerce **8.0+** *(only required if you'll use WooCommerce-based segmentation in the Newsletter module — HPOS supported, integration planned)*
 - A reasonably modern browser for the **admin UI** — the design system uses CSS `color-mix()` (Chrome/Edge **111+**, Firefox **113+**, Safari **16.2+**; all released 2023). Older browsers degrade gracefully (tints/glows just don't paint); the public-facing forms have no such requirement.
 

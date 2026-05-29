@@ -12,7 +12,7 @@ Guidance for Claude Code sessions working in this repository.
 
 ## Project
 
-WordPress plugin **LRob - Email Toolkit** (slug `lrob-email-toolkit`). Modular all-in-one email plugin. Each module (SMTP, Logging, Contact Form, Captcha, Newsletter, future Integrations) is independently activatable. Requires PHP 8.1+ and WordPress 6.0+.
+WordPress plugin **LRob - Email Toolkit** (slug `lrob-email-toolkit`). Modular all-in-one email plugin. Each module (SMTP, Logging, Contact Form, Captcha, Newsletter, future Integrations) is independently activatable. Requires PHP 8.2+ and WordPress 6.8+.
 
 ## Build / lint / release
 
@@ -108,7 +108,7 @@ Anything Claude adds — new option, table, hook, CSS class — **must** follow 
 
 - **Strict types**: every PHP file in `src/` starts with `declare(strict_types=1);`.
 - **Final classes** unless explicitly meant for subclassing (AbstractModule is the exception).
-- **Constructor property promotion** — PHP 8.1+ minimum.
+- **Constructor property promotion** — PHP 8.2+ minimum.
 - **No mock/stub/fallback code paths for things that can't happen.** Internal code trusts callers; validate only at WP REST/admin/form boundaries.
 - **One-line doc comments only where the WHY is non-obvious.** Don't narrate WHAT — names already do that. Don't restate shared conventions ("matches the X pattern", "single source of convention") — the convention either lives here or is implicit from any other call site.
 - **No backwards-compat shims** while version < 1.0.0 — schema can change freely between minor versions.

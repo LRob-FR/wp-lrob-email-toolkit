@@ -10,8 +10,8 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: lrob-email-toolkit
  * Domain Path: /languages
- * Requires PHP: 8.1
- * Requires at least: 6.0
+ * Requires PHP: 8.2
+ * Requires at least: 6.8
  */
 
 if (!defined('ABSPATH')) {

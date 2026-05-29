@@ -9,7 +9,7 @@ For working rules (conventions, naming, build, UI patterns), see [CLAUDE.md](./C
 
 ## v0.4.0 — Modal-everywhere + IMAP cleanup + saved attachments + captcha enrichment + LRob branding (finalizing for release)
 
-Milestone v0.4.x feature-complete in code (version bumped to 0.4.0). **Not yet released** — latest GitHub release is v0.3.5; 0.4.0 is being finalized (translation release-gate → `./release.sh` → `gh release create v0.4.0`). What landed:
+Milestone v0.4.x feature-complete in code (version bumped to 0.4.0). **Not yet released** — latest GitHub release is v0.3.5; 0.4.0 is being finalized (translation release-gate → `./release.sh` → `gh release create v0.4.0`). **Minimum requirements bumped to PHP 8.2 (8.1 is EOL) + WordPress 6.8.** What landed:
 
 ### Detail views are modals everywhere (no more dedicated full pages)
 - **Email Logs + Contact Form submissions detail = in-page modal only.** The dedicated full-page detail views are gone. `LogViewPage` is now `LogDetailRenderer` (body-only, shared with the AJAX modal endpoint); `SubmissionsPage::render_detail()` removed (kept `render_detail_body()` + the spam/delete email-action confirm pages).
