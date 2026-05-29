@@ -130,9 +130,10 @@ abstract class AbstractModule implements ModuleInterface
             $this->disable();
         }
 
-        $redirect = $this->admin_page_url();
-        if ($redirect === null) {
-            $redirect = admin_url('admin.php?page=lrob-etk');
+        // Return to where the toggle was clicked (dashboard or module page), not always the module page.
+        $redirect = wp_get_referer();
+        if ($redirect === false) {
+            $redirect = $this->admin_page_url() ?? admin_url('admin.php?page=lrob-etk');
         }
         wp_safe_redirect(add_query_arg('toggled', $turn_on ? 'on' : 'off', $redirect));
         exit;

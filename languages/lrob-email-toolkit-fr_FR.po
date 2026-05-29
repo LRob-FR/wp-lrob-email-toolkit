@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-29T21:49:50+00:00\n"
+"POT-Creation-Date: 2026-05-29T22:34:00+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -7540,7 +7540,7 @@ msgid "WP users list"
 msgstr "Liste d'utilisateurs WP"
 
 #: src/Modules/Newsletter/ListRepository.php:48
-#: src/Modules/Newsletter/Module.php:663
+#: src/Modules/Newsletter/Module.php:668
 msgid "All subscribers"
 msgstr "Tous les abonnés"
 
@@ -7641,33 +7641,36 @@ msgstr "Objectif d'email d'accueil inconnu."
 msgid "Could not create the template draft."
 msgstr "Impossible de créer le brouillon de modèle."
 
-#: src/Modules/Newsletter/Module.php:649
-msgid "Newsletter: SMTP module not enabled"
-msgstr "Newsletter : module SMTP non activé"
+#: src/Modules/Newsletter/Module.php:654
+msgid "Newsletter: the SMTP module is optional"
+msgstr "Newsletter : le module SMTP est facultatif"
 
-#: src/Modules/Newsletter/Module.php:650
+#: src/Modules/Newsletter/Module.php:655
 msgid ""
-"Subscribe forms and the Newsletter admin work, but newsletter sending is "
-"disabled until you enable the SMTP module — Newsletter routes every send "
-"through an SMTP identity."
+"Newsletter sends through WordPress’ standard mail, so it already works with "
+"whatever you use — PHP mail, or any SMTP plugin you already have. Enable the "
+"built-in SMTP module only if you want per-identity routing, deliverability "
+"controls and send logging."
 msgstr ""
-"Les formulaires d'inscription et l'admin Newsletter fonctionnent, mais "
-"l'envoi de newsletters reste désactivé tant que le module SMTP n'est pas "
-"activé — chaque envoi de newsletter passe par une identité SMTP."
+"La newsletter utilise l’envoi standard de WordPress : elle fonctionne déjà "
+"avec ce que vous utilisez — la fonction mail de PHP, ou n’importe quel "
+"plugin SMTP que vous avez déjà. Activez le module SMTP intégré uniquement si "
+"vous voulez le routage par identité, le contrôle de délivrabilité et la "
+"journalisation des envois."
 
-#: src/Modules/Newsletter/Module.php:652
-msgid "Open SMTP settings"
-msgstr "Ouvrir les réglages SMTP"
+#: src/Modules/Newsletter/Module.php:657
+msgid "Set up the SMTP module"
+msgstr "Configurer le module SMTP"
 
-#: src/Modules/Newsletter/Module.php:668
+#: src/Modules/Newsletter/Module.php:673
 msgid "All WP members"
 msgstr "Tous les membres WP"
 
-#: src/Modules/Newsletter/Module.php:676
+#: src/Modules/Newsletter/Module.php:681
 msgid "All WC customers"
 msgstr "Tous les clients WC"
 
-#: src/Modules/Newsletter/Module.php:684
+#: src/Modules/Newsletter/Module.php:689
 msgid "Active WC subscribers"
 msgstr "Abonnés WC actifs"
 

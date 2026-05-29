@@ -630,6 +630,11 @@ final class Module extends AbstractModule
         if (!$this->is_enabled()) {
             return;
         }
+        // Only on Newsletter admin pages — not a site-wide nag.
+        $screen = get_current_screen();
+        if ($screen === null || !str_contains($screen->id, 'lrob-etk-nl')) {
+            return;
+        }
         if (!current_user_can(\LRob\EmailToolkit\Activator::CAPABILITY)) {
             return;
         }
@@ -645,11 +650,11 @@ final class Module extends AbstractModule
             ? (string) $smtp->admin_page_url()
             : admin_url('admin.php?page=lrob-etk');
         printf(
-            '<div class="notice notice-warning"><p><strong>%1$s</strong></p><p>%2$s</p><p><a href="%3$s" class="button">%4$s</a></p></div>',
-            esc_html__('Newsletter: SMTP module not enabled', 'lrob-email-toolkit'),
-            esc_html__('Subscribe forms and the Newsletter admin work, but newsletter sending is disabled until you enable the SMTP module — Newsletter routes every send through an SMTP identity.', 'lrob-email-toolkit'),
+            '<div class="notice notice-info"><p><strong>%1$s</strong></p><p>%2$s</p><p><a href="%3$s" class="button">%4$s</a></p></div>',
+            esc_html__('Newsletter: the SMTP module is optional', 'lrob-email-toolkit'),
+            esc_html__('Newsletter sends through WordPress’ standard mail, so it already works with whatever you use — PHP mail, or any SMTP plugin you already have. Enable the built-in SMTP module only if you want per-identity routing, deliverability controls and send logging.', 'lrob-email-toolkit'),
             esc_url($smtp_url),
-            esc_html__('Open SMTP settings', 'lrob-email-toolkit')
+            esc_html__('Set up the SMTP module', 'lrob-email-toolkit')
         );
     }
 
