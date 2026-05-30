@@ -544,12 +544,12 @@
         if (!card) return;
         var msg = card.querySelector('[data-status-msg]');
         if (!msg) return;
+        var status = (card.getAttribute('data-status') || 'draft');
         if (!scheduledValue || scheduledValue.length === 0) {
-            // Cleared: hide the schedule message unless the card is in
-            // a terminal state (in which case the page reload will
-            // re-render the "Sent X ago" message — leave whatever the
-            // server rendered alone).
-            if (msg.classList.contains('is-info') || msg.classList.contains('is-warn')) {
+            // Cleared (unticked "Schedule send for later"): drop the schedule
+            // message. Only a still-draft / scheduled card owns this message;
+            // terminal cards (sent/failed/aborted) keep their server render.
+            if (status === 'draft' || status === 'scheduled') {
                 msg.setAttribute('hidden', '');
                 msg.textContent = '';
             }
@@ -560,16 +560,12 @@
         var now = new Date();
         var deltaMin = Math.round((when.getTime() - now.getTime()) / 60000);
         var absolute = when.toLocaleString();
-        var status = (card.getAttribute('data-status') || 'draft');
 
-        // Draft + date set: the commit hasn't happened yet. Mirror the
-        // server-rendered "Schedule set for X — click Schedule to commit."
-        // so changing the date in-flight stays consistent with the page-
-        // load render.
+        // Draft + date set: commit hasn't happened. The date is shown by the
+        // input itself, so the message is just the call to action.
         if (status === 'draft') {
-            var draftTpl = I18N.scheduleSetTemplate || 'Schedule set for %s — click Schedule to commit.';
             msg.className = 'lrob-etk-nl-card-status-msg lrob-etk-state--info';
-            msg.textContent = draftTpl.replace('%s', absolute);
+            msg.textContent = I18N.scheduleConfirm || 'Click Schedule to confirm';
             msg.removeAttribute('hidden');
             return;
         }

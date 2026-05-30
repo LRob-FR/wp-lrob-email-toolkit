@@ -288,11 +288,19 @@ final class SettingsPage
                         <?php esc_html_e('Encryption', 'lrob-email-toolkit'); ?>
                         <?php Tooltip::render(__('STARTTLS upgrades a plain connection to encrypted (port 587 — most common). TLS connects encrypted from the start (port 465). None sends plaintext on port 25 — almost always blocked by hosting providers.', 'lrob-email-toolkit')); ?>
                     </label>
-                    <select name="smtp_encryption" class="lrob-etk-select lrob-etk-field-encryption">
-                        <option value="<?php echo esc_attr(Identity::ENCRYPTION_STARTTLS); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_STARTTLS); ?>>STARTTLS</option>
-                        <option value="<?php echo esc_attr(Identity::ENCRYPTION_SSL); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_SSL); ?>>TLS</option>
-                        <option value="<?php echo esc_attr(Identity::ENCRYPTION_NONE); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_NONE); ?>><?php esc_html_e('None', 'lrob-email-toolkit'); ?></option>
-                    </select>
+                    <?php
+                    \LRob\EmailToolkit\Admin\Combobox::render_fixed_select(
+                        'smtp_encryption',
+                        $f['smtp_encryption'],
+                        [
+                            ['value' => Identity::ENCRYPTION_STARTTLS, 'label' => 'STARTTLS'],
+                            ['value' => Identity::ENCRYPTION_SSL,      'label' => 'TLS'],
+                            ['value' => Identity::ENCRYPTION_NONE,     'label' => __('None', 'lrob-email-toolkit')],
+                        ],
+                        '',
+                        ''
+                    );
+                    ?>
                 </div>
 
                 <div class="lrob-etk-field lrob-etk-server-port">
@@ -687,10 +695,10 @@ final class SettingsPage
             card.classList.toggle('lrob-etk-is-dimmed', !activeChk.checked);
         }
 
-        // None warning
-        var encChecked = card.querySelector('input[name="smtp_encryption"]:checked');
+        // None warning (encryption is a Combobox now — read its hidden value input).
+        var encInput = card.querySelector('[name="smtp_encryption"]');
         var noneWarn = card.querySelector('.lrob-etk-none-warning');
-        if (noneWarn) noneWarn.hidden = !(encChecked && encChecked.value === '');
+        if (noneWarn) noneWarn.hidden = !(encInput && encInput.value === '');
 
         rebuildHostPresets(card);
         updateFromEmailDefaultLabel(card);
@@ -792,13 +800,18 @@ final class SettingsPage
                 }
             }
         } else if (name === 'from-email') {
-            if (user) {
-                items.push({ value: user, label: '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + user });
-            }
-            items.push({ value: '', label: '<?php echo esc_js(__('Use automatic (uses mailbox login)', 'lrob-email-toolkit')); ?>' });
+            // Single "Default — <mailbox login>" option with empty value: picking
+            // it clears the field so it inherits the live default (shown as the
+            // placeholder), exactly like the CF Success-message combo. mail()
+            // transport has no login → generic wording.
+            var prefix = '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>';
+            var isMail = field(card, 'transport').value === 'mail';
+            var emailDefault = isMail
+                ? '<?php echo esc_js(__('WordPress sender', 'lrob-email-toolkit')); ?>'
+                : (user || '<?php echo esc_js(__('mailbox login', 'lrob-email-toolkit')); ?>');
+            items.push({ value: '', label: prefix + emailDefault });
         } else if (name === 'from-name') {
-            items.push({ value: S.siteTitle, label: '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + S.siteTitle });
-            items.push({ value: '', label: '<?php echo esc_js(__('Use automatic (uses site title)', 'lrob-email-toolkit')); ?>' });
+            items.push({ value: '', label: '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + S.siteTitle });
         }
         return items;
     }
@@ -877,16 +890,17 @@ final class SettingsPage
         field(card, 'host').addEventListener('input', function () { showHostResolve(card); });
         field(card, 'from-email').addEventListener('input', function () { syncFromWarning(card); });
 
+        // Encryption is a Combobox: its hidden value input fires bubbling `change`.
         var portDefaults = { 'tls': 587, 'ssl': 465, '': 25 };
-        var encSelect = card.querySelector('select[name="smtp_encryption"]');
-        if (encSelect) {
-            encSelect.addEventListener('change', function () {
+        var encInput = card.querySelector('[name="smtp_encryption"]');
+        if (encInput) {
+            encInput.addEventListener('change', function () {
                 applyCardState(card);
-                var def = portDefaults[encSelect.value];
+                var def = portDefaults[encInput.value];
                 if (def !== undefined) {
                     field(card, 'port').value = def;   // encryption always drives the port
                 }
-                queueSave(card, 0);   // native <select> isn't in the auto-save bindings below
+                // Save is handled by the generic .lrob-etk-combo-value binding below.
             });
         }
 

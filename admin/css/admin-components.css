@@ -441,7 +441,7 @@ body.lrob-etk-modal-open {
     background-position: right 8px center;
     background-size: 10px 7px;
     padding-right: 26px;
-    border: 1px solid var(--etk-line);
+    border: 1px solid var(--etk-line-strong);
     border-radius: var(--etk-radius-sm);
     height: 32px;
     line-height: 1.4;
@@ -451,7 +451,7 @@ body.lrob-etk-modal-open {
     transition: border-color var(--etk-transition);
 }
 .lrob-etk-select:hover {
-    border-color: var(--etk-line-strong);
+    border-color: var(--etk-line-hover);
 }
 .lrob-etk-select:focus {
     border-color: #fff;
@@ -465,13 +465,13 @@ body.lrob-etk-modal-open {
     position: relative;
     display: flex;
     align-items: stretch;
-    border: 1px solid var(--etk-line);
+    border: 1px solid var(--etk-line-strong);
     border-radius: var(--etk-radius-sm);
     background: var(--etk-input-bg);
     transition: border-color var(--etk-transition);
 }
 .lrob-etk-combo:hover {
-    border-color: var(--etk-line-strong);
+    border-color: var(--etk-line-hover);
 }
 /* Single focus treatment: the wrapper's white border strengthens. */
 .lrob-etk-combo:focus-within {
@@ -504,7 +504,7 @@ body.lrob-etk-modal-open {
     border: none;
     /* Separator before the arrow = "free" combo (type your own value: host,
        from-email…). Pick-only selects (.lrob-etk-combo--select) drop it. */
-    border-left: 1px solid var(--etk-soft);
+    border-left: 1px solid var(--etk-line-strong);
     cursor: pointer;
     padding: 0 var(--etk-space-2);
     color: var(--etk-muted);
@@ -1590,10 +1590,19 @@ body.lrob-etk-modal-open {
 }
 /* In the footer the status is centered between the two equal-flex zones — no
    width-collapse trick needed (that was for the header where the title shrank). */
+/* In the footer the status fades in place (opacity only) — no width-collapse
+   animation, which made it appear to slide in from the left zone. */
 .lrob-etk-card-footer > .lrob-etk-card-status {
     flex: 0 0 auto;
     max-width: none;
     text-align: center;
+    transition: opacity var(--etk-transition);
+}
+.lrob-etk-card-footer > .lrob-etk-card-status.is-dirty,
+.lrob-etk-card-footer > .lrob-etk-card-status.is-saving,
+.lrob-etk-card-footer > .lrob-etk-card-status.is-saved,
+.lrob-etk-card-footer > .lrob-etk-card-status.is-failed {
+    max-width: none;
 }
 
 .lrob-etk-card-footer {

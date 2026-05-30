@@ -70,7 +70,8 @@
     --etk-heading: #4fb3ec;       /* page + card titles (brand blue) */
     --etk-soft: #11314a;          /* soft fills / hover / secondary buttons */
     --etk-line: rgba(255, 255, 255, 0.12);          /* decorative separators */
-    --etk-line-strong: rgba(255, 255, 255, 0.40);   /* control borders — ≥3:1 (WCAG 1.4.11) */
+    --etk-line-strong: rgba(255, 255, 255, 0.40);   /* control borders (idle) — ≥3:1 (WCAG 1.4.11) */
+    --etk-line-hover:  rgba(255, 255, 255, 0.60);   /* control borders on hover (focus = #fff) */
     --etk-accent: #ffb700;        /* brand amber — links, buttons, active */
     --etk-accent-hover: #ffc62e;
     --etk-success: #3bbf5b;
@@ -206,7 +207,13 @@ body.wp-admin,
 .lrob-etk textarea:focus {
     color: var(--etk-fg);
 }
-/* Focus = white border strengthens; kill WP's blue focus glow. */
+/* Unified 3-step field border (shared by inputs, .lrob-etk-select, .lrob-etk-combo):
+   idle --etk-line-strong → hover --etk-line-hover → focus #fff. Kills WP's blue glow. */
+.lrob-etk input:hover,
+.lrob-etk select:hover,
+.lrob-etk textarea:hover {
+    border-color: var(--etk-line-hover);
+}
 .lrob-etk input:focus,
 .lrob-etk select:focus,
 .lrob-etk textarea:focus {
@@ -333,8 +340,9 @@ body.wp-admin,
 
 /* Base link colour so bare <a> (logs, submissions, email meta — no etk class)
    inherit a themed, readable colour instead of WP's default link blue, which is
-   too dark on the dark theme. Buttons/nav opt out (they set their own colour). */
-.lrob-etk a:not(.button):not(.lrob-etk-nav-button) {
+   too dark on the dark theme. Buttons, header nav, and section tabs opt out
+   (they set their own colour — tabs read as nav chrome, not amber links). */
+.lrob-etk a:not(.button):not(.lrob-etk-nav-button):not(.lrob-etk-section-tab) {
     color: var(--etk-text-accent);
 }
 

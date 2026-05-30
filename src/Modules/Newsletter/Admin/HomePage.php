@@ -171,8 +171,7 @@ final class HomePage
                 'daySingular'          => __('day', 'lrob-email-toolkit'),
                 /* translators: %1$s: relative time span (e.g. "2 days"), %2$s: absolute datetime */
                 'scheduledTemplate'    => __('Scheduled to send in %1$s — %2$s', 'lrob-email-toolkit'),
-                /* translators: %s: absolute datetime */
-                'scheduleSetTemplate'  => __('Schedule set for %s — click Schedule to commit.', 'lrob-email-toolkit'),
+                'scheduleConfirm'      => __('Click Schedule to confirm', 'lrob-email-toolkit'),
                 /* translators: %s: absolute datetime */
                 'scheduledOverdueTemplate' => __('Scheduled for %s (overdue — will run on the next cron tick).', 'lrob-email-toolkit'),
                 'abortTitle'           => __('Abort send', 'lrob-email-toolkit'),

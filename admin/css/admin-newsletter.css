@@ -1363,8 +1363,9 @@ a.lrob-etk-nl-list-count-badge:focus {
     max-height: 800px;
     transition: width var(--etk-transition);
 }
-.lrob-etk-nl-preview-body[data-preview-vp="desktop"] iframe { width: 100%; max-width: 900px; }
-.lrob-etk-nl-preview-body[data-preview-vp="tablet"]  iframe { width: 768px; }
+/* Desktop = full width (email bodies cap themselves ~600px); mobile = 375px.
+   Tablet dropped: the modal isn't wide enough to differentiate it from desktop. */
+.lrob-etk-nl-preview-body[data-preview-vp="desktop"] iframe { width: 100%; }
 .lrob-etk-nl-preview-body[data-preview-vp="mobile"]  iframe { width: 375px; }
 
 /* Onboarding template-group rework */
@@ -1466,6 +1467,13 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: flex;
     flex-direction: column;
     gap: 2px;
+}
+
+/* The NL header title-wrap is two rows (label + subject input); align the
+   header's siblings (status, trash) to the bottom so the trash lines up with
+   the subject input row, not the vertical centre of the whole block. */
+.lrob-etk-nl-card .lrob-etk-card-form-head {
+    align-items: flex-end;
 }
 
 .lrob-etk-nl-card-title-row {
@@ -1759,21 +1767,37 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 /* Stats breakdown (visible only when the newsletter is terminal —
  * the Recipients zone doubles as the stats panel). */
+/* One compact line: sent | opens (y%) | clicks (y%) — so a sent card isn't
+   much taller than an unsent one. Items separated by a thin divider. */
 .lrob-etk-nl-card-recipients-stats {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--etk-space-1) var(--etk-space-3);
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
+}
+.lrob-etk-nl-card-recipients-stats li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    position: relative;
+}
+.lrob-etk-nl-card-recipients-stats li + li::before {
+    content: "";
+    position: absolute;
+    left: calc(var(--etk-space-3) / -2);
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid var(--etk-line);
 }
 
 .lrob-etk-nl-card-recipients-stats strong {
     color: var(--etk-fg);
     font-weight: 600;
-    margin-right: 0.25rem;
 }
 
 .lrob-etk-nl-card-recipients-stats li.is-warn strong {
@@ -1814,18 +1838,40 @@ a.lrob-etk-nl-list-count-badge:focus {
     display: none;
 }
 
+/* Action row = Content + Preview (left-aligned). Test + Send moved to the
+   footer (.lrob-etk-nl-card-send-actions), same line as Duplicate/Restore. */
 .lrob-etk-nl-card-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.4rem;
+    gap: var(--etk-space-2);
+}
+.lrob-etk-nl-card-footer-left {
+    display: flex;
+    align-items: center;
+    gap: var(--etk-space-1);
+}
+.lrob-etk-nl-card-send-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--etk-space-2);
 }
 
-.lrob-etk-nl-card-actions .button .dashicons {
-    margin-right: 0.2rem;
+/* Buttons: center icon+label as a unit (was shifting right + icon mis-aligned). */
+.lrob-etk-nl-card-actions .button,
+.lrob-etk-nl-card-send-actions .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--etk-space-1);
+}
+.lrob-etk-nl-card-actions .button .dashicons,
+.lrob-etk-nl-card-send-actions .button .dashicons {
+    margin: 0;
     font-size: var(--etk-icon-size);
     line-height: 1;
-    vertical-align: middle;
 }
 
 /* Duplicate link inside the card footer — same chrome as

@@ -337,6 +337,24 @@ final class NewslettersPage
         // row's real status is preserved in $status for restore-time
         // decisions.
         $effective_status = $is_trashed ? 'trashed' : $status;
+
+        // Delete/trash URLs (used by the header trash icon-btn). Trashing is
+        // forbidden mid-send — admin must abort first.
+        $shown_title_attr = $title !== '' ? $title : __('(untitled)', 'lrob-email-toolkit');
+        $can_trash = !$is_sending && !$is_paused;
+        if ($is_trashed) {
+            $delete_action_url = wp_nonce_url(
+                add_query_arg(['action' => self::ACTION_DELETE_PERMANENT, 'post' => $post_id], admin_url('admin-post.php')),
+                self::ACTION_DELETE_PERMANENT . '_' . $post_id
+            );
+            $delete_mode = 'permanent';
+        } else {
+            $delete_action_url = wp_nonce_url(
+                add_query_arg(['action' => self::ACTION_DELETE, 'post' => $post_id], admin_url('admin-post.php')),
+                self::ACTION_DELETE . '_' . $post_id
+            );
+            $delete_mode = 'trash';
+        }
         ?>
         <article class="lrob-etk-card lrob-etk-nl-card<?php echo $is_trashed ? ' is-trashed' : ''; ?><?php echo (!$is_trashed && $status === NewsletterRepository::STATUS_SENT) ? ' lrob-etk-is-dimmed' : ''; ?><?php echo ($_GET['created'] ?? '') === (string) $post_id ? ' is-just-created' : ''; ?>" data-newsletter-status="<?php echo esc_attr((string) ($row['status'] ?? 'draft')); ?>"
                  data-newsletter-id="<?php echo $post_id; ?>"
@@ -702,6 +720,13 @@ final class NewslettersPage
                         <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                         <?php esc_html_e('Preview', 'lrob-email-toolkit'); ?>
                     </button>
+                </div>
+
+                <?php
+                // Test + Send cluster — captured into a string, emitted in the
+                // footer below so it shares the bottom row with Duplicate/Trash.
+                ob_start();
+                ?>
                     <button type="button" class="button" data-card-test
                             <?php echo ($is_terminal || $is_sending || $is_trashed) ? 'disabled' : ''; ?>
                             <?php echo ($is_terminal || $is_sending) ? 'title="' . esc_attr__('Test sends are disabled once the newsletter is sending or done. Duplicate to start a new one.', 'lrob-email-toolkit') . '"' : ($is_trashed ? 'title="' . esc_attr__('Restore this newsletter to send tests.', 'lrob-email-toolkit') . '"' : ''); ?>>
@@ -785,7 +810,7 @@ final class NewslettersPage
                         </button>
                     <?php endif; ?>
                     <?php endif; // !$is_trashed ?>
-                </div>
+                <?php $send_actions_html = ob_get_clean(); ?>
 
                 <?php if ($is_paused && $pause_reason === SendLoop::PAUSE_REASON_SMTP_UNHEALTHY) : ?>
                     <div class="lrob-etk-nl-card-banner is-error" role="alert">
@@ -830,13 +855,9 @@ final class NewslettersPage
                     if ($sched_ts !== false) {
                         if ($status === NewsletterRepository::STATUS_DRAFT) {
                             // Date saved but the admin hasn't clicked Schedule
-                            // yet — the commit step is now explicit (see
-                            // SendAjaxController::handle_commit_schedule).
-                            $status_msg = sprintf(
-                                /* translators: %s: absolute datetime */
-                                __('Schedule set for %s — click Schedule to commit.', 'lrob-email-toolkit'),
-                                $sched_pretty
-                            );
+                            // yet — the commit step is explicit. The date is
+                            // shown by the input, so the message is just the CTA.
+                            $status_msg = __('Click Schedule to confirm', 'lrob-email-toolkit');
                             $status_msg_class = 'info';
                         } elseif ($sched_ts > time()) {
                             $status_msg = sprintf(
@@ -892,82 +913,65 @@ final class NewslettersPage
                     }
                 }
                 ?>
-                <p class="lrob-etk-nl-card-status-msg lrob-etk-state--<?php echo esc_attr($status_msg_class); ?>" data-status-msg <?php echo $status_msg === '' ? 'hidden' : ''; ?>>
-                    <?php
-                    // Some branches inject `<span data-relative-to>` for
-                    // the live clock-tick — wp_kses allows it through.
-                    // Other branches are plain text; wp_kses leaves them
-                    // alone (no HTML to strip).
-                    echo wp_kses($status_msg, ['span' => ['data-relative-to' => true]]);
-                    ?>
-                </p>
 
-                <?php
-                $shown_title_attr = $title !== '' ? $title : __('(untitled)', 'lrob-email-toolkit');
-                if ($is_trashed) {
-                    $restore_url = wp_nonce_url(
-                        add_query_arg(['action' => self::ACTION_RESTORE, 'post' => $post_id], admin_url('admin-post.php')),
-                        self::ACTION_RESTORE . '_' . $post_id
-                    );
-                    $delete_permanent_url = wp_nonce_url(
-                        add_query_arg(['action' => self::ACTION_DELETE_PERMANENT, 'post' => $post_id], admin_url('admin-post.php')),
-                        self::ACTION_DELETE_PERMANENT . '_' . $post_id
-                    );
-                    ?>
-                    <footer class="lrob-etk-card-footer">
-                        <a href="<?php echo esc_url($restore_url); ?>" class="lrob-etk-card-delete-link lrob-etk-nl-card-restore-link">
-                            <span class="dashicons dashicons-undo" aria-hidden="true"></span>
-                            <?php esc_html_e('Restore', 'lrob-email-toolkit'); ?>
-                        </a>
-                        <button type="button"
-                                class="lrob-etk-card-delete-link"
-                                data-card-delete
-                                data-delete-mode="permanent"
-                                data-newsletter-title="<?php echo esc_attr($shown_title_attr); ?>"
-                                data-delete-url="<?php echo esc_attr($delete_permanent_url); ?>">
-                            <?php esc_html_e('Delete permanently', 'lrob-email-toolkit'); ?>
-                        </button>
-                    </footer>
-                    <?php
-                } else {
-                    $delete_url = wp_nonce_url(
-                        add_query_arg(['action' => self::ACTION_DELETE, 'post' => $post_id], admin_url('admin-post.php')),
-                        self::ACTION_DELETE . '_' . $post_id
-                    );
-                    $duplicate_url = wp_nonce_url(
-                        add_query_arg(['action' => self::ACTION_DUPLICATE, 'post' => $post_id], admin_url('admin-post.php')),
-                        self::ACTION_DUPLICATE . '_' . $post_id
-                    );
-                    // Trashing is forbidden while a send is mid-flight to
-                    // avoid stranding pending recipient rows; admin must
-                    // abort first.
-                    $can_trash = !$is_sending && !$is_paused;
-                    ?>
-                    <footer class="lrob-etk-card-footer">
-                        <a href="<?php echo esc_url($duplicate_url); ?>" class="lrob-etk-card-delete-link lrob-etk-nl-card-duplicate-link">
-                            <?php esc_html_e('Duplicate', 'lrob-email-toolkit'); ?>
-                        </a>
-                        <?php if ($can_trash) : ?>
+                <footer class="lrob-etk-card-footer">
+                    <div class="lrob-etk-nl-card-footer-left">
+                        <?php if ($is_trashed) :
+                            $restore_url = wp_nonce_url(
+                                add_query_arg(['action' => self::ACTION_RESTORE, 'post' => $post_id], admin_url('admin-post.php')),
+                                self::ACTION_RESTORE . '_' . $post_id
+                            );
+                            ?>
+                            <a href="<?php echo esc_url($restore_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-nl-card-restore-link"
+                               title="<?php esc_attr_e('Restore', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Restore', 'lrob-email-toolkit'); ?>">
+                                <span class="dashicons dashicons-undo" aria-hidden="true"></span>
+                            </a>
+                        <?php else :
+                            $duplicate_url = wp_nonce_url(
+                                add_query_arg(['action' => self::ACTION_DUPLICATE, 'post' => $post_id], admin_url('admin-post.php')),
+                                self::ACTION_DUPLICATE . '_' . $post_id
+                            );
+                            ?>
+                            <a href="<?php echo esc_url($duplicate_url); ?>" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-nl-card-duplicate-link"
+                               title="<?php esc_attr_e('Duplicate', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Duplicate', 'lrob-email-toolkit'); ?>">
+                                <span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
+                            </a>
+                        <?php endif; ?>
+                        <?php if ($is_trashed || $can_trash) : ?>
                             <button type="button"
-                                    class="lrob-etk-card-delete-link"
+                                    class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger lrob-etk-nl-card-delete"
                                     data-card-delete
-                                    data-delete-mode="trash"
+                                    data-delete-mode="<?php echo esc_attr($delete_mode); ?>"
                                     data-newsletter-title="<?php echo esc_attr($shown_title_attr); ?>"
-                                    data-delete-url="<?php echo esc_attr($delete_url); ?>">
-                                <?php esc_html_e('Trash', 'lrob-email-toolkit'); ?>
+                                    data-delete-url="<?php echo esc_attr($delete_action_url); ?>"
+                                    title="<?php echo $is_trashed ? esc_attr__('Delete permanently', 'lrob-email-toolkit') : esc_attr__('Trash', 'lrob-email-toolkit'); ?>"
+                                    aria-label="<?php echo $is_trashed ? esc_attr__('Delete permanently', 'lrob-email-toolkit') : esc_attr__('Trash', 'lrob-email-toolkit'); ?>">
+                                <span class="dashicons dashicons-trash" aria-hidden="true"></span>
                             </button>
                         <?php else : ?>
                             <button type="button"
-                                    class="lrob-etk-card-delete-link"
+                                    class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-nl-card-delete"
                                     disabled
-                                    title="<?php esc_attr_e('Abort the send first, then this can be moved to trash.', 'lrob-email-toolkit'); ?>">
-                                <?php esc_html_e('Trash', 'lrob-email-toolkit'); ?>
+                                    title="<?php esc_attr_e('Abort the send first, then this can be moved to trash.', 'lrob-email-toolkit'); ?>"
+                                    aria-label="<?php esc_attr_e('Trash', 'lrob-email-toolkit'); ?>">
+                                <span class="dashicons dashicons-trash" aria-hidden="true"></span>
                             </button>
                         <?php endif; ?>
-                    </footer>
+                    </div>
+                    <div class="lrob-etk-nl-card-send-actions">
+                        <?php echo $send_actions_html; // phpcs:ignore — pre-built button markup ?>
+                    </div>
+                </footer>
+
+                <?php // Status note sits at the very bottom, below the action buttons. ?>
+                <p class="lrob-etk-nl-card-status-msg lrob-etk-state--<?php echo esc_attr($status_msg_class); ?>" data-status-msg <?php echo $status_msg === '' ? 'hidden' : ''; ?>>
                     <?php
-                }
-                ?>
+                    // Some branches inject `<span data-relative-to>` for the live
+                    // clock-tick — wp_kses allows it through. Plain-text branches
+                    // pass through untouched.
+                    echo wp_kses($status_msg, ['span' => ['data-relative-to' => true]]);
+                    ?>
+                </p>
             </div>
         </article>
         <?php
@@ -1045,9 +1049,6 @@ final class NewslettersPage
                     <nav class="lrob-etk-nl-preview-viewport" role="tablist" aria-label="<?php esc_attr_e('Viewport size', 'lrob-email-toolkit'); ?>">
                         <button type="button" class="lrob-etk-icon-btn lrob-etk-nl-preview-vp is-active" data-preview-viewport="desktop" title="<?php esc_attr_e('Desktop', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Desktop preview', 'lrob-email-toolkit'); ?>">
                             <span class="dashicons dashicons-desktop" aria-hidden="true"></span>
-                        </button>
-                        <button type="button" class="lrob-etk-icon-btn lrob-etk-nl-preview-vp" data-preview-viewport="tablet" title="<?php esc_attr_e('Tablet', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Tablet preview', 'lrob-email-toolkit'); ?>">
-                            <span class="dashicons dashicons-tablet" aria-hidden="true"></span>
                         </button>
                         <button type="button" class="lrob-etk-icon-btn lrob-etk-nl-preview-vp" data-preview-viewport="mobile" title="<?php esc_attr_e('Mobile', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Mobile preview', 'lrob-email-toolkit'); ?>">
                             <span class="dashicons dashicons-smartphone" aria-hidden="true"></span>
