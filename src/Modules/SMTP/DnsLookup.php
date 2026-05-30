@@ -38,15 +38,15 @@ final class DnsLookup
         return $resolves;
     }
 
-    /** @return array<int, string> MX targets in preference order */
-    public function mx_hosts(string $domain): array
+    /** @return array<int, array{host: string, priority: int}> MX targets + priority, in preference order */
+    public function mx_records(string $domain): array
     {
         $domain = $this->sanitize_host($domain);
         if ($domain === '') {
             return [];
         }
 
-        $cache_key = 'lrob_etk_dns_mx_' . md5($domain);
+        $cache_key = 'lrob_etk_dns_mxr_' . md5($domain);
         $cached = get_transient($cache_key);
         if (is_array($cached)) {
             return $cached;
@@ -66,11 +66,14 @@ final class DnsLookup
         });
 
         $hosts = [];
+        $seen = [];
         foreach ($records as $r) {
             $target = isset($r['target']) ? rtrim((string) $r['target'], '.') : '';
-            if ($target !== '' && !in_array($target, $hosts, true)) {
-                $hosts[] = $target;
+            if ($target === '' || in_array($target, $seen, true)) {
+                continue;
             }
+            $seen[] = $target;
+            $hosts[] = ['host' => $target, 'priority' => (int) ($r['pri'] ?? 0)];
         }
 
         set_transient($cache_key, $hosts, self::RESOLVE_CACHE_TTL);

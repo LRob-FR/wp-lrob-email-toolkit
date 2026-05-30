@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LRob admin theme — "Deep Glass" (the single plugin theme)</title>
+<style>
+/* =========================================================================
+   LRob admin theme — "Deep Glass". The ONE theme the plugin ships (no
+   switcher). Throwaway design reference; lives in docs/ (excluded from the
+   build zip). Token values here mirror admin-base.css 1:1. Full palette chart
+   is rendered at the bottom of the page.
+   ========================================================================= */
+
+:root {
+    /* ---- structural (mirror admin-base) ---- */
+    --etk-space-1: 4px;  --etk-space-2: 8px;  --etk-space-3: 12px;
+    --etk-space-4: 16px; --etk-space-5: 24px; --etk-space-6: 32px;
+    --etk-radius-sm: 4px; --etk-radius-md: 6px; --etk-radius-lg: 8px;
+    --etk-input-height: 36px;
+    --etk-text-xs: 11px; --etk-text-sm: 12px; --etk-text-md: 13px;
+    --etk-text-lg: 15px; --etk-text-xl: 20px; --etk-text-2xl: 28px;
+    --etk-transition: .15s ease;
+    --etk-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* ---- LRob "Deep Glass" palette (= admin-base.css) ---- */
+    --etk-page-bg:   #051826;
+    --etk-page-bg-image: linear-gradient(160deg, #03101b 0%, #062236 50%, #0a3152 100%);
+    --etk-card-bg:   #0a2236;
+    --etk-input-bg:  #0f2d44;
+    --etk-soft:      #11314a;
+    --etk-fg:        #fbfef9;
+    --etk-muted:     #c3c3c3;
+    --etk-heading:   #4fb3ec;
+    --etk-line:      rgba(255,255,255,.12);
+    --etk-line-strong: rgba(255,255,255,.40);
+    --etk-accent:    #ffb700;
+    --etk-accent-hover: #ffc62e;
+    --etk-accent-bg: rgba(255,183,0,.14);
+    --etk-on-accent: #000;
+    --etk-text-accent: #ffb700;
+    --etk-success: #3bbf5b; --etk-success-bg: #13301e; --etk-text-success: #86dd9f;
+    --etk-warning: #e0a92a; --etk-warning-bg: #2f2912; --etk-text-warning: #e8cc6e;
+    --etk-danger:  #e86365; --etk-danger-bg:  #3a1c1d; --etk-text-danger:  #f3a9aa;
+    --etk-shadow-md: 0 1px 3px rgba(0,0,0,.4);
+    --etk-shadow-lg: 0 8px 28px rgba(0,0,0,.55);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+    font-family: var(--etk-font);
+    font-size: var(--etk-text-md);
+    line-height: 1.5;
+    color: var(--etk-fg);
+    background: var(--etk-page-bg);
+    background-image: var(--etk-page-bg-image);
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding-bottom: var(--etk-space-6);
+}
+
+.surface { max-width: 1080px; margin: 0 auto; padding: var(--etk-space-5); }
+
+/* Page header */
+.page-header {
+    display: flex; align-items: center; gap: var(--etk-space-3);
+    padding-bottom: var(--etk-space-4);
+    border-bottom: 1px solid var(--etk-line);
+    margin-bottom: var(--etk-space-5);
+}
+.page-icon {
+    width: 40px; height: 40px; flex: none;
+    display: grid; place-items: center;
+    border-radius: var(--etk-radius-md);
+    background: var(--etk-accent-bg); color: var(--etk-accent);
+    font-size: 22px;
+}
+.page-title { margin: 0; font-size: var(--etk-text-xl); font-weight: 600; color: var(--etk-heading); }
+.page-sub { margin: 2px 0 0; font-size: var(--etk-text-sm); color: var(--etk-muted); }
+.header-spacer { flex: 1; }
+.nav { display: inline-flex; gap: var(--etk-space-1); }
+.nav a {
+    text-decoration: none; padding: var(--etk-space-2) var(--etk-space-3);
+    border-radius: var(--etk-radius-sm); font-size: var(--etk-text-sm);
+    color: var(--etk-muted); transition: var(--etk-transition);
+}
+.nav a:hover { color: var(--etk-fg); background: var(--etk-soft); }
+.nav a.active { color: var(--etk-accent); background: var(--etk-accent-bg); }
+
+/* Cards */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--etk-space-4); }
+.card {
+    background: var(--etk-card-bg);
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-lg);
+    box-shadow: var(--etk-shadow-md);
+    padding: var(--etk-space-5);
+    margin-bottom: var(--etk-space-4);
+}
+.card h2 { margin: 0 0 var(--etk-space-1); font-size: var(--etk-text-lg); color: var(--etk-heading); font-weight: 600; }
+.card .desc { margin: 0 0 var(--etk-space-4); font-size: var(--etk-text-sm); color: var(--etk-muted); }
+
+/* Form fields */
+.field { margin-bottom: var(--etk-space-4); }
+.field label { display: block; font-size: var(--etk-text-sm); font-weight: 600; margin-bottom: var(--etk-space-1); }
+.field input, .field select {
+    width: 100%; height: var(--etk-input-height);
+    padding: 0 var(--etk-space-3);
+    font: inherit; font-size: var(--etk-text-md);
+    background: var(--etk-input-bg); color: var(--etk-fg);
+    border: 1px solid var(--etk-line-strong); border-radius: var(--etk-radius-sm);
+    transition: var(--etk-transition);
+}
+.field input::placeholder { color: var(--etk-muted); }
+.field select option { background: #0f2d44; color: var(--etk-fg); }
+.field input:focus, .field select:focus {
+    outline: none; border-color: var(--etk-accent);
+    box-shadow: 0 0 0 2px var(--etk-accent-bg);
+}
+.field .help { margin-top: var(--etk-space-1); font-size: var(--etk-text-xs); color: var(--etk-muted); }
+
+/* Toggle */
+.toggle-row { display: flex; align-items: center; gap: var(--etk-space-3); }
+.toggle { position: relative; width: 40px; height: 22px; flex: none; }
+.toggle input { display: none; }
+.toggle span { position: absolute; inset: 0; border-radius: 999px; background: var(--etk-line-strong); transition: var(--etk-transition); cursor: pointer; }
+.toggle span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: var(--etk-transition); }
+.toggle input:checked + span { background: var(--etk-accent); }
+.toggle input:checked + span::after { transform: translateX(18px); }
+
+/* Buttons */
+.btns { display: flex; gap: var(--etk-space-2); margin-top: var(--etk-space-4); }
+.btn {
+    appearance: none; cursor: pointer; font: inherit; font-size: var(--etk-text-sm); font-weight: 600;
+    height: var(--etk-input-height); padding: 0 var(--etk-space-4);
+    border-radius: var(--etk-radius-sm); border: 1px solid transparent;
+    display: inline-flex; align-items: center; gap: var(--etk-space-2);
+    transition: var(--etk-transition);
+}
+.btn-primary { background: var(--etk-accent); color: var(--etk-on-accent); }
+.btn-primary:hover { background: var(--etk-accent-hover); }
+.btn-secondary { background: var(--etk-soft); color: var(--etk-fg); border-color: var(--etk-line-strong); }
+.btn-secondary:hover { border-color: var(--etk-accent); }
+.btn-link { background: transparent; color: var(--etk-text-accent); }
+
+/* Status pills (.state--*) */
+.pills { display: flex; flex-wrap: wrap; gap: var(--etk-space-2); }
+.pill {
+    display: inline-flex; align-items: center; gap: var(--etk-space-1);
+    padding: 3px var(--etk-space-3); border-radius: 999px;
+    font-size: var(--etk-text-xs); font-weight: 600; border: 1px solid transparent;
+}
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.state--on   { background: var(--etk-success-bg); color: var(--etk-text-success); border-color: var(--etk-success); }
+.state--off  { background: var(--etk-soft);       color: var(--etk-muted);        border-color: var(--etk-line-strong); }
+.state--fail { background: var(--etk-danger-bg);  color: var(--etk-text-danger);  border-color: var(--etk-danger); }
+.state--pending { background: var(--etk-warning-bg); color: var(--etk-text-warning); border-color: var(--etk-warning); }
+.state--info { background: var(--etk-accent-bg);  color: var(--etk-text-accent);  border-color: var(--etk-accent); }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; font-size: var(--etk-text-sm); }
+thead th {
+    text-align: left; padding: var(--etk-space-2) var(--etk-space-3);
+    font-size: var(--etk-text-xs); text-transform: uppercase; letter-spacing: .04em;
+    color: var(--etk-muted); border-bottom: 1px solid var(--etk-line-strong);
+}
+tbody td { padding: var(--etk-space-3); border-bottom: 1px solid var(--etk-line); }
+tbody tr:hover td { background: var(--etk-soft); }
+tbody td .mono { font-variant-numeric: tabular-nums; color: var(--etk-muted); }
+tbody td a { color: var(--etk-accent); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Empty state */
+.empty { text-align: center; padding: var(--etk-space-6) var(--etk-space-5); color: var(--etk-muted); }
+.empty .big { font-size: 40px; opacity: .5; }
+.empty h3 { margin: var(--etk-space-3) 0 var(--etk-space-1); color: var(--etk-fg); font-size: var(--etk-text-lg); }
+
+/* Modal sample */
+.modal { background: var(--etk-card-bg); border: 1px solid var(--etk-line-strong); border-radius: var(--etk-radius-lg); box-shadow: var(--etk-shadow-lg); max-width: 460px; margin: 0 auto; overflow: hidden; }
+.modal-head { display: flex; align-items: center; gap: var(--etk-space-3); padding: var(--etk-space-4) var(--etk-space-5); border-bottom: 1px solid var(--etk-line); }
+.modal-head h3 { margin: 0; font-size: var(--etk-text-lg); color: var(--etk-heading); flex: 1; }
+.modal-status { font-size: var(--etk-text-xs); color: var(--etk-text-success); }
+.modal-x { width: 28px; height: 28px; border-radius: var(--etk-radius-sm); border: 1px solid var(--etk-line-strong); background: var(--etk-soft); color: var(--etk-muted); cursor: pointer; }
+.modal-body { padding: var(--etk-space-5); }
+.kv { display: grid; grid-template-columns: 120px 1fr; gap: var(--etk-space-2) var(--etk-space-4); font-size: var(--etk-text-sm); }
+.kv dt { color: var(--etk-muted); }
+.kv dd { margin: 0; }
+
+.section-label { font-size: var(--etk-text-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--etk-muted); margin: var(--etk-space-6) 0 var(--etk-space-3); }
+
+/* ---- palette chart ---- */
+.palette { margin-top: var(--etk-space-6); }
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--etk-space-3); }
+.swatch { border: 1px solid var(--etk-line); border-radius: var(--etk-radius-md); overflow: hidden; background: var(--etk-card-bg); }
+.swatch .chip { height: 64px; }
+.swatch .meta { padding: var(--etk-space-2) var(--etk-space-3); }
+.swatch .meta .name { font-size: var(--etk-text-sm); font-weight: 600; }
+.swatch .meta .hex { font-size: var(--etk-text-xs); color: var(--etk-muted); font-variant-numeric: tabular-nums; }
+.palette h2 { color: var(--etk-heading); font-size: var(--etk-text-xl); }
+.palette h3 { color: var(--etk-fg); font-size: var(--etk-text-lg); margin-top: var(--etk-space-5); }
+.chart { width: 100%; border-collapse: collapse; font-size: var(--etk-text-sm); margin-top: var(--etk-space-3); }
+.chart th, .chart td { text-align: left; padding: var(--etk-space-2) var(--etk-space-3); border-bottom: 1px solid var(--etk-line); }
+.chart th { color: var(--etk-muted); font-size: var(--etk-text-xs); text-transform: uppercase; letter-spacing: .04em; }
+.chart code { font-variant-numeric: tabular-nums; color: var(--etk-text-accent); }
+.chart .dot { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: var(--etk-space-2); border: 1px solid var(--etk-line-strong); }
+.ratio-ok { color: var(--etk-text-success); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="surface">
+
+    <!-- Page header -->
+    <header class="page-header">
+        <div class="page-icon">✉</div>
+        <div>
+            <h1 class="page-title">Email Toolkit</h1>
+            <p class="page-sub">SMTP · sending identities &amp; routing</p>
+        </div>
+        <div class="header-spacer"></div>
+        <nav class="nav">
+            <a href="#" class="active">Identities</a>
+            <a href="#">Routing</a>
+            <a href="#">Logs</a>
+        </nav>
+    </header>
+
+    <!-- Cards row -->
+    <div class="grid">
+        <div class="card">
+            <h2>Default identity</h2>
+            <p class="desc">Used when no routing rule matches.</p>
+            <div class="field"><label>From name</label><input type="text" value="LRob — Hébergeur écologique"></div>
+            <div class="field"><label>From email</label><input type="text" value="contact@lrob.fr"><p class="help">Must be authorised on the SMTP host.</p></div>
+            <div class="field"><label>Transport</label><select><option>SMTP (recommended)</option><option>PHP mail()</option></select></div>
+            <div class="field toggle-row"><label class="toggle"><input type="checkbox" checked><span></span></label><span>Save sent attachments locally</span></div>
+            <div class="btns">
+                <button class="btn btn-primary">Send test</button>
+                <button class="btn btn-secondary">Edit</button>
+                <button class="btn btn-link">Remove</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Connection &amp; status</h2>
+            <p class="desc">Live state of this sending identity.</p>
+            <div class="pills">
+                <span class="pill state--on">Connected</span>
+                <span class="pill state--off">Disabled</span>
+                <span class="pill state--fail">Auth failed</span>
+                <span class="pill state--pending">Testing…</span>
+                <span class="pill state--info">Default</span>
+            </div>
+            <div class="field" style="margin-top:var(--etk-space-5)"><label>Host</label><input type="text" value="ssl0.ovh.net:465"></div>
+            <div class="field"><label>Username</label><input type="text" placeholder="mailbox@lrob.fr"></div>
+            <div class="btns"><button class="btn btn-secondary">Test connection</button></div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-label">Recent log</div>
+    <div class="card" style="padding:0; overflow:hidden">
+        <table>
+            <thead><tr><th>Date</th><th>To</th><th>Subject</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                <tr><td class="mono">14:32</td><td>client@example.com</td><td>Your invoice #4021</td><td><span class="pill state--on">Sent</span></td><td><a href="#">View</a></td></tr>
+                <tr><td class="mono">13:08</td><td>jean@orange.fr</td><td>Newsletter — May digest</td><td><span class="pill state--on">Sent</span></td><td><a href="#">View</a></td></tr>
+                <tr><td class="mono">11:55</td><td>typo@gmial.com</td><td>Welcome to LRob</td><td><span class="pill state--fail">Failed</span></td><td><a href="#">View</a></td></tr>
+                <tr><td class="mono">09:41</td><td>marie@free.fr</td><td>Password reset</td><td><span class="pill state--pending">Queued</span></td><td><a href="#">View</a></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty state -->
+    <div class="section-label">Empty state</div>
+    <div class="card">
+        <div class="empty">
+            <div class="big">✉</div>
+            <h3>No routing rules yet</h3>
+            <p>Add a rule to send specific contexts through a dedicated identity.</p>
+            <div class="btns" style="justify-content:center"><button class="btn btn-primary">New routing rule</button></div>
+        </div>
+    </div>
+
+    <!-- Modal sample -->
+    <div class="section-label">Detail modal</div>
+    <div class="modal">
+        <div class="modal-head"><h3>Log entry</h3><span class="modal-status">Saved ✓</span><button class="modal-x">✕</button></div>
+        <div class="modal-body">
+            <dl class="kv">
+                <dt>To</dt><dd>client@example.com</dd>
+                <dt>From</dt><dd>contact@lrob.fr</dd>
+                <dt>Status</dt><dd><span class="pill state--on">Sent</span></dd>
+                <dt>Identity</dt><dd>Default (OVH)</dd>
+                <dt>Opened</dt><dd>2 times · last 3 days ago</dd>
+            </dl>
+            <div class="btns"><button class="btn btn-primary">Resend</button><button class="btn btn-secondary">Download .eml</button></div>
+        </div>
+    </div>
+
+    <!-- ============================ PALETTE CHART ============================ -->
+    <div class="palette">
+        <h2>LRob "Deep Glass" — palette &amp; chart</h2>
+        <p style="color:var(--etk-muted); max-width:70ch">
+            The single plugin theme. Token values below are exactly what lives in
+            <code style="color:var(--etk-text-accent)">admin-base.css</code> and in
+            <code style="color:var(--etk-text-accent)">docs/lrob-palette.md</code>. Dark navy surfaces,
+            amber accent (black text on amber), brand-blue headings. Matches the lrob.fr website.
+        </p>
+
+        <h3>Swatches</h3>
+        <div class="swatch-grid">
+            <div class="swatch"><div class="chip" style="background:#051826"></div><div class="meta"><div class="name">Page base</div><div class="hex">#051826</div></div></div>
+            <div class="swatch"><div class="chip" style="background:linear-gradient(160deg,#03101b,#062236,#0a3152)"></div><div class="meta"><div class="name">Page gradient</div><div class="hex">#03101b → #0a3152</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#0a2236"></div><div class="meta"><div class="name">Card</div><div class="hex">#0a2236</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#0f2d44"></div><div class="meta"><div class="name">Input / field</div><div class="hex">#0f2d44</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#11314a"></div><div class="meta"><div class="name">Soft / hover</div><div class="hex">#11314a</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#ffb700"></div><div class="meta"><div class="name">Accent (amber)</div><div class="hex">#ffb700</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#ffc62e"></div><div class="meta"><div class="name">Accent hover</div><div class="hex">#ffc62e</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#4fb3ec"></div><div class="meta"><div class="name">Heading blue</div><div class="hex">#4fb3ec</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#fbfef9"></div><div class="meta"><div class="name">Text (bright)</div><div class="hex">#FBFEF9</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#c3c3c3"></div><div class="meta"><div class="name">Text (muted)</div><div class="hex">#C3C3C3</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#3bbf5b"></div><div class="meta"><div class="name">Success</div><div class="hex">#3bbf5b</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#e0a92a"></div><div class="meta"><div class="name">Warning</div><div class="hex">#e0a92a</div></div></div>
+            <div class="swatch"><div class="chip" style="background:#e86365"></div><div class="meta"><div class="name">Danger</div><div class="hex">#e86365</div></div></div>
+        </div>
+
+        <h3>Token chart</h3>
+        <table class="chart">
+            <thead><tr><th>Token</th><th>Value</th><th>Role</th></tr></thead>
+            <tbody>
+                <tr><td><span class="dot" style="background:#051826"></span>--etk-page-bg</td><td><code>#051826</code></td><td>page base (the keeper)</td></tr>
+                <tr><td>--etk-page-bg-image</td><td><code>linear-gradient(160deg, #03101b, #062236, #0a3152)</code></td><td>energetic backdrop on #wpbody-content</td></tr>
+                <tr><td><span class="dot" style="background:#0a2236"></span>--etk-card-bg</td><td><code>#0a2236</code></td><td>solid navy card surface</td></tr>
+                <tr><td><span class="dot" style="background:#0f2d44"></span>--etk-input-bg</td><td><code>#0f2d44</code></td><td>inputs / selects / &lt;option&gt;</td></tr>
+                <tr><td><span class="dot" style="background:#11314a"></span>--etk-soft</td><td><code>#11314a</code></td><td>hover fills / secondary buttons</td></tr>
+                <tr><td><span class="dot" style="background:#fbfef9"></span>--etk-fg</td><td><code>#FBFEF9</code></td><td>primary text</td></tr>
+                <tr><td><span class="dot" style="background:#c3c3c3"></span>--etk-muted</td><td><code>#C3C3C3</code></td><td>secondary text</td></tr>
+                <tr><td><span class="dot" style="background:#4fb3ec"></span>--etk-heading</td><td><code>#4fb3ec</code></td><td>page + card titles</td></tr>
+                <tr><td><span class="dot" style="background:#ffb700"></span>--etk-accent</td><td><code>#ffb700</code></td><td>buttons / active / focus / CTA links</td></tr>
+                <tr><td><span class="dot" style="background:#ffc62e"></span>--etk-accent-hover</td><td><code>#ffc62e</code></td><td>accent hover</td></tr>
+                <tr><td><span class="dot" style="background:rgba(255,183,0,.14)"></span>--etk-accent-bg</td><td><code>rgba(255,183,0,.14)</code></td><td>active nav / info pill tint</td></tr>
+                <tr><td><span class="dot" style="background:#000"></span>--etk-on-accent</td><td><code>#000000</code></td><td>text on amber</td></tr>
+                <tr><td><span class="dot" style="background:#ffb700"></span>--etk-text-accent</td><td><code>#ffb700</code></td><td>body/table link text (= accent)</td></tr>
+                <tr><td><span class="dot" style="background:rgba(255,255,255,.12)"></span>--etk-line</td><td><code>rgba(255,255,255,.12)</code></td><td>decorative separators</td></tr>
+                <tr><td><span class="dot" style="background:rgba(255,255,255,.40)"></span>--etk-line-strong</td><td><code>rgba(255,255,255,.40)</code></td><td>control borders — ≥3:1 (WCAG 1.4.11)</td></tr>
+                <tr><td><span class="dot" style="background:#3bbf5b"></span>--etk-success / -bg / text</td><td><code>#3bbf5b · #13301e · #86dd9f</code></td><td>success pill</td></tr>
+                <tr><td><span class="dot" style="background:#e0a92a"></span>--etk-warning / -bg / text</td><td><code>#e0a92a · #2f2912 · #e8cc6e</code></td><td>warning pill</td></tr>
+                <tr><td><span class="dot" style="background:#e86365"></span>--etk-danger / -bg / text</td><td><code>#e86365 · #3a1c1d · #f3a9aa</code></td><td>danger pill</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Contrast (WCAG) — audited</h3>
+        <table class="chart">
+            <thead><tr><th>Pair</th><th>Ratio</th><th>Verdict</th></tr></thead>
+            <tbody>
+                <tr><td>Bright text on page</td><td>17.7:1</td><td class="ratio-ok">AAA</td></tr>
+                <tr><td>Muted text on card</td><td>8.8:1</td><td class="ratio-ok">AAA</td></tr>
+                <tr><td>Heading blue on card</td><td>6.6:1</td><td class="ratio-ok">AA / AAA-large</td></tr>
+                <tr><td>Amber link on card</td><td>8.9:1</td><td class="ratio-ok">AAA</td></tr>
+                <tr><td>Black on amber button</td><td>12.0:1</td><td class="ratio-ok">AAA</td></tr>
+                <tr><td>Status pills (text on tint)</td><td>8.1–9.2:1</td><td class="ratio-ok">AAA</td></tr>
+                <tr><td>Idle input border vs card</td><td>~3.0:1</td><td class="ratio-ok">AA (1.4.11)</td></tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top:var(--etk-space-5); font-size:var(--etk-text-xs); color:var(--etk-muted)">
+            Cards ship <strong>solid</strong> (<code style="color:var(--etk-text-accent)">#0a2236</code>) for guaranteed readability across 40+ surfaces.
+            The frosted-glass look (translucent navy + <code style="color:var(--etk-text-accent)">backdrop-filter: blur()</code>) is a possible later opt-in on the main card primitive only.
+        </p>
+    </div>
+</div>
+</body>
+</html>

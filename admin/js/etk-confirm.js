@@ -59,8 +59,10 @@
             okBtn.classList.add(opts.danger ? 'lrob-etk-btn--danger-solid' : 'button-primary');
         }
         open(node);
-        // Focus Cancel so accidental Enter doesn't confirm.
-        if (cancel) cancel.focus();
+        // Focus the dialog (not a button) — no stray focus ring on Cancel, and
+        // Enter still can't confirm (onKey only fires on activeElement === okBtn).
+        var dialog = node.querySelector('.lrob-etk-modal-dialog');
+        if (dialog) { dialog.setAttribute('tabindex', '-1'); dialog.focus(); }
 
         return new Promise(function (resolve) {
             var done = false;

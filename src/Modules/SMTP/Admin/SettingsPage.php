@@ -115,7 +115,7 @@ final class SettingsPage
             'smtp_encryption' => $identity?->smtp_encryption ?? Identity::ENCRYPTION_SSL,
             'smtp_username'   => $identity?->smtp_username ?? '',
             'smtp_auth'       => $identity ? $identity->smtp_auth : true,
-            'override_mode'   => $identity ? $identity->override_mode : Identity::OVERRIDE_WHEN_DEFAULT,
+            'override_mode'   => $identity ? $identity->override_mode : Identity::OVERRIDE_ALWAYS,
             'reply_to_email'  => $identity?->reply_to_email ?? '',
             'is_default'      => $identity?->is_default ?? false,
             'is_active'       => $identity ? $identity->is_active : true,
@@ -128,6 +128,10 @@ final class SettingsPage
             <input type="hidden" name="slug" class="lrob-etk-field-slug" value="<?php echo esc_attr($f['slug']); ?>" data-initial="<?php echo esc_attr($f['slug']); ?>">
 
             <header class="lrob-etk-card-form-head">
+                <label class="lrob-etk-inline-switch lrob-etk-active-switch" title="<?php echo $f['is_active'] ? esc_attr__('Disable', 'lrob-email-toolkit') : esc_attr__('Enable', 'lrob-email-toolkit'); ?>" data-on="<?php esc_attr_e('Disable', 'lrob-email-toolkit'); ?>" data-off="<?php esc_attr_e('Enable', 'lrob-email-toolkit'); ?>">
+                    <input type="checkbox" name="is_active" class="lrob-etk-field-is-active" value="1" <?php checked($f['is_active']); ?>>
+                    <span class="lrob-etk-switch-track"></span>
+                </label>
                 <div class="lrob-etk-segmented lrob-etk-transport-segmented" title="<?php esc_attr_e('Send via', 'lrob-email-toolkit'); ?>">
                     <button type="button" data-mode="<?php echo esc_attr(Identity::TRANSPORT_SMTP); ?>" class="<?php echo $f['transport'] === Identity::TRANSPORT_SMTP ? 'is-active' : ''; ?>">
                         <?php esc_html_e('SMTP', 'lrob-email-toolkit'); ?>
@@ -144,21 +148,14 @@ final class SettingsPage
                     value="<?php echo esc_attr($f['label']); ?>"
                     placeholder="<?php esc_attr_e('Identity name', 'lrob-email-toolkit'); ?>"
                     autocomplete="off">
-                <span class="lrob-etk-card-status" aria-live="polite"></span>
-                <label class="lrob-etk-inline-switch">
-                    <input type="checkbox" name="is_active" class="lrob-etk-field-is-active" value="1" <?php checked($f['is_active']); ?>>
-                    <span class="lrob-etk-switch-track"></span>
-                    <span class="lrob-etk-inline-switch-label" data-on="<?php esc_attr_e('Active', 'lrob-email-toolkit'); ?>" data-off="<?php esc_attr_e('Inactive', 'lrob-email-toolkit'); ?>">
-                        <?php echo $f['is_active']
-                            ? esc_html__('Active', 'lrob-email-toolkit')
-                            : esc_html__('Inactive', 'lrob-email-toolkit'); ?>
-                    </span>
-                </label>
+                <button type="button" class="lrob-etk-icon-btn lrob-etk-icon-btn--ghost lrob-etk-icon-btn--danger lrob-etk-card-delete" data-action="delete" data-id="<?php echo (int) $f['id']; ?>" data-label="<?php echo esc_attr($f['label']); ?>" title="<?php esc_attr_e('Delete', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Delete', 'lrob-email-toolkit'); ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
+                    <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                </button>
             </header>
 
-            <div class="lrob-etk-modal-columns lrob-etk-smtp-only">
-                <?php $this->render_mailbox_column($overridden, $f); ?>
-                <?php $this->render_server_column($overridden, $f); ?>
+            <div class="lrob-etk-smtp-only">
+                <?php $this->render_auth_section($overridden, $f); ?>
+                <?php $this->render_server_section($overridden, $f); ?>
             </div>
 
             <?php $this->render_from_section($overridden, $f, $site_title); ?>
@@ -166,7 +163,7 @@ final class SettingsPage
             <div class="lrob-etk-smtp-attachments-field">
                 <label class="lrob-etk-section-switch">
                     <input type="checkbox" name="save_attachments" class="lrob-etk-field-save-attachments" value="1" <?php checked($f['save_attachments']); ?>>
-                    <span class="lrob-etk-switch-track lrob-etk-switch-track--sm"></span>
+                    <span class="lrob-etk-switch-track"></span>
                     <span class="lrob-etk-section-switch-label"><?php esc_html_e('Save attachments locally', 'lrob-email-toolkit'); ?></span>
                 </label>
                 <?php Tooltip::render(__('Keep a copy of each attachment sent through this identity on the server, so you can re-send the email later with its files intact. Copies are removed when the log entry is deleted.', 'lrob-email-toolkit')); ?>
@@ -189,6 +186,7 @@ final class SettingsPage
                     <?php endif; ?>
                     <input type="hidden" name="is_default" class="lrob-etk-field-is-default" value="<?php echo $f['is_default'] ? '1' : ''; ?>">
                 </div>
+                <span class="lrob-etk-card-status" aria-live="polite"></span>
                 <div class="lrob-etk-card-footer-actions">
                     <button type="button" class="button button-primary lrob-etk-card-create" data-action="create" <?php echo $is_new ? '' : 'hidden'; ?>>
                         <?php esc_html_e('Create', 'lrob-email-toolkit'); ?>
@@ -196,11 +194,13 @@ final class SettingsPage
                     <button type="button" class="button lrob-etk-card-discard" data-action="discard" <?php echo $is_new ? '' : 'hidden'; ?>>
                         <?php esc_html_e('Discard', 'lrob-email-toolkit'); ?>
                     </button>
-                    <button type="button" class="button lrob-etk-card-test-email" data-action="test" data-id="<?php echo (int) $f['id']; ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
-                        <?php esc_html_e('Test email', 'lrob-email-toolkit'); ?>
+                    <button type="button" class="button lrob-etk-conn-test lrob-etk-smtp-only-inline" data-action="test-auth" <?php echo $is_new ? 'hidden' : ''; ?>>
+                        <span class="dashicons dashicons-controls-play" aria-hidden="true"></span>
+                        <span class="lrob-etk-conn-test-label"><?php esc_html_e('Test connection', 'lrob-email-toolkit'); ?></span>
                     </button>
-                    <button type="button" class="lrob-etk-card-delete-link" data-action="delete" data-id="<?php echo (int) $f['id']; ?>" data-label="<?php echo esc_attr($f['label']); ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
-                        <?php esc_html_e('Delete', 'lrob-email-toolkit'); ?>
+                    <button type="button" class="button lrob-etk-card-test-email" data-action="test" data-id="<?php echo (int) $f['id']; ?>" <?php echo $is_new ? 'hidden' : ''; ?>>
+                        <span class="dashicons dashicons-email" aria-hidden="true"></span>
+                        <?php esc_html_e('Test email', 'lrob-email-toolkit'); ?>
                     </button>
                 </div>
             </footer>
@@ -212,29 +212,24 @@ final class SettingsPage
      * @param array<int, string>   $overridden
      * @param array<string, mixed> $f
      */
-    private function render_mailbox_column(array $overridden, array $f): void
+    private function render_auth_section(array $overridden, array $f): void
     {
         ?>
-        <section class="lrob-etk-form-column">
-            <h3 class="lrob-etk-form-column-head">
-                <span class="lrob-etk-form-column-title">
-                    <?php esc_html_e('Mailbox login', 'lrob-email-toolkit'); ?>
-                    <?php Tooltip::render(__('Credentials your mail server uses to authenticate this site — usually the same as logging into webmail.', 'lrob-email-toolkit')); ?>
-                </span>
-                <label class="lrob-etk-section-switch" title="<?php esc_attr_e('Authentication', 'lrob-email-toolkit'); ?>">
-                    <input type="checkbox" name="smtp_auth" class="lrob-etk-field-smtp-auth" value="1" <?php checked($f['smtp_auth']); ?>>
-                    <span class="lrob-etk-switch-track lrob-etk-switch-track--sm"></span>
-                    <span class="lrob-etk-section-switch-label"><?php esc_html_e('Auth', 'lrob-email-toolkit'); ?></span>
-                </label>
-            </h3>
+        <section class="lrob-etk-form-row-full">
+            <label class="lrob-etk-section-switch lrob-etk-auth-switch">
+                <input type="checkbox" name="smtp_auth" class="lrob-etk-field-smtp-auth" value="1" <?php checked($f['smtp_auth']); ?>>
+                <span class="lrob-etk-switch-track"></span>
+                <span class="lrob-etk-section-switch-label"><?php esc_html_e('Authentication required', 'lrob-email-toolkit'); ?></span>
+                <?php Tooltip::render(__('Credentials your mail server uses to authenticate this site — usually the same as logging into webmail.', 'lrob-email-toolkit')); ?>
+            </label>
 
-            <div class="lrob-etk-auth-fields">
+            <div class="lrob-etk-auth-fields lrob-etk-from-grid">
                 <div class="lrob-etk-field">
                     <label>
                         <?php esc_html_e('Username / email', 'lrob-email-toolkit'); ?>
                         <?php $this->render_override_dot($overridden, 'smtp_username'); ?>
                     </label>
-                    <input type="text" name="smtp_username" class="lrob-etk-field-username" value="<?php echo esc_attr($f['smtp_username']); ?>" autocomplete="off" placeholder="contact@example.com">
+                    <input type="text" name="smtp_username" class="lrob-etk-field-username" value="<?php echo esc_attr($f['smtp_username']); ?>" autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other" placeholder="contact@example.com">
                 </div>
 
                 <div class="lrob-etk-field">
@@ -248,7 +243,7 @@ final class SettingsPage
                         ? str_repeat("\u{2022}", 10)
                         : '';
                     ?>
-                    <input type="password" name="smtp_password" class="lrob-etk-field-password" autocomplete="new-password" placeholder="<?php echo esc_attr($password_placeholder); ?>">
+                    <input type="password" name="smtp_password" class="lrob-etk-field-password" autocomplete="new-password" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other" placeholder="<?php echo esc_attr($password_placeholder); ?>">
                 </div>
             </div>
         </section>
@@ -259,71 +254,57 @@ final class SettingsPage
      * @param array<int, string>   $overridden
      * @param array<string, mixed> $f
      */
-    private function render_server_column(array $overridden, array $f): void
+    private function render_server_section(array $overridden, array $f): void
     {
         ?>
-        <section class="lrob-etk-form-column">
-            <h3 class="lrob-etk-form-column-head">
-                <span class="lrob-etk-form-column-title">
-                    <?php esc_html_e('SMTP server', 'lrob-email-toolkit'); ?>
-                    <?php Tooltip::render(__('Pick your domain\'s mail server. "Custom" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate.', 'lrob-email-toolkit')); ?>
-                </span>
-            </h3>
-
-            <div class="lrob-etk-field">
+        <section class="lrob-etk-form-row-full lrob-etk-server-section">
+            <div class="lrob-etk-field lrob-etk-server-host">
                 <label>
-                    <?php esc_html_e('Host', 'lrob-email-toolkit'); ?>
+                    <?php esc_html_e('SMTP host server', 'lrob-email-toolkit'); ?>
                     <?php $this->render_override_dot($overridden, 'smtp_host'); ?>
+                    <?php Tooltip::render(__('Pick your domain\'s mail server. "Custom" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate.', 'lrob-email-toolkit')); ?>
                 </label>
-                <div class="lrob-etk-combo-row">
-                    <div class="lrob-etk-combo" data-name="host">
-                        <input
-                            type="text"
-                            name="smtp_host"
-                            class="lrob-etk-combo-input lrob-etk-field-host"
-                            value="<?php echo esc_attr($f['smtp_host']); ?>"
-                            placeholder="smtp.example.com"
-                            autocomplete="off">
-                        <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
-                                aria-label="<?php esc_attr_e('Show host presets', 'lrob-email-toolkit'); ?>">
-                            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
-                        </button>
-                        <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
-                    </div>
-                    <button
-                        type="button"
-                        class="lrob-etk-icon-btn lrob-etk-conn-test"
-                        data-action="test-auth"
-                        title="<?php esc_attr_e('Test connection', 'lrob-email-toolkit'); ?>"
-                        aria-label="<?php esc_attr_e('Test SMTP connection', 'lrob-email-toolkit'); ?>">
-                        <span class="dashicons dashicons-controls-play" aria-hidden="true"></span>
+                <div class="lrob-etk-combo lrob-etk-combo--host" data-name="host">
+                    <span class="lrob-etk-host-dot" aria-hidden="true" hidden></span>
+                    <input
+                        type="text"
+                        name="smtp_host"
+                        class="lrob-etk-combo-input lrob-etk-field-host"
+                        value="<?php echo esc_attr($f['smtp_host']); ?>"
+                        placeholder="smtp.example.com"
+                        autocomplete="off">
+                    <span class="lrob-etk-host-status" aria-live="polite" hidden></span>
+                    <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
+                            aria-label="<?php esc_attr_e('Show host presets', 'lrob-email-toolkit'); ?>">
+                        <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                     </button>
+                    <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
                 </div>
-                <div class="lrob-etk-host-status" hidden></div>
             </div>
 
-            <div class="lrob-etk-field">
-                <label>
-                    <?php esc_html_e('Encryption & port', 'lrob-email-toolkit'); ?>
-                    <?php Tooltip::render(__('STARTTLS upgrades a plain connection to encrypted (port 587 — most common). TLS connects encrypted from the start (port 465). None sends plaintext on port 25 — almost always blocked by hosting providers.', 'lrob-email-toolkit')); ?>
-                </label>
-                <div class="lrob-etk-encryption-row">
+            <div class="lrob-etk-server-row2">
+                <div class="lrob-etk-field lrob-etk-server-enc">
+                    <label>
+                        <?php esc_html_e('Encryption', 'lrob-email-toolkit'); ?>
+                        <?php Tooltip::render(__('STARTTLS upgrades a plain connection to encrypted (port 587 — most common). TLS connects encrypted from the start (port 465). None sends plaintext on port 25 — almost always blocked by hosting providers.', 'lrob-email-toolkit')); ?>
+                    </label>
                     <select name="smtp_encryption" class="lrob-etk-select lrob-etk-field-encryption">
                         <option value="<?php echo esc_attr(Identity::ENCRYPTION_STARTTLS); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_STARTTLS); ?>>STARTTLS</option>
                         <option value="<?php echo esc_attr(Identity::ENCRYPTION_SSL); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_SSL); ?>>TLS</option>
                         <option value="<?php echo esc_attr(Identity::ENCRYPTION_NONE); ?>" <?php selected($f['smtp_encryption'], Identity::ENCRYPTION_NONE); ?>><?php esc_html_e('None', 'lrob-email-toolkit'); ?></option>
                     </select>
-                    <div class="lrob-etk-port-input">
-                        <label for="lrob-etk-port-<?php echo (int) $f['id']; ?>"><?php esc_html_e('Port', 'lrob-email-toolkit'); ?></label>
-                        <input type="number" id="lrob-etk-port-<?php echo (int) $f['id']; ?>" name="smtp_port" class="lrob-etk-field-port" min="1" max="65535" value="<?php echo (int) $f['smtp_port']; ?>">
-                    </div>
                 </div>
-                <div class="lrob-etk-none-warning" <?php echo $f['smtp_encryption'] === Identity::ENCRYPTION_NONE ? '' : 'hidden'; ?>>
-                    <span class="dashicons dashicons-warning" aria-hidden="true"></span>
-                    <?php esc_html_e('Plaintext SMTP on port 25 is almost always blocked by web hosts. Use STARTTLS or TLS.', 'lrob-email-toolkit'); ?>
+
+                <div class="lrob-etk-field lrob-etk-server-port">
+                    <label for="lrob-etk-port-<?php echo (int) $f['id']; ?>"><?php esc_html_e('Port', 'lrob-email-toolkit'); ?></label>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="lrob-etk-port-<?php echo (int) $f['id']; ?>" name="smtp_port" class="lrob-etk-field-port" value="<?php echo (int) $f['smtp_port']; ?>">
                 </div>
             </div>
 
+            <div class="lrob-etk-none-warning" <?php echo $f['smtp_encryption'] === Identity::ENCRYPTION_NONE ? '' : 'hidden'; ?>>
+                <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+                <?php esc_html_e('Plaintext SMTP on port 25 is almost always blocked by web hosts. Use STARTTLS or TLS.', 'lrob-email-toolkit'); ?>
+            </div>
         </section>
         <?php
     }
@@ -336,36 +317,12 @@ final class SettingsPage
     {
         ?>
         <section class="lrob-etk-form-row-full lrob-etk-from-section">
-            <h3>
-                <?php esc_html_e('From', 'lrob-email-toolkit'); ?>
-                <?php Tooltip::render(__('The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used.', 'lrob-email-toolkit')); ?>
-            </h3>
-
-            <div class="lrob-etk-field lrob-etk-override-row">
-                <label>
-                    <?php esc_html_e('Override other apps\' sender', 'lrob-email-toolkit'); ?>
-                    <?php Tooltip::render(__('Decides how aggressively this identity wins against a From address set by another plugin (WooCommerce, contact forms, etc.). "Only when none is set" leaves explicit choices alone but kicks in on emails that didn\'t pick a sender themselves.', 'lrob-email-toolkit')); ?>
-                </label>
-                <?php
-                \LRob\EmailToolkit\Admin\Combobox::render_fixed_select(
-                    'override_mode',
-                    $f['override_mode'],
-                    [
-                        ['value' => Identity::OVERRIDE_ALWAYS,       'label' => __('Always override', 'lrob-email-toolkit')],
-                        ['value' => Identity::OVERRIDE_WHEN_DEFAULT, 'label' => __('Only when no sender is set', 'lrob-email-toolkit')],
-                        ['value' => Identity::OVERRIDE_NEVER,        'label' => __('Never override', 'lrob-email-toolkit')],
-                    ],
-                    '',
-                    ''
-                );
-                ?>
-            </div>
-
             <div class="lrob-etk-from-grid">
                 <div class="lrob-etk-field">
                     <label>
                         <?php esc_html_e('From email', 'lrob-email-toolkit'); ?>
                         <?php $this->render_override_dot($overridden, 'from_email'); ?>
+                        <?php Tooltip::render(__('The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used.', 'lrob-email-toolkit')); ?>
                     </label>
                     <div class="lrob-etk-combo" data-name="from-email">
                         <input
@@ -373,7 +330,15 @@ final class SettingsPage
                             name="from_email"
                             class="lrob-etk-combo-input lrob-etk-field-from-email"
                             value="<?php echo esc_attr($f['from_email']); ?>"
-                            placeholder="<?php echo esc_attr($f['smtp_username'] !== '' ? sprintf(__('Default — %s', 'lrob-email-toolkit'), $f['smtp_username']) : __('Default — uses mailbox login', 'lrob-email-toolkit')); ?>"
+                            placeholder="<?php
+                            if ($f['smtp_username'] !== '' && $f['transport'] !== Identity::TRANSPORT_MAIL) {
+                                echo esc_attr(sprintf(__('Default — %s', 'lrob-email-toolkit'), $f['smtp_username']));
+                            } elseif ($f['transport'] === Identity::TRANSPORT_MAIL) {
+                                echo esc_attr__('Default — WordPress sender', 'lrob-email-toolkit');
+                            } else {
+                                echo esc_attr__('Default — uses mailbox login', 'lrob-email-toolkit');
+                            }
+                            ?>"
                             autocomplete="off">
                         <button type="button" class="lrob-etk-combo-toggle" tabindex="-1"
                                 aria-label="<?php esc_attr_e('Show presets', 'lrob-email-toolkit'); ?>">
@@ -382,6 +347,25 @@ final class SettingsPage
                         <ul class="lrob-etk-combo-menu" role="listbox" hidden></ul>
                     </div>
                     <div class="lrob-etk-from-warning lrob-etk-from-warning-el" hidden></div>
+                </div>
+                <div class="lrob-etk-field">
+                    <label>
+                        <?php esc_html_e('Force', 'lrob-email-toolkit'); ?>
+                        <?php Tooltip::render(__('How hard this identity overrides a From address set by another plugin (WooCommerce, contact forms, etc.). "If no sender defined" leaves explicit choices alone but kicks in on emails that didn\'t pick a sender themselves.', 'lrob-email-toolkit')); ?>
+                    </label>
+                    <?php
+                    \LRob\EmailToolkit\Admin\Combobox::render_fixed_select(
+                        'override_mode',
+                        $f['override_mode'],
+                        [
+                            ['value' => Identity::OVERRIDE_ALWAYS,       'label' => __('Always', 'lrob-email-toolkit')],
+                            ['value' => Identity::OVERRIDE_WHEN_DEFAULT, 'label' => __('If no sender defined', 'lrob-email-toolkit')],
+                            ['value' => Identity::OVERRIDE_NEVER,        'label' => __('Never', 'lrob-email-toolkit')],
+                        ],
+                        '',
+                        ''
+                    );
+                    ?>
                 </div>
                 <div class="lrob-etk-field">
                     <label>
@@ -573,8 +557,8 @@ final class SettingsPage
                 testAuth:    <?php echo wp_json_encode(AjaxController::ACTION_TEST_AUTH); ?>,
                 testSend:    <?php echo wp_json_encode(AjaxController::ACTION_TEST_SEND); ?>,
                 saveRouting: <?php echo wp_json_encode(AjaxController::ACTION_SAVE_ROUTING); ?>,
-                checkHost:   <?php echo wp_json_encode(AjaxController::ACTION_CHECK_HOST); ?>,
-                lookupMx:    <?php echo wp_json_encode(AjaxController::ACTION_LOOKUP_MX); ?>
+                checkHosts:  <?php echo wp_json_encode(AjaxController::ACTION_CHECK_HOSTS); ?>,
+                checkHost:   <?php echo wp_json_encode(AjaxController::ACTION_CHECK_HOST); ?>
             },
             actionNonces: {
                 delete:      <?php echo wp_json_encode(wp_create_nonce(AjaxController::ACTION_DELETE)); ?>,
@@ -678,8 +662,13 @@ final class SettingsPage
 
     function applyCardState(card) {
         var transport = field(card, 'transport').value;
+        var isMail = transport === 'mail';
         var smtpOnly = card.querySelector('.lrob-etk-smtp-only');
-        if (smtpOnly) smtpOnly.style.display = transport === 'mail' ? 'none' : '';
+        if (smtpOnly) smtpOnly.style.display = isMail ? 'none' : '';
+        // Test-connection button lives in the footer (outside .smtp-only) — toggle it too.
+        $$('.lrob-etk-smtp-only-inline', card).forEach(function (el) {
+            el.style.display = isMail ? 'none' : '';
+        });
 
         // Auth visibility
         var authOn = field(card, 'smtp-auth').checked;
@@ -687,11 +676,12 @@ final class SettingsPage
             div.style.display = authOn ? '' : 'none';
         });
 
-        // Active label + dim the whole card when disabled.
-        var activeEl = card.querySelector('.lrob-etk-inline-switch-label');
+        // Active toggle title (Enable/Disable depending on current state) + dim card.
+        var activeSwitch = card.querySelector('.lrob-etk-active-switch');
         var activeChk = field(card, 'is-active');
-        if (activeEl && activeChk) {
-            activeEl.textContent = activeChk.checked ? S.i18n.active : S.i18n.inactive;
+        if (activeSwitch && activeChk) {
+            var t = activeChk.checked ? activeSwitch.getAttribute('data-on') : activeSwitch.getAttribute('data-off');
+            if (t) activeSwitch.setAttribute('title', t);
         }
         if (activeChk && card.getAttribute('data-state') !== 'new') {
             card.classList.toggle('lrob-etk-is-dimmed', !activeChk.checked);
@@ -710,13 +700,61 @@ final class SettingsPage
     function updateFromEmailPlaceholder(card) {
         var input = card.querySelector('.lrob-etk-field-from-email');
         if (!input) return;
+        var isMail = field(card, 'transport').value === 'mail';
         var user = field(card, 'username').value.trim();
-        input.placeholder = user
-            ? ('<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + user)
-            : '<?php echo esc_js(__('Default — uses mailbox login', 'lrob-email-toolkit')); ?>';
+        if (isMail) {
+            input.placeholder = '<?php echo esc_js(__('Default — WordPress sender', 'lrob-email-toolkit')); ?>';
+        } else if (user) {
+            input.placeholder = '<?php echo esc_js(__('Default — ', 'lrob-email-toolkit')); ?>' + user;
+        } else {
+            input.placeholder = '<?php echo esc_js(__('Default — uses mailbox login', 'lrob-email-toolkit')); ?>';
+        }
     }
     function rebuildHostPresets() { /* presets are built on demand by combobox */ }
     function updateFromEmailDefaultLabel(card) { updateFromEmailPlaceholder(card); }
+
+    // Paint the resolve state: left dot stays persistent; the right word shows
+    // on change/reload then fades after 3s. `resolves` null = unknown (hide both).
+    function paintHostResolve(card, resolves) {
+        var dot = card.querySelector('.lrob-etk-host-dot');
+        var word = card.querySelector('.lrob-etk-host-status');
+        clearTimeout(card._hostWordTimer);
+        if (resolves === null || resolves === undefined) {
+            if (dot) { dot.hidden = true; dot.removeAttribute('title'); }
+            if (word) { word.hidden = true; }
+            return;
+        }
+        var state = resolves ? 'lrob-etk-state--on' : 'lrob-etk-state--fail';
+        var label = resolves ? S.i18n.resolves : S.i18n.noResolve;
+        if (dot) { dot.hidden = false; dot.className = 'lrob-etk-host-dot ' + state; dot.setAttribute('title', label); }
+        if (word) {
+            word.hidden = false;
+            word.className = 'lrob-etk-host-status ' + state;
+            word.textContent = label;
+            card._hostWordTimer = setTimeout(function () { word.hidden = true; }, 3000);
+        }
+    }
+
+    // Show resolve state for the current host: prefer the cached candidate list,
+    // else resolve the typed host directly (debounced) — so an arbitrary/invalid
+    // host still reports red instead of silently disappearing.
+    function showHostResolve(card) {
+        var current = field(card, 'host').value.trim().toLowerCase();
+        if (!current || current.indexOf('.') === -1) { paintHostResolve(card, null); return; }
+        var match = null;
+        (card._hostList || []).forEach(function (h) { if (h.host === current) match = h; });
+        if (match) { paintHostResolve(card, match.resolves); return; }
+        // Not in the candidate list — resolve it directly, debounced.
+        clearTimeout(card._hostResolveTimer);
+        card._hostResolveTimer = setTimeout(function () {
+            ajax(S.actions.checkHost, { host: current }).then(function (resp) {
+                // Ignore stale responses if the host changed meanwhile.
+                if (field(card, 'host').value.trim().toLowerCase() !== current) return;
+                if (resp.success) paintHostResolve(card, !!resp.data.resolves);
+                else paintHostResolve(card, null);
+            }).catch(function () { paintHostResolve(card, null); });
+        }, 500);
+    }
 
     function setupCombobox(card, name) {
         var combo = card.querySelector('.lrob-etk-combo[data-name="' + name + '"]');
@@ -726,7 +764,7 @@ final class SettingsPage
             mode: 'free',
             populate: function () { return buildComboOptions(card, name); },
             onSelect: function () {
-                if (name === 'host') runHostCheck(card);
+                if (name === 'host') showHostResolve(card);
                 if (name === 'from-email') syncFromWarning(card);
                 queueSave(card, 0);
             }
@@ -737,15 +775,21 @@ final class SettingsPage
         var items = [];
         var user = field(card, 'username').value.trim();
         if (name === 'host') {
-            var at = user.lastIndexOf('@');
-            var domain = at !== -1 ? user.substring(at + 1).toLowerCase() : '';
-            if (domain) {
-                items.push({ value: 'mail.' + domain, label: 'mail.' + domain });
-                items.push({ value: 'smtp.' + domain, label: 'smtp.' + domain });
-                items.push({ value: domain, label: domain });
-            }
-            if (card._mxHost) {
-                items.push({ value: card._mxHost, label: 'MX: ' + card._mxHost });
+            // Resolved candidate list (built by checkHosts): host + resolve mark +
+            // optional MX priority. Falls back to plain presets before any check.
+            if (card._hostList && card._hostList.length) {
+                card._hostList.forEach(function (h) {
+                    var pri = (h.priority !== null && h.priority !== undefined) ? ' (MX' + h.priority + ')' : '';
+                    items.push({ value: h.host, label: h.host + pri, mark: h.resolves ? 'ok' : 'fail' });
+                });
+            } else {
+                var at = user.lastIndexOf('@');
+                var domain = at !== -1 ? user.substring(at + 1).toLowerCase() : '';
+                if (domain) {
+                    items.push({ value: 'mail.' + domain, label: 'mail.' + domain });
+                    items.push({ value: 'smtp.' + domain, label: 'smtp.' + domain });
+                    items.push({ value: domain, label: domain });
+                }
             }
         } else if (name === 'from-email') {
             if (user) {
@@ -781,40 +825,25 @@ final class SettingsPage
         warn.hidden = false;
     }
 
-    function runHostCheck(card) {
-        var host = field(card, 'host').value.trim();
-        var status = card.querySelector('.lrob-etk-host-status');
-        if (!status) return;
-        if (!host || host.indexOf('.') === -1) {
-            status.hidden = true;
-            return;
+    // Resolve the host candidates for the card's domain (presets + MX, deduped
+    // server-side). Non-blocking; refreshes card._hostList for the dropdown.
+    // domainSource: the username (mailbox) or the current host's domain.
+    function checkHosts(card) {
+        var src = field(card, 'username').value.trim();
+        if (src.indexOf('@') === -1) {
+            // No mailbox yet — derive the domain from the host field instead.
+            src = field(card, 'host').value.trim();
         }
-        clearTimeout(card._hostCheckTimer);
-        card._hostCheckTimer = setTimeout(function () {
-            ajax(S.actions.checkHost, { host: host }).then(function (resp) {
-                if (resp.success && resp.data.host === host) {
-                    status.hidden = false;
-                    status.className = 'lrob-etk-host-status ' + (resp.data.resolves ? 'lrob-etk-state--on' : 'lrob-etk-state--fail');
-                    status.textContent = resp.data.resolves ? S.i18n.resolves : S.i18n.noResolve;
-                }
-            });
-        }, 600);
-    }
-
-    function runMxLookup(card) {
-        var user = field(card, 'username').value.trim();
-        var at = user.lastIndexOf('@');
-        if (at === -1) return;
-        var domain = user.substring(at + 1).toLowerCase();
+        var domain = src.indexOf('@') !== -1 ? src.substring(src.lastIndexOf('@') + 1) : src;
+        domain = domain.toLowerCase();
         if (!domain || domain.indexOf('.') === -1) return;
-        if (card._lastMxDomain === domain) return;
-        card._lastMxDomain = domain;
-        ajax(S.actions.lookupMx, { domain: domain }).then(function (resp) {
-            if (resp.success && resp.data.hosts && resp.data.hosts.length > 0) {
-                // Stash for the host combobox's populate() — picked up next
-                // time the admin opens the dropdown (see suggestionsFor).
-                card._mxHost = resp.data.hosts[0];
-            }
+        if (card._lastCheckedDomain === domain) return;
+        card._lastCheckedDomain = domain;
+
+        ajax(S.actions.checkHosts, { domain: domain }).then(function (resp) {
+            if (!resp.success || !resp.data.hosts) return;
+            card._hostList = resp.data.hosts;   // populates dropdown marks; badge shows on host change
+            showHostResolve(card);
         });
     }
 
@@ -835,7 +864,7 @@ final class SettingsPage
         field(card, 'username').addEventListener('input', function () {
             applyCardState(card);
         });
-        field(card, 'username').addEventListener('blur', function () { runMxLookup(card); });
+        field(card, 'username').addEventListener('blur', function () { checkHosts(card); });
         field(card, 'smtp-auth').addEventListener('change', function () { applyCardState(card); });
         field(card, 'is-active').addEventListener('change', function () { applyCardState(card); });
 
@@ -844,22 +873,20 @@ final class SettingsPage
         setupCombobox(card, 'from-email');
         setupCombobox(card, 'from-name');
 
-        // Host input also triggers DNS resolves check
-        field(card, 'host').addEventListener('input', function () { runHostCheck(card); });
+        // Host typing updates the inline resolve mark from the cached list.
+        field(card, 'host').addEventListener('input', function () { showHostResolve(card); });
         field(card, 'from-email').addEventListener('input', function () { syncFromWarning(card); });
 
         var portDefaults = { 'tls': 587, 'ssl': 465, '': 25 };
         var encSelect = card.querySelector('select[name="smtp_encryption"]');
         if (encSelect) {
-            var portLast = portDefaults[encSelect.value] !== undefined ? portDefaults[encSelect.value] : 465;
             encSelect.addEventListener('change', function () {
                 applyCardState(card);
                 var def = portDefaults[encSelect.value];
-                if (def === undefined) return;
-                var portEl = field(card, 'port');
-                var current = parseInt(portEl.value, 10);
-                if (!portEl.value || current === portLast) portEl.value = def;
-                portLast = def;
+                if (def !== undefined) {
+                    field(card, 'port').value = def;   // encryption always drives the port
+                }
+                queueSave(card, 0);   // native <select> isn't in the auto-save bindings below
             });
         }
 
@@ -916,6 +943,23 @@ final class SettingsPage
         return card._saveInFlight || Promise.resolve();
     }
 
+    function clearFieldErrors(card) {
+        $$('.is-invalid', card).forEach(function (n) { n.classList.remove('is-invalid'); });
+    }
+    function markFieldErrors(card, fields) {
+        var first = null;
+        Object.keys(fields).forEach(function (name) {
+            // label lives on the title input; the rest match by [name].
+            var el = name === 'label'
+                ? card.querySelector('.lrob-etk-field-label')
+                : card.querySelector('[name="' + name + '"]');
+            if (!el) return;
+            el.classList.add('is-invalid');
+            if (!first) first = el;
+        });
+        if (first && first.focus) first.focus();
+    }
+
     function saveCard(card) {
         if (card._saveInFlight) {
             card._dirtyDuringFlight = true;
@@ -932,6 +976,7 @@ final class SettingsPage
 
         setStatus(card, 'saving', S.i18n.saving);
         var errBox = card.querySelector('.lrob-etk-card-error'); errBox.hidden = true;
+        clearFieldErrors(card);
 
         card._saveInFlight = fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
             .then(function (r) { return r.json(); })
@@ -955,6 +1000,7 @@ final class SettingsPage
                     setStatus(card, 'failed', S.i18n.saveFailed);
                     errBox.hidden = false;
                     errBox.textContent = (resp.data && resp.data.message) || S.i18n.unknownError;
+                    if (resp.data && resp.data.fields) markFieldErrors(card, resp.data.fields);
                 }
             })
             .catch(function () {
@@ -1018,23 +1064,19 @@ final class SettingsPage
         });
     });
 
-    // Inline connection-test icon button — click cycles between "run now"
-    // (no result yet) and "show details popover" (after a result).
+    // Connection test — runs and shows the result in the popover immediately.
+    // The button itself stays neutral (only a transient spinner) — no lingering
+    // green/red/blue state; the popover is the single source of result feedback.
     function handleConnTestClick(card, btn) {
-        if (btn._lastResult) {
-            showConnPopover(card, btn);
-        } else {
-            runTestAuth(card, btn);
-        }
+        runTestAuth(card, btn);
     }
 
     function runTestAuth(card, btn) {
-        btn.classList.remove('is-ok', 'is-fail');
         btn.classList.add('is-testing');
         var icon = btn.querySelector('.dashicons');
+        var iconWas = icon ? icon.className : '';
         if (icon) icon.className = 'dashicons dashicons-update';
         btn.disabled = true;
-        btn.setAttribute('title', S.i18n.testing);
 
         var fd = new FormData(card.querySelector('.lrob-etk-card-form'));
         fd.append('action', S.actions.testAuth);
@@ -1043,33 +1085,29 @@ final class SettingsPage
         return fetch(S.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
             .then(function (r) { return r.json(); })
             .then(function (resp) {
-                btn.classList.remove('is-testing');
-                btn.disabled = false;
                 if (resp.success) {
-                    btn.classList.add('is-ok');
-                    if (icon) icon.className = 'dashicons dashicons-yes-alt';
-                    btn._lastResult = { ok: true, message: resp.data.message, debug: resp.data.debug || null };
-                    btn.setAttribute('title', resp.data.message);
+                    showConnResult(card, btn, { ok: true, message: resp.data.message, debug: resp.data.debug || null });
                 } else {
-                    btn.classList.add('is-fail');
-                    if (icon) icon.className = 'dashicons dashicons-warning';
-                    btn._lastResult = {
+                    showConnResult(card, btn, {
                         ok: false,
                         message: (resp.data && resp.data.message) || S.i18n.unknownError,
                         debug: (resp.data && resp.data.debug) || null
-                    };
-                    btn.setAttribute('title', btn._lastResult.message);
-                    showConnPopover(card, btn);  // auto-open details on failure
+                    });
                 }
             })
             .catch(function () {
+                showConnResult(card, btn, { ok: false, message: S.i18n.unknownError, debug: null });
+            })
+            .then(function () {
                 btn.classList.remove('is-testing');
-                btn.classList.add('is-fail');
                 btn.disabled = false;
-                if (icon) icon.className = 'dashicons dashicons-warning';
-                btn._lastResult = { ok: false, message: S.i18n.unknownError, debug: null };
-                showConnPopover(card, btn);
+                if (icon) icon.className = iconWas;   // restore the play icon — no persistent state
             });
+    }
+
+    function showConnResult(card, btn, result) {
+        btn._lastResult = result;
+        showConnPopover(card, btn);
     }
 
     function showConnPopover(card, anchorBtn) {
@@ -1243,7 +1281,7 @@ final class SettingsPage
     $$('.lrob-etk-identity-card').forEach(function (card) {
         wireCardListeners(card);
         applyCardState(card);
-        runMxLookup(card);
+        checkHosts(card);   // pre-resolve so the host dropdown shows marks on first open
     });
 })();
         <?php

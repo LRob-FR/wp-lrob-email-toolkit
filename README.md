@@ -94,7 +94,7 @@ Migrations between versions are idempotent. Downgrades are not supported. `1.0.0
 
 Priority order, no version commitment — see [`docs/todo.md`](./docs/todo.md) for the full backlog with reasoning. **Top priorities right now**:
 
-1. **UI uniformization + theme system** (Light / Dark / LRob / Auto).
+1. **UI uniformization + accessibility** — single branded "LRob" admin theme (shipped, matches the lrob.fr site), plus density (Compact / Comfortable / Spacious) and an accessibility pass.
 2. **Statistics overhaul** — dedicated Newsletter view + global Email Toolkit dashboard tiles.
 
 **Next major features on deck**: universal email tracking (Opened column on Email Logs), one-shot email composer with templates + attachments, marketing automation workflows (drip campaigns), drag-and-drop email builder, subscriber custom fields + tags, bounce handling, suppression list, GDPR toolkit, customize WP default emails.

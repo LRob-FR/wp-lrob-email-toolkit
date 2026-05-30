@@ -891,9 +891,9 @@
     color: var(--etk-fg);
 }
 .lrob-etk-cf-picker-card:hover {
-    border-color: var(--etk-text-accent);
+    border-color: var(--etk-accent);
     box-shadow: var(--etk-shadow-md);
-    background: var(--etk-accent-bg);
+    background: var(--etk-card-bg);
 }
 .lrob-etk-cf-picker-card:disabled {
     opacity: 0.6;
@@ -919,7 +919,7 @@
     text-align: center;
     gap: var(--etk-space-3);
     padding: var(--etk-space-6) var(--etk-space-5);
-    background: linear-gradient(180deg, var(--etk-card-bg), var(--etk-accent-bg));
+    background: var(--etk-card-bg);
     border: 1px solid var(--etk-line);
     border-radius: var(--etk-radius-xl);
     margin-bottom: var(--etk-space-5);

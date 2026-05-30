@@ -11,6 +11,16 @@
     border-top: 1px solid var(--etk-soft);
 }
 
+/* Authentication toggle heads its section; fields drop below it. */
+.lrob-etk-auth-switch {
+    margin-bottom: var(--etk-space-3);
+}
+.lrob-etk-auth-switch .lrob-etk-section-switch-label {
+    font-size: var(--etk-input-font-size);
+    font-weight: 600;
+    color: var(--etk-fg);
+}
+
 /* ---------- Routing grid ---------- */
 
 .lrob-etk-routing-grid {
@@ -38,45 +48,51 @@
     font-weight: normal;
 }
 
-/* Inline connection test — state-paint only; base from .lrob-etk-icon-btn. */
-
-.lrob-etk-conn-test.is-ok {
-    border-color: var(--etk-success);
-    color: var(--etk-success);
-    background: var(--etk-success-bg);
+/* Connection-test button — base from WP .button. Stays neutral (only a
+   transient spinner); the result shows in the popover, not on the button. */
+.lrob-etk-conn-test {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--etk-space-1);
+    justify-content: center;
 }
-.lrob-etk-conn-test.is-fail {
-    border-color: var(--etk-danger);
-    color: var(--etk-danger);
-    background: var(--etk-danger-bg);
+.lrob-etk-conn-test .dashicons {
+    font-size: var(--etk-icon-size);
+    width: var(--etk-icon-size);
+    height: var(--etk-icon-size);
+    line-height: 1;
 }
 .lrob-etk-conn-test.is-testing .dashicons {
     animation: lrob-etk-spin 0.9s linear infinite;
 }
 
-/* Encryption + port row — select + port input side by side */
-.lrob-etk-encryption-row {
+/* Server section — see docs/smtp.md:
+   Row 1: host (full width, resolve badge sits inside the field).
+   Row 2: narrow Encryption + Port on the left, Test button pushed to the right
+   (so it visually applies to host + encryption + port together). */
+.lrob-etk-server-host { margin-bottom: var(--etk-space-3); }
+
+.lrob-etk-server-row2 {
     display: flex;
-    gap: var(--etk-space-2);
-    align-items: stretch;
+    align-items: end;
+    gap: var(--etk-space-3);
 }
-.lrob-etk-encryption-row .lrob-etk-select {
-    flex: 1;
-    min-width: 0;
+.lrob-etk-server-enc {
+    flex: 0 0 130px;
+    margin-bottom: 0;
 }
-.lrob-etk-port-input {
-    display: flex;
-    align-items: center;
-    gap: var(--etk-space-1);
+.lrob-etk-server-port {
+    flex: 0 0 80px;
+    margin-bottom: 0;
 }
-.lrob-etk-port-input label {
-    font-size: var(--etk-text-xs);
-    font-weight: 500;
-    color: var(--etk-muted);
-    white-space: nowrap;
+.lrob-etk-server-port input {
+    width: 100%;
 }
-.lrob-etk-port-input input {
-    width: 70px;
+/* Plain numeric port field — no spinner arrows (input type=text + numeric inputmode). */
+.lrob-etk-field-port::-webkit-outer-spin-button,
+.lrob-etk-field-port::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* ---------- From section ---------- */
@@ -107,15 +123,37 @@
     }
 }
 
-/* Host resolve indicator */
-.lrob-etk-host-status {
-    margin-top: var(--etk-space-1);
-    font-size: var(--etk-text-xs);
-    display: inline-block;
-    padding: 2px var(--etk-space-2);
-    border-radius: var(--etk-radius-sm);
+/* No separator between Authentication and the SMTP host section — they read as
+   one connected block (the Test button ties host + encryption together). */
+.lrob-etk-card-form .lrob-etk-server-section {
+    border-top: none;
+    padding-top: 0;
+    margin-top: var(--etk-space-3);
 }
-/* Colours via the shared .lrob-etk-state--* set (resolves→on, else fail). */
+
+/* Resolve indicators inside the host combo (flex row):
+   - left dot (.lrob-etk-host-dot): persistent green/red status dot.
+   - right word (.lrob-etk-host-status): "resolves / cannot resolve" text.
+   Both colour from the shared .lrob-etk-state--* set (sets `color`). */
+.lrob-etk-combo--host .lrob-etk-host-dot {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 9px;
+    height: 9px;
+    margin-left: var(--etk-space-2);
+    border-radius: 50%;
+    background: currentColor;
+}
+.lrob-etk-combo--host .lrob-etk-host-status {
+    flex: 0 0 auto;
+    align-self: center;
+    margin-right: var(--etk-space-1);
+    font-size: var(--etk-text-xxs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.lrob-etk-combo--host .lrob-etk-host-dot[hidden],
+.lrob-etk-combo--host .lrob-etk-host-status[hidden] { display: none; }
 
 /* None-encryption warning */
 .lrob-etk-none-warning {
@@ -161,25 +199,19 @@
     margin: var(--etk-space-2) 0 var(--etk-space-5);
 }
 
-/* ---------- From section: Override row + 3-col grid ---------- */
-
-.lrob-etk-from-section .lrob-etk-override-row {
-    margin: 0 0 var(--etk-space-3);
-    max-width: 360px;
-}
+/* From + Auth field grids. Default 2-col (From email | Force, then From name |
+   Reply-to; Username | Password). Collapses to 1-col on narrow cards. */
 .lrob-etk-from-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: var(--etk-space-3);
-    margin-bottom: var(--etk-space-3);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--etk-space-3) var(--etk-space-4);
+    margin-bottom: 0;
 }
-@media (max-width: 880px) {
-    .lrob-etk-from-grid { grid-template-columns: 1fr 1fr; }
-    .lrob-etk-from-grid > .lrob-etk-field:last-child { grid-column: 1 / -1; }
+.lrob-etk-from-grid > .lrob-etk-field {
+    margin-bottom: 0;
 }
-@media (max-width: 600px) {
+@container (max-width: 460px) {
     .lrob-etk-from-grid { grid-template-columns: 1fr; }
-    .lrob-etk-from-grid > .lrob-etk-field:last-child { grid-column: auto; }
 }
 .lrob-etk-label-hint {
     color: var(--etk-line-strong);

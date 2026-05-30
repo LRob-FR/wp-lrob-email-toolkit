@@ -207,7 +207,7 @@ Sends a one-off test email through a specific identity. Registers its own `phpma
 Used by the admin host picker:
 
 - `resolves($host)` — checks A/AAAA records.
-- `mx_hosts($domain)` — returns MX targets sorted by preference.
+- `mx_records($domain)` — returns `[{host, priority}]` sorted by preference, deduped.
 
 Each result cached as a WordPress transient for 1 hour. Per-user soft rate limit: 60 calls per hour (transient counter keyed by `user_id`).
 
@@ -225,8 +225,7 @@ All endpoints require `manage_lrob_etk` capability + nonce `lrob_etk_smtp_ajax` 
 | `ACTION_TEST_AUTH` | `lrob_etk_smtp_test_auth` | no |
 | `ACTION_TEST_SEND` | `lrob_etk_smtp_test_send` | no |
 | `ACTION_SAVE_ROUTING` | `lrob_etk_smtp_save_routing` | yes |
-| `ACTION_CHECK_HOST` | `lrob_etk_smtp_check_host` | no |
-| `ACTION_LOOKUP_MX` | `lrob_etk_smtp_lookup_mx` | no |
+| `ACTION_CHECK_HOSTS` | `lrob_etk_smtp_check_hosts` | no |
 
 ### `ajax_save` notes
 
@@ -248,6 +247,17 @@ Recipient choices: `current` (logged-in user), `admin` (site admin email), `cust
 ## Admin page (`SettingsPage`)
 
 Rendered by `PageController::render()`. Inline JS is printed at the bottom of the page under `window.lrobEtkSmtp`.
+
+Card layout (stacked full-width rows, no 2-column split):
+1. Header — one row: Active toggle (no text label, `title` = Enable/Disable) · transport segmented (SMTP / mail()) · identity-name title (grows) · ghost trash **Delete** icon-btn far right (reddens on hover).
+2. **Authentication required** toggle (heads the section); below it Username | Password (2-col `.lrob-etk-from-grid`). Auth off hides the credential fields and reclaims the space.
+3. Server section (no separator line from the auth block above — they read as one block). Row 1: SMTP host, full width — the resolve badge (`.lrob-etk-host-status`, coloured dot + label) sits **inside** the field on the right and auto-hides after ~4s. Row 2: narrow **Encryption** + **Port** (left). Port is a plain text field (numeric inputmode, spinner arrows removed). Encryption change **always** rewrites the port (587/465/25). **Host resolution** is automatic — on mailbox blur + card init, `ajax_check_hosts(domain)` builds the candidate list (presets `mail.`/`smtp.`/bare domain **+** MX targets, deduped so an MX host isn't listed twice), resolves each, returns `{host, priority, resolves}`. The host dropdown renders each with a coloured status dot (green/red via `opt.mark` → `.lrob-etk-combo-mark` + `state--on/fail`) and an `(MX<priority>)` suffix for MX entries; the in-field badge mirrors the selected host. Non-blocking; `DnsLookup` caches + rate-limits.
+4. From section (no title): From email + **Force** selector on row 1, From name + Reply-to on row 2 (2-col grid). The "what fills empty fields" hint moved onto the From-email label; `override_mode` is labelled **Force**.
+5. Save-attachments toggle, then footer.
+
+**Footer** = three zones: default badge / **Set as default** (left) · save-status (centered, the `.lrob-etk-card-status` lives here now) · actions (right): **Test connection** (SMTP-only, hidden for mail() via `.lrob-etk-smtp-only-inline`) + **Test email**.
+
+**Connection test:** the Test-connection button runs `ajax_test_auth` and shows the result in the anchored popover immediately (success or failure) — the button stays neutral (transient spinner only), no lingering green/red/blue state.
 
 Key UX:
 - Cards are always-editable (no modal); changes auto-save on blur/change.

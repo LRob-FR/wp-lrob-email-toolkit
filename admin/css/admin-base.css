@@ -46,8 +46,8 @@
 }
 .lrob-etk-card-form .lrob-etk-field > label {
     font-size: var(--etk-text-xs);
-    font-weight: 500;
-    color: var(--etk-muted);
+    font-weight: 600;
+    color: var(--etk-fg);
     margin-bottom: var(--etk-space-1);
 }
 
@@ -58,37 +58,45 @@
        (not WP's default admin colour) — this is what makes dark mode work for
        plain text/spans/labels without per-element overrides. */
     color: var(--etk-fg);
+    /* Base body size — bumped above WP's 13px default for a less dense, airier
+       feel (matches the mockup). Density-tunable. */
+    font-size: 14px;
+    line-height: 1.55;
 
-    /* Palette */
-    --etk-fg: #1d2327;
-    --etk-muted: #50575e;
-    --etk-soft: #f0f0f1;
-    --etk-line: #dcdcde;
-    --etk-line-strong: #c3c4c7;
-    --etk-accent: #2271b1;
-    --etk-accent-hover: #135e96;
-    --etk-success: #00a32a;
-    --etk-success-bg: #edfaef;
-    --etk-warning: #dba617;
-    --etk-warning-bg: #fcf9e8;
-    --etk-danger: #d63638;
-    --etk-danger-bg: #fbeaea;
-    --etk-accent-bg: #f0f6fc;
+    /* Palette — LRob "Deep Glass": the single plugin theme. Dark navy surfaces,
+       amber accent, brand-blue headings. Full chart in docs/lrob-palette.md. */
+    --etk-fg: #fbfef9;            /* "baby powder" — primary text */
+    --etk-muted: #c3c3c3;         /* secondary text */
+    --etk-heading: #4fb3ec;       /* page + card titles (brand blue) */
+    --etk-soft: #11314a;          /* soft fills / hover / secondary buttons */
+    --etk-line: rgba(255, 255, 255, 0.12);          /* decorative separators */
+    --etk-line-strong: rgba(255, 255, 255, 0.40);   /* control borders — ≥3:1 (WCAG 1.4.11) */
+    --etk-accent: #ffb700;        /* brand amber — links, buttons, active */
+    --etk-accent-hover: #ffc62e;
+    --etk-success: #3bbf5b;
+    --etk-success-bg: #13301e;
+    --etk-warning: #e0a92a;
+    --etk-warning-bg: #2f2912;
+    --etk-danger: #ef3e36;        /* strong red (was raspberry #e86365) */
+    --etk-danger-bg: #3a1c1d;
+    --etk-accent-bg: rgba(255, 183, 0, 0.14);
 
-    --etk-card-bg:  #fdfdfe;
-    --etk-input-bg: #fff;
+    --etk-page-bg: #051826;       /* page base (the keeper) */
+    --etk-page-bg-image: linear-gradient(160deg, #03101b 0%, #062236 50%, #0a3152 100%);
+    --etk-card-bg:  #0a2236;      /* solid navy card (glass is a later per-primitive opt-in) */
+    --etk-input-bg: #0f2d44;
 
-    --etk-on-accent: #fff;
+    --etk-on-accent: #000;        /* black text on amber */
 
-    /* Veils: 1=faint hover, 2=recessed, 3=disabled, backdrop=modal scrim */
-    --etk-veil-1:   rgba(0, 0, 0, 0.03);
-    --etk-veil-2:   rgba(0, 0, 0, 0.06);
-    --etk-veil-3:   rgba(0, 0, 0, 0.12);
-    --etk-backdrop: rgba(0, 0, 0, 0.55);
-    --etk-text-success: #1e6b3a;
-    --etk-text-danger:  #8a0000;
-    --etk-text-warning: #735900;
-    --etk-text-accent:  #0a3978;
+    /* Veils: white-on-dark so hover/recess read on the navy surface. */
+    --etk-veil-1:   rgba(255, 255, 255, 0.04);
+    --etk-veil-2:   rgba(255, 255, 255, 0.07);
+    --etk-veil-3:   rgba(255, 255, 255, 0.12);
+    --etk-backdrop: rgba(0, 0, 0, 0.70);
+    --etk-text-success: #86dd9f;
+    --etk-text-danger:  #ff6b64;   /* same hue as --etk-danger, lightened to read on --etk-danger-bg */
+    --etk-text-warning: #e8cc6e;
+    --etk-text-accent:  #ffb700;   /* links read better at full amber than the soft tint */
     --etk-radius-sm:   4px;
     --etk-radius:      6px;     /* legacy alias → --etk-radius-md */
     --etk-radius-md:   6px;
@@ -96,42 +104,197 @@
     --etk-radius-xl:   12px;
     --etk-radius-pill: 999px;
 
-    --etk-shadow:      0 1px 0 rgba(0,0,0,.04);   /* legacy alias → --etk-shadow-sm */
-    --etk-shadow-sm:   0 1px 0 rgba(0,0,0,.04);
-    --etk-shadow-md:   0 1px 3px rgba(0,0,0,.06);
-    --etk-shadow-lg:   0 8px 28px rgba(0,0,0,.18);
-    --etk-shadow-modal: 0 20px 50px rgba(0,0,0,.25);
-    --etk-shadow-menu: 0 6px 18px rgba(0,0,0,.12);
+    /* Heavier shadows read better on the dark surface. */
+    --etk-shadow:      0 1px 0 rgba(0,0,0,.3);    /* legacy alias → --etk-shadow-sm */
+    --etk-shadow-sm:   0 1px 0 rgba(0,0,0,.3);
+    --etk-shadow-md:   0 1px 3px rgba(0,0,0,.4);
+    --etk-shadow-lg:   0 8px 28px rgba(0,0,0,.55);
+    --etk-shadow-modal: 0 20px 50px rgba(0,0,0,.65);
+    --etk-shadow-menu: 0 6px 18px rgba(0,0,0,.5);
 
-    /* Spacing scale */
+    /* Spacing scale — large end bumped for an airier feel (density-tunable).
+       Small steps (1–3) keep tight internal gaps; 4+ drive card/section breathing. */
     --etk-space-1: 4px;
     --etk-space-2: 8px;
     --etk-space-3: 12px;
-    --etk-space-4: 16px;
-    --etk-space-5: 24px;
-    --etk-space-6: 32px;
-    --etk-space-7: 40px;   /* empty-state / hero block padding — scales with density */
-    --etk-space-8: 48px;
-    --etk-space-9: 60px;
+    --etk-space-4: 18px;
+    --etk-space-5: 28px;
+    --etk-space-6: 36px;
+    --etk-space-7: 44px;   /* empty-state / hero block padding */
+    --etk-space-8: 52px;
+    --etk-space-9: 64px;
 
-    --etk-input-height:    30px;
-    --etk-input-height-sm: 28px;
-    --etk-input-font-size: 13px;
+    --etk-input-height:    36px;
+    --etk-input-height-sm: 30px;
+    --etk-input-font-size: 14px;
     --etk-icon-size:       16px;
     --etk-icon-size-sm:    14px;
     --etk-icon-size-lg:    18px;
     --etk-icon-size-xl:    40px;
 
-    /* Text scale — base 13px inherited (don't re-declare it). See docs/admin-ui.md. */
-    --etk-text-xxs: 9px;
-    --etk-text-xs:  11px;
-    --etk-text-lg:  15px;
-    --etk-text-xl:  20px;
-    --etk-text-2xl: 28px;
+    /* Text scale — base 14px set on .lrob-etk. Only deviations get a token. See docs/admin-ui.md. */
+    --etk-text-xxs: 10px;
+    --etk-text-xs:  12px;
+    --etk-text-lg:  16px;
+    --etk-text-xl:  22px;
+    --etk-text-2xl: 30px;
 
     /* Motion */
     --etk-transition:       0.15s ease;
     --etk-transition-slow:  0.30s ease;
+}
+
+/* WP-core chrome painted for the dark surface (WP admin has no dark mode).
+ * Gradient on the ROOT element: its background fills the whole viewport canvas
+ * at any scroll position / document height, so the fixed gradient never runs
+ * out below tall content. Everything beneath is transparent to reveal it; the
+ * admin menu keeps its own opaque WP background. Rationale: docs/admin-ui.md. */
+html.wp-toolbar {
+    background-color: #051826;
+    background-image: linear-gradient(160deg, #03101b 0%, #062236 50%, #0a3152 100%);
+    background-attachment: fixed;
+    background-size: cover;
+}
+body.wp-admin,
+#wpwrap,
+#wpcontent,
+#wpbody-content { background: transparent; }
+
+/* WP forces an explicit colour on EVERY admin heading (h1–h6), so inheriting
+   .lrob-etk's white isn't enough — reset them all to the token first (kills the
+   default near-black), then paint the prominent titles brand-blue. */
+.lrob-etk h1,
+.lrob-etk h2,
+.lrob-etk h3,
+.lrob-etk h4,
+.lrob-etk h5,
+.lrob-etk h6 {
+    color: var(--etk-fg);
+}
+.lrob-etk h1,
+.lrob-etk h2,
+.lrob-etk .lrob-etk-page-title,
+.lrob-etk .lrob-etk-module-card-title {
+    color: var(--etk-heading);
+}
+
+/* Native form controls (white by default) — sit lighter than cards. */
+.lrob-etk input[type="text"],
+.lrob-etk input[type="email"],
+.lrob-etk input[type="url"],
+.lrob-etk input[type="tel"],
+.lrob-etk input[type="number"],
+.lrob-etk input[type="search"],
+.lrob-etk input[type="password"],
+.lrob-etk input[type="date"],
+.lrob-etk input[type="datetime-local"],
+.lrob-etk input[type="time"],
+.lrob-etk select,
+.lrob-etk textarea {
+    background: var(--etk-input-bg);
+    border-color: var(--etk-line-strong);
+    color: var(--etk-fg);
+    color-scheme: dark;   /* date/time pickers + their calendar icon render dark */
+}
+/* WP's `.wp-core-ui select:hover` forces near-black text → black-on-dark on
+   hover. Same specificity, loaded later, so re-assert the token. */
+.lrob-etk input:hover,
+.lrob-etk input:focus,
+.lrob-etk select:hover,
+.lrob-etk select:focus,
+.lrob-etk textarea:hover,
+.lrob-etk textarea:focus {
+    color: var(--etk-fg);
+}
+/* Focus = white border strengthens; kill WP's blue focus glow. */
+.lrob-etk input:focus,
+.lrob-etk select:focus,
+.lrob-etk textarea:focus {
+    border-color: #fff;
+    box-shadow: 0 0 0 1px var(--etk-line-strong);
+    outline: none;
+}
+.lrob-etk input::placeholder,
+.lrob-etk textarea::placeholder {
+    color: var(--etk-muted);
+}
+/* Native <option> popups ignore the select bg and render light-on-light. */
+.lrob-etk select option {
+    background: var(--etk-input-bg);
+    color: var(--etk-fg);
+}
+
+/* Secondary buttons (incl. accent-text-on-transparent ones like "Test email"):
+ * give them a real surface so they read on dark. */
+.lrob-etk .button,
+.lrob-etk .button-secondary,
+.lrob-etk .lrob-etk-module-test-btn {
+    background: var(--etk-soft);
+    border-color: var(--etk-line-strong);
+    color: var(--etk-fg);
+}
+.lrob-etk .button:hover,
+.lrob-etk .button-secondary:hover,
+.lrob-etk .lrob-etk-module-test-btn:hover {
+    background: var(--etk-card-bg);
+    border-color: var(--etk-accent);
+    color: var(--etk-fg);
+}
+.lrob-etk .button-primary {
+    background: var(--etk-accent);
+    border-color: var(--etk-accent);
+    color: var(--etk-on-accent);
+}
+.lrob-etk .button-primary:hover {
+    background: var(--etk-accent-hover);
+    border-color: var(--etk-accent-hover);
+    color: var(--etk-on-accent);   /* keep black text — WP forces #fff on hover, unreadable on lightened amber */
+}
+/* Rounder + roomier than WP's 3px/tight default — matches the design mockup. */
+.lrob-etk .button,
+.lrob-etk .button-primary,
+.lrob-etk .button-secondary,
+.lrob-etk .lrob-etk-module-test-btn {
+    border-radius: var(--etk-radius-md);
+    padding-inline: var(--etk-space-4);
+}
+/* WP paints .button focus/active blue (border + box-shadow) — re-theme so
+   buttons don't flash blue when clicked. Secondary keeps its surface; primary
+   keeps amber. Focus ring uses the accent. */
+.lrob-etk .button:focus,
+.lrob-etk .button:active,
+.lrob-etk .button-secondary:focus,
+.lrob-etk .button-secondary:active {
+    background: var(--etk-soft);
+    border-color: var(--etk-accent);
+    color: var(--etk-fg);
+    box-shadow: 0 0 0 1px var(--etk-accent);
+    outline: none;
+}
+.lrob-etk .button-primary:focus,
+.lrob-etk .button-primary:active {
+    background: var(--etk-accent);
+    border-color: var(--etk-accent);
+    color: var(--etk-on-accent);
+    box-shadow: 0 0 0 2px var(--etk-accent-bg);
+    outline: none;
+}
+/* Header nav buttons stay transparent but need a legible idle colour. */
+.lrob-etk .lrob-etk-nav-button.button {
+    background: transparent;
+    border-color: transparent;
+    color: var(--etk-muted);
+}
+
+/* Contact-form PREVIEW inside the admin: the form carries its own --lrob-etk-cf-*
+ * vars (default white bg) → dark-on-dark here. Remap onto admin tokens so the
+ * in-admin preview is legible. Admin-only; real frontend theming is separate. */
+.lrob-etk .lrob-etk-form {
+    --lrob-etk-cf-bg:       var(--etk-input-bg);
+    --lrob-etk-cf-fg:       var(--etk-fg);
+    --lrob-etk-cf-input-fg: var(--etk-fg);
+    --lrob-etk-cf-border:   var(--etk-line-strong);
+    --lrob-etk-cf-muted:    var(--etk-muted);
 }
 
 .lrob-etk .lrob-etk-section-title {

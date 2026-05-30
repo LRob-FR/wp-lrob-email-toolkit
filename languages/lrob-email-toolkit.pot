@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-30T01:16:37+00:00\n"
+"POT-Creation-Date: 2026-05-30T18:57:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -34,32 +34,32 @@ msgstr ""
 msgid "https://www.lrob.fr"
 msgstr ""
 
-#: src/Admin/Assets.php:125
+#: src/Admin/Assets.php:112
 #: src/Modules/Captcha/Admin/SettingsPage.php:717
 #: src/Modules/ContactForm/Admin/FormsPage.php:131
 #: src/Modules/Logging/Admin/LogsPage.php:539
 #: src/Modules/Newsletter/Admin/HomePage.php:101
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:674
-#: src/Modules/SMTP/Admin/SettingsPage.php:592
+#: src/Modules/SMTP/Admin/SettingsPage.php:576
 msgid "Saving…"
 msgstr ""
 
-#: src/Admin/Assets.php:126
+#: src/Admin/Assets.php:113
 #: src/Modules/Captcha/Admin/SettingsPage.php:718
 #: src/Modules/ContactForm/Admin/FormsPage.php:132
 #: src/Modules/Logging/Admin/LogsPage.php:540
 #: src/Modules/Newsletter/Admin/HomePage.php:102
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:686
-#: src/Modules/SMTP/Admin/SettingsPage.php:593
+#: src/Modules/SMTP/Admin/SettingsPage.php:577
 msgid "Saved"
 msgstr ""
 
-#: src/Admin/Assets.php:127
+#: src/Admin/Assets.php:114
 #: src/Modules/Captcha/Admin/SettingsPage.php:719
 #: src/Modules/ContactForm/Admin/FormsPage.php:133
 #: src/Modules/Logging/Admin/LogsPage.php:541
 #: src/Modules/Newsletter/Admin/HomePage.php:103
-#: src/Modules/SMTP/Admin/SettingsPage.php:594
+#: src/Modules/SMTP/Admin/SettingsPage.php:578
 msgid "Save failed"
 msgstr ""
 
@@ -102,7 +102,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1362
 #: src/Modules/Newsletter/Module.php:592
 #: src/Modules/Newsletter/Send/SendAjaxController.php:696
-#: src/Modules/SMTP/Admin/AjaxController.php:361
+#: src/Modules/SMTP/Admin/AjaxController.php:389
 #: src/Modules/SMTP/Admin/PageController.php:47
 msgid "Insufficient permissions."
 msgstr ""
@@ -127,50 +127,50 @@ msgid "Built with care by %s."
 msgstr ""
 
 #. translators: 1: failed count, 2: total count, 3: percentage
-#: src/Admin/DashboardPage.php:256
+#: src/Admin/DashboardPage.php:245
 msgid "%1$d of %2$d emails failed in the last 24 hours (%3$d%% failure rate)."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:262
+#: src/Admin/DashboardPage.php:251
 msgid "This may indicate an SMTP misconfiguration, spam being sent from the site (compromised account or vulnerable form), or a poor recipient list (e.g. an outdated newsletter list with bounces)."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:265
+#: src/Admin/DashboardPage.php:254
 msgid "View failed logs →"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:275
-#: src/Admin/DashboardPage.php:345
+#: src/Admin/DashboardPage.php:264
+#: src/Admin/DashboardPage.php:334
 msgid "Last 24 hours"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:276
-#: src/Admin/DashboardPage.php:346
+#: src/Admin/DashboardPage.php:265
+#: src/Admin/DashboardPage.php:335
 msgid "Last 7 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:277
-#: src/Admin/DashboardPage.php:347
+#: src/Admin/DashboardPage.php:266
+#: src/Admin/DashboardPage.php:336
 msgid "Last 30 days"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:278
-#: src/Admin/DashboardPage.php:348
+#: src/Admin/DashboardPage.php:267
+#: src/Admin/DashboardPage.php:337
 msgid "Last year"
 msgstr ""
 
 #. translators: 1: number of emails, 2: time-range label (e.g. "Last 7 days")
-#: src/Admin/DashboardPage.php:307
+#: src/Admin/DashboardPage.php:296
 msgid "%1$s emails — %2$s. Open logs filtered to this range."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:316
+#: src/Admin/DashboardPage.php:305
 msgid "mail sent"
 msgid_plural "mails sent"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:322
+#: src/Admin/DashboardPage.php:311
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:988
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:378
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:508
@@ -179,119 +179,119 @@ msgid_plural "failed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:325
+#: src/Admin/DashboardPage.php:314
 msgid "all delivered"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:327
+#: src/Admin/DashboardPage.php:316
 msgid "no activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:342
+#: src/Admin/DashboardPage.php:331
 msgid "Range:"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:344
+#: src/Admin/DashboardPage.php:333
 msgid "Last hour"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:349
+#: src/Admin/DashboardPage.php:338
 msgid "Since beginning"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:353
+#: src/Admin/DashboardPage.php:342
 msgid "Smoothed line"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:353
+#: src/Admin/DashboardPage.php:342
 msgid "Smoothed line chart"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:356
+#: src/Admin/DashboardPage.php:345
 msgid "Bars"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:356
+#: src/Admin/DashboardPage.php:345
 msgid "Bar chart"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:364
+#: src/Admin/DashboardPage.php:353
 msgid "No emails yet — once your site starts sending, activity will appear here."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:376
+#: src/Admin/DashboardPage.php:365
 msgid "Modules"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:404
+#: src/Admin/DashboardPage.php:393
 #: src/Modules/Newsletter/Admin/HomePage.php:606
 msgid "Coming soon"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:406
+#: src/Admin/DashboardPage.php:395
 msgid "Always on"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:414
+#: src/Admin/DashboardPage.php:403
 msgid "form"
 msgid_plural "forms"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:417
-#: src/Admin/DashboardPage.php:625
+#: src/Admin/DashboardPage.php:406
+#: src/Admin/DashboardPage.php:614
 msgid "submission"
 msgid_plural "submissions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:433
+#: src/Admin/DashboardPage.php:422
 #: src/Admin/ModuleToggle.php:30
 #: src/Modules/Newsletter/Admin/SettingsPage.php:283
 msgid "Enabled"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:434
+#: src/Admin/DashboardPage.php:423
 #: src/Admin/ModuleToggle.php:31
 msgid "Disabled"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:445
-#: src/Modules/SMTP/Admin/SettingsPage.php:200
+#: src/Admin/DashboardPage.php:434
+#: src/Modules/SMTP/Admin/SettingsPage.php:203
 msgid "Test email"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:450
+#: src/Admin/DashboardPage.php:439
 #: src/Modules/Newsletter/FormCPT.php:87
 #: src/Modules/Newsletter/NewsletterCPT.php:82
 #: src/Modules/Newsletter/TemplateCPT.php:260
 msgid "Add new"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:454
+#: src/Admin/DashboardPage.php:443
 msgid "Manage"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:482
+#: src/Admin/DashboardPage.php:471
 #: src/Admin/DataPage.php:58
 msgid "Plugin data"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:486
+#: src/Admin/DashboardPage.php:475
 msgid "No data stored yet. Enable a module to start logging activity."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:501
+#: src/Admin/DashboardPage.php:490
 msgid "Manage plugin data"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:517
-#: src/Admin/DashboardPage.php:519
+#: src/Admin/DashboardPage.php:506
+#: src/Admin/DashboardPage.php:508
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:986
 msgid "Send test email"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:520
+#: src/Admin/DashboardPage.php:509
 #: src/Modules/Captcha/Admin/SettingsPage.php:201
 #: src/Modules/ContactForm/Admin/FormsPage.php:100
 #: src/Modules/ContactForm/Admin/FormsPage.php:499
@@ -313,48 +313,48 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:241
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1514
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1572
-#: src/Modules/SMTP/Admin/SettingsPage.php:467
-#: src/Modules/SMTP/Admin/SettingsPage.php:524
+#: src/Modules/SMTP/Admin/SettingsPage.php:451
+#: src/Modules/SMTP/Admin/SettingsPage.php:508
 msgid "Close"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:526
+#: src/Admin/DashboardPage.php:515
 msgid "Identity (source)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:532
+#: src/Admin/DashboardPage.php:521
 msgid " (default)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:539
-#: src/Modules/SMTP/Admin/SettingsPage.php:489
+#: src/Admin/DashboardPage.php:528
+#: src/Modules/SMTP/Admin/SettingsPage.php:473
 msgid "Recipient"
 msgstr ""
 
 #. translators: %s: current user's email address
-#: src/Admin/DashboardPage.php:543
+#: src/Admin/DashboardPage.php:532
 #: src/Modules/ContactForm/Admin/FormsPage.php:343
-#: src/Modules/SMTP/Admin/SettingsPage.php:492
+#: src/Modules/SMTP/Admin/SettingsPage.php:476
 msgid "Me (%s)"
 msgstr ""
 
 #. translators: %s: site admin email address
-#: src/Admin/DashboardPage.php:548
+#: src/Admin/DashboardPage.php:537
 #: src/Modules/ContactForm/Admin/FormsPage.php:331
-#: src/Modules/SMTP/Admin/SettingsPage.php:494
+#: src/Modules/SMTP/Admin/SettingsPage.php:478
 msgid "Site admin (%s)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:551
+#: src/Admin/DashboardPage.php:540
 msgid "Custom…"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:555
-#: src/Modules/SMTP/Admin/SettingsPage.php:500
+#: src/Admin/DashboardPage.php:544
+#: src/Modules/SMTP/Admin/SettingsPage.php:484
 msgid "Custom recipient"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:561
+#: src/Admin/DashboardPage.php:550
 #: src/Modules/ContactForm/Admin/FormsPage.php:99
 #: src/Modules/ContactForm/Admin/FormsPage.php:511
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:714
@@ -364,12 +364,12 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1128
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1158
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1657
-#: src/Modules/SMTP/Admin/SettingsPage.php:508
+#: src/Modules/SMTP/Admin/SettingsPage.php:492
 msgid "Cancel"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:563
-#: src/Admin/DashboardPage.php:842
+#: src/Admin/DashboardPage.php:552
+#: src/Admin/DashboardPage.php:831
 #: src/Forms/Fields/SubmitField.php:27
 #: src/Forms/Fields/SubmitField.php:51
 #: src/Forms/FormStructure.php:43
@@ -377,44 +377,44 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:618
+#: src/Admin/DashboardPage.php:607
 #: src/Modules/Logging/Admin/LogsPage.php:49
 msgid "Contact form submissions"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:622
+#: src/Admin/DashboardPage.php:611
 msgid "Delivered (30d)"
 msgstr ""
 
 #. translators: %s: total all-time submissions
-#: src/Admin/DashboardPage.php:630
+#: src/Admin/DashboardPage.php:619
 msgid "%s lifetime"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:636
+#: src/Admin/DashboardPage.php:625
 msgid "Spam blocked (30d)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:639
+#: src/Admin/DashboardPage.php:628
 msgid "attempt"
 msgid_plural "attempts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/DashboardPage.php:643
+#: src/Admin/DashboardPage.php:632
 msgid "honeypot"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:644
+#: src/Admin/DashboardPage.php:633
 msgid "captcha"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:646
+#: src/Admin/DashboardPage.php:635
 msgid "no spam blocked yet"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:657
-#: src/Admin/DashboardPage.php:776
+#: src/Admin/DashboardPage.php:646
+#: src/Admin/DashboardPage.php:765
 #: src/Forms/Fields/DateField.php:19
 #: src/Modules/ContactForm/Admin/FormsPage.php:1242
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:364
@@ -423,8 +423,8 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:658
-#: src/Admin/DashboardPage.php:777
+#: src/Admin/DashboardPage.php:647
+#: src/Admin/DashboardPage.php:766
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:247
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:365
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:557
@@ -438,7 +438,7 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:659
+#: src/Admin/DashboardPage.php:648
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:235
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:366
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:623
@@ -446,15 +446,15 @@ msgstr ""
 msgid "Form"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:660
+#: src/Admin/DashboardPage.php:649
 #: src/Modules/Captcha/Admin/SettingsPage.php:93
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:367
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:703
 msgid "Preview"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:661
-#: src/Admin/DashboardPage.php:781
+#: src/Admin/DashboardPage.php:650
+#: src/Admin/DashboardPage.php:770
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:369
 #: src/Modules/Logging/Admin/LogsPage.php:332
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:1424
@@ -462,7 +462,7 @@ msgid "Actions"
 msgstr ""
 
 #. translators: %d: form id
-#: src/Admin/DashboardPage.php:672
+#: src/Admin/DashboardPage.php:661
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:394
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:534
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:650
@@ -470,40 +470,40 @@ msgstr ""
 msgid "Deleted form #%d"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:692
-#: src/Admin/DashboardPage.php:813
+#: src/Admin/DashboardPage.php:681
+#: src/Admin/DashboardPage.php:802
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:435
 #: src/Modules/Logging/Admin/LogsPage.php:378
 msgid "View"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:692
+#: src/Admin/DashboardPage.php:681
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:435
 #: src/Modules/Logging/Admin/LogsPage.php:387
 msgid "View submission"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:703
+#: src/Admin/DashboardPage.php:692
 #: src/Modules/ContactForm/Admin/FormsPage.php:625
 msgid "View all submissions"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:726
+#: src/Admin/DashboardPage.php:715
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:957
 msgid "Blocked (honeypot)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:729
+#: src/Admin/DashboardPage.php:718
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:963
 msgid "Blocked (captcha)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:731
+#: src/Admin/DashboardPage.php:720
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:965
 msgid "Blocked"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:734
+#: src/Admin/DashboardPage.php:723
 #: src/Modules/ContactForm/Admin/FormsPage.php:632
 #: src/Modules/ContactForm/Admin/FormsPage.php:1615
 #: src/Modules/ContactForm/Admin/FormsPage.php:1665
@@ -512,7 +512,7 @@ msgstr ""
 msgid "Delivered"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:735
+#: src/Admin/DashboardPage.php:724
 #: src/Modules/ContactForm/Admin/FormsPage.php:1624
 #: src/Modules/ContactForm/Admin/FormsPage.php:1666
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:254
@@ -520,8 +520,8 @@ msgstr ""
 msgid "Received"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:736
-#: src/Admin/DashboardPage.php:845
+#: src/Admin/DashboardPage.php:725
+#: src/Admin/DashboardPage.php:834
 #: src/Modules/ContactForm/Admin/FormsPage.php:1634
 #: src/Modules/ContactForm/Admin/FormsPage.php:1667
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:260
@@ -534,17 +534,17 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:744
-#: src/Admin/DashboardPage.php:758
+#: src/Admin/DashboardPage.php:733
+#: src/Admin/DashboardPage.php:747
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:428
 msgid "(no content)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:771
+#: src/Admin/DashboardPage.php:760
 msgid "Recent activity"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:778
+#: src/Admin/DashboardPage.php:767
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:287
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:44
 #: src/Modules/Logging/Admin/LogsPage.php:263
@@ -552,13 +552,13 @@ msgstr ""
 msgid "To"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:779
+#: src/Admin/DashboardPage.php:768
 #: src/Modules/Logging/Admin/LogsPage.php:330
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:349
 msgid "Subject"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:780
+#: src/Admin/DashboardPage.php:769
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:34
 #: src/Modules/Logging/Admin/LogsPage.php:235
 #: src/Modules/Logging/Admin/LogsPage.php:331
@@ -568,7 +568,7 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:794
+#: src/Admin/DashboardPage.php:783
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:15
 #: src/Modules/Logging/Admin/LogsPage.php:355
 #: src/Modules/Newsletter/Send/SendAjaxController.php:279
@@ -576,29 +576,29 @@ msgstr ""
 msgid "(no subject)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:813
+#: src/Admin/DashboardPage.php:802
 #: src/Modules/Logging/Admin/LogsPage.php:378
 msgid "View log entry"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:824
+#: src/Admin/DashboardPage.php:813
 msgid "View all logs"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:841
+#: src/Admin/DashboardPage.php:830
 #: src/Modules/ContactForm/Frontend.php:43
-#: src/Modules/SMTP/Admin/SettingsPage.php:596
+#: src/Modules/SMTP/Admin/SettingsPage.php:580
 msgid "Sending…"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:843
+#: src/Admin/DashboardPage.php:832
 #: src/Modules/ContactForm/Admin/FormsPage.php:1695
 #: src/Modules/Logging/Admin/LogsPage.php:542
-#: src/Modules/SMTP/Admin/SettingsPage.php:601
+#: src/Modules/SMTP/Admin/SettingsPage.php:585
 msgid "Something went wrong."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:844
+#: src/Admin/DashboardPage.php:833
 #: src/Modules/Logging/Admin/LogsPage.php:220
 #: src/Modules/Logging/LogEntry.php:23
 #: src/Modules/Newsletter/Admin/HomePage.php:194
@@ -754,44 +754,30 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/HomePage.php:443
 #: src/Modules/Newsletter/Admin/HomePage.php:498
 #: src/Modules/Newsletter/Lists/WooSubscriptionsRule.php:53
-#: src/Modules/SMTP/Admin/SettingsPage.php:151
-#: src/Modules/SMTP/Admin/SettingsPage.php:153
-#: src/Modules/SMTP/Admin/SettingsPage.php:602
+#: src/Modules/SMTP/Admin/SettingsPage.php:586
 msgid "Active"
 msgstr ""
 
 #: src/Admin/ModuleToggle.php:44
 #: src/Modules/Captcha/Admin/SettingsPage.php:296
 #: src/Modules/Captcha/Admin/SettingsPage.php:299
-#: src/Modules/SMTP/Admin/SettingsPage.php:151
-#: src/Modules/SMTP/Admin/SettingsPage.php:154
-#: src/Modules/SMTP/Admin/SettingsPage.php:603
+#: src/Modules/SMTP/Admin/SettingsPage.php:587
 msgid "Inactive"
 msgstr ""
 
 #: src/Admin/ModuleToggle.php:55
+#: src/Modules/SMTP/Admin/SettingsPage.php:131
 msgid "Disable"
 msgstr ""
 
 #: src/Admin/ModuleToggle.php:60
+#: src/Modules/SMTP/Admin/SettingsPage.php:131
 msgid "Enable"
 msgstr ""
 
 #. translators: precedes the author name "LRob" in the page title credit
 #: src/Admin/PageHeader.php:40
 msgid "by"
-msgstr ""
-
-#: src/Admin/PageHeader.php:76
-msgid "Theme: follow system — click to change"
-msgstr ""
-
-#: src/Admin/PageHeader.php:77
-msgid "Theme: light — click to change"
-msgstr ""
-
-#: src/Admin/PageHeader.php:78
-msgid "Theme: dark — click to change"
 msgstr ""
 
 #: src/Admin/PerPagePicker.php:45
@@ -921,7 +907,7 @@ msgstr ""
 #: src/Forms/CaptchaField.php:255
 #: src/Modules/ContactForm/Admin/FormsPage.php:829
 #: src/Modules/ContactForm/Admin/FormsPage.php:832
-#: src/Modules/SMTP/Admin/SettingsPage.php:314
+#: src/Modules/SMTP/Admin/SettingsPage.php:294
 msgid "None"
 msgstr ""
 
@@ -2183,12 +2169,12 @@ msgstr ""
 #: src/Modules/Captcha/Admin/AjaxController.php:145
 #: src/Modules/Captcha/Admin/AjaxController.php:146
 #: src/Modules/Captcha/Admin/SettingsPage.php:721
-#: src/Modules/SMTP/Admin/AjaxController.php:95
+#: src/Modules/SMTP/Admin/AjaxController.php:123
 msgid "Label is required."
 msgstr ""
 
 #: src/Modules/Captcha/Admin/AjaxController.php:188
-#: src/Modules/SMTP/Admin/AjaxController.php:164
+#: src/Modules/SMTP/Admin/AjaxController.php:192
 msgid "Please fix the highlighted fields."
 msgstr ""
 
@@ -2201,13 +2187,13 @@ msgid "Captcha saved."
 msgstr ""
 
 #: src/Modules/Captcha/Admin/AjaxController.php:267
-#: src/Modules/SMTP/Admin/AjaxController.php:210
-#: src/Modules/SMTP/Admin/AjaxController.php:222
+#: src/Modules/SMTP/Admin/AjaxController.php:238
+#: src/Modules/SMTP/Admin/AjaxController.php:250
 msgid "Invalid identity."
 msgstr ""
 
 #: src/Modules/Captcha/Admin/AjaxController.php:294
-#: src/Modules/SMTP/Admin/AjaxController.php:213
+#: src/Modules/SMTP/Admin/AjaxController.php:241
 msgid "Identity deleted."
 msgstr ""
 
@@ -2220,7 +2206,7 @@ msgid "Invalid challenge."
 msgstr ""
 
 #: src/Modules/Captcha/Admin/AjaxController.php:387
-#: src/Modules/SMTP/Admin/AjaxController.php:354
+#: src/Modules/SMTP/Admin/AjaxController.php:382
 msgid "Security check failed. Please reload and retry."
 msgstr ""
 
@@ -2244,7 +2230,7 @@ msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:128
 #: src/Modules/Captcha/Admin/SettingsPage.php:729
-#: src/Modules/SMTP/Admin/SettingsPage.php:187
+#: src/Modules/SMTP/Admin/SettingsPage.php:184
 msgid "Set as default"
 msgstr ""
 
@@ -2309,13 +2295,13 @@ msgid "Solve below to verify your credentials."
 msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:349
-#: src/Modules/SMTP/Admin/SettingsPage.php:194
-#: src/Modules/SMTP/Admin/SettingsPage.php:604
+#: src/Modules/SMTP/Admin/SettingsPage.php:192
+#: src/Modules/SMTP/Admin/SettingsPage.php:588
 msgid "Create"
 msgstr ""
 
 #: src/Modules/Captcha/Admin/SettingsPage.php:352
-#: src/Modules/SMTP/Admin/SettingsPage.php:197
+#: src/Modules/SMTP/Admin/SettingsPage.php:195
 msgid "Discard"
 msgstr ""
 
@@ -3010,7 +2996,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/FormsPage.php:667
 #: src/Modules/Newsletter/Admin/ListsPage.php:841
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:245
-#: src/Modules/SMTP/Admin/SettingsPage.php:203
+#: src/Modules/SMTP/Admin/SettingsPage.php:151
 msgid "Delete"
 msgstr ""
 
@@ -3577,8 +3563,8 @@ msgstr ""
 
 #. translators: %s: current default value, shown as "Default — X" in placeholders and Default-identity labels
 #: src/Modules/ContactForm/Admin/FormsPage.php:1216
-#: src/Modules/SMTP/Admin/SettingsPage.php:376
-#: src/Modules/SMTP/Admin/SettingsPage.php:397
+#: src/Modules/SMTP/Admin/SettingsPage.php:335
+#: src/Modules/SMTP/Admin/SettingsPage.php:381
 msgid "Default — %s"
 msgstr ""
 
@@ -3882,7 +3868,6 @@ msgstr ""
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:38
 #: src/Modules/Logging/Admin/LogsPage.php:258
 #: src/Modules/Logging/Admin/LogsPage.php:328
-#: src/Modules/SMTP/Admin/SettingsPage.php:340
 msgid "From"
 msgstr ""
 
@@ -4594,7 +4579,7 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:36
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2250
-#: src/Modules/SMTP/Admin/SettingsPage.php:477
+#: src/Modules/SMTP/Admin/SettingsPage.php:461
 msgid "Identity"
 msgstr ""
 
@@ -4607,7 +4592,7 @@ msgid "Bcc"
 msgstr ""
 
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:52
-#: src/Modules/SMTP/Admin/SettingsPage.php:407
+#: src/Modules/SMTP/Admin/SettingsPage.php:391
 msgid "Reply-to"
 msgstr ""
 
@@ -6042,8 +6027,8 @@ msgid "Send to test list (%s)"
 msgstr ""
 
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:1034
-#: src/Modules/SMTP/Admin/SettingsPage.php:510
-#: src/Modules/SMTP/Admin/SettingsPage.php:606
+#: src/Modules/SMTP/Admin/SettingsPage.php:494
+#: src/Modules/SMTP/Admin/SettingsPage.php:590
 msgid "Send test"
 msgstr ""
 
@@ -7573,75 +7558,75 @@ msgstr ""
 msgid "Missing required token: %s"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:65
-msgid "No host provided."
+#: src/Modules/SMTP/Admin/AjaxController.php:66
+msgid "No host to check."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:78
-msgid "No domain provided."
+#: src/Modules/SMTP/Admin/AjaxController.php:85
+msgid "No domain to check."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:109
+#: src/Modules/SMTP/Admin/AjaxController.php:137
 msgid "Slug could not be generated from the label."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:111
+#: src/Modules/SMTP/Admin/AjaxController.php:139
 msgid "Another identity already uses this slug."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:117
+#: src/Modules/SMTP/Admin/AjaxController.php:145
 msgid "Username is required when authentication is on."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:126
+#: src/Modules/SMTP/Admin/AjaxController.php:154
 msgid "SMTP host is required."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:131
+#: src/Modules/SMTP/Admin/AjaxController.php:159
 msgid "Port must be between 1 and 65535."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:145
+#: src/Modules/SMTP/Admin/AjaxController.php:173
 msgid "From email is not a valid address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:153
+#: src/Modules/SMTP/Admin/AjaxController.php:181
 msgid "Reply-to is not a valid email address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:197
+#: src/Modules/SMTP/Admin/AjaxController.php:225
 msgid "Identity saved."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:225
+#: src/Modules/SMTP/Admin/AjaxController.php:253
 msgid "Default identity updated."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:234
+#: src/Modules/SMTP/Admin/AjaxController.php:262
 msgid "PHP mail() transport has nothing to authenticate against."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:307
+#: src/Modules/SMTP/Admin/AjaxController.php:335
 msgid "Pick an identity and a valid recipient."
 msgstr ""
 
 #. translators: %s: recipient email
-#: src/Modules/SMTP/Admin/AjaxController.php:315
+#: src/Modules/SMTP/Admin/AjaxController.php:343
 msgid "Test email sent to %s."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:321
+#: src/Modules/SMTP/Admin/AjaxController.php:349
 msgid "Unknown error."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/AjaxController.php:346
+#: src/Modules/SMTP/Admin/AjaxController.php:374
 msgid "Routing rules saved."
 msgstr ""
 
 #: src/Modules/SMTP/Admin/PageController.php:36
 #: src/Modules/SMTP/Admin/PageController.php:37
 #: src/Modules/SMTP/Admin/SettingsPage.php:35
-#: src/Modules/SMTP/Admin/SettingsPage.php:133
+#: src/Modules/SMTP/Admin/SettingsPage.php:137
 #: src/Modules/SMTP/Module.php:21
 msgid "SMTP"
 msgstr ""
@@ -7658,245 +7643,234 @@ msgstr ""
 msgid "No SMTP identities yet — click \"New identity\" to start."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:131
+#: src/Modules/SMTP/Admin/SettingsPage.php:135
 msgid "Send via"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:145
+#: src/Modules/SMTP/Admin/SettingsPage.php:149
 msgid "Identity name"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:170
+#: src/Modules/SMTP/Admin/SettingsPage.php:167
 msgid "Save attachments locally"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:172
+#: src/Modules/SMTP/Admin/SettingsPage.php:169
 msgid "Keep a copy of each attachment sent through this identity on the server, so you can re-send the email later with its files intact. Copies are removed when the log entry is deleted."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:182
+#: src/Modules/SMTP/Admin/SettingsPage.php:179
 msgid "Default identity"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:221
-msgid "Mailbox login"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:222
-msgid "Credentials your mail server uses to authenticate this site — usually the same as logging into webmail."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:224
-msgid "Authentication"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:227
-msgid "Auth"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:234
-msgid "Username / email"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:242
-msgid "Password"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:244
-msgid "Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:268
-msgid "SMTP server"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:269
-msgid "Pick your domain's mail server. \"Custom\" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:275
-msgid "Host"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:288
-msgid "Show host presets"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:297
-#: src/Modules/SMTP/Admin/SettingsPage.php:605
+#: src/Modules/SMTP/Admin/SettingsPage.php:199
+#: src/Modules/SMTP/Admin/SettingsPage.php:589
 msgid "Test connection"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:298
-msgid "Test SMTP connection"
+#: src/Modules/SMTP/Admin/SettingsPage.php:222
+msgid "Authentication required"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:307
-msgid "Encryption & port"
+#: src/Modules/SMTP/Admin/SettingsPage.php:223
+msgid "Credentials your mail server uses to authenticate this site — usually the same as logging into webmail."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:308
+#: src/Modules/SMTP/Admin/SettingsPage.php:229
+msgid "Username / email"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:237
+msgid "Password"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:239
+msgid "Encrypted at rest with AES-256-GCM, derived from your AUTH_KEY. To put the password in wp-config.php instead, define LROB_ETK_SMTP_PASS."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:263
+msgid "SMTP host server"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:265
+msgid "Pick your domain's mail server. \"Custom\" is for external relays (Mailgun, SendGrid, etc.) — usually only needed for high-volume sending. Whichever host you pick must have a valid TLS certificate."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:278
+msgid "Show host presets"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:288
+msgid "Encryption"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:289
 msgid "STARTTLS upgrades a plain connection to encrypted (port 587 — most common). TLS connects encrypted from the start (port 465). None sends plaintext on port 25 — almost always blocked by hosting providers."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:317
+#: src/Modules/SMTP/Admin/SettingsPage.php:299
 msgid "Port"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:323
+#: src/Modules/SMTP/Admin/SettingsPage.php:306
 msgid "Plaintext SMTP on port 25 is almost always blocked by web hosts. Use STARTTLS or TLS."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:341
-msgid "The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:346
-msgid "Override other apps' sender"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:347
-msgid "Decides how aggressively this identity wins against a From address set by another plugin (WooCommerce, contact forms, etc.). \"Only when none is set\" leaves explicit choices alone but kicks in on emails that didn't pick a sender themselves."
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:354
-msgid "Always override"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:355
-msgid "Only when no sender is set"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:356
-msgid "Never override"
-msgstr ""
-
-#: src/Modules/SMTP/Admin/SettingsPage.php:367
+#: src/Modules/SMTP/Admin/SettingsPage.php:323
 msgid "From email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:376
-#: src/Modules/SMTP/Admin/SettingsPage.php:716
+#: src/Modules/SMTP/Admin/SettingsPage.php:325
+msgid "The address shown to recipients. Empty fields use the mailbox login (for From email) or site title (for From name) automatically — placeholders show what will be used."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:337
+#: src/Modules/SMTP/Admin/SettingsPage.php:706
+msgid "Default — WordPress sender"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:339
+#: src/Modules/SMTP/Admin/SettingsPage.php:710
 msgid "Default — uses mailbox login"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:379
-#: src/Modules/SMTP/Admin/SettingsPage.php:400
+#: src/Modules/SMTP/Admin/SettingsPage.php:344
+#: src/Modules/SMTP/Admin/SettingsPage.php:384
 msgid "Show presets"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:388
+#: src/Modules/SMTP/Admin/SettingsPage.php:353
+msgid "Force"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:354
+msgid "How hard this identity overrides a From address set by another plugin (WooCommerce, contact forms, etc.). \"If no sender defined\" leaves explicit choices alone but kicks in on emails that didn't pick a sender themselves."
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:361
+msgid "Always"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:362
+msgid "If no sender defined"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:363
+msgid "Never"
+msgstr ""
+
+#: src/Modules/SMTP/Admin/SettingsPage.php:372
 msgid "From name"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:407
+#: src/Modules/SMTP/Admin/SettingsPage.php:391
 msgid "(optional)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:425
+#: src/Modules/SMTP/Admin/SettingsPage.php:409
 msgid "Routing rules"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:426
+#: src/Modules/SMTP/Admin/SettingsPage.php:410
 msgid "Each source can use a specific identity. Sources without a rule fall back to the default."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:439
+#: src/Modules/SMTP/Admin/SettingsPage.php:423
 msgid "— Use default —"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:450
+#: src/Modules/SMTP/Admin/SettingsPage.php:434
 msgid "Save routing rules"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:466
+#: src/Modules/SMTP/Admin/SettingsPage.php:450
 msgid "Send a test email"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:495
+#: src/Modules/SMTP/Admin/SettingsPage.php:479
 msgid "Custom address…"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:521
+#: src/Modules/SMTP/Admin/SettingsPage.php:505
 msgid "Connection test result"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:523
+#: src/Modules/SMTP/Admin/SettingsPage.php:507
 msgid "Connection test"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:535
+#: src/Modules/SMTP/Admin/SettingsPage.php:519
 msgid "Run again"
 msgstr ""
 
 #. translators: %s: the SMTP identity's display name
-#: src/Modules/SMTP/Admin/SettingsPage.php:589
+#: src/Modules/SMTP/Admin/SettingsPage.php:573
 msgid "Delete the identity \"%s\"?"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:591
+#: src/Modules/SMTP/Admin/SettingsPage.php:575
 msgid "Unsaved changes"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:595
+#: src/Modules/SMTP/Admin/SettingsPage.php:579
 msgid "Testing…"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:597
+#: src/Modules/SMTP/Admin/SettingsPage.php:581
 msgid "✓ resolves"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:598
+#: src/Modules/SMTP/Admin/SettingsPage.php:582
 msgid "✗ cannot resolve"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:599
+#: src/Modules/SMTP/Admin/SettingsPage.php:583
 msgid "Domain differs from the mailbox login. Most servers will reject or rewrite this — only use with relays that support arbitrary senders."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:600
+#: src/Modules/SMTP/Admin/SettingsPage.php:584
 msgid "Local part differs from the mailbox login. Some servers may rewrite the From address."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:715
-#: src/Modules/SMTP/Admin/SettingsPage.php:752
-#: src/Modules/SMTP/Admin/SettingsPage.php:756
+#: src/Modules/SMTP/Admin/SettingsPage.php:708
+#: src/Modules/SMTP/Admin/SettingsPage.php:796
+#: src/Modules/SMTP/Admin/SettingsPage.php:800
 msgid "Default — "
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:754
+#: src/Modules/SMTP/Admin/SettingsPage.php:798
 msgid "Use automatic (uses mailbox login)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:757
+#: src/Modules/SMTP/Admin/SettingsPage.php:801
 msgid "Use automatic (uses site title)"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1259
+#: src/Modules/SMTP/Admin/SettingsPage.php:1297
 msgid "Overridden by a wp-config.php constant — value here is ignored at runtime."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1268
+#: src/Modules/SMTP/Admin/SettingsPage.php:1306
 msgid "Default emails"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1271
+#: src/Modules/SMTP/Admin/SettingsPage.php:1309
 msgid "WooCommerce emails"
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1284
+#: src/Modules/SMTP/Admin/SettingsPage.php:1322
 msgid "AUTH_KEY is missing or unset in wp-config.php."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1285
+#: src/Modules/SMTP/Admin/SettingsPage.php:1323
 msgid "SMTP passwords cannot be encrypted at rest until you configure AUTH_KEY. Generate one at https://api.wordpress.org/secret-key/1.1/salt/ and add it to wp-config.php."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1298
+#: src/Modules/SMTP/Admin/SettingsPage.php:1336
 msgid "Email routing is now active."
 msgstr ""
 
-#: src/Modules/SMTP/Admin/SettingsPage.php:1299
+#: src/Modules/SMTP/Admin/SettingsPage.php:1337
 msgid "Email routing is now off. Your configuration is preserved."
 msgstr ""
 

@@ -31,9 +31,9 @@ final class AjaxController
 
     public const ACTION_SAVE_ROUTING  = 'lrob_etk_smtp_save_routing';
 
-    public const ACTION_CHECK_HOST    = 'lrob_etk_smtp_check_host';
+    public const ACTION_CHECK_HOSTS   = 'lrob_etk_smtp_check_hosts';
 
-    public const ACTION_LOOKUP_MX     = 'lrob_etk_smtp_lookup_mx';
+    public const ACTION_CHECK_HOST    = 'lrob_etk_smtp_check_host';
 
     public function __construct(
         private IdentityRepository $identities,
@@ -53,34 +53,62 @@ final class AjaxController
         add_action('wp_ajax_' . self::ACTION_TEST_AUTH,    [$this, 'ajax_test_auth']);
         add_action('wp_ajax_' . self::ACTION_TEST_SEND,    [$this, 'ajax_test_send']);
         add_action('wp_ajax_' . self::ACTION_SAVE_ROUTING, [$this, 'ajax_save_routing']);
+        add_action('wp_ajax_' . self::ACTION_CHECK_HOSTS,  [$this, 'ajax_check_hosts']);
         add_action('wp_ajax_' . self::ACTION_CHECK_HOST,   [$this, 'ajax_check_host']);
-        add_action('wp_ajax_' . self::ACTION_LOOKUP_MX,    [$this, 'ajax_lookup_mx']);
     }
 
+    /** Resolve a single host as typed (A/AAAA). Used by the in-field resolve dot. */
     public function ajax_check_host(): void
     {
         $this->guard();
-        $host = $this->post_str('host');
-        if ($host === '') {
-            wp_send_json_error(['message' => __('No host provided.', 'lrob-email-toolkit')]);
+        $host = strtolower($this->post_str('host'));
+        if ($host === '' || strpos($host, '.') === false) {
+            wp_send_json_error(['message' => __('No host to check.', 'lrob-email-toolkit')]);
         }
-        wp_send_json_success([
-            'host'     => $host,
-            'resolves' => $this->dns->resolves($host),
-        ]);
+        wp_send_json_success(['host' => $host, 'resolves' => $this->dns->resolves($host)]);
     }
 
-    public function ajax_lookup_mx(): void
+    /**
+     * Build the host-candidate list for a domain (presets + MX, deduped) and
+     * resolve each. The dropdown shows the result; MX entries carry a priority.
+     */
+    public function ajax_check_hosts(): void
     {
         $this->guard();
-        $domain = $this->post_str('domain');
-        if ($domain === '') {
-            wp_send_json_error(['message' => __('No domain provided.', 'lrob-email-toolkit')]);
+        $domain = strtolower($this->post_str('domain'));
+        // Accept a bare domain or an email — keep only the domain part.
+        $at = strrpos($domain, '@');
+        if ($at !== false) {
+            $domain = substr($domain, $at + 1);
         }
-        wp_send_json_success([
-            'domain' => $domain,
-            'hosts'  => $this->dns->mx_hosts($domain),
-        ]);
+        if ($domain === '' || strpos($domain, '.') === false) {
+            wp_send_json_error(['message' => __('No domain to check.', 'lrob-email-toolkit')]);
+        }
+
+        $mx = $this->dns->mx_records($domain);          // [{host, priority}], deduped, sorted
+        $mx_hosts = array_column($mx, 'host');
+
+        // Preset candidates, minus any that are already an MX target (dedup).
+        $candidates = [];
+        foreach (['mail.' . $domain, 'smtp.' . $domain, $domain] as $preset) {
+            if (!in_array($preset, $mx_hosts, true)) {
+                $candidates[] = ['host' => $preset, 'priority' => null];
+            }
+        }
+        foreach ($mx as $r) {
+            $candidates[] = ['host' => $r['host'], 'priority' => $r['priority']];
+        }
+
+        $out = [];
+        foreach ($candidates as $c) {
+            $out[] = [
+                'host'     => $c['host'],
+                'priority' => $c['priority'],
+                'resolves' => $this->dns->resolves($c['host']),
+            ];
+        }
+
+        wp_send_json_success(['domain' => $domain, 'hosts' => $out]);
     }
 
     public function ajax_save(): void

@@ -79,7 +79,7 @@ final class DashboardPage
                 <div class="lrob-etk-activity-layout">
                     <?php $this->render_stats_grid($stats); ?>
                     <?php if ($chart_payload !== null) : ?>
-                        <?php $this->render_chart_container(); ?>
+                        <?php $this->render_chart_container((string) ($chart_payload['default'] ?? 'all')); ?>
                     <?php endif; ?>
                 </div>
             <?php else : ?>
@@ -169,21 +169,10 @@ final class DashboardPage
         $all_bucket = $this->pick_bucket_for_span($span);
         $ranges['all'] = $this->build_range_data($repository, $oldest, $now, $all_bucket);
 
-        // Pick a sensible default: pick the smallest range that actually has data,
-        // or fall back to 30d.
-        $default = '30d';
-        foreach (['24h', '7d', '30d', '1y'] as $candidate) {
-            if (($ranges[$candidate]['total'] ?? 0) > 0) {
-                $default = $candidate;
-                break;
-            }
-        }
-        // If even 1y is empty, the data exists older — use 'all'.
-        if (($ranges[$default]['total'] ?? 0) === 0 && ($ranges['all']['total'] ?? 0) > 0) {
-            $default = 'all';
-        }
-
-        return ['ranges' => $ranges, 'default' => $default, 'empty' => false];
+        // Default to "Since beginning". The old smallest-nonempty heuristic almost
+        // always resolved to 24h (there's usually recent activity), which isn't a
+        // useful first view. Past the empty-data early return, so 'all' has data.
+        return ['ranges' => $ranges, 'default' => 'all', 'empty' => false];
     }
 
     /**
@@ -333,21 +322,21 @@ final class DashboardPage
         <?php
     }
 
-    private function render_chart_container(): void
+    private function render_chart_container(string $default_range): void
     {
         ?>
         <div class="lrob-etk-chart-wrap" id="lrob-etk-chart">
             <div class="lrob-etk-chart-controls">
                 <div class="lrob-etk-chart-range">
-                    <label for="lrob-etk-chart-range"><?php esc_html_e('Range:', 'lrob-email-toolkit'); ?></label>
-                    <select id="lrob-etk-chart-range" class="lrob-etk-select">
-                        <option value="1h"><?php esc_html_e('Last hour', 'lrob-email-toolkit'); ?></option>
-                        <option value="24h"><?php esc_html_e('Last 24 hours', 'lrob-email-toolkit'); ?></option>
-                        <option value="7d"><?php esc_html_e('Last 7 days', 'lrob-email-toolkit'); ?></option>
-                        <option value="30d"><?php esc_html_e('Last 30 days', 'lrob-email-toolkit'); ?></option>
-                        <option value="1y"><?php esc_html_e('Last year', 'lrob-email-toolkit'); ?></option>
-                        <option value="all"><?php esc_html_e('Since beginning', 'lrob-email-toolkit'); ?></option>
-                    </select>
+                    <label><?php esc_html_e('Range:', 'lrob-email-toolkit'); ?></label>
+                    <?php Combobox::render_fixed_select('chart_range', $default_range, [
+                        ['value' => '1h',  'label' => __('Last hour', 'lrob-email-toolkit')],
+                        ['value' => '24h', 'label' => __('Last 24 hours', 'lrob-email-toolkit')],
+                        ['value' => '7d',  'label' => __('Last 7 days', 'lrob-email-toolkit')],
+                        ['value' => '30d', 'label' => __('Last 30 days', 'lrob-email-toolkit')],
+                        ['value' => '1y',  'label' => __('Last year', 'lrob-email-toolkit')],
+                        ['value' => 'all', 'label' => __('Since beginning', 'lrob-email-toolkit')],
+                    ]); ?>
                 </div>
                 <div class="lrob-etk-chart-type">
                     <button type="button" data-chart-type="smooth" class="is-active" title="<?php esc_attr_e('Smoothed line', 'lrob-email-toolkit'); ?>" aria-label="<?php esc_attr_e('Smoothed line chart', 'lrob-email-toolkit'); ?>">
@@ -865,14 +854,13 @@ final class DashboardPage
     }
 
     function initChart() {
-        var rangeSel = $('lrob-etk-chart-range');
+        // Range is a Combobox (no raw <select>); read/listen on its hidden value input.
+        var rangeHidden = document.querySelector('.lrob-etk-combo-value[data-key="chart_range"]');
         var typeButtons = $$('.lrob-etk-chart-type button');
         var currentType = 'smooth';
 
-        if (rangeSel) rangeSel.value = D.chart.default || '30d';
-
         function getActiveRange() {
-            return rangeSel ? rangeSel.value : (D.chart.default || '30d');
+            return rangeHidden ? rangeHidden.value : (D.chart.default || 'all');
         }
 
         function rerender() {
@@ -882,8 +870,8 @@ final class DashboardPage
             renderSvg(data, currentType);
         }
 
-        if (rangeSel) {
-            rangeSel.addEventListener('change', rerender);
+        if (rangeHidden) {
+            rangeHidden.addEventListener('change', rerender);
         }
         typeButtons.forEach(function (btn) {
             btn.addEventListener('click', function () {
@@ -1102,11 +1090,11 @@ final class DashboardPage
     window.addEventListener('resize', function () {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function () {
-            var rangeSel = $('lrob-etk-chart-range');
-            if (!rangeSel || !D.chart || D.chart.empty) return;
+            var rangeHidden = document.querySelector('.lrob-etk-combo-value[data-key="chart_range"]');
+            if (!rangeHidden || !D.chart || D.chart.empty) return;
             var active = $$('.lrob-etk-chart-type button.is-active')[0];
             var type = active ? active.getAttribute('data-chart-type') : 'smooth';
-            var data = D.chart.ranges[rangeSel.value];
+            var data = D.chart.ranges[rangeHidden.value];
             if (data) renderSvg(data, type);
         }, 150);
     });

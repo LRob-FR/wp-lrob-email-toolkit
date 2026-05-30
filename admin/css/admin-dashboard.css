@@ -129,10 +129,13 @@
     color: var(--etk-muted);
     font-weight: 500;
 }
-.lrob-etk-chart-range .lrob-etk-select {
+.lrob-etk-chart-range .lrob-etk-combo {
+    width: auto;
+    min-width: 150px;
+}
+.lrob-etk-chart-range .lrob-etk-combo-input {
     height: 28px;
     font-size: var(--etk-text-xs);
-    padding-right: 22px;
 }
 .lrob-etk-chart-type {
     display: inline-flex;
@@ -320,7 +323,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--etk-space-2);
-    box-shadow: var(--etk-shadow);
+    box-shadow: var(--etk-shadow-md);   /* shared card elevation (mockup) */
     border-left: 4px solid var(--etk-line-strong);
 }
 .lrob-etk-module-card.is-on { border-left-color: var(--etk-success); }

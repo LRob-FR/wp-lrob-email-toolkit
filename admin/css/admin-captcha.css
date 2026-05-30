@@ -101,8 +101,8 @@
     flex-direction: column;
 }
 .lrob-etk-captcha-card.is-new {
-    border-color: var(--etk-text-accent);
-    box-shadow: 0 1px 6px color-mix(in srgb, var(--etk-accent) 15%, transparent);
+    border-color: var(--etk-accent);
+    box-shadow: var(--etk-shadow-md);
 }
 .lrob-etk-captcha-card .lrob-etk-card-form {
     display: flex;
@@ -326,8 +326,9 @@
     justify-content: space-between;
     gap: var(--etk-space-3);
     padding: var(--etk-space-3) var(--etk-space-4);
-    background: var(--etk-accent-bg);
-    border: 1px solid var(--etk-line-strong);
+    background: var(--etk-card-bg);
+    border: 1px solid var(--etk-line);
+    border-left: 3px solid var(--etk-accent);
     border-radius: var(--etk-radius-md);
     margin-bottom: var(--etk-space-3);
 }

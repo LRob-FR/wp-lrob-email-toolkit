@@ -159,10 +159,14 @@
     function renderMenu(menu, options, currentValue) {
         var html = options.map(function (opt) {
             var selected = (String(opt.value) === String(currentValue));
+            // Optional status mark: a leading coloured dot (opt.mark = 'ok'|'fail').
+            var mark = opt.mark
+                ? '<span class="lrob-etk-combo-mark lrob-etk-state--' + (opt.mark === 'ok' ? 'on' : 'fail') + '" aria-hidden="true"></span>'
+                : '';
             return '<li role="option"'
                 + ' data-value="' + escapeAttr(String(opt.value)) + '"'
                 + (selected ? ' class="is-selected" aria-selected="true"' : '')
-                + '>' + escapeHtml(String(opt.label)) + '</li>';
+                + '>' + mark + escapeHtml(String(opt.label)) + '</li>';
         }).join('');
         menu.innerHTML = html;
     }
