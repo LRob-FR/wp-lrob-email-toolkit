@@ -1422,7 +1422,9 @@ body.lrob-etk-modal-open {
     gap: var(--etk-space-1);
     font-size: var(--etk-input-font-size);
 }
-.lrob-etk-set-default {
+/* Scoped under .lrob-etk to beat WP's .button-link link-blue (equal specificity
+   otherwise, and WP admin CSS loads after ours, so its colour would win). */
+.lrob-etk .lrob-etk-set-default {
     color: var(--etk-muted);
     text-decoration: none;
     background: transparent;
@@ -1430,7 +1432,7 @@ body.lrob-etk-modal-open {
     cursor: pointer;
     padding: 0;
 }
-.lrob-etk-set-default:hover {
+.lrob-etk .lrob-etk-set-default:hover {
     color: var(--etk-text-accent);
 }
 .lrob-etk-default-badge {
