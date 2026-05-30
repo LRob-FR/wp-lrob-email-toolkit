@@ -21,9 +21,10 @@ Routes `wp_mail()` through configured SMTP identities. Hooks standard WordPress 
 | `AuthTester.php` | Tests SMTP connection (TLS handshake + AUTH) without sending a message. |
 | `TestSender.php` | Sends a one-off test email through a specific identity. |
 | `DnsLookup.php` | Cached A/AAAA and MX queries for the host picker in admin. |
-| `Admin/PageController.php` | Registers the `lrob-etk-smtp` submenu; delegates render to `SettingsPage`. |
+| `Admin/PageController.php` | Registers the `lrob-etk-smtp` submenu + delegates render to `SettingsPage`; on the SMTP page also enqueues `admin/js/smtp-cards.js` and `wp_localize_script`s the `lrobEtkSmtp` payload (identities, action names + nonces, i18n). |
 | `Admin/AjaxController.php` | Eight `wp_ajax_*` endpoints for identity CRUD, routing, DNS, and test operations. |
-| `Admin/SettingsPage.php` | Renders identity cards + routing section + inline JS driver. |
+| `Admin/SettingsPage.php` | Page chrome only: header, routing section, test-send modal, conn popover, notices. Delegates each identity card to `IdentityCardRenderer`. |
+| `Admin/IdentityCardRenderer.php` | Renders one identity card form (header + auth / server / from sections + footer). Constructed by `SettingsPage` with `ConstantOverrides`. |
 
 ---
 
@@ -246,7 +247,7 @@ Recipient choices: `current` (logged-in user), `admin` (site admin email), `cust
 
 ## Admin page (`SettingsPage`)
 
-Rendered by `PageController::render()`. Inline JS is printed at the bottom of the page under `window.lrobEtkSmtp`.
+Rendered by `PageController::render()` (page chrome in `SettingsPage`, each card in `IdentityCardRenderer`). The card driver is the external `admin/js/smtp-cards.js`, enqueued by `PageController::enqueue_assets()` (footer, deps: controls/modal/confirm) and fed by a `wp_localize_script` `window.lrobEtkSmtp` payload — no inline `<script>` block any more.
 
 Card layout (stacked full-width rows, no 2-column split):
 1. Header — one row: Active toggle (no text label, `title` = Enable/Disable) · transport segmented (SMTP / mail()) · identity-name title (grows) · ghost trash **Delete** icon-btn far right (reddens on hover).

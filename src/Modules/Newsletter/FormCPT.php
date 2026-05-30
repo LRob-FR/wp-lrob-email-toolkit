@@ -76,7 +76,7 @@ final class FormCPT
     {
         add_action('init', [$this, 'register_post_type'], 6);
         add_action('init', [$this, 'register_meta'], 7);
-        add_action('admin_init', [$this, 'redirect_post_list']);
+        add_action('admin_init', [$this, 'redirect_legacy_cpt_screens']);
     }
 
     public function register_post_type(): void
@@ -214,26 +214,38 @@ final class FormCPT
     }
 
     /**
-     * Bounce visitors who land on the bare WP post-list page for this CPT
-     * back to the Newsletter hub's Forms view. Same treatment as
-     * TemplateCPT — show_in_menu=false means edit.php?post_type=… has no
-     * sidebar context and is the wrong end-state.
+     * The CPT has no Gutenberg editor — subscribe forms are built on the
+     * Newsletter hub's Forms view. So the default WP screens are obsolete:
+     * the CPT list (edit.php) + the bare title-only create / edit screens
+     * (post-new.php / post.php). Bounce all of them to the Forms view so a
+     * stray bookmark or back-arrow never lands on a dead screen. Same
+     * treatment as the Contact Form CPT. (Idle GETs only — save/bulk POSTs
+     * pass through to WP.)
      */
-    public function redirect_post_list(): void
+    public function redirect_legacy_cpt_screens(): void
     {
-        global $pagenow;
-        if ($pagenow !== 'edit.php') {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
             return;
         }
+        global $pagenow;
+        $forms_url = admin_url('admin.php?page=' . PageController::SLUG . '&view=forms');
+
         $post_type = isset($_GET['post_type']) && is_string($_GET['post_type'])
             ? sanitize_key((string) $_GET['post_type'])
             : '';
-        if ($post_type !== self::POST_TYPE) {
-            return;
+        if (($pagenow === 'edit.php' || $pagenow === 'post-new.php')
+            && $post_type === self::POST_TYPE
+            && empty($_GET['action'])) {
+            wp_safe_redirect($forms_url);
+            exit;
         }
-        wp_safe_redirect(admin_url(
-            'admin.php?page=' . PageController::SLUG . '&view=forms'
-        ));
-        exit;
+
+        if ($pagenow === 'post.php' && ($_GET['action'] ?? '') === 'edit') {
+            $post_id = (int) ($_GET['post'] ?? 0);
+            if ($post_id > 0 && get_post_type($post_id) === self::POST_TYPE) {
+                wp_safe_redirect($forms_url . '#form-' . $post_id);
+                exit;
+            }
+        }
     }
 }

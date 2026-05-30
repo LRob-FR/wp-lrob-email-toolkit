@@ -256,6 +256,13 @@ The `KIND_USER = 'user'` and `KIND_SUBSCRIBER = 'subscriber'` constants tag rows
 
 All four crons are scheduled on `install()` and unscheduled on both `disable()` and `uninstall()`. `SendCron::register()` self-heals if the 1-minute event is missing from the queue (catches the install-order bug where `maybe_migrate()` ran before `cron_schedules` fired).
 
+## Admin page rendering — card renderers
+
+Each newsletter hub page keeps the big per-card markup in its own renderer class, so the page class stays focused on chrome + handlers:
+
+- `Admin/NewslettersPage.php` (newsletters list) → delegates each card to `Admin/NewsletterCardRenderer.php` (`->render($row, $lists, $identities, $tab)`). The renderer takes the `Container` (to resolve the SMTP default-identity label) and owns the audience-picker section + send-pipeline UI + the `relative_span`/`summarize_picked_lists`/`translate_status`/`default_identity_label` helpers.
+- `Admin/FormsPage.php` (signup forms list) → delegates each card to `Admin/SignupFormCardRenderer.php` (`->render($post, $confirmation_templates, $resolved_default_template_id)`, stateless). Shared helpers reused by other page methods (`render_default_lists_picker`, `render_fields_editor`, `label_default`, `resolved_default_template_label`) stay **`public static`** on `FormsPage` and are called as `FormsPage::…`.
+
 ## Admin JS overview
 
 | File | Global config | What it does |

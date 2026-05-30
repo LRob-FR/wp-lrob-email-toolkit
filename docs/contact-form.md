@@ -278,6 +278,10 @@ Action constants: `lrob_etk_cf_email_spam`, `lrob_etk_cf_email_unspam`, `lrob_et
 
 ---
 
+## Admin page rendering — `FormsPage` + `FormCardRenderer`
+
+`Admin/FormsPage.php` owns page chrome (header, forms list, defaults/storage/delete modals, the `+ New form` picker) and the admin-post + enqueue wiring. Each per-form card is rendered by `Admin/FormCardRenderer.php` (`->render($form, $identities, $globals)`) — a stateless renderer split out to keep `FormsPage` manageable. The card's shared formatters live on `FormsPage` as **`public static`** (`render_combobox`, `render_free_combobox`, `render_recipients`, `placeholder_default`, `label_default`, `email_field_slugs`, `default_identity_label`, `render_fields_editor`, `captcha_service`) because the defaults/storage modals reuse them; `FormCardRenderer` calls them as `FormsPage::…`. If you add a card helper that only the card uses, put it on the renderer; if a modal also needs it, keep it public-static on `FormsPage`.
+
 ## Admin JS
 
 ### `admin/js/contact-form-admin.js`

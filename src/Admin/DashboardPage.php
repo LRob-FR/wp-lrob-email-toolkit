@@ -378,12 +378,10 @@ final class DashboardPage
                 // Per-module enrichments rendered inside the card body.
                 $cf_forms_count = 0;
                 $cf_submissions = 0;
-                $cf_new_form_url = '';
                 if ($is_cf && $enabled) {
                     $cf_forms_count = (int) wp_count_posts(ContactFormCPT::POST_TYPE)->publish
                                     + (int) wp_count_posts(ContactFormCPT::POST_TYPE)->draft;
                     $cf_submissions = (new ContactFormSubmissions())->count_total();
-                    $cf_new_form_url = admin_url('post-new.php?post_type=' . ContactFormCPT::POST_TYPE);
                 }
                 ?>
                 <div class="lrob-etk-module-card <?php echo esc_attr($card_class); ?>">
@@ -434,9 +432,9 @@ final class DashboardPage
                                         <?php esc_html_e('Test email', 'lrob-email-toolkit'); ?>
                                     </button>
                                 <?php endif; ?>
-                                <?php if ($is_cf && $enabled) : ?>
-                                    <a href="<?php echo esc_url($cf_new_form_url); ?>" class="button button-primary">
-                                        <?php esc_html_e('Add new', 'lrob-email-toolkit'); ?>
+                                <?php if ($is_cf && $enabled && $cf_forms_count === 0) : ?>
+                                    <a href="<?php echo esc_url($url); ?>" class="button button-primary">
+                                        <?php esc_html_e('New form', 'lrob-email-toolkit'); ?>
                                     </a>
                                 <?php endif; ?>
                                 <a href="<?php echo esc_url($url); ?>" class="button">
