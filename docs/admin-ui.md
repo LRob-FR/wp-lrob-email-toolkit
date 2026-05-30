@@ -12,7 +12,7 @@ Single source for every color, radius, shadow, spacing, transition, **and text s
 |---|---|
 | Palette | `--etk-fg`, `--etk-muted`, `--etk-soft`, `--etk-line`, `--etk-line-strong`, `--etk-accent`, `--etk-accent-hover`, `--etk-accent-bg`, `--etk-success`, `--etk-success-bg`, `--etk-warning`, `--etk-warning-bg`, `--etk-danger`, `--etk-danger-bg` |
 | Text-on-tint | `--etk-text-{success,danger,warning,accent}` (dark text on the matching `*-bg` tints). `--etk-on-accent` = light text/icon sitting ON an accent or semantic fill (primary buttons, solid badges). |
-| Surfaces | `--etk-card-bg` (warm off-white), `--etk-input-bg` (pure white) |
+| Surfaces | `--etk-card-bg` (warm off-white), `--etk-input-bg` (pure white), `--etk-page-bg` (the wpcontent backdrop — light grey by default, dark in the dark theme) |
 | Veils / scrim | `--etk-veil-{1,2,3}` (translucent black — layered over a surface to recede / gray it out: sent/trashed rows, disabled cards, hover tints), `--etk-backdrop` (modal scrim) |
 | Radii | `--etk-radius-{sm,md,lg,xl,pill}` (4 / 6 / 8 / 12 / 999px). Legacy alias `--etk-radius` = md. |
 | Shadows | `--etk-shadow-{sm,md,lg,modal,menu}` |
@@ -22,7 +22,7 @@ Single source for every color, radius, shadow, spacing, transition, **and text s
 | Icons | `--etk-icon-size` (16px), `--etk-icon-size-sm` (14px), `--etk-icon-size-lg` (18px — accent/warning inline icons), `--etk-icon-size-xl` (40px — big decorative empty-state/onboarding icons). `.dashicons` set `font-size` = `width` = `height` to the same icon token. |
 | Motion | `--etk-transition` (0.15s ease), `--etk-transition-slow` (0.30s ease) |
 
-**Cleanup status:** **colour** + **font-size** + **spacing/radius** passes DONE — every hardcoded colour → token / `color-mix`; all 9 admin sheets on the text-size scale above (base 13 inherited, secondary→`xs`, micro→`xxs`, titles→`lg`/`xl`, hero→`2xl`, icons→the `--etk-icon-size-*` family); `em` eliminated; display sizes centralized; **574 spacing literals → `--etk-space-*`** (on-grid 1:1, off-grid rounded down per the Spacing row; scale extended to `7..9` for empty-state padding) + the leftover literal `border-radius` → `--etk-radius-md` (`50%` circles + the intentional micro/negative/icon-clearance literals stay). Zero off-grid spacing literals remain. **Structural dedup pass — IN PROGRESS:** the **status-colour system** is consolidated — ~40 duplicated colour blocks across Newsletter/Captcha/SMTP/Logging/CF collapsed onto the 5 shared `.lrob-etk-state--*` classes (see the catalog entry below), with `Admin\StatusPill` as the single PHP→JS source-of-truth map. Decoupled colour from shape: shape classes stay where they genuinely differ, only colour is shared. **Still to dedup:** `test-result`/`card-status`/banner/`conn-test` colour blocks; then the remaining identical-body merges + sub-prefix→global promotions. Incremental + visual QA (regression risk). Frontend `assets/css/contact-form.css` keeps its own `--lrob-etk-cf-*` system (never cross the two).
+**Cleanup status:** **colour** + **font-size** + **spacing/radius** passes DONE — every hardcoded colour → token / `color-mix`; all 9 admin sheets on the text-size scale above (base 13 inherited, secondary→`xs`, micro→`xxs`, titles→`lg`/`xl`, hero→`2xl`, icons→the `--etk-icon-size-*` family); `em` eliminated; display sizes centralized; **574 spacing literals → `--etk-space-*`** (on-grid 1:1, off-grid rounded down per the Spacing row; scale extended to `7..9` for empty-state padding) + the leftover literal `border-radius` → `--etk-radius-md` (`50%` circles + the intentional micro/negative/icon-clearance literals stay). Zero off-grid spacing literals remain. **Status/result colour system consolidated** — ~45 duplicated colour blocks across Newsletter/Captcha/SMTP/Logging/CF/Dashboard collapsed onto the 5 shared `.lrob-etk-state--*` classes (see the catalog entry below), with `Admin\StatusPill` as the single PHP→JS source-of-truth map; colour decoupled from shape. (Banners, `card-status`, `conn-test` deliberately keep their own colour — bespoke shapes where `state--*` would split colour across two places.) **The colour+spacing tokenization is the theming prerequisite, and it's DONE** — the dark theme (below) is a pure token-value swap on top of it. Remaining dedup (non-blocking, opportunistic): `-cf-`/`-nl-` sub-prefix→global promotions. Frontend `assets/css/contact-form.css` keeps its own `--lrob-etk-cf-*` system (never cross the two).
 
 > **Dead-CSS scan caveat:** `release.sh`'s scan can't see classes built by string-concatenation (`'lrob-etk-state--' + mod`). It compensates with a prefix-peel heuristic (matches the `lrob-etk-state--` literal in PHP/JS) — which means it *also* silently passes genuinely-dead classes whose prefix matches a live sibling (this is how the unused `nl-template-*` classes evade it). Treat the scan as a safety net, not proof; grep for real emission when removing a class.
 
@@ -32,12 +32,13 @@ Files are enqueued in this cascade order (each depends on the previous):
 
 | File | Owns |
 |---|---|
-| `admin-base.css` | CSS variables (`--etk-*`), normalization, page chrome (h1/h2), WP form-table tweaks, generic footer. Scoped under `.lrob-etk`. |
+| `admin-base.css` | CSS variables (`--etk-*`), normalization, page chrome (h1/h2), WP form-table tweaks, generic footer. Scoped under `.lrob-etk`. The light theme = these default token values. |
 | `admin-components.css` | Shared primitives reused across module pages: CTA card, status badges, empty state, tooltips, toggle switch, modal, segmented control, select, combobox + menu, anchored popover, form errors, flash messages, page header, card primitives, filter bar, data table, bulk toolbar, pagination, detail strip, cleanup row, section tabs, empty-state card, banner. |
 | `admin-dashboard.css` | Stat cards, SVG activity chart, module card test button, failure banner, modules grid. Loaded plugin-wide but only used on the dashboard. |
 | `admin-smtp.css` | SMTP page: routing grid, inline connection-test button, encryption + port row, From section warnings, identity card grid, container queries. |
 | `admin-logging.css` | Log-entry detail page only (metadata grid, iframe body, error banner, attachment status). All generic patterns (filter-bar, data-table, etc.) live in components. |
 | `admin-contact-form.css` | Contact Form admin pages: form-card list, per-form delivery + anti-spam editor, defaults section, WYSIWYG field editor (hover overlays, insertion zones, contenteditable cues, captcha stub, inline settings strip, drag-drop indicators, type picker), new-form picker modal, dashboard widget. |
+| `admin-themes.css` | **Enqueued LAST** (so its token overrides win the cascade). The dark theme = a re-declaration of the colour tokens on `html[data-etk-theme="dark"] .lrob-etk`, plus a dark backdrop on `#wpcontent`/`#wpbody-content` (WP core admin has no dark mode), plus the `.lrob-etk-theme-switch` styling. Light theme needs no block (it's the base defaults). |
 | `admin-captcha.css` | Captcha page: built-in challenge list, provider identity cards, routing grid, diagnostics. |
 | `admin-newsletter.css` | Newsletter hub (`?page=lrob-etk-nl`). Sub-areas routed via `&view=…`. |
 
@@ -125,6 +126,17 @@ Args: `key` (string), `value` (int), `auto_save_marker` (string), `default_days`
 | `lrob-etk-promo` | `etk-promo.js` | footer |
 
 `Assets::asset_version_for($relative_path)` is the public cache-busting helper for per-module enqueuers: returns `LROB_ETK_VERSION . '.' . filemtime(...)` so any CSS/JS edit produces a different `?ver=` without a version bump.
+
+## Theme system (light / dark)
+
+Admin-only (the frontend `--lrob-etk-cf-*` form theming is a separate, later task — never cross the two). A theme = **a re-declaration of the colour tokens**; everything downstream references them, so the colour+spacing tokenization is the whole prerequisite and it's done.
+
+- **Files:** `admin/css/admin-themes.css` (dark token block + WP-chrome overrides + switch styling) enqueued **last** so it wins the cascade; `admin/js/etk-theme.js` head-loaded so the resolved theme applies before first paint (no flash); the switch is rendered by `PageHeader::render_theme_switch()` on every page.
+- **How it resolves:** preference is `auto` | `light` | `dark`, stored in **localStorage** (`lrobEtkTheme`, per-browser — no cookies, no user-meta). `etk-theme.js` resolves `auto` → `light`/`dark` via `prefers-color-scheme` and writes the **resolved** value to `<html data-etk-theme>`. CSS only needs one dark block (`html[data-etk-theme="dark"] .lrob-etk { … }`) — no `@media` duplication. It re-resolves on OS change only while pref is `auto`.
+- **The switch:** a single compact icon button (`[data-etk-theme-cycle]`) that **cycles** Auto → Light → Dark on click. Glyph reflects mode (◐ auto / ○ light / ● dark — Dashicons has no sun/moon); tooltip + aria-label state the current mode. Lives at the far right of `.lrob-etk-page-header-actions`, shown even on disabled-module pages (the actions container always renders).
+- **Tokens live on `.lrob-etk`, not `:root`** — so the dark override selector is `html[data-etk-theme="dark"] .lrob-etk` (specificity beats the base). New surface token `--etk-page-bg`.
+- **WP-core elements that ignore our tokens** must be overridden explicitly in the dark block: the `#wpwrap`/`#wpcontent`/`#wpbody-content` backdrop (WP admin has no dark mode), native `input`/`select`/`textarea`, headings (WP forces its own colour), and `.button`/`.button-primary`/nav buttons. Dark surfaces are layered for depth: page `#18181c` < card `#26262d` < input/soft `#32323b`. Accent stays the standard `#2271b1` (readable with white text).
+- **Adding a theme later** (LRob / Contrast / density): add another scoped token block + extend the cycle order in `etk-theme.js`. No per-theme files.
 
 ## Shared JS helpers (admin/js/, enqueued plugin-wide via Admin\Assets)
 

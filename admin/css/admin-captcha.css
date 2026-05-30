@@ -43,7 +43,7 @@
     border-radius: var(--etk-radius-pill);
 }
 .lrob-etk-captcha-builtin-head .dashicons {
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     font-size: var(--etk-icon-size);
     width: var(--etk-icon-size);
     height: var(--etk-icon-size);
@@ -101,7 +101,7 @@
     flex-direction: column;
 }
 .lrob-etk-captcha-card.is-new {
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
     box-shadow: 0 1px 6px color-mix(in srgb, var(--etk-accent) 15%, transparent);
 }
 .lrob-etk-captcha-card .lrob-etk-card-form {
@@ -180,7 +180,7 @@
 }
 .lrob-etk-captcha-provider-pick-card:hover,
 .lrob-etk-captcha-provider-pick-card:focus-visible {
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
     box-shadow: var(--etk-shadow-sm);
     background: var(--etk-input-bg);
     outline: none;

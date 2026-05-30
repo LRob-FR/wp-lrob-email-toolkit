@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-29T22:34:00+00:00\n"
+"POT-Creation-Date: 2026-05-29T23:59:24+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -42,7 +42,7 @@ msgstr "LRob"
 msgid "https://www.lrob.fr"
 msgstr "https://www.lrob.fr"
 
-#: src/Admin/Assets.php:112 src/Modules/Captcha/Admin/SettingsPage.php:717
+#: src/Admin/Assets.php:125 src/Modules/Captcha/Admin/SettingsPage.php:717
 #: src/Modules/ContactForm/Admin/FormsPage.php:131
 #: src/Modules/Logging/Admin/LogsPage.php:539
 #: src/Modules/Newsletter/Admin/HomePage.php:101
@@ -51,7 +51,7 @@ msgstr "https://www.lrob.fr"
 msgid "Saving…"
 msgstr "Enregistrement…"
 
-#: src/Admin/Assets.php:113 src/Modules/Captcha/Admin/SettingsPage.php:718
+#: src/Admin/Assets.php:126 src/Modules/Captcha/Admin/SettingsPage.php:718
 #: src/Modules/ContactForm/Admin/FormsPage.php:132
 #: src/Modules/Logging/Admin/LogsPage.php:540
 #: src/Modules/Newsletter/Admin/HomePage.php:102
@@ -60,7 +60,7 @@ msgstr "Enregistrement…"
 msgid "Saved"
 msgstr "Enregistré"
 
-#: src/Admin/Assets.php:114 src/Modules/Captcha/Admin/SettingsPage.php:719
+#: src/Admin/Assets.php:127 src/Modules/Captcha/Admin/SettingsPage.php:719
 #: src/Modules/ContactForm/Admin/FormsPage.php:133
 #: src/Modules/Logging/Admin/LogsPage.php:541
 #: src/Modules/Newsletter/Admin/HomePage.php:103
@@ -806,6 +806,18 @@ msgstr "Activer"
 #: src/Admin/PageHeader.php:40
 msgid "by"
 msgstr "par"
+
+#: src/Admin/PageHeader.php:76
+msgid "Theme: follow system — click to change"
+msgstr "Thème : suivre le système — cliquez pour changer"
+
+#: src/Admin/PageHeader.php:77
+msgid "Theme: light — click to change"
+msgstr "Thème : clair — cliquez pour changer"
+
+#: src/Admin/PageHeader.php:78
+msgid "Theme: dark — click to change"
+msgstr "Thème : sombre — cliquez pour changer"
 
 #: src/Admin/PerPagePicker.php:45
 msgid "Per page"

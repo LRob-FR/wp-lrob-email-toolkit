@@ -24,6 +24,14 @@
     flex-direction: column;
     gap: 0.25rem;
 }
+/* Tiles that are links (<a>) — WP underlines admin anchors; kill it (the <div>
+   tiles are unaffected, hence the inconsistent underline before). */
+.lrob-etk-nl-tile,
+.lrob-etk-nl-tile:hover,
+.lrob-etk-nl-tile:focus {
+    text-decoration: none;
+    color: var(--etk-fg);
+}
 
 .lrob-etk-nl-tile-value {
     font-size: var(--etk-text-2xl);
@@ -141,7 +149,7 @@
     font-weight: 600;
 }
 .lrob-etk-nl-template-title:hover {
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     text-decoration: underline;
 }
 
@@ -300,7 +308,7 @@
     flex: 0 0 auto;
     padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     border-radius: var(--etk-radius-pill);
     font-size: var(--etk-text-xs);
     font-weight: 500;
@@ -478,7 +486,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     gap: var(--etk-space-1);
     padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     border-radius: var(--etk-radius-pill);
     font-size: var(--etk-text-xs);
     font-weight: 600;
@@ -624,7 +632,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     gap: var(--etk-space-1);
     padding: 2px var(--etk-space-1) 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     border-radius: var(--etk-radius-pill);
     font-size: var(--etk-text-xs);
     font-weight: 500;
@@ -784,7 +792,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     margin-left: 0.4rem;
     font-size: var(--etk-text-xs);
     text-decoration: none;
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
 }
 
 .lrob-etk-nl-settings-context-link:hover {
@@ -876,7 +884,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 /* Email cell trigger — visual cue that the row is clickable. */
 .lrob-etk-nl-subscriber-trigger {
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     text-decoration: none;
     font-weight: 500;
 }
@@ -920,7 +928,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-import-file-label:hover {
     background: var(--etk-accent-bg);
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
 }
 .lrob-etk-nl-import-csv-preview {
     margin: var(--etk-space-2) 0 0;
@@ -1008,7 +1016,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     align-items: center;
     padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     /* Inset ring keeps the chip delineated even when the row underneath turns
      * a faint accent tint (hover / selected row), where bg alone would blend. */
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--etk-accent) 22%, transparent);
@@ -1121,7 +1129,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     transition: var(--etk-transition);
 }
 .lrob-etk-nl-subscriber-lists label:hover {
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
 }
 .lrob-etk-nl-subscriber-lists input[type="checkbox"] {
     margin: 0;
@@ -1188,7 +1196,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     height: var(--etk-icon-size);
     margin-right: var(--etk-space-1);
     vertical-align: middle;
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-nl-type-glyph .dashicons {
     font-size: var(--etk-icon-size);
@@ -1335,8 +1343,8 @@ a.lrob-etk-nl-list-count-badge:focus {
 }
 .lrob-etk-nl-preview-vp.is-active {
     background: var(--etk-card-bg);
-    border-color: var(--etk-accent);
-    color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-nl-preview-body {
     background: var(--etk-soft);
@@ -1689,7 +1697,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 .lrob-etk-nl-audience-item-count {
     padding: 2px var(--etk-space-2);
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     border-radius: var(--etk-radius-pill);
     font-size: var(--etk-text-xs);
     font-weight: 500;
@@ -1737,7 +1745,7 @@ a.lrob-etk-nl-list-count-badge:focus {
 
 .lrob-etk-nl-card-recipients-show {
     margin-left: auto;
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     text-decoration: underline;
     font-size: var(--etk-text-xs);
     cursor: pointer;
@@ -1893,7 +1901,7 @@ a.lrob-etk-nl-list-count-badge:focus {
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0;
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     text-decoration: none;
 }
 
@@ -1957,7 +1965,7 @@ button.lrob-etk-nl-field-link {
 
 .lrob-etk-nl-recipients-filter.is-active {
     background: var(--etk-accent);
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
     color: var(--etk-on-accent);
 }
 
@@ -2163,7 +2171,7 @@ button.lrob-etk-nl-field-link {
 }
 .lrob-etk-nl-recipients-tab.is-active {
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     font-weight: 500;
 }
 .lrob-etk-nl-recipients-tab span {
@@ -2206,8 +2214,8 @@ button.lrob-etk-nl-field-link {
 }
 .lrob-etk-nl-recipients-row-toggle.is-on {
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
-    border-color: var(--etk-accent);
+    color: var(--etk-text-accent);
+    border-color: var(--etk-text-accent);
 }
 
 .lrob-etk-nl-recipients-preview-row {

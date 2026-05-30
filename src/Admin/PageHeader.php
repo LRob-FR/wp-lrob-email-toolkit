@@ -46,22 +46,37 @@ final class PageHeader
                 <?php self::render_button($primary, true); ?>
             <?php endif; ?>
 
-            <?php if ($gate && ($tools !== [] || $nav !== [])) : ?>
-                <div class="lrob-etk-page-header-actions">
-                    <?php if ($tools !== []) : ?>
-                        <span class="lrob-etk-header-group lrob-etk-header-tools">
-                            <?php foreach ($tools as $btn) { self::render_button((array) $btn, false); } ?>
-                        </span>
-                    <?php endif; ?>
-                    <?php if ($nav !== []) : ?>
-                        <span class="lrob-etk-header-group lrob-etk-header-nav">
-                            <?php foreach ($nav as $btn) { self::render_button((array) $btn, false, true); } ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
+            <div class="lrob-etk-page-header-actions">
+                <?php if ($gate && $tools !== []) : ?>
+                    <span class="lrob-etk-header-group lrob-etk-header-tools">
+                        <?php foreach ($tools as $btn) { self::render_button((array) $btn, false); } ?>
+                    </span>
+                <?php endif; ?>
+                <?php if ($gate && $nav !== []) : ?>
+                    <span class="lrob-etk-header-group lrob-etk-header-nav">
+                        <?php foreach ($nav as $btn) { self::render_button((array) $btn, false, true); } ?>
+                    </span>
+                <?php endif; ?>
+                <?php self::render_theme_switch(); ?>
+            </div>
         </header>
         <?php
+    }
+
+    /**
+     * Compact theme toggle — one button cycling Auto → Light → Dark. Glyph +
+     * tooltip reflect the current mode; etk-theme.js wires it (per-browser
+     * localStorage). Per-mode titles ride as data-* so the JS can swap them
+     * without a localize call. Dashicons has no sun/moon, hence circle glyphs.
+     */
+    private static function render_theme_switch(): void
+    {
+        printf(
+            '<button type="button" class="lrob-etk-theme-switch" data-etk-theme-cycle data-title-auto="%1$s" data-title-light="%2$s" data-title-dark="%3$s" title="%1$s" aria-label="%1$s"><span class="lrob-etk-theme-switch-glyph" aria-hidden="true">◐</span></button>',
+            esc_attr__('Theme: follow system — click to change', 'lrob-email-toolkit'),
+            esc_attr__('Theme: light — click to change', 'lrob-email-toolkit'),
+            esc_attr__('Theme: dark — click to change', 'lrob-email-toolkit')
+        );
     }
 
     /**

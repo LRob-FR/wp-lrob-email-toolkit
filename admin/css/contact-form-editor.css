@@ -40,7 +40,7 @@
     margin-bottom: var(--etk-space-2);
 }
 .lrob-etk-embed-preview-head .dashicons {
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-embed-preview .description {
     color: var(--etk-muted);

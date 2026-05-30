@@ -54,6 +54,11 @@
 /* ---------- Page chrome ---------- */
 
 .lrob-etk {
+    /* Apply our own foreground so all descendant text inherits the token
+       (not WP's default admin colour) — this is what makes dark mode work for
+       plain text/spans/labels without per-element overrides. */
+    color: var(--etk-fg);
+
     /* Palette */
     --etk-fg: #1d2327;
     --etk-muted: #50575e;
@@ -151,10 +156,23 @@
 .lrob-etk .form-table td {
     padding: var(--etk-space-3) 0;
 }
+/* Theme every WP .description inside our wrapper (WP core sets a fixed grey
+   that's too dark on the dark theme). The form-table variant keeps its extra
+   spacing/size on top. */
+.lrob-etk .description {
+    color: var(--etk-muted);
+}
 .lrob-etk .form-table .description {
     margin-top: var(--etk-space-1);
     font-size: var(--etk-text-xs);
     color: var(--etk-muted);
+}
+
+/* Base link colour so bare <a> (logs, submissions, email meta — no etk class)
+   inherit a themed, readable colour instead of WP's default link blue, which is
+   too dark on the dark theme. Buttons/nav opt out (they set their own colour). */
+.lrob-etk a:not(.button):not(.lrob-etk-nav-button) {
+    color: var(--etk-text-accent);
 }
 
 /* WP 7.0 set line-height: 1.9 on .button .dashicons — overrides to realign. */

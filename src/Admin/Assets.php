@@ -15,6 +15,7 @@ final class Assets
     public const HANDLE_CF         = 'lrob-etk-admin-contact-form';
     public const HANDLE_CAPTCHA    = 'lrob-etk-admin-captcha';
     public const HANDLE_NL         = 'lrob-etk-admin-newsletter';
+    public const HANDLE_THEMES     = 'lrob-etk-admin-themes';
 
     private const STYLE_FILES = [
         self::HANDLE_BASE       => 'admin/css/admin-base.css',
@@ -25,6 +26,8 @@ final class Assets
         self::HANDLE_CF         => 'admin/css/admin-contact-form.css',
         self::HANDLE_CAPTCHA    => 'admin/css/admin-captcha.css',
         self::HANDLE_NL         => 'admin/css/admin-newsletter.css',
+        // Themes last so its token overrides win the cascade.
+        self::HANDLE_THEMES     => 'admin/css/admin-themes.css',
     ];
 
     public const HANDLE_CONTROLS_JS    = 'lrob-etk-controls';
@@ -37,6 +40,7 @@ final class Assets
     public const HANDLE_AUTOSAVE_JS = 'lrob-etk-autosave';
     public const HANDLE_CONFIRM_JS = 'lrob-etk-confirm';
     public const HANDLE_PROMO_JS = 'lrob-etk-promo';
+    public const HANDLE_THEME_JS = 'lrob-etk-theme';
 
     public static function enqueue_admin(string $hook_suffix): void
     {
@@ -55,6 +59,15 @@ final class Assets
             );
             $deps = [$handle];
         }
+
+        // Head-loaded so the resolved theme applies before first paint (no flash).
+        wp_enqueue_script(
+            self::HANDLE_THEME_JS,
+            LROB_ETK_URL . 'admin/js/etk-theme.js',
+            [],
+            self::asset_version('admin/js/etk-theme.js'),
+            false
+        );
 
         // Head-loaded: SMTP identity card calls lrobEtkControls.attachCombobox synchronously mid-body.
         wp_enqueue_script(

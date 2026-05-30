@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-29T23:02:23+00:00\n"
+"POT-Creation-Date: 2026-05-30T01:02:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -34,7 +34,7 @@ msgstr ""
 msgid "https://www.lrob.fr"
 msgstr ""
 
-#: src/Admin/Assets.php:112
+#: src/Admin/Assets.php:125
 #: src/Modules/Captcha/Admin/SettingsPage.php:717
 #: src/Modules/ContactForm/Admin/FormsPage.php:131
 #: src/Modules/Logging/Admin/LogsPage.php:539
@@ -44,7 +44,7 @@ msgstr ""
 msgid "Saving…"
 msgstr ""
 
-#: src/Admin/Assets.php:113
+#: src/Admin/Assets.php:126
 #: src/Modules/Captcha/Admin/SettingsPage.php:718
 #: src/Modules/ContactForm/Admin/FormsPage.php:132
 #: src/Modules/Logging/Admin/LogsPage.php:540
@@ -54,7 +54,7 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: src/Admin/Assets.php:114
+#: src/Admin/Assets.php:127
 #: src/Modules/Captcha/Admin/SettingsPage.php:719
 #: src/Modules/ContactForm/Admin/FormsPage.php:133
 #: src/Modules/Logging/Admin/LogsPage.php:541
@@ -780,6 +780,18 @@ msgstr ""
 #. translators: precedes the author name "LRob" in the page title credit
 #: src/Admin/PageHeader.php:40
 msgid "by"
+msgstr ""
+
+#: src/Admin/PageHeader.php:76
+msgid "Theme: follow system — click to change"
+msgstr ""
+
+#: src/Admin/PageHeader.php:77
+msgid "Theme: light — click to change"
+msgstr ""
+
+#: src/Admin/PageHeader.php:78
+msgid "Theme: dark — click to change"
 msgstr ""
 
 #: src/Admin/PerPagePicker.php:45

@@ -17,7 +17,7 @@
     font-size: var(--etk-icon-size-xl);
     width: var(--etk-icon-size-xl);
     height: var(--etk-icon-size-xl);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     margin: 0 auto var(--etk-space-4);
 }
 
@@ -443,7 +443,7 @@ body.lrob-etk-modal-open {
     border-color: var(--etk-line-strong);
 }
 .lrob-etk-select:focus {
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
     outline: 1px solid var(--etk-accent);
     outline-offset: -1px;
 }
@@ -472,7 +472,7 @@ body.lrob-etk-modal-open {
     border-color: var(--etk-line-strong);
 }
 .lrob-etk-combo:focus-within {
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
     box-shadow: 0 0 0 1px var(--etk-accent);
 }
 .lrob-etk-combo-input {
@@ -558,7 +558,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-combo-menu li.is-selected {
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     font-weight: 500;
 }
 
@@ -690,7 +690,8 @@ body.lrob-etk-modal-open {
     letter-spacing: 0.02em;
 }
 .lrob-etk-page-credit a {
-    color: var(--etk-accent);
+    /* text-accent (not accent): readable as link text on the page bg in both themes. */
+    color: var(--etk-text-accent);
     text-decoration: none;
 }
 .lrob-etk-page-credit a:hover {
@@ -729,13 +730,14 @@ body.lrob-etk-modal-open {
     opacity: 0;
 }
 .lrob-etk-promo-body a {
-    color: var(--etk-accent);
+    /* text-accent (not accent): readable on the accent-bg tint in both themes. */
+    color: var(--etk-text-accent);
     font-weight: 500;
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 .lrob-etk-promo-body a:hover {
-    color: var(--etk-accent-hover);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-promo-body a::after {
     content: " →";
@@ -857,7 +859,7 @@ body.lrob-etk-modal-open {
     box-shadow: var(--etk-shadow-md);
 }
 .lrob-etk-card.is-new {
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
     background: color-mix(in srgb, var(--etk-accent) 4%, var(--etk-input-bg));
 }
 .lrob-etk-card--container {
@@ -905,11 +907,11 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-menu-item:hover {
     background: var(--etk-soft);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-menu-item.is-selected {
     background: var(--etk-accent-bg);
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
     font-weight: 500;
 }
 .lrob-etk-menu-item.is-default::after {
@@ -938,8 +940,8 @@ body.lrob-etk-modal-open {
     transition: border-color var(--etk-transition), color var(--etk-transition), background var(--etk-transition);
 }
 .lrob-etk-icon-btn:hover {
-    border-color: var(--etk-accent);
-    color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-icon-btn .dashicons {
     font-size: var(--etk-icon-size);
@@ -1127,7 +1129,7 @@ body.lrob-etk-modal-open {
 }
 .lrob-etk-data-table thead th[data-sort-key].is-sort-asc,
 .lrob-etk-data-table thead th[data-sort-key].is-sort-desc {
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-data-table thead th[data-sort-key].is-sort-asc::after {
     content: ' ▲';
@@ -1229,13 +1231,13 @@ body.lrob-etk-modal-open {
     transition: all var(--etk-transition);
 }
 .lrob-etk-pagination .page-numbers:hover {
-    border-color: var(--etk-accent);
-    color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-pagination .page-numbers.current {
     background: var(--etk-accent);
     color: var(--etk-on-accent);
-    border-color: var(--etk-accent);
+    border-color: var(--etk-text-accent);
 }
 .lrob-etk-pagination .page-numbers.dots {
     border: none;
@@ -1429,7 +1431,7 @@ body.lrob-etk-modal-open {
     padding: 0;
 }
 .lrob-etk-set-default:hover {
-    color: var(--etk-accent);
+    color: var(--etk-text-accent);
 }
 .lrob-etk-default-badge {
     color: var(--etk-text-warning);
@@ -1464,7 +1466,7 @@ body.lrob-etk-modal-open {
     border-bottom-color: var(--etk-line-strong);
 }
 .lrob-etk-title-input:focus {
-    border-bottom-color: var(--etk-accent);
+    border-bottom-color: var(--etk-text-accent);
 }
 .lrob-etk-title-input::placeholder {
     color: var(--etk-muted);
@@ -1498,7 +1500,7 @@ body.lrob-etk-modal-open {
     border-bottom-color: var(--etk-line-strong);
 }
 .lrob-etk-card-form-head .lrob-etk-title-input:focus {
-    border-bottom-color: var(--etk-accent);
+    border-bottom-color: var(--etk-text-accent);
 }
 .lrob-etk-card-form-head .lrob-etk-segmented {
     flex-shrink: 0;

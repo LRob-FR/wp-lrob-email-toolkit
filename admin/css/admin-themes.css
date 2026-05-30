@@ -1,0 +1,159 @@
+/* Docs: docs/admin-ui.md (theme system).
+ *
+ * A theme = a re-declaration of the colour tokens. Everything that uses our
+ * tokens re-themes automatically; this file also has to override WP-core-styled
+ * elements (native inputs, .button, headings, the #wpwrap backdrop) that ignore
+ * our tokens. Light is the default (admin-base.css); only Dark needs a block.
+ * etk-theme.js resolves 'auto' → light|dark and writes the resolved value to
+ * <html data-etk-theme>, so one dark block is enough (no media-query dup).
+ *
+ * Tokens live on .lrob-etk (not :root), so the override selector includes it. */
+
+html[data-etk-theme="dark"] .lrob-etk {
+    /* Layered surfaces: page (darkest) < card < input/soft (lightest) for depth. */
+    --etk-page-bg:      #18181c;
+    --etk-card-bg:      #26262d;
+    --etk-input-bg:     #32323b;
+    --etk-soft:         #32323b;
+
+    --etk-fg:           #f1f1f4;   /* near-white body text */
+    --etk-muted:        #b6b6c0;   /* readable secondary, not too grey */
+    --etk-line:         #3c3c46;
+    --etk-line-strong:  #52525e;
+
+    --etk-accent:       #2271b1;   /* darker blue — readable with white text on buttons/active segments */
+    --etk-accent-hover: #2e82c4;
+    --etk-accent-bg:    #1b2e44;
+    --etk-on-accent:    #fff;
+
+    --etk-success:      #3bbf5b;
+    --etk-success-bg:   #16301d;
+    --etk-warning:      #d6a92a;
+    --etk-warning-bg:   #322a12;
+    --etk-danger:       #e86365;
+    --etk-danger-bg:    #3a1c1d;
+
+    --etk-text-success: #86dd9f;
+    --etk-text-danger:  #f3a9aa;
+    --etk-text-warning: #e8cc6e;
+    --etk-text-accent:  #a9d2f0;
+
+    --etk-backdrop:     rgba(0, 0, 0, 0.7);
+
+    /* Heavier shadows read better on dark surfaces. */
+    --etk-shadow:       0 1px 0 rgba(0,0,0,.3);
+    --etk-shadow-sm:    0 1px 0 rgba(0,0,0,.3);
+    --etk-shadow-md:    0 1px 3px rgba(0,0,0,.4);
+    --etk-shadow-lg:    0 8px 28px rgba(0,0,0,.55);
+    --etk-shadow-modal: 0 20px 50px rgba(0,0,0,.65);
+    --etk-shadow-menu:  0 6px 18px rgba(0,0,0,.5);
+}
+
+/* WP core admin has no dark mode — darken the content backdrop (the page well
+ * + the wrap behind it). Leave the WP admin menu / admin bar as-is. */
+html[data-etk-theme="dark"] #wpwrap,
+html[data-etk-theme="dark"] #wpcontent,
+html[data-etk-theme="dark"] #wpbody-content {
+    background: #18181c;
+}
+
+/* --- WP-core-styled elements that don't reference our tokens --- */
+
+/* Headings — WP core sets an explicit colour on admin h1/h2/etc., so inheriting
+   .lrob-etk's colour isn't enough; override them. (Plain text/spans/labels are
+   handled by .lrob-etk { color } in admin-base.css.) */
+html[data-etk-theme="dark"] .lrob-etk h1,
+html[data-etk-theme="dark"] .lrob-etk h2,
+html[data-etk-theme="dark"] .lrob-etk h3,
+html[data-etk-theme="dark"] .lrob-etk h4,
+html[data-etk-theme="dark"] .lrob-etk .lrob-etk-page-title {
+    color: var(--etk-fg);
+}
+
+/* Native form controls (white by default). Inputs sit lighter than cards. */
+html[data-etk-theme="dark"] .lrob-etk input[type="text"],
+html[data-etk-theme="dark"] .lrob-etk input[type="email"],
+html[data-etk-theme="dark"] .lrob-etk input[type="url"],
+html[data-etk-theme="dark"] .lrob-etk input[type="tel"],
+html[data-etk-theme="dark"] .lrob-etk input[type="number"],
+html[data-etk-theme="dark"] .lrob-etk input[type="search"],
+html[data-etk-theme="dark"] .lrob-etk input[type="password"],
+html[data-etk-theme="dark"] .lrob-etk select,
+html[data-etk-theme="dark"] .lrob-etk textarea {
+    background: var(--etk-input-bg);
+    border-color: var(--etk-line-strong);
+    color: var(--etk-fg);
+}
+html[data-etk-theme="dark"] .lrob-etk input::placeholder,
+html[data-etk-theme="dark"] .lrob-etk textarea::placeholder {
+    color: var(--etk-muted);
+}
+
+/* Secondary buttons (incl. accent-text-on-transparent ones like "Test email"):
+ * give them a real surface so they read on dark. */
+html[data-etk-theme="dark"] .lrob-etk .button,
+html[data-etk-theme="dark"] .lrob-etk .button-secondary,
+html[data-etk-theme="dark"] .lrob-etk .lrob-etk-module-test-btn {
+    background: var(--etk-soft);
+    border-color: var(--etk-line-strong);
+    color: var(--etk-fg);
+}
+html[data-etk-theme="dark"] .lrob-etk .button:hover,
+html[data-etk-theme="dark"] .lrob-etk .button-secondary:hover,
+html[data-etk-theme="dark"] .lrob-etk .lrob-etk-module-test-btn:hover {
+    background: var(--etk-card-bg);
+    border-color: var(--etk-accent);
+    color: var(--etk-fg);
+}
+html[data-etk-theme="dark"] .lrob-etk .button-primary {
+    background: var(--etk-accent);
+    border-color: var(--etk-accent);
+    color: var(--etk-on-accent);
+}
+html[data-etk-theme="dark"] .lrob-etk .button-primary:hover {
+    background: var(--etk-accent-hover);
+    border-color: var(--etk-accent-hover);
+}
+/* Header nav buttons stay transparent but need a legible idle colour. */
+html[data-etk-theme="dark"] .lrob-etk .lrob-etk-nav-button.button {
+    background: transparent;
+    border-color: transparent;
+    color: var(--etk-muted);
+}
+
+/* Contact-form PREVIEW inside admin dark mode: the form carries its own
+ * --lrob-etk-cf-* vars (default white bg + inherited fg) → dark-on-dark here.
+ * Remap them onto the admin tokens so the in-admin preview is legible. This is
+ * admin-only; the real frontend form theming is a separate later task. */
+html[data-etk-theme="dark"] .lrob-etk .lrob-etk-form {
+    --lrob-etk-cf-bg:       var(--etk-input-bg);
+    --lrob-etk-cf-fg:       var(--etk-fg);
+    --lrob-etk-cf-input-fg: var(--etk-fg);
+    --lrob-etk-cf-border:   var(--etk-line-strong);
+    --lrob-etk-cf-muted:    var(--etk-muted);
+}
+
+/* ---------- Theme switch — single icon button (cycles Auto/Light/Dark) ---------- */
+
+.lrob-etk-theme-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--etk-input-height);
+    height: var(--etk-input-height);
+    padding: 0;
+    background: var(--etk-input-bg);
+    border: 1px solid var(--etk-line);
+    border-radius: var(--etk-radius-sm);
+    color: var(--etk-muted);
+    cursor: pointer;
+    transition: var(--etk-transition);
+}
+.lrob-etk-theme-switch:hover {
+    color: var(--etk-fg);
+    border-color: var(--etk-accent);
+}
+.lrob-etk-theme-switch-glyph {
+    font-size: var(--etk-text-lg);
+    line-height: 1;
+}
