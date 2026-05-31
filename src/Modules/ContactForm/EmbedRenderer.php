@@ -46,7 +46,7 @@ final class EmbedRenderer
 
             $form_attrs = self::compute_form_root_attrs($form_id, $instance, $preset, $overrides);
             $html = '<form ' . $form_attrs . '>';
-            $html .= '<div class="lrob-etk-form-status" data-form-status hidden></div>';
+            $html .= '<div class="lrob-etk-form-status" data-form-status role="status" aria-live="polite" hidden></div>';
             $html .= '<div class="lrob-etk-form-body">';
 
             foreach ($structure['rows'] as $row) {

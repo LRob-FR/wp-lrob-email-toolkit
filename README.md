@@ -4,18 +4,34 @@
 
 ## Status
 
-**Public beta — v0.4.0 shipped.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. Schema is stable, surfaces are stable; the toolkit drives real sends on production sites. v0.4.0 added the full captcha provider lineup (hCaptcha / Turnstile / reCAPTCHA, incl. invisible + score-based v3), in-place modal detail views everywhere, resend-safe saved attachments, LRob branding, a fully tokenized admin design system (colour + typography — theming groundwork), live no-reload captcha state management, and a French i18n correctness pass (systemic mis-translation sweep). Bug reports + UX feedback welcome on GitHub issues.
+**Public beta — v0.5.0.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. The schema and the admin surfaces are stable, and the toolkit drives real email on production sites every day.
 
-Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning).
+The v0.5 cycle gave the whole admin a single branded dark theme (matching the lrob.fr site), hardened the public-facing forms for accessibility (proper labels, announced errors, keyboard support), and did a big internal cleanup that makes future releases faster — with nothing changing in what you see. It builds on v0.4's full captcha lineup (hCaptcha / Turnstile / reCAPTCHA incl. invisible + score-based v3), in-place detail views, and resend-safe saved attachments.
 
-For the full feature history, see [`docs/done.md`](./docs/done.md).
-For the backlog, see [`docs/todo.md`](./docs/todo.md).
+Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning). Bug reports + UX feedback welcome on [GitHub issues](https://github.com/LRob-FR/wp-lrob-email-toolkit/issues).
+
+For the full feature history, see [`docs/done.md`](./docs/done.md). For the backlog, see [`docs/todo.md`](./docs/todo.md).
 
 ## What it is
 
 A single plugin that replaces the typical stack of *SMTP plugin + email logger + contact-form plugin + captcha plugin + newsletter plugin (+ Mailchimp/Brevo subscription)*, with consistent design, shared SMTP routing, and a shared event vocabulary. Each module is independently activatable — only the parts you enable add code to the runtime.
 
 No external libraries at runtime: no Composer, no React, no build pipeline. Plain PHP 8.2+, vanilla JS, server-rendered admin UI. The ~780 KB release zip is the entire plugin.
+
+## Highlights
+
+A few things that make it stand out:
+
+- **See every email your site sends.** Full logging captures every outgoing message — recipients, subject, body, attachments, status and any error — all searchable and filterable. No more "did that order confirmation actually go out?"; open the log and know.
+- **Re-send any email, attachments and all.** Switch on *Save attachments locally* and any logged message can be re-sent later with its files intact, straight from the log — and those files live on **your** server, not stuck in a mailbox (with an optional copy saved to your IMAP *Sent* folder too).
+- **SMTP that practically sets itself up.** You don't need to know your mail-server settings: the host picker suggests your domain's real servers (common presets **plus a live MX lookup**), shows a green/red check that each one actually resolves, and a one-click connection test confirms login works — *before* you rely on it.
+- **One mailbox per job — add as many as you like.** Run multiple SMTP "from" identities and route each source to the right one: WooCommerce through one, your contact form through another, newsletters through a third.
+- **Stack as many captchas as you need.** Multiple providers and multiple credentials side by side — the privacy-friendly built-in *math* and *picture* challenges (zero third-party calls, no cookies), plus hCaptcha, Cloudflare Turnstile and Google reCAPTCHA — each assignable to its own context (forms, comments, login, registration…) with a clear site-wide default.
+- **Own your newsletter — no SaaS, no per-subscriber fees.** Send to your subscribers and WordPress users from your own server, with open/click tracking, list segmentation and one-click unsubscribe — without Mailchimp/Brevo monthly bills or handing your contact list to a third party.
+- **Up and running in minutes, thanks to presets.** Ready-made form templates, prebuilt subscribe-form profiles (*Email-only*, *Contact basics*, *Full profile*), and smart defaults everywhere mean most things just work the moment you switch them on — you tweak only what you want.
+- **Forms anyone can fill in.** A drag-and-drop builder for contact and signup forms, with front-end markup hardened for keyboard and screen-reader users (clear labels, announced errors).
+- **Your secrets stay yours.** SMTP and captcha credentials are encrypted at rest (AES-256-GCM); tracking IPs are anonymised; ops teams can keep secrets entirely in `wp-config.php`.
+- **Light and self-contained.** No Composer, no React, no build step, no external CDN — a ~780 KB zip is the whole plugin, and it auto-updates from GitHub.
 
 ## Modules
 
@@ -94,8 +110,8 @@ Migrations between versions are idempotent. Downgrades are not supported. `1.0.0
 
 Priority order, no version commitment — see [`docs/todo.md`](./docs/todo.md) for the full backlog with reasoning. **Top priorities right now**:
 
-1. **UI uniformization + accessibility** — single branded "LRob" admin theme (shipped, matches the lrob.fr site), plus density (Compact / Comfortable / Spacious) and an accessibility pass.
-2. **Statistics overhaul** — dedicated Newsletter view + global Email Toolkit dashboard tiles.
+1. **Statistics overhaul** — a dedicated Newsletter statistics view plus global Email Toolkit dashboard tiles (open/click trends, per-list rollups, per-send drill-down).
+2. **Contact-form personalization** — per-form colours, hover effects, and send animations.
 
 **Next major features on deck**: universal email tracking (Opened column on Email Logs), one-shot email composer with templates + attachments, marketing automation workflows (drip campaigns), drag-and-drop email builder, subscriber custom fields + tags, bounce handling, suppression list, GDPR toolkit, customize WP default emails.
 

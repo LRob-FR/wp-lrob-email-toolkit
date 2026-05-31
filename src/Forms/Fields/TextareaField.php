@@ -52,13 +52,14 @@ final class TextareaField implements FieldTypeInterface
         $name = FormContext::field_name($slug);
 
         $attrs_html = sprintf(
-            ' id="%s" name="%s" rows="%d"%s%s%s',
+            ' id="%s" name="%s" rows="%d"%s%s%s%s',
             esc_attr($id),
             esc_attr($name),
             $rows,
             $placeholder !== '' ? ' placeholder="' . esc_attr($placeholder) . '"' : '',
             $max > 0 ? ' maxlength="' . $max . '"' : '',
-            $required ? ' required aria-required="true"' : ''
+            $required ? ' required aria-required="true"' : '',
+            FieldRenderHelpers::describedby_attr($id, $helper !== '')
         );
 
         return FieldRenderHelpers::wrap_field(

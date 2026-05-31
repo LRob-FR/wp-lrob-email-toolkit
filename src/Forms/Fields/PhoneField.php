@@ -108,6 +108,7 @@ final class PhoneField implements FieldTypeInterface
             . '<input type="tel" id="' . esc_attr($id) . '" name="' . esc_attr($name) . '"'
             .     ' autocomplete="tel-national" inputmode="tel" data-phone-number'
             .     $extra
+            .     FieldRenderHelpers::describedby_attr($id, $helper !== '')
             . '>'
             . '</div>';
 

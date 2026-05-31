@@ -73,10 +73,11 @@ final class SelectField implements FieldTypeInterface
         }
 
         $control = sprintf(
-            '<select id="%s" name="%s"%s>%s</select>',
+            '<select id="%s" name="%s"%s%s>%s</select>',
             esc_attr($id),
             esc_attr($name),
             $required ? ' required aria-required="true"' : '',
+            FieldRenderHelpers::describedby_attr($id, $helper !== ''),
             $opts_html
         );
 

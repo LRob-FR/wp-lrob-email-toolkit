@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-30T23:22:22+00:00\n"
+"POT-Creation-Date: 2026-05-31T00:02:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -1912,21 +1912,21 @@ msgstr ""
 msgid "Zimbabwe"
 msgstr ""
 
-#: src/Forms/FieldRenderHelpers.php:130
-#: src/Forms/FieldRenderHelpers.php:299
+#: src/Forms/FieldRenderHelpers.php:136
+#: src/Forms/FieldRenderHelpers.php:327
 #: src/Modules/ContactForm/Admin/FormsPage.php:229
 #: src/Modules/Newsletter/Admin/FormsPage.php:691
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr ""
 
-#: src/Forms/FieldRenderHelpers.php:158
+#: src/Forms/FieldRenderHelpers.php:164
 #: src/Modules/ContactForm/Admin/FormsPage.php:189
 #: src/Modules/Newsletter/Admin/FormsPage.php:681
 msgid "Required"
 msgstr ""
 
-#: src/Forms/FieldRenderHelpers.php:165
+#: src/Forms/FieldRenderHelpers.php:171
 #: src/Modules/ContactForm/Admin/FormsPage.php:228
 #: src/Modules/Newsletter/Admin/FormsPage.php:690
 msgid "(optional helper text)"
@@ -1970,17 +1970,17 @@ msgid "Choose a file"
 msgstr ""
 
 #. translators: 1: max size per file MB, 2: comma-separated extension list
-#: src/Forms/Fields/FileUploadField.php:122
+#: src/Forms/Fields/FileUploadField.php:123
 #: src/Modules/ContactForm/Admin/FormsPage.php:217
 msgid "Max %1$d MB per file — %2$s"
 msgstr ""
 
-#: src/Forms/Fields/FileUploadField.php:124
+#: src/Forms/Fields/FileUploadField.php:125
 #: src/Modules/ContactForm/Admin/FormsPage.php:218
 msgid "no file type restriction"
 msgstr ""
 
-#: src/Forms/Fields/FileUploadField.php:130
+#: src/Forms/Fields/FileUploadField.php:131
 msgid "“Save submissions” is off — files from this field will be attached to the notification email instead of being stored on the server."
 msgstr ""
 

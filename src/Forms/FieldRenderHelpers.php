@@ -110,8 +110,14 @@ final class FieldRenderHelpers
         $label_html = $label !== '' || FormContext::is_editor()
             ? self::label_html($label, $required, $control_id)
             : '';
-        $helper_html = self::helper_html($helper);
-        $error_html = '<p class="lrob-etk-form-error" data-field-error hidden></p>';
+        // Wire helper + error to the control via aria-describedby (ids derived
+        // from the control id). The control itself carries the matching
+        // aria-describedby — added by render_input / the field-type builders.
+        $helper_html = self::helper_html($helper, $control_id . '-help');
+        $error_html = sprintf(
+            '<p class="lrob-etk-form-error" id="%s" data-field-error hidden></p>',
+            esc_attr($control_id . '-err')
+        );
 
         return sprintf(
             '<div class="lrob-etk-form-field lrob-etk-form-field--%s" data-field="%s">%s%s%s%s</div>',
@@ -159,7 +165,7 @@ final class FieldRenderHelpers
         );
     }
 
-    public static function helper_html(string $helper): string
+    public static function helper_html(string $helper, string $id = ''): string
     {
         if (FormContext::is_editor()) {
             $shown = $helper !== '' ? esc_html($helper) : esc_html__('(optional helper text)', 'lrob-email-toolkit');
@@ -170,7 +176,25 @@ final class FieldRenderHelpers
                 $shown
             );
         }
-        return $helper !== '' ? '<p class="lrob-etk-form-helper">' . esc_html($helper) . '</p>' : '';
+        if ($helper === '') {
+            return '';
+        }
+        $id_attr = $id !== '' ? ' id="' . esc_attr($id) . '"' : '';
+        return '<p class="lrob-etk-form-helper"' . $id_attr . '>' . esc_html($helper) . '</p>';
+    }
+
+    /**
+     * Builds the ` aria-describedby="…"` attribute (leading space included)
+     * linking a control to its helper + error `<p>` — ids derived from the
+     * control id, matching what wrap_field / render_option_group emit. The
+     * error id is always referenced (the `<p>` always exists; while empty +
+     * hidden it contributes no description, and gets announced once the JS
+     * fills it on a failed submit).
+     */
+    public static function describedby_attr(string $control_id, bool $has_helper): string
+    {
+        $ids = ($has_helper ? $control_id . '-help ' : '') . $control_id . '-err';
+        return ' aria-describedby="' . esc_attr($ids) . '"';
     }
 
     public static function normalize_slug(array $attrs): string
@@ -237,7 +261,7 @@ final class FieldRenderHelpers
         }
 
         $control = sprintf(
-            '<input type="%s" id="%s" name="%s"%s%s%s%s%s>',
+            '<input type="%s" id="%s" name="%s"%s%s%s%s%s%s>',
             esc_attr($input_type),
             esc_attr($id),
             esc_attr($name),
@@ -245,6 +269,7 @@ final class FieldRenderHelpers
             $max > 0 ? ' maxlength="' . $max . '"' : '',
             $required ? ' required aria-required="true"' : '',
             $autocomplete !== '' ? ' autocomplete="' . esc_attr($autocomplete) . '"' : '',
+            self::describedby_attr($id, $helper !== ''),
             $extra_html
         );
 
@@ -292,8 +317,11 @@ final class FieldRenderHelpers
             );
         }
 
-        $helper_html = self::helper_html($helper);
-        $error_html = '<p class="lrob-etk-form-error" data-field-error hidden></p>';
+        $helper_html = self::helper_html($helper, $group_id . '-help');
+        $error_html = sprintf(
+            '<p class="lrob-etk-form-error" id="%s" data-field-error hidden></p>',
+            esc_attr($group_id . '-err')
+        );
 
         if (FormContext::is_editor()) {
             $shown = $label !== '' ? esc_html($label) : '<span class="lrob-etk-form-label-empty">' . esc_html__('(field label)', 'lrob-email-toolkit') . '</span>';
@@ -307,11 +335,15 @@ final class FieldRenderHelpers
             $legend_inner = esc_html($label) . $required_marker;
         }
 
+        // describedby on the fieldset (not in editor — contenteditable preview).
+        $describedby = FormContext::is_editor() ? '' : self::describedby_attr($group_id, $helper !== '');
+
         return sprintf(
-            '<fieldset class="lrob-etk-form-field lrob-etk-form-field--%s" data-field="%s" id="%s"><legend class="lrob-etk-form-label">%s</legend><div class="lrob-etk-form-options">%s</div>%s%s</fieldset>',
+            '<fieldset class="lrob-etk-form-field lrob-etk-form-field--%s" data-field="%s" id="%s"%s><legend class="lrob-etk-form-label">%s</legend><div class="lrob-etk-form-options">%s</div>%s%s</fieldset>',
             $kind,
             esc_attr($slug),
             esc_attr($group_id),
+            $describedby,
             $legend_inner,
             $items,
             $helper_html,

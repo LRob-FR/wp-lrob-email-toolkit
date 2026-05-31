@@ -156,6 +156,9 @@
             e.textContent = '';
             e.hidden = true;
         });
+        Array.prototype.forEach.call(form.querySelectorAll('[aria-invalid]'), function (c) {
+            c.removeAttribute('aria-invalid');
+        });
         var status = form.querySelector('[data-form-status]');
         if (status) {
             status.hidden = true;
@@ -176,6 +179,9 @@
                 slot.textContent = err.message;
                 slot.hidden = false;
             }
+            Array.prototype.forEach.call(field.querySelectorAll('input, select, textarea'), function (c) {
+                c.setAttribute('aria-invalid', 'true');
+            });
             if (!firstField) firstField = field;
         });
         if (firstField) {
@@ -409,10 +415,12 @@
                 fieldWrap.classList.add('is-invalid');
                 errEl.textContent = errors.join('  •  ');
                 errEl.hidden = false;
+                input.setAttribute('aria-invalid', 'true');
             } else {
                 fieldWrap.classList.remove('is-invalid');
                 errEl.textContent = '';
                 errEl.hidden = true;
+                input.removeAttribute('aria-invalid');
             }
         }
     }

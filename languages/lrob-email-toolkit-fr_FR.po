@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-05-30T23:22:22+00:00\n"
+"POT-Creation-Date: 2026-05-30T23:48:38+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -1937,20 +1937,20 @@ msgstr "Zambie"
 msgid "Zimbabwe"
 msgstr "Zimbabwe"
 
-#: src/Forms/FieldRenderHelpers.php:130 src/Forms/FieldRenderHelpers.php:299
+#: src/Forms/FieldRenderHelpers.php:136 src/Forms/FieldRenderHelpers.php:327
 #: src/Modules/ContactForm/Admin/FormsPage.php:229
 #: src/Modules/Newsletter/Admin/FormsPage.php:691
 #: src/Modules/Newsletter/Fields/ListPicker.php:93
 msgid "(field label)"
 msgstr "(libellé du champ)"
 
-#: src/Forms/FieldRenderHelpers.php:158
+#: src/Forms/FieldRenderHelpers.php:164
 #: src/Modules/ContactForm/Admin/FormsPage.php:189
 #: src/Modules/Newsletter/Admin/FormsPage.php:681
 msgid "Required"
 msgstr "Obligatoire"
 
-#: src/Forms/FieldRenderHelpers.php:165
+#: src/Forms/FieldRenderHelpers.php:171
 #: src/Modules/ContactForm/Admin/FormsPage.php:228
 #: src/Modules/Newsletter/Admin/FormsPage.php:690
 msgid "(optional helper text)"
@@ -1994,17 +1994,17 @@ msgid "Choose a file"
 msgstr "Choisir un fichier"
 
 #. translators: 1: max size per file MB, 2: comma-separated extension list
-#: src/Forms/Fields/FileUploadField.php:122
+#: src/Forms/Fields/FileUploadField.php:123
 #: src/Modules/ContactForm/Admin/FormsPage.php:217
 msgid "Max %1$d MB per file — %2$s"
 msgstr "Max %1$d Mo par fichier — %2$s"
 
-#: src/Forms/Fields/FileUploadField.php:124
+#: src/Forms/Fields/FileUploadField.php:125
 #: src/Modules/ContactForm/Admin/FormsPage.php:218
 msgid "no file type restriction"
 msgstr "aucune restriction de type de fichier"
 
-#: src/Forms/Fields/FileUploadField.php:130
+#: src/Forms/Fields/FileUploadField.php:131
 msgid ""
 "“Save submissions” is off — files from this field will be attached to the "
 "notification email instead of being stored on the server."

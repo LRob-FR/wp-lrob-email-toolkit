@@ -724,19 +724,6 @@ final class NewslettersPage
         return $out;
     }
 
-
-    private static function format_date(string $datetime_utc): string
-    {
-        if ($datetime_utc === '' || $datetime_utc === '0000-00-00 00:00:00') {
-            return '—';
-        }
-        $ts = strtotime($datetime_utc . ' UTC');
-        if ($ts === false) {
-            return $datetime_utc;
-        }
-        return (string) wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $ts);
-    }
-
     /** Dashboard tile counter — proxies to the repo so HomePage can show
      *  counts without injecting the repository directly. */
     public function count_for_dashboard(string $bucket): int

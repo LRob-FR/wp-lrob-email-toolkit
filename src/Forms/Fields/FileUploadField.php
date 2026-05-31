@@ -114,6 +114,7 @@ final class FileUploadField implements FieldTypeInterface
             .     ($multiple ? ' multiple' : '')
             .     ($accept_attr !== '' ? ' accept="' . esc_attr($accept_attr) . '"' : '')
             .     ($required ? ' required aria-required="true"' : '')
+            .     FieldRenderHelpers::describedby_attr($id, $helper !== '')
             .     ' hidden>'
             . '<ul class="lrob-etk-form-file-list" data-file-list></ul>'
             . '<p class="lrob-etk-form-file-hint">'
