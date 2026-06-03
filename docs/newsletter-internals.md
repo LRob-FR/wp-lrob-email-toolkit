@@ -113,6 +113,8 @@ Three post_meta keys control audience overrides:
 
 `lrob_etk_nl_test_send` AJAX action renders the newsletter body for one or more test recipients and sends without writing to `newsletter_recipients` and without bumping counters. The outbound headers include `X-Lrob-Etk-Newsletter-Test: 1`. Test sends bypass the tracking pipeline entirely.
 
+**Sender = identical to the real send.** Both `SendLoop` (real) and `handle_test_send` (test) force the newsletter's chosen SMTP identity + From-name override via `MailRouter::force_send(META_SMTP_IDENTITY, META_FROM_NAME_OVERRIDE)` … `clear_forced_send()` (see [docs/smtp.md](./smtp.md) "force_identity / force_send"). So a test reflects exactly what recipients get — same identity, same From-name, same Reply-To; only the `[TEST]` subject prefix differs. (Before 0.6.0 the identity + From-name overrides were saved but never applied — everything went through default SMTP routing.)
+
 ## Tracking
 
 ### Token format

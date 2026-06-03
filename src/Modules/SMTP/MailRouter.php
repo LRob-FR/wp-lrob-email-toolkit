@@ -16,6 +16,8 @@ final class MailRouter
 
     private ?string $forced_identity_slug = null;
 
+    private ?string $forced_from_name = null;
+
     /** True when the caller passed an explicit From: header; drives OVERRIDE_WHEN_DEFAULT. */
     private bool $caller_set_from = false;
 
@@ -77,7 +79,8 @@ final class MailRouter
             $mailer->SMTPSecure = $identity->smtp_encryption;
             // setFrom gate: must match the wp_mail_from filter pair — see docs/smtp.md.
             if ($this->should_override_sender($identity)) {
-                $mailer->setFrom($identity->effective_from_email(), $identity->effective_from_name(), false);
+                $from_name = $this->forced_from_name ?? $identity->effective_from_name();
+                $mailer->setFrom($identity->effective_from_email(), $from_name, false);
             }
 
             if ($identity->reply_to_email !== null && $identity->reply_to_email !== '') {
@@ -111,6 +114,9 @@ final class MailRouter
 
     public function override_from_name(string $name): string
     {
+        if ($this->forced_from_name !== null) {
+            return $this->forced_from_name;
+        }
         $identity = $this->resolve_identity();
         if ($identity instanceof Identity && $this->should_override_sender($identity)) {
             $resolved = $identity->effective_from_name();
@@ -176,6 +182,38 @@ final class MailRouter
         $this->forced_identity_slug = $slug;
         // Reset any cached resolution so the forced choice takes effect now.
         $this->reset_current();
+    }
+
+    /** Force a display From-name for the upcoming wp_mail(s), independent of the identity. Empty/null clears. */
+    public function force_from_name(?string $name): void
+    {
+        $this->forced_from_name = ($name === '' ? null : $name);
+    }
+
+    /**
+     * Convenience for callers that send under an explicit identity + sender
+     * override (the Newsletter pipeline, real send AND test): resolve the
+     * numeric identity id to its slug and force it, plus an optional From-name.
+     * id 0 / empty name → leave that aspect on the default routing. Pair with
+     * clear_forced_send() in a finally.
+     */
+    public function force_send(int $identity_id, string $from_name_override = ''): void
+    {
+        if ($identity_id > 0) {
+            $identity = $this->identities->find($identity_id);
+            if ($identity instanceof Identity) {
+                $this->force_identity($identity->slug);
+            }
+        }
+        if ($from_name_override !== '') {
+            $this->force_from_name($from_name_override);
+        }
+    }
+
+    public function clear_forced_send(): void
+    {
+        $this->force_identity(null);
+        $this->force_from_name(null);
     }
 
     /** Cached for the lifetime of one wp_mail() call; reset by on_succeeded / on_failed. */

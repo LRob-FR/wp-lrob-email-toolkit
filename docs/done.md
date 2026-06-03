@@ -7,6 +7,14 @@ For working rules (conventions, naming, build, UI patterns), see [CLAUDE.md](./C
 
 ---
 
+## v0.6.x — Form theming + fixes (IN PROGRESS, unreleased)
+
+Version bumped to 0.6.0. Landed so far:
+
+- **Newsletter sends now actually use the SMTP identity chosen on the newsletter — and the test send mirrors the real send.** The per-newsletter **identity** + **From-name** overrides were saved and displayed but **never applied at send time**: both the real send (`SendLoop`) and the **test send** (`SendAjaxController::handle_test_send`) called `wp_mail()` without forcing anything, so everything went out through the *default* SMTP routing. (Only the Reply-To override worked — it's a standard header.) Fixed by forcing the newsletter's identity + From-name around the sends, via a new `MailRouter` API — `force_send(int $identity_id, string $from_name = '')` + `clear_forced_send()` (built on `force_identity()` + a new `force_from_name()`), mirroring the Contact Form's `force_identity` pattern. Both paths fetch the `MailRouter` from the container and wrap the `wp_mail` loop in `try … finally { clear_forced_send() }` (no-op when SMTP is disabled → newsletter still sends via plain `wp_mail`). `force_identity` survives a batch because `reset_current()` never cleared it. The **test send is now identical to the real send** (same identity + From-name + Reply-To; only the `[TEST]` subject prefix differs). Removed the dead `X-Lrob-Etk-From-Name` header (nothing consumed it; From-name now flows through `MailRouter::override_from_name()` + `configure_mailer()`).
+
+---
+
 ## v0.5.0 — Branded dark admin theme + accessible front-end forms (shipped 2026-05-31)
 
 Shipped in v0.5.0:

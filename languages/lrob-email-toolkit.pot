@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the LRob - Email Toolkit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: LRob - Email Toolkit 0.5.0\n"
+"Project-Id-Version: LRob - Email Toolkit 0.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-toolkit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-31T00:02:08+00:00\n"
+"POT-Creation-Date: 2026-06-03T09:07:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -101,7 +101,7 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:605
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:653
 #: src/Modules/Newsletter/Module.php:592
-#: src/Modules/Newsletter/Send/SendAjaxController.php:696
+#: src/Modules/Newsletter/Send/SendAjaxController.php:727
 #: src/Modules/SMTP/Admin/AjaxController.php:389
 #: src/Modules/SMTP/Admin/PageController.php:136
 msgid "Insufficient permissions."
@@ -569,8 +569,8 @@ msgstr ""
 #: src/Admin/DashboardPage.php:781
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:15
 #: src/Modules/Logging/Admin/LogsPage.php:355
-#: src/Modules/Newsletter/Send/SendAjaxController.php:279
-#: src/Modules/Newsletter/Send/SendLoop.php:58
+#: src/Modules/Newsletter/Send/SendAjaxController.php:280
+#: src/Modules/Newsletter/Send/SendLoop.php:59
 msgid "(no subject)"
 msgstr ""
 
@@ -2837,7 +2837,7 @@ msgstr ""
 #: src/Modules/ContactForm/Admin/AjaxController.php:166
 #: src/Modules/ContactForm/Admin/AjaxController.php:226
 #: src/Modules/Newsletter/Admin/AjaxController.php:1521
-#: src/Modules/Newsletter/Send/SendAjaxController.php:700
+#: src/Modules/Newsletter/Send/SendAjaxController.php:731
 msgid "Security check failed. Please reload the page."
 msgstr ""
 
@@ -4962,9 +4962,9 @@ msgstr ""
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:553
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:588
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:662
-#: src/Modules/Newsletter/Send/SendAjaxController.php:248
-#: src/Modules/Newsletter/Send/SendAjaxController.php:270
-#: src/Modules/Newsletter/Send/SendAjaxController.php:577
+#: src/Modules/Newsletter/Send/SendAjaxController.php:249
+#: src/Modules/Newsletter/Send/SendAjaxController.php:271
+#: src/Modules/Newsletter/Send/SendAjaxController.php:588
 msgid "Newsletter not found."
 msgstr ""
 
@@ -7319,53 +7319,53 @@ msgstr ""
 msgid "Unsubscribe"
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:93
+#: src/Modules/Newsletter/Send/SendAjaxController.php:94
 msgid "Bad force-override payload."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:135
+#: src/Modules/Newsletter/Send/SendAjaxController.php:136
 msgid "Could not render this newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:244
-#: src/Modules/Newsletter/Send/SendAjaxController.php:266
-#: src/Modules/Newsletter/Send/SendAjaxController.php:573
+#: src/Modules/Newsletter/Send/SendAjaxController.php:245
+#: src/Modules/Newsletter/Send/SendAjaxController.php:267
+#: src/Modules/Newsletter/Send/SendAjaxController.php:584
 msgid "Missing newsletter id."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:275
+#: src/Modules/Newsletter/Send/SendAjaxController.php:276
 msgid "No valid test recipient."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:323
+#: src/Modules/Newsletter/Send/SendAjaxController.php:334
 msgid "Only a sending newsletter can be paused."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:339
+#: src/Modules/Newsletter/Send/SendAjaxController.php:350
 msgid "Only a paused newsletter can be resumed."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:362
+#: src/Modules/Newsletter/Send/SendAjaxController.php:373
 msgid "Only a sending or paused newsletter can be aborted."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:415
+#: src/Modules/Newsletter/Send/SendAjaxController.php:426
 msgid "Only a draft newsletter can be scheduled."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:421
+#: src/Modules/Newsletter/Send/SendAjaxController.php:432
 msgid "No schedule date set — tick the Schedule box and pick a date first."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:445
+#: src/Modules/Newsletter/Send/SendAjaxController.php:456
 msgid "Only a scheduled newsletter can be unscheduled."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:534
+#: src/Modules/Newsletter/Send/SendAjaxController.php:545
 msgid "No failed recipients to retry for this newsletter."
 msgstr ""
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:540
+#: src/Modules/Newsletter/Send/SendAjaxController.php:551
 msgid "No failed recipients to retry."
 msgstr ""
 

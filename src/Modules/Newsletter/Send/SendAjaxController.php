@@ -10,6 +10,7 @@ use LRob\EmailToolkit\Modules\Newsletter\NewsletterRepository;
 use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
+use LRob\EmailToolkit\Modules\SMTP\MailRouter;
 use LRob\EmailToolkit\Support\Events;
 
 // Docs: docs/newsletter-internals.md → "Send pipeline"
@@ -279,9 +280,14 @@ final class SendAjaxController
         $subject = $subject_prefix . ($post->post_title !== '' ? $post->post_title : __('(no subject)', 'lrob-email-toolkit'));
         $from_name_override = (string) get_post_meta($newsletter_id, NewsletterCPT::META_FROM_NAME_OVERRIDE, true);
         $reply_to = (string) get_post_meta($newsletter_id, NewsletterCPT::META_REPLY_TO_OVERRIDE, true);
+        $identity_id = (int) get_post_meta($newsletter_id, NewsletterCPT::META_SMTP_IDENTITY, true);
 
         $sent = 0;
         $failed = 0;
+        // Force the same SMTP identity + From-name as the real send, so a test
+        // reflects exactly what recipients will get. Cleared in finally.
+        $router = $this->force_sender($identity_id, $from_name_override);
+        try {
         foreach ($recipients as $r) {
             $tokens = NewsletterRenderer::tokens_for_recipient($r['email'], $r['name'], $r['prefs_token']);
             $body = NewsletterRenderer::render($newsletter_id, $tokens);
@@ -289,12 +295,17 @@ final class SendAjaxController
                 $failed++;
                 continue;
             }
-            $headers = $this->build_test_headers($newsletter_id, $r['prefs_token'], $from_name_override, $reply_to);
+            $headers = $this->build_test_headers($newsletter_id, $r['prefs_token'], $reply_to);
             $ok = (bool) wp_mail($r['email'], $subject, $body, $headers);
             if ($ok) {
                 $sent++;
             } else {
                 $failed++;
+            }
+        }
+        } finally {
+            if ($router instanceof MailRouter) {
+                $router->clear_forced_send();
             }
         }
 
@@ -664,16 +675,36 @@ final class SendAjaxController
     /**
      * @return array<int, string>
      */
-    private function build_test_headers(int $newsletter_id, string $prefs_token, string $from_name_override, string $reply_to): array
+    /**
+     * Fetch the MailRouter from the container and force the newsletter's SMTP
+     * identity (+ From-name) for the test send — same mechanism as SendLoop, so
+     * a test mirrors the real send. Returns the router (clear with
+     * clear_forced_send() in a finally) or null when SMTP isn't active.
+     */
+    private function force_sender(int $identity_id, string $from_name_override): ?MailRouter
+    {
+        if (!class_exists(MailRouter::class)) {
+            return null;
+        }
+        $plugin = \LRob\EmailToolkit\Plugin::instance();
+        if (!$plugin->container()->has(MailRouter::class)) {
+            return null;
+        }
+        $router = $plugin->container()->get(MailRouter::class);
+        if (!$router instanceof MailRouter) {
+            return null;
+        }
+        $router->force_send($identity_id, $from_name_override);
+        return $router;
+    }
+
+    private function build_test_headers(int $newsletter_id, string $prefs_token, string $reply_to): array
     {
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
             SendLoop::HEADER_NEWSLETTER_ID . ': ' . (int) $newsletter_id,
             self::HEADER_TEST . ': 1',
         ];
-        if ($from_name_override !== '') {
-            $headers[] = 'X-Lrob-Etk-From-Name: ' . self::strip_crlf($from_name_override);
-        }
         if ($reply_to !== '' && is_email($reply_to)) {
             $headers[] = 'Reply-To: ' . self::strip_crlf($reply_to);
         }

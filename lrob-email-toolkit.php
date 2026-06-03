@@ -3,7 +3,7 @@
  * Plugin Name: LRob - Email Toolkit
  * Plugin URI: https://www.lrob.fr/wordpress/plugins/lrob-email-toolkit/
  * Description: All-in-one modular email plugin: SMTP routing, email logging, contact forms, newsletters, captcha, and webhook integrations. Each module is independently activatable.
- * Version: 0.5.0
+ * Version: 0.6.0
  * Author: LRob
  * Author URI: https://www.lrob.fr
  * License: GPL-2.0+
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('LROB_ETK_VERSION', '0.5.0');
+define('LROB_ETK_VERSION', '0.6.0');
 define('LROB_ETK_FILE', __FILE__);
 define('LROB_ETK_PATH', plugin_dir_path(__FILE__));
 define('LROB_ETK_URL', plugin_dir_url(__FILE__));

@@ -156,9 +156,11 @@ Resolution is lazy and cached for the duration of one `wp_mail()` call (reset by
 1. If `forced_identity_slug` is set (see `force_identity()`), find that identity and apply constant overrides.
 2. Otherwise: `SourceResolver::resolve()` → `RoutingRules::resolve(source)` → `ConstantOverrides::apply()`.
 
-### `force_identity(?string $slug)`
+### `force_identity(?string $slug)` / `force_from_name(?string $name)` / `force_send(int $identity_id, string $from_name = '')` / `clear_forced_send()`
 
-Bypasses routing for the very next `wp_mail()` resolution. Used by the admin "Test email" flow so the test exercises a specific identity that may not be the default. Pass `null` to clear.
+`force_identity` bypasses routing and pins a specific identity by slug; `force_from_name` pins the display From-name (independent of the identity — honoured by both `override_from_name()` and `configure_mailer()`'s `setFrom`). The forced state **survives a batch** of `wp_mail()` calls (`reset_current()` clears only the per-call resolution cache, not the forced slug/name), so a caller can force once, loop, then clear. `force_send()` is the convenience wrapper: resolve a numeric identity id → slug + force it, plus an optional From-name (id 0 / empty name → leave that aspect on default routing). `clear_forced_send()` clears both — always call it in a `finally`.
+
+Callers: the admin **Test email** flow (`force_identity`); the **Contact Form** submit (`force_identity` by per-form identity); the **Newsletter pipeline** — `SendLoop` (real send) **and** `SendAjaxController` (test send) both `force_send(META_SMTP_IDENTITY, META_FROM_NAME_OVERRIDE)` so a newsletter uses the identity chosen on it and the test mirrors the real send. No-op when SMTP is disabled (the container has no `MailRouter`).
 
 ### Events dispatched
 
