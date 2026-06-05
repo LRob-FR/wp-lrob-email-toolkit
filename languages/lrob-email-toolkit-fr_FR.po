@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-06-03T09:07:09+00:00\n"
+"POT-Creation-Date: 2026-06-04T17:51:44+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -103,8 +103,8 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:579
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:605
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:653
-#: src/Modules/Newsletter/Module.php:592
-#: src/Modules/Newsletter/Send/SendAjaxController.php:727
+#: src/Modules/Newsletter/Module.php:598
+#: src/Modules/Newsletter/Send/SendAjaxController.php:731
 #: src/Modules/SMTP/Admin/AjaxController.php:389
 #: src/Modules/SMTP/Admin/PageController.php:136
 msgid "Insufficient permissions."
@@ -527,7 +527,7 @@ msgstr "Reçues"
 #: src/Modules/Logging/Admin/LogsPage.php:223
 #: src/Modules/Logging/LogEntry.php:24
 #: src/Modules/Newsletter/Admin/HomePage.php:194
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:791
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:792
 msgid "Failed"
 msgstr "Échec"
 
@@ -566,8 +566,8 @@ msgstr "Source"
 #: src/Admin/DashboardPage.php:781
 #: src/Modules/Logging/Admin/LogDetailRenderer.php:15
 #: src/Modules/Logging/Admin/LogsPage.php:355
-#: src/Modules/Newsletter/Send/SendAjaxController.php:280
-#: src/Modules/Newsletter/Send/SendLoop.php:59
+#: src/Modules/Newsletter/Send/SendAjaxController.php:281
+#: src/Modules/Newsletter/Send/SendLoop.php:60
 msgid "(no subject)"
 msgstr "(sans sujet)"
 
@@ -594,7 +594,7 @@ msgstr "Une erreur est survenue."
 #: src/Admin/DashboardPage.php:831 src/Modules/Logging/Admin/LogsPage.php:220
 #: src/Modules/Logging/LogEntry.php:23
 #: src/Modules/Newsletter/Admin/HomePage.php:193
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:790
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:791
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:158
 msgid "Sent"
 msgstr "Envoyé"
@@ -764,7 +764,7 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:584
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:609
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:658
-#: src/Modules/Newsletter/Module.php:596
+#: src/Modules/Newsletter/Module.php:602
 msgid "Security check failed. Please retry."
 msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 
@@ -2943,7 +2943,7 @@ msgstr "Envoi du commentaire bloqué"
 #: src/Modules/ContactForm/Admin/AjaxController.php:166
 #: src/Modules/ContactForm/Admin/AjaxController.php:226
 #: src/Modules/Newsletter/Admin/AjaxController.php:1521
-#: src/Modules/Newsletter/Send/SendAjaxController.php:731
+#: src/Modules/Newsletter/Send/SendAjaxController.php:735
 msgid "Security check failed. Please reload the page."
 msgstr "Échec du contrôle de sécurité. Veuillez recharger la page."
 
@@ -2982,7 +2982,7 @@ msgstr "Formulaire source introuvable."
 #: src/Modules/ContactForm/Admin/AjaxController.php:192
 #: src/Modules/Newsletter/Admin/AjaxController.php:562
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:666
-#: src/Modules/Newsletter/Module.php:605
+#: src/Modules/Newsletter/Module.php:611
 msgid "%s (copy)"
 msgstr "%s (copie)"
 
@@ -3040,7 +3040,7 @@ msgid "Form name"
 msgstr "Nom du formulaire"
 
 #: src/Modules/ContactForm/Admin/FormCardRenderer.php:219
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:786
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:787
 #: src/Modules/Newsletter/Admin/SignupFormCardRenderer.php:83
 msgid "Draft"
 msgstr "Brouillon"
@@ -3220,7 +3220,7 @@ msgstr "Fenêtre (min)"
 
 #: src/Modules/ContactForm/Admin/FormCardRenderer.php:394
 #: src/Modules/ContactForm/Admin/FormsPage.php:755
-#: src/Modules/Newsletter/Admin/SignupFormCardRenderer.php:156
+#: src/Modules/Newsletter/Admin/SignupFormCardRenderer.php:157
 msgid "(no title)"
 msgstr "(aucun titre)"
 
@@ -3233,7 +3233,7 @@ msgstr "(aucun titre)"
 #: src/Modules/Logging/Admin/LogsPage.php:548
 #: src/Modules/Newsletter/Admin/FormsPage.php:523
 #: src/Modules/Newsletter/Admin/ListsPage.php:841
-#: src/Modules/Newsletter/Admin/SignupFormCardRenderer.php:162
+#: src/Modules/Newsletter/Admin/SignupFormCardRenderer.php:163
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:245
 #: src/Modules/SMTP/Admin/IdentityCardRenderer.php:71
 msgid "Delete"
@@ -4406,6 +4406,10 @@ msgid_plural "%s submissions"
 msgstr[0] "%s message"
 msgstr[1] "%s messages"
 
+#: src/Modules/ContactForm/Module.php:220
+msgid "Contact form emails"
+msgstr "Emails de formulaire de contact"
+
 #: src/Modules/ContactForm/SubmitHandler.php:49
 #: src/Modules/Newsletter/SubmitHandler.php:43
 msgid "This form has expired. Please reload the page and try again."
@@ -4907,7 +4911,7 @@ msgstr ""
 
 #: src/Modules/Logging/Admin/LogsPage.php:226
 #: src/Modules/Logging/LogEntry.php:25
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:788
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:789
 msgid "Sending"
 msgstr "Envoi en cours"
 
@@ -5247,9 +5251,9 @@ msgstr "Cette liste n'est pas modifiable par abonné."
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:553
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:588
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:662
-#: src/Modules/Newsletter/Send/SendAjaxController.php:249
-#: src/Modules/Newsletter/Send/SendAjaxController.php:271
-#: src/Modules/Newsletter/Send/SendAjaxController.php:588
+#: src/Modules/Newsletter/Send/SendAjaxController.php:250
+#: src/Modules/Newsletter/Send/SendAjaxController.php:272
+#: src/Modules/Newsletter/Send/SendAjaxController.php:592
 msgid "Newsletter not found."
 msgstr "Newsletter introuvable."
 
@@ -6327,19 +6331,19 @@ msgstr ""
 "Interrompez d'abord l'envoi, puis vous pourrez déplacer cette newsletter "
 "dans la corbeille."
 
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:787
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:788
 msgid "Scheduled"
 msgstr "Programmé"
 
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:789
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:790
 msgid "Paused"
 msgstr "En pause"
 
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:792
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:793
 msgid "Aborted"
 msgstr "Abandonné"
 
-#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:793
+#: src/Modules/Newsletter/Admin/NewsletterCardRenderer.php:794
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2398
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2425
 #: src/Modules/Newsletter/Admin/SubscribersPage.php:2438
@@ -7285,7 +7289,7 @@ msgid "Unsubscribed"
 msgstr "Désinscrit"
 
 #. translators: %s: site name.
-#: src/Modules/Newsletter/ConfirmationDispatcher.php:73
+#: src/Modules/Newsletter/ConfirmationDispatcher.php:75
 msgid "Confirm your subscription to %s"
 msgstr "Confirmez votre abonnement à %s"
 
@@ -7532,7 +7536,7 @@ msgid "WP users list"
 msgstr "Liste d'utilisateurs WP"
 
 #: src/Modules/Newsletter/ListRepository.php:48
-#: src/Modules/Newsletter/Module.php:668
+#: src/Modules/Newsletter/Module.php:674
 msgid "All subscribers"
 msgstr "Tous les abonnés"
 
@@ -7625,19 +7629,23 @@ msgid_plural "%s subscribers"
 msgstr[0] "S'inscrire"
 msgstr[1] "S'inscrire"
 
-#: src/Modules/Newsletter/Module.php:600
+#: src/Modules/Newsletter/Module.php:530
+msgid "Newsletter emails"
+msgstr "Emails de newsletter"
+
+#: src/Modules/Newsletter/Module.php:606
 msgid "Unknown onboarding email purpose."
 msgstr "Objectif d'email d'accueil inconnu."
 
-#: src/Modules/Newsletter/Module.php:621
+#: src/Modules/Newsletter/Module.php:627
 msgid "Could not create the template draft."
 msgstr "Impossible de créer le brouillon de modèle."
 
-#: src/Modules/Newsletter/Module.php:654
+#: src/Modules/Newsletter/Module.php:660
 msgid "Newsletter: the SMTP module is optional"
 msgstr "Newsletter : le module SMTP est facultatif"
 
-#: src/Modules/Newsletter/Module.php:655
+#: src/Modules/Newsletter/Module.php:661
 msgid ""
 "Newsletter sends through WordPress’ standard mail, so it already works with "
 "whatever you use — PHP mail, or any SMTP plugin you already have. Enable the "
@@ -7650,19 +7658,19 @@ msgstr ""
 "vous voulez le routage par identité, le contrôle de délivrabilité et la "
 "journalisation des envois."
 
-#: src/Modules/Newsletter/Module.php:657
+#: src/Modules/Newsletter/Module.php:663
 msgid "Set up the SMTP module"
 msgstr "Configurer le module SMTP"
 
-#: src/Modules/Newsletter/Module.php:673
+#: src/Modules/Newsletter/Module.php:679
 msgid "All WP members"
 msgstr "Tous les membres WP"
 
-#: src/Modules/Newsletter/Module.php:681
+#: src/Modules/Newsletter/Module.php:687
 msgid "All WC customers"
 msgstr "Tous les clients WC"
 
-#: src/Modules/Newsletter/Module.php:689
+#: src/Modules/Newsletter/Module.php:695
 msgid "Active WC subscribers"
 msgstr "Abonnés WC actifs"
 
@@ -8019,55 +8027,55 @@ msgstr "Gérer les préférences"
 msgid "Unsubscribe"
 msgstr "Se désinscrire"
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:94
+#: src/Modules/Newsletter/Send/SendAjaxController.php:95
 msgid "Bad force-override payload."
 msgstr "Charge utile de surcharge invalide."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:136
+#: src/Modules/Newsletter/Send/SendAjaxController.php:137
 msgid "Could not render this newsletter."
 msgstr "Impossible de générer cette newsletter."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:245
-#: src/Modules/Newsletter/Send/SendAjaxController.php:267
-#: src/Modules/Newsletter/Send/SendAjaxController.php:584
+#: src/Modules/Newsletter/Send/SendAjaxController.php:246
+#: src/Modules/Newsletter/Send/SendAjaxController.php:268
+#: src/Modules/Newsletter/Send/SendAjaxController.php:588
 msgid "Missing newsletter id."
 msgstr "Identifiant de newsletter manquant."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:276
+#: src/Modules/Newsletter/Send/SendAjaxController.php:277
 msgid "No valid test recipient."
 msgstr "Aucun destinataire de test valide."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:334
+#: src/Modules/Newsletter/Send/SendAjaxController.php:338
 msgid "Only a sending newsletter can be paused."
 msgstr "Seule une newsletter en cours d'envoi peut être mise en pause."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:350
+#: src/Modules/Newsletter/Send/SendAjaxController.php:354
 msgid "Only a paused newsletter can be resumed."
 msgstr "Seule une newsletter en pause peut être reprise."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:373
+#: src/Modules/Newsletter/Send/SendAjaxController.php:377
 msgid "Only a sending or paused newsletter can be aborted."
 msgstr "Seule une newsletter en cours d'envoi ou en pause peut être annulée."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:426
+#: src/Modules/Newsletter/Send/SendAjaxController.php:430
 msgid "Only a draft newsletter can be scheduled."
 msgstr "Seule une newsletter en brouillon peut être programmée."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:432
+#: src/Modules/Newsletter/Send/SendAjaxController.php:436
 msgid "No schedule date set — tick the Schedule box and pick a date first."
 msgstr ""
 "Aucune date de programmation définie — cochez la case Programmer et "
 "choisissez d'abord une date."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:456
+#: src/Modules/Newsletter/Send/SendAjaxController.php:460
 msgid "Only a scheduled newsletter can be unscheduled."
 msgstr "Seule une newsletter programmée peut être déprogrammée."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:545
+#: src/Modules/Newsletter/Send/SendAjaxController.php:549
 msgid "No failed recipients to retry for this newsletter."
 msgstr "Aucun destinataire en échec à réessayer pour cette newsletter."
 
-#: src/Modules/Newsletter/Send/SendAjaxController.php:551
+#: src/Modules/Newsletter/Send/SendAjaxController.php:555
 msgid "No failed recipients to retry."
 msgstr "Aucun destinataire en échec à réessayer."
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LRob\EmailToolkit\Modules\Newsletter;
 
+use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
+
 /**
  * Sends the double-opt-in confirmation email for a freshly-created
  * (or re-pending) subscriber row. Walks: pick the form's confirmation
@@ -74,10 +76,11 @@ final class ConfirmationDispatcher
                 (string) get_bloginfo('name')
             );
 
-        // wp_mail honours SMTP module routing via the `lrob_etk_email_sending`
-        // filter chain — no special handling here. Header marks this as a
-        // newsletter message so the Logging module's filter can suppress
-        // success rows (only failures hit the global log by default).
+        // Sent under the `newsletter` routing source so the double-opt-in
+        // confirmation follows the same SMTP routing rule as newsletters
+        // (the user's choice — shared route). Header marks this as a newsletter
+        // message so the Logging module's filter can suppress success rows
+        // (only failures hit the global log by default).
         $headers = [
             'Content-Type: text/html; charset=UTF-8',
             'X-Lrob-Etk-Newsletter-Confirmation: 1',
@@ -93,7 +96,10 @@ final class ConfirmationDispatcher
             $headers[] = 'List-Unsubscribe-Post: List-Unsubscribe=One-Click';
         }
 
-        return wp_mail($email, $subject, $body_html, $headers);
+        return (bool) SourceResolver::with(
+            SourceResolver::SOURCE_NEWSLETTER,
+            static fn (): bool => wp_mail($email, $subject, $body_html, $headers)
+        );
     }
 
     /**

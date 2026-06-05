@@ -10,6 +10,7 @@ use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\Tracking\Pipeline as TrackingPipeline;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Modules\SMTP\MailRouter;
+use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
 use LRob\EmailToolkit\Support\Events;
 
 // Docs: docs/newsletter-internals.md → "Send pipeline"
@@ -68,9 +69,12 @@ final class SendLoop
         $unprocessed_ids = [];
 
         // Send the batch under the newsletter's chosen SMTP identity + From-name
-        // (no-ops when SMTP is disabled or no identity is set). Cleared in finally
-        // so a renderer/tracking throw can't leak the forced sender to later mail.
+        // (no-ops when SMTP is disabled or no identity is set). The `newsletter`
+        // source lets SMTP routing rules target newsletter mail when no
+        // per-newsletter identity is forced (forced identity still wins).
+        // Cleared in finally so a renderer/tracking throw can't leak either.
         $router = $this->force_sender($identity_id, $from_name_override);
+        SourceResolver::push(SourceResolver::SOURCE_NEWSLETTER);
         try {
         foreach ($claimed as $i => $row) {
             $row_id = (int) $row['id'];
@@ -130,6 +134,7 @@ final class SendLoop
             }
         }
         } finally {
+            SourceResolver::pop();
             if ($router instanceof MailRouter) {
                 $router->clear_forced_send();
             }

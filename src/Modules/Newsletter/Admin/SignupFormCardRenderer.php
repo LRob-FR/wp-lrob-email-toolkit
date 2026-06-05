@@ -149,6 +149,7 @@ final class SignupFormCardRenderer
                 <?php FormsPage::render_fields_editor($form_id); ?>
 
                 <footer class="lrob-etk-card-footer">
+                    <span class="lrob-etk-card-status lrob-etk-card-footer-status" aria-live="polite"></span>
                     <div class="lrob-etk-card-footer-actions">
                         <button type="button"
                                 class="lrob-etk-card-delete-link"

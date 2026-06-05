@@ -127,7 +127,7 @@ Stored in `lrob_etk_smtp_routing` option as `['source_key' => 'identity_slug', .
 
 Returns `null` when no usable identity exists — `MailRouter` lets WordPress fall through to its native `mail()` transport.
 
-The routing section only renders in the admin when there are ≥ 2 identities. Sources surfaced in the admin are those returned by `SettingsPage::known_sources()`, which also calls `apply_filters('lrob_etk_smtp_known_sources', $sources)` — third-party code can add rows.
+The routing section only renders in the admin when there are ≥ 2 identities. Sources surfaced in the admin are those returned by `SettingsPage::known_sources()` (Default + WooCommerce-when-active), which also calls `apply_filters('lrob_etk_smtp_known_sources', $sources)` — modules and third-party code add rows. The **Newsletter** and **Contact Form** modules each register their source (`newsletter` / `contact_form`) via that filter **when enabled**, so they appear as routable rows. A source only does something if mail is actually sent under it: the contact-form submit (`SOURCE_CONTACT_FORM`), the newsletter send pipeline + double-opt-in confirmations (`SOURCE_NEWSLETTER`, via `SourceResolver::push`/`pop`/`::with`), and the WooCommerce callback wrapper (`SOURCE_WOOCOMMERCE`). Precedence at send time: a `force_identity`/`force_send` override (per-form, per-newsletter) beats the source→rule mapping, which beats the default identity.
 
 ---
 

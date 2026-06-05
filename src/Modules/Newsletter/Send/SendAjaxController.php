@@ -11,6 +11,7 @@ use LRob\EmailToolkit\Modules\Newsletter\ListRepository;
 use LRob\EmailToolkit\Modules\Newsletter\Schema;
 use LRob\EmailToolkit\Modules\Newsletter\UserMeta;
 use LRob\EmailToolkit\Modules\SMTP\MailRouter;
+use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
 use LRob\EmailToolkit\Support\Events;
 
 // Docs: docs/newsletter-internals.md → "Send pipeline"
@@ -284,9 +285,11 @@ final class SendAjaxController
 
         $sent = 0;
         $failed = 0;
-        // Force the same SMTP identity + From-name as the real send, so a test
-        // reflects exactly what recipients will get. Cleared in finally.
+        // Force the same SMTP identity + From-name + `newsletter` routing source
+        // as the real send, so a test reflects exactly what recipients will get.
+        // Cleared in finally.
         $router = $this->force_sender($identity_id, $from_name_override);
+        SourceResolver::push(SourceResolver::SOURCE_NEWSLETTER);
         try {
         foreach ($recipients as $r) {
             $tokens = NewsletterRenderer::tokens_for_recipient($r['email'], $r['name'], $r['prefs_token']);
@@ -304,6 +307,7 @@ final class SendAjaxController
             }
         }
         } finally {
+            SourceResolver::pop();
             if ($router instanceof MailRouter) {
                 $router->clear_forced_send();
             }

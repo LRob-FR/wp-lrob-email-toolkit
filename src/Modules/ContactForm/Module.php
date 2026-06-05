@@ -214,6 +214,13 @@ final class Module extends AbstractModule
         }
 
         if ($this->is_enabled()) {
+            // Surface "Contact form emails" as a routable source in the SMTP routing UI
+            // (SubmitHandler already sends under the contact_form source).
+            add_filter('lrob_etk_smtp_known_sources', static function (array $sources): array {
+                $sources[\LRob\EmailToolkit\Modules\SMTP\SourceResolver::SOURCE_CONTACT_FORM] = __('Contact form emails', 'lrob-email-toolkit');
+                return $sources;
+            });
+
             (new CPT())->register();
             (new Blocks())->register();
             (new Frontend())->register();

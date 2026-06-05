@@ -722,6 +722,7 @@ final class NewsletterCardRenderer
                             </button>
                         <?php endif; ?>
                     </div>
+                    <span class="lrob-etk-card-status lrob-etk-card-footer-status" aria-live="polite"></span>
                     <div class="lrob-etk-nl-card-send-actions">
                         <?php echo $send_actions_html; // phpcs:ignore — pre-built button markup ?>
                     </div>

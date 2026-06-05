@@ -51,8 +51,8 @@
     }, true);
 
     function sendSave(formId, newsletterId, key, sourceEl) {
-        var statusEl = findStatusEl(sourceEl);
-        setStatus(statusEl, 'saving', null, sourceEl);
+        var statusEls = findStatusEls(sourceEl);
+        setStatus(statusEls, 'saving', null, sourceEl);
 
         // Resource-rename dispatches go to dedicated endpoints rather
         // than save_meta — categories and lists aren't forms and their
@@ -69,7 +69,7 @@
         } else if (key === 'rename-category' || key === 'rename-list') {
             var resourceId = sourceEl.getAttribute('data-resource-id');
             if (!resourceId) {
-                setStatus(statusEl, 'error');
+                setStatus(statusEls, 'error');
                 return;
             }
             var action = key === 'rename-category'
@@ -98,49 +98,71 @@
             .then(function (resp) {
                 if (resp && resp.success) {
                     sourceEl.__original = sourceEl.value;
-                    setStatus(statusEl, 'saved', null, sourceEl);
+                    setStatus(statusEls, 'saved', null, sourceEl);
                     if (newsletterId) {
                         document.dispatchEvent(new CustomEvent('lrob-etk-nl-saved', {
                             detail: { newsletterId: newsletterId, key: key }
                         }));
                     }
                 } else {
-                    setStatus(statusEl, 'error', resp && resp.data && resp.data.message, sourceEl);
+                    setStatus(statusEls, 'error', resp && resp.data && resp.data.message, sourceEl);
                 }
             })
-            .catch(function () { setStatus(statusEl, 'error', null, sourceEl); });
+            .catch(function () { setStatus(statusEls, 'error', null, sourceEl); });
     }
 
-    function findStatusEl(sourceEl) {
+    // All status badges in the card (header AND footer) so the autosave
+    // indicator stays visible when scrolling a tall card. Falls back to the
+    // broad ancestor for non-card contexts (resource rename, module setting).
+    function findStatusEls(sourceEl) {
+        var card = sourceEl.closest('.lrob-etk-card');
+        if (card) return card.querySelectorAll('.lrob-etk-card-status');
         var ancestor = sourceEl.closest('header, section, article, .lrob-etk-nl-form-edit');
-        if (!ancestor) return null;
-        return ancestor.querySelector('.lrob-etk-card-status');
+        return ancestor ? ancestor.querySelectorAll('.lrob-etk-card-status') : [];
     }
 
-    function setStatus(el, state, detail, sourceEl) {
-        var emitter = sourceEl || el;
+    function setStatus(els, state, detail, sourceEl) {
+        var emitter = sourceEl || (els && els[0]);
         if (emitter && emitter.dispatchEvent) {
             emitter.dispatchEvent(new CustomEvent('lrob-etk:save-status', {
                 bubbles: true,
                 detail: { state: state, message: detail || '' },
             }));
         }
-        if (!el) return;
-        el.classList.remove('is-saving', 'is-saved', 'is-error');
-        if (state === 'saving') {
-            el.classList.add('is-saving');
-            el.textContent = I18N.saving || 'Saving…';
-        } else if (state === 'saved') {
-            el.classList.add('is-saved');
-            el.textContent = I18N.saved || 'Saved';
-            clearTimeout(el.__hideTimer);
-            el.__hideTimer = setTimeout(function () {
-                el.classList.remove('is-saved');
-                el.textContent = '';
-            }, 1400);
-        } else if (state === 'error') {
-            el.classList.add('is-error');
-            el.textContent = (I18N.error || 'Save failed') + (detail ? ': ' + detail : '');
-        }
+        renderStatus(els, state, detail);
     }
+
+    function renderStatus(els, state, detail) {
+        if (!els || !els.length) return;
+        Array.prototype.forEach.call(els, function (el) {
+            el.classList.remove('is-saving', 'is-saved', 'is-error');
+            if (state === 'saving') {
+                el.classList.add('is-saving');
+                el.textContent = I18N.saving || 'Saving…';
+            } else if (state === 'saved') {
+                el.classList.add('is-saved');
+                el.textContent = I18N.saved || 'Saved';
+                clearTimeout(el.__hideTimer);
+                el.__hideTimer = setTimeout(function () {
+                    el.classList.remove('is-saved');
+                    el.textContent = '';
+                }, 1400);
+            } else if (state === 'error') {
+                el.classList.add('is-error');
+                el.textContent = (I18N.error || 'Save failed') + (detail ? ': ' + detail : '');
+            }
+        });
+    }
+
+    // Card-internal widgets that save on their own (the audience / default-lists
+    // picker) dispatch `lrob-etk:save-status` but don't touch the card badge.
+    // Route those to the card's status badge(s). nl-field events are already
+    // rendered directly by sendSave → skip them (no double work, no loop:
+    // renderStatus never re-dispatches).
+    document.addEventListener('lrob-etk:save-status', function (e) {
+        var src = e.target;
+        if (!src || !src.closest) return;
+        if (src.classList && src.classList.contains('lrob-etk-nl-field')) return;
+        renderStatus(findStatusEls(src), e.detail && e.detail.state, e.detail && e.detail.message);
+    });
 })();

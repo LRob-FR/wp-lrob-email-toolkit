@@ -525,6 +525,12 @@ final class Module extends AbstractModule
         add_action('init', [$this, 'maybe_seed_templates'], 20);
 
         if ($this->is_enabled()) {
+            // Surface "Newsletter emails" as a routable source in the SMTP routing UI.
+            add_filter('lrob_etk_smtp_known_sources', static function (array $sources): array {
+                $sources[\LRob\EmailToolkit\Modules\SMTP\SourceResolver::SOURCE_NEWSLETTER] = __('Newsletter emails', 'lrob-email-toolkit');
+                return $sources;
+            });
+
             $hooks = new UserHooks($subscribers);
             add_action('user_register', [$hooks, 'on_user_register'], 10, 1);
             add_action('deleted_user', [$hooks, 'on_deleted_user'], 10, 1);

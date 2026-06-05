@@ -251,7 +251,30 @@
             if (!resp.success || !resp.data.hosts) return;
             card._hostList = resp.data.hosts;   // populates dropdown marks; badge shows on host change
             showHostResolve(card);
+            autoPreselectHost(card);
         });
+    }
+
+    // Auto-fill the host once we have candidates — only when the field is still
+    // empty (never overwrite a host the user typed / an existing identity).
+    // Preference: lowest-priority MX that resolves → resolving preset → lowest
+    // MX even if unresolved → first candidate.
+    function autoPreselectHost(card) {
+        var hostField = field(card, 'host');
+        if (!hostField || hostField.value.trim() !== '') return;
+        var list = card._hostList || [];
+        if (!list.length) return;
+        var isMx = function (h) { return h.priority !== null && h.priority !== undefined; };
+        var byPriority = function (a, b) { return a.priority - b.priority; };
+        var mxOk = list.filter(function (h) { return isMx(h) && h.resolves; }).sort(byPriority);
+        var presetOk = list.filter(function (h) { return !isMx(h) && h.resolves; });
+        var mxAny = list.filter(isMx).sort(byPriority);
+        var pick = mxOk[0] || presetOk[0] || mxAny[0] || list[0];
+        if (!pick || !pick.host) return;
+        hostField.value = pick.host;
+        showHostResolve(card);
+        syncFromWarning(card);
+        queueSave(card, 0);
     }
 
     function wireCardListeners(card) {
@@ -597,6 +620,12 @@
                 else document.querySelector('.lrob-etk-add-row').insertAdjacentElement('beforebegin', container);
             }
             container.appendChild(newCard);
+            // Bind the fixed-select combos (Encryption, Force) on the freshly
+            // cloned card — initCombos() ran at load, before this card existed,
+            // and is idempotent (already-bound combos carry __etkBound).
+            if (window.lrobEtkControls && window.lrobEtkControls.initCombos) {
+                window.lrobEtkControls.initCombos();
+            }
             wireCardListeners(newCard);
             applyCardState(newCard);
             field(newCard, 'label').focus();

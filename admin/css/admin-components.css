@@ -1624,6 +1624,14 @@ body.lrob-etk-modal-open {
     align-items: center;
 }
 .lrob-etk-card-footer-actions { justify-content: flex-end; }
+/* Footer copy of the autosave badge (newsletter + signup-form cards) so the
+   status stays visible when scrolling a tall card — sits centered in the
+   space between the footer's left/right button groups. */
+.lrob-etk-card-footer-status {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+}
 /* Set-default + default badge: same line-height/height so the badge doesn't
    ride higher than the button form of it. */
 .lrob-etk-card-footer-default .lrob-etk-set-default,
