@@ -23,7 +23,30 @@ Single branded "Deep Glass" admin theme + the step-0 CSS/status-colour consolida
 - ☐ **Carried forward, opportunistic (not blocking):** promote `-cf-`/`-nl-`/`-smtp-`/`-logs-` CSS sub-prefixes → global primitives when already editing a module (per `feedback_css_generic_naming`) — too risky as a big-bang rename (200+ concatenated class strings where the dead-css prefix-peel is blind), so do it in-context. Step-0 status-colour consolidation + dead-code removal already shipped.
 
 ### v0.6.x — Form theming + fixes  ← ACTIVE (0.6.0 in progress)
-- **Contact form personalization (real this time).** Per-form: background-on-hover, color presets + custom color picker, animations (button click: ripple/scale/bounce; send success: fade/checkmark/confetti). Replaces the currently-useless "preset" picker with something actually configurable. See memory `project_contact_form_visual_polish` (needs to be fleshed out into specs first).
+
+**Headline: real visual personalization for contact forms (+ newsletter signup forms — they share `src/Forms/`, so it's ~free).** The current `StylePresets`/`Settings::style_presets()` "preset" picker is a broken stub → clean it up and build proper theming. All visible in a **"Style" section** of the form. Keep it dead simple: presets do 90%, advanced knobs are collapsed. (Memory: `project_contact_form_visual_polish`. Frontend already runs on `--lrob-etk-cf-*` CSS vars → a theme = a var swap, additive/cheap. All animations respect `prefers-reduced-motion`.)
+
+**Architecture (resolution + storage).** Three tiers, mirroring the existing recipient/template defaults pattern: (1) **global defaults** in Contact Form → *Defaults*; (2) **per-form override**; (3) **user-created presets** ("save this form's style as a preset", reusable). Built-in presets + user presets stored in an option; per-form vars in post-meta (already have `META_STYLE_PRESET` + `META_STYLE_VARS`, to solidify). Precedence: per-form > global default > preset baseline.
+
+**Customization catalogue** (what each preset/override can set):
+- *Colours*: form background · text (labels/helper) · **field bg + field text as a pair** (+ placeholder) · accent (focus/links) · field border (+ focus border) · success/error.
+- *Submit button*: bg · text · shape (radius/pill/square) · size (padding) · hover colours.
+- *Typography*: font family (option "inherit theme font") · base size · label size/weight · helper size.
+- *Shape & spacing*: field border width/style · field corner radius · gap between fields · **inner padding (form edge ↔ fields)** · form max-width · flat / card / shadowed background.
+- *Effects*: focus outline / shadow / **glow** (focused AND idle) · field hover · button hover/animation (ripple/scale/bounce) · button + container shadow/glow.
+- *Success/feedback*: success message size · bg/colour · **animation** (fade/slide/checkmark/confetti) · **hide-the-form-after-success toggle** · error styling.
+
+**Theme integration**: an "inherit theme" preset that pulls the active block-theme palette + fonts; a **manual colour-mapping** UI (map each form role → a Gutenberg palette slot); light/dark (+ optional auto via `prefers-color-scheme`).
+
+**Preset library** (coherent, broad enough for any site): Light (default), Dark, Minimal/flat, Card/elevated, Rounded/friendly, Sharp/corporate, 1–2 originals (Glass, Bold), + "Inherit theme".
+
+**"Style" tab UX**: visual preset swatches (instant apply) → collapsible *Customize* grouped as above → live preview (editor already shows the form) → "Save as preset".
+
+**Suggested phasing** (ship in digestible chunks): **0.6.0** foundation — clean broken presets, solidify the var contract, global→override resolution, preset library (light/dark + a few), Style tab with preset picker + colours/typo/shape/spacing + live preview. **0.6.1** effects & animations (glow/hover/button/success anims, hide-after-send). **0.6.2** Gutenberg/theme integration (inherit palette/fonts + manual mapping). **0.6.3** user-saved presets + per-field knobs (in the editor gear popup).
+
+**Open decisions to settle before coding** (asked the user, not yet answered): (1) where "Style" lives — a tab on the form card vs. the editor gear popup; (2) backgrounds — solid only or also gradients/image; (3) a raw "custom CSS" escape hatch for power users — yes/no (leaning no, to stay simple); (4) v0.6.0 scope — theming+presets first then effects/Gutenberg later, or all at once.
+
+**Also in the 0.6.x cycle (already shipped, see done.md):** newsletter identity at send + test==real; newsletter/contact-form routing sources; SMTP new-card combos + host auto-preselect; card autosave footer + picker status; logs-preview height. **Remaining small fix:** Contact Form card footer autosave badge (different JS path — see *Cross-cutting polish*).
 
 ### v0.7.x — Send-rate throttling + per-domain limits (deliverability foundations)
 - **Per-identity (sender-side) cap.** Already-deferred backlog item. New `send_cap_rate` int + `send_cap_window` enum (`per_minute` / `per_hour`) on SMTP identity. SendLoop checks before claiming next batch; skips tick when cap reached. Use cases: "this Mailjet plan allows 2000/h max", "OVH SMTP throttles at 100/min".
