@@ -7,9 +7,11 @@ For working rules (conventions, naming, build, UI patterns), see [CLAUDE.md](./C
 
 ---
 
-## v0.6.x — Form theming + fixes (IN PROGRESS, unreleased)
+## v0.6.x — Form theming + fixes (IN PROGRESS)
 
-Version bumped to 0.6.0. Landed so far:
+The 0.6.x milestone is **Form theming + fixes**, delivered across sub-versions. Form theming itself is still ahead; **`0.6.0` was tagged early (2026-06-12) to ship a critical fix** plus everything else already landed this cycle.
+
+- **Fixed: fatal error on every new user registration (WooCommerce checkout, wp-admin user-add, programmatic `wp_insert_user`).** `UserHooks::seed_user_defaults()` — fired on the `user_register` hook — referenced `UserMeta::CATEGORY_OPT_OUTS`, a constant **removed** when per-category opt-outs were migrated to the list-membership model. Any account creation threw `Uncaught Error: Undefined constant …UserMeta::CATEGORY_OPT_OUTS`, aborting registration (reported live on WooCommerce checkout, `/commander/`). Fix: dropped the obsolete seed (new users default opted-in; list membership / opt-out is managed on the prefs page). The same dead constant in the one-time category→lists migration (`Module.php`) now reads the legacy meta key `lrob_etk_nl_category_opt_outs` by literal string (it's reading pre-migration data), defusing that latent landmine too.
 
 - **Newsletter sends now actually use the SMTP identity chosen on the newsletter — and the test send mirrors the real send.** The per-newsletter **identity** + **From-name** overrides were saved and displayed but **never applied at send time**: both the real send (`SendLoop`) and the **test send** (`SendAjaxController::handle_test_send`) called `wp_mail()` without forcing anything, so everything went out through the *default* SMTP routing. (Only the Reply-To override worked — it's a standard header.) Fixed by forcing the newsletter's identity + From-name around the sends, via a new `MailRouter` API — `force_send(int $identity_id, string $from_name = '')` + `clear_forced_send()` (built on `force_identity()` + a new `force_from_name()`), mirroring the Contact Form's `force_identity` pattern. Both paths fetch the `MailRouter` from the container and wrap the `wp_mail` loop in `try … finally { clear_forced_send() }` (no-op when SMTP is disabled → newsletter still sends via plain `wp_mail`). `force_identity` survives a batch because `reset_current()` never cleared it. The **test send is now identical to the real send** (same identity + From-name + Reply-To; only the `[TEST]` subject prefix differs). Removed the dead `X-Lrob-Etk-From-Name` header (nothing consumed it; From-name now flows through `MailRouter::override_from_name()` + `configure_mailer()`).
 

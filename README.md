@@ -4,9 +4,9 @@
 
 ## Status
 
-**Public beta — v0.5.0.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. The schema and the admin surfaces are stable, and the toolkit drives real email on production sites every day.
+**Public beta — v0.6.0.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. The schema and the admin surfaces are stable, and the toolkit drives real email on production sites every day.
 
-The v0.5 cycle gave the whole admin a single branded dark theme (matching the lrob.fr site), hardened the public-facing forms for accessibility (proper labels, announced errors, keyboard support), and did a big internal cleanup that makes future releases faster — with nothing changing in what you see. It builds on v0.4's full captcha lineup (hCaptcha / Turnstile / reCAPTCHA incl. invisible + score-based v3), in-place detail views, and resend-safe saved attachments.
+v0.6.0 fixes a critical bug (a fatal error that could block new-user registration / WooCommerce checkout on sites running the Newsletter module) and rounds out newsletter delivery: each newsletter now sends through the SMTP identity you choose on it (test sends included), and newsletter + contact-form mail can be pointed at a specific identity from the SMTP routing rules. It builds on the v0.5 cycle — a single branded dark admin theme (matching the lrob.fr site), accessibility-hardened public forms (proper labels, announced errors, keyboard support), and v0.4's full captcha lineup (hCaptcha / Turnstile / reCAPTCHA incl. invisible + score-based v3), in-place detail views, and resend-safe saved attachments.
 
 Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning). Bug reports + UX feedback welcome on [GitHub issues](https://github.com/LRob-FR/wp-lrob-email-toolkit/issues).
 

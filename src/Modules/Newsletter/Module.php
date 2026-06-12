@@ -312,7 +312,9 @@ final class Module extends AbstractModule
         ]);
         foreach (is_array($opted_in_users) ? $opted_in_users : [] as $u) {
             $uid = (int) $u->ID;
-            $opt_outs_json = (string) get_user_meta($uid, UserMeta::CATEGORY_OPT_OUTS, true);
+            // Legacy meta key (the per-category opt-out model predates the list-membership
+            // model and its UserMeta constant is gone); read it by literal for this one-time migration.
+            $opt_outs_json = (string) get_user_meta($uid, 'lrob_etk_nl_category_opt_outs', true);
             $opt_outs = self::decode_opt_outs($opt_outs_json);
             foreach ($slug_to_list_id as $slug => $list_id) {
                 if (in_array($slug, $opt_outs, true)) {

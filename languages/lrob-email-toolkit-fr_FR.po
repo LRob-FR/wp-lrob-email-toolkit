@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-06-04T17:51:44+00:00\n"
+"POT-Creation-Date: 2026-06-12T09:16:12+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -103,7 +103,7 @@ msgstr "Ouvrir les suggestions"
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:579
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:605
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:653
-#: src/Modules/Newsletter/Module.php:598
+#: src/Modules/Newsletter/Module.php:600
 #: src/Modules/Newsletter/Send/SendAjaxController.php:731
 #: src/Modules/SMTP/Admin/AjaxController.php:389
 #: src/Modules/SMTP/Admin/PageController.php:136
@@ -764,7 +764,7 @@ msgstr "Comportement de désinstallation enregistré."
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:584
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:609
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:658
-#: src/Modules/Newsletter/Module.php:602
+#: src/Modules/Newsletter/Module.php:604
 msgid "Security check failed. Please retry."
 msgstr "Échec du contrôle de sécurité. Veuillez réessayer."
 
@@ -2982,7 +2982,7 @@ msgstr "Formulaire source introuvable."
 #: src/Modules/ContactForm/Admin/AjaxController.php:192
 #: src/Modules/Newsletter/Admin/AjaxController.php:562
 #: src/Modules/Newsletter/Admin/NewslettersPage.php:666
-#: src/Modules/Newsletter/Module.php:611
+#: src/Modules/Newsletter/Module.php:613
 msgid "%s (copy)"
 msgstr "%s (copie)"
 
@@ -7536,7 +7536,7 @@ msgid "WP users list"
 msgstr "Liste d'utilisateurs WP"
 
 #: src/Modules/Newsletter/ListRepository.php:48
-#: src/Modules/Newsletter/Module.php:674
+#: src/Modules/Newsletter/Module.php:676
 msgid "All subscribers"
 msgstr "Tous les abonnés"
 
@@ -7623,29 +7623,29 @@ msgid "Send newsletters to your subscribers and WordPress users."
 msgstr "Envoyez des newsletters à vos abonnés et aux utilisateurs WordPress."
 
 #. translators: %s: number of subscribers (already formatted with i18n thousands separator).
-#: src/Modules/Newsletter/Module.php:487
+#: src/Modules/Newsletter/Module.php:489
 msgid "%s subscriber"
 msgid_plural "%s subscribers"
 msgstr[0] "S'inscrire"
 msgstr[1] "S'inscrire"
 
-#: src/Modules/Newsletter/Module.php:530
+#: src/Modules/Newsletter/Module.php:532
 msgid "Newsletter emails"
 msgstr "Emails de newsletter"
 
-#: src/Modules/Newsletter/Module.php:606
+#: src/Modules/Newsletter/Module.php:608
 msgid "Unknown onboarding email purpose."
 msgstr "Objectif d'email d'accueil inconnu."
 
-#: src/Modules/Newsletter/Module.php:627
+#: src/Modules/Newsletter/Module.php:629
 msgid "Could not create the template draft."
 msgstr "Impossible de créer le brouillon de modèle."
 
-#: src/Modules/Newsletter/Module.php:660
+#: src/Modules/Newsletter/Module.php:662
 msgid "Newsletter: the SMTP module is optional"
 msgstr "Newsletter : le module SMTP est facultatif"
 
-#: src/Modules/Newsletter/Module.php:661
+#: src/Modules/Newsletter/Module.php:663
 msgid ""
 "Newsletter sends through WordPress’ standard mail, so it already works with "
 "whatever you use — PHP mail, or any SMTP plugin you already have. Enable the "
@@ -7658,19 +7658,19 @@ msgstr ""
 "vous voulez le routage par identité, le contrôle de délivrabilité et la "
 "journalisation des envois."
 
-#: src/Modules/Newsletter/Module.php:663
+#: src/Modules/Newsletter/Module.php:665
 msgid "Set up the SMTP module"
 msgstr "Configurer le module SMTP"
 
-#: src/Modules/Newsletter/Module.php:679
+#: src/Modules/Newsletter/Module.php:681
 msgid "All WP members"
 msgstr "Tous les membres WP"
 
-#: src/Modules/Newsletter/Module.php:687
+#: src/Modules/Newsletter/Module.php:689
 msgid "All WC customers"
 msgstr "Tous les clients WC"
 
-#: src/Modules/Newsletter/Module.php:695
+#: src/Modules/Newsletter/Module.php:697
 msgid "Active WC subscribers"
 msgstr "Abonnés WC actifs"
 

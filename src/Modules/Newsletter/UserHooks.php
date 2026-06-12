@@ -133,14 +133,13 @@ final class UserHooks
 
     /**
      * Seed the lrob_etk_nl_* user_meta keys for a brand-new WP user with no
-     * prior subscriber row. Default = opted in to everything. Per-category
-     * opt-out is up to the user via their preferences page.
+     * prior subscriber row. Default = opted in to everything; list membership
+     * (and any opting out of a list) is managed via the preferences page.
      */
     private function seed_user_defaults(int $user_id): void
     {
         update_user_meta($user_id, UserMeta::OPTED_IN, '1');
         update_user_meta($user_id, UserMeta::STATUS, UserMeta::STATUS_ACTIVE);
-        update_user_meta($user_id, UserMeta::CATEGORY_OPT_OUTS, '[]');
         update_user_meta($user_id, UserMeta::BOUNCE_COUNT, 0);
         update_user_meta($user_id, UserMeta::PREFS_TOKEN, UserMeta::generate_prefs_token());
         update_user_meta($user_id, UserMeta::CONFIRMED_AT, current_time('mysql', true));
