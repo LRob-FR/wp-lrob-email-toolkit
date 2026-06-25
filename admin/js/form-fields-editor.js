@@ -163,6 +163,23 @@
                 })
                 .catch(function () { setStatus('error'); });
         }
+        // Persist a single post-meta value (e.g. the in-canvas captcha route),
+        // which the structure serializer deliberately doesn't carry.
+        function saveMeta(key, value) {
+            setStatus('saving');
+            var fd = new FormData();
+            fd.append('action', 'lrob_etk_cf_save_meta');
+            fd.append('_nonce', SAVE_DATA.nonce || '');
+            fd.append('form_id', String(formId));
+            fd.append('key', key);
+            fd.append('value', value);
+            fetch(SAVE_DATA.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: fd })
+                .then(function (r) { return r.json().catch(function () { return { success: false }; }); })
+                .then(function (resp) {
+                    setStatus(resp && resp.success ? 'saved' : 'error', resp && resp.data && resp.data.message);
+                })
+                .catch(function () { setStatus('error'); });
+        }
         function setStatus(state, detail) {
             if (!status) return;
             status.classList.remove('is-saving', 'is-saved', 'is-error');
@@ -367,6 +384,7 @@
                     preview.innerHTML = captchaPreviewHtml(target.value);
                     mountCaptchaPreview(preview);
                 }
+                if (target.dataset.key) saveMeta(target.dataset.key, target.value);
                 return;
             }
 
