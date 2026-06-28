@@ -54,7 +54,6 @@ final class EmbedRenderer
 
             $form_attrs = self::compute_form_root_attrs($form_id, $instance);
             $html  = '<form ' . $form_attrs . '>';
-            $html .= '<div class="lrob-etk-form-status" data-form-status role="status" aria-live="polite" hidden></div>';
             $html .= '<div class="lrob-etk-form-body">';
 
             foreach ($structure['rows'] as $row) {
@@ -78,6 +77,8 @@ final class EmbedRenderer
             $html .= Honeypot::render();
             $html .= self::render_hidden_fields($form_id, $instance);
             $html .= '</div>';
+            // Status below the form — see ContactForm\EmbedRenderer.
+            $html .= '<div class="lrob-etk-form-status" data-form-status role="status" aria-live="polite" hidden></div>';
             $html .= '</form>';
 
             return $html;

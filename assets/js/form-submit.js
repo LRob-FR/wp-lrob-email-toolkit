@@ -96,7 +96,7 @@
             var msg = (resp.data && resp.data.message) || I18N.success;
             showStatus(form, 'success', msg);
             form.classList.add('is-sent');
-            scrollIntoViewSoftly(form);
+            revealStatus(form);
             return;
         }
         var data = (resp && resp.data) || {};
@@ -209,10 +209,23 @@
         status.hidden = false;
     }
 
+    function isFullyVisible(el) {
+        var r = el.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        return r.top >= 0 && r.bottom <= vh;
+    }
     function scrollIntoViewSoftly(el) {
+        // Don't yank the page when the target is already on screen.
+        if (!el || isFullyVisible(el)) return;
         if (typeof el.scrollIntoView === 'function') {
-            try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { el.scrollIntoView(); }
+            try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { el.scrollIntoView(); }
         }
+    }
+    // Reveal the form's status banner (where success/error messages land),
+    // only if it isn't already visible.
+    function revealStatus(form) {
+        var status = form.querySelector('[data-form-status]');
+        if (status) scrollIntoViewSoftly(status);
     }
 
     function cssEscape(s) {
@@ -465,7 +478,7 @@
         } else {
             showStatus(form, 'error', I18N.captchaIncomplete || I18N.captchaFailed || I18N.unknownError || 'Error');
         }
-        scrollIntoViewSoftly(hosted);
+        revealStatus(form);
     }
     // Fired the instant a vendor captcha <script> errors (blocked by a content/
     // cookie blocker) — warn every form carrying a hosted challenge right away,

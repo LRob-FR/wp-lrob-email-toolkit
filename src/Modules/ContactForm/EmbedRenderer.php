@@ -46,7 +46,6 @@ final class EmbedRenderer
 
             $form_attrs = self::compute_form_root_attrs($form_id, $instance, $preset, $overrides);
             $html = '<form ' . $form_attrs . '>';
-            $html .= '<div class="lrob-etk-form-status" data-form-status role="status" aria-live="polite" hidden></div>';
             $html .= '<div class="lrob-etk-form-body">';
 
             foreach ($structure['rows'] as $row) {
@@ -64,6 +63,10 @@ final class EmbedRenderer
             $html .= $honeypot_html;
             $html .= self::render_hidden_fields($form_id, $instance);
             $html .= '</div>';
+            // Status sits below the form: the submit button is always at the
+            // bottom, so the message lands where the user just clicked (on a
+            // long form the top would scroll out of view).
+            $html .= '<div class="lrob-etk-form-status" data-form-status role="status" aria-live="polite" hidden></div>';
             $html .= '</form>';
 
             return $html;

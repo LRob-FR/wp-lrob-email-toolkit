@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-06-28T09:56:34+00:00\n"
+"POT-Creation-Date: 2026-06-28T10:06:38+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -376,7 +376,7 @@ msgstr "Annuler"
 
 #: src/Admin/DashboardPage.php:550 src/Admin/DashboardPage.php:829
 #: src/Forms/Fields/SubmitField.php:27 src/Forms/Fields/SubmitField.php:51
-#: src/Forms/FormStructure.php:43 src/Modules/ContactForm/EmbedRenderer.php:60
+#: src/Forms/FormStructure.php:43 src/Modules/ContactForm/EmbedRenderer.php:59
 msgid "Send"
 msgstr "Envoyer"
 
@@ -7434,7 +7434,7 @@ msgstr "Aucun formulaire de newsletter sélectionné."
 msgid "Newsletter form not found or not published."
 msgstr "Formulaire de newsletter introuvable ou non publié."
 
-#: src/Modules/Newsletter/EmbedRenderer.php:70
+#: src/Modules/Newsletter/EmbedRenderer.php:69
 #: src/Modules/Newsletter/FormTemplateRegistry.php:87
 #: src/Modules/Newsletter/FormTemplateRegistry.php:100
 #: src/Modules/Newsletter/FormTemplateRegistry.php:119

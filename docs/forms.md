@@ -285,7 +285,7 @@ Newsletter). Discovers forms at DOMContentLoaded and watches for late-mounted fo
 3. reCAPTCHA v3 guard: if `[data-lrob-etk-recaptcha-v3]` is present and token isn't filled, calls `runRecaptchaV3()` which calls `grecaptcha.execute()` then re-submits.
 4. On the resumed pass, `fetch` POSTs `FormData` to `ajaxUrl` (from `window.lrobEtkForm`). The form's own hidden `action` input carries the WP AJAX action name, so the same JS serves both modules.
 5. `joinPhonesInto(fd, form)` prefixes each country-picker tel value with `+<dial>` in the outgoing FormData (visitor keeps the national format on screen; server sees E.164).
-6. Response handling: success → `is-sent` class (hides the form body); field errors → `is-invalid` + `[data-field-error]` per field; top error → `[data-form-status]` banner.
+6. Response handling: success → `is-sent` class (hides the form body); field errors → `is-invalid` + `[data-field-error]` per field; form-level message → `[data-form-status]` banner (rendered **below** the form, under the submit button; `revealStatus()` scrolls to it only when off-screen).
 
 **Phone country picker** (`attachPicker(el)`):
 
