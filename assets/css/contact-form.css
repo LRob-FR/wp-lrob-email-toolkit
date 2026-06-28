@@ -407,7 +407,9 @@
     cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
     margin: 0;
-    color: var(--lrob-etk-cf-fg);
+    /* Picto sits on --cf-bg (same as inputs) → use the contrast-guaranteed
+     * input fg, not --cf-fg (inherit), which goes white on a dark-themed page. */
+    color: var(--lrob-etk-cf-input-fg);
 }
 .lrob-etk-cf-image-option:hover {
     border-color: var(--lrob-etk-cf-accent);
