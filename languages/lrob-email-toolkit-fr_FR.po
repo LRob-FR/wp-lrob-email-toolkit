@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-06-12T09:16:12+00:00\n"
+"POT-Creation-Date: 2026-06-28T09:56:34+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -2180,7 +2180,7 @@ msgid "Verification failed."
 msgstr "Échec de la vérification."
 
 #: src/Modules/Captcha/Admin/AjaxController.php:97
-#: src/Modules/Captcha/Providers/Recaptcha.php:251
+#: src/Modules/Captcha/Providers/Recaptcha.php:252
 msgid "No token to test."
 msgstr "Aucun jeton à tester."
 
@@ -2565,8 +2565,8 @@ msgstr "Contrôle anti-spam rapide."
 #: src/Modules/Captcha/Challenges/ImageChallenge.php:111
 #: src/Modules/Captcha/Challenges/MathChallenge.php:66
 #: src/Modules/Captcha/Challenges/MathChallenge.php:75
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:188
-#: src/Modules/Captcha/Providers/Recaptcha.php:294
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:199
+#: src/Modules/Captcha/Providers/Recaptcha.php:295
 #: src/Modules/Captcha/WpHooks.php:190 src/Modules/Captcha/WpHooks.php:212
 #: src/Modules/Captcha/WpHooks.php:222 src/Modules/Captcha/WpHooks.php:231
 #: src/Modules/Captcha/WpHooks.php:240
@@ -2714,57 +2714,57 @@ msgstr ""
 msgid "Open Captcha settings"
 msgstr "Ouvrir les réglages Captcha"
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:40
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:49
 #: src/Modules/Captcha/Providers/Recaptcha.php:80
 msgid "Site key"
 msgstr "Clé de site"
 
 #. translators: %s: provider name (e.g. hCaptcha, Cloudflare)
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:45
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:54
 msgid "Public \"Site key\" from your %s dashboard."
 msgstr "« Clé de site » publique depuis votre tableau de bord %s."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:51
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:60
 #: src/Modules/Captcha/Providers/Recaptcha.php:87
 msgid "Secret key"
 msgstr "Clé secrète"
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:54
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:63
 #: src/Modules/Captcha/Providers/Recaptcha.php:90
 msgid "Private \"Secret key\", stored AES-256-encrypted at rest."
 msgstr "« Clé secrète » privée, stockée chiffrée en AES-256 au repos."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:66
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:75
 #: src/Modules/Captcha/Providers/Recaptcha.php:118
 msgid "Site key is required."
 msgstr "La clé de site est requise."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:71
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:80
 #: src/Modules/Captcha/Providers/Recaptcha.php:123
 msgid "Secret key is required."
 msgstr "La clé secrète est requise."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:162
-#: src/Modules/Captcha/Providers/Recaptcha.php:214
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:173
+#: src/Modules/Captcha/Providers/Recaptcha.php:215
 msgid "Please complete the anti-spam challenge."
 msgstr "Veuillez compléter le défi anti-spam."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:170
-#: src/Modules/Captcha/Providers/Recaptcha.php:222
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:181
+#: src/Modules/Captcha/Providers/Recaptcha.php:223
 msgid "Anti-spam check is misconfigured (missing secret key)."
 msgstr "Le contrôle anti-spam est mal configuré (clé secrète manquante)."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:185
-#: src/Modules/Captcha/Providers/Recaptcha.php:291
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:196
+#: src/Modules/Captcha/Providers/Recaptcha.php:292
 msgid "Anti-spam check could not be reached. Please retry."
 msgstr "Le contrôle anti-spam n'a pas pu être atteint. Veuillez réessayer."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:193
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:204
 msgid "Wrong answer to the anti-spam challenge."
 msgstr "Mauvaise réponse au défi anti-spam."
 
 #. translators: %d: number of credential keys present
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:210
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:221
 msgid ""
 "CaptchaService passed %d credential key(s) but no site_key. Either the "
 "stored credentials were saved with a different key name, or decryption "
@@ -2775,7 +2775,7 @@ msgstr ""
 "soit le déchiffrement a renvoyé un tableau vide (AUTH_KEY a peut-être changé "
 "depuis l'enregistrement)."
 
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:213
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:224
 msgid ""
 "CaptchaService did NOT inject credentials. The routing key probably resolves "
 "to a homemade challenge slug rather than an identity row — pick a hosted-"
@@ -2787,7 +2787,7 @@ msgstr ""
 "nom générique du fournisseur."
 
 #. translators: %s: provider name
-#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:218
+#: src/Modules/Captcha/Providers/AbstractHostedCaptcha.php:229
 msgid "%s: site key is empty."
 msgstr "%s : la clé de site est vide."
 
@@ -2874,20 +2874,20 @@ msgstr ""
 "reCAPTCHA v3 s'exécute de façon invisible — aucun widget n'est affiché ; un "
 "score de risque est vérifié à l'envoi du formulaire."
 
-#: src/Modules/Captcha/Providers/Recaptcha.php:230
-#: src/Modules/Captcha/Providers/Recaptcha.php:298
+#: src/Modules/Captcha/Providers/Recaptcha.php:231
+#: src/Modules/Captcha/Providers/Recaptcha.php:299
 msgid "Anti-spam verification failed."
 msgstr "Échec de la vérification anti-spam."
 
-#: src/Modules/Captcha/Providers/Recaptcha.php:236
+#: src/Modules/Captcha/Providers/Recaptcha.php:237
 msgid "Your submission looks automated. Please try again."
 msgstr "Votre envoi semble automatisé. Veuillez réessayer."
 
-#: src/Modules/Captcha/Providers/Recaptcha.php:254
+#: src/Modules/Captcha/Providers/Recaptcha.php:255
 msgid "Missing secret key."
 msgstr "Clé secrète manquante."
 
-#: src/Modules/Captcha/Providers/Recaptcha.php:264
+#: src/Modules/Captcha/Providers/Recaptcha.php:265
 msgid "verification failed"
 msgstr "échec de la vérification"
 
@@ -2956,7 +2956,7 @@ msgstr "Réglage inconnu."
 
 #: src/Modules/ContactForm/Admin/AjaxController.php:113
 #: src/Modules/ContactForm/Admin/AjaxController.php:231
-#: src/Modules/ContactForm/SubmitHandler.php:55
+#: src/Modules/ContactForm/SubmitHandler.php:56
 msgid "Form not found."
 msgstr "Formulaire introuvable."
 
@@ -3227,7 +3227,7 @@ msgstr "(aucun titre)"
 #: src/Modules/ContactForm/Admin/FormCardRenderer.php:400
 #: src/Modules/ContactForm/Admin/FormsPage.php:114
 #: src/Modules/ContactForm/Admin/FormsPage.php:570
-#: src/Modules/ContactForm/SubmitHandler.php:708
+#: src/Modules/ContactForm/SubmitHandler.php:717
 #: src/Modules/Logging/Admin/LogsPage.php:294
 #: src/Modules/Logging/Admin/LogsPage.php:394
 #: src/Modules/Logging/Admin/LogsPage.php:548
@@ -3332,7 +3332,7 @@ msgstr "Chargement…"
 #: src/Modules/ContactForm/Admin/FormsPage.php:112
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:318
 #: src/Modules/ContactForm/Admin/SubmissionsPage.php:454
-#: src/Modules/ContactForm/SubmitHandler.php:707
+#: src/Modules/ContactForm/SubmitHandler.php:716
 msgid "Mark as spam"
 msgstr "Marquer comme spam"
 
@@ -4346,14 +4346,14 @@ msgid "Contact form not found or not published."
 msgstr "Formulaire de contact introuvable ou non publié."
 
 #: src/Modules/ContactForm/Frontend.php:46
-#: src/Modules/ContactForm/SubmitHandler.php:366
+#: src/Modules/ContactForm/SubmitHandler.php:375
 #: src/Modules/Newsletter/SubmitHandler.php:95
 #: src/Modules/Newsletter/SubmitHandler.php:96
 msgid "Please enter a valid email address."
 msgstr "Veuillez saisir une adresse email valide."
 
 #: src/Modules/ContactForm/Frontend.php:47
-#: src/Modules/ContactForm/SubmitHandler.php:356
+#: src/Modules/ContactForm/SubmitHandler.php:365
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -4388,6 +4388,19 @@ msgstr ""
 msgid "Anti-spam check failed. Please try again."
 msgstr "Échec du contrôle anti-spam. Veuillez réessayer."
 
+#: src/Modules/ContactForm/Frontend.php:55
+msgid ""
+"The anti-spam check couldn’t load — it’s likely blocked by your cookie "
+"settings or a content blocker. Please allow it and reload the page."
+msgstr ""
+"Le contrôle anti-spam n’a pas pu se charger — il est probablement bloqué par "
+"vos paramètres de cookies ou un bloqueur de contenu. Veuillez l’autoriser et "
+"recharger la page."
+
+#: src/Modules/ContactForm/Frontend.php:56
+msgid "Please complete the anti-spam check before sending."
+msgstr "Veuillez compléter le contrôle anti-spam avant d’envoyer."
+
 #: src/Modules/ContactForm/Module.php:43
 msgid "Drag-and-drop contact forms with built-in anti-spam."
 msgstr "Formulaires de contact en glisser-déposer avec anti-spam intégré."
@@ -4410,164 +4423,164 @@ msgstr[1] "%s messages"
 msgid "Contact form emails"
 msgstr "Emails de formulaire de contact"
 
-#: src/Modules/ContactForm/SubmitHandler.php:49
+#: src/Modules/ContactForm/SubmitHandler.php:50
 #: src/Modules/Newsletter/SubmitHandler.php:43
 msgid "This form has expired. Please reload the page and try again."
 msgstr "Ce formulaire a expiré. Veuillez recharger la page et réessayer."
 
-#: src/Modules/ContactForm/SubmitHandler.php:121
+#: src/Modules/ContactForm/SubmitHandler.php:122
 msgid ""
 "You are submitting too quickly. Please wait a few minutes and try again."
 msgstr ""
 "Vous soumettez trop rapidement. Veuillez patienter quelques minutes et "
 "réessayer."
 
-#: src/Modules/ContactForm/SubmitHandler.php:150
+#: src/Modules/ContactForm/SubmitHandler.php:159
 msgid "Please correct the highlighted fields."
 msgstr "Veuillez corriger les champs en évidence."
 
-#: src/Modules/ContactForm/SubmitHandler.php:371
+#: src/Modules/ContactForm/SubmitHandler.php:380
 msgid "Please enter a number."
 msgstr "Veuillez saisir un nombre."
 
 #. translators: %s: minimum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:378
+#: src/Modules/ContactForm/SubmitHandler.php:387
 msgid "Value must be at least %s."
 msgstr "La valeur doit être au moins %s."
 
 #. translators: %s: maximum numeric value the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:384
+#: src/Modules/ContactForm/SubmitHandler.php:393
 msgid "Value must be at most %s."
 msgstr "La valeur doit être au maximum %s."
 
-#: src/Modules/ContactForm/SubmitHandler.php:391
-#: src/Modules/ContactForm/SubmitHandler.php:396
-#: src/Modules/ContactForm/SubmitHandler.php:398
+#: src/Modules/ContactForm/SubmitHandler.php:400
+#: src/Modules/ContactForm/SubmitHandler.php:405
+#: src/Modules/ContactForm/SubmitHandler.php:407
 msgid "Please enter a valid phone number."
 msgstr "Veuillez saisir un numéro de téléphone valide."
 
-#: src/Modules/ContactForm/SubmitHandler.php:403
+#: src/Modules/ContactForm/SubmitHandler.php:412
 msgid "Please enter a valid date."
 msgstr "Veuillez saisir une date valide."
 
-#: src/Modules/ContactForm/SubmitHandler.php:407
+#: src/Modules/ContactForm/SubmitHandler.php:416
 msgid "Date is before the allowed range."
 msgstr "La date est antérieure à la plage autorisée."
 
-#: src/Modules/ContactForm/SubmitHandler.php:409
+#: src/Modules/ContactForm/SubmitHandler.php:418
 msgid "Date is after the allowed range."
 msgstr "La date est postérieure à la plage autorisée."
 
-#: src/Modules/ContactForm/SubmitHandler.php:416
-#: src/Modules/ContactForm/SubmitHandler.php:428
+#: src/Modules/ContactForm/SubmitHandler.php:425
+#: src/Modules/ContactForm/SubmitHandler.php:437
 msgid "Invalid choice."
 msgstr "Choix invalide."
 
 #. translators: %d: maximum character length the field accepts
-#: src/Modules/ContactForm/SubmitHandler.php:440
+#: src/Modules/ContactForm/SubmitHandler.php:449
 msgid "This field is too long (max %d characters)."
 msgstr "Ce champ est trop long (max %d caractères)."
 
 #. translators: %s: form name
-#: src/Modules/ContactForm/SubmitHandler.php:595
+#: src/Modules/ContactForm/SubmitHandler.php:604
 msgid "[%s] New contact form submission"
 msgstr "[%s] Nouveau message de formulaire de contact"
 
-#: src/Modules/ContactForm/SubmitHandler.php:596
+#: src/Modules/ContactForm/SubmitHandler.php:605
 #: admin/js/contact-form-editor.js:83
 msgid "Contact form"
 msgstr "Formulaire de contact"
 
-#: src/Modules/ContactForm/SubmitHandler.php:659
+#: src/Modules/ContactForm/SubmitHandler.php:668
 msgid "(attached to this email)"
 msgstr "(joint à cet email)"
 
 #. translators: %s: form title
-#: src/Modules/ContactForm/SubmitHandler.php:684
+#: src/Modules/ContactForm/SubmitHandler.php:693
 msgid "Sent from contact form \"%s\""
 msgstr "Envoyé depuis le formulaire de contact « %s »"
 
-#: src/Modules/ContactForm/SubmitHandler.php:685
+#: src/Modules/ContactForm/SubmitHandler.php:694
 msgid "Untitled"
 msgstr "Sans titre"
 
-#: src/Modules/ContactForm/SubmitHandler.php:706
+#: src/Modules/ContactForm/SubmitHandler.php:715
 msgid "View in admin"
 msgstr "Voir dans l'admin"
 
-#: src/Modules/ContactForm/SubmitHandler.php:714
+#: src/Modules/ContactForm/SubmitHandler.php:723
 msgid "New submission"
 msgstr "Nouveau message"
 
-#: src/Modules/ContactForm/SubmitHandler.php:857
+#: src/Modules/ContactForm/SubmitHandler.php:866
 msgid "Please attach a file."
 msgstr "Veuillez joindre un fichier."
 
 #. translators: %d: max files allowed
-#: src/Modules/ContactForm/SubmitHandler.php:864
+#: src/Modules/ContactForm/SubmitHandler.php:873
 msgid "At most %d file is allowed."
 msgid_plural "At most %d files are allowed."
 msgstr[0] "Au plus %d fichier est autorisé."
 msgstr[1] "Au plus %d fichiers sont autorisés."
 
-#: src/Modules/ContactForm/SubmitHandler.php:878
-#: src/Modules/ContactForm/SubmitHandler.php:1143
+#: src/Modules/ContactForm/SubmitHandler.php:887
+#: src/Modules/ContactForm/SubmitHandler.php:1152
 msgid "Upload failed, please try again."
 msgstr "Échec de l'upload, veuillez réessayer."
 
 #. translators: 1: filename, 2: max MB
-#: src/Modules/ContactForm/SubmitHandler.php:884
+#: src/Modules/ContactForm/SubmitHandler.php:893
 msgid "\"%1$s\" exceeds the %2$d MB per-file limit."
 msgstr "« %1$s » dépasse la limite de %2$d Mo par fichier."
 
 #. translators: 1: filename, 2: server max formatted (e.g. 8 MB)
-#: src/Modules/ContactForm/SubmitHandler.php:893
+#: src/Modules/ContactForm/SubmitHandler.php:902
 msgid "\"%1$s\" exceeds the server upload limit (%2$s)."
 msgstr "« %1$s » dépasse la limite d'upload serveur (%2$s)."
 
 #. translators: %s: filename
-#: src/Modules/ContactForm/SubmitHandler.php:904
+#: src/Modules/ContactForm/SubmitHandler.php:913
 msgid "\"%s\" has no recognisable file extension."
 msgstr "« %s » n'a pas d'extension de fichier reconnaissable."
 
 #. translators: %s: filename
-#: src/Modules/ContactForm/SubmitHandler.php:912
+#: src/Modules/ContactForm/SubmitHandler.php:921
 msgid "\"%s\" is a file type that cannot be uploaded."
 msgstr "« %s » est un type de fichier qui ne peut pas être uploadé."
 
 #. translators: 1: filename, 2: comma-separated allowed extensions
-#: src/Modules/ContactForm/SubmitHandler.php:920
+#: src/Modules/ContactForm/SubmitHandler.php:929
 msgid "\"%1$s\" is not an allowed file type. Allowed: %2$s"
 msgstr "« %1$s » n'est pas un type de fichier autorisé. Autorisés : %2$s"
 
 #. translators: %s: filename
-#: src/Modules/ContactForm/SubmitHandler.php:936
+#: src/Modules/ContactForm/SubmitHandler.php:945
 msgid "\"%s\" looks tampered (extension doesn't match its content)."
 msgstr "« %s » semble altéré (l'extension ne correspond pas au contenu)."
 
 #. translators: %s: filename
-#: src/Modules/ContactForm/SubmitHandler.php:945
+#: src/Modules/ContactForm/SubmitHandler.php:954
 msgid "\"%s\" cannot be verified as a safe file type."
 msgstr "« %s » ne peut pas être vérifié comme type de fichier sûr."
 
 #. translators: %d: total max MB across all files in the field
-#: src/Modules/ContactForm/SubmitHandler.php:965
+#: src/Modules/ContactForm/SubmitHandler.php:974
 msgid "The combined upload exceeds the %d MB limit for this field."
 msgstr "L'upload combiné dépasse la limite de %d Mo pour ce champ."
 
-#: src/Modules/ContactForm/SubmitHandler.php:1133
+#: src/Modules/ContactForm/SubmitHandler.php:1142
 msgid "That file is too large for the server."
 msgstr "Ce fichier est trop volumineux pour le serveur."
 
-#: src/Modules/ContactForm/SubmitHandler.php:1135
+#: src/Modules/ContactForm/SubmitHandler.php:1144
 msgid "Upload was interrupted, please try again."
 msgstr "L'upload a été interrompu, veuillez réessayer."
 
-#: src/Modules/ContactForm/SubmitHandler.php:1137
+#: src/Modules/ContactForm/SubmitHandler.php:1146
 msgid "No file was uploaded."
 msgstr "Aucun fichier n'a été uploadé."
 
-#: src/Modules/ContactForm/SubmitHandler.php:1141
+#: src/Modules/ContactForm/SubmitHandler.php:1150
 msgid "The server could not save your upload, please try again later."
 msgstr "Le serveur n'a pas pu enregistrer votre upload, réessayez plus tard."
 

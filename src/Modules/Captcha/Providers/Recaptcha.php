@@ -196,8 +196,9 @@ final class Recaptcha extends AbstractHostedCaptcha
         );
 
         return $field . sprintf(
-            '<script src="%s" async defer></script>',
-            esc_url(self::SCRIPT_URL . '?render=' . rawurlencode($site_key))
+            '<script src="%s" async defer onerror="%s"></script>',
+            esc_url(self::SCRIPT_URL . '?render=' . rawurlencode($site_key)),
+            esc_attr(self::SCRIPT_ERROR_HANDLER)
         );
     }
 
@@ -211,7 +212,7 @@ final class Recaptcha extends AbstractHostedCaptcha
         $field = (string) static::POST_RESPONSE_FIELD;
         $token = isset($post[$field]) && is_string($post[$field]) ? $post[$field] : '';
         if ($token === '') {
-            return [false, __('Please complete the anti-spam challenge.', 'lrob-email-toolkit')];
+            return [false, __('Please complete the anti-spam challenge.', 'lrob-email-toolkit'), self::REASON_TOKEN_MISSING];
         }
 
         $creds = isset($context['credentials']) && is_array($context['credentials']) ? $context['credentials'] : [];

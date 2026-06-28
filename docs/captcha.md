@@ -88,7 +88,16 @@ Shared base for hCaptcha / Turnstile / reCAPTCHA. Concrete providers **must** de
 
 …and implement `slug()`, `label()`, `description()`, `logo_html()`, `vendor_label()`. `sort_order()` defaults to 100; override to control picker position.
 
-`render()` injects `data-callback`/`data-error-callback`/`data-expired-callback` and `data-lrob-etk-invisible` markers when invisible mode is active — `form-submit.js` reads these to trigger + await the widget on submit.
+`render()` injects `data-callback`/`data-error-callback`/`data-expired-callback` and `data-lrob-etk-invisible` markers when invisible mode is active — `form-submit.js` reads these to trigger + await the widget on submit. A **visible** widget instead gets `data-lrob-etk-hosted="1"` + `data-lrob-etk-response` so the frontend can detect a token-less submit and block it.
+
+### Blocked-script handling (content/cookie blockers)
+
+When a blocker stops the vendor script, the widget never renders and no token is posted — a token-less submit would only earn a `400` (and can trip server WAFs into a `403`). Two guards, both in `form-submit.js`:
+
+- **Instant warning** — the vendor `<script>` carries an inline `onerror` (`AbstractHostedCaptcha::SCRIPT_ERROR_HANDLER`) that sets `window.__lrobEtkCaptchaBlocked` + calls `window.lrobEtkCaptchaBlocked()`. Race-free (attached at parse, fires before our footer JS); the flag is also re-checked on init for errors that beat the script. This is event-driven, **not** a timeout, so a slow connection still loads normally. Invisible/v3 short-circuit their retry loop on the same flag.
+- **Submit guard** — for `[data-lrob-etk-hosted]`, a missing token blocks the POST in place with either "couldn't load" (no iframe / blocked) or "please complete" (rendered but unsolved).
+
+Server-side, `ChallengeInterface::verify()` returns an optional 3rd element — a reason code. Hosted providers return `REASON_TOKEN_MISSING` for an empty token so `ContactForm\SubmitHandler` rejects (`400`) **without** persisting a spam row (blocked-script submits reaching the server are bots bypassing our JS — noise). A token-present-but-rejected verification still saves as before.
 
 ## Google reCAPTCHA specifics
 

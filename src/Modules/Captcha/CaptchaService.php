@@ -182,7 +182,7 @@ final class CaptchaService
     /**
      * @param array<string, mixed> $post
      * @param array<string, mixed> $context
-     * @return array{0:bool, 1:?string}
+     * @return array{0:bool, 1:?string, 2?:string}
      */
     public function verify(array $post, array $context = []): array
     {
@@ -200,12 +200,15 @@ final class CaptchaService
         if ($credentials !== []) {
             $context['credentials'] = $credentials;
         }
-        [$ok, $error] = $challenge->verify($post, $context);
+        $result = $challenge->verify($post, $context);
+        $ok = (bool) $result[0];
+        $error = $result[1] ?? null;
+        $reason = $result[2] ?? null;
         $this->stats?->record(
             $route,
             $ok ? StatsRepository::OUTCOME_PASSED : StatsRepository::OUTCOME_FAILED
         );
-        return [$ok, $error];
+        return $reason !== null ? [$ok, $error, $reason] : [$ok, $error];
     }
 
     public function set_default_route(string $route): void

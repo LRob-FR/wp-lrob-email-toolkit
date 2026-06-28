@@ -39,6 +39,15 @@
             return;
         }
 
+        // Visible hosted widget (Turnstile / hCaptcha / reCAPTCHA v2): if no token
+        // is present we never post — a blocked vendor script would only earn a 400
+        // (and trip server WAFs). Warn in place instead. See docs/captcha.md.
+        var hosted = form.querySelector('[data-lrob-etk-hosted]');
+        if (hosted && !hostedTokenReady(form, hosted)) {
+            showHostedCaptchaGuard(form, hosted);
+            return;
+        }
+
         var submitBtn = form.querySelector('.lrob-etk-form-submit');
         var labelEl = submitBtn ? submitBtn.querySelector('.lrob-etk-form-submit-label') : null;
         var originalLabel = labelEl ? labelEl.textContent : '';
@@ -218,6 +227,9 @@
         Array.prototype.forEach.call(pickers, attachPicker);
         var fileEls = document.querySelectorAll('.lrob-etk-form-file[data-file-upload]');
         Array.prototype.forEach.call(fileEls, attachFileUpload);
+        // A vendor captcha script may have errored before this file parsed
+        // (the inline onerror only set a flag): surface the warning now.
+        if (window.__lrobEtkCaptchaBlocked) warnBlockedCaptchaForms();
     }
 
     // --- Country picker ---
@@ -434,6 +446,41 @@
     // --- Invisible captcha ---
     var pendingInvisibleForm = null;
 
+    // --- Hosted captcha load detection (visible widget + blocked-script warning) ---
+    function captchaUnavailableMsg() {
+        return I18N.captchaBlocked || I18N.captchaUnavailable || I18N.unknownError || 'Error';
+    }
+    function hostedTokenReady(form, hosted) {
+        var name = hosted.getAttribute('data-lrob-etk-response');
+        if (!name) return true;
+        var resp = form.querySelector('[name="' + cssEscape(name) + '"]');
+        return !!(resp && resp.value);
+    }
+    function showHostedCaptchaGuard(form, hosted) {
+        // No token. Either the vendor script was blocked (no iframe ever
+        // rendered) → "couldn't load"; or the widget is there but unsolved
+        // (e.g. an unchecked hCaptcha box) → "please complete".
+        if (window.__lrobEtkCaptchaBlocked || !hosted.querySelector('iframe')) {
+            showStatus(form, 'error', captchaUnavailableMsg());
+        } else {
+            showStatus(form, 'error', I18N.captchaIncomplete || I18N.captchaFailed || I18N.unknownError || 'Error');
+        }
+        scrollIntoViewSoftly(hosted);
+    }
+    // Fired the instant a vendor captcha <script> errors (blocked by a content/
+    // cookie blocker) — warn every form carrying a hosted challenge right away,
+    // before the visitor fills anything out.
+    function warnBlockedCaptchaForms() {
+        var forms = document.querySelectorAll('.lrob-etk-form');
+        Array.prototype.forEach.call(forms, function (form) {
+            if (form.__lrobEtkCaptchaWarned) return;
+            if (!form.querySelector('[data-lrob-etk-hosted],[data-lrob-etk-invisible],[data-lrob-etk-recaptcha-v3]')) return;
+            form.__lrobEtkCaptchaWarned = true;
+            showStatus(form, 'error', captchaUnavailableMsg());
+        });
+    }
+    window.lrobEtkCaptchaBlocked = warnBlockedCaptchaForms;
+
     function invisibleTokenReady(form, fieldEl) {
         var name = fieldEl.getAttribute('data-lrob-etk-response');
         if (!name) return false;
@@ -443,6 +490,11 @@
 
     function runInvisibleCaptcha(form, fieldEl) {
         if (pendingInvisibleForm === form) return;
+        // Known-blocked vendor script: skip the retry wait, warn now.
+        if (window.__lrobEtkCaptchaBlocked) {
+            showStatus(form, 'error', captchaUnavailableMsg());
+            return;
+        }
         var globalName = fieldEl.getAttribute('data-lrob-etk-global');
         var api = globalName ? window[globalName] : null;
         if (!api || typeof api.execute !== 'function') {
@@ -504,6 +556,11 @@
 
     function runRecaptchaV3(form, fieldEl) {
         if (pendingInvisibleForm === form) return;
+        // Known-blocked vendor script: skip the retry wait, warn now.
+        if (window.__lrobEtkCaptchaBlocked) {
+            showStatus(form, 'error', captchaUnavailableMsg());
+            return;
+        }
         var api = window.grecaptcha;
         if (!api || typeof api.execute !== 'function' || typeof api.ready !== 'function') {
             form.__v3Retries = (form.__v3Retries || 0) + 1;

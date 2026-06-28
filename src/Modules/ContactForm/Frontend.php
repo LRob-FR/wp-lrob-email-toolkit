@@ -52,6 +52,8 @@ final class Frontend
                 'totalTooLarge'    => __('Combined size exceeds the limit', 'lrob-email-toolkit'),
                 'captchaUnavailable' => __('Anti-spam check is unavailable. Please reload and try again.', 'lrob-email-toolkit'),
                 'captchaFailed'    => __('Anti-spam check failed. Please try again.', 'lrob-email-toolkit'),
+                'captchaBlocked'   => __('The anti-spam check couldn’t load — it’s likely blocked by your cookie settings or a content blocker. Please allow it and reload the page.', 'lrob-email-toolkit'),
+                'captchaIncomplete' => __('Please complete the anti-spam check before sending.', 'lrob-email-toolkit'),
             ],
         ]);
     }

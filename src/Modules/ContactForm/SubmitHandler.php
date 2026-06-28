@@ -8,6 +8,7 @@ use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Forms\Honeypot;
 use LRob\EmailToolkit\Forms\Upload\UploadPolicy;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
+use LRob\EmailToolkit\Modules\Captcha\Challenges\ChallengeInterface;
 use LRob\EmailToolkit\Modules\SMTP\IdentityRepository;
 use LRob\EmailToolkit\Modules\SMTP\MailRouter;
 use LRob\EmailToolkit\Modules\SMTP\SourceResolver;
@@ -122,14 +123,22 @@ final class SubmitHandler
         }
 
         if ($captcha_enabled && $captcha_service !== null) {
-            [$ok, $message] = $captcha_service->verify($post, $captcha_context);
+            $verdict = $captcha_service->verify($post, $captcha_context);
+            $ok = (bool) $verdict[0];
+            $message = $verdict[1] ?? null;
+            $reason = $verdict[2] ?? null;
             if (!$ok) {
+                // "Token missing" = the hosted captcha script never loaded (blocked).
+                // With the client-side guard in place, a real visitor never reaches
+                // here, so these are bots posting without our JS — reject (400) but
+                // don't persist the noise. Genuine failed verifications still save.
+                $not_loaded = $reason === ChallengeInterface::REASON_TOKEN_MISSING;
                 $context['captcha_outcome'] = SubmissionRepository::CAPTCHA_OUTCOME_FAILED;
-                if ($persist && Settings::save_spam_captcha()) {
+                if (!$not_loaded && $persist && Settings::save_spam_captcha()) {
                     $this->submissions->insert($form_id, $field_values, $context + ['notes' => 'captcha_failed'], SubmissionRepository::STATUS_SPAM_BLOCKED);
                 }
                 $this->rate_limiter->record($ip_hash, $form_id);
-                Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => 'captcha']);
+                Events::dispatch('contact_form.spam_blocked', ['form_id' => $form_id, 'reason' => $not_loaded ? 'captcha_not_loaded' : 'captcha']);
                 wp_send_json_error(['message' => $message], 400);
             }
             $context['captcha_outcome'] = SubmissionRepository::CAPTCHA_OUTCOME_PASSED;

@@ -11,6 +11,15 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
 
     public const CREDENTIAL_SECRET_KEY = 'secret_key';
 
+    /**
+     * Inline `onerror` for the vendor `<script>`: when a content/cookie blocker
+     * blocks the request the tag fires `error` at parse time (race-free), so we
+     * flag it for form-submit.js, which warns the visitor immediately instead
+     * of letting the form post a token-less submission that 400s. The `&&` is
+     * HTML-escaped by esc_attr and decoded back by the parser before JS runs.
+     */
+    protected const SCRIPT_ERROR_HANDLER = 'window.__lrobEtkCaptchaBlocked=true;window.lrobEtkCaptchaBlocked&&window.lrobEtkCaptchaBlocked()';
+
     abstract public function slug(): string;
 
     abstract public function label(): string;
@@ -120,7 +129,8 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
             ? ' data-lrob-etk-invisible="1"'
                 . ' data-lrob-etk-global="' . esc_attr((string) static::WIDGET_GLOBAL) . '"'
                 . ' data-lrob-etk-response="' . esc_attr((string) static::POST_RESPONSE_FIELD) . '"'
-            : '';
+            : ' data-lrob-etk-hosted="1"'
+                . ' data-lrob-etk-response="' . esc_attr((string) static::POST_RESPONSE_FIELD) . '"';
 
         $widget_html = sprintf(
             '<div class="lrob-etk-cf-field lrob-etk-form-field--challenge lrob-etk-cf-challenge" data-field="_challenge"%5$s>' .
@@ -149,8 +159,9 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
             : '';
 
         return $widget_html . $auto_script . sprintf(
-            '<script src="%s" async defer></script>',
-            esc_url((string) static::SCRIPT_URL)
+            '<script src="%s" async defer onerror="%s"></script>',
+            esc_url((string) static::SCRIPT_URL),
+            esc_attr(self::SCRIPT_ERROR_HANDLER)
         );
     }
 
@@ -159,7 +170,7 @@ abstract class AbstractHostedCaptcha implements ProviderInterface
         $field = (string) static::POST_RESPONSE_FIELD;
         $token = isset($post[$field]) && is_string($post[$field]) ? $post[$field] : '';
         if ($token === '') {
-            return [false, __('Please complete the anti-spam challenge.', 'lrob-email-toolkit')];
+            return [false, __('Please complete the anti-spam challenge.', 'lrob-email-toolkit'), self::REASON_TOKEN_MISSING];
         }
 
         $creds = isset($context['credentials']) && is_array($context['credentials']) ? $context['credentials'] : [];
