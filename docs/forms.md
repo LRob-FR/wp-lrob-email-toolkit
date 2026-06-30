@@ -338,12 +338,16 @@ still allowing per-form overrides.
 | `--lrob-etk-cf-shadow-focus` | Focus ring shadow. |
 | `--lrob-etk-cf-trans` | Transition shorthand. |
 
-**Style presets** (root-class modifiers on `.lrob-etk-form`):
+## Form theming (presets + resolution)
 
-- `preset--default` — baseline.
-- `preset--minimal` — flat, no shadows, sharper corners (`radius: 4px`).
-- `preset--soft` — heavier roundness (`14px`), lighter border, violet accent.
-- `preset--contrast` — dark accent, dark fg, dark border.
+Presets are **data**, not CSS classes. `src/Forms/StylePresets.php` is the single source: a `schema()` of styleable vars (`schemaKey → {var, type, label}`) and a set of presets (`slug → {label, vars}`). `default` carries no vars (inherits the FSE theme via the CSS fallback chain); `dark`/`minimal`/`rounded`/`sharp`/`ocean` are pure var swaps over the contract above.
+
+`src/Forms/StyleResolver::inline_style($preset, $perForm, $global, $block)` merges the tiers (later wins) — **preset baseline < global default < per-form override < block override** — sanitises each value (colour/size allowlist, blocks `;`/`}`/`url(`) and returns the `--lrob-etk-cf-*:…` declaration emitted inline on the `<form>` by both `EmbedRenderer`s. No per-preset CSS, and **both modules render identically** (newsletter previously emitted only an inert class).
+
+- **Storage**: `META_STYLE_PRESET` (slug) + `META_STYLE_VARS` (JSON `schemaKey → value`, per-form overrides) on each CPT. CF global defaults (accent/radius/font-size) live in `Settings`; newsletter has no global surface yet.
+- **Live preview**: `StylePresets::js_data()` (`{presets:{slug:{cssVar:val}}, vars:[…]}`) is localized to `lrobEtkCfAdmin`; `contact-form-admin.js applyPreset()` clears the var list then sets the chosen preset's vars inline on the card preview.
+- **Adding a preset**: add an entry to `StylePresets::presets()` — that's it (picker, resolver, preview, both modules pick it up). To add a styleable property, add it to `schema()`.
+- *Deferred (later 0.6.x):* per-form Customize knobs (write `META_STYLE_VARS`), effects/animations, theme-palette inheritance, user-saved presets, newsletter global Defaults page.
 
 **Notable sections:**
 

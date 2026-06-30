@@ -83,7 +83,7 @@
         Array.prototype.forEach.call(lists, bindRecipientList);
 
         var presetHidden = card.querySelector('input[data-key="_lrob_etk_cf_style_preset"]');
-        var previewForm = card.querySelector('.lrob-etk-cf-form.is-editor');
+        var previewForm = card.querySelector('.lrob-etk-form.is-editor');
         if (presetHidden && previewForm) {
             applyPreset(previewForm, presetHidden.value);
             presetHidden.addEventListener('change', function () {
@@ -93,17 +93,12 @@
     }
 
     function applyPreset(previewForm, slug) {
-        // Strip any previous preset class.
-        var toRemove = [];
-        for (var i = 0; i < previewForm.classList.length; i++) {
-            if (previewForm.classList[i].indexOf('lrob-etk-form-preset--') === 0) {
-                toRemove.push(previewForm.classList[i]);
-            }
-        }
-        toRemove.forEach(function (c) { previewForm.classList.remove(c); });
-        if (slug) {
-            previewForm.classList.add('lrob-etk-form-preset--' + slug);
-        }
+        // Presets are data-driven: clear any previously-applied preset vars,
+        // then set the chosen preset's vars inline (mirrors StyleResolver).
+        var data = (window.lrobEtkCfAdmin && window.lrobEtkCfAdmin.stylePresets) || { presets: {}, vars: [] };
+        (data.vars || []).forEach(function (cssVar) { previewForm.style.removeProperty(cssVar); });
+        var vars = (data.presets && data.presets[slug]) || {};
+        Object.keys(vars).forEach(function (cssVar) { previewForm.style.setProperty(cssVar, vars[cssVar]); });
         previewForm.setAttribute('data-preset', slug || '');
     }
 

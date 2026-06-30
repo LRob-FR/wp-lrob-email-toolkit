@@ -19,7 +19,7 @@ final class FormEditorRenderer
 
         try {
             $html  = sprintf(
-                '<div class="lrob-etk-form is-editor lrob-etk-form-preset--default" data-form-id="%d" data-editor>',
+                '<div class="lrob-etk-form is-editor" data-form-id="%d" data-editor>',
                 $form_id
             );
             $html .= '<div class="lrob-etk-form-body" data-editor-body>';

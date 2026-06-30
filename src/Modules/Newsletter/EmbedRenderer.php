@@ -9,6 +9,7 @@ use LRob\EmailToolkit\Forms\FormContext;
 use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Forms\Honeypot;
 use LRob\EmailToolkit\Forms\StylePresets;
+use LRob\EmailToolkit\Forms\StyleResolver;
 use LRob\EmailToolkit\Plugin;
 
 /**
@@ -123,17 +124,14 @@ final class EmbedRenderer
     private static function compute_form_root_attrs(int $form_id, string $instance): string
     {
         $preset = self::effective_style_preset($form_id);
-        $classes = [
-            'lrob-etk-form',
-            'lrob-etk-form-preset--' . sanitize_html_class($preset, StylePresets::DEFAULT_SLUG),
-        ];
+        $style = StyleResolver::inline_style($preset, self::per_form_style_vars($form_id));
         return sprintf(
-            'class="%s" data-form-id="%d" data-instance="%s" data-submit-url="%s" data-nonce="%s" novalidate',
-            esc_attr(implode(' ', $classes)),
+            'class="lrob-etk-form" data-form-id="%d" data-instance="%s" data-submit-url="%s" data-nonce="%s" novalidate%s',
             $form_id,
             esc_attr($instance),
             esc_url(admin_url('admin-ajax.php')),
-            esc_attr(wp_create_nonce(SubmitHandler::NONCE_ACTION))
+            esc_attr(wp_create_nonce(SubmitHandler::NONCE_ACTION)),
+            $style !== '' ? ' style="' . esc_attr($style) . '"' : ''
         );
     }
 
@@ -149,6 +147,20 @@ final class EmbedRenderer
             return $per_form;
         }
         return StylePresets::DEFAULT_SLUG;
+    }
+
+    /** @return array<string,string> per-form var overrides (schemaKey → value). */
+    private static function per_form_style_vars(int $form_id): array
+    {
+        $raw = get_post_meta($form_id, FormCPT::META_STYLE_VARS, true);
+        if (is_array($raw)) {
+            return $raw;
+        }
+        if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        return [];
     }
 
     /**

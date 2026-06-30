@@ -16,8 +16,8 @@
     /* contrast hook: inputs sit on --cf-bg (light), so needs light-content text */
     --lrob-etk-cf-input-fg:    var(--wp--preset--color--contrast, #0f172a);
     --lrob-etk-cf-muted:       #64748b;
-    --lrob-etk-form-error:       #b91c1c;
-    --lrob-etk-form-error-bg:    #fef2f2;
+    --lrob-etk-cf-error:       #b91c1c;
+    --lrob-etk-cf-error-bg:    #fef2f2;
     --lrob-etk-cf-success-bg:  #ecfdf5;
     --lrob-etk-cf-success-fg:  #065f46;
     --lrob-etk-cf-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--lrob-etk-cf-accent) 22%, transparent);
@@ -83,7 +83,7 @@
 }
 
 .lrob-etk-form-required {
-    color: var(--lrob-etk-form-error);
+    color: var(--lrob-etk-cf-error);
     font-weight: 700;
     margin-left: .15em;
 }
@@ -97,7 +97,7 @@
 
 .lrob-etk-form-error {
     margin: 0;
-    color: var(--lrob-etk-form-error);
+    color: var(--lrob-etk-cf-error);
     font-size: .82em;
     line-height: 1.4;
     font-weight: 500;
@@ -148,8 +148,8 @@
 .lrob-etk-form-field.is-invalid input,
 .lrob-etk-form-field.is-invalid select,
 .lrob-etk-form-field.is-invalid textarea {
-    border-color: var(--lrob-etk-form-error);
-    background: var(--lrob-etk-form-error-bg);
+    border-color: var(--lrob-etk-cf-error);
+    background: var(--lrob-etk-cf-error-bg);
 }
 
 .lrob-etk-form-field.is-invalid .lrob-etk-form-error {
@@ -270,9 +270,9 @@
 }
 
 .lrob-etk-form-status.is-error {
-    background: var(--lrob-etk-form-error-bg);
-    color: var(--lrob-etk-form-error);
-    border-color: color-mix(in srgb, var(--lrob-etk-form-error) 25%, transparent);
+    background: var(--lrob-etk-cf-error-bg);
+    color: var(--lrob-etk-cf-error);
+    border-color: color-mix(in srgb, var(--lrob-etk-cf-error) 25%, transparent);
 }
 
 @keyframes lrob-etk-cf-slide-in {
@@ -300,33 +300,8 @@
     border-radius: var(--lrob-etk-cf-radius);
 }
 
-/* Preset: minimal — flat, no shadows, sharper corners */
-.lrob-etk-form-preset--minimal {
-    --lrob-etk-cf-radius: 4px;
-}
-.lrob-etk-form-preset--minimal .lrob-etk-form-submit {
-    box-shadow: none;
-}
-.lrob-etk-form-preset--minimal .lrob-etk-form-submit:hover {
-    box-shadow: none;
-    transform: none;
-}
-
-/* Preset: soft — heavier roundness, lighter colors */
-.lrob-etk-form-preset--soft {
-    --lrob-etk-cf-radius: 14px;
-    --lrob-etk-cf-border: #e2e8f0;
-    --lrob-etk-cf-accent: #8b5cf6;
-    --lrob-etk-cf-shadow-focus: 0 0 0 3px rgba(139, 92, 246, .22);
-}
-
-/* Preset: contrast — high-contrast, accessible */
-.lrob-etk-form-preset--contrast {
-    --lrob-etk-cf-accent: #0f172a;
-    --lrob-etk-cf-fg: #0f172a;
-    --lrob-etk-cf-border: #0f172a;
-    --lrob-etk-cf-shadow-focus: 0 0 0 3px rgba(15, 23, 42, .25);
-}
+/* Presets are now data-driven: StylePresets → StyleResolver emits the
+ * resolved --lrob-etk-cf-* vars inline on the <form>. No per-preset CSS. */
 
 /* Homemade challenge — self-contained so it renders identically inside
  * .lrob-etk-form, the editor preview, AND the captcha-settings preview
@@ -365,7 +340,7 @@
     margin: 0;
     font-size: .82em;
     line-height: 1.4;
-    color: var(--lrob-etk-form-error);
+    color: var(--lrob-etk-cf-error);
 }
 
 /* Captcha injected into WP-native forms (comments / login / register /
@@ -650,8 +625,8 @@
     font-size: 0.92em;
 }
 .lrob-etk-form .lrob-etk-form-file-item.is-invalid {
-    background: var(--lrob-etk-form-error-bg);
-    color: var(--lrob-etk-form-error);
+    background: var(--lrob-etk-cf-error-bg);
+    color: var(--lrob-etk-cf-error);
 }
 .lrob-etk-form .lrob-etk-form-file-item-name {
     flex: 1;

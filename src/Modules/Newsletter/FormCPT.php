@@ -64,6 +64,9 @@ final class FormCPT
      */
     public const META_STYLE_PRESET = '_lrob_etk_nl_form_style_preset';
 
+    /** Per-form style var overrides (JSON: schemaKey → value). Resolved by StyleResolver. */
+    public const META_STYLE_VARS = '_lrob_etk_nl_form_style_vars';
+
     /**
      * Per-form captcha routing override — same shape ContactForm's
      * META_CHALLENGE_KIND uses: '' (inherit context), 'none',
@@ -198,6 +201,14 @@ final class FormCPT
             'sanitize_callback' => 'sanitize_html_class',
             'auth_callback'     => $auth_callback,
             'show_in_rest'      => true,
+        ]);
+        register_post_meta(self::POST_TYPE, self::META_STYLE_VARS, [
+            'type'              => 'string',
+            'single'            => true,
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'auth_callback'     => $auth_callback,
+            'show_in_rest'      => false,
         ]);
         register_post_meta(self::POST_TYPE, self::META_CAPTCHA_ROUTE, [
             'type'              => 'string',

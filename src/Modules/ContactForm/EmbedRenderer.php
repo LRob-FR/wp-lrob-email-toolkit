@@ -8,6 +8,7 @@ use LRob\EmailToolkit\Forms\FieldTypeRegistry;
 use LRob\EmailToolkit\Forms\FormContext;
 use LRob\EmailToolkit\Forms\FormStructure;
 use LRob\EmailToolkit\Forms\Honeypot;
+use LRob\EmailToolkit\Forms\StyleResolver;
 use LRob\EmailToolkit\Plugin;
 
 // Docs: docs/contact-form.md — returns nothing on public frontend for missing/unpublished forms.
@@ -106,14 +107,14 @@ final class EmbedRenderer
 
     private static function compute_form_root_attrs(int $form_id, string $instance, string $preset, array $overrides): string
     {
-        $classes = [
-            'lrob-etk-form',
-            'lrob-etk-form-preset--' . sanitize_html_class($preset, CPT::STYLE_DEFAULT),
-        ];
-        $style = self::style_inline($overrides);
+        $style = StyleResolver::inline_style(
+            $preset,
+            self::per_form_style_vars($form_id),
+            self::global_style_vars(),
+            $overrides
+        );
         return sprintf(
-            'class="%s" data-form-id="%d" data-instance="%s" data-submit-url="%s" data-nonce="%s" novalidate%s',
-            esc_attr(implode(' ', $classes)),
+            'class="lrob-etk-form" data-form-id="%d" data-instance="%s" data-submit-url="%s" data-nonce="%s" novalidate%s',
             $form_id,
             esc_attr($instance),
             esc_url(admin_url('admin-ajax.php')),
@@ -122,26 +123,29 @@ final class EmbedRenderer
         );
     }
 
-    // Per-block override → global default → CSS fallback (FSE theme variable chain in contact-form.css).
-    private static function style_inline(array $overrides): string
+    /** @return array<string,string> per-form var overrides (schemaKey → value). */
+    private static function per_form_style_vars(int $form_id): array
+    {
+        $raw = get_post_meta($form_id, CPT::META_STYLE_VARS, true);
+        if (is_array($raw)) {
+            return $raw;
+        }
+        if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        return [];
+    }
+
+    /** @return array<string,string> global default var overrides (Defaults surface). */
+    private static function global_style_vars(): array
     {
         $globals = Settings::all();
-        $map = [
-            'radius'    => ['var' => '--lrob-etk-cf-radius',    'global' => (string) ($globals[Settings::KEY_RADIUS] ?? '')],
-            'accent'    => ['var' => '--lrob-etk-cf-accent',    'global' => (string) ($globals[Settings::KEY_ACCENT] ?? '')],
-            'font_size' => ['var' => '--lrob-etk-cf-font-size', 'global' => (string) ($globals[Settings::KEY_FONT_SIZE] ?? '')],
+        return [
+            'accent'    => (string) ($globals[Settings::KEY_ACCENT] ?? ''),
+            'radius'    => (string) ($globals[Settings::KEY_RADIUS] ?? ''),
+            'font_size' => (string) ($globals[Settings::KEY_FONT_SIZE] ?? ''),
         ];
-        $out = [];
-        foreach ($map as $key => $cfg) {
-            $val = isset($overrides[$key]) ? trim((string) $overrides[$key]) : '';
-            if ($val === '') {
-                $val = trim($cfg['global']);
-            }
-            if ($val !== '') {
-                $out[] = $cfg['var'] . ':' . $val;
-            }
-        }
-        return implode(';', $out);
     }
 
     private static function render_hidden_fields(int $form_id, string $instance): string

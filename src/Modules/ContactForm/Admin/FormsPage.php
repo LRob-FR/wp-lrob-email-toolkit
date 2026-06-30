@@ -130,6 +130,7 @@ final class FormsPage
             'action'        => AjaxController::ACTION_SAVE_META,
             'actionDefault' => AjaxController::ACTION_SAVE_DEFAULT,
             'knownEmails'   => self::known_email_suggestions(),
+            'stylePresets'  => \LRob\EmailToolkit\Forms\StylePresets::js_data(),
             'i18n'          => [
                 'saving'        => __('Saving…', 'lrob-email-toolkit'),
                 'saved'         => __('Saved', 'lrob-email-toolkit'),
