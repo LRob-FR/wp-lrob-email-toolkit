@@ -107,12 +107,13 @@ final class EmbedRenderer
 
     private static function compute_form_root_attrs(int $form_id, string $instance, string $preset, array $overrides): string
     {
-        $style = StyleResolver::inline_style(
-            $preset,
-            self::per_form_style_vars($form_id),
-            self::global_style_vars(),
-            $overrides
-        );
+        $map = self::per_form_style_vars($form_id);
+        // Back-compat: forms styled before the override-map model carry only a
+        // preset slug — seed the map from it so they still render.
+        if ($map === [] && $preset !== '' && $preset !== \LRob\EmailToolkit\Forms\StylePresets::DEFAULT_SLUG) {
+            $map = \LRob\EmailToolkit\Forms\StylePresets::vars_for($preset);
+        }
+        $style = StyleResolver::inline_style('', $map, self::global_style_vars(), $overrides);
         return sprintf(
             'class="lrob-etk-form" data-form-id="%d" data-instance="%s" data-submit-url="%s" data-nonce="%s" novalidate%s',
             $form_id,

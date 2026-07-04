@@ -346,8 +346,18 @@ Presets are **data**, not CSS classes. `src/Forms/StylePresets.php` is the singl
 
 - **Storage**: `META_STYLE_PRESET` (slug) + `META_STYLE_VARS` (JSON `schemaKey → value`, per-form overrides) on each CPT. CF global defaults (accent/radius/font-size) live in `Settings`; newsletter has no global surface yet.
 - **Live preview**: `StylePresets::js_data()` (`{presets:{slug:{cssVar:val}}, vars:[…]}`) is localized to `lrobEtkCfAdmin`; `contact-form-admin.js applyPreset()` clears the var list then sets the chosen preset's vars inline on the card preview.
-- **Adding a preset**: add an entry to `StylePresets::presets()` — that's it (picker, resolver, preview, both modules pick it up). To add a styleable property, add it to `schema()`.
-- *Deferred (later 0.6.x):* per-form Customize knobs (write `META_STYLE_VARS`), effects/animations, theme-palette inheritance, user-saved presets, newsletter global Defaults page.
+- **Adding a preset**: add an entry to `StylePresets::presets()` — that's it (picker, resolver, preview, both modules pick it up). To add a styleable property, add it to `schema()` (with `group` + `type`) and consume its `var` in `contact-form.css`.
+
+### The editor: global preset + per-axis dropdowns (+ Edit knobs)
+
+The **override map** (`META_STYLE_VARS`, `schemaKey → value`) is the single source of truth. The frontend renders **from the map only** (`StyleResolver::inline_style('', $map, …)`, no preset baseline) — with a back-compat seed in both `EmbedRenderer`s: a pre-map form (preset slug, empty map) seeds the map from `vars_for($preset)`.
+
+- **Global preset dropdown** (the existing preset combobox on each card): on change, `form-style-controls.js` bulk-replaces the map with that preset's vars. Presets are themselves composed from axis options (`StylePresets::presets()` → `compose([...])`).
+- **`StylePresets::axes()`** defines the named sub-presets, each owning a set of schema `keys` + one-click `options` (slug → vars): **colour scheme** (Auto/White/Dark/Ocean/Forest/Sunset/Deep blue/Purple party/Pink), **roundness** (Sharp/Soft/Roundy/Round), **spacing** (Compact/Average/Comfortable/Spacious), **font size** (Auto/Small/Medium/Big/Extra-big), **label font**, **body font**, **label emphasis** (Regular/Bold/Italic/Bold italic).
+- **`StyleControls::render($field_class, $meta_key, $current)`** renders, per axis: a `<select>` of its options (with a hidden `custom` sentinel) + an **Edit** button revealing that axis's individual knobs (`render_row` per key). Picking an option sets its vars and clears the axis's other keys (single-select); a manual knob edit flips the select to *Custom*. `axes()` matching is exact (map-restricted-to-axis-keys === option vars).
+- **Persistence + preview**: hidden `[data-style-json]` field tagged with the host autosave class (`lrob-etk-cf-field`/`lrob-etk-nl-field`) → rides autosave → `StyleResolver::sanitize_map()`. `form-style-controls.js` paints the map onto the card preview and keeps the axis selects/knobs in sync; `lrobEtkStyle` (= `js_data()`: presets + axes in schemaKey space, `keyToVar`, `vars`) is localized on both form pages.
+- **Contract additions**: `--lrob-etk-cf-form-bg/-border/-pad`, `--lrob-etk-cf-btn-bg/-btn-radius`, `--lrob-etk-cf-border-width`, `--lrob-etk-cf-label-font/-weight/-style` (defaults keep the old look via CSS `var()` fallback).
+- *Deferred (C/D):* **user-saved presets** (save/delete named looks → appear in the global dropdown), the global **Defaults** surface getting this same editor, effects/animations, theme-palette inheritance.
 
 **Notable sections:**
 

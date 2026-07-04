@@ -9,6 +9,7 @@ use LRob\EmailToolkit\Admin\PageHeader;
 use LRob\EmailToolkit\Forms\CaptchaField as SharedCaptchaField;
 use LRob\EmailToolkit\Forms\CountryData;
 use LRob\EmailToolkit\Forms\FormEditorRenderer;
+use LRob\EmailToolkit\Forms\StylePresets;
 use LRob\EmailToolkit\Modules\Captcha\CaptchaService;
 use LRob\EmailToolkit\Modules\Captcha\Routing as CaptchaRouting;
 use LRob\EmailToolkit\Modules\ContactForm\Frontend as ContactFormFrontend;
@@ -119,6 +120,16 @@ final class FormsPage
                 'action'  => AjaxController::ACTION_SAVE_STRUCTURE,
             ],
         ]);
+
+        // Form style live-preview + Customize panel (shared with Contact Form).
+        wp_enqueue_script(
+            'lrob-etk-form-style-controls',
+            LROB_ETK_URL . 'admin/js/form-style-controls.js',
+            [HomePage::HANDLE_ADMIN_JS],
+            SharedAssets::asset_version_for('admin/js/form-style-controls.js'),
+            true
+        );
+        wp_localize_script('lrob-etk-form-style-controls', 'lrobEtkStyle', StylePresets::js_data());
 
         // Picker modal handler.
         wp_enqueue_script(

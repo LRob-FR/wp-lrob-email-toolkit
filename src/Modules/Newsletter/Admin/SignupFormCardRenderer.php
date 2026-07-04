@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LRob\EmailToolkit\Modules\Newsletter\Admin;
 
 use LRob\EmailToolkit\Admin\Combobox;
+use LRob\EmailToolkit\Forms\StyleControls;
 use LRob\EmailToolkit\Forms\StylePresets;
 use LRob\EmailToolkit\Modules\Newsletter\FormCPT;
 
@@ -36,6 +37,9 @@ final class SignupFormCardRenderer
         $confirmation_template_id = (int) get_post_meta($form_id, FormCPT::META_CONFIRMATION_TEMPLATE_ID, true);
         $success_message = (string) get_post_meta($form_id, FormCPT::META_SUCCESS_MESSAGE, true);
         $style_preset = (string) get_post_meta($form_id, FormCPT::META_STYLE_PRESET, true);
+        $style_vars_raw = (string) get_post_meta($form_id, FormCPT::META_STYLE_VARS, true);
+        $style_vars_decoded = $style_vars_raw !== '' ? json_decode($style_vars_raw, true) : [];
+        $style_vars = is_array($style_vars_decoded) ? $style_vars_decoded : [];
 
         $delete_url = wp_nonce_url(
             add_query_arg(
@@ -126,14 +130,10 @@ final class SignupFormCardRenderer
                 <section class="lrob-etk-form-style-group">
                     <h3 class="lrob-etk-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
                     <div class="lrob-etk-field">
-                        <label><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
-                        <?php Combobox::render_fixed_select(
-                            FormCPT::META_STYLE_PRESET,
-                            $style_preset,
-                            $preset_options,
-                            '',
-                            'lrob-etk-nl-field'
-                        ); ?>
+                        <?php
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — StyleControls::render escapes internally.
+                        echo StyleControls::render('lrob-etk-nl-field', FormCPT::META_STYLE_VARS, $style_vars);
+                        ?>
                     </div>
                     <div class="lrob-etk-field">
                         <label><?php esc_html_e('Success message', 'lrob-email-toolkit'); ?></label>

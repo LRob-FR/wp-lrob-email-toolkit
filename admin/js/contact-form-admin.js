@@ -81,25 +81,8 @@
 
         var lists = card.querySelectorAll('[data-recipient-input]');
         Array.prototype.forEach.call(lists, bindRecipientList);
-
-        var presetHidden = card.querySelector('input[data-key="_lrob_etk_cf_style_preset"]');
-        var previewForm = card.querySelector('.lrob-etk-form.is-editor');
-        if (presetHidden && previewForm) {
-            applyPreset(previewForm, presetHidden.value);
-            presetHidden.addEventListener('change', function () {
-                applyPreset(previewForm, presetHidden.value);
-            });
-        }
-    }
-
-    function applyPreset(previewForm, slug) {
-        // Presets are data-driven: clear any previously-applied preset vars,
-        // then set the chosen preset's vars inline (mirrors StyleResolver).
-        var data = (window.lrobEtkCfAdmin && window.lrobEtkCfAdmin.stylePresets) || { presets: {}, vars: [] };
-        (data.vars || []).forEach(function (cssVar) { previewForm.style.removeProperty(cssVar); });
-        var vars = (data.presets && data.presets[slug]) || {};
-        Object.keys(vars).forEach(function (cssVar) { previewForm.style.setProperty(cssVar, vars[cssVar]); });
-        previewForm.setAttribute('data-preset', slug || '');
+        // Style preview (preset + per-property overrides) is owned by
+        // form-style-controls.js — it watches the preset input + the panel.
     }
 
     function bindRecipientList(container) {

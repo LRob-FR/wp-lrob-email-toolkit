@@ -59,6 +59,7 @@ final class AjaxController
         CPT::META_HONEYPOT_ENABLED    => 'tristate',
         CPT::META_CHALLENGE_KIND      => 'challenge',
         CPT::META_STYLE_PRESET        => 'style_preset',
+        CPT::META_STYLE_VARS          => 'style_vars',
         CPT::META_SAVE_SUBMISSIONS    => 'tristate',
     ];
 
@@ -244,6 +245,7 @@ final class AjaxController
             'tristate'        => in_array($value, ['default', 'on', 'off'], true) ? (string) $value : 'default',
             'challenge'       => self::sanitize_challenge_route(is_string($value) ? $value : ''),
             'style_preset'    => is_string($value) ? sanitize_html_class($value) : '',
+            'style_vars'      => \LRob\EmailToolkit\Forms\StyleResolver::sanitize_map($value),
             default           => $value,
         };
     }

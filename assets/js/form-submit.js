@@ -48,6 +48,14 @@
             return;
         }
 
+        // Homemade challenge (pictogram / math): required but unfilled → prompt
+        // in place instead of posting a blank answer the server would only bounce.
+        var challenge = form.querySelector('.lrob-etk-form-field--challenge');
+        if (challenge && !challengeSatisfied(challenge)) {
+            showChallengeError(form, challenge);
+            return;
+        }
+
         var submitBtn = form.querySelector('.lrob-etk-form-submit');
         var labelEl = submitBtn ? submitBtn.querySelector('.lrob-etk-form-submit-label') : null;
         var originalLabel = labelEl ? labelEl.textContent : '';
@@ -70,6 +78,12 @@
                 return r.text().then(function (txt) {
                     try { return JSON.parse(txt); }
                     catch (e) {
+                        // Some hosts prepend a stray PHP notice/warning to the body,
+                        // corrupting otherwise-valid JSON. Salvage the embedded object
+                        // so the visitor still gets the real message (e.g. the captcha
+                        // prompt) instead of a cryptic parse error.
+                        var salvaged = salvageJson(txt);
+                        if (salvaged) return salvaged;
                         if (window.console && console.warn) {
                             console.warn('lrob-etk-form: non-JSON response from submit endpoint:', txt);
                         }
@@ -493,6 +507,51 @@
         });
     }
     window.lrobEtkCaptchaBlocked = warnBlockedCaptchaForms;
+
+    // Homemade challenge = radios (pictogram) or a text answer (math). Hosted
+    // providers are gated by the guards above, so treat them as satisfied here.
+    // Recover a JSON object embedded in an otherwise-noisy body (e.g. a PHP
+    // notice printed before wp_send_json). Returns the parsed object or null.
+    function salvageJson(txt) {
+        if (!txt) return null;
+        var start = txt.indexOf('{');
+        var end = txt.lastIndexOf('}');
+        if (start === -1 || end <= start) return null;
+        try {
+            var obj = JSON.parse(txt.slice(start, end + 1));
+            return (obj && typeof obj === 'object') ? obj : null;
+        } catch (e) { return null; }
+    }
+
+    function challengeSatisfied(field) {
+        if (field.querySelector('[data-lrob-etk-hosted],[data-lrob-etk-invisible],[data-lrob-etk-recaptcha-v3],.cf-turnstile,.h-captcha,.g-recaptcha')) {
+            return true;
+        }
+        var radios = field.querySelectorAll('input[type="radio"]');
+        if (radios.length) {
+            return Array.prototype.some.call(radios, function (r) { return r.checked; });
+        }
+        var text = field.querySelector('input[type="text"], input[type="number"]');
+        if (text) {
+            return (text.value || '').trim() !== '';
+        }
+        return true;
+    }
+    function showChallengeError(form, field) {
+        // Inline message under the captcha only — matches other client-side
+        // field errors (no extra global banner).
+        field.classList.add('is-invalid');
+        var msg = I18N.captchaIncomplete || I18N.required || 'Please complete the anti-spam check.';
+        var slot = field.querySelector('[data-field-error]');
+        if (slot) { slot.textContent = msg; slot.hidden = false; }
+        Array.prototype.forEach.call(field.querySelectorAll('input'), function (c) {
+            if (c.type !== 'hidden') c.setAttribute('aria-invalid', 'true');
+        });
+        var focusable = field.querySelector('input:not([type="hidden"])');
+        if (focusable && focusable.focus) {
+            try { focusable.focus({ preventScroll: false }); } catch (e) { focusable.focus(); }
+        }
+    }
 
     function invisibleTokenReady(form, fieldEl) {
         var name = fieldEl.getAttribute('data-lrob-etk-response');

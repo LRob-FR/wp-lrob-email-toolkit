@@ -130,7 +130,6 @@ final class FormsPage
             'action'        => AjaxController::ACTION_SAVE_META,
             'actionDefault' => AjaxController::ACTION_SAVE_DEFAULT,
             'knownEmails'   => self::known_email_suggestions(),
-            'stylePresets'  => \LRob\EmailToolkit\Forms\StylePresets::js_data(),
             'i18n'          => [
                 'saving'        => __('Saving…', 'lrob-email-toolkit'),
                 'saved'         => __('Saved', 'lrob-email-toolkit'),
@@ -141,6 +140,16 @@ final class FormsPage
                 'recipientPh'   => __('email@example.com', 'lrob-email-toolkit'),
             ],
         ]);
+
+        // Form style live-preview + Customize panel (host-neutral; Newsletter reuses it).
+        wp_enqueue_script(
+            'lrob-etk-form-style-controls',
+            LROB_ETK_URL . 'admin/js/form-style-controls.js',
+            ['lrob-etk-cf-admin'],
+            self::asset_version('admin/js/form-style-controls.js'),
+            true
+        );
+        wp_localize_script('lrob-etk-form-style-controls', 'lrobEtkStyle', \LRob\EmailToolkit\Forms\StylePresets::js_data());
 
         // form-fields-editor.js is host-neutral — Newsletter reuses the same handle.
         wp_enqueue_script(

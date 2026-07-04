@@ -195,10 +195,11 @@
 
 .lrob-etk-form.is-editor {
     position: relative;
-    background: var(--etk-card-bg);
-    border: 1px solid var(--etk-line);
-    border-radius: var(--etk-radius-lg);
-    padding: var(--etk-space-3) var(--etk-space-4) var(--etk-space-4);
+    /* Reflect the form's own theming when set; else the admin card chrome. */
+    background: var(--lrob-etk-cf-form-bg, var(--etk-card-bg));
+    border: 1px solid var(--lrob-etk-cf-form-border, var(--etk-line));
+    border-radius: var(--lrob-etk-cf-radius, var(--etk-radius-lg));
+    padding: var(--lrob-etk-cf-form-pad, var(--etk-space-3) var(--etk-space-4) var(--etk-space-4));
 }
 
 .lrob-etk-form.is-editor .lrob-etk-form-row,

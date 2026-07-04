@@ -54,6 +54,31 @@ final class StyleResolver
     }
 
     /**
+     * Validate a stored override map (schemaKey → value): drop unknown keys and
+     * values that fail the colour/size sanitiser. Returns JSON ('' when empty).
+     * Shared by the Contact Form + Newsletter save handlers.
+     */
+    public static function sanitize_map(mixed $value): string
+    {
+        $decoded = is_string($value) ? json_decode($value, true) : (is_array($value) ? $value : null);
+        if (!is_array($decoded)) {
+            return '';
+        }
+        $schema = StylePresets::schema();
+        $clean = [];
+        foreach ($decoded as $key => $raw) {
+            if (!isset($schema[$key]) || !is_scalar($raw)) {
+                continue;
+            }
+            $safe = self::sanitize_value((string) $schema[$key]['type'], (string) $raw);
+            if ($safe !== '') {
+                $clean[$key] = $safe;
+            }
+        }
+        return $clean === [] ? '' : (string) wp_json_encode($clean);
+    }
+
+    /**
      * Allow only safe colour/size tokens — blocks `;`, `}`, `url(`, etc. so a
      * stored value can't break out of the inline style declaration.
      */

@@ -124,7 +124,12 @@ final class EmbedRenderer
     private static function compute_form_root_attrs(int $form_id, string $instance): string
     {
         $preset = self::effective_style_preset($form_id);
-        $style = StyleResolver::inline_style($preset, self::per_form_style_vars($form_id));
+        $map = self::per_form_style_vars($form_id);
+        // Back-compat: pre-map forms carry only a preset slug.
+        if ($map === [] && $preset !== '' && $preset !== StylePresets::DEFAULT_SLUG) {
+            $map = StylePresets::vars_for($preset);
+        }
+        $style = StyleResolver::inline_style('', $map);
         return sprintf(
             'class="lrob-etk-form" data-form-id="%d" data-instance="%s" data-submit-url="%s" data-nonce="%s" novalidate%s',
             $form_id,

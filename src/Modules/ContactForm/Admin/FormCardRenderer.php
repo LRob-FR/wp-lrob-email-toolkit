@@ -6,6 +6,7 @@ namespace LRob\EmailToolkit\Modules\ContactForm\Admin;
 
 use LRob\EmailToolkit\Admin\Tooltip;
 use LRob\EmailToolkit\Forms\FormStructure;
+use LRob\EmailToolkit\Forms\StyleControls;
 use LRob\EmailToolkit\Modules\ContactForm\CPT;
 use LRob\EmailToolkit\Modules\ContactForm\Settings;
 
@@ -60,6 +61,7 @@ final class FormCardRenderer
             'honeypot'     => (string) get_post_meta($form_id, CPT::META_HONEYPOT_ENABLED, true),
             'challenge'    => (string) get_post_meta($form_id, CPT::META_CHALLENGE_KIND, true),
             'style_preset' => (string) get_post_meta($form_id, CPT::META_STYLE_PRESET, true),
+            'style_vars'   => self::decode_style_vars((string) get_post_meta($form_id, CPT::META_STYLE_VARS, true)),
             'save_subs'    => (string) get_post_meta($form_id, CPT::META_SAVE_SUBMISSIONS, true),
         ];
         $rate_window_minutes_value = $meta['rate_window'] > 0 ? (int) round($meta['rate_window'] / 60) : 0;
@@ -183,15 +185,6 @@ final class FormCardRenderer
             $reply_to_options[] = ['value' => $slug, 'label' => $slug];
         }
 
-        $preset_labels = FormsPage::style_presets();
-        $preset_default = (string) ($globals[Settings::KEY_STYLE_PRESET] ?? CPT::STYLE_DEFAULT);
-        $preset_default_label = $preset_labels[$preset_default] ?? $preset_labels[CPT::STYLE_DEFAULT];
-        $preset_options = [
-            ['value' => '', 'label' => FormsPage::label_default($preset_default_label)],
-        ];
-        foreach ($preset_labels as $value => $label) {
-            $preset_options[] = ['value' => $value, 'label' => $label];
-        }
         ?>
         <?php
         // Save-state attributes scoped to the card: CSS uses them to surface a
@@ -240,10 +233,10 @@ final class FormCardRenderer
 
                 <section class="lrob-etk-form-style-group">
                     <h3 class="lrob-etk-section-title"><?php esc_html_e('Style', 'lrob-email-toolkit'); ?></h3>
-                    <div class="lrob-etk-field">
-                        <label><?php esc_html_e('Preset', 'lrob-email-toolkit'); ?></label>
-                        <?php FormsPage::render_combobox(CPT::META_STYLE_PRESET, $meta['style_preset'], $preset_options); ?>
-                    </div>
+                    <?php
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — StyleControls::render escapes internally.
+                    echo StyleControls::render('lrob-etk-cf-field', CPT::META_STYLE_VARS, $meta['style_vars']);
+                    ?>
                 </section>
 
                 <?php FormsPage::render_fields_editor($form_id); ?>
@@ -404,5 +397,15 @@ final class FormCardRenderer
             </form>
         </article>
         <?php
+    }
+
+    /** @return array<string,string> decoded per-form style override map. */
+    private static function decode_style_vars(string $raw): array
+    {
+        if ($raw === '') {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        return is_array($decoded) ? $decoded : [];
     }
 }

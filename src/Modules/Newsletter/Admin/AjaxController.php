@@ -151,6 +151,7 @@ final class AjaxController
         FormCPT::META_DEFAULT_LIST_ID,
         FormCPT::META_SUCCESS_MESSAGE,
         FormCPT::META_STYLE_PRESET,
+        FormCPT::META_STYLE_VARS,
         FormCPT::META_CAPTCHA_ROUTE,
         // Pseudo-key — the audience picker posts a comma-separated
         // list of IDs that handle_save_meta unpacks + JSON-encodes
@@ -477,6 +478,9 @@ final class AjaxController
             case FormCPT::META_STYLE_PRESET:
                 $raw = is_array($value) ? '' : sanitize_html_class((string) $value);
                 update_post_meta($form_id, $key, $raw);
+                break;
+            case FormCPT::META_STYLE_VARS:
+                update_post_meta($form_id, $key, \LRob\EmailToolkit\Forms\StyleResolver::sanitize_map($value));
                 break;
             case FormCPT::META_CAPTCHA_ROUTE:
                 $raw = is_array($value) ? '' : sanitize_text_field((string) $value);
