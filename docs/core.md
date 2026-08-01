@@ -11,7 +11,7 @@ The enforcement rules (naming prefixes, no Composer, strict types, final classes
 The file contains:
 
 1. **WordPress plugin header** (`/** Plugin Name: … */`) — required by WP; never condense or remove.
-2. **Constants** — `LROB_ETK_VERSION`, `LROB_ETK_FILE`, `LROB_ETK_PATH`, `LROB_ETK_URL`, `LROB_ETK_BASENAME`, `LROB_ETK_PLUGIN_URL`, `LROB_ETK_GITHUB_URL`, `LROB_ETK_GITHUB_ISSUES_URL`. Single source of truth for version — bump `Version:` header and the constant together.
+2. **Constants** — `LROB_ETK_VERSION`, `LROB_ETK_FILE`, `LROB_ETK_PATH`, `LROB_ETK_URL`, `LROB_ETK_BASENAME`, `LROB_ETK_PLUGIN_URL`, `LROB_ETK_REPO_URL`, `LROB_ETK_ISSUES_URL`. Single source of truth for version — bump `Version:` header and the constant together.
 3. **PSR-4 autoloader** — hand-rolled, no Composer. Maps `LRob\EmailToolkit\Foo\Bar` → `src/Foo/Bar.php`.
 4. **Lifecycle hook registrations** — `register_activation_hook` → `Activator::activate`, `register_deactivation_hook` → `Deactivator::deactivate`.
 5. **Boot** — `add_action('plugins_loaded', Plugin::instance()->boot())`.
@@ -165,23 +165,22 @@ Purposes: `TrackingToken::PURPOSE_IMAGE = 'img'`, `PURPOSE_CLICK = 'click'`. Cha
 
 ## Auto-updater — `src/AutoUpdate/Updater.php`
 
-Self-hosted updater that surfaces GitHub releases as standard WordPress plugin updates. No external library.
+Self-hosted updater that surfaces Forgejo releases (`WP/email-toolkit` on git.lrob.net) as standard WordPress plugin updates. No external library.
 
 **Two filters:**
 
 | Filter | Role |
 |---|---|
-| `pre_set_site_transient_update_plugins` | Hits the GitHub API, compares versions, injects the update entry into WP's transient when a newer release is published. |
-| `plugins_api` | Fills the "View version details" modal on Plugins / Updates screens with release info (changelog from GitHub release body, rendered via a minimal Markdown→HTML converter). |
+| `pre_set_site_transient_update_plugins` | Hits the releases API, compares versions, injects the update entry into WP's transient when a newer release is published. |
+| `plugins_api` | Fills the "View version details" modal on Plugins / Updates screens with release info (changelog from the release body, rendered via a minimal Markdown→HTML converter). |
 
-**Caching:**
-- Success: 1-hour transient (`lrob_etk_gh_release`).
-- Failure: also 1-hour (to avoid hammering a flaky API).
-- Bypassed entirely when the admin is on `update-core.php` or sends `?force-check=1` — the explicit "I want fresh data" signal.
+**Endpoint:** `api_url()` derives `<host>/api/v1/repos/<owner>/<repo>/releases/latest` from `LROB_ETK_REPO_URL` — moving the repo to another host or owner is a one-constant edit.
 
-**Release detection:** `find_asset_url()` looks for a release asset named `lrob-email-toolkit-<version>.zip`. If no matching zip is attached, the update entry is skipped — the GitHub-generated source tarball has a commit-hash folder name and would install side-by-side rather than replacing.
+**Caching:** none on the success path. The API is our own server, so release info is read live and a new version surfaces on the next check WordPress makes (WP throttles those itself: twice-daily cron, 60s on the Plugins / Updates screens). Two guards remain: a per-request memo (`$release_memo`) so the two filters don't fire two HTTP calls in one request, and a 5-minute `down` transient (`lrob_etk_release_fail`) so an unreachable server doesn't make every admin page pay the connection timeout.
 
-**`flush_cache()`** — static, called from `Activator::activate()` so the first admin page load after (re)installation hits the API fresh rather than replaying stale data.
+**Release detection:** `find_asset_url()` looks for a release asset named `lrob-email-toolkit-<version>.zip`. If no matching zip is attached, the update entry is skipped — the auto-generated source tarball has a commit-hash folder name and would install side-by-side rather than replacing.
+
+**`flush_cache()`** — static, called from `Activator::activate()`; clears the back-off + memo so the first admin page load after (re)installation performs a real check.
 
 **`markdown_to_html()`** — minimal renderer for the changelog modal. Covers headings, bullets, bold, inline code, links. Escapes everything first, then selectively re-introduces markup — safe against XSS.
 

@@ -8,6 +8,7 @@
  * Author URI: https://www.lrob.fr
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Update URI: https://git.lrob.net/WP/email-toolkit
  * Text Domain: lrob-email-toolkit
  * Domain Path: /languages
  * Requires PHP: 8.2
@@ -24,8 +25,8 @@ define('LROB_ETK_PATH', plugin_dir_path(__FILE__));
 define('LROB_ETK_URL', plugin_dir_url(__FILE__));
 define('LROB_ETK_BASENAME', plugin_basename(__FILE__));
 define('LROB_ETK_PLUGIN_URL', 'https://www.lrob.fr/wordpress/plugins/lrob-email-toolkit/');
-define('LROB_ETK_GITHUB_URL', 'https://github.com/LRob-FR/wp-lrob-email-toolkit');
-define('LROB_ETK_GITHUB_ISSUES_URL', LROB_ETK_GITHUB_URL . '/issues');
+define('LROB_ETK_REPO_URL', 'https://git.lrob.net/WP/email-toolkit');
+define('LROB_ETK_ISSUES_URL', LROB_ETK_REPO_URL . '/issues');
 
 // PSR-4 autoloader: LRob\EmailToolkit\Foo\Bar -> src/Foo/Bar.php
 spl_autoload_register(function (string $class): void {

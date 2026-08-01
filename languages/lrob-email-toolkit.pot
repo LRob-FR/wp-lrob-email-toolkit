@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-04T21:22:58+00:00\n"
+"POT-Creation-Date: 2026-08-01T02:13:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: lrob-email-toolkit\n"
@@ -882,7 +882,7 @@ msgstr ""
 msgid "More info"
 msgstr ""
 
-#: src/AutoUpdate/Updater.php:106
+#: src/AutoUpdate/Updater.php:110
 msgid "Modular all-in-one email plugin: SMTP routing, email logging, contact forms, captcha, newsletters, and webhook integrations. Each module is independently activatable."
 msgstr ""
 

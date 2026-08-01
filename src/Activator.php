@@ -24,9 +24,8 @@ final class Activator
         self::seed_module_state();
         self::seed_uninstall_mode();
         update_option(self::OPTION_DB_VERSION, LROB_ETK_VERSION);
-        // Fresh install / reactivate: drop the GitHub release cache so the
-        // first admin page load triggers a real check instead of replaying
-        // stale data left over from a prior install at the same site.
+        // Fresh install / reactivate: clear any "server unreachable" back-off so
+        // the first admin page load triggers a real check.
         AutoUpdate\Updater::flush_cache();
     }
 

@@ -50,7 +50,8 @@ Single branded "Deep Glass" admin theme + the step-0 CSS/status-colour consolida
 - **Bounce handling.** NDR parsing. Two ingestion paths: **(1) IMAP polling** — admin configures bounce-mailbox creds, cron polls every 5min; **(2) Webhook** — providers like Mailgun/Postmark/SendGrid push events to `/lrob-etk/v1/bounces`. Classify hard (mailbox-not-found, domain-not-found) vs soft (mailbox-full, deferred). Hard → auto-unsubscribe + add to suppression list. Soft → increment `bounce_count`, unsubscribe after N consecutive.
 - **Suppression list.** Global "do not email" scoped to the site. Sources: hard bounces (auto), complaints / FBL, manual additions. Pre-send filter drops suppressed emails regardless of list membership. New table `wp_lrob_etk_nl_suppression(email, reason, added_at, source)`.
 
-### v0.8.x — GDPR Toolkit
+### v0.8.x — Permissions system + GDPR Toolkit
+- **Native permissions / roles — who can access which plugin features. ★ User-requested (target 0.8.x).** Today everything is gated on the single `manage_lrob_etk` cap (admin-only). Split into granular capabilities so non-admin staff get exactly what they need — e.g. **run/send newsletters + manage subscribers**, and **read/answer contact-form submissions** — without full admin. Concrete case: a shop where employees build email campaigns and reply to contact requests but can't touch SMTP or site settings. Scope: (1) per-area caps (`lrob_etk_manage_newsletter`, `lrob_etk_answer_forms`, `lrob_etk_manage_smtp`, `lrob_etk_manage_settings`, …); (2) a permissions admin screen mapping caps → WP roles (or ship ready-made roles like "Newsletter manager" / "Support agent"); (3) gate every module's menu + AJAX/admin-post handler on the specific cap instead of the blanket one; (4) sensible defaults seeded on activate. Probably lands **before** the GDPR UIs below (export/delete screens must themselves be permission-gated). Pairs with the conversation/ticket features (support agents answer without being admins).
 - Data export (JSON of everything for an email)
 - Delete request (hard-delete + anonymisation marker preserving aggregate stats)
 - Consent log (IP anonymised, timestamp, source, the consent label text **at signup time**)
@@ -62,6 +63,10 @@ Single branded "Deep Glass" admin theme + the step-0 CSS/status-colour consolida
 - User-cycle testing, bug fixes, polish.
 
 ### v1.0.0 — stable
+
+### Post-1.0 — planned (v1.1.0+)
+- **Contact-form conversations — two-way threads on submissions. ★ User-requested (target ~1.1.0, possibly earlier).** From the Submissions inbox, an admin replies to a submission; the reply emails the original sender **and** mints a secure HMAC-tokenised link (same pattern as the newsletter view-online / unsubscribe tokens) to a public thread page where the sender reads the exchange and replies back — a full back-and-forth attached to the submission, no account needed. Scope: a replies table keyed to the submission; a reply composer in the submission detail modal (reuses SMTP identity routing + the future one-shot composer/attachments); an outbound reply email carrying the tokenised thread link; a public thread page (`/?lrob-etk-cf-thread=<token>`); admin notified on each sender reply. Reuses the tracking-token pattern + `MailRouter` + the submissions store. Foundation for the ticket system below.
+- **Ticket-like system — logged-in support built on the form + conversation engine. ★ User-requested (target ~1.2.0).** Reuse the form builder + conversation threads for an authenticated-only support flow: logged-in users open a request (contact details pulled from their account — nothing to type), get a threaded conversation, and a "My tickets" area with status. By then the form builder, submissions store, conversation threads, SMTP routing, and the permissions "support agent" role all exist, so it's largely assembly: add ticket status/assignment fields, a logged-in-only form mode, a front-end "my tickets" list, agent-side triage. **Depends on:** conversations (1.1.0) + permissions/support-agent role (0.8.x).
 
 ---
 

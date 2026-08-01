@@ -4,11 +4,13 @@
 
 ## Status
 
-**Public beta — v0.6.0.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. The schema and the admin surfaces are stable, and the toolkit drives real email on production sites every day.
+**Public beta — v0.6.3.** Five modules ship today: SMTP, Email Logging, Contact Form, Captcha, and Newsletter. The schema and the admin surfaces are stable, and the toolkit drives real email on production sites every day.
+
+v0.6.3 brings the first half of **form theming**: a click-driven style editor on every contact and newsletter signup form (colour scheme, roundness, spacing, fonts, label emphasis), with a live preview and no CSS to write. More customization is still being added — this is a first step, not the finished surface. Development also moved to [git.lrob.net/WP/email-toolkit](https://git.lrob.net/WP/email-toolkit), where updates now come from.
 
 v0.6.0 fixes a critical bug (a fatal error that could block new-user registration / WooCommerce checkout on sites running the Newsletter module) and rounds out newsletter delivery: each newsletter now sends through the SMTP identity you choose on it (test sends included), and newsletter + contact-form mail can be pointed at a specific identity from the SMTP routing rules. It builds on the v0.5 cycle — a single branded dark admin theme (matching the lrob.fr site), accessibility-hardened public forms (proper labels, announced errors, keyboard support), and v0.4's full captcha lineup (hCaptcha / Turnstile / reCAPTCHA incl. invisible + score-based v3), in-place detail views, and resend-safe saved attachments.
 
-Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning). Bug reports + UX feedback welcome on [GitHub issues](https://github.com/LRob-FR/wp-lrob-email-toolkit/issues).
+Pre-1.0, so the schema can still change between minor versions — see [Versioning](#versioning). Bug reports + UX feedback welcome on [the issue tracker](https://git.lrob.net/WP/email-toolkit/issues).
 
 For the full feature history, see [`docs/done.md`](./docs/done.md). For the backlog, see [`docs/todo.md`](./docs/todo.md).
 
@@ -62,7 +64,7 @@ Two ways:
 
 **From a release:**
 
-1. Download `lrob-email-toolkit-<version>.zip` from the [Releases](https://github.com/LRob-FR/wp-lrob-email-toolkit/releases) page.
+1. Download `lrob-email-toolkit-<version>.zip` from the [Releases](https://git.lrob.net/WP/email-toolkit/releases) page.
 2. WordPress admin → Plugins → Add New → Upload Plugin → choose the zip → Activate.
 
 **From source:**
@@ -71,7 +73,7 @@ Two ways:
 2. `./release.sh` — produces `../releases/lrob-email-toolkit-<version>.zip`.
 3. Upload the zip as above.
 
-In both cases, **all modules are disabled** after activation. You opt in to each one explicitly from the Email Toolkit dashboard. Once installed, the plugin auto-updates from GitHub releases (1-hour cache, force-refresh on `update-core.php`).
+In both cases, **all modules are disabled** after activation. You opt in to each one explicitly from the Email Toolkit dashboard. Once installed, the plugin auto-updates from the releases on [git.lrob.net](https://git.lrob.net/WP/email-toolkit) — a new version is offered as soon as WordPress runs its next update check.
 
 ## Security notes
 
@@ -124,4 +126,4 @@ GPL-2.0-or-later. See [`LICENSE`](./LICENSE).
 Built by [LRob](https://www.lrob.fr).
 
 - Plugin home: <https://www.lrob.fr/wordpress/plugins/lrob-email-toolkit/>
-- Issues: <https://github.com/LRob-FR/wp-lrob-email-toolkit/issues>
+- Source + issues: <https://git.lrob.net/WP/email-toolkit>

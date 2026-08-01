@@ -7,10 +7,14 @@ namespace LRob\EmailToolkit\AutoUpdate;
 // Docs: docs/core.md
 final class Updater
 {
-    public const TRANSIENT_KEY      = 'lrob_etk_gh_release';
-    public const TRANSIENT_TTL      = HOUR_IN_SECONDS;       // success cache
-    public const TRANSIENT_TTL_FAIL = HOUR_IN_SECONDS;       // failure cache (don't hammer a flaky API)
+    // Back-off when the server is unreachable, so admin pages don't each pay a
+    // connection timeout.
+    public const TRANSIENT_KEY      = 'lrob_etk_release_fail';
+    public const TRANSIENT_TTL_FAIL = 5 * MINUTE_IN_SECONDS;
     public const PLUGIN_SLUG        = 'lrob-email-toolkit';
+
+    /** Per-request memo — the filters below can both fire in a single request. */
+    private static array|null|false $release_memo = false;
 
     public function register(): void
     {
@@ -44,7 +48,7 @@ final class Updater
         $zip_url = $this->find_asset_url($release);
         if ($zip_url === null) {
             // Release published but no zip asset attached — skip rather than
-            // pointing WP at the GitHub-generated source tarball (commit-hash
+            // pointing WP at the auto-generated source tarball (commit-hash
             // folder name → installs side-by-side, doesn't replace).
             return $transient;
         }
@@ -53,7 +57,7 @@ final class Updater
             'slug'         => self::PLUGIN_SLUG,
             'plugin'       => LROB_ETK_BASENAME,
             'new_version'  => $remote_version,
-            'url'          => LROB_ETK_GITHUB_URL,
+            'url'          => LROB_ETK_REPO_URL,
             'package'      => $zip_url,
             'tested'       => $this->tested_wp_version(),
             'requires_php' => '8.1',
@@ -96,7 +100,7 @@ final class Updater
             'slug'          => self::PLUGIN_SLUG,
             'version'       => $remote_version,
             'author'        => '<a href="https://www.lrob.fr">LRob</a>',
-            'homepage'      => defined('LROB_ETK_PLUGIN_URL') ? LROB_ETK_PLUGIN_URL : LROB_ETK_GITHUB_URL,
+            'homepage'      => defined('LROB_ETK_PLUGIN_URL') ? LROB_ETK_PLUGIN_URL : LROB_ETK_REPO_URL,
             'requires'      => '6.0',
             'requires_php'  => '8.1',
             'tested'        => $this->tested_wp_version(),
@@ -109,10 +113,11 @@ final class Updater
         ];
     }
 
-    /** Force-clear the cached release info. Exposed for activation hooks / a future "check now" button. */
+    /** Clear the "server unreachable" back-off so the next check retries immediately. */
     public static function flush_cache(): void
     {
         delete_transient(self::TRANSIENT_KEY);
+        self::$release_memo = false;
     }
 
     /* ─── Internals ──────────────────────────────────────────────────── */
@@ -120,63 +125,48 @@ final class Updater
     /** @return array<string, mixed>|null */
     private function get_release(): ?array
     {
-        $force = $this->is_force_refresh();
-        if (!$force) {
-            $cached = get_transient(self::TRANSIENT_KEY);
-            if ($cached === 'none') {
-                return null;
-            }
-            if (is_array($cached) && !empty($cached)) {
-                return $cached;
-            }
+        if (self::$release_memo !== false) {
+            return self::$release_memo;
+        }
+        if (get_transient(self::TRANSIENT_KEY) === 'down') {
+            return null;
         }
 
-        $api_url = 'https://api.github.com/repos/' . $this->github_repo() . '/releases/latest';
+        $api_url = $this->api_url();
+        if ($api_url === '') {
+            return null;
+        }
+
         $response = wp_remote_get($api_url, [
-            'timeout' => 8,
+            'timeout' => 5,
             'headers' => [
-                'Accept'     => 'application/vnd.github+json',
+                'Accept'     => 'application/json',
                 'User-Agent' => 'WordPress/' . get_bloginfo('version') . '; ' . home_url(),
             ],
         ]);
 
         if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
-            set_transient(self::TRANSIENT_KEY, 'none', self::TRANSIENT_TTL_FAIL);
-            return null;
+            set_transient(self::TRANSIENT_KEY, 'down', self::TRANSIENT_TTL_FAIL);
+            return self::$release_memo = null;
         }
 
         $body = json_decode(wp_remote_retrieve_body($response), true);
         if (!is_array($body) || empty($body['tag_name'])) {
-            set_transient(self::TRANSIENT_KEY, 'none', self::TRANSIENT_TTL_FAIL);
-            return null;
+            set_transient(self::TRANSIENT_KEY, 'down', self::TRANSIENT_TTL_FAIL);
+            return self::$release_memo = null;
         }
 
-        set_transient(self::TRANSIENT_KEY, $body, self::TRANSIENT_TTL);
-        return $body;
+        return self::$release_memo = $body;
     }
 
-    private function is_force_refresh(): bool
+    /** https://git.lrob.net/WP/email-toolkit → https://git.lrob.net/api/v1/repos/WP/email-toolkit/releases/latest */
+    private function api_url(): string
     {
-        if (!is_admin()) {
-            return false;
+        $url = defined('LROB_ETK_REPO_URL') ? LROB_ETK_REPO_URL : '';
+        if (!preg_match('#^(https?://[^/]+)/([^/]+/[^/]+?)/?$#', $url, $m)) {
+            return '';
         }
-        if (isset($_GET['force-check']) && (string) $_GET['force-check'] === '1') {
-            return true;
-        }
-        $pagenow = $GLOBALS['pagenow'] ?? '';
-        if ($pagenow === 'update-core.php') {
-            return true;
-        }
-        return false;
-    }
-
-    private function github_repo(): string
-    {
-        $url = defined('LROB_ETK_GITHUB_URL') ? LROB_ETK_GITHUB_URL : '';
-        if (preg_match('#github\.com/([^/]+/[^/]+?)/?$#', $url, $m)) {
-            return $m[1];
-        }
-        return 'LRob-FR/wp-lrob-email-toolkit';
+        return $m[1] . '/api/v1/repos/' . $m[2] . '/releases/latest';
     }
 
     private function normalize_version(string $tag): string

@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: LRob - Email Toolkit 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lrob-email-"
 "toolkit\n"
-"POT-Creation-Date: 2026-07-03T16:53:31+00:00\n"
+"POT-Creation-Date: 2026-08-01T02:13:37+00:00\n"
 "PO-Revision-Date: 2026-05-29 00:00+0000\n"
 "Last-Translator: LRob\n"
 "Language-Team: French\n"
@@ -908,7 +908,7 @@ msgstr "jours"
 msgid "More info"
 msgstr "Plus d'infos"
 
-#: src/AutoUpdate/Updater.php:106
+#: src/AutoUpdate/Updater.php:110
 msgid ""
 "Modular all-in-one email plugin: SMTP routing, email logging, contact forms, "
 "captcha, newsletters, and webhook integrations. Each module is independently "
